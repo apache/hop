@@ -20,11 +20,7 @@ package org.apache.hop.pipeline.transforms.uniquerows;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -39,40 +35,39 @@ public class UniqueRowsMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "count_rows", "count_field", "reject_duplicate_row",
-        "error_description", "name", "case_insensitive" );
+        Arrays.asList("count_rows", "count_field", "reject_duplicate_row", "error_description");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "count_rows", "isCountRows" );
-    getterMap.put( "count_field", "getCountField" );
-    getterMap.put( "reject_duplicate_row", "isRejectDuplicateRow" );
-    getterMap.put( "error_description", "getErrorDescription" );
-    getterMap.put( "name", "getCompareFields" );
-    getterMap.put( "case_insensitive", "getCaseInsensitive" );
+    getterMap.put("count_rows", "isCountRows");
+    getterMap.put("count_field", "getCountField");
+    getterMap.put("reject_duplicate_row", "isRejectDuplicateRow");
+    getterMap.put("error_description", "getErrorDescription");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "count_rows", "setCountRows" );
-    setterMap.put( "count_field", "setCountField" );
-    setterMap.put( "reject_duplicate_row", "setRejectDuplicateRow" );
-    setterMap.put( "error_description", "setErrorDescription" );
-    setterMap.put( "name", "setCompareFields" );
-    setterMap.put( "case_insensitive", "setCaseInsensitive" );
+    setterMap.put("count_rows", "setCountRows");
+    setterMap.put("count_field", "setCountField");
+    setterMap.put("reject_duplicate_row", "setRejectDuplicateRow");
+    setterMap.put("error_description", "setErrorDescription");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
-    //Arrays need to be consistent length
+    // Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
-      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
+        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 25);
 
-    fieldLoadSaveValidatorAttributeMap.put( "name", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "case_insensitive", booleanArrayLoadSaveValidator );
+    fieldLoadSaveValidatorAttributeMap.put("name", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("case_insensitive", booleanArrayLoadSaveValidator);
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( UniqueRowsMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+        new LoadSaveTester(
+            UniqueRowsMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
 
     loadSaveTester.testSerialization();
   }

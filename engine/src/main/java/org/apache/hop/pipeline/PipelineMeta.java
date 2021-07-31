@@ -24,23 +24,10 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Counter;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProgressMonitor;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopMissingPluginsException;
-import org.apache.hop.core.exception.HopRowException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
@@ -65,13 +52,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformIOMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
-import org.apache.hop.pipeline.transform.TransformErrorMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.resource.IResourceExport;
@@ -82,25 +63,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * This class defines information about a pipeline and offers methods to save and load it from XML
  * as well as methods to alter a pipeline by adding/removing databases, transforms, hops, etc.
- *
- * @author Matt Casters
- * @since 20-jun-2003
  */
 public class PipelineMeta extends AbstractMeta
     implements IXml,
@@ -132,7 +101,9 @@ public class PipelineMeta extends AbstractMeta
   protected int pipelineStatus;
 
   /** Indicators for changes in transforms, databases, hops, and notes. */
-  protected boolean changedTransforms, changedHops;
+  protected boolean changedTransforms;
+
+  protected boolean changedHops;
 
   /** The previous result. */
   protected Result previousResult;
@@ -863,7 +834,7 @@ public class PipelineMeta extends AbstractMeta
    * @param prevTransform The transform that is sending information
    * @return true if prevTransform if informative for thisTransform.
    */
-  public boolean isTransformMetarmative(TransformMeta thisTransform, TransformMeta prevTransform) {
+  public boolean isTransformInformative(TransformMeta thisTransform, TransformMeta prevTransform) {
     String[] infoTransforms =
         thisTransform.getTransform().getTransformIOMeta().getInfoTransformNames();
     if (infoTransforms == null) {
@@ -967,14 +938,14 @@ public class PipelineMeta extends AbstractMeta
     int count = 0;
     int i;
 
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi.getToTransform() != null
           && hi.isEnabled()
           && hi.getToTransform().equals(transformMeta)) {
         // Check if this previous transform isn't informative (StreamValueLookup)
         // We don't want fields from this stream to show up!
-        if (info || !isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+        if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
           count++;
         }
       }
@@ -997,13 +968,13 @@ public class PipelineMeta extends AbstractMeta
     int count = 0;
     int i;
 
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi.getToTransform() != null
           && hi.isEnabled()
           && hi.getToTransform().equals(transformMeta)) {
-        if (info || !isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+        if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
           if (count == nr) {
             return hi.getFromTransform();
           }
@@ -1048,7 +1019,7 @@ public class PipelineMeta extends AbstractMeta
             && hi.getToTransform().equals(transformMeta)) {
           // Check if this previous transform isn't informative (StreamValueLookup)
           // We don't want fields from this stream to show up!
-          if (info || !isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+          if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
             previousTransforms.add(hi.getFromTransform());
           }
         }
@@ -1093,7 +1064,7 @@ public class PipelineMeta extends AbstractMeta
 
     int count = 0;
 
-    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi == null || hi.getToTransform() == null) {
@@ -1105,7 +1076,7 @@ public class PipelineMeta extends AbstractMeta
           && hi.getToTransform().equals(transformMeta)) {
         // Check if this previous transform isn't informative (StreamValueLookup)
         // We don't want fields from this stream to show up!
-        if (isTransformMetarmative(transformMeta, hi.getFromTransform())) {
+        if (isTransformInformative(transformMeta, hi.getFromTransform())) {
           count++;
         }
       }
@@ -1136,12 +1107,12 @@ public class PipelineMeta extends AbstractMeta
    */
   public IRowMeta getPrevInfoFields(IVariables variables, TransformMeta transformMeta)
       throws HopTransformException {
-    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
       PipelineHopMeta hi = getPipelineHop(i);
 
       if (hi.isEnabled() && hi.getToTransform().equals(transformMeta)) {
         TransformMeta infoTransform = hi.getFromTransform();
-        if (isTransformMetarmative(transformMeta, infoTransform)) {
+        if (isTransformInformative(transformMeta, infoTransform)) {
           IRowMeta row = getPrevTransformFields(variables, infoTransform);
           return getThisTransformFields(variables, infoTransform, transformMeta, row);
         }
@@ -1161,7 +1132,7 @@ public class PipelineMeta extends AbstractMeta
   public int findNrNextTransforms(TransformMeta transformMeta) {
     int count = 0;
     int i;
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
@@ -1184,7 +1155,7 @@ public class PipelineMeta extends AbstractMeta
     int count = 0;
     int i;
 
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
@@ -1209,7 +1180,7 @@ public class PipelineMeta extends AbstractMeta
         previousTransformCache.get(getTransformMetaCacheKey(transformMeta, true));
     if (prevTransforms == null) {
       prevTransforms = new ArrayList<>();
-      for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+      for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
         PipelineHopMeta hopMeta = getPipelineHop(i);
         if (hopMeta.isEnabled() && hopMeta.getToTransform().equals(transformMeta)) {
           prevTransforms.add(hopMeta.getFromTransform());
@@ -1256,7 +1227,7 @@ public class PipelineMeta extends AbstractMeta
   @Deprecated
   public TransformMeta[] getNextTransforms(TransformMeta transformMeta) {
     List<TransformMeta> nextTransforms = new ArrayList<>();
-    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
@@ -1275,7 +1246,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public List<TransformMeta> findNextTransforms(TransformMeta transformMeta) {
     List<TransformMeta> nextTransforms = new ArrayList<>();
-    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops;
+    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
@@ -1313,9 +1284,8 @@ public class PipelineMeta extends AbstractMeta
    *     transform was found: null.
    */
   public TransformMeta getTransform(int x, int y, int iconsize) {
-    int i, s;
-    s = transforms.size();
-    for (i = s - 1; i >= 0; i--) { // Back to front because drawing goes from start to end
+    int s = transforms.size();
+    for (int i = s - 1; i >= 0; i--) { // Back to front because drawing goes from start to end
       TransformMeta transformMeta = transforms.get(i);
       Point p = transformMeta.getLocation();
       if (p != null) {
@@ -2627,7 +2597,8 @@ public class PipelineMeta extends AbstractMeta
    * @return Maximum coordinate of a transform in the pipeline + (100,100) for safety.
    */
   public Point getMaximum() {
-    int maxx = 0, maxy = 0;
+    int maxx = 0;
+    int maxy = 0;
     for (int i = 0; i < nrTransforms(); i++) {
       TransformMeta transformMeta = getTransform(i);
       Point loc = transformMeta.getLocation();
@@ -2658,7 +2629,8 @@ public class PipelineMeta extends AbstractMeta
    * @return Minimum coordinate of a transform in the pipeline
    */
   public Point getMinimum() {
-    int minx = Integer.MAX_VALUE, miny = Integer.MAX_VALUE;
+    int minx = Integer.MAX_VALUE;
+    int miny = Integer.MAX_VALUE;
     for (int i = 0; i < nrTransforms(); i++) {
       TransformMeta transformMeta = getTransform(i);
       Point loc = transformMeta.getLocation();
@@ -3093,12 +3065,12 @@ public class PipelineMeta extends AbstractMeta
    * Checks all the transforms and fills a List of (CheckResult) remarks.
    *
    * @param remarks The remarks list to add to.
-   * @param only_selected true to check only the selected transforms, false for all transforms
+   * @param onlySelected true to check only the selected transforms, false for all transforms
    * @param monitor a progress monitor listener to be updated as the Sql statements are generated
    */
   public void checkTransforms(
       List<ICheckResult> remarks,
-      boolean only_selected,
+      boolean onlySelected,
       IProgressMonitor monitor,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
@@ -3109,7 +3081,7 @@ public class PipelineMeta extends AbstractMeta
       String[] transformnames;
       TransformMeta[] transforms;
       List<TransformMeta> selectedTransforms = getSelectedTransforms();
-      if (!only_selected || selectedTransforms.isEmpty()) {
+      if (!onlySelected || selectedTransforms.isEmpty()) {
         transformnames = getTransformNames();
         transforms = getTransformsArray();
       } else {
@@ -3123,7 +3095,7 @@ public class PipelineMeta extends AbstractMeta
           HopExtensionPoint.BeforeCheckTransforms.id,
           new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
 
-      boolean stop_checking = false;
+      boolean stopChecking = false;
 
       if (monitor != null) {
         monitor.beginTask(
@@ -3131,7 +3103,7 @@ public class PipelineMeta extends AbstractMeta
             transforms.length + 2);
       }
 
-      for (int i = 0; i < transforms.length && !stop_checking; i++) {
+      for (int i = 0; i < transforms.length && !stopChecking; i++) {
         if (monitor != null) {
           monitor.subTask(
               BaseMessages.getString(
@@ -3184,7 +3156,7 @@ public class PipelineMeta extends AbstractMeta
           // Otherwise we wind up checking time & time again because nothing gets put in the
           // database
           // cache, the timeout of certain databases is very long... (Oracle)
-          stop_checking = true;
+          stopChecking = true;
         }
 
         if (isTransformUsedInPipelineHops(transformMeta) || getTransforms().size() == 1) {
@@ -3302,7 +3274,7 @@ public class PipelineMeta extends AbstractMeta
         if (monitor != null) {
           monitor.worked(1); // progress bar...
           if (monitor.isCanceled()) {
-            stop_checking = true;
+            stopChecking = true;
           }
         }
       }
@@ -3518,15 +3490,13 @@ public class PipelineMeta extends AbstractMeta
                   this,
                   BaseMessages.getString(PKG, "PipelineMeta.SearchMetadata.DatabaseServer")));
         }
-        if (includePasswords) {
-          if (meta.getPassword() != null) {
-            stringList.add(
-                new StringSearchResult(
-                    meta.getPassword(),
-                    meta,
-                    this,
-                    BaseMessages.getString(PKG, "PipelineMeta.SearchMetadata.DatabasePassword")));
-          }
+        if (includePasswords && meta.getPassword() != null) {
+          stringList.add(
+              new StringSearchResult(
+                  meta.getPassword(),
+                  meta,
+                  this,
+                  BaseMessages.getString(PKG, "PipelineMeta.SearchMetadata.DatabasePassword")));
         }
       }
     }

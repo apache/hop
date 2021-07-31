@@ -37,7 +37,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -59,7 +59,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
   private static final int SHELL_MIN_WIDTH = 527;
   private static final int SHELL_MIN_HEIGHT = 569;
-  private static final int INPUT_WIDTH = 350;
 
   private final KafkaProducerOutputMeta meta;
   private ModifyListener lsMod;
@@ -71,7 +70,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
   private TableView optionsTable;
   private CTabFolder wTabFolder;
 
-  private Label wlBootstrapServers;
   private TextVar wBootstrapServers;
 
   public KafkaProducerOutputDialog(
@@ -79,8 +77,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
       IVariables variables,
       Object in,
       PipelineMeta pipelineMeta,
-      String TransformName) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, TransformName);
+      String transformName) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, transformName);
     meta = (KafkaProducerOutputMeta) in;
   }
 
@@ -183,7 +181,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     setupLayout.marginWidth = 15;
     wSetupComp.setLayout(setupLayout);
 
-    wlBootstrapServers = new Label(wSetupComp, SWT.LEFT);
+    Label wlBootstrapServers = new Label(wSetupComp, SWT.LEFT);
     props.setLook(wlBootstrapServers);
     wlBootstrapServers.setText(
         BaseMessages.getString(PKG, "KafkaProducerOutputDialog.BootstrapServers"));

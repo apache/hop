@@ -25,9 +25,6 @@ The Google technology stack is supported in Hop through a number of plugins.  We
 
 == Pipeline Transforms
 
-* xref:pipeline/transforms/googleanalytics.adoc[Google Analytics]: You can use the `Google Analytics` transform to get information from this service.
-* xref:pipeline/transforms/googlesheetsinput.adoc[Google Sheets Input] and xref:pipeline/transforms/googlesheetsoutput.adoc[Google Sheets Output]: It can be very convenient to save data into a Google sheet or indeed to read from it.  You can do this using the `Google Sheets Input` and `Google Sheets Output` transforms.
-
 == VFS
 
 Apache xref:vfs.adoc[VFS Support] in Hop allows you to directly read from a multitude of file systems and protocols, including Google:

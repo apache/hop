@@ -22,7 +22,7 @@ under the License.
 
 == Scheme
 
-The scheme you can use to access your files in Azure Blob Storage is
+The scheme you can use to access your files in Amazon Simple Storage is
 
 `**s3://**`
 

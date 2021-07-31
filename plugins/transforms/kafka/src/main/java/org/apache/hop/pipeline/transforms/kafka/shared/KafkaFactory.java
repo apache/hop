@@ -31,72 +31,89 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Created by rfellows on 6/2/17.
- */
 public class KafkaFactory {
   private Function<Map<String, Object>, Consumer> consumerFunction;
   private Function<Map<String, Object>, Producer<Object, Object>> producerFunction;
 
   public static KafkaFactory defaultFactory() {
-    return new KafkaFactory( KafkaConsumer::new, KafkaProducer::new );
+    return new KafkaFactory(KafkaConsumer::new, KafkaProducer::new);
   }
 
   KafkaFactory(
-    Function<Map<String, Object>, Consumer> consumerFunction,
-    Function<Map<String, Object>, Producer<Object, Object>> producerFunction ) {
+      Function<Map<String, Object>, Consumer> consumerFunction,
+      Function<Map<String, Object>, Producer<Object, Object>> producerFunction) {
     this.consumerFunction = consumerFunction;
     this.producerFunction = producerFunction;
   }
 
-  public Consumer consumer( KafkaConsumerInputMeta meta, Function<String, String> variablesFunction ) {
-    return consumer( meta, variablesFunction, KafkaConsumerField.Type.String, KafkaConsumerField.Type.String );
+  public Consumer consumer(
+      KafkaConsumerInputMeta meta, Function<String, String> variablesFunction) {
+    return consumer(
+        meta, variablesFunction, KafkaConsumerField.Type.String, KafkaConsumerField.Type.String);
   }
 
-  public Consumer consumer( KafkaConsumerInputMeta meta, Function<String, String> variablesFunction,
-    KafkaConsumerField.Type keyDeserializerType, KafkaConsumerField.Type msgDeserializerType ) {
+  public Consumer consumer(
+      KafkaConsumerInputMeta meta,
+      Function<String, String> variablesFunction,
+      KafkaConsumerField.Type keyDeserializerType,
+      KafkaConsumerField.Type msgDeserializerType) {
 
     Thread.currentThread().setContextClassLoader(meta.getClass().getClassLoader());
 
     HashMap<String, Object> kafkaConfig = new HashMap<>();
-    Function<String, String> variableNonNull = variablesFunction.andThen( KafkaFactory::nullToEmpty );
-    kafkaConfig.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, variableNonNull.apply( meta.getDirectBootstrapServers() ) );
-    kafkaConfig.put( ConsumerConfig.GROUP_ID_CONFIG, variableNonNull.apply( meta.getConsumerGroup() ) );
-    kafkaConfig.put( ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, msgDeserializerType.getKafkaDeserializerClass() );
-    kafkaConfig.put( ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializerType.getKafkaDeserializerClass() );
-    kafkaConfig.put( ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit() );
-    meta.getConfig().entrySet()
-        .forEach( ( entry -> kafkaConfig.put( entry.getKey(), variableNonNull.apply(
-            (String) entry.getValue() ) ) ) );
+    Function<String, String> variableNonNull = variablesFunction.andThen(KafkaFactory::nullToEmpty);
+    kafkaConfig.put(
+        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+        variableNonNull.apply(meta.getDirectBootstrapServers()));
+    kafkaConfig.put(ConsumerConfig.GROUP_ID_CONFIG, variableNonNull.apply(meta.getConsumerGroup()));
+    kafkaConfig.put(
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        msgDeserializerType.getKafkaDeserializerClass());
+    kafkaConfig.put(
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        keyDeserializerType.getKafkaDeserializerClass());
+    kafkaConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit());
+    meta.getConfig()
+        .entrySet()
+        .forEach(
+            (entry -> kafkaConfig.put(entry.getKey(), variableNonNull.apply(entry.getValue()))));
 
-    return consumerFunction.apply( kafkaConfig );
+    return consumerFunction.apply(kafkaConfig);
   }
 
   public Producer<Object, Object> producer(
-    KafkaProducerOutputMeta meta, Function<String, String> variablesFunction ) {
-    return producer( meta, variablesFunction, KafkaConsumerField.Type.String, KafkaConsumerField.Type.String );
+      KafkaProducerOutputMeta meta, Function<String, String> variablesFunction) {
+    return producer(
+        meta, variablesFunction, KafkaConsumerField.Type.String, KafkaConsumerField.Type.String);
   }
 
   public Producer<Object, Object> producer(
-    KafkaProducerOutputMeta meta, Function<String, String> variablesFunction,
-    KafkaConsumerField.Type keySerializerType, KafkaConsumerField.Type msgSerializerType ) {
+      KafkaProducerOutputMeta meta,
+      Function<String, String> variablesFunction,
+      KafkaConsumerField.Type keySerializerType,
+      KafkaConsumerField.Type msgSerializerType) {
 
     Thread.currentThread().setContextClassLoader(meta.getClass().getClassLoader());
 
-    Function<String, String> variableNonNull = variablesFunction.andThen( KafkaFactory::nullToEmpty );
+    Function<String, String> variableNonNull = variablesFunction.andThen(KafkaFactory::nullToEmpty);
     HashMap<String, Object> kafkaConfig = new HashMap<>();
-    kafkaConfig.put( ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, variableNonNull.apply( meta.getDirectBootstrapServers() ) );
-    kafkaConfig.put( ProducerConfig.CLIENT_ID_CONFIG, variableNonNull.apply( meta.getClientId() ) );
-    kafkaConfig.put( ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, msgSerializerType.getKafkaSerializerClass() );
-    kafkaConfig.put( ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializerType.getKafkaSerializerClass() );
-    meta.getConfig().entrySet()
-        .forEach( ( entry -> kafkaConfig.put( entry.getKey(), variableNonNull.apply(
-            (String) entry.getValue() ) ) ) );
+    kafkaConfig.put(
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+        variableNonNull.apply(meta.getDirectBootstrapServers()));
+    kafkaConfig.put(ProducerConfig.CLIENT_ID_CONFIG, variableNonNull.apply(meta.getClientId()));
+    kafkaConfig.put(
+        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, msgSerializerType.getKafkaSerializerClass());
+    kafkaConfig.put(
+        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializerType.getKafkaSerializerClass());
+    meta.getConfig()
+        .entrySet()
+        .forEach(
+            (entry -> kafkaConfig.put(entry.getKey(), variableNonNull.apply(entry.getValue()))));
 
-    return producerFunction.apply( kafkaConfig );
+    return producerFunction.apply(kafkaConfig);
   }
 
-  private static String nullToEmpty( String value ) {
+  private static String nullToEmpty(String value) {
     return value == null ? "" : value;
   }
 }

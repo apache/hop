@@ -58,8 +58,9 @@ public class TableOutputMeta extends BaseTransformMeta
 
   @HopMetadataProperty(
       key = "connection",
-      storeWithName = true,
       injectionKeyDescription = "TableOutputMeta.Injection.Connection")
+  private String connection;
+
   private DatabaseMeta databaseMeta;
 
   @HopMetadataProperty(
@@ -304,6 +305,14 @@ public class TableOutputMeta extends BaseTransformMeta
   /** @param database The database to set. */
   public void setDatabaseMeta(DatabaseMeta database) {
     this.databaseMeta = database;
+  }
+
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /** @return Returns the commitSize. */

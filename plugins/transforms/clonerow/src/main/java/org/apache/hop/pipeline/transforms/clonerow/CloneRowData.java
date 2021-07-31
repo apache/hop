@@ -21,24 +21,20 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 27-06-2008
- */
+/** Clone row data */
 public class CloneRowData extends BaseTransformData implements ITransformData {
 
-  public long nrclones;
-  public IRowMeta outputRowMeta;
-  public int indexOfNrCloneField;
-  public boolean addInfosToRow;
-  public int NrPrevFields;
+  protected long nrclones;
+  protected IRowMeta outputRowMeta;
+  protected int indexOfNrCloneField;
+  protected boolean addInfosToRow;
+  protected int nrPrevFields;
 
   public CloneRowData() {
     super();
     nrclones = 0;
     indexOfNrCloneField = -1;
     addInfosToRow = false;
-    NrPrevFields = 0;
+    nrPrevFields = 0;
   }
-
 }

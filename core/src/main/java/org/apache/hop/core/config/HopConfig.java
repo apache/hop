@@ -21,12 +21,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.util.Utils;
+import sun.security.krb5.internal.crypto.Des;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class keeps track of storing and retrieving all the configuration options in Hop.
@@ -153,6 +150,30 @@ public class HopConfig extends ConfigFile implements IConfigFile {
     } catch ( Exception e ) {
       throw new RuntimeException( "Error getting GUI properties from the Hop configuration" );
     }
+  }
+
+  /**
+   * This method returns the value of a Hop named string variable.
+   *
+   * @param key - variable name
+   * @param defaultValue - default value
+   * @return the value associated to the variable
+   */
+  public static String readStringVariable(String key, String defaultValue) {
+    String value = null;
+
+    ArrayList<DescribedVariable> variables = (ArrayList<DescribedVariable>) getInstance().configMap.get( HOP_VARIABLES_KEY );
+    if ( variables != null ) {
+      Iterator<DescribedVariable> i = variables.iterator();
+
+      while(i.hasNext() && value == null) {
+        DescribedVariable v = i.next();
+        if (v.getName().equals(key))
+          value = v.getValue();
+      }
+    }
+
+    return value == null ? defaultValue : value;
   }
 
   public static void setGuiProperty( String key, String value ) {

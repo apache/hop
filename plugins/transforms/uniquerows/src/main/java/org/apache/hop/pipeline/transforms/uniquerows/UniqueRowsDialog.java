@@ -37,24 +37,13 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
@@ -134,10 +123,10 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Settings.Label"));
 
-    FormLayout SettingsgroupLayout = new FormLayout();
-    SettingsgroupLayout.marginWidth = 10;
-    SettingsgroupLayout.marginHeight = 10;
-    wSettings.setLayout(SettingsgroupLayout);
+    FormLayout settingsgroupLayout = new FormLayout();
+    settingsgroupLayout.marginWidth = 10;
+    settingsgroupLayout.marginHeight = 10;
+    wSettings.setLayout(settingsgroupLayout);
 
     Label wlCount = new Label(wSettings, SWT.RIGHT);
     wlCount.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Count.Label"));
@@ -154,12 +143,11 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdCount.left = new FormAttachment(middle, 0);
     fdCount.top = new FormAttachment(wlCount, 0, SWT.CENTER);
     wCount.setLayoutData(fdCount);
-    wCount.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setFlags();
-          }
+    wCount.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          setFlags();
         });
 
     wlCountField = new Label(wSettings, SWT.LEFT);
@@ -195,12 +183,11 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdRejectDuplicateRow.left = new FormAttachment(middle, margin);
     fdRejectDuplicateRow.top = new FormAttachment(wlRejectDuplicateRow, 0, SWT.CENTER);
     wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
-    wRejectDuplicateRow.addSelectionListener(
-        new SelectionAdapter() {
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setErrorDesc();
-          }
+    wRejectDuplicateRow.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          setErrorDesc();
         });
 
     wlErrorDesc = new Label(wSettings, SWT.LEFT);
@@ -246,7 +233,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdlFields.top = new FormAttachment(wSettings, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getCompareFields() == null ? 0 : input.getCompareFields().length;
+    final int fieldsRows = input.getCompareFields() == null ? 0 : input.getCompareFields().size();
 
     colinf =
         new ColumnInfo[] {
@@ -268,7 +255,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            fieldsRows,
             lsMod,
             props);
 
@@ -353,12 +340,13 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
       wErrorDesc.setText(input.getErrorDescription());
     }
     setErrorDesc();
-    for (int i = 0; i < input.getCompareFields().length; i++) {
-      TableItem item = wFields.table.getItem(i);
-      if (input.getCompareFields()[i] != null) {
-        item.setText(1, input.getCompareFields()[i]);
+    int i = 0;
+    for (UniqueField field : input.getCompareFields()) {
+      TableItem item = wFields.table.getItem(i++);
+      if (field != null) {
+        item.setText(1, field.getName());
       }
-      item.setText(2, input.getCaseInsensitive()[i] ? "Y" : "N");
+      item.setText(2, field.isCaseInsensitive() ? "Y" : "N");
     }
     wFields.setRowNums();
     wFields.optWidth(true);
@@ -379,19 +367,20 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     }
 
     int nrFields = wFields.nrNonEmpty();
-    input.allocate(nrFields);
-
-    // CHECKSTYLE:Indentation:OFF
+    List<UniqueField> fields = new ArrayList<>(nrFields);
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getCompareFields()[i] = item.getText(1);
-      input.getCaseInsensitive()[i] = "Y".equalsIgnoreCase(item.getText(2));
+      UniqueField field = new UniqueField();
+      field.setName(item.getText(1));
+      field.setCaseInsensitive("Y".equalsIgnoreCase(item.getText(2)));
+      fields.add(field);
     }
 
     input.setCountField(wCountField.getText());
     input.setCountRows(wCount.getSelection());
     input.setRejectDuplicateRow(wRejectDuplicateRow.getSelection());
     input.setErrorDescription(wErrorDesc.getText());
+    input.setCompareFields(fields);
     transformName = wTransformName.getText(); // return value
 
     if ("Y".equalsIgnoreCase(props.getCustomParameter(STRING_SORT_WARNING_PARAMETER, "Y"))) {
@@ -411,7 +400,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     // Remove any error hops coming out of UniqueRows when Reject Duplicate Rows checkbox is
     // unselected.
-    if (wRejectDuplicateRow.getSelection() == false) {
+    if (!wRejectDuplicateRow.getSelection()) {
       List<PipelineHopMeta> hops = this.pipelineMeta.getPipelineHops();
       IntStream.range(0, hops.size())
           .filter(

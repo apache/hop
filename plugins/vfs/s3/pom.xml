@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
@@ -43,8 +42,8 @@
     <!-- Test dependencies -->
     <mockito.version>1.10.19</mockito.version>
     <powermock.version>1.7.4</powermock.version>
-    <aws-java-sdk-s3.version>1.11.516</aws-java-sdk-s3.version>
-    <aws-java-sdk-core.version>1.11.516</aws-java-sdk-core.version>
+    <aws-java-sdk-s3.version>1.11.974</aws-java-sdk-s3.version>
+    <aws-java-sdk-core.version>1.11.974</aws-java-sdk-core.version>
   </properties>
 
 

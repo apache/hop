@@ -47,11 +47,11 @@ limitations under the License.
     </hop>
     <hop>
       <from>run-workflow.hwf</from>
-      <to>Only errors</to>
+      <to>Filter Errors</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Only errors</from>
+      <from>Filter Errors</from>
       <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
@@ -74,24 +74,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>560</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Only errors</name>
-    <type>Filter</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <condition>ExecutionNrErrors > 0</condition>
-    <attributes/>
-    <GUI>
-      <xloc>432</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -156,7 +138,7 @@ limitations under the License.
       </variablemapping>
       <inherit_all_vars>Y</inherit_all_vars>
     </parameters>
-    <execution_result_target_transform>Only errors</execution_result_target_transform>
+    <execution_result_target_transform>Filter Errors</execution_result_target_transform>
     <execution_time_field>ExecutionTime</execution_time_field>
     <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
@@ -177,6 +159,42 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>272</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter Errors</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>ExecutionExitStatus</leftvalue>
+        <function>&gt;</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>1</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>####0;-####0</mask>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>

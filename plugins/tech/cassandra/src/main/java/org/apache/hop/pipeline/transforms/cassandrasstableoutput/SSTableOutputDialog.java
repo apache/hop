@@ -450,9 +450,8 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
                 shell,
                 choices,
                 BaseMessages.getString(PKG, "CassandraOutputDialog.SelectKeyFieldsDialog.Title"),
-                BaseMessages.getString(PKG, "CassandraOutputDialog.SelectKeyFieldsDialog.Message"),
-                370,
-                280);
+                BaseMessages.getString(PKG, "CassandraOutputDialog.SelectKeyFieldsDialog.Message")
+            );
         dialog.setMulti(true);
         if (!Utils.isEmpty(wKeyField.getText())) {
           String current = wKeyField.getText();

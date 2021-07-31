@@ -1175,17 +1175,12 @@ public class BaseTransformDialog extends Dialog {
     log.logError(message, arguments);
   }
 
-  protected Button createHelpButton(
-      final Shell shell, final TransformMeta transformMeta, final IPlugin plugin) {
-    return HelpUtils.createHelpButton(shell, HelpUtils.getHelpDialogTitle(plugin), plugin);
-  }
-
   private void setShellImage(Shell shell) {
     if (transformMeta != null) {
       IPlugin plugin =
           PluginRegistry.getInstance()
               .getPlugin(TransformPluginType.class, transformMeta.getTransform());
-      createHelpButton(shell, transformMeta, plugin);
+      HelpUtils.createHelpButton(shell, plugin);
       String id = plugin.getIds()[0];
       if (id != null) {
         shell.setImage(

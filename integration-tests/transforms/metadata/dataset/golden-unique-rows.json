@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-unique-rows.csv",
+  "name": "golden-unique-rows",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Field_A"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Field_B"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "Field_C"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "CounterField"
+    }
+  ],
+  "folder_name": ""
+}

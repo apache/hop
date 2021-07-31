@@ -34,6 +34,16 @@ public class ExcelWriterFileField {
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Extension.Field")
   private String extension;
 
+  @HopMetadataProperty(
+      key = "filename_in_field",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.FilenameInField.Field")
+  private boolean fileNameInField;
+
+  @HopMetadataProperty(
+      key = "filename_field",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.FilenameField.Field")
+  private String fileNameField;
+
   /** The password to protect the sheet */
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Password.Field")
   private String password;
@@ -276,6 +286,26 @@ public class ExcelWriterFileField {
     this.fileName = fileName;
   }
 
+  /** @return Is the file name coded in a field? */
+  public boolean isFileNameInField() {
+    return fileNameInField;
+  }
+
+  /** @param fileNameInField Is the file name coded in a field? */
+  public void setFileNameInField(boolean fileNameInField) {
+    this.fileNameInField = fileNameInField;
+  }
+
+  /** @return The field name that contains the output file name. */
+  public String getFileNameField() {
+    return fileNameField;
+  }
+
+  /** @param fileNameField Name of the field that contains the file name */
+  public void setFileNameField(String fileNameField) {
+    this.fileNameField = fileNameField;
+  }
+
   public ExcelWriterFileField() {
     setDefault();
   }
@@ -301,6 +331,7 @@ public class ExcelWriterFileField {
     timeInFilename = false;
     dateTimeFormat = null;
     specifyFormat = false;
+    fileNameInField = false;
     protectsheet = false;
     splitEvery = 0;
     sheetname = BaseMessages.getString(PKG, "ExcelWriterMeta.Tab.Sheetname.Text");

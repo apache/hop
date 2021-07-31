@@ -45,12 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -61,8 +56,8 @@ import java.util.stream.IntStream;
     description = "i18n::KafkaConsumer.TypeTooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "kafka,consumer,input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/kafkaconsumer.html"
-)
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/kafkaconsumer.html")
 @InjectionSupported(
     localizationPrefix = "KafkaConsumerInputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})
@@ -192,6 +187,7 @@ public class KafkaConsumerInputMeta
             KafkaConsumerField.Type.Integer);
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) {
 
     setFilename(XmlHandler.getTagValue(transformNode, PIPELINE_PATH));
@@ -257,6 +253,7 @@ public class KafkaConsumerInputMeta
     field.getKafkaName().setFieldOnMeta(this, field);
   }
 
+  @Override
   public void setDefault() {
     batchSize = "1000";
     batchDuration = "1000";
@@ -328,13 +325,7 @@ public class KafkaConsumerInputMeta
                 xml.append("        ")
                     .append(
                         XmlHandler.addTagValue(
-                            CONFIG_OPTION,
-                            "",
-                            true,
-                            OPTION_PROPERTY,
-                            (String) key,
-                            OPTION_VALUE,
-                            (String) value)));
+                            CONFIG_OPTION, "", true, OPTION_PROPERTY, key, OPTION_VALUE, value)));
     xml.append("    ").append(XmlHandler.closeTag(ADVANCED_CONFIG)).append(Const.CR);
 
     return xml.toString();
@@ -383,6 +374,7 @@ public class KafkaConsumerInputMeta
     }
   }
 
+  @Override
   public KafkaConsumerInputMeta clone() {
     return copyObject();
   }
@@ -441,6 +433,7 @@ public class KafkaConsumerInputMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
