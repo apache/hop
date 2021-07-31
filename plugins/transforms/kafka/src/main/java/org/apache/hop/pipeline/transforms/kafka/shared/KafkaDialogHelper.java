@@ -40,13 +40,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,8 +53,13 @@ public class KafkaDialogHelper {
   private TableView optionsTable;
   private TransformMeta parentMeta;
 
-  public KafkaDialogHelper( IVariables variables, ComboVar wTopic, TextVar wBootstrapServers, KafkaFactory kafkaFactory,
-                            TableView optionsTable, TransformMeta parentMeta ) {
+  public KafkaDialogHelper(
+      IVariables variables,
+      ComboVar wTopic,
+      TextVar wBootstrapServers,
+      KafkaFactory kafkaFactory,
+      TableView optionsTable,
+      TransformMeta parentMeta) {
     this.variables = variables;
     this.wTopic = wTopic;
     this.wBootstrapServers = wBootstrapServers;
@@ -69,133 +68,151 @@ public class KafkaDialogHelper {
     this.parentMeta = parentMeta;
   }
 
-  public void clusterNameChanged( Event event ) {
+  public void clusterNameChanged(Event event) {
     String current = wTopic.getText();
-    if ( StringUtils.isEmpty( wBootstrapServers.getText() ) ) {
+    if (StringUtils.isEmpty(wBootstrapServers.getText())) {
       return;
     }
-    String directBootstrapServers = wBootstrapServers == null ? "" : wBootstrapServers.getText();
-    Map<String, String> config = getConfig( optionsTable );
-    CompletableFuture
-      .supplyAsync( () -> listTopics( directBootstrapServers, config ) )
-      .thenAccept( ( topicMap ) -> Display.getDefault().syncExec( () -> populateTopics( topicMap, current ) ) );
+    String directBootstrapServers = wBootstrapServers.getText();
+    Map<String, String> config = getConfig(optionsTable);
+    CompletableFuture.supplyAsync(() -> listTopics(directBootstrapServers, config))
+        .thenAccept(
+            topicMap -> Display.getDefault().syncExec(() -> populateTopics(topicMap, current)));
   }
 
-  private void populateTopics( Map<String, List<PartitionInfo>> topicMap, String current ) {
-    if ( !wTopic.getCComboWidget().isDisposed() ) {
+  private void populateTopics(Map<String, List<PartitionInfo>> topicMap, String current) {
+    if (!wTopic.getCComboWidget().isDisposed()) {
       wTopic.getCComboWidget().removeAll();
     }
     topicMap.keySet().stream()
-      .filter( key -> !"__consumer_offsets".equals( key ) ).sorted().forEach( key -> {
-        if ( !wTopic.isDisposed() ) {
-          wTopic.add( key );
-        }
-      } );
-    if ( !wTopic.getCComboWidget().isDisposed() ) {
-      wTopic.getCComboWidget().setText( current );
+        .filter(key -> !"__consumer_offsets".equals(key))
+        .sorted()
+        .forEach(
+            key -> {
+              if (!wTopic.isDisposed()) {
+                wTopic.add(key);
+              }
+            });
+    if (!wTopic.getCComboWidget().isDisposed()) {
+      wTopic.getCComboWidget().setText(current);
     }
   }
 
   private Map<String, List<PartitionInfo>> listTopics(
-    final String directBootstrapServers, Map<String, String> config ) {
+      final String directBootstrapServers, Map<String, String> config) {
     Consumer kafkaConsumer = null;
     try {
       KafkaConsumerInputMeta localMeta = new KafkaConsumerInputMeta();
-      localMeta.setDirectBootstrapServers( directBootstrapServers );
-      localMeta.setConfig( config );
-      localMeta.setParentTransformMeta( parentMeta );
-      kafkaConsumer = kafkaFactory.consumer( localMeta, variables::resolve );
-      Map<String, List<PartitionInfo>> topicMap = kafkaConsumer.listTopics();
-      return topicMap;
-    } catch ( Exception e ) {
+      localMeta.setDirectBootstrapServers(directBootstrapServers);
+      localMeta.setConfig(config);
+      localMeta.setParentTransformMeta(parentMeta);
+      kafkaConsumer = kafkaFactory.consumer(localMeta, variables::resolve);
+      return kafkaConsumer.listTopics();
+    } catch (Exception e) {
       e.printStackTrace();
       return Collections.emptyMap();
     } finally {
-      if ( kafkaConsumer != null ) {
+      if (kafkaConsumer != null) {
         kafkaConsumer.close();
       }
     }
   }
 
-  public static void populateFieldsList( IVariables variables, PipelineMeta pipelineMeta, ComboVar comboVar, String TransformName ) {
+  public static void populateFieldsList(
+      IVariables variables, PipelineMeta pipelineMeta, ComboVar comboVar, String transformName) {
     String current = comboVar.getText();
     comboVar.getCComboWidget().removeAll();
-    comboVar.setText( current );
+    comboVar.setText(current);
     try {
-      IRowMeta rmi = pipelineMeta.getPrevTransformFields( variables, TransformName );
-      for ( int i = 0; i < rmi.size(); i++ ) {
-        IValueMeta vmb = rmi.getValueMeta( i );
-        comboVar.add( vmb.getName() );
+      IRowMeta rmi = pipelineMeta.getPrevTransformFields(variables, transformName);
+      for (int i = 0; i < rmi.size(); i++) {
+        IValueMeta vmb = rmi.getValueMeta(i);
+        comboVar.add(vmb.getName());
       }
-    } catch ( HopTransformException ex ) {
+    } catch (HopTransformException ex) {
       // do nothing
-      LogChannel.UI.logError( "Error getting fields", ex );
+      LogChannel.UI.logError("Error getting fields", ex);
     }
   }
 
   public static List<String> getConsumerConfigOptionNames() {
-    List<String> optionNames = getConfigOptionNames( ConsumerConfig.class );
-    Stream.of( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ConsumerConfig.GROUP_ID_CONFIG,
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG ).forEach( optionNames::remove );
+    List<String> optionNames = getConfigOptionNames(ConsumerConfig.class);
+    Stream.of(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            ConsumerConfig.GROUP_ID_CONFIG,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)
+        .forEach(optionNames::remove);
     return optionNames;
   }
 
   public static List<String> getProducerConfigOptionNames() {
-    List<String> optionNames = getConfigOptionNames( ProducerConfig.class );
-    Stream.of( ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, ProducerConfig.CLIENT_ID_CONFIG,
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG )
-        .forEach( optionNames::remove );
+    List<String> optionNames = getConfigOptionNames(ProducerConfig.class);
+    Stream.of(
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            ProducerConfig.CLIENT_ID_CONFIG,
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)
+        .forEach(optionNames::remove);
     return optionNames;
   }
 
   public static List<String> getConsumerAdvancedConfigOptionNames() {
-    return Arrays.asList( ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        SslConfigs.SSL_KEY_PASSWORD_CONFIG, SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-        SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
-        SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG );
+    return Arrays.asList(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        SslConfigs.SSL_KEY_PASSWORD_CONFIG,
+        SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
+        SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,
+        SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
+        SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG);
   }
 
   public static List<String> getProducerAdvancedConfigOptionNames() {
-    return Arrays.asList( ProducerConfig.COMPRESSION_TYPE_CONFIG,
-        SslConfigs.SSL_KEY_PASSWORD_CONFIG, SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-        SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
-        SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG );
+    return Arrays.asList(
+        ProducerConfig.COMPRESSION_TYPE_CONFIG,
+        SslConfigs.SSL_KEY_PASSWORD_CONFIG,
+        SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
+        SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,
+        SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
+        SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG);
   }
 
-  private static List<String> getConfigOptionNames( Class cl ) {
-    return getStaticField( cl, "CONFIG" ).map( config ->
-        ( (ConfigDef) config ).configKeys().keySet().stream().sorted().collect( Collectors.toList() )
-    ).orElse( new ArrayList<>() );
+  private static List<String> getConfigOptionNames(Class cl) {
+    return getStaticField(cl, "CONFIG")
+        .map(
+            config ->
+                ((ConfigDef) config)
+                    .configKeys().keySet().stream().sorted().collect(Collectors.toList()))
+        .orElse(new ArrayList<>());
   }
 
-  private static Optional<Object> getStaticField( Class cl, String fieldName ) {
+  private static Optional<Object> getStaticField(Class cl, String fieldName) {
     Field field = null;
     boolean isAccessible = false;
     try {
-      field = cl.getDeclaredField( fieldName );
+      field = cl.getDeclaredField(fieldName);
       isAccessible = field.isAccessible();
-      field.setAccessible( true );
-      return Optional.ofNullable( field.get( null ) );
-    } catch ( NoSuchFieldException | IllegalAccessException e ) {
+      field.setAccessible(true);
+      return Optional.ofNullable(field.get(null));
+    } catch (NoSuchFieldException | IllegalAccessException e) {
       return Optional.empty();
     } finally {
-      if ( field != null ) {
-        field.setAccessible( isAccessible );
+      if (field != null) {
+        field.setAccessible(isAccessible);
       }
     }
   }
 
-  public static Map<String, String> getConfig( TableView optionsTable ) {
+  public static Map<String, String> getConfig(TableView optionsTable) {
     int itemCount = optionsTable.getItemCount();
     Map<String, String> advancedConfig = new LinkedHashMap<>();
 
-    for ( int rowIndex = 0; rowIndex < itemCount; rowIndex++ ) {
-      TableItem row = optionsTable.getTable().getItem( rowIndex );
-      String config = row.getText( 1 );
-      String value = row.getText( 2 );
-      if ( !StringUtils.isBlank( config ) && !advancedConfig.containsKey( config ) ) {
-        advancedConfig.put( config, value );
+    for (int rowIndex = 0; rowIndex < itemCount; rowIndex++) {
+      TableItem row = optionsTable.getTable().getItem(rowIndex);
+      String config = row.getText(1);
+      String value = row.getText(2);
+      if (!StringUtils.isBlank(config) && !advancedConfig.containsKey(config)) {
+        advancedConfig.put(config, value);
       }
     }
     return advancedConfig;

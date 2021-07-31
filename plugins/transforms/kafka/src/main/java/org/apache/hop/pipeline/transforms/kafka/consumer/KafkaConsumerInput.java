@@ -24,28 +24,17 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.errors.WakeupException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,6 +57,7 @@ public class KafkaConsumerInput
   }
 
   /** Initialize and do work where other transforms need to wait for... */
+  @Override
   public boolean init() {
 
     boolean superInit = super.init();
@@ -99,13 +89,14 @@ public class KafkaConsumerInput
       return false;
     }
 
+    // Set Kafka consumer is closing flag to false
+    data.isKafkaConsumerClosing = false;
     return true;
   }
 
   private void initSubPipeline() throws HopException {
     try {
 
-      CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       String realFilename = resolve(meta.getFilename());
       PipelineMeta subTransMeta = new PipelineMeta(realFilename, metadataProvider, true, this);
       subTransMeta.setMetadataProvider(metadataProvider);
@@ -246,45 +237,60 @@ public class KafkaConsumerInput
   }
 
   @Override
+  public void stopRunning() throws HopException {
+    data.isKafkaConsumerClosing = true;
+    data.consumer.wakeup();
+    super.stopRunning();
+  }
+
+  @Override
   public boolean processRow() throws HopException {
 
     // Poll records...
     // If we get any, process them...
     //
-    ConsumerRecords<String, String> records =
-        data.consumer.poll(data.batch > 0 ? data.batch : Long.MAX_VALUE);
+    try {
+      ConsumerRecords<String, String> records =
+          data.consumer.poll(data.batch > 0 ? data.batch : Long.MAX_VALUE);
 
-    if (records.isEmpty()) {
-      // We ca`n just skip this one, poll again next iteration of this method
-      //
-    } else {
-      // Grab the records...
-      //
-      List<Object[]> rows = new ArrayList<>();
-      for (ConsumerRecord<String, String> record : records) {
-        Object[] outputRow = processMessageAsRow(record);
-        data.rowProducer.putRow(data.outputRowMeta, outputRow);
-        incrementLinesInput();
+      if (!data.isKafkaConsumerClosing) {
+        if (records.isEmpty()) {
+          // We can just skip this one, poll again next iteration of this method
+          //
+        } else {
+          // Grab the records...
+          //
+          for (ConsumerRecord<String, String> record : records) {
+            Object[] outputRow = processMessageAsRow(record);
+            data.rowProducer.putRow(data.outputRowMeta, outputRow);
+            incrementLinesInput();
+          }
+
+          // Pass them to the single threaded transformation and do an iteration...
+          //
+          data.executor.oneIteration();
+
+          if (data.executor.isStopped() || data.executor.getErrors() > 0) {
+            // An error occurred in the sub-transformation
+            //
+            data.executor.getPipeline().stopAll();
+            setOutputDone();
+            stopAll();
+            return false;
+          }
+
+          // Confirm everything is processed correctly...
+          //
+          data.consumer.commitAsync();
+        }
       }
-
-      // Pass them to the single threaded transformation and do an iteration...
-      //
-      data.executor.oneIteration();
-
-      if (data.executor.isStopped() || data.executor.getErrors() > 0) {
-        // An error occurred in the sub-transformation
-        //
-        data.executor.getPipeline().stopAll();
-        setOutputDone();
-        stopAll();
-        return false;
-      }
-
-      // Confirm everything is processed correctly...
-      //
-      data.consumer.commitAsync();
+    } catch (WakeupException e) {
+      // We're going to close kafka consumer because of pipeline has been stopped so stop executor
+      // too
+      data.executor.getPipeline().stopAll();
+      setOutputDone();
+      stopAll();
     }
-
     return true;
   }
 
@@ -298,7 +304,7 @@ public class KafkaConsumerInput
     rowData[index++] = record.topic();
     rowData[index++] = (long) record.partition();
     rowData[index++] = record.offset();
-    rowData[index++] = record.timestamp();
+    rowData[index] = record.timestamp();
 
     return rowData;
   }

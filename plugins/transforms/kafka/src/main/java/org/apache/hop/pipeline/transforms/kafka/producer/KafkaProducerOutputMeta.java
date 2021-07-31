@@ -47,8 +47,8 @@ import java.util.stream.IntStream;
     description = "i18n::KafkaProducer.TypeTooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "kafka,producer,output",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/kafkaproducer.html"
-)
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/kafkaproducer.html")
 @InjectionSupported(
     localizationPrefix = "KafkaProducerOutputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})
@@ -206,9 +206,9 @@ public class KafkaProducerOutputMeta extends BaseTransformMeta
                             "",
                             true,
                             OPTION_PROPERTY,
-                            (String) key,
+                            key,
                             OPTION_VALUE,
-                            (String) value)));
+                            value)));
     retval.append("    ").append(XmlHandler.closeTag(ADVANCED_CONFIG)).append(Const.CR);
 
     return retval.toString();
