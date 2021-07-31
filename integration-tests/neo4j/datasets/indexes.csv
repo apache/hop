@@ -1,0 +1,4 @@
+name,state,uniqueness,type,entityType,labelsOrTypes,properties,provider
+AB_VALUE,ONLINE,NONUNIQUE,BTREE,RELATIONSHIP,"[""AB""]","[""value""]",native-btree-1.0
+A_ID,ONLINE,NONUNIQUE,BTREE,NODE,"[""A""]","[""id""]",native-btree-1.0
+B_ID,ONLINE,NONUNIQUE,BTREE,NODE,"[""B""]","[""id""]",native-btree-1.0
