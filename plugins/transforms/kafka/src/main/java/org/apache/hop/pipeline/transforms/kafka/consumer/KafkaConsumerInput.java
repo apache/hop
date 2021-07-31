@@ -24,7 +24,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -36,8 +35,6 @@ import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.errors.WakeupException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,6 +57,7 @@ public class KafkaConsumerInput
   }
 
   /** Initialize and do work where other transforms need to wait for... */
+  @Override
   public boolean init() {
 
     boolean superInit = super.init();
@@ -99,7 +97,6 @@ public class KafkaConsumerInput
   private void initSubPipeline() throws HopException {
     try {
 
-      CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       String realFilename = resolve(meta.getFilename());
       PipelineMeta subTransMeta = new PipelineMeta(realFilename, metadataProvider, true, this);
       subTransMeta.setMetadataProvider(metadataProvider);
@@ -263,7 +260,6 @@ public class KafkaConsumerInput
         } else {
           // Grab the records...
           //
-          List<Object[]> rows = new ArrayList<>();
           for (ConsumerRecord<String, String> record : records) {
             Object[] outputRow = processMessageAsRow(record);
             data.rowProducer.putRow(data.outputRowMeta, outputRow);
@@ -289,7 +285,8 @@ public class KafkaConsumerInput
         }
       }
     } catch (WakeupException e) {
-      // We're going to close kafka consumer because of pipeline has been stopped so stop executor too
+      // We're going to close kafka consumer because of pipeline has been stopped so stop executor
+      // too
       data.executor.getPipeline().stopAll();
       setOutputDone();
       stopAll();
@@ -307,7 +304,7 @@ public class KafkaConsumerInput
     rowData[index++] = record.topic();
     rowData[index++] = (long) record.partition();
     rowData[index++] = record.offset();
-    rowData[index++] = record.timestamp();
+    rowData[index] = record.timestamp();
 
     return rowData;
   }
