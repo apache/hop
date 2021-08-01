@@ -123,7 +123,9 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wFileName.setLayoutData(fdfileName);
     wFileName.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            //Disable focusLost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -195,13 +197,13 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
       logDebug(BaseMessages.getString(PKG, "FileLockedDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getDynamicFilenameField() != null) {
-      wFileName.setText(input.getDynamicFilenameField());
+    if (input.getFilenamefield() != null) {
+      wFileName.setText(input.getFilenamefield());
     }
-    if (input.getResultFieldName() != null) {
-      wResult.setText(input.getResultFieldName());
+    if (input.getResultfieldname() != null) {
+      wResult.setText(input.getResultfieldname());
     }
-    wAddResult.setSelection(input.addResultFilenames());
+    wAddResult.setSelection(input.isAddresultfilenames());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -217,9 +219,9 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setDynamicFilenameField(wFileName.getText());
-    input.setResultFieldName(wResult.getText());
-    input.setaddResultFilenames(wAddResult.getSelection());
+    input.setFilenamefield(wFileName.getText());
+    input.setResultfieldname(wResult.getText());
+    input.setAddresultfilenames(wAddResult.getSelection());
     transformName = wTransformName.getText(); // return value
 
     dispose();

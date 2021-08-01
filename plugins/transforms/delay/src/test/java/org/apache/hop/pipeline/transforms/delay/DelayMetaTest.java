@@ -33,17 +33,18 @@ public class DelayMetaTest {
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "timeout", "scaletime" );
+    List<String> attributes = Arrays.asList("timeout", "scaletime");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "timeout", "getTimeOut" );
-    getterMap.put( "scaletime", "getScaleTimeCode" );
+    getterMap.put("timeout", "getTimeout");
+    getterMap.put("scaletime", "getScaletime");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "timeout", "setTimeOut" );
-    setterMap.put( "scaletime", "setScaleTimeCode" );
+    setterMap.put("timeout", "setTimeout");
+    setterMap.put("scaletime", "setScaletime");
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( DelayMeta.class, attributes, getterMap, setterMap );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(DelayMeta.class, attributes, getterMap, setterMap);
     loadSaveTester.testSerialization();
   }
 }

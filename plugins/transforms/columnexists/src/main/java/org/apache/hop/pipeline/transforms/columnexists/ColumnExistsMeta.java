@@ -20,23 +20,20 @@ package org.apache.hop.pipeline.transforms.columnexists;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -53,49 +50,60 @@ public class ColumnExistsMeta extends BaseTransformMeta
   private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
 
   /** database connection */
-  private DatabaseMeta database;
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKeyDescription = "ColumnExists.Injection.ConnectionName")
+  private String databaseName;
 
+  @HopMetadataProperty(
+      key = "schemaname",
+      injectionKeyDescription = "ColumnExists.Injection.SchemaName")
   private String schemaname;
 
+  @HopMetadataProperty(
+      key = "tablename",
+      injectionKeyDescription = "ColumnExists.Injection.TableName")
   private String tableName;
 
   /** dynamic tablename */
+  @HopMetadataProperty(
+      key = "tablenamefield",
+      injectionKeyDescription = "ColumnExists.Injection.TableNameField")
   private String tablenamefield;
 
   /** dynamic columnname */
+  @HopMetadataProperty(
+      key = "columnnamefield",
+      injectionKeyDescription = "ColumnExists.Injection.ColumnNameField")
   private String columnnamefield;
 
   /** function result: new value name */
+  @HopMetadataProperty(
+      key = "resultfieldname",
+      injectionKeyDescription = "ColumnExists.Injection.ResultFieldName")
   private String resultfieldname;
 
-  private boolean istablenameInfield;
+  @HopMetadataProperty(
+      key = "istablenameInfield",
+      injectionKeyDescription = "ColumnExists.Injection.TableNameInField")
+  private boolean tablenameInfield;
 
   public ColumnExistsMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabase() {
-    return database;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabase(DatabaseMeta database) {
-    this.database = database;
-  }
-
   /** @return Returns the tablenamefield. */
-  public String getDynamicTablenameField() {
+  public String getTablenamefield() {
     return tablenamefield;
   }
 
   /** @return Returns the tablename. */
-  public String getTablename() {
+  public String getTableName() {
     return tableName;
   }
 
   /** @param tableName The tablename to set. */
-  public void setTablename(String tableName) {
+  public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
@@ -110,45 +118,48 @@ public class ColumnExistsMeta extends BaseTransformMeta
   }
 
   /** @param tablenamefield The tablenamefield to set. */
-  public void setDynamicTablenameField(String tablenamefield) {
+  public void setTablenamefield(String tablenamefield) {
     this.tablenamefield = tablenamefield;
   }
 
   /** @return Returns the columnnamefield. */
-  public String getDynamicColumnnameField() {
+  public String getColumnnamefield() {
     return columnnamefield;
   }
 
   /** @param columnnamefield The columnnamefield to set. */
-  public void setDynamicColumnnameField(String columnnamefield) {
+  public void setColumnnamefield(String columnnamefield) {
     this.columnnamefield = columnnamefield;
   }
 
   /** @return Returns the resultName. */
-  public String getResultFieldName() {
+  public String getResultfieldname() {
     return resultfieldname;
   }
 
   /** @param resultfieldname The resultfieldname to set. */
-  public void setResultFieldName(String resultfieldname) {
+  public void setResultfieldname(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
-  public boolean isTablenameInField() {
-    return istablenameInfield;
+  public boolean isTablenameInfield() {
+    return tablenameInfield;
   }
 
-  /** @param isTablenameInField the isTablenameInField to set */
-  public void setTablenameInField(boolean isTablenameInField) {
-    this.istablenameInfield = isTablenameInField;
+  /** @param tablenameInfield the isTablenameInField to set */
+  public void setTablenameInfield(boolean tablenameInfield) {
+    this.tablenameInfield = tablenameInfield;
+  }
+
+  public String getDatabaseName() {
+    return databaseName;
+  }
+
+  public void setDatabaseName(String databaseName) {
+    this.databaseName = databaseName;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
   public Object clone() {
     ColumnExistsMeta retval = (ColumnExistsMeta) super.clone();
 
@@ -157,10 +168,10 @@ public class ColumnExistsMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    database = null;
+    databaseName = null;
     schemaname = null;
     tableName = null;
-    istablenameInfield = false;
+    tablenameInfield = false;
     resultfieldname = "result";
   }
 
@@ -182,39 +193,6 @@ public class ColumnExistsMeta extends BaseTransformMeta
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append(
-        "    " + XmlHandler.addTagValue("connection", database == null ? "" : database.getName()));
-    retval.append("    " + XmlHandler.addTagValue("tablename", tableName));
-    retval.append("    " + XmlHandler.addTagValue("schemaname", schemaname));
-    retval.append("    " + XmlHandler.addTagValue("istablenameInfield", istablenameInfield));
-    retval.append("    " + XmlHandler.addTagValue("tablenamefield", tablenamefield));
-    retval.append("    " + XmlHandler.addTagValue("columnnamefield", columnnamefield));
-    retval.append("      " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      database = DatabaseMeta.loadDatabase(metadataProvider, con);
-      tableName = XmlHandler.getTagValue(transformNode, "tablename");
-      schemaname = XmlHandler.getTagValue(transformNode, "schemaname");
-      istablenameInfield =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "istablenameInfield"));
-      tablenamefield = XmlHandler.getTagValue(transformNode, "tablenamefield");
-      columnnamefield = XmlHandler.getTagValue(transformNode, "columnnamefield");
-      resultfieldname =
-          XmlHandler.getTagValue(transformNode, "resultfieldname"); // Optional, can be null
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ColumnExistsMeta.Exception.UnableToReadTransformMeta"), e);
-    }
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -228,36 +206,36 @@ public class ColumnExistsMeta extends BaseTransformMeta
     CheckResult cr;
     String errorMessage = "";
 
-    if (database == null) {
+    if (databaseName == null) {
       errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(resultfieldname)) {
       errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
-    if (istablenameInfield) {
+    if (tablenameInfield) {
       if (Utils.isEmpty(tablenamefield)) {
         errorMessage =
             BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.TableFieldMissing");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       } else {
         errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.TableFieldOK");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       }
       remarks.add(cr);
     } else {
       if (Utils.isEmpty(tableName)) {
         errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.TablenameMissing");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       } else {
         errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.TablenameOK");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       }
       remarks.add(cr);
     }
@@ -265,10 +243,10 @@ public class ColumnExistsMeta extends BaseTransformMeta
     if (Utils.isEmpty(columnnamefield)) {
       errorMessage =
           BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.ColumnNameFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.ColumnNameFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
@@ -276,14 +254,14 @@ public class ColumnExistsMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "ColumnExistsMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "ColumnExistsMeta.CheckResult.NoInpuReceived"),
               transformMeta);
     }
@@ -303,15 +281,6 @@ public class ColumnExistsMeta extends BaseTransformMeta
   @Override
   public ColumnExistsData getTransformData() {
     return new ColumnExistsData();
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (database != null) {
-      return new DatabaseMeta[] {database};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
   }
 
   @Override

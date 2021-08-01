@@ -33,19 +33,21 @@ public class FileLockedMetaTest {
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "filenamefield", "resultfieldname", "addresultfilenames" );
+    List<String> attributes =
+        Arrays.asList("filenamefield", "resultfieldname", "addresultfilenames");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "filenamefield", "getDynamicFilenameField" );
-    getterMap.put( "resultfieldname", "getResultFieldName" );
-    getterMap.put( "addresultfilenames", "addResultFilenames" );
+    getterMap.put("filenamefield", "getFilenamefield");
+    getterMap.put("resultfieldname", "getResultfieldname");
+    getterMap.put("addresultfilenames", "isAddresultfilenames");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "filenamefield", "setDynamicFilenameField" );
-    setterMap.put( "resultfieldname", "setResultFieldName" );
-    setterMap.put( "addresultfilenames", "setaddResultFilenames" );
+    setterMap.put("filenamefield", "setFilenamefield");
+    setterMap.put("resultfieldname", "setResultfieldname");
+    setterMap.put("addresultfilenames", "setAddresultfilenames");
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( FileLockedMeta.class, attributes, getterMap, setterMap );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(FileLockedMeta.class, attributes, getterMap, setterMap);
     loadSaveTester.testSerialization();
   }
 }
