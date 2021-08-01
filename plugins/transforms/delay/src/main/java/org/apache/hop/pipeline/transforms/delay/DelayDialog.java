@@ -29,11 +29,14 @@ import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class DelayDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DelayMeta.class; // For Translator
@@ -140,8 +143,8 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getTimeOut() != null) {
-      wTimeout.setText(input.getTimeOut());
+    if (input.getTimeout() != null) {
+      wTimeout.setText(input.getTimeout());
     }
     wScaleTime.select(input.getScaleTimeCode());
     wTransformName.selectAll();
@@ -159,7 +162,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
       return;
     }
     transformName = wTransformName.getText(); // return value
-    input.setTimeOut(wTimeout.getText());
+    input.setTimeout(wTimeout.getText());
     input.setScaleTimeCode(wScaleTime.getSelectionIndex());
     dispose();
   }
