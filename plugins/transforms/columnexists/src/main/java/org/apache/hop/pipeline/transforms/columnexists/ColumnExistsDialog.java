@@ -114,7 +114,8 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabase(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getDatabaseName(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
 
     // Schema name line
     // Schema name
@@ -136,6 +137,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
@@ -172,6 +174,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -209,6 +212,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wTablenameInField.setLayoutData(fdTablenameInField);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
             activeTablenameInField();
@@ -236,7 +240,9 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wTableName.setLayoutData(fdTableName);
     wTableName.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable Focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -267,7 +273,9 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wColumnName.setLayoutData(fdColumnName);
     wColumnName.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable Focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -330,24 +338,24 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
       logDebug(BaseMessages.getString(PKG, "ColumnExistsDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getDatabase() != null) {
-      wConnection.setText(input.getDatabase().getName());
+    if (input.getDatabaseName() != null) {
+      wConnection.setText(input.getDatabaseName());
     }
     if (input.getSchemaname() != null) {
       wSchemaname.setText(input.getSchemaname());
     }
-    if (input.getTablename() != null) {
-      wTablenameText.setText(input.getTablename());
+    if (input.getTableName() != null) {
+      wTablenameText.setText(input.getTableName());
     }
-    wTablenameInField.setSelection(input.isTablenameInField());
-    if (input.getDynamicTablenameField() != null) {
-      wTableName.setText(input.getDynamicTablenameField());
+    wTablenameInField.setSelection(input.isTablenameInfield());
+    if (input.getTablenamefield() != null) {
+      wTableName.setText(input.getTablenamefield());
     }
-    if (input.getDynamicColumnnameField() != null) {
-      wColumnName.setText(input.getDynamicColumnnameField());
+    if (input.getColumnnamefield() != null) {
+      wColumnName.setText(input.getColumnnamefield());
     }
-    if (input.getResultFieldName() != null) {
-      wResult.setText(input.getResultFieldName());
+    if (input.getResultfieldname() != null) {
+      wResult.setText(input.getResultfieldname());
     }
 
     wTransformName.selectAll();
@@ -365,17 +373,17 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
       return;
     }
 
-    input.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseName(wConnection.getText());
     input.setSchemaname(wSchemaname.getText());
-    input.setTablename(wTablenameText.getText());
-    input.setTablenameInField(wTablenameInField.getSelection());
-    input.setDynamicTablenameField(wTableName.getText());
-    input.setDynamicColumnnameField(wColumnName.getText());
-    input.setResultFieldName(wResult.getText());
+    input.setTableName(wTablenameText.getText());
+    input.setTablenameInfield(wTablenameInField.getSelection());
+    input.setTablenamefield(wTableName.getText());
+    input.setColumnnamefield(wColumnName.getText());
+    input.setResultfieldname(wResult.getText());
 
     transformName = wTransformName.getText(); // return value
 
-    if (input.getDatabase() == null) {
+    if (input.getDatabaseName() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "ColumnExistsDialog.InvalidConnection.DialogMessage"));
@@ -459,7 +467,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
                   BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.Message"));
           String d = dialog.open();
           if (d != null) {
-            wSchemaname.setText(Const.NVL(d.toString(), ""));
+            wSchemaname.setText(Const.NVL(d, ""));
           }
 
         } else {

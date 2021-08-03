@@ -39,11 +39,17 @@ public class ColumnExistsMetaTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "database", "tablename", "schemaname", "tablenameInField",
-      "dynamicTablenameField", "dynamicColumnnameField", "resultFieldName" );
+    List<String> attributes =
+        Arrays.asList(
+            "tableName",
+            "schemaname",
+            "tablenamefield",
+            "tableName",
+            "columnnamefield",
+            "resultfieldname");
 
     LoadSaveTester<ColumnExistsMeta> loadSaveTester =
-      new LoadSaveTester<>( ColumnExistsMeta.class, attributes );
+        new LoadSaveTester<>(ColumnExistsMeta.class, attributes);
 
     loadSaveTester.testSerialization();
   }

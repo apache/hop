@@ -29,16 +29,13 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Check if a column exists in table on a specified connection *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Check if a column exists in table on a specified connection * */
 public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsData>
     implements ITransform<ColumnExistsMeta, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
+
+  private static final String PKG_COULD_NOT_FIND_FIELD = "ColumnExists.Exception.CouldnotFindField";
 
   public ColumnExists(
       TransformMeta transformMeta,
@@ -72,14 +69,14 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Check is columnname field is provided
-      if (Utils.isEmpty(meta.getDynamicColumnnameField())) {
+      if (Utils.isEmpty(meta.getColumnnamefield())) {
         logError(BaseMessages.getString(PKG, "ColumnExists.Error.ColumnnameFieldMissing"));
         throw new HopException(
             BaseMessages.getString(PKG, "ColumnExists.Error.ColumnnameFieldMissing"));
       }
-      if (meta.isTablenameInField()) {
+      if (meta.isTablenameInfield()) {
         // Check is tablename field is provided
-        if (Utils.isEmpty(meta.getDynamicTablenameField())) {
+        if (Utils.isEmpty(meta.getTablenamefield())) {
           logError(BaseMessages.getString(PKG, "ColumnExists.Error.TablenameFieldMissing"));
           throw new HopException(
               BaseMessages.getString(PKG, "ColumnExists.Error.TablenameFieldMissing"));
@@ -87,19 +84,16 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
 
         // cache the position of the field
         if (data.indexOfTablename < 0) {
-          data.indexOfTablename = getInputRowMeta().indexOfValue(meta.getDynamicTablenameField());
+          data.indexOfTablename = getInputRowMeta().indexOfValue(meta.getTablenamefield());
           if (data.indexOfTablename < 0) {
             // The field is unreachable !
             logError(
-                BaseMessages.getString(PKG, "ColumnExists.Exception.CouldnotFindField")
+                BaseMessages.getString(PKG, PKG_COULD_NOT_FIND_FIELD)
                     + "["
-                    + meta.getDynamicTablenameField()
+                    + meta.getTablenamefield()
                     + "]");
             throw new HopException(
-                BaseMessages.getString(
-                    PKG,
-                    "ColumnExists.Exception.CouldnotFindField",
-                    meta.getDynamicTablenameField()));
+                BaseMessages.getString(PKG, PKG_COULD_NOT_FIND_FIELD, meta.getTablenamefield()));
           }
         }
       } else {
@@ -115,19 +109,16 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
 
       // cache the position of the column field
       if (data.indexOfColumnname < 0) {
-        data.indexOfColumnname = getInputRowMeta().indexOfValue(meta.getDynamicColumnnameField());
+        data.indexOfColumnname = getInputRowMeta().indexOfValue(meta.getColumnnamefield());
         if (data.indexOfColumnname < 0) {
           // The field is unreachable !
           logError(
-              BaseMessages.getString(PKG, "ColumnExists.Exception.CouldnotFindField")
+              BaseMessages.getString(PKG, PKG_COULD_NOT_FIND_FIELD)
                   + "["
-                  + meta.getDynamicColumnnameField()
+                  + meta.getColumnnamefield()
                   + "]");
           throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  "ColumnExists.Exception.CouldnotFindField",
-                  meta.getDynamicColumnnameField()));
+              BaseMessages.getString(PKG, PKG_COULD_NOT_FIND_FIELD, meta.getColumnnamefield()));
         }
       }
 
@@ -136,7 +127,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
 
     try {
       // get tablename
-      if (meta.isTablenameInField()) {
+      if (meta.isTablenameInfield()) {
         data.tableName = getInputRowMeta().getString(r, data.indexOfTablename);
         if (!Utils.isEmpty(data.schemaname)) {
           data.tableName =
@@ -157,7 +148,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       Object[] outputRowData = RowDataUtil.addValueData(r, getInputRowMeta().size(), columnexists);
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(
@@ -180,7 +171,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       if (sendToErrorRow) {
         // Simply add this row to the error row
         putError(
-            getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "ColumnExists001");
+            getInputRowMeta(), r, 1, errorMessage, meta.getResultfieldname(), "ColumnExists001");
       }
     }
 
@@ -191,23 +182,26 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
   public boolean init() {
 
     if (super.init()) {
-      if (!meta.isTablenameInField()) {
-        if (Utils.isEmpty(meta.getTablename())) {
+      if (!meta.isTablenameInfield()) {
+        if (Utils.isEmpty(meta.getTableName())) {
           logError(BaseMessages.getString(PKG, "ColumnExists.Error.TablenameMissing"));
           return false;
         }
-        data.tableName = resolve(meta.getTablename());
+        data.tableName = resolve(meta.getTableName());
       }
       data.schemaname = meta.getSchemaname();
       if (!Utils.isEmpty(data.schemaname)) {
         data.schemaname = resolve(data.schemaname);
       }
 
-      if (Utils.isEmpty(meta.getResultFieldName())) {
+      if (Utils.isEmpty(meta.getResultfieldname())) {
         logError(BaseMessages.getString(PKG, "ColumnExists.Error.ResultFieldMissing"));
         return false;
       }
-      data.db = new Database(this, this, meta.getDatabase());
+
+      data.db =
+          new Database(
+              this, this, getPipelineMeta().findDatabase(meta.getDatabaseName(), variables));
       try {
         data.db.connect();
 
