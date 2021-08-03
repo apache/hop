@@ -19,6 +19,8 @@ package org.apache.hop.neo4j.core.data;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -38,7 +40,10 @@ public enum GraphPropertyDataType {
   LocalTime("localtime"),
   DateTime("datetime"),
   List("List"),
-  Map("Map");
+  Map("Map"),
+  Node("Node"),
+  Relationship("Relationship"),
+  Path("Path");
 
   private String importType;
 
@@ -178,8 +183,12 @@ public enum GraphPropertyDataType {
     switch (this) {
       case String:
       case Map: // convert to JSON
-      case List: // Convert to JSON
+      case List: // convert to JSON
         return IValueMeta.TYPE_STRING;
+      case Node: // Convert to Graph data type
+      case Relationship:
+      case Path:
+        return ValueMetaGraph.TYPE_GRAPH;
       case Boolean:
         return IValueMeta.TYPE_BOOLEAN;
       case Float:
