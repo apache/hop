@@ -169,6 +169,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     setWidgetsContent();
 
+    clearChanged();
+
     // Select the model tab
     //
     wTabs.setSelection(0);
@@ -178,19 +180,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   public void setWidgetsContent() {
     // Model tab
     wModelName.setText(Const.NVL(graphModel.getName(), ""));
-    wModelName.addListener(
-        SWT.Modify,
-        event -> {
-          graphModel.setName(wModelName.getText());
-          setChanged();
-        });
     wModelDescription.setText(Const.NVL(graphModel.getDescription(), ""));
-    wModelDescription.addListener(
-        SWT.Modify,
-        event -> {
-          graphModel.setDescription(wModelDescription.getText());
-          setChanged();
-        });
 
     refreshNodesList();
     if (graphModel.getNodes().size() > 0) {
@@ -206,7 +196,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       wRelationshipsList.setSelection(new String[] {activeRelationshipName});
       refreshRelationshipsFields();
     }
-    setChanged();
 
     enableFields();
   }
@@ -397,7 +386,11 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdModelName.right = new FormAttachment(100, 0);
     fdModelName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     wModelName.setLayoutData(fdModelName);
-    wModelName.addModifyListener(e -> setChanged());
+    wModelName.addModifyListener(
+        e -> {
+          setChanged();
+          graphModel.setName(wModelName.getText());
+        });
     Control lastControl = wModelName;
 
     Label wlModelDescription = new Label(wModelComp, SWT.RIGHT);
@@ -415,7 +408,11 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdModelDescription.right = new FormAttachment(100, 0);
     fdModelDescription.top = new FormAttachment(wlModelDescription, 0, SWT.CENTER);
     wModelDescription.setLayoutData(fdModelDescription);
-    wModelDescription.addModifyListener(e -> setChanged());
+    wModelDescription.addModifyListener(
+        e -> {
+          setChanged();
+          graphModel.setDescription(wModelDescription.getText());
+        });
     lastControl = wModelDescription;
 
     Button wImportGraph = new Button(wModelComp, SWT.PUSH);
@@ -1735,6 +1732,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             mouseDownPoint.x = e.x;
             mouseDownPoint.y = e.y;
             wCanvas.redraw();
+            setChanged();
             break;
           default:
             break;
@@ -1905,6 +1903,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       // Refresh the dialog.
       //
       setWidgetsContent();
+      setChanged();
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
@@ -1950,6 +1949,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       // Refresh the dialog.
       //
       setWidgetsContent();
+      setChanged();
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
@@ -1977,6 +1977,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       // Refresh the dialog.
       //
       setWidgetsContent();
+      setChanged();
 
       MessageBox box = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
       box.setText("Import successful");
@@ -2097,7 +2098,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
       // Wrap this in an action
       //
-      ActionMeta constraintMeta = new ActionMeta(neo4jIndex);
+      ActionMeta constraintMeta = new ActionMeta(neo4jConstraint);
       constraintMeta.setName("Create constraints for graph model " + graphModel.getName());
       constraintMeta.setLocation(100, 50);
       String xmlConstraint = constraintMeta.getXml();
@@ -2121,9 +2122,12 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   }
 
   public void setChanged() {
-    if (this.isChanged == false) {
-      this.isChanged = true;
-      MetadataPerspective.getInstance().updateEditor(this);
-    }
+    this.isChanged = true;
+    MetadataPerspective.getInstance().updateEditor(this);
+  }
+
+  public void clearChanged() {
+    this.isChanged = false;
+    MetadataPerspective.getInstance().updateEditor(this);
   }
 }
