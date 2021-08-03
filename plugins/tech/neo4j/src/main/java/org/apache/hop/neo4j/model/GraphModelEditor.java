@@ -30,6 +30,7 @@ import org.apache.hop.neo4j.actions.index.Neo4jIndex;
 import org.apache.hop.neo4j.actions.index.ObjectType;
 import org.apache.hop.neo4j.actions.index.UpdateType;
 import org.apache.hop.neo4j.core.Neo4jUtil;
+import org.apache.hop.neo4j.model.arrows.ArrowsAppImporter;
 import org.apache.hop.neo4j.model.cw.CypherWorkbenchImporter;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.ui.core.PropsUi;
@@ -445,6 +446,18 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     wCypherWorkbenchImportGraph.setLayoutData(fdCypherWorkbenchImportGraph);
     wCypherWorkbenchImportGraph.addListener(SWT.Selection, (e) -> importGraphFromCypherWorkbench());
     lastControl = wCypherWorkbenchImportGraph;
+
+    Button wArrowsAppImportGraph = new Button(wModelComp, SWT.PUSH);
+    wArrowsAppImportGraph.setText(
+        BaseMessages.getString(PKG, "GraphModelDialog.ImportArrowsApp.Button"));
+    props.setLook(wArrowsAppImportGraph);
+    FormData fdArrowsAppImportGraph = new FormData();
+    fdArrowsAppImportGraph.left = new FormAttachment(middle, 0);
+    fdArrowsAppImportGraph.right = new FormAttachment(75, 0);
+    fdArrowsAppImportGraph.top = new FormAttachment(lastControl, margin);
+    wArrowsAppImportGraph.setLayoutData(fdArrowsAppImportGraph);
+    wArrowsAppImportGraph.addListener(SWT.Selection, (e) -> importGraphFromArrowsApp());
+    lastControl = wArrowsAppImportGraph;
 
     Button wCreateIndexAction = new Button(wModelComp, SWT.PUSH);
     wCreateIndexAction.setText(
@@ -1917,6 +1930,39 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       // Refresh the dialog.
       //
       setWidgetsContent();
+
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
+    }
+  }
+
+  private void importGraphFromArrowsApp() {
+    try {
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              getShell(),
+              "Arrows JSON",
+              "Paste the Arrows application export in JSON format below",
+              "{}",
+              true);
+      String jsonModelString = dialog.open();
+      if (jsonModelString == null) {
+        return;
+      }
+
+      // The graph model is loaded, replace the one in memory
+      //
+      graphModel = ArrowsAppImporter.importFromArrowsJson(jsonModelString);
+
+      // Refresh the dialog.
+      //
+      setWidgetsContent();
+
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+      box.setText("Import successful");
+      box.setMessage(
+          "The import from the Arrows JSON was successful.  Please make sure to give this model a name and indicate the primary key fields of nodes.");
+      box.open();
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
