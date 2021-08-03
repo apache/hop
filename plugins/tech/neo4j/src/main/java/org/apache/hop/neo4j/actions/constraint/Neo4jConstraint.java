@@ -159,9 +159,6 @@ public class Neo4jConstraint extends ActionBase implements IAction {
         case NOT_NULL:
           cypher += " n." + constraintUpdate.getObjectProperties() + " IS NOT NULL ";
           break;
-        case EXISTS:
-          cypher += " n." + constraintUpdate.getObjectProperties() + " EXISTS ";
-          break;
       }
 
     } else {
@@ -175,9 +172,6 @@ public class Neo4jConstraint extends ActionBase implements IAction {
           break;
         case NOT_NULL:
           cypher += " r." + constraintUpdate.getObjectProperties() + " IS NOT NULL ";
-          break;
-        case EXISTS:
-          cypher += " r." + constraintUpdate.getObjectProperties() + " EXISTS ";
           break;
       }
     }

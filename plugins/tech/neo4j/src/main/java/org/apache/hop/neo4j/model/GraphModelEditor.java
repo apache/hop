@@ -2026,10 +2026,9 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
           for (GraphProperty property : node.getProperties()) {
             // If the field is flagged indexed we index it,
             // but not if the field is flagged as unique
+            // Note: Unique indexes are handled by a constraint below
             //
-            if (property.isIndexed() || property.isPrimary()) {
-              // Unique indexes are handled by a constraint below
-              //
+            if ((property.isIndexed() || property.isPrimary()) && !property.isUnique()) {
               neo4jIndex
                   .getIndexUpdates()
                   .add(
@@ -2075,20 +2074,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
                           org.apache.hop.neo4j.actions.constraint.ObjectType.NODE,
                           ConstraintType.UNIQUE,
                           "COU_" + label.toUpperCase() + "_" + property.getName().toUpperCase(),
-                          label,
-                          property.getName()));
-            }
-            if (property.isMandatory()) {
-              // If the field is flagged mandatory we create a constraint for it...
-              //
-              neo4jConstraint
-                  .getConstraintUpdates()
-                  .add(
-                      new ConstraintUpdate(
-                          org.apache.hop.neo4j.actions.constraint.UpdateType.CREATE,
-                          org.apache.hop.neo4j.actions.constraint.ObjectType.NODE,
-                          ConstraintType.EXISTS,
-                          "COE_" + label.toUpperCase() + "_" + property.getName().toUpperCase(),
                           label,
                           property.getName()));
             }
