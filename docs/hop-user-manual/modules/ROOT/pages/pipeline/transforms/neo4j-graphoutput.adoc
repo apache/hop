@@ -21,16 +21,28 @@ under the License.
 
 == Description
 
-The Graph Output transform aims to allow input fields to be mapped automatically to a graph model. The model is for now defined locally but the goal is to have this done elsewhere in the near future. The algorithm used takes null values for fields mapped to primary properties of nodes into account and will not merge on these nodes and will not create or update relationships to it.
+The Graph Output transform aims to allow input fields to be mapped automatically to a graph model.
+The algorithm used to update your graph takes null values for fields mapped to primary properties of nodes into account and will not merge on these nodes and will not create or update relationships to it.
 
 == Limitations
 
 * Updates across unknown nodes `()--()` are not supported
-* Circular relationships to the same nodes: please create a new node with a different name and the same label to make this work. It allows you to uniquely map input fields to these node properties and get the correct results.
+* Circular relationships to the same nodes: please create a new node with a different name and the same label to make this work.
+It allows you to uniquely map input fields to these node properties and get the correct results.
 
+== Modeling tips
+
+* Try a modeler like https://neo4j.solutions/cypher-workbench[Cypher Workbench] or https://arrows.app[Arrows] and import the result into a Graph Model.
+* Keep your models as simple as possible.
+* Make sure that every defined node has a primary key field
+* Limit yourself to one primary key field per node
+
+== Execution tips
+
+* Make sure that every node primary key has an index.
+Use the provided button in the graph model editor to generate the Neo4j Index and Constraint actions which will handle this for you.
 
 == Notable options
-
 
 |===
 |Option |Description
@@ -41,7 +53,12 @@ The Graph Output transform aims to allow input fields to be mapped automatically
 |Create indexes?|create Neo4j indexes before running this transform
 |Return graph data?|return graph data returned by Neo4j
 |Graph output field name|the name of the field to write the graph data to (if `Return graph data?` is enabled)
-|Validate against model?|validate the data against the model
-|Allow out of order updates?|If out of order updates are allowed, this transform generates unwind statements. Otherwise, standard batch updates are used.
+|Validate against model?|validate the data against the model.
+This will check if indexes are created for a field that is flagged as primary/indexed, see if a property flagged as mandatory is available when a node is updated and so on.
+Uniqueness is best validated by a constraint on the property.
+Use the provided button to generate the "Neo4j Constraint" action.
+|Allow out of order updates?|If out of order updates are allowed, this transform generates unwind statements.
+Otherwise, standard batch updates are used.
+The updates are grouped per distinct generated cypher statement.
 |Mappings|Map fields in the pipeline to fields in the Neo4j graph
 |===

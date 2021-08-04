@@ -59,7 +59,7 @@ limitations under the License.
       <timeout>3000</timeout>
       <pingtype>classicPing</pingtype>
       <parallel>N</parallel>
-      <xloc>224</xloc>
+      <xloc>304</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -72,7 +72,7 @@ limitations under the License.
         <connection>demo</connection>
       </connections>
       <parallel>N</parallel>
-      <xloc>384</xloc>
+      <xloc>592</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -101,8 +101,8 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>608</xloc>
-      <yloc>320</yloc>
+      <xloc>304</xloc>
+      <yloc>336</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -130,8 +130,8 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>816</xloc>
-      <yloc>320</yloc>
+      <xloc>592</xloc>
+      <yloc>336</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -164,8 +164,8 @@ limitations under the License.
         </update>
       </updates>
       <parallel>N</parallel>
-      <xloc>608</xloc>
-      <yloc>64</yloc>
+      <xloc>304</xloc>
+      <yloc>192</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -209,7 +209,7 @@ limitations under the License.
         </update>
       </updates>
       <parallel>N</parallel>
-      <xloc>608</xloc>
+      <xloc>592</xloc>
       <yloc>192</yloc>
       <attributes_hac/>
     </action>
