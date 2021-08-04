@@ -23,7 +23,9 @@ under the License.
 
 Neo4j is an open source graph database which you can download from **https://neo4j.com/download-center/[www.neo4j.com/download-center]**
 
-You can use it to represent information with nodes and relationships in a property graph. Neo4j doesn't use indexes which allows it to traverse large graphs really quickly with so-called graph algorithms. For more information on these unique graph algorithms see: https://neo4j.com/docs/graph-data-science/current/algorithms/#algorithms[Neo4j Graph Algorithms]
+You can use it to represent information with nodes and relationships in a property graph.
+Neo4j doesn't use indexes which allows it to traverse large graphs really quickly with so-called graph algorithms.
+For more information on these unique graph algorithms see: https://neo4j.com/docs/graph-data-science/current/algorithms/#algorithms[Neo4j Graph Algorithms]
 
 Hop supports Neo4j through the following metadata objects
 
@@ -32,7 +34,10 @@ Hop supports Neo4j through the following metadata objects
 You can use Neo4j to store logging and execution lineage of your workflows and pipelines.
 The way you do this is simply by setting the variable `NEO4J_LOGGING_CONNECTION` to the name of the Neo4j Connection where you want the logging and lineage to be written to.
 
-The Neo4j plugin offers a separate perspective to query this logging and lineage information.  For example, it allows you to quickly jump to the place where an error occurred.  This neat trick is performed by asking the database to find the shortest path between and execution node where an error occurred and without children and the "grand parent" node.  The path you get is the exact path that was followed from for example the "grand parent" workflow to the exact transform where an error occurred.
+The Neo4j plugin offers a separate perspective to query this logging and lineage information.
+For example, it allows you to quickly jump to the place where an error occurred.
+This neat trick is performed by asking the database to find the shortest path between and execution node where an error occurred and without children and the "grand parent" node.
+The path you get is the exact path that was followed from for example the "grand parent" workflow to the exact transform where an error occurred.
 
 == Metadata Types
 
@@ -43,6 +48,8 @@ The Neo4j plugin offers a separate perspective to query this logging and lineage
 
 * xref:workflow/actions/neo4j-checkconnections.adoc[Neo4j Check Connection]: check a connection to a Neo4j database
 * xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher Script]: execute a Cypher script or query
+* xref:workflow/actions/neo4j-index.adoc[Neo4j Index]: Create or drop Neo4j indexes
+* xref:workflow/actions/neo4j-constraint.adoc[Neo4j Constraint]: Create or drop Neo4j constraints
 
 == Pipeline Transforms
 

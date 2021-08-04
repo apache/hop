@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,7 +65,8 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_DEFAULT_ENVIRONMENT = "10040-default-environment";
   private static final String WIDGET_ID_STANDARD_PARENT_PROJECT = "10050-standard-parent-project";
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
-  private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME = "10070-default-project-config-filename";
+  private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
+      "10070-default-project-config-filename";
 
   @GuiWidgetElement(
       id = WIDGET_ID_ENABLE_PROJECTS,
@@ -88,13 +89,13 @@ public class ProjectsConfigOptionPlugin
   private Boolean projectMandatory;
 
   @GuiWidgetElement(
-    id = WIDGET_ID_ENVIRONMENT_MANDATORY,
-    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-    type = GuiElementType.CHECKBOX,
-    label = "i18n::ProjectConfig.EnvironmentMandatory.Message")
+      id = WIDGET_ID_ENVIRONMENT_MANDATORY,
+      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ProjectConfig.EnvironmentMandatory.Message")
   @CommandLine.Option(
-    names = {"-ey", "--environment-mandatory"},
-    description = "Make it mandatory to reference an environment")
+      names = {"-ey", "--environment-mandatory"},
+      description = "Make it mandatory to reference an environment")
   private Boolean environmentMandatory;
 
   @GuiWidgetElement(
@@ -110,14 +111,14 @@ public class ProjectsConfigOptionPlugin
   private String defaultProject;
 
   @GuiWidgetElement(
-    id = WIDGET_ID_DEFAULT_ENVIRONMENT,
-    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-    type = GuiElementType.TEXT,
-    variables = true,
-    label = "i18n::ProjectConfig.DefaultEnvironment.Message")
+      id = WIDGET_ID_DEFAULT_ENVIRONMENT,
+      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "i18n::ProjectConfig.DefaultEnvironment.Message")
   @CommandLine.Option(
-    names = {"-de", "--default-environment"},
-    description = "The name of the default environment to use when none is specified")
+      names = {"-de", "--default-environment"},
+      description = "The name of the default environment to use when none is specified")
   private String defaultEnvironment;
 
   @GuiWidgetElement(
@@ -129,30 +130,32 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.ParentProject.Message")
   @CommandLine.Option(
       names = {"-sp", "--standard-parent-project"},
-      description = "The name of the standard project to use as a parent when creating new projects")
+      description =
+          "The name of the standard project to use as a parent when creating new projects")
   private String standardParentProject;
 
   @GuiWidgetElement(
-    id = WIDGET_ID_STANDARD_PROJECTS_FOLDER,
-    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-    type = GuiElementType.TEXT,
-    variables = true,
-    label = "i18n::ProjectConfig.StdProjectFolder.Message")
+      id = WIDGET_ID_STANDARD_PROJECTS_FOLDER,
+      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "i18n::ProjectConfig.StdProjectFolder.Message")
   @CommandLine.Option(
-    names = {"-sj", "--standard-projects-folder"},
-    description = "GUI: The standard projects folder proposed when creating projects")
+      names = {"-sj", "--standard-projects-folder"},
+      description = "GUI: The standard projects folder proposed when creating projects")
   private String standardProjectsFolder;
 
   @GuiWidgetElement(
-    id = WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME,
-    parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-    type = GuiElementType.TEXT,
-    variables = true,
-    label = "The standard project configuration filename proposed when creating projects")
+      id = WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME,
+      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "The standard project configuration filename proposed when creating projects")
   @CommandLine.Option(
-    names = {"-dc", "--default-projects-folder"},
-    description = "The standard project configuration filename proposed when creating projects")
+      names = {"-dc", "--default-projects-folder"},
+      description = "The standard project configuration filename proposed when creating projects")
   private String defaultProjectConfigFile;
+
   /**
    * Gets instance
    *
@@ -226,19 +229,19 @@ public class ProjectsConfigOptionPlugin
         changed = true;
       }
       if (standardProjectsFolder != null) {
-        config.setStandardProjectsFolder( standardProjectsFolder );
+        config.setStandardProjectsFolder(standardProjectsFolder);
         log.logBasic(
-          "The standard projects folder to browse to in the GUI is set to '"
-            + standardProjectsFolder
-            + "'");
+            "The standard projects folder to browse to in the GUI is set to '"
+                + standardProjectsFolder
+                + "'");
         changed = true;
       }
       if (defaultProjectConfigFile != null) {
-        config.setDefaultProjectConfigFile( defaultProjectConfigFile );
+        config.setDefaultProjectConfigFile(defaultProjectConfigFile);
         log.logBasic(
-          "The default project configuration filename is set to '"
-            + defaultProjectConfigFile
-            + "'");
+            "The default project configuration filename is set to '"
+                + defaultProjectConfigFile
+                + "'");
         changed = true;
       }
       // Save to file if anything changed
@@ -284,9 +287,15 @@ public class ProjectsConfigOptionPlugin
           if (!StringUtils.isEmpty(defProject)) {
             boolean defParentPrjExists = ProjectsUtil.projectExists(defProject);
             if (!defParentPrjExists) {
-              MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
-              box.setText(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.Error.Header"));
-              box.setMessage(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.DefaultProject.Error.Message", defProject));
+              MessageBox box =
+                  new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
+              box.setText(
+                  BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.Error.Header"));
+              box.setMessage(
+                  BaseMessages.getString(
+                      PKG,
+                      "ProjectConfig.ProjectNotExists.DefaultProject.Error.Message",
+                      defProject));
               box.open();
             } else {
               defaultProject = defProject;
@@ -303,9 +312,15 @@ public class ProjectsConfigOptionPlugin
           if (!StringUtils.isEmpty(stdParentProject)) {
             boolean stdParentPrjExists = ProjectsUtil.projectExists(stdParentProject);
             if (!stdParentPrjExists) {
-              MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
-              box.setText(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.Error.Header"));
-              box.setMessage(BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.StandardProject.Error.Message", stdParentProject));
+              MessageBox box =
+                  new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_ERROR);
+              box.setText(
+                  BaseMessages.getString(PKG, "ProjectConfig.ProjectNotExists.Error.Header"));
+              box.setMessage(
+                  BaseMessages.getString(
+                      PKG,
+                      "ProjectConfig.ProjectNotExists.StandardProject.Error.Message",
+                      stdParentProject));
               box.open();
             } else {
               standardParentProject = stdParentProject;
@@ -328,9 +343,11 @@ public class ProjectsConfigOptionPlugin
     try {
       ProjectsConfigSingleton.saveConfig();
     } catch (Exception e) {
-      new ErrorDialog(HopGui.getInstance().getShell()
-              , BaseMessages.getString(PKG, "ProjectConfig.SavingOption.ErrorDialog.Header")
-              , BaseMessages.getString(PKG, "ProjectConfig.SavingOption.ErrorDialog.Message"), e);
+      new ErrorDialog(
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "ProjectConfig.SavingOption.ErrorDialog.Header"),
+          BaseMessages.getString(PKG, "ProjectConfig.SavingOption.ErrorDialog.Message"),
+          e);
     }
   }
 
@@ -399,10 +416,8 @@ public class ProjectsConfigOptionPlugin
     return environmentMandatory;
   }
 
-  /**
-   * @param environmentMandatory The environmentMandatory to set
-   */
-  public void setEnvironmentMandatory( Boolean environmentMandatory ) {
+  /** @param environmentMandatory The environmentMandatory to set */
+  public void setEnvironmentMandatory(Boolean environmentMandatory) {
     this.environmentMandatory = environmentMandatory;
   }
 
@@ -415,10 +430,8 @@ public class ProjectsConfigOptionPlugin
     return defaultEnvironment;
   }
 
-  /**
-   * @param defaultEnvironment The defaultEnvironment to set
-   */
-  public void setDefaultEnvironment( String defaultEnvironment ) {
+  /** @param defaultEnvironment The defaultEnvironment to set */
+  public void setDefaultEnvironment(String defaultEnvironment) {
     this.defaultEnvironment = defaultEnvironment;
   }
 
@@ -431,10 +444,8 @@ public class ProjectsConfigOptionPlugin
     return standardProjectsFolder;
   }
 
-  /**
-   * @param standardProjectsFolder The standardProjectsFolder to set
-   */
-  public void setStandardProjectsFolder( String standardProjectsFolder ) {
+  /** @param standardProjectsFolder The standardProjectsFolder to set */
+  public void setStandardProjectsFolder(String standardProjectsFolder) {
     this.standardProjectsFolder = standardProjectsFolder;
   }
 
@@ -447,17 +458,15 @@ public class ProjectsConfigOptionPlugin
     return defaultProjectConfigFile;
   }
 
-  /**
-   * @param defaultProjectConfigFile The defaultProjectConfigFile to set
-   */
-  public void setDefaultProjectConfigFile( String defaultProjectConfigFile ) {
+  /** @param defaultProjectConfigFile The defaultProjectConfigFile to set */
+  public void setDefaultProjectConfigFile(String defaultProjectConfigFile) {
     this.defaultProjectConfigFile = defaultProjectConfigFile;
   }
 
   /**
    * Used to generate the list that is shown in the mySqlDriverClass GuiWidget
    *
-   * @param log              Logging object
+   * @param log Logging object
    * @param metadataProvider If shared metadata is needed to get the values
    * @return The list of driver type names shown in the GUI
    */
@@ -470,11 +479,10 @@ public class ProjectsConfigOptionPlugin
     // Add empty entry for no selection
     prjsList.add("");
 
-    for (String prj: prjs) {
+    for (String prj : prjs) {
       prjsList.add(prj);
     }
 
     return prjsList;
   }
-
 }

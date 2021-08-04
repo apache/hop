@@ -23,19 +23,23 @@ Generate CSV files for nodes and relationships in the import folder for use with
 
 == Options
 
-[options="header", width="90%"]
+[options="header",width="90%"]
 |===
 |Option|Default|Description
 |Transform name|Neo4j Generate CSVs|
 |Graph field|-|The field in this pipeline that contains the graph data (Graph data type)
 |Base folder (below `import/` folder)|`/var/lib/neo4j`|the folder to write the nodes and relationships types to
 |CSV files prefix|prefix|prefix to apply to the generated CSV files
-|Node/Relationships Uniqueness strategy|None a|
+|Node/Relationships Uniqueness strategy|None|
 
 * None: don't handle uniqueness while generating CSVs
-* First: if duplicates are found, keep the first occurence
-* Last: if duplicates are found, keep the last occurence
+* First: if duplicates are found, keep the first occurrence
+* Last: if duplicates are found, keep the last occurrence
+
+Please note that primary key of all nodes written to a CSV file needs to be unique.
+The uniqueness strategy used in this transform is simple in nature and loads everything in memory.
+Because of this you can consider using a Sort transform to force uniqueness beforehand.
 
 |Filename field|filename|field that contains the filename for the CSV files to be generated
-|Fiel type field|fileType|field that contains the file type for the CSV files to be generated
+|File type field|fileType|field that contains the file type for the CSV files to be generated
 |===
