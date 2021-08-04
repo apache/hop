@@ -49,6 +49,7 @@ The path you get is the exact path that was followed from for example the "grand
 * xref:workflow/actions/neo4j-checkconnections.adoc[Neo4j Check Connection]: check a connection to a Neo4j database
 * xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher Script]: execute a Cypher script or query
 * xref:workflow/actions/neo4j-index.adoc[Neo4j Index]: Create or drop Neo4j indexes
+* xref:workflow/actions/neo4j-constraint.adoc[Neo4j Constraint]: Create or drop Neo4j constraints
 
 == Pipeline Transforms
 

@@ -287,6 +287,7 @@ under the License.
 *** xref:workflow/actions/mysqlbulkfile.adoc[MySQL Bulk File]
 *** xref:workflow/actions/mysqlbulkload.adoc[MySQL Bulk Loader]
 *** xref:workflow/actions/neo4j-checkconnections.adoc[Neo4j Check Connections]
+*** xref:workflow/actions/neo4j-constraint.adoc[Neo4j Constraint]
 *** xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher Script]
 *** xref:workflow/actions/neo4j-index.adoc[Neo4j Index]
 *** xref:workflow/actions/pgpfiles.adoc[PGP Files]
