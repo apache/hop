@@ -160,7 +160,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20120-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Disable metrics",
+      label = "Disable externalized checkpoints",
       toolTip =
           "Enables or disables externalized checkpoints. "
               + "Works in conjunction with CheckpointingInterval")
