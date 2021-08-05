@@ -585,60 +585,74 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (data.db != null) {
       try {
-        for (String schemaTable : data.preparedStatements.keySet()) {
-          // Get a commit counter per prepared statement to keep track of separate tables, etc.
-          //
-          Integer batchCounter = data.commitCounterMap.get(schemaTable);
-          if (batchCounter == null) {
-            batchCounter = 0;
-          }
-
-          PreparedStatement insertStatement = data.preparedStatements.get(schemaTable);
-
-          data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter);
-        }
-        for (int i = 0; i < data.batchBuffer.size(); i++) {
-          Object[] row = data.batchBuffer.get(i);
-          putRow(data.outputRowMeta, row);
-          incrementLinesOutput();
-        }
-        // Clear the buffer
-        data.batchBuffer.clear();
-      } catch (HopDatabaseBatchException be) {
-        if (getTransformMeta().isDoingErrorHandling()) {
-          // Right at the back we are experiencing a batch commit problem...
-          // OK, we have the numbers...
-          try {
-            processBatchException(be.toString(), be.getUpdateCounts(), be.getExceptionsList());
-          } catch (HopException e) {
-            logError("Unexpected error processing batch error", e);
-            setErrors(1);
-            stopAll();
-          }
-        } else {
-          logError("Unexpected batch update error committing the database connection.", be);
-          setErrors(1);
-          stopAll();
-        }
-      } catch (Exception dbe) {
-        logError("Unexpected error committing the database connection.", dbe);
-        logError(Const.getStackTracker(dbe));
-        setErrors(1);
-        stopAll();
+        emptyAndCommitBatchBuffers();
       } finally {
-        setOutputDone();
-
-        if (getErrors() > 0) {
-          try {
-            data.db.rollback();
-          } catch (HopDatabaseException e) {
-            logError("Unexpected error rolling back the database connection.", e);
-          }
-        }
-
         data.db.disconnect();
       }
       super.dispose();
     }
+  }
+
+  private void emptyAndCommitBatchBuffers() {
+    try {
+      for (String schemaTable : data.preparedStatements.keySet()) {
+        // Get a commit counter per prepared statement to keep track of separate tables, etc.
+        //
+        Integer batchCounter = data.commitCounterMap.get(schemaTable);
+        if (batchCounter == null || batchCounter == 0) {
+          continue; // Skip this one, no work required
+        }
+
+        PreparedStatement insertStatement = data.preparedStatements.get(schemaTable);
+        data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter);
+        data.commitCounterMap.put(schemaTable, 0);
+      }
+      for (int i = 0; i < data.batchBuffer.size(); i++) {
+        Object[] row = data.batchBuffer.get(i);
+        putRow(data.outputRowMeta, row);
+        incrementLinesOutput();
+      }
+      // Clear the buffer
+      data.batchBuffer.clear();
+    } catch (HopDatabaseBatchException be) {
+      if (getTransformMeta().isDoingErrorHandling()) {
+        // Right at the back we are experiencing a batch commit problem...
+        // OK, we have the numbers...
+        try {
+          processBatchException(be.toString(), be.getUpdateCounts(), be.getExceptionsList());
+        } catch (HopException e) {
+          logError("Unexpected error processing batch error", e);
+          setErrors(1);
+          stopAll();
+        }
+      } else {
+        logError("Unexpected batch update error committing the database connection.", be);
+        setErrors(1);
+        stopAll();
+      }
+    } catch (Exception dbe) {
+      logError("Unexpected error committing the database connection.", dbe);
+      logError(Const.getStackTracker(dbe));
+      setErrors(1);
+      stopAll();
+    } finally {
+      setOutputDone();
+
+      if (getErrors() > 0) {
+        try {
+          data.db.rollback();
+        } catch (HopDatabaseException e) {
+          logError("Unexpected error rolling back the database connection.", e);
+        }
+      }
+    }
+  }
+
+  // Force the batched up rows to the database in a single-threaded scenario
+  // (Beam as well)
+  //
+  @Override
+  public void batchComplete() throws HopException {
+    emptyAndCommitBatchBuffers();
   }
 }
