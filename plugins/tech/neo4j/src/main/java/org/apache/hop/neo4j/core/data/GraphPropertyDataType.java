@@ -13,13 +13,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.core.data;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -37,7 +38,12 @@ public enum GraphPropertyDataType {
   Point(null),
   Duration("duration"),
   LocalTime("localtime"),
-  DateTime("datetime");
+  DateTime("datetime"),
+  List("List"),
+  Map("Map"),
+  Node("Node"),
+  Relationship("Relationship"),
+  Path("Path");
 
   private String importType;
 
@@ -160,6 +166,8 @@ public enum GraphPropertyDataType {
       case Time:
       case Point:
       case LocalTime:
+      case Map:
+      case List:
       default:
         throw new HopValueException(
             "Data conversion to Neo4j type '"
@@ -174,7 +182,13 @@ public enum GraphPropertyDataType {
 
     switch (this) {
       case String:
+      case Map: // convert to JSON
+      case List: // convert to JSON
         return IValueMeta.TYPE_STRING;
+      case Node: // Convert to Graph data type
+      case Relationship:
+      case Path:
+        return ValueMetaGraph.TYPE_GRAPH;
       case Boolean:
         return IValueMeta.TYPE_BOOLEAN;
       case Float:

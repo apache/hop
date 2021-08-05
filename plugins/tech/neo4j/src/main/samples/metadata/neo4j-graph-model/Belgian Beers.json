@@ -1,0 +1,193 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "Brand",
+      "name": "Brand - Brewery",
+      "description": "",
+      "nodeTarget": "Brewery",
+      "label": "brewed_in",
+      "properties": []
+    },
+    {
+      "nodeSource": "Brand",
+      "name": "Brand - Strength",
+      "nodeTarget": "Strength",
+      "label": "has_strength",
+      "properties": []
+    },
+    {
+      "nodeSource": "Strength",
+      "name": "Strength - Evaluation",
+      "nodeTarget": "Evaluation",
+      "label": "has_evaluation",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "percentage",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "nodeSource": "Brand",
+      "name": "Brand - Type",
+      "nodeTarget": "Type",
+      "label": "has_type",
+      "properties": []
+    },
+    {
+      "nodeSource": "Brand",
+      "name": "Brand - Period",
+      "nodeTarget": "Period",
+      "label": "brewed_in_period",
+      "properties": []
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 559,
+        "y": 94
+      },
+      "name": "Brand",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "name",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Brand"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 683,
+        "y": 348
+      },
+      "name": "Strength",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "label",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        },
+        {
+          "indexed": true,
+          "unique": false,
+          "name": "pct",
+          "description": "",
+          "type": "Float",
+          "mandatory": true,
+          "primary": false
+        }
+      ],
+      "labels": [
+        "Strength"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 145,
+        "y": 343
+      },
+      "name": "Brewery",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "name",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Brewery"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 1201,
+        "y": 158
+      },
+      "name": "Evaluation",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "label",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Evaluation"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 110,
+        "y": 62
+      },
+      "name": "Type",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "name",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Type"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "Period",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": true,
+          "name": "description",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Period"
+      ]
+    }
+  ],
+  "name": "Belgian Beers",
+  "description": ""
+}

@@ -1,0 +1,2268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>beers-wikipedia-scrub</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/07/29 12:22:59.982</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/07/29 12:22:59.982</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>The result of this pipeline is a binary file which contains 
+all the interesting beers data from the Wikipedia page.</note>
+      <xloc>80</xloc>
+      <yloc>32</yloc>
+      <width>296</width>
+      <heigth>42</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>1 row</from>
+      <to>https://nl.wikipedia.org/wiki/Lijst_van_Belgische_bieren</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>https://nl.wikipedia.org/wiki/Lijst_van_Belgische_bieren</from>
+      <to>HTML to lines</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>HTML to lines</from>
+      <to>line</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>line</from>
+      <to>keep line?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep line?</from>
+      <to>keep</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep</from>
+      <to>keep table data</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep table data</from>
+      <to>keep </to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep </from>
+      <to>fieldnr</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>fieldnr</from>
+      <to>flatten</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>flatten</from>
+      <to>cleanup brand</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>cleanup brand</from>
+      <to>cleanup types</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>cleanup types</from>
+      <to>cleanup percentage</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>cleanup percentage</from>
+      <to>cleanup brewery</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>cleanup brewery</from>
+      <to>cleanup period</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>cleanup period</from>
+      <to>types -> type</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>types -> type</from>
+      <to>trim/lowercase type</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>trim/lowercase type</from>
+      <to>translate type</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>translate type</from>
+      <to>limit fields</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>format percentage</from>
+      <to>evaluate percentage</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>limit fields</from>
+      <to>format percentage</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>evaluate percentage</from>
+      <to>/tmp/beers-wikipedia.hop</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>/tmp/beers-wikipedia.hop</name>
+    <type>CubeOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file>
+      <name>${java.io.tmpdir}/beers-wikipedia.hop</name>
+      <add_to_result_filenames>N</add_to_result_filenames>
+      <do_not_open_newfile_init>Y</do_not_open_newfile_init>
+    </file>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>1 row</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>https://nl.wikipedia.org/wiki/Lijst_van_Belgische_bieren</name>
+    <type>Http</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <url>https://nl.wikipedia.org/wiki/Lijst_van_Belgische_bieren</url>
+    <urlInField>N</urlInField>
+    <urlField/>
+    <encoding>UTF-8</encoding>
+    <httpLogin/>
+    <httpPassword>Encrypted </httpPassword>
+    <proxyHost/>
+    <proxyPort/>
+    <socketTimeout>10000</socketTimeout>
+    <connectionTimeout>10000</connectionTimeout>
+    <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>
+    <lookup>
+    </lookup>
+    <result>
+      <name>webpage</name>
+      <code>statuscode</code>
+      <response_time/>
+      <response_header/>
+    </result>
+    <attributes/>
+    <GUI>
+      <xloc>256</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>HTML to lines</name>
+    <type>SplitFieldToRows3</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <delimiter>\n</delimiter>
+    <rownum>N</rownum>
+    <delimiter_is_regex>Y</delimiter_is_regex>
+    <newfield>line</newfield>
+    <resetrownumber>Y</resetrownumber>
+    <rownum_field/>
+    <splitfield>webpage</splitfield>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>cleanup brand</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>brand</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;sup.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brand</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/a>.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brand</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/i>.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brand</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/td></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brand</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^.*></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>cleanup brewery</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>brewery</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;sup.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brewery</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/a>.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brewery</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/i>.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brewery</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/td></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>brewery</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^.*></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>cleanup percentage</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/td>$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^&lt;td></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>%</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>?</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>\s</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>\(.*\)$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>-.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>en.*$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>&amp;#160;</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>percentage</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>,</replace_string>
+        <replace_by_string>.</replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>cleanup period</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^&lt;td></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/td>$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>heden</replace_string>
+        <replace_by_string>today</replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>en</replace_string>
+        <replace_by_string>and</replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>?-?</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>?-now</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>e </replace_string>
+        <replace_by_string>and </replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>?-</replace_string>
+        <replace_by_string> until </replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>\(.*\)$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>  </replace_string>
+        <replace_by_string> </replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>\-today</replace_string>
+        <replace_by_string> until today</replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>-\?$</replace_string>
+        <replace_by_string> and later</replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>period</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^\s*</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>cleanup types</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/td>$</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^&lt;td></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/a>, &lt;a href="/wiki/.*title=".*"></replace_string>
+        <replace_by_string>&lt;/a></replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;a href="/wiki/.*title=".*"></replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;a href="/w/index.php.title.*class.*title.*"></replace_string>
+        <replace_by_string>&lt;/a></replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>&lt;/a></replace_string>
+        <replace_by_string>, </replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>, $</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>no</use_regex>
+        <replace_string>, , </replace_string>
+        <replace_by_string>, </replace_by_string>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+      <field>
+        <in_stream_name>types</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>^, </replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>evaluate percentage</name>
+    <type>NumberRange</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <inputField>percentage</inputField>
+    <outputField>evaluation</outputField>
+    <fallBackValue/>
+    <rules>
+      <rule>
+        <lower_bound>-1.7976931348623157E308</lower_bound>
+        <upper_bound>3.5</upper_bound>
+        <value>Low</value>
+      </rule>
+      <rule>
+        <lower_bound>3.5</lower_bound>
+        <upper_bound>5.0</upper_bound>
+        <value>Medium</value>
+      </rule>
+      <rule>
+        <lower_bound>5.0</lower_bound>
+        <upper_bound>8.0</upper_bound>
+        <value>High</value>
+      </rule>
+      <rule>
+        <lower_bound>8.0</lower_bound>
+        <upper_bound>12.0</upper_bound>
+        <value>Very High</value>
+      </rule>
+      <rule>
+        <lower_bound>12.0</lower_bound>
+        <upper_bound>1.7976931348623157E308</upper_bound>
+        <value>Extreme</value>
+      </rule>
+    </rules>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>fieldnr</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <all_rows>Y</all_rows>
+    <ignore_aggregate>N</ignore_aggregate>
+    <field_ignore/>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>grp</prefix>
+    <add_linenr>Y</add_linenr>
+    <linenr_fieldname>fieldnr</linenr_fieldname>
+    <give_back_row>N</give_back_row>
+    <group>
+      <field>
+        <name>rownr</name>
+      </field>
+    </group>
+    <fields>
+      </fields>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>flatten</name>
+    <type>Denormaliser</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <field_name>line</field_name>
+        <key_value>1</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>brand</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>line</field_name>
+        <key_value>2</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>types</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>line</field_name>
+        <key_value>3</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>percentage</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>line</field_name>
+        <key_value>4</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>brewery</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>line</field_name>
+        <key_value>5</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>period</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+    </fields>
+    <group>
+      <field>
+        <name>rownr</name>
+      </field>
+    </group>
+    <key_field>fieldnr</key_field>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>format percentage</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>
+var percentageLabel;
+
+if (percentage != null) {
+  percentageLabel = num2str(percentage, "0.0") + "%"
+}
+
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>percentageLabel</name>
+        <rename>percentageLabel</rename>
+        <type>String</type>
+        <length>10</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>keep</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>yes</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep </name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>keep</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>yes</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep line?</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>1</jsScript_type>
+        <jsScript_name>startScript</jsScript_name>
+        <jsScript_script>
+var keep = "no";</jsScript_script>
+      </jsScript>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>processScript</jsScript_name>
+        <jsScript_script>
+if (line.startsWith("&lt;table class")) {
+  // Alert("Table start with line : "+line);
+  keep = "yes";
+}
+if (line.includes("&lt;/table>")) {
+  // Alert("Table end with line: "+line);
+  keep = "no";
+}
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>keep</name>
+        <rename>keep</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep table data</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>1</jsScript_type>
+        <jsScript_name>startScript</jsScript_name>
+        <jsScript_script>
+var keep = "no";
+var rownr = 0;</jsScript_script>
+      </jsScript>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>processScript</jsScript_name>
+        <jsScript_script>
+if (line.startsWith("&lt;tr>")) {
+  rownr++;
+}
+if (line.startsWith("&lt;td>") &amp;&amp; !line.endsWith("&lt;/span>")) {
+  // Alert("Table end with line: "+line);
+  keep = "yes";
+} else {
+  keep = "no";
+}
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>keep</name>
+        <rename>keep</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>Y</replace>
+      </field>
+      <field>
+        <name>rownr</name>
+        <rename>rownr</rename>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>limit fields</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>rownr</name>
+        <rename>id</rename>
+      </field>
+      <field>
+        <name>brand</name>
+      </field>
+      <field>
+        <name>percentage</name>
+      </field>
+      <field>
+        <name>brewery</name>
+      </field>
+      <field>
+        <name>period</name>
+      </field>
+      <field>
+        <name>type</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>percentage</name>
+        <rename>percentage</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>#0.#</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol>.</decimal_symbol>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>line</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>line</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>trim/lowercase type</name>
+    <type>StringOperations</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>type</in_stream_name>
+        <out_stream_name/>
+        <trim_type>both</trim_type>
+        <lower_upper>lower</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>no</init_cap>
+        <mask_xml>none</mask_xml>
+        <digits>none</digits>
+        <remove_special_characters>none</remove_special_characters>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>translate type</name>
+    <type>ValueMapper</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <field_to_use>type</field_to_use>
+    <target_field/>
+    <non_match_default/>
+    <fields>
+      <field>
+        <source_value>aangezoete geuze</source_value>
+        <target_value>sweetened gueuze</target_value>
+      </field>
+      <field>
+        <source_value>aardbeienlambiek</source_value>
+        <target_value>strawberry lambic</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier</source_value>
+        <target_value>abbeybeer</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier ale</source_value>
+        <target_value>abbeybeer ale</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier amber</source_value>
+        <target_value>abbeybeer amber</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier bruin</source_value>
+        <target_value>abbeybeer brown</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier hoge gisting</source_value>
+        <target_value>abbeybeer high fermentation</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier winterbier</source_value>
+        <target_value>abbeybeer winterbeer</target_value>
+      </field>
+      <field>
+        <source_value>abdijbier zomerbier</source_value>
+        <target_value>abbeybeer summerbeer</target_value>
+      </field>
+      <field>
+        <source_value>alcoholarm</source_value>
+        <target_value>low alcohol</target_value>
+      </field>
+      <field>
+        <source_value>alcoholvrij</source_value>
+        <target_value>whitehout alcohol</target_value>
+      </field>
+      <field>
+        <source_value>alcoholvrij bier</source_value>
+        <target_value>whitehout alcohol</target_value>
+      </field>
+      <field>
+        <source_value>alcoholvrij fruitbier</source_value>
+        <target_value>whitehout alcohol fruitbeer</target_value>
+      </field>
+      <field>
+        <source_value>alcoholvrij witbier</source_value>
+        <target_value>whitehout alcohol whitebeer</target_value>
+      </field>
+      <field>
+        <source_value>ale donker</source_value>
+        <target_value>ale dark</target_value>
+      </field>
+      <field>
+        <source_value>amber licht bitter</source_value>
+        <target_value>amber slightly bitter</target_value>
+      </field>
+      <field>
+        <source_value>amberbruin</source_value>
+        <target_value>amber brown</target_value>
+      </field>
+      <field>
+        <source_value>amberkleurig</source_value>
+        <target_value>amber color</target_value>
+      </field>
+      <field>
+        <source_value>amberkleurig speciaalbier</source_value>
+        <target_value>ambercolor special</target_value>
+      </field>
+      <field>
+        <source_value>amberrood</source_value>
+        <target_value>amber red</target_value>
+      </field>
+      <field>
+        <source_value>biologisch</source_value>
+        <target_value>bio</target_value>
+      </field>
+      <field>
+        <source_value>biologisch bier</source_value>
+        <target_value>bio</target_value>
+      </field>
+      <field>
+        <source_value>blond (etiketbier)</source_value>
+        <target_value>blond (label beer)</target_value>
+      </field>
+      <field>
+        <source_value>blond aperitiefbier</source_value>
+        <target_value>blond aperitifbeer</target_value>
+      </field>
+      <field>
+        <source_value>blond hoppig</source_value>
+        <target_value>blond hop</target_value>
+      </field>
+      <field>
+        <source_value>blond kerstbier</source_value>
+        <target_value>blond christmas beer</target_value>
+      </field>
+      <field>
+        <source_value>blond seizoensbier</source_value>
+        <target_value>blond season beer</target_value>
+      </field>
+      <field>
+        <source_value>blond speciaalbier</source_value>
+        <target_value>blond special beer</target_value>
+      </field>
+      <field>
+        <source_value>blond tafelbier</source_value>
+        <target_value>blond table beer</target_value>
+      </field>
+      <field>
+        <source_value>blond tarwebier</source_value>
+        <target_value>blond wheat beer</target_value>
+      </field>
+      <field>
+        <source_value>blond troebel</source_value>
+        <target_value>blond cloudy</target_value>
+      </field>
+      <field>
+        <source_value>blonde</source_value>
+        <target_value>blond</target_value>
+      </field>
+      <field>
+        <source_value>blonde ale</source_value>
+        <target_value>blond ale</target_value>
+      </field>
+      <field>
+        <source_value>blonde india pale ale</source_value>
+        <target_value>blond india pale ale</target_value>
+      </field>
+      <field>
+        <source_value>blonde lager</source_value>
+        <target_value>blond lager</target_value>
+      </field>
+      <field>
+        <source_value>blonde tripel</source_value>
+        <target_value>blond triple</target_value>
+      </field>
+      <field>
+        <source_value>bockbier</source_value>
+        <target_value>block beer</target_value>
+      </field>
+      <field>
+        <source_value>boekweit</source_value>
+        <target_value>buckwheat</target_value>
+      </field>
+      <field>
+        <source_value>bokbier</source_value>
+        <target_value>buckbeer</target_value>
+      </field>
+      <field>
+        <source_value>bosbessenbier</source_value>
+        <target_value>blueberry beer</target_value>
+      </field>
+      <field>
+        <source_value>bovengisting</source_value>
+        <target_value>top fermentation</target_value>
+      </field>
+      <field>
+        <source_value>brett-bier</source_value>
+        <target_value>brett-beer</target_value>
+      </field>
+      <field>
+        <source_value>bruin</source_value>
+        <target_value>brown</target_value>
+      </field>
+      <field>
+        <source_value>bruin dubbel</source_value>
+        <target_value>brown double</target_value>
+      </field>
+      <field>
+        <source_value>bruin kerstbier</source_value>
+        <target_value>brown christmas beer</target_value>
+      </field>
+      <field>
+        <source_value>bruin speciaalbier</source_value>
+        <target_value>brown special beer</target_value>
+      </field>
+      <field>
+        <source_value>bruinbier</source_value>
+        <target_value>brown beer</target_value>
+      </field>
+      <field>
+        <source_value>bruinrood</source_value>
+        <target_value>brownred</target_value>
+      </field>
+      <field>
+        <source_value>brutbier</source_value>
+        <target_value>brut beer</target_value>
+      </field>
+      <field>
+        <source_value>chocoladebier</source_value>
+        <target_value>chocolate beer</target_value>
+      </field>
+      <field>
+        <source_value>cuvée</source_value>
+        <target_value>cuvée</target_value>
+      </field>
+      <field>
+        <source_value>diverse moutsoorten</source_value>
+        <target_value>diverse moutsoorten</target_value>
+      </field>
+      <field>
+        <source_value>donker</source_value>
+        <target_value>dark</target_value>
+      </field>
+      <field>
+        <source_value>donker amber</source_value>
+        <target_value>dark amber</target_value>
+      </field>
+      <field>
+        <source_value>donker kerstbier</source_value>
+        <target_value>dark christmas beer</target_value>
+      </field>
+      <field>
+        <source_value>donker seizoensbier</source_value>
+        <target_value>dark seasons beer</target_value>
+      </field>
+      <field>
+        <source_value>donker speciaalbier</source_value>
+        <target_value>dark special beer</target_value>
+      </field>
+      <field>
+        <source_value>donkeramber</source_value>
+        <target_value>darkamber</target_value>
+      </field>
+      <field>
+        <source_value>donkerblond</source_value>
+        <target_value>darkblond</target_value>
+      </field>
+      <field>
+        <source_value>donkerblond abdijbier</source_value>
+        <target_value>darkblond abbey beer</target_value>
+      </field>
+      <field>
+        <source_value>donkerbruin</source_value>
+        <target_value>darkbrown</target_value>
+      </field>
+      <field>
+        <source_value>donkere ale</source_value>
+        <target_value>dark ale</target_value>
+      </field>
+      <field>
+        <source_value>donkere scotch</source_value>
+        <target_value>dark scotch</target_value>
+      </field>
+      <field>
+        <source_value>donkere stout</source_value>
+        <target_value>dark stout</target_value>
+      </field>
+      <field>
+        <source_value>donkere tripel</source_value>
+        <target_value>dark tripple</target_value>
+      </field>
+      <field>
+        <source_value>donkerrood</source_value>
+        <target_value>darkred</target_value>
+      </field>
+      <field>
+        <source_value>dortmunder</source_value>
+        <target_value>dortmunder</target_value>
+      </field>
+      <field>
+        <source_value>double ipa</source_value>
+        <target_value>double ipa</target_value>
+      </field>
+      <field>
+        <source_value>dubbel</source_value>
+        <target_value>double</target_value>
+      </field>
+      <field>
+        <source_value>dubbel gehopt</source_value>
+        <target_value>double hopped</target_value>
+      </field>
+      <field>
+        <source_value>dubbele ipa</source_value>
+        <target_value>doublee ipa</target_value>
+      </field>
+      <field>
+        <source_value>eisbockmethode</source_value>
+        <target_value>eisbock method</target_value>
+      </field>
+      <field>
+        <source_value>erkend belgisch abdijbier</source_value>
+        <target_value>recognized belgian abbey beer</target_value>
+      </field>
+      <field>
+        <source_value>etiketbier</source_value>
+        <target_value>label beer</target_value>
+      </field>
+      <field>
+        <source_value>export</source_value>
+        <target_value>export</target_value>
+      </field>
+      <field>
+        <source_value>export pils</source_value>
+        <target_value>export lager</target_value>
+      </field>
+      <field>
+        <source_value>faro</source_value>
+        <target_value>faro</target_value>
+      </field>
+      <field>
+        <source_value>frambozenbier</source_value>
+        <target_value>frambozen beer</target_value>
+      </field>
+      <field>
+        <source_value>fris kruidig</source_value>
+        <target_value>fris kruidig</target_value>
+      </field>
+      <field>
+        <source_value>fruibier</source_value>
+        <target_value>fruit beer</target_value>
+      </field>
+      <field>
+        <source_value>fruit- en bloemenbier</source_value>
+        <target_value>fruit and flowerbeer</target_value>
+      </field>
+      <field>
+        <source_value>fruitbier</source_value>
+        <target_value>fruit beer</target_value>
+      </field>
+      <field>
+        <source_value>fruitbier (kriekensap)</source_value>
+        <target_value>fruit beer (cherry juice)</target_value>
+      </field>
+      <field>
+        <source_value>fruitbier op basis van lambiek</source_value>
+        <target_value>fruit beer whiteh lambic base</target_value>
+      </field>
+      <field>
+        <source_value>fruitbier-pils</source_value>
+        <target_value>fruit beer-lager</target_value>
+      </field>
+      <field>
+        <source_value>fruitig witbier</source_value>
+        <target_value>fruity white beer</target_value>
+      </field>
+      <field>
+        <source_value>gemengde gisting</source_value>
+        <target_value>gemengde fermentation</target_value>
+      </field>
+      <field>
+        <source_value>gerstewijn</source_value>
+        <target_value>gerstewijn</target_value>
+      </field>
+      <field>
+        <source_value>geuze</source_value>
+        <target_value>geuze</target_value>
+      </field>
+      <field>
+        <source_value>glutenvrij pilsener</source_value>
+        <target_value>glutenvrij lagerener</target_value>
+      </field>
+      <field>
+        <source_value>gold</source_value>
+        <target_value>gold</target_value>
+      </field>
+      <field>
+        <source_value>goldblond</source_value>
+        <target_value>goldblond</target_value>
+      </field>
+      <field>
+        <source_value>goldblonde tripel</source_value>
+        <target_value>goldblonde tripple</target_value>
+      </field>
+      <field>
+        <source_value>golden ale</source_value>
+        <target_value>golden ale</target_value>
+      </field>
+      <field>
+        <source_value>goldkleur</source_value>
+        <target_value>goldkleur</target_value>
+      </field>
+      <field>
+        <source_value>goldkleurig</source_value>
+        <target_value>goldkleurig</target_value>
+      </field>
+      <field>
+        <source_value>herbsbier</source_value>
+        <target_value>herbs beer</target_value>
+      </field>
+      <field>
+        <source_value>hergisting op fles</source_value>
+        <target_value>re-fermentation bottled</target_value>
+      </field>
+      <field>
+        <source_value>hoge gisting</source_value>
+        <target_value>high fermentation</target_value>
+      </field>
+      <field>
+        <source_value>hoge gisting (etiketbier)</source_value>
+        <target_value>high fermentation (label beer)</target_value>
+      </field>
+      <field>
+        <source_value>honingbier</source_value>
+        <target_value>honing beer</target_value>
+      </field>
+      <field>
+        <source_value>honingkersbier</source_value>
+        <target_value>honingkers beer</target_value>
+      </field>
+      <field>
+        <source_value>hoogblond</source_value>
+        <target_value>hoogblond</target_value>
+      </field>
+      <field>
+        <source_value>hoppig blond</source_value>
+        <target_value>hoppig blond</target_value>
+      </field>
+      <field>
+        <source_value>imperial ipa</source_value>
+        <target_value>imperial ipa</target_value>
+      </field>
+      <field>
+        <source_value>imperial stout</source_value>
+        <target_value>imperial stout</target_value>
+      </field>
+      <field>
+        <source_value>imperial/double ipa</source_value>
+        <target_value>imperial/double ipa</target_value>
+      </field>
+      <field>
+        <source_value>india pale ale</source_value>
+        <target_value>india pale ale</target_value>
+      </field>
+      <field>
+        <source_value>ipa</source_value>
+        <target_value>ipa</target_value>
+      </field>
+      <field>
+        <source_value>ipa abdijbier</source_value>
+        <target_value>ipa abbey beer</target_value>
+      </field>
+      <field>
+        <source_value>kerst</source_value>
+        <target_value>kerst</target_value>
+      </field>
+      <field>
+        <source_value>kerstbier</source_value>
+        <target_value>christmas beer</target_value>
+      </field>
+      <field>
+        <source_value>koper-amber</source_value>
+        <target_value>koper-amber</target_value>
+      </field>
+      <field>
+        <source_value>koperkleurig</source_value>
+        <target_value>koperkleurig</target_value>
+      </field>
+      <field>
+        <source_value>koperkleurig india pale ale</source_value>
+        <target_value>koperkleurig india pale ale</target_value>
+      </field>
+      <field>
+        <source_value>kriek</source_value>
+        <target_value>kriek</target_value>
+      </field>
+      <field>
+        <source_value>kriekenbier</source_value>
+        <target_value>cherry beer</target_value>
+      </field>
+      <field>
+        <source_value>kriekenlambiek</source_value>
+        <target_value>cherry lambic</target_value>
+      </field>
+      <field>
+        <source_value>kölsch</source_value>
+        <target_value>kölsch</target_value>
+      </field>
+      <field>
+        <source_value>lage gisting</source_value>
+        <target_value>lage fermentation</target_value>
+      </field>
+      <field>
+        <source_value>lager</source_value>
+        <target_value>lager</target_value>
+      </field>
+      <field>
+        <source_value>lambiek</source_value>
+        <target_value>lambic</target_value>
+      </field>
+      <field>
+        <source_value>lambiek/kriek</source_value>
+        <target_value>lambic/kriek</target_value>
+      </field>
+      <field>
+        <source_value>lentebier</source_value>
+        <target_value>spring beer</target_value>
+      </field>
+      <field>
+        <source_value>licht troebel</source_value>
+        <target_value>slightly cloudy</target_value>
+      </field>
+      <field>
+        <source_value>lichtamber</source_value>
+        <target_value>slightly amber</target_value>
+      </field>
+      <field>
+        <source_value>lichtblond</source_value>
+        <target_value>slightly blond</target_value>
+      </field>
+      <field>
+        <source_value>lichtbruin</source_value>
+        <target_value>slightly brown</target_value>
+      </field>
+      <field>
+        <source_value>lichtdonker</source_value>
+        <target_value>slightly dark</target_value>
+      </field>
+      <field>
+        <source_value>lichtrood</source_value>
+        <target_value>slightly red</target_value>
+      </field>
+      <field>
+        <source_value>limonadebier</source_value>
+        <target_value>lemonade beer</target_value>
+      </field>
+      <field>
+        <source_value>mengbier</source_value>
+        <target_value>mix beer</target_value>
+      </field>
+      <field>
+        <source_value>mengbier met lambiek</source_value>
+        <target_value>mix beer with lambic</target_value>
+      </field>
+      <field>
+        <source_value>met cajunherbs</source_value>
+        <target_value>with cajunherbs</target_value>
+      </field>
+      <field>
+        <source_value>met pompoen</source_value>
+        <target_value>with pompoen</target_value>
+      </field>
+      <field>
+        <source_value>met wilde gisten</source_value>
+        <target_value>with wilde gisten</target_value>
+      </field>
+      <field>
+        <source_value>mosterdbier</source_value>
+        <target_value>mustard beer</target_value>
+      </field>
+      <field>
+        <source_value>na pils</source_value>
+        <target_value>non-alchoholic lager</target_value>
+      </field>
+      <field>
+        <source_value>oak aged</source_value>
+        <target_value>oak aged</target_value>
+      </field>
+      <field>
+        <source_value>okerblond</source_value>
+        <target_value>okerblond</target_value>
+      </field>
+      <field>
+        <source_value>old bruin</source_value>
+        <target_value>old brown</target_value>
+      </field>
+      <field>
+        <source_value>olde geuze</source_value>
+        <target_value>olde geuze</target_value>
+      </field>
+      <field>
+        <source_value>olde kriek</source_value>
+        <target_value>olde kriek</target_value>
+      </field>
+      <field>
+        <source_value>ongefilterd</source_value>
+        <target_value>unfiltered</target_value>
+      </field>
+      <field>
+        <source_value>ongefilterd blond bier</source_value>
+        <target_value>unfiltered blond beer</target_value>
+      </field>
+      <field>
+        <source_value>ongefiltert</source_value>
+        <target_value>unfiltered</target_value>
+      </field>
+      <field>
+        <source_value>paasbier</source_value>
+        <target_value>easter beer</target_value>
+      </field>
+      <field>
+        <source_value>pale ale</source_value>
+        <target_value>pale ale</target_value>
+      </field>
+      <field>
+        <source_value>pils</source_value>
+        <target_value>lager</target_value>
+      </field>
+      <field>
+        <source_value>pilsener</source_value>
+        <target_value>lagerener</target_value>
+      </field>
+      <field>
+        <source_value>porter</source_value>
+        <target_value>porter</target_value>
+      </field>
+      <field>
+        <source_value>quadrupel</source_value>
+        <target_value>quadrupel</target_value>
+      </field>
+      <field>
+        <source_value>rauchbier</source_value>
+        <target_value>rauch beer</target_value>
+      </field>
+      <field>
+        <source_value>regionaal bier</source_value>
+        <target_value>local beer</target_value>
+      </field>
+      <field>
+        <source_value>robijnrood</source_value>
+        <target_value>robijnred</target_value>
+      </field>
+      <field>
+        <source_value>robijnrood speciaalbier</source_value>
+        <target_value>robijnred special beer</target_value>
+      </field>
+      <field>
+        <source_value>rood</source_value>
+        <target_value>red</target_value>
+      </field>
+      <field>
+        <source_value>rood-bruinbier</source_value>
+        <target_value>red-brown beer</target_value>
+      </field>
+      <field>
+        <source_value>roodbier</source_value>
+        <target_value>red beer</target_value>
+      </field>
+      <field>
+        <source_value>roodbruin</source_value>
+        <target_value>redbrown</target_value>
+      </field>
+      <field>
+        <source_value>roodbruin abdijbier</source_value>
+        <target_value>redbrown abbey beer</target_value>
+      </field>
+      <field>
+        <source_value>roodbruine ale</source_value>
+        <target_value>redbrowne ale</target_value>
+      </field>
+      <field>
+        <source_value>rookbier</source_value>
+        <target_value>rook beer</target_value>
+      </field>
+      <field>
+        <source_value>rosébier</source_value>
+        <target_value>rosé beer</target_value>
+      </field>
+      <field>
+        <source_value>russian imperial stout</source_value>
+        <target_value>russian imperial stout</target_value>
+      </field>
+      <field>
+        <source_value>saison</source_value>
+        <target_value>saison</target_value>
+      </field>
+      <field>
+        <source_value>scotch</source_value>
+        <target_value>scotch</target_value>
+      </field>
+      <field>
+        <source_value>single hop</source_value>
+        <target_value>single hop</target_value>
+      </field>
+      <field>
+        <source_value>smoked porter</source_value>
+        <target_value>smoked porter</target_value>
+      </field>
+      <field>
+        <source_value>speciaalbier</source_value>
+        <target_value>special beer</target_value>
+      </field>
+      <field>
+        <source_value>special belge</source_value>
+        <target_value>special belgian</target_value>
+      </field>
+      <field>
+        <source_value>speciale belge</source_value>
+        <target_value>special belgian</target_value>
+      </field>
+      <field>
+        <source_value>speculaasbier</source_value>
+        <target_value>gingerbread beer</target_value>
+      </field>
+      <field>
+        <source_value>spelt</source_value>
+        <target_value>spelt</target_value>
+      </field>
+      <field>
+        <source_value>speltbier</source_value>
+        <target_value>spelt beer</target_value>
+      </field>
+      <field>
+        <source_value>spontane gisting</source_value>
+        <target_value>spontanous fermentation</target_value>
+      </field>
+      <field>
+        <source_value>spéciale belge</source_value>
+        <target_value>special belgian</target_value>
+      </field>
+      <field>
+        <source_value>sterk blond</source_value>
+        <target_value>strong blond</target_value>
+      </field>
+      <field>
+        <source_value>sterk bruin</source_value>
+        <target_value>strong brown</target_value>
+      </field>
+      <field>
+        <source_value>sterk donker</source_value>
+        <target_value>strong dark</target_value>
+      </field>
+      <field>
+        <source_value>stout</source_value>
+        <target_value>stout</target_value>
+      </field>
+      <field>
+        <source_value>streekbier</source_value>
+        <target_value>regional beer</target_value>
+      </field>
+      <field>
+        <source_value>strogeel</source_value>
+        <target_value>straw yellow</target_value>
+      </field>
+      <field>
+        <source_value>suikervrij</source_value>
+        <target_value>sugar-free</target_value>
+      </field>
+      <field>
+        <source_value>tabaksbier</source_value>
+        <target_value>tabacobeer</target_value>
+      </field>
+      <field>
+        <source_value>tafelbier</source_value>
+        <target_value>table beer</target_value>
+      </field>
+      <field>
+        <source_value>tarwebier</source_value>
+        <target_value>wheat beer</target_value>
+      </field>
+      <field>
+        <source_value>tarwetripel</source_value>
+        <target_value>wheat tripple</target_value>
+      </field>
+      <field>
+        <source_value>trappist</source_value>
+        <target_value>trappist</target_value>
+      </field>
+      <field>
+        <source_value>tripel</source_value>
+        <target_value>tripple</target_value>
+      </field>
+      <field>
+        <source_value>tripel </source_value>
+        <target_value>tripple </target_value>
+      </field>
+      <field>
+        <source_value>tripel (etiketbier)</source_value>
+        <target_value>tripple (label beer)</target_value>
+      </field>
+      <field>
+        <source_value>tripel blond</source_value>
+        <target_value>tripple blond</target_value>
+      </field>
+      <field>
+        <source_value>tripel india pale ale</source_value>
+        <target_value>tripple india pale ale</target_value>
+      </field>
+      <field>
+        <source_value>tripel kerstbier</source_value>
+        <target_value>tripple christmas beer</target_value>
+      </field>
+      <field>
+        <source_value>tripel-gueuze</source_value>
+        <target_value>tripple-gueuze</target_value>
+      </field>
+      <field>
+        <source_value>triple</source_value>
+        <target_value>triple</target_value>
+      </field>
+      <field>
+        <source_value>troebel blond</source_value>
+        <target_value>cloudy blond</target_value>
+      </field>
+      <field>
+        <source_value>versneden</source_value>
+        <target_value>cut</target_value>
+      </field>
+      <field>
+        <source_value>vlaams bruin</source_value>
+        <target_value>flemish brown</target_value>
+      </field>
+      <field>
+        <source_value>vlaams oud bruin</source_value>
+        <target_value>flemish old brown</target_value>
+      </field>
+      <field>
+        <source_value>vlaams roodbruin</source_value>
+        <target_value>flemish redbrown</target_value>
+      </field>
+      <field>
+        <source_value>waestvlaams roodbruin</source_value>
+        <target_value>westflemish redbrown</target_value>
+      </field>
+      <field>
+        <source_value>west-vlaams roodbruin</source_value>
+        <target_value>westflemish redbrown</target_value>
+      </field>
+      <field>
+        <source_value>winterbier</source_value>
+        <target_value>winter beer</target_value>
+      </field>
+      <field>
+        <source_value>wit</source_value>
+        <target_value>white</target_value>
+      </field>
+      <field>
+        <source_value>wit abdijbier</source_value>
+        <target_value>white abbey beer</target_value>
+      </field>
+      <field>
+        <source_value>witbier</source_value>
+        <target_value>white beer</target_value>
+      </field>
+      <field>
+        <source_value>witte tripel</source_value>
+        <target_value>white tripple</target_value>
+      </field>
+      <field>
+        <source_value>zoete stout</source_value>
+        <target_value>sweet stout</target_value>
+      </field>
+      <field>
+        <source_value>zwart</source_value>
+        <target_value>black</target_value>
+      </field>
+      <field>
+        <source_value>zwarte-bessenbier</source_value>
+        <target_value>black berry beer</target_value>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>types -> type</name>
+    <type>SplitFieldToRows3</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <delimiter>,\s*</delimiter>
+    <rownum>Y</rownum>
+    <delimiter_is_regex>Y</delimiter_is_regex>
+    <newfield>type</newfield>
+    <resetrownumber>Y</resetrownumber>
+    <rownum_field>typenr</rownum_field>
+    <splitfield>types</splitfield>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>limit fields</source_transform>
+      <target_transform/>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename/>
+      <descriptions_valuename/>
+      <fields_valuename/>
+      <codes_valuename/>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

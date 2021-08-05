@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.core.data;
@@ -67,7 +66,6 @@ public class GraphNodeData {
     }
     for (String propertyKey : node.keys()) {
       Value propertyValue = node.get(propertyKey);
-      Point point = propertyValue.asPoint();
       Object propertyObject = propertyValue.asObject();
       GraphPropertyDataType propertyType =
           GraphPropertyDataType.getTypeFromNeo4jValue(propertyObject);

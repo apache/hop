@@ -4578,7 +4578,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             stopRedrawTimer();
           });
 
-      pipeline.startThreads();
+      hopGui
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                new Thread(
+                        () -> {
+                          try {
+                            pipeline.startThreads();
+                            pipeline.waitUntilFinished();
+                          } catch (Exception e) {
+                            log.logError("Error starting transform threads", e);
+                            checkErrorVisuals();
+                            stopRedrawTimer();
+                          }
+                        })
+                    .start();
+              });
 
       startRedrawTimer();
 

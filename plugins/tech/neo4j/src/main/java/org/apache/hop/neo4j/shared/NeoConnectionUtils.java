@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.shared;
@@ -48,7 +47,11 @@ public class NeoConnectionUtils {
     if (keyProperties.size() == 1) {
       String property = keyProperties.get(0);
       String constraintCypher =
-          "CREATE CONSTRAINT ON (n" + labelsClause + ") ASSERT n." + property + " IS UNIQUE;";
+          "CREATE CONSTRAINT IF NOT EXISTS ON (n"
+              + labelsClause
+              + ") ASSERT n."
+              + property
+              + " IS UNIQUE;";
 
       log.logDetailed("Creating constraint : " + constraintCypher);
       session.run(constraintCypher);
@@ -62,7 +65,7 @@ public class NeoConnectionUtils {
     //
     // CREATE INDEX ON :NodeLabel(property, property2, ...);
     //
-    String indexCypher = "CREATE INDEX ON ";
+    String indexCypher = "CREATE INDEX IF NOT EXISTS ON ";
 
     indexCypher += labelsClause;
     indexCypher += "(";

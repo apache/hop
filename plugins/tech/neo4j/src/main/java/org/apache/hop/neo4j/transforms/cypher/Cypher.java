@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.cypher;
@@ -27,6 +26,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.neo4j.core.data.GraphData;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
+import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.Pipeline;
@@ -198,7 +198,10 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
       //
       createDriverSession();
 
-      // Get parameter field indexes
+      if (!meta.getParameterMappings().isEmpty() && getInputRowMeta() == null) {
+        throw new HopException(
+            "Please provide this transform with input if you want to set parameters");
+      }
       data.fieldIndexes = new int[meta.getParameterMappings().size()];
       for (int i = 0; i < meta.getParameterMappings().size(); i++) {
         String field = meta.getParameterMappings().get(i).getField();
@@ -344,6 +347,9 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
             nrProcessed = data.session.writeTransaction(transactionWork);
             setLinesOutput(getLinesOutput() + data.cypherStatements.size());
           }
+          // If all went as expected we can stop retrying...
+          //
+          break;
         } catch (Exception e) {
           if (attempt + 1 >= data.attempts) {
             throw e;
@@ -386,6 +392,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
             data.session.writeTransaction(cypherTransactionWork);
           }
           // Stop the attempts now
+          //
           break;
         } catch (Exception e) {
           if (attempt + 1 >= data.attempts) {
@@ -485,6 +492,10 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
                   switch (targetValueMeta.getType()) {
                     case IValueMeta.TYPE_STRING:
                       value = convertToString(recordValue, neoType);
+                      break;
+                    case ValueMetaGraph.TYPE_GRAPH:
+                      // This is for Node, Path and Relationship
+                      value = convertToGraphData(recordValue, neoType);
                       break;
                     case IValueMeta.TYPE_INTEGER:
                       value = recordValue.asLong();
@@ -586,9 +597,61 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
     switch (sourceType) {
       case String:
         return recordValue.asString();
+      case List:
+        return JSONValue.toJSONString(recordValue.asList());
+      case Map:
+        return JSONValue.toJSONString(recordValue.asMap());
+      case Node:
+        {
+          GraphData graphData = new GraphData();
+          graphData.update(recordValue.asNode());
+          return graphData.toJson().toJSONString();
+        }
+      case Path:
+        {
+          GraphData graphData = new GraphData();
+          graphData.update(recordValue.asPath());
+          return graphData.toJson().toJSONString();
+        }
       default:
         return JSONValue.toJSONString(recordValue.asObject());
     }
+  }
+
+  /**
+   * Convert the given record value to String. For complex data types it's a conversion to JSON.
+   *
+   * @param recordValue The record value to convert to String
+   * @param sourceType The Neo4j source type
+   * @return The String value of the record value
+   */
+  private GraphData convertToGraphData(Value recordValue, GraphPropertyDataType sourceType)
+      throws HopException {
+    if (recordValue == null) {
+      return null;
+    }
+    if (sourceType == null) {
+      throw new HopException(
+          "Please specify a Neo4j source data type to convert to Graph.  NODE, RELATIONSHIP and PATH are supported.");
+    }
+    GraphData graphData;
+    switch (sourceType) {
+      case Node:
+        graphData = new GraphData();
+        graphData.update(recordValue.asNode());
+        break;
+
+      case Path:
+        graphData = new GraphData();
+        graphData.update(recordValue.asPath());
+        break;
+
+      default:
+        throw new HopException(
+            "We can only convert NODE, PATH and RELATIONSHIP source values to a Graph data type, not "
+                + sourceType.name());
+    }
+    return graphData;
   }
 
   private boolean processSummary(Result result) {
@@ -598,14 +661,30 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
       boolean error = false;
       ResultSummary summary = result.consume();
       for (Notification notification : summary.notifications()) {
-        log.logError(notification.title() + " (" + notification.severity() + ")");
-        log.logError(
-            notification.code()
-                + " : "
-                + notification.description()
-                + ", position "
-                + notification.position());
-        error = true;
+        if ("WARNING".equalsIgnoreCase(notification.severity())) {
+          // Log it
+          log.logBasic(
+              notification.severity()
+                  + " : "
+                  + notification.title()
+                  + " : "
+                  + notification.code()
+                  + " : "
+                  + notification.description()
+                  + ", position "
+                  + notification.position());
+        } else {
+          // This is an error
+          //
+          log.logError(notification.severity() + " : " + notification.title());
+          log.logError(
+              notification.code()
+                  + " : "
+                  + notification.description()
+                  + ", position "
+                  + notification.position());
+          error = true;
+        }
       }
       return error;
     }

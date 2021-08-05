@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.core.data;
@@ -218,25 +217,17 @@ public class GraphData {
       for (String key : record.keys()) {
         Value value = record.get(key);
         if ("NODE".equals(value.type().name())) {
-          Node node = value.asNode();
-          update(new GraphNodeData(node));
+          update(value.asNode());
         } else if ("RELATIONSHIP".equals(value.type().name())) {
-          Relationship relationship = value.asRelationship();
-          update(new GraphRelationshipData(relationship));
+          update(value.asRelationship());
         } else if ("PATH".equals(value.type().name())) {
-          Path path = value.asPath();
-          for (Node node : path.nodes()) {
-            update(new GraphNodeData(node));
-          }
-          for (Relationship relationship : path.relationships()) {
-            update(new GraphRelationshipData(relationship));
-          }
+          update(value.asPath());
         }
       }
     }
   }
 
-  private void update(GraphNodeData dataNode) {
+  public void update(GraphNodeData dataNode) {
     int index = nodes.indexOf(dataNode);
     if (index < 0) {
       nodes.add(dataNode);
@@ -245,12 +236,29 @@ public class GraphData {
     }
   }
 
-  private void update(GraphRelationshipData dataRelationship) {
+  public void update(GraphRelationshipData dataRelationship) {
     int index = relationships.indexOf(dataRelationship);
     if (index < 0) {
       relationships.add(dataRelationship);
     } else {
       relationships.set(index, dataRelationship);
+    }
+  }
+
+  public void update(Node node) {
+    update(new GraphNodeData(node));
+  }
+
+  public void update(Relationship relationship) {
+    update(new GraphRelationshipData(relationship));
+  }
+
+  public void update(Path path) {
+    for (Node node : path.nodes()) {
+      update(node);
+    }
+    for (Relationship relationship : path.relationships()) {
+      update(relationship);
     }
   }
 

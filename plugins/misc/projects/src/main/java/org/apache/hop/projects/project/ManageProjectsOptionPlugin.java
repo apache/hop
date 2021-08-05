@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,20 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @ConfigPlugin(
@@ -123,6 +129,12 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       description = "List the defined projects")
   private boolean listProjects;
 
+  @CommandLine.Option(
+      names = {"-xm", "--export-metadata"},
+      description =
+          "Export project metadata to a single JSON file which you can specify with this option. Also specify the -p option.")
+  private String metadataJsonFilename;
+
   @Override
   public boolean handleOption(
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
@@ -142,6 +154,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       } else if (listProjects) {
         listProjects(log, config, variables);
         changed = true;
+      } else if (StringUtils.isNotEmpty(metadataJsonFilename)) {
+        exportMetadataToJson(log, config, variables, hasHopMetadataProvider);
+        changed = true;
       }
       return changed;
     } catch (Exception e) {
@@ -155,8 +170,13 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     List<String> names = config.listProjectConfigNames();
     for (String name : names) {
       ProjectConfig projectConfig = config.findProjectConfig(name);
-      Project project = projectConfig.loadProject(Variables.getADefaultVariableSpace());
-      logProjectDetails(log, projectConfig, project);
+      try {
+        Project project = projectConfig.loadProject(Variables.getADefaultVariableSpace());
+        logProjectDetails(log, projectConfig, project);
+      } catch (Exception e) {
+        log.logBasic("  " + projectConfig.getProjectName() + " : " + projectHome);
+        log.logBasic("    Configuration error: " + Const.getSimpleStackTrace(e));
+      }
     }
   }
 
@@ -346,6 +366,47 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private void validateProjectHomeSpecified() throws Exception {
     if (StringUtil.isEmpty(projectHome)) {
       throw new HopException("Please specify the home directory of the project to create");
+    }
+  }
+
+  private void exportMetadataToJson(
+      ILogChannel log,
+      ProjectsConfig config,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider)
+      throws HopException {
+
+    if (StringUtils.isEmpty(projectName)) {
+      throw new HopException(
+          "Please specify the name of the project for which you want to export the metadata");
+    }
+
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      throw new HopException(
+          "Project '" + projectName + "' couldn't be found in the Hop configuration");
+    }
+    Project project = projectConfig.loadProject(Variables.getADefaultVariableSpace());
+    ProjectsUtil.enableProject(
+        log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
+    log.logBasic("Enabled project " + projectName);
+
+    String realFilename = variables.resolve(metadataJsonFilename);
+    log.logBasic("Exporting project metadata to a single file: " + realFilename);
+
+    // This is the metadata to export
+    //
+    SerializableMetadataProvider metadataProvider =
+        new SerializableMetadataProvider(hasHopMetadataProvider.getMetadataProvider());
+    String jsonString = metadataProvider.toJson();
+
+    try {
+      try (OutputStream outputStream = HopVfs.getOutputStream(realFilename, false)) {
+        outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
+      }
+      log.logBasic("Metadata was exported successfully.");
+    } catch (Exception e) {
+      throw new HopException("There was an error exporting metadata to file: " + realFilename, e);
     }
   }
 

@@ -21,7 +21,8 @@ under the License.
 
 == Usage
 
-Hop Conf is a command line tool to manage environments. The *hop-conf.sh* script can be run with the *-h* flag (`./hop-conf.sh -h`) to display available options.
+Hop Conf is a command line tool to manage environments.
+The *hop-conf.sh* script can be run with the *-h* flag (`./hop-conf.sh -h`) to display available options.
 
 [source,bash]
 Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
@@ -41,10 +42,11 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
                     [-px=<projectEnforceExecutionInHome>]
                     [-sj=<standardProjectsFolder>]
                     [-sp=<standardParentProject>] [-sv=<setVariable>]
-                    [-cfd=<configDescribeVariables>[,
-                    <configDescribeVariables>...]]... [-cfv=<configSetVariables>
-                    [,<configSetVariables>...]]... [-eg=<environmentConfigFiles>
-                    [,<environmentConfigFiles>...]]... [-pv=<projectVariables>[,
+                    [-xm=<metadataJsonFilename>] [-cfd=<configDescribeVariables>
+                    [,<configDescribeVariables>...]]...
+                    [-cfv=<configSetVariables>[,<configSetVariables>...]]...
+                    [-eg=<environmentConfigFiles>[,
+                    <environmentConfigFiles>...]]... [-pv=<projectVariables>[,
                     <projectVariables>...]]...
       -aza, --azure-account=<account>
                             The account to use for the Azure VFS
@@ -154,21 +156,27 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
                               creating new projects
       -sv, --set-variable=<setVariable>
                             Set a variable, use format VAR=Value
-./hop-conf.sh  11.11s user 0.51s system 341% cpu 3.405 total
+      -xm, --export-metadata=<metadataJsonFilename>
+                            Export project metadata to a single JSON file which you
+                              can specify with this option. Also specify the -p
+                              option.
+
 ====
 
 The available options are listed below:
 
 .Hop-conf Options
-[id="hop-conf", cols="10%, 40%,50%" width="90%", options="header"]
+[id="hop-conf",cols="10%, 40%,50%" width="90%",options="header"]
 |===
 |Short Option|Extended Option|Description
 |-h|--help|Displays this help message and quits.
-|-ec|--environment-create|Create an environment. Also specify the name and its home
+|-ec|--environment-create|Create an environment.
+Also specify the name and its home
 |-ed|--environment-delete|Delete an environment
 |-el|--environment-list|List the defined environments
 |-em|--environment-modify|Modify an environment
-|-pc|--project-create|Create a new project. Also specify the name and its home
+|-pc|--project-create|Create a new project.
+Also specify the name and its home
 |-pd|--prject-delete|Delete a project
 |-pl|--project-list|List the defined projects
 |-pm|--project-modify|Modify a project
@@ -177,10 +185,13 @@ The available options are listed below:
 |-ep|--environment-project=<environmentProject>|The project for the environment
 |-eu|--environment-purpose=<environmentPurpose>|The purpose of the environment: Development, Testing, Production, CI, ...
 |-fj|--generate-fat-jar=<fatJarFilename>|Specify the filename of the fat jar to generate from your current software installation
+|-xm|--export-metadata=<metadataJsonFilename>|Export project metadata to a single JSON file which you can specify with this option.
+Also specify the -p option to know which metadata to export.
 |-p|--project=<projectName>|The project name
 |-pa|--project-metadata-base=<projectMetadataBaseFolder>|The metadata base folder (relative to home)
 |-pb|--project-datasets-base-base=<projectDataSetsCsvFolder>|The data sets CSV folder (relative to home)
-|-pf|--project-config-file=<projectConfigFile>|The configuration file relative to the home folder. The default value is project-config.json
+|-pf|--project-config-file=<projectConfigFile>|The configuration file relative to the home folder.
+The default value is project-config.json
 |-ph|--project-home=<projectHome>|The home directory of the project
 |-pp|--project-company=<projectCompany>|The company
 |-ps|--project-description=<projectDescription>|The description of the project
@@ -199,8 +210,6 @@ TIP: `-sv` can be used to unset a variable by specifying a variable without a va
 |-eg|--environment-config-files=<environmentConfigFiles>[, <environmentConfigFiles>...]|A list of configuration files for this lifecycle environment, comma separated
 |-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
 |===
-
-
 
 == Project Usage and Configuration
 

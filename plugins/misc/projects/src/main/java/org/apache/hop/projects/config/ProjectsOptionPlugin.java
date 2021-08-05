@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,9 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
@@ -30,6 +32,8 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,57 +74,60 @@ public class ProjectsOptionPlugin implements IConfigOptions {
 
     // If there is no environment specified but we have a default set, take that one...
     //
-    if (StringUtils.isEmpty( environmentName )) {
+    if (StringUtils.isEmpty(environmentName)) {
       environmentName = config.getDefaultEnvironment();
     }
 
     // See if an environment is mandatory...
     //
-    if (config.isEnvironmentMandatory() && StringUtils.isEmpty( environmentName )) {
-      throw new HopException("Use of an environment is configured to be mandatory and none was specified.");
+    if (config.isEnvironmentMandatory() && StringUtils.isEmpty(environmentName)) {
+      throw new HopException(
+          "Use of an environment is configured to be mandatory and none was specified.");
     }
 
     // If there is no project specified but we have a default set, take that one...
     //
-    if (StringUtils.isEmpty( projectName )) {
+    if (StringUtils.isEmpty(projectName)) {
       projectName = config.getDefaultProject();
     }
 
     // See if a project is mandatory...
     //
-    if (config.isProjectMandatory() && StringUtils.isEmpty( projectName )) {
-      throw new HopException("Use of a project is configured to be mandatory and none was specified.");
+    if (config.isProjectMandatory() && StringUtils.isEmpty(projectName)) {
+      throw new HopException(
+          "Use of a project is configured to be mandatory and none was specified.");
     }
 
-    if ( StringUtils.isNotEmpty(environmentName)) {
+    if (StringUtils.isNotEmpty(environmentName)) {
       // The environment contains extra configuration options we need to pass along...
       //
       environment = config.findEnvironment(environmentName);
       if (environment == null) {
-        throw new HopException(
-          "Unable to find lifecycle environment '" + environmentName + "'");
+        throw new HopException("Unable to find lifecycle environment '" + environmentName + "'");
       }
       projectName = environment.getProjectName();
 
       if (StringUtils.isEmpty(projectName)) {
         throw new HopException(
-          "Lifecycle environment '"
-            + environmentOption
-            + "' is not referencing a project.");
+            "Lifecycle environment '" + environmentOption + "' is not referencing a project.");
       }
       projectConfig = config.findProjectConfig(projectName);
       if (projectConfig == null) {
-        throw new HopException("Unable to find project '" + projectName + "' referenced in environment '"+environmentName);
+        throw new HopException(
+            "Unable to find project '"
+                + projectName
+                + "' referenced in environment '"
+                + environmentName);
       }
       configurationFiles.addAll(environment.getConfigurationFiles());
 
       log.logBasic(
-        "Referencing environment '"
-          + environmentOption
-          + "' for project "
-          + projectName
-          + "' in "
-          + environment.getPurpose());
+          "Referencing environment '"
+              + environmentOption
+              + "' for project "
+              + projectName
+              + "' in "
+              + environment.getPurpose());
     } else if (StringUtils.isNotEmpty(projectName)) {
       // Simply reference the project directly without extra configuration files...
       //
@@ -130,11 +137,9 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       }
       projectName = projectConfig.getProjectName();
     } else {
-        log.logDebug(
-          "No project or environment referenced.");
-        return false;
-      }
-
+      log.logDebug("No project or environment referenced.");
+      return false;
+    }
 
     try {
       Project project = projectConfig.loadProject(variables);
@@ -146,13 +151,13 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       // Now we just enable this project
       //
       ProjectsUtil.enableProject(
-        log,
-        projectName,
-        project,
-        variables,
-        configurationFiles,
-        environmentName,
-        hasHopMetadataProvider);
+          log,
+          projectName,
+          project,
+          variables,
+          configurationFiles,
+          environmentName,
+          hasHopMetadataProvider);
 
       return true;
 
