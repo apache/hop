@@ -67,7 +67,7 @@ set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_RUNTIME=Conf
 
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUTO_CREATE_CONFIG=Y
 
-echo ===[Environment Settings - hop-gui.bat]===================================
+echo ===[Environment Settings - hop-conf.bat]===================================
 echo.
 echo Java identified as %_HOP_JAVA%
 echo.
