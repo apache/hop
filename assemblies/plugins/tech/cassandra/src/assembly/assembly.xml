@@ -61,7 +61,6 @@
         <include>com.github.rholder:snowball-stemmer:jar</include>
         <include>com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:jar</include>
         <include>com.googlecode.concurrent-trees:concurrent-trees:jar</include>
-        <include>com.googlecode.json-simple:json-simple:jar</include>
         <include>com.lmax:disruptor:jar</include>
         <include>com.ning:compress-lzf:jar</include>
         <include>com.thinkaurelius.thrift:thrift-server:jar</include>
