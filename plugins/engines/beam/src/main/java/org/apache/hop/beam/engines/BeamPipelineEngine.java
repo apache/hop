@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -78,10 +78,12 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class BeamPipelineEngine extends Variables implements IPipelineEngine<PipelineMeta> {
+public abstract class BeamPipelineEngine extends Variables
+    implements IPipelineEngine<PipelineMeta> {
 
   /**
-   * Constant specifying a filename containing XML to inject into a ZIP file created during resource export.
+   * Constant specifying a filename containing XML to inject into a ZIP file created during resource
+   * export.
    */
   private final PipelineEngineCapabilities engineCapabilities;
 
@@ -112,29 +114,22 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected Date executionStartDate;
   protected Date executionEndDate;
 
-  /**
-   * A list of started listeners attached to the pipeline.
-   */
-  protected List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners;
+  /** A list of started listeners attached to the pipeline. */
+  protected List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>>
+      executionStartedListeners;
 
-  /**
-   * A list of finished listeners attached to the pipeline.
-   */
-  protected List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners;
+  /** A list of finished listeners attached to the pipeline. */
+  protected List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>>
+      executionFinishedListeners;
 
-  /**
-   * A list of stop-event listeners attached to the pipeline.
-   */
-  protected List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners;
+  /** A list of stop-event listeners attached to the pipeline. */
+  protected List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>>
+      executionStoppedListeners;
 
-  /**
-   * The active sub-pipelines.
-   */
+  /** The active sub-pipelines. */
   protected Map<String, IPipelineEngine> activeSubPipelines;
 
-  /**
-   * The active sub workflows
-   */
+  /** The active sub workflows */
   protected Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows;
 
   protected Map<String, Object> extensionDataMap;
@@ -142,10 +137,9 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected int lastLogLineNr;
   protected Timer refreshTimer;
 
-  /**
-   * The named parameters.
-   */
+  /** The named parameters. */
   protected INamedParameters namedParams = new NamedParameters();
+
   private String statusDescription;
   private ComponentExecutionStatus status;
 
@@ -160,40 +154,44 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     super();
     logChannel = LogChannel.GENERAL;
     engineMetrics = new EngineMetrics();
-    executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
-    executionFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
-    executionStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
+    executionStartedListeners = Collections.synchronizedList(new ArrayList<>());
+    executionFinishedListeners = Collections.synchronizedList(new ArrayList<>());
+    executionStoppedListeners = Collections.synchronizedList(new ArrayList<>());
     activeSubPipelines = new HashMap<>();
     activeSubWorkflows = new HashMap<>();
     engineCapabilities = new BeamPipelineEngineCapabilities();
-    extensionDataMap = Collections.synchronizedMap( new HashMap<>() );
+    extensionDataMap = Collections.synchronizedMap(new HashMap<>());
     statusDescription = "IDLE";
   }
 
-  public BeamPipelineEngine( PipelineMeta pipelineMeta ) {
+  public BeamPipelineEngine(PipelineMeta pipelineMeta) {
     this();
     this.pipelineMeta = pipelineMeta;
     this.metadataProvider = pipelineMeta.getMetadataProvider();
-    this.loggingObject = new LoggingObject( this );
-    this.logChannel = new LogChannel( this, pipelineMeta );
+    this.loggingObject = new LoggingObject(this);
+    this.logChannel = new LogChannel(this, pipelineMeta);
     this.logLevel = this.logChannel.getLogLevel();
   }
 
-  public BeamPipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent, IVariables variables ) {
+  public BeamPipelineEngine(
+      PipelineMeta pipelineMeta, ILoggingObject parent, IVariables variables) {
     this();
     this.pipelineMeta = pipelineMeta;
-    this.loggingObject = new LoggingObject( this );
-    setParent( parent );
-    initializeFrom( variables );
-    copyParametersFromDefinitions( pipelineMeta );
+    this.loggingObject = new LoggingObject(this);
+    setParent(parent);
+    initializeFrom(variables);
+    copyParametersFromDefinitions(pipelineMeta);
     activateParameters(this);
   }
 
-  @Override public abstract IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
+  @Override
+  public abstract IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
 
-  public abstract void validatePipelineRunConfigurationClass( IPipelineEngineRunConfiguration engineRunConfiguration ) throws HopException;
+  public abstract void validatePipelineRunConfigurationClass(
+      IPipelineEngineRunConfiguration engineRunConfiguration) throws HopException;
 
-  @Override public void prepareExecution() throws HopException {
+  @Override
+  public void prepareExecution() throws HopException {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       executionStartDate = new Date();
@@ -202,102 +200,114 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       // what the context classloader is.
       // Set it back when we're done here.
       //
-      Thread.currentThread().setContextClassLoader( this.getClass().getClassLoader() );
+      Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
-      setPreparing( true );
-      IPipelineEngineRunConfiguration engineRunConfiguration = pipelineRunConfiguration.getEngineRunConfiguration();
-      validatePipelineRunConfigurationClass( engineRunConfiguration );
-      if ( !( engineRunConfiguration instanceof IBeamPipelineEngineRunConfiguration ) ) {
-        throw new HopException( "A beam pipeline needs a beam pipeline engine configuration to run, not '" + pipelineRunConfiguration.getName() + "'" );
+      setPreparing(true);
+      IPipelineEngineRunConfiguration engineRunConfiguration =
+          pipelineRunConfiguration.getEngineRunConfiguration();
+      validatePipelineRunConfigurationClass(engineRunConfiguration);
+      if (!(engineRunConfiguration instanceof IBeamPipelineEngineRunConfiguration)) {
+        throw new HopException(
+            "A beam pipeline needs a beam pipeline engine configuration to run, not '"
+                + pipelineRunConfiguration.getName()
+                + "'");
       }
-      if ( metadataProvider == null ) {
-        throw new HopException( "The beam pipeline engine didn't receive a metadata" );
+      if (metadataProvider == null) {
+        throw new HopException("The beam pipeline engine didn't receive a metadata");
       }
 
       beamEngineRunConfiguration = (IBeamPipelineEngineRunConfiguration) engineRunConfiguration;
 
-      converter = new HopPipelineMetaToBeamPipelineConverter( this, pipelineMeta, metadataProvider, beamEngineRunConfiguration );
+      converter =
+          new HopPipelineMetaToBeamPipelineConverter(
+              this, pipelineMeta, metadataProvider, beamEngineRunConfiguration);
 
       beamPipeline = converter.createPipeline();
 
-      FileSystems.setDefaultPipelineOptions( beamPipeline.getOptions() );
-
+      FileSystems.setDefaultPipelineOptions(beamPipeline.getOptions());
 
       // Create a new log channel when we start the action
       // It's only now that we use it
       //
-      logChannel.logBasic( "Executing this pipeline using the Beam Pipeline Engine with run configuration '" + pipelineRunConfiguration.getName() + "'" );
+      logChannel.logBasic(
+          "Executing this pipeline using the Beam Pipeline Engine with run configuration '"
+              + pipelineRunConfiguration.getName()
+              + "'");
 
-      PipelineExecutionConfiguration pipelineExecutionConfiguration = new PipelineExecutionConfiguration();
-      pipelineExecutionConfiguration.setRunConfiguration( pipelineRunConfiguration.getName() );
-      if ( logLevel != null ) {
-        pipelineExecutionConfiguration.setLogLevel( logLevel );
+      PipelineExecutionConfiguration pipelineExecutionConfiguration =
+          new PipelineExecutionConfiguration();
+      pipelineExecutionConfiguration.setRunConfiguration(pipelineRunConfiguration.getName());
+      if (logLevel != null) {
+        pipelineExecutionConfiguration.setLogLevel(logLevel);
       }
-      if ( previousResult != null ) {
-        pipelineExecutionConfiguration.setPreviousResult( previousResult );
+      if (previousResult != null) {
+        pipelineExecutionConfiguration.setPreviousResult(previousResult);
       }
 
-      setRunning( false );
-      setReadyToStart( true );
-    } catch ( Exception e ) {
-      setRunning( false );
-      setReadyToStart( false );
-      setStopped( true );
-      setErrors( getErrors() + 1 );
-      setPaused( false );
-      setPreparing( false );
-      throw new HopException( "Error preparing remote pipeline", e );
+      setRunning(false);
+      setReadyToStart(true);
+    } catch (Exception e) {
+      setRunning(false);
+      setReadyToStart(false);
+      setStopped(true);
+      setErrors(getErrors() + 1);
+      setPaused(false);
+      setPreparing(false);
+      throw new HopException("Error preparing remote pipeline", e);
     } finally {
-      setPreparing( false );
-      Thread.currentThread().setContextClassLoader( oldContextClassLoader );
+      setPreparing(false);
+      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
     }
   }
 
-  private PipelineResult executePipeline( org.apache.beam.sdk.Pipeline pipeline ) throws HopException {
+  private PipelineResult executePipeline(org.apache.beam.sdk.Pipeline pipeline)
+      throws HopException {
 
     RunnerType runnerType = beamEngineRunConfiguration.getRunnerType();
-    switch ( runnerType ) {
+    switch (runnerType) {
       case Direct:
-        return DirectRunner.fromOptions( pipeline.getOptions() ).run( pipeline );
+        return DirectRunner.fromOptions(pipeline.getOptions()).run(pipeline);
       case Flink:
-        return FlinkRunner.fromOptions( pipeline.getOptions() ).run( pipeline );
+        return FlinkRunner.fromOptions(pipeline.getOptions()).run(pipeline);
       case DataFlow:
-        return DataflowRunner.fromOptions( pipeline.getOptions() ).run( pipeline );
+        return DataflowRunner.fromOptions(pipeline.getOptions()).run(pipeline);
       case Spark:
-        return SparkRunner.fromOptions( pipeline.getOptions() ).run( pipeline );
+        return SparkRunner.fromOptions(pipeline.getOptions()).run(pipeline);
       default:
-        throw new HopException( "Execution on runner '" + runnerType.name() + "' is not supported yet." );
+        throw new HopException(
+            "Execution on runner '" + runnerType.name() + "' is not supported yet.");
     }
   }
 
-  @Override public void startThreads() throws HopException {
+  @Override
+  public void startThreads() throws HopException {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       // Explain to various classes in the Beam API (@see org.apache.beam.sdk.io.FileSystems)
       // what the context classloader is.
       // Set it back when we're done here.
       //
-      Thread.currentThread().setContextClassLoader( this.getClass().getClassLoader() );
+      Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
-      setRunning( true );
-      setReadyToStart( false );
+      setRunning(true);
+      setReadyToStart(false);
 
-      if ( beamEngineRunConfiguration.isRunningAsynchronous() ) {
+      if (beamEngineRunConfiguration.isRunningAsynchronous()) {
         // Certain runners like Direct and DataFlow allow async execution
         //
         try {
-          beamPipelineResults = executePipeline( beamPipeline );
-        } catch ( Throwable e ) {
+          beamPipelineResults = executePipeline(beamPipeline);
+        } catch (Throwable e) {
           // Reset the flags so the user can correct and retry
           //
-          setRunning( false );
-          setStopped( true );
-          setPreparing( false );
-          setPaused( false );
-          setReadyToStart( false );
-          setErrors( getErrors() + 1 );
+          setRunning(false);
+          setStopped(true);
+          setPreparing(false);
+          setPaused(false);
+          setReadyToStart(false);
+          setErrors(getErrors() + 1);
 
-          throw new HopException( "Error starting the Beam pipeline", e );
+          throw new HopException("Error starting the Beam pipeline", e);
         }
         firePipelineExecutionStartedListeners();
 
@@ -305,146 +315,156 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
         // The running pipeline will block
         //
         try {
-          beamThread = new Thread( () -> {
+          beamThread =
+              new Thread(
+                  () -> {
+                    try {
+                      beamPipelineResults = executePipeline(beamPipeline);
+                    } catch (Throwable e) {
+                      throw new RuntimeException("Error starting the Beam pipeline", e);
+                    }
 
-            try {
-              beamPipelineResults = executePipeline( beamPipeline );
-            } catch ( Throwable e ) {
-              throw new RuntimeException( "Error starting the Beam pipeline", e );
-            }
-
-            try {
-              firePipelineExecutionFinishedListeners();
-            } catch ( HopException e ) {
-              throw new RuntimeException( "Error firing pipeline finished listeners in a Beam pipeline engine", e );
-            }
-          } );
+                    try {
+                      firePipelineExecutionFinishedListeners();
+                    } catch (HopException e) {
+                      throw new RuntimeException(
+                          "Error firing pipeline finished listeners in a Beam pipeline engine", e);
+                    }
+                  });
           beamThread.start();
 
           // Keep track of when this thread is done...
           //
-          new Thread( () -> {
-            try {
-              beamThread.join();
-              firePipelineExecutionFinishedListeners();
-              populateEngineMetrics(); // get the final state
-              if (refreshTimer!=null) {
-                refreshTimer.cancel(); // no more needed
-              }
-              setRunning( false );
-              executionEndDate = new Date();
-            } catch ( Exception e ) {
-              throw new RuntimeException( "Error post-processing a beam pipeline", e );
-            }
-          } ).start();
+          new Thread(
+                  () -> {
+                    try {
+                      beamThread.join();
+                      firePipelineExecutionFinishedListeners();
+                      populateEngineMetrics(); // get the final state
+                      if (refreshTimer != null) {
+                        refreshTimer.cancel(); // no more needed
+                      }
+                      setRunning(false);
+                      executionEndDate = new Date();
+                    } catch (Exception e) {
+                      throw new RuntimeException("Error post-processing a beam pipeline", e);
+                    }
+                  })
+              .start();
 
-        } catch ( Exception e ) {
+        } catch (Exception e) {
           // Reset the flags so the user can correct and retry
           //
-          setRunning( false );
-          setStopped( true );
-          setPreparing( false );
-          setPaused( false );
-          setReadyToStart( false );
-          setErrors( getErrors() + 1 );
+          setRunning(false);
+          setStopped(true);
+          setPreparing(false);
+          setPaused(false);
+          setReadyToStart(false);
+          setErrors(getErrors() + 1);
 
-          throw new HopException( "Unable to start Beam pipeline", e );
+          throw new HopException("Unable to start Beam pipeline", e);
         }
       }
 
       // We have stuff running in the background, let's keep track of the progress regularly
       //
       refreshTimer = new Timer();
-      refreshTimer.schedule( new TimerTask() {
-        @Override public void run() {
-          try {
-            populateEngineMetrics();
-          } catch ( Exception e ) {
-            throw new RuntimeException( "Error refreshing engine metrics in the Beam pipeline engine", e );
-          }
-        }
-      }, 0L, 1000L );
+      refreshTimer.schedule(
+          new TimerTask() {
+            @Override
+            public void run() {
+              try {
+                populateEngineMetrics();
+              } catch (Throwable e) {
+                throw new RuntimeException(
+                    "Error refreshing engine metrics in the Beam pipeline engine", e);
+              }
+            }
+          },
+          0L,
+          1000L);
 
+    } catch (Throwable e) {
+      throw new HopException("Unexpected error starting Beam pipeline", e);
     } finally {
-      Thread.currentThread().setContextClassLoader( oldContextClassLoader );
+      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
     }
   }
 
-  /**
-   * Grab the Beam pipeline results and convert it into engine metrics
-   */
+  /** Grab the Beam pipeline results and convert it into engine metrics */
   protected synchronized void populateEngineMetrics() throws HopException {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
-      Thread.currentThread().setContextClassLoader( this.getClass().getClassLoader() );
+      Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
       EngineMetrics em = new EngineMetrics();
       evaluatePipelineStatus();
 
-      em.setStartDate( getExecutionStartDate() );
-      em.setEndDate( getExecutionEndDate() );
+      em.setStartDate(getExecutionStartDate());
+      em.setEndDate(getExecutionEndDate());
 
-      if ( beamPipelineResults != null ) {
-        Set<String> transformNames = new HashSet<>( Arrays.asList( pipelineMeta.getTransformNames() ) );
+      if (beamPipelineResults != null) {
+        Set<String> transformNames = new HashSet<>(Arrays.asList(pipelineMeta.getTransformNames()));
         Map<String, EngineComponent> componentsMap = new HashMap<>();
         MetricResults metrics = beamPipelineResults.metrics();
-        MetricQueryResults allResults = metrics.queryMetrics( MetricsFilter.builder().build() );
+        MetricQueryResults allResults = metrics.queryMetrics(MetricsFilter.builder().build());
 
-        for ( MetricResult<Long> result : allResults.getCounters() ) {
+        for (MetricResult<Long> result : allResults.getCounters()) {
           String metricsType = result.getName().getNamespace();
           String metricsName = result.getName().getName();
           long processed = result.getAttempted();
 
           // This is a transform executing in Beam
           //
-          if ( transformNames.contains( metricsName ) ) {
-            EngineComponent engineComponent = componentsMap.get( metricsName );
-            if ( engineComponent == null ) {
-              engineComponent = new EngineComponent( metricsName, 0 );
-              componentsMap.put( metricsName, engineComponent );
+          if (transformNames.contains(metricsName)) {
+            EngineComponent engineComponent = componentsMap.get(metricsName);
+            if (engineComponent == null) {
+              engineComponent = new EngineComponent(metricsName, 0);
+              componentsMap.put(metricsName, engineComponent);
             }
-            if ( Pipeline.METRIC_NAME_READ.equalsIgnoreCase( metricsType ) ) {
-              engineComponent.setLinesRead( processed );
-              em.setComponentMetric( engineComponent, Pipeline.METRIC_READ, processed );
-            } else if ( Pipeline.METRIC_NAME_WRITTEN.equalsIgnoreCase( metricsType ) ) {
-              engineComponent.setLinesWritten( processed );
-              em.setComponentMetric( engineComponent, Pipeline.METRIC_WRITTEN, processed );
-            } else if ( Pipeline.METRIC_NAME_INPUT.equalsIgnoreCase( metricsType ) ) {
-              engineComponent.setLinesInput( processed );
-              em.setComponentMetric( engineComponent, Pipeline.METRIC_INPUT, processed );
-            } else if ( Pipeline.METRIC_NAME_OUTPUT.equalsIgnoreCase( metricsType ) ) {
-              engineComponent.setLinesOutput( processed );
-              em.setComponentMetric( engineComponent, Pipeline.METRIC_OUTPUT, processed );
-            } else if ( Pipeline.METRIC_NAME_INIT.equalsIgnoreCase( metricsType ) ) {
-              em.setComponentMetric( engineComponent, Pipeline.METRIC_INIT, processed );
-            } else if ( Pipeline.METRIC_NAME_FLUSH_BUFFER.equalsIgnoreCase( metricsType ) ) {
-              em.setComponentMetric( engineComponent, Pipeline.METRIC_FLUSH_BUFFER, processed );
+            if (Pipeline.METRIC_NAME_READ.equalsIgnoreCase(metricsType)) {
+              engineComponent.setLinesRead(processed);
+              em.setComponentMetric(engineComponent, Pipeline.METRIC_READ, processed);
+            } else if (Pipeline.METRIC_NAME_WRITTEN.equalsIgnoreCase(metricsType)) {
+              engineComponent.setLinesWritten(processed);
+              em.setComponentMetric(engineComponent, Pipeline.METRIC_WRITTEN, processed);
+            } else if (Pipeline.METRIC_NAME_INPUT.equalsIgnoreCase(metricsType)) {
+              engineComponent.setLinesInput(processed);
+              em.setComponentMetric(engineComponent, Pipeline.METRIC_INPUT, processed);
+            } else if (Pipeline.METRIC_NAME_OUTPUT.equalsIgnoreCase(metricsType)) {
+              engineComponent.setLinesOutput(processed);
+              em.setComponentMetric(engineComponent, Pipeline.METRIC_OUTPUT, processed);
+            } else if (Pipeline.METRIC_NAME_INIT.equalsIgnoreCase(metricsType)) {
+              em.setComponentMetric(engineComponent, Pipeline.METRIC_INIT, processed);
+            } else if (Pipeline.METRIC_NAME_FLUSH_BUFFER.equalsIgnoreCase(metricsType)) {
+              em.setComponentMetric(engineComponent, Pipeline.METRIC_FLUSH_BUFFER, processed);
             }
 
             // Copy the execution start and end date from the pipeline
             //
-            engineComponent.setExecutionStartDate( getExecutionStartDate() );
-            engineComponent.setExecutionEndDate( getExecutionEndDate() );
-            engineComponent.setExecutionDuration( calculateDuration( getExecutionStartDate(), getExecutionEndDate() ) );
+            engineComponent.setExecutionStartDate(getExecutionStartDate());
+            engineComponent.setExecutionEndDate(getExecutionEndDate());
+            engineComponent.setExecutionDuration(
+                calculateDuration(getExecutionStartDate(), getExecutionEndDate()));
 
             // Set the transform status to reflect the pipeline status.
             //
-            switch ( beamPipelineResults.getState() ) {
+            switch (beamPipelineResults.getState()) {
               case DONE:
-                engineComponent.setRunning( false );
-                engineComponent.setStatus( ComponentExecutionStatus.STATUS_FINISHED );
+                engineComponent.setRunning(false);
+                engineComponent.setStatus(ComponentExecutionStatus.STATUS_FINISHED);
                 break;
               case CANCELLED:
               case FAILED:
               case STOPPED:
-                engineComponent.setStopped( true );
-                engineComponent.setRunning( false );
-                engineComponent.setStatus( ComponentExecutionStatus.STATUS_STOPPED );
+                engineComponent.setStopped(true);
+                engineComponent.setRunning(false);
+                engineComponent.setStatus(ComponentExecutionStatus.STATUS_STOPPED);
                 break;
               case RUNNING:
-                engineComponent.setRunning( true );
-                engineComponent.setStopped( false );
-                engineComponent.setStatus( ComponentExecutionStatus.STATUS_RUNNING );
+                engineComponent.setRunning(true);
+                engineComponent.setStopped(false);
+                engineComponent.setStatus(ComponentExecutionStatus.STATUS_RUNNING);
                 break;
               case UNKNOWN:
                 break;
@@ -457,27 +477,27 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
         }
 
         em.getComponents().clear();
-        em.getComponents().addAll( componentsMap.values() );
+        em.getComponents().addAll(componentsMap.values());
       }
 
       // Swap the engine metrics with the new value
       //
-      synchronized ( engineMetrics ) {
+      synchronized (engineMetrics) {
         engineMetrics = em;
       }
     } finally {
-      Thread.currentThread().setContextClassLoader( oldContextClassLoader );
+      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
     }
   }
 
-  protected long calculateDuration( Date startTime, Date stopTime ) {
+  protected long calculateDuration(Date startTime, Date stopTime) {
     long lapsed;
-    if ( startTime != null && stopTime == null ) {
+    if (startTime != null && stopTime == null) {
       Calendar cal = Calendar.getInstance();
       long now = cal.getTimeInMillis();
       long st = startTime.getTime();
       lapsed = now - st;
-    } else if ( startTime != null && stopTime != null ) {
+    } else if (startTime != null && stopTime != null) {
       lapsed = stopTime.getTime() - startTime.getTime();
     } else {
       lapsed = 0;
@@ -487,14 +507,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   }
 
   protected synchronized void evaluatePipelineStatus() throws HopException {
-    if ( beamPipelineResults == null || beamPipelineResults.getState()==null ) {
+    if (beamPipelineResults == null || beamPipelineResults.getState() == null) {
       statusDescription = "";
       return;
     }
 
     // This seems to be the most reliable way of checking the state...
     //
-    PipelineResult.State pipelineState = beamPipelineResults.waitUntilFinish( Duration.millis( 1 ) );
+    PipelineResult.State pipelineState = beamPipelineResults.waitUntilFinish(Duration.millis(1));
     if (pipelineState != null) {
       boolean cancelPipeline = false;
       switch (pipelineState) {
@@ -551,74 +571,80 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     }
   }
 
-  @Override public String getStatusDescription() {
+  @Override
+  public String getStatusDescription() {
     return statusDescription;
   }
 
-  @Override public void execute() throws HopException {
+  @Override
+  public void execute() throws HopException {
     prepareExecution();
     startThreads();
   }
 
-  @Override public EngineMetrics getEngineMetrics( String componentName, int copyNr ) {
+  @Override
+  public EngineMetrics getEngineMetrics(String componentName, int copyNr) {
     EngineMetrics em = new EngineMetrics();
-    em.setStartDate( engineMetrics.getStartDate() );
-    em.setEndDate( engineMetrics.getEndDate() );
-    for ( IEngineComponent component : engineMetrics.getComponents() ) {
-      if ( component.getName().equalsIgnoreCase( componentName ) && component.getCopyNr() == copyNr ) {
-        Boolean running = engineMetrics.getComponentRunningMap().get( component );
-        if ( running != null ) {
-          em.setComponentRunning( component, running );
+    em.setStartDate(engineMetrics.getStartDate());
+    em.setEndDate(engineMetrics.getEndDate());
+    for (IEngineComponent component : engineMetrics.getComponents()) {
+      if (component.getName().equalsIgnoreCase(componentName) && component.getCopyNr() == copyNr) {
+        Boolean running = engineMetrics.getComponentRunningMap().get(component);
+        if (running != null) {
+          em.setComponentRunning(component, running);
         }
-        String status = engineMetrics.getComponentStatusMap().get( component );
-        if ( status != null ) {
-          em.setComponentStatus( component, status );
+        String status = engineMetrics.getComponentStatusMap().get(component);
+        if (status != null) {
+          em.setComponentStatus(component, status);
         }
-        String speed = engineMetrics.getComponentSpeedMap().get( component );
-        if ( speed != null ) {
-          em.setComponentSpeed( component, speed );
+        String speed = engineMetrics.getComponentSpeedMap().get(component);
+        if (speed != null) {
+          em.setComponentSpeed(component, speed);
         }
       }
     }
     return em;
   }
 
-  @Override public void cleanup() {
-  }
+  @Override
+  public void cleanup() {}
 
-  @Override public void waitUntilFinished() {
-    while ( ( running || paused || readyToStart ) && !( stopped || finished ) ) {
+  @Override
+  public void waitUntilFinished() {
+    while ((running || paused || readyToStart) && !(stopped || finished)) {
       try {
-        Thread.sleep( 100 );
-      } catch ( Exception e ) {
+        Thread.sleep(100);
+      } catch (Exception e) {
         // ignore
       }
     }
   }
 
-  /**
-   * Stop the pipeline on the server
-   */
-  @Override public void stopAll() {
+  /** Stop the pipeline on the server */
+  @Override
+  public void stopAll() {
     try {
-      if ( beamPipelineResults != null ) {
+      if (beamPipelineResults != null) {
         beamPipelineResults.cancel();
         evaluatePipelineStatus();
       }
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Stopping of pipeline '" + pipelineMeta.getName() + "' failed", e );
+    } catch (Exception e) {
+      throw new RuntimeException("Stopping of pipeline '" + pipelineMeta.getName() + "' failed", e);
     }
   }
 
-  @Override public boolean hasHaltedComponents() {
+  @Override
+  public boolean hasHaltedComponents() {
     return hasHaltedComponents;
   }
 
-  @Override public void pauseExecution() {
+  @Override
+  public void pauseExecution() {
     // Not supported
   }
 
-  @Override public void resumeExecution() {
+  @Override
+  public void resumeExecution() {
     // Not supported
   }
 
@@ -627,9 +653,9 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @param executionStartedListener the pipeline started listener
    */
-  public void addExecutionStartedListener( IExecutionStartedListener executionStartedListener ) {
-    synchronized ( executionStartedListener ) {
-      executionStartedListeners.add( executionStartedListener );
+  public void addExecutionStartedListener(IExecutionStartedListener executionStartedListener) {
+    synchronized (executionStartedListener) {
+      executionStartedListeners.add(executionStartedListener);
     }
   }
 
@@ -638,170 +664,203 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @param executionFinishedListener the pipeline finished listener
    */
-  public void addExecutionFinishedListener( IExecutionFinishedListener executionFinishedListener ) {
-    synchronized ( executionFinishedListener ) {
-      executionFinishedListeners.add( executionFinishedListener );
+  public void addExecutionFinishedListener(IExecutionFinishedListener executionFinishedListener) {
+    synchronized (executionFinishedListener) {
+      executionFinishedListeners.add(executionFinishedListener);
     }
   }
 
-  @Override public String getComponentLogText( String componentName, int copyNr ) {
+  @Override
+  public String getComponentLogText(String componentName, int copyNr) {
     return ""; // TODO implement this
   }
 
-  @Override public List<IEngineComponent> getComponents() {
+  @Override
+  public List<IEngineComponent> getComponents() {
     return engineMetrics.getComponents();
   }
 
-  @Override public List<IEngineComponent> getComponentCopies( String name ) {
+  @Override
+  public List<IEngineComponent> getComponentCopies(String name) {
     List<IEngineComponent> copies = new ArrayList<>();
-    for ( IEngineComponent component : engineMetrics.getComponents() ) {
-      if ( component.getName().equalsIgnoreCase( name ) ) {
-        copies.add( component );
+    for (IEngineComponent component : engineMetrics.getComponents()) {
+      if (component.getName().equalsIgnoreCase(name)) {
+        copies.add(component);
       }
     }
     return copies;
   }
 
-  @Override public IEngineComponent findComponent( String name, int copyNr ) {
-    for ( IEngineComponent component : engineMetrics.getComponents() ) {
+  @Override
+  public IEngineComponent findComponent(String name, int copyNr) {
+    for (IEngineComponent component : engineMetrics.getComponents()) {
       // We ignore CopyNr since it's the number of copies ever started in the Beam pipeline
-      // So in essence the metrics are always just for "one" transform even though there might be hundreds of copies.
+      // So in essence the metrics are always just for "one" transform even though there might be
+      // hundreds of copies.
       //
-      if ( component.getName().equalsIgnoreCase( name )) {
+      if (component.getName().equalsIgnoreCase(name)) {
         return component;
       }
     }
     return null;
   }
 
-  @Override public Result getResult() {
+  @Override
+  public Result getResult() {
     Result result = new Result();
-    result.setNrErrors( errors );
-    result.setResult( errors == 0 );
+    result.setNrErrors(errors);
+    result.setResult(errors == 0);
 
-    for ( IEngineComponent component : engineMetrics.getComponents() ) {
+    for (IEngineComponent component : engineMetrics.getComponents()) {
 
-      result.setNrErrors( result.getNrErrors() + component.getErrors() );
+      result.setNrErrors(result.getNrErrors() + component.getErrors());
 
       // For every transform metric, take the maximum amount
       //
-      Long read = engineMetrics.getComponentMetric( component, Pipeline.METRIC_READ );
-      result.setNrLinesRead( Math.max( result.getNrLinesRead(), read == null ? 0 : read.longValue() ) );
-      Long written = engineMetrics.getComponentMetric( component, Pipeline.METRIC_WRITTEN );
-      result.setNrLinesWritten( Math.max( result.getNrLinesWritten(), written == null ? 0 : written.longValue() ) );
-      Long input = engineMetrics.getComponentMetric( component, Pipeline.METRIC_INPUT );
-      result.setNrLinesInput( Math.max( result.getNrLinesInput(), input == null ? 0 : input.longValue() ) );
-      Long output = engineMetrics.getComponentMetric( component, Pipeline.METRIC_OUTPUT );
-      result.setNrLinesOutput( Math.max( result.getNrLinesOutput(), output == null ? 0 : output.longValue() ) );
-      Long updated = engineMetrics.getComponentMetric( component, Pipeline.METRIC_UPDATED );
-      result.setNrLinesUpdated( Math.max( result.getNrLinesUpdated(), updated == null ? 0 : updated.longValue() ) );
-      Long rejected = engineMetrics.getComponentMetric( component, Pipeline.METRIC_REJECTED );
-      result.setNrLinesRejected( Math.max( result.getNrLinesRejected(), rejected == null ? 0 : rejected.longValue() ) );
+      Long read = engineMetrics.getComponentMetric(component, Pipeline.METRIC_READ);
+      result.setNrLinesRead(Math.max(result.getNrLinesRead(), read == null ? 0 : read.longValue()));
+      Long written = engineMetrics.getComponentMetric(component, Pipeline.METRIC_WRITTEN);
+      result.setNrLinesWritten(
+          Math.max(result.getNrLinesWritten(), written == null ? 0 : written.longValue()));
+      Long input = engineMetrics.getComponentMetric(component, Pipeline.METRIC_INPUT);
+      result.setNrLinesInput(
+          Math.max(result.getNrLinesInput(), input == null ? 0 : input.longValue()));
+      Long output = engineMetrics.getComponentMetric(component, Pipeline.METRIC_OUTPUT);
+      result.setNrLinesOutput(
+          Math.max(result.getNrLinesOutput(), output == null ? 0 : output.longValue()));
+      Long updated = engineMetrics.getComponentMetric(component, Pipeline.METRIC_UPDATED);
+      result.setNrLinesUpdated(
+          Math.max(result.getNrLinesUpdated(), updated == null ? 0 : updated.longValue()));
+      Long rejected = engineMetrics.getComponentMetric(component, Pipeline.METRIC_REJECTED);
+      result.setNrLinesRejected(
+          Math.max(result.getNrLinesRejected(), rejected == null ? 0 : rejected.longValue()));
     }
 
-    result.setStopped( isStopped() );
-    result.setLogChannelId( getLogChannelId() );
+    result.setStopped(isStopped());
+    result.setLogChannelId(getLogChannelId());
 
     return result;
   }
 
-  @Override public void retrieveComponentOutput( IVariables variables, String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
-    throw new HopException( "Retrieving component output is not supported by the Beam pipeline engine" );
+  @Override
+  public void retrieveComponentOutput(
+      IVariables variables,
+      String componentName,
+      int copyNr,
+      int nrRows,
+      IPipelineComponentRowsReceived rowsReceived)
+      throws HopException {
+    throw new HopException(
+        "Retrieving component output is not supported by the Beam pipeline engine");
   }
 
-
-  @Override public boolean isSafeModeEnabled() {
+  @Override
+  public boolean isSafeModeEnabled() {
     return false; // TODO: implement
   }
 
-  @Override public IRowSet findRowSet( String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy ) {
+  @Override
+  public IRowSet findRowSet(
+      String fromTransformName,
+      int fromTransformCopy,
+      String toTransformName,
+      int toTransformCopy) {
     return null; // TODO factor out
   }
 
   // Logging object methods...
   //
 
-  @Override public String getObjectName() {
+  @Override
+  public String getObjectName() {
     return pipelineMeta.getName();
   }
 
-  @Override public String getFilename() {
+  @Override
+  public String getFilename() {
     return pipelineMeta.getFilename();
   }
 
-  @Override public LoggingObjectType getObjectType() {
+  @Override
+  public LoggingObjectType getObjectType() {
     return LoggingObjectType.PIPELINE;
   }
 
-  @Override public String getObjectCopy() {
+  @Override
+  public String getObjectCopy() {
     return null;
   }
 
-  @Override public Date getRegistrationDate() {
+  @Override
+  public Date getRegistrationDate() {
     return null;
   }
 
-  @Override public boolean isGatheringMetrics() {
+  @Override
+  public boolean isGatheringMetrics() {
     return logChannel != null && logChannel.isGatheringMetrics();
   }
 
-  @Override public void setGatheringMetrics( boolean gatheringMetrics ) {
-    if ( logChannel != null ) {
-      logChannel.setGatheringMetrics( gatheringMetrics );
+  @Override
+  public void setGatheringMetrics(boolean gatheringMetrics) {
+    if (logChannel != null) {
+      logChannel.setGatheringMetrics(gatheringMetrics);
     }
   }
 
-  @Override public void setForcingSeparateLogging( boolean forcingSeparateLogging ) {
-    if ( logChannel != null ) {
-      logChannel.setForcingSeparateLogging( forcingSeparateLogging );
+  @Override
+  public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
+    if (logChannel != null) {
+      logChannel.setForcingSeparateLogging(forcingSeparateLogging);
     }
   }
 
-  @Override public boolean isForcingSeparateLogging() {
+  @Override
+  public boolean isForcingSeparateLogging() {
     return logChannel == null ? false : logChannel.isForcingSeparateLogging();
   }
 
-  @Override public String getLogChannelId() {
+  @Override
+  public String getLogChannelId() {
     return logChannel.getLogChannelId();
   }
 
   ////////////
 
-  public void addActiveSubPipeline( final String subPipelineName, IPipelineEngine subPipeline ) {
-    activeSubPipelines.put( subPipelineName, subPipeline );
+  public void addActiveSubPipeline(final String subPipelineName, IPipelineEngine subPipeline) {
+    activeSubPipelines.put(subPipelineName, subPipeline);
   }
 
-  public IPipelineEngine getActiveSubPipeline( final String subPipelineName ) {
-    return activeSubPipelines.get( subPipelineName );
+  public IPipelineEngine getActiveSubPipeline(final String subPipelineName) {
+    return activeSubPipelines.get(subPipelineName);
   }
 
-
-  public void addActiveSubWorkflow( final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow ) {
-    activeSubWorkflows.put( subWorkflowName, subWorkflow );
+  public void addActiveSubWorkflow(
+      final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow) {
+    activeSubWorkflows.put(subWorkflowName, subWorkflow);
   }
 
-  public IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow( final String subWorkflowName ) {
-    return activeSubWorkflows.get( subWorkflowName );
+  public IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow(final String subWorkflowName) {
+    return activeSubWorkflows.get(subWorkflowName);
   }
 
-  @Override public void setInternalHopVariables( IVariables var ) {
+  @Override
+  public void setInternalHopVariables(IVariables var) {
     // TODO: get rid of this method.  Internal variables should always be available.
   }
-
 
   /**
    * Gets parentPipeline
    *
    * @return value of parentPipeline
    */
-  @Override public IPipelineEngine getParentPipeline() {
+  @Override
+  public IPipelineEngine getParentPipeline() {
     return parentPipeline;
   }
 
-  /**
-   * @param parentPipeline The parentPipeline to set
-   */
-  public void setParentPipeline( IPipelineEngine parentPipeline ) {
+  /** @param parentPipeline The parentPipeline to set */
+  public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
   }
 
@@ -810,14 +869,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of parentWorkflow
    */
-  @Override public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
+  @Override
+  public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
 
-  /**
-   * @param parentWorkflow The parentWorkflow to set
-   */
-  @Override public void setParentWorkflow( IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
+  /** @param parentWorkflow The parentWorkflow to set */
+  @Override
+  public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
   }
 
@@ -826,21 +885,22 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of executionStartedListeners
    */
-  public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> getExecutionStartedListeners() {
+  public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>>
+      getExecutionStartedListeners() {
     return executionStartedListeners;
   }
 
-  /**
-   * @param executionStartedListeners The executionStartedListeners to set
-   */
-  public void setExecutionStartedListeners( List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners ) {
+  /** @param executionStartedListeners The executionStartedListeners to set */
+  public void setExecutionStartedListeners(
+      List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
     this.executionStartedListeners = executionStartedListeners;
   }
 
   private void fireExecutionStartedListeners() throws HopException {
-    synchronized ( executionStartedListeners ) {
-      for ( IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener : executionStartedListeners ) {
-        listener.started( this );
+    synchronized (executionStartedListeners) {
+      for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionStartedListeners) {
+        listener.started(this);
       }
     }
   }
@@ -850,44 +910,51 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of executionFinishedListeners
    */
-  public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> getExecutionFinishedListeners() {
+  public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>>
+      getExecutionFinishedListeners() {
     return executionFinishedListeners;
   }
 
-  /**
-   * @param executionFinishedListeners The executionFinishedListeners to set
-   */
-  public void setExecutionFinishedListeners( List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners ) {
+  /** @param executionFinishedListeners The executionFinishedListeners to set */
+  public void setExecutionFinishedListeners(
+      List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
     this.executionFinishedListeners = executionFinishedListeners;
   }
 
-
-  @Override public void addExecutionStoppedListener( IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener ) throws HopException {
-    synchronized ( executionStoppedListeners ) {
-      executionStoppedListeners.add( listener );
+  @Override
+  public void addExecutionStoppedListener(
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) throws HopException {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.add(listener);
     }
   }
 
-  @Override public void firePipelineExecutionStartedListeners() throws HopException {
-    synchronized ( executionStartedListeners ) {
-      for ( IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener : executionStartedListeners ) {
-        listener.started( this );
+  @Override
+  public void firePipelineExecutionStartedListeners() throws HopException {
+    synchronized (executionStartedListeners) {
+      for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionStartedListeners) {
+        listener.started(this);
       }
     }
   }
 
-  @Override public void firePipelineExecutionFinishedListeners() throws HopException {
-    synchronized ( executionFinishedListeners ) {
-      for ( IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener : executionFinishedListeners ) {
-        listener.finished( this );
+  @Override
+  public void firePipelineExecutionFinishedListeners() throws HopException {
+    synchronized (executionFinishedListeners) {
+      for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionFinishedListeners) {
+        listener.finished(this);
       }
     }
   }
 
-  @Override public void firePipelineExecutionStoppedListeners() throws HopException {
-    synchronized ( executionStoppedListeners ) {
-      for ( IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener : executionStoppedListeners ) {
-        listener.stopped( this );
+  @Override
+  public void firePipelineExecutionStoppedListeners() throws HopException {
+    synchronized (executionStoppedListeners) {
+      for (IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionStoppedListeners) {
+        listener.stopped(this);
       }
     }
   }
@@ -897,14 +964,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of executionStoppedListeners
    */
-  public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> getExecutionStoppedListeners() {
+  public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>>
+      getExecutionStoppedListeners() {
     return executionStoppedListeners;
   }
 
-  /**
-   * @param executionStoppedListeners The executionStoppedListeners to set
-   */
-  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners ) {
+  /** @param executionStoppedListeners The executionStoppedListeners to set */
+  public void setExecutionStoppedListeners(
+      List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners) {
     this.executionStoppedListeners = executionStoppedListeners;
   }
 
@@ -913,14 +980,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of errors
    */
-  @Override public int getErrors() {
+  @Override
+  public int getErrors() {
     return errors;
   }
 
-  /**
-   * @param errors The errors to set
-   */
-  public void setErrors( int errors ) {
+  /** @param errors The errors to set */
+  public void setErrors(int errors) {
     this.errors = errors;
   }
 
@@ -929,14 +995,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of pipelineRunConfiguration
    */
-  @Override public PipelineRunConfiguration getPipelineRunConfiguration() {
+  @Override
+  public PipelineRunConfiguration getPipelineRunConfiguration() {
     return pipelineRunConfiguration;
   }
 
-  /**
-   * @param pipelineRunConfiguration The pipelineRunConfiguration to set
-   */
-  public void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration ) {
+  /** @param pipelineRunConfiguration The pipelineRunConfiguration to set */
+  public void setPipelineRunConfiguration(PipelineRunConfiguration pipelineRunConfiguration) {
     this.pipelineRunConfiguration = pipelineRunConfiguration;
   }
 
@@ -945,14 +1010,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of subject
    */
-  @Override public PipelineMeta getPipelineMeta() {
+  @Override
+  public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /**
-   * @param subject The subject to set
-   */
-  @Override public void setPipelineMeta( PipelineMeta subject ) {
+  /** @param subject The subject to set */
+  @Override
+  public void setPipelineMeta(PipelineMeta subject) {
     this.pipelineMeta = subject;
   }
 
@@ -961,14 +1026,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of pluginId
    */
-  @Override public String getPluginId() {
+  @Override
+  public String getPluginId() {
     return pluginId;
   }
 
-  /**
-   * @param pluginId The pluginId to set
-   */
-  @Override public void setPluginId( String pluginId ) {
+  /** @param pluginId The pluginId to set */
+  @Override
+  public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
   }
 
@@ -977,14 +1042,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of preparing
    */
-  @Override public boolean isPreparing() {
+  @Override
+  public boolean isPreparing() {
     return preparing;
   }
 
-  /**
-   * @param preparing The preparing to set
-   */
-  public void setPreparing( boolean preparing ) {
+  /** @param preparing The preparing to set */
+  public void setPreparing(boolean preparing) {
     this.preparing = preparing;
   }
 
@@ -993,14 +1057,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of readyToStart
    */
-  @Override public boolean isReadyToStart() {
+  @Override
+  public boolean isReadyToStart() {
     return readyToStart;
   }
 
-  /**
-   * @param readyToStart The readyToStart to set
-   */
-  public void setReadyToStart( boolean readyToStart ) {
+  /** @param readyToStart The readyToStart to set */
+  public void setReadyToStart(boolean readyToStart) {
     this.readyToStart = readyToStart;
   }
 
@@ -1009,14 +1072,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of running
    */
-  @Override public boolean isRunning() {
+  @Override
+  public boolean isRunning() {
     return running;
   }
 
-  /**
-   * @param running The running to set
-   */
-  public void setRunning( boolean running ) {
+  /** @param running The running to set */
+  public void setRunning(boolean running) {
     this.running = running;
   }
 
@@ -1025,14 +1087,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of stopped
    */
-  @Override public boolean isStopped() {
+  @Override
+  public boolean isStopped() {
     return stopped;
   }
 
-  /**
-   * @param stopped The stopped to set
-   */
-  public void setStopped( boolean stopped ) {
+  /** @param stopped The stopped to set */
+  public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
 
@@ -1041,14 +1102,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of metadataProvider
    */
-  @Override public IHopMetadataProvider getMetadataProvider() {
+  @Override
+  public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  @Override public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+  /** @param metadataProvider The metadataProvider to set */
+  @Override
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 
@@ -1057,14 +1118,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of logChannel
    */
-  @Override public ILogChannel getLogChannel() {
+  @Override
+  public ILogChannel getLogChannel() {
     return logChannel;
   }
 
-  /**
-   * @param log The logChannel to set
-   */
-  public void setLogChannel( ILogChannel log ) {
+  /** @param log The logChannel to set */
+  public void setLogChannel(ILogChannel log) {
     this.logChannel = log;
   }
 
@@ -1078,11 +1138,9 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return containerId;
   }
 
-  /**
-   * @param containerId The serverObjectId to set
-   */
+  /** @param containerId The serverObjectId to set */
   @Override
-  public void setContainerId( String containerId ) {
+  public void setContainerId(String containerId) {
     this.containerId = containerId;
   }
 
@@ -1091,14 +1149,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of engineMetrics
    */
-  @Override public EngineMetrics getEngineMetrics() {
+  @Override
+  public EngineMetrics getEngineMetrics() {
     return engineMetrics;
   }
 
-  /**
-   * @param engineMetrics The engineMetrics to set
-   */
-  public void setEngineMetrics( EngineMetrics engineMetrics ) {
+  /** @param engineMetrics The engineMetrics to set */
+  public void setEngineMetrics(EngineMetrics engineMetrics) {
     this.engineMetrics = engineMetrics;
   }
 
@@ -1107,14 +1164,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of finished
    */
-  @Override public boolean isFinished() {
+  @Override
+  public boolean isFinished() {
     return finished;
   }
 
-  /**
-   * @param finished The finished to set
-   */
-  public void setFinished( boolean finished ) {
+  /** @param finished The finished to set */
+  public void setFinished(boolean finished) {
     this.finished = finished;
   }
 
@@ -1123,14 +1179,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of paused
    */
-  @Override public boolean isPaused() {
+  @Override
+  public boolean isPaused() {
     return paused;
   }
 
-  /**
-   * @param paused The paused to set
-   */
-  public void setPaused( boolean paused ) {
+  /** @param paused The paused to set */
+  public void setPaused(boolean paused) {
     this.paused = paused;
   }
 
@@ -1139,17 +1194,17 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of parent
    */
-  @Override public ILoggingObject getParent() {
+  @Override
+  public ILoggingObject getParent() {
     return parent;
   }
 
-  /**
-   * @param parent The parent to set
-   */
-  @Override public void setParent( ILoggingObject parent ) {
+  /** @param parent The parent to set */
+  @Override
+  public void setParent(ILoggingObject parent) {
     this.parent = parent;
 
-    this.logChannel = new LogChannel( this, parent );
+    this.logChannel = new LogChannel(this, parent);
     this.logLevel = logChannel.getLogLevel();
   }
 
@@ -1158,14 +1213,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of logLevel
    */
-  @Override public LogLevel getLogLevel() {
+  @Override
+  public LogLevel getLogLevel() {
     return logLevel;
   }
 
-  /**
-   * @param logLevel The logLevel to set
-   */
-  @Override public void setLogLevel( LogLevel logLevel ) {
+  /** @param logLevel The logLevel to set */
+  @Override
+  public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
 
@@ -1174,14 +1229,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of preview
    */
-  @Override public boolean isPreview() {
+  @Override
+  public boolean isPreview() {
     return preview;
   }
 
-  /**
-   * @param preview The preview to set
-   */
-  @Override public void setPreview( boolean preview ) {
+  /** @param preview The preview to set */
+  @Override
+  public void setPreview(boolean preview) {
     this.preview = preview;
   }
 
@@ -1194,10 +1249,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return hasHaltedComponents;
   }
 
-  /**
-   * @param hasHaltedComponents The hasHaltedComponents to set
-   */
-  public void setHasHaltedComponents( boolean hasHaltedComponents ) {
+  /** @param hasHaltedComponents The hasHaltedComponents to set */
+  public void setHasHaltedComponents(boolean hasHaltedComponents) {
     this.hasHaltedComponents = hasHaltedComponents;
   }
 
@@ -1210,10 +1263,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return lastLogLineNr;
   }
 
-  /**
-   * @param lastLogLineNr The lastLogLineNr to set
-   */
-  public void setLastLogLineNr( int lastLogLineNr ) {
+  /** @param lastLogLineNr The lastLogLineNr to set */
+  public void setLastLogLineNr(int lastLogLineNr) {
     this.lastLogLineNr = lastLogLineNr;
   }
 
@@ -1226,10 +1277,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return loggingObject;
   }
 
-  /**
-   * @param loggingObject The loggingObject to set
-   */
-  public void setLoggingObject( ILoggingObject loggingObject ) {
+  /** @param loggingObject The loggingObject to set */
+  public void setLoggingObject(ILoggingObject loggingObject) {
     this.loggingObject = loggingObject;
   }
 
@@ -1238,14 +1287,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of previousResult
    */
-  @Override public Result getPreviousResult() {
+  @Override
+  public Result getPreviousResult() {
     return previousResult;
   }
 
-  /**
-   * @param previousResult The previousResult to set
-   */
-  public void setPreviousResult( Result previousResult ) {
+  /** @param previousResult The previousResult to set */
+  public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
   }
 
@@ -1258,10 +1306,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return activeSubPipelines;
   }
 
-  /**
-   * @param activeSubPipelines The activeSubPipelines to set
-   */
-  public void setActiveSubPipelines( Map<String, IPipelineEngine> activeSubPipelines ) {
+  /** @param activeSubPipelines The activeSubPipelines to set */
+  public void setActiveSubPipelines(Map<String, IPipelineEngine> activeSubPipelines) {
     this.activeSubPipelines = activeSubPipelines;
   }
 
@@ -1274,31 +1320,30 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return activeSubWorkflows;
   }
 
-  /**
-   * @param activeSubWorkflows The activeSubWorkflows to set
-   */
-  public void setActiveSubWorkflows( Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows ) {
+  /** @param activeSubWorkflows The activeSubWorkflows to set */
+  public void setActiveSubWorkflows(Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows) {
     this.activeSubWorkflows = activeSubWorkflows;
   }
 
   @Override
-  public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
-    namedParams.addParameterDefinition( key, defValue, description );
+  public void addParameterDefinition(String key, String defValue, String description)
+      throws DuplicateParamException {
+    namedParams.addParameterDefinition(key, defValue, description);
   }
 
   @Override
-  public String getParameterDescription( String key ) throws UnknownParamException {
-    return namedParams.getParameterDescription( key );
+  public String getParameterDescription(String key) throws UnknownParamException {
+    return namedParams.getParameterDescription(key);
   }
 
   @Override
-  public String getParameterDefault( String key ) throws UnknownParamException {
-    return namedParams.getParameterDefault( key );
+  public String getParameterDefault(String key) throws UnknownParamException {
+    return namedParams.getParameterDefault(key);
   }
 
   @Override
-  public String getParameterValue( String key ) throws UnknownParamException {
-    return namedParams.getParameterValue( key );
+  public String getParameterValue(String key) throws UnknownParamException {
+    return namedParams.getParameterValue(key);
   }
 
   @Override
@@ -1307,8 +1352,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   }
 
   @Override
-  public void setParameterValue( String key, String value ) throws UnknownParamException {
-    namedParams.setParameterValue( key, value );
+  public void setParameterValue(String key, String value) throws UnknownParamException {
+    namedParams.setParameterValue(key, value);
   }
 
   @Override
@@ -1321,8 +1366,9 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     namedParams.clearParameterValues();
   }
 
-  @Override public void copyParametersFromDefinitions( INamedParameterDefinitions definitions ) {
-    namedParams.copyParametersFromDefinitions( definitions );
+  @Override
+  public void copyParametersFromDefinitions(INamedParameterDefinitions definitions) {
+    namedParams.copyParametersFromDefinitions(definitions);
   }
 
   /*
@@ -1332,14 +1378,16 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    */
   @Override
   public void activateParameters(IVariables variables) {
-    namedParams.activateParameters( variables );
+    namedParams.activateParameters(variables);
   }
 
-  @Override public boolean isFeedbackShown() {
+  @Override
+  public boolean isFeedbackShown() {
     return false;
   }
 
-  @Override public int getFeedbackSize() {
+  @Override
+  public int getFeedbackSize() {
     return 0;
   }
 
@@ -1361,10 +1409,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return namedParams;
   }
 
-  /**
-   * @param namedParams The namedParams to set
-   */
-  public void setNamedParams( INamedParameters namedParams ) {
+  /** @param namedParams The namedParams to set */
+  public void setNamedParams(INamedParameters namedParams) {
     this.namedParams = namedParams;
   }
 
@@ -1382,28 +1428,23 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of extensionDataMap
    */
-  @Override public Map<String, Object> getExtensionDataMap() {
+  @Override
+  public Map<String, Object> getExtensionDataMap() {
     return extensionDataMap;
   }
 
-  /**
-   * @param statusDescription The statusDescription to set
-   */
-  public void setStatusDescription( String statusDescription ) {
+  /** @param statusDescription The statusDescription to set */
+  public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /**
-   * @param status The status to set
-   */
-  public void setStatus( ComponentExecutionStatus status ) {
+  /** @param status The status to set */
+  public void setStatus(ComponentExecutionStatus status) {
     this.status = status;
   }
 
-  /**
-   * @param extensionDataMap The extensionDataMap to set
-   */
-  public void setExtensionDataMap( Map<String, Object> extensionDataMap ) {
+  /** @param extensionDataMap The extensionDataMap to set */
+  public void setExtensionDataMap(Map<String, Object> extensionDataMap) {
     this.extensionDataMap = extensionDataMap;
   }
 
@@ -1412,14 +1453,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of executionStartDate
    */
-  @Override public Date getExecutionStartDate() {
+  @Override
+  public Date getExecutionStartDate() {
     return executionStartDate;
   }
 
-  /**
-   * @param executionStartDate The executionStartDate to set
-   */
-  public void setExecutionStartDate( Date executionStartDate ) {
+  /** @param executionStartDate The executionStartDate to set */
+  public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
 
@@ -1428,14 +1468,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of executionEndDate
    */
-  @Override public Date getExecutionEndDate() {
+  @Override
+  public Date getExecutionEndDate() {
     return executionEndDate;
   }
 
-  /**
-   * @param executionEndDate The executionEndDate to set
-   */
-  public void setExecutionEndDate( Date executionEndDate ) {
+  /** @param executionEndDate The executionEndDate to set */
+  public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
 
@@ -1448,10 +1487,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return converter;
   }
 
-  /**
-   * @param converter The converter to set
-   */
-  public void setConverter( HopPipelineMetaToBeamPipelineConverter converter ) {
+  /** @param converter The converter to set */
+  public void setConverter(HopPipelineMetaToBeamPipelineConverter converter) {
     this.converter = converter;
   }
 
@@ -1464,10 +1501,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return beamPipeline;
   }
 
-  /**
-   * @param beamPipeline The beamPipeline to set
-   */
-  public void setBeamPipeline( org.apache.beam.sdk.Pipeline beamPipeline ) {
+  /** @param beamPipeline The beamPipeline to set */
+  public void setBeamPipeline(org.apache.beam.sdk.Pipeline beamPipeline) {
     this.beamPipeline = beamPipeline;
   }
 
@@ -1480,10 +1515,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return beamThread;
   }
 
-  /**
-   * @param beamThread The beamThread to set
-   */
-  public void setBeamThread( Thread beamThread ) {
+  /** @param beamThread The beamThread to set */
+  public void setBeamThread(Thread beamThread) {
     this.beamThread = beamThread;
   }
 
@@ -1496,10 +1529,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return beamPipelineResults;
   }
 
-  /**
-   * @param beamPipelineResults The beamPipelineResults to set
-   */
-  public void setBeamPipelineResults( PipelineResult beamPipelineResults ) {
+  /** @param beamPipelineResults The beamPipelineResults to set */
+  public void setBeamPipelineResults(PipelineResult beamPipelineResults) {
     this.beamPipelineResults = beamPipelineResults;
   }
 
@@ -1512,10 +1543,9 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return beamEngineRunConfiguration;
   }
 
-  /**
-   * @param beamEngineRunConfiguration The beamEngineRunConfiguration to set
-   */
-  public void setBeamEngineRunConfiguration( IBeamPipelineEngineRunConfiguration beamEngineRunConfiguration ) {
+  /** @param beamEngineRunConfiguration The beamEngineRunConfiguration to set */
+  public void setBeamEngineRunConfiguration(
+      IBeamPipelineEngineRunConfiguration beamEngineRunConfiguration) {
     this.beamEngineRunConfiguration = beamEngineRunConfiguration;
   }
 }
