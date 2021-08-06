@@ -196,11 +196,9 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     PipelineOptions pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
     // The generic options
     //
-    pipelineOptions.setUserAgent(
-        pipelineRunConfiguration.resolve(pipelineRunConfiguration.getUserAgent()));
-    pipelineOptions.setTempLocation(
-        pipelineRunConfiguration.resolve(pipelineRunConfiguration.getTempLocation()));
-    pipelineOptions.setJobName(pipelineMeta.getName());
+    pipelineOptions.setUserAgent(variables.resolve(pipelineRunConfiguration.getUserAgent()));
+    pipelineOptions.setTempLocation(variables.resolve(pipelineRunConfiguration.getTempLocation()));
+    pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
 
     pipelineOptions.setRunner(runnerClass);
     Pipeline pipeline = Pipeline.create(pipelineOptions);
@@ -226,6 +224,27 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     handleBeamOutputTransforms(log, transformCollectionMap, pipeline);
 
     return pipeline;
+  }
+
+  /**
+   * Clean up the name for Dataflow and others...
+   *
+   * @param name
+   * @return
+   */
+  private String sanitizeJobName(String name) {
+    String newName = name.toLowerCase();
+    if (name.matches("^[0-9].*")) {
+      newName = "hop-" + newName;
+    }
+    StringBuilder builder = new StringBuilder(newName);
+    for (int i = 0; i < builder.length(); i++) {
+      String c = "" + builder.charAt(i);
+      if (!c.matches("[-0-9a-z]")) {
+        builder.setCharAt(i, '-');
+      }
+    }
+    return builder.toString();
   }
 
   public static Class<? extends PipelineRunner<?>> getPipelineRunnerClass(RunnerType runnerType)

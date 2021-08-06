@@ -1,0 +1,37 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+
+= Neo4j Constraint
+
+== Description
+
+This action can be used to create or drop constraints on node or relationship properties in a Neo4j Graph
+
+== Options
+
+* Neo4j Connection : The name of the Neo4j connection to update indexes on
+* Constraint updates to perform: You can specify your list of constraint updates here
+** Update type : CREATE or DROP
+** Type of object to index on: NODE or RELATIONSHIP
+** Type of constraint: UNIQUE or NOT_NULL
+** Constraint name: The name for your constraint (mandatory)
+** Object name: the label of the node or relationship you want to update a constraint for
+** Property: the property to put the constraint on
+
+

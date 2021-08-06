@@ -67,7 +67,16 @@
       <includes>
         <include>org.eclipse.platform:*.macosx.x86_64</include>
       </includes>
-      <outputDirectory>libswt/osx64</outputDirectory>
+      <outputDirectory>libswt/osx/x86_64</outputDirectory>
+      <outputFileNameMapping>swt.jar</outputFileNameMapping>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>org.eclipse.platform:*.macosx.aarch64</include>
+      </includes>
+      <outputDirectory>libswt/osx/arm64</outputDirectory>
       <outputFileNameMapping>swt.jar</outputFileNameMapping>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>

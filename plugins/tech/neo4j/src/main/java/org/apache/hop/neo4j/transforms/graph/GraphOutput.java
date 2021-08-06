@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.graph;
@@ -522,6 +521,27 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         Object sourceValueData,
         int sourceFieldIndex) {
       this.node = node;
+      this.property = property;
+      this.sourceValueMeta = sourceValueMeta;
+      this.sourceValueData = sourceValueData;
+      this.sourceFieldIndex = sourceFieldIndex;
+    }
+  }
+
+  private static class RelationshipAndPropertyData {
+    public GraphRelationship relationship;
+    public GraphProperty property;
+    public IValueMeta sourceValueMeta;
+    public Object sourceValueData;
+    public int sourceFieldIndex;
+
+    public RelationshipAndPropertyData(
+        GraphRelationship relationship,
+        GraphProperty property,
+        IValueMeta sourceValueMeta,
+        Object sourceValueData,
+        int sourceFieldIndex) {
+      this.relationship = relationship;
       this.property = property;
       this.sourceValueMeta = sourceValueMeta;
       this.sourceValueData = sourceValueData;
@@ -1047,7 +1067,9 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     // Then we can determine the relationships between the nodes
     //
     List<GraphNode> nodes = new ArrayList<>();
+    List<GraphRelationship> relationships = new ArrayList<>();
     List<NodeAndPropertyData> nodeProperties = new ArrayList<>();
+    List<RelationshipAndPropertyData> relationshipProperties = new ArrayList<>();
     for (int f = 0; f < fieldModelMappings.size(); f++) {
       FieldModelMapping fieldModelMapping = fieldModelMappings.get(f);
 
@@ -1060,24 +1082,52 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
       // Determine the target property and type
       //
-      GraphNode node = graphModel.findNode(fieldModelMapping.getTargetName());
-      if (node == null) {
-        throw new HopException(
-            "Unable to find target node '" + fieldModelMapping.getTargetName() + "'");
+      if (fieldModelMapping.getTargetType() == ModelTargetType.Node) {
+        GraphNode node = graphModel.findNode(fieldModelMapping.getTargetName());
+        if (node == null) {
+          throw new HopException(
+              "Unable to find target node '" + fieldModelMapping.getTargetName() + "'");
+        }
+        GraphProperty graphProperty = node.findProperty(fieldModelMapping.getTargetProperty());
+        if (graphProperty == null) {
+          throw new HopException(
+              "Unable to find target property '"
+                  + fieldModelMapping.getTargetProperty()
+                  + "' of node '"
+                  + fieldModelMapping.getTargetName()
+                  + "'");
+        }
+        if (!nodes.contains(node)) {
+          nodes.add(node);
+        }
+        nodeProperties.add(
+            new NodeAndPropertyData(node, graphProperty, valueMeta, valueData, index));
+      } else {
+        // Relationship
+        //
+        GraphRelationship relationship =
+            graphModel.findRelationship(fieldModelMapping.getTargetName());
+        if (relationship == null) {
+          throw new HopException(
+              "Unable to find target relationship '" + fieldModelMapping.getTargetName() + "'");
+        }
+        GraphProperty graphProperty =
+            relationship.findProperty(fieldModelMapping.getTargetProperty());
+        if (graphProperty == null) {
+          throw new HopException(
+              "Unable to find target property '"
+                  + fieldModelMapping.getTargetProperty()
+                  + "' of relationship '"
+                  + fieldModelMapping.getTargetName()
+                  + "'");
+        }
+        if (!relationships.contains(relationship)) {
+          relationships.add(relationship);
+        }
+        relationshipProperties.add(
+            new RelationshipAndPropertyData(
+                relationship, graphProperty, valueMeta, valueData, index));
       }
-      GraphProperty graphProperty = node.findProperty(fieldModelMapping.getTargetProperty());
-      if (graphProperty == null) {
-        throw new HopException(
-            "Unable to find target property '"
-                + fieldModelMapping.getTargetProperty()
-                + "' of node '"
-                + fieldModelMapping.getTargetName()
-                + "'");
-      }
-      if (!nodes.contains(node)) {
-        nodes.add(node);
-      }
-      nodeProperties.add(new NodeAndPropertyData(node, graphProperty, valueMeta, valueData, index));
     }
 
     // Evaluate whether or not the node property is primary and null
@@ -1111,7 +1161,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     //
     // v1.0 vanilla algorithm test
     //
-    List<GraphRelationship> relationships = new ArrayList<>();
     for (int x = 0; x < nodes.size(); x++) {
       for (int y = 0; y < nodes.size(); y++) {
         if (x == y) {

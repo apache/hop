@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>beers-wikipedia-graph</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2021/07/30 15:38:26.057</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2021/07/30 15:38:26.057</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Ping Neo4j</name>
+      <description/>
+      <type>PING</type>
+      <attributes/>
+      <hostname>${NEO4J_HOSTNAME}</hostname>
+      <nbr_packets>2</nbr_packets>
+      <nbrpaquets>2</nbrpaquets>
+      <timeout>3000</timeout>
+      <pingtype>classicPing</pingtype>
+      <parallel>N</parallel>
+      <xloc>304</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check Neo4j</name>
+      <description/>
+      <type>NEO4J_CHECK_CONNECTIONS</type>
+      <attributes/>
+      <connections>
+        <connection>demo</connection>
+      </connections>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Read and scrub the data </name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/neo4j/beers-wikipedia-scrub.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>304</xloc>
+      <yloc>336</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Load data into a graph</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/neo4j/beers-wikipedia-graph-output.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>336</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Create indexes for graph model Belgian Beers</name>
+      <description/>
+      <type>NEO4J_INDEX</type>
+      <attributes/>
+      <connection>demo</connection>
+      <updates>
+        <update>
+          <index_name>IDX_STRENGTH_LABEL</index_name>
+          <object_name>Strength</object_name>
+          <object_properties>label</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+        <update>
+          <index_name>IDX_STRENGTH_PCT</index_name>
+          <object_name>Strength</object_name>
+          <object_properties>pct</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+        <update>
+          <index_name>IDX_TYPE_NAME</index_name>
+          <object_name>Type</object_name>
+          <object_properties>name</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+      </updates>
+      <parallel>N</parallel>
+      <xloc>304</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Create constraints for graph model Belgian Beers</name>
+      <description/>
+      <type>NEO4J_CONSTRAINT</type>
+      <attributes/>
+      <connection>demo</connection>
+      <updates>
+        <update>
+          <index_name>COU_BRAND_NAME</index_name>
+          <constraint_type>UNIQUE</constraint_type>
+          <object_name>Brand</object_name>
+          <object_properties>name</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+        <update>
+          <index_name>COU_BREWERY_NAME</index_name>
+          <constraint_type>UNIQUE</constraint_type>
+          <object_name>Brewery</object_name>
+          <object_properties>name</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+        <update>
+          <index_name>COU_EVALUATION_LABEL</index_name>
+          <constraint_type>UNIQUE</constraint_type>
+          <object_name>Evaluation</object_name>
+          <object_properties>label</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+        <update>
+          <index_name>COU_PERIOD_DESCRIPTION</index_name>
+          <constraint_type>UNIQUE</constraint_type>
+          <object_name>Period</object_name>
+          <object_properties>description</object_properties>
+          <object_type>NODE</object_type>
+          <update_type>CREATE</update_type>
+        </update>
+      </updates>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Ping Neo4j</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Ping Neo4j</from>
+      <to>Check Neo4j</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Read and scrub the data </from>
+      <to>Load data into a graph</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check Neo4j</from>
+      <to>Create indexes for graph model Belgian Beers</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create indexes for graph model Belgian Beers</from>
+      <to>Create constraints for graph model Belgian Beers</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create constraints for graph model Belgian Beers</from>
+      <to>Read and scrub the data </to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

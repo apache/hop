@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.model;
@@ -22,11 +21,21 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.neo4j.actions.constraint.ConstraintType;
+import org.apache.hop.neo4j.actions.constraint.ConstraintUpdate;
+import org.apache.hop.neo4j.actions.constraint.Neo4jConstraint;
+import org.apache.hop.neo4j.actions.index.IndexUpdate;
+import org.apache.hop.neo4j.actions.index.Neo4jIndex;
+import org.apache.hop.neo4j.actions.index.ObjectType;
+import org.apache.hop.neo4j.actions.index.UpdateType;
 import org.apache.hop.neo4j.core.Neo4jUtil;
+import org.apache.hop.neo4j.model.arrows.ArrowsAppImporter;
 import org.apache.hop.neo4j.model.cw.CypherWorkbenchImporter;
+import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterListDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -38,8 +47,10 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -65,6 +76,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -112,7 +124,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private GraphRelationship activeRelationship;
   private Button wImportNode;
 
-  private IRowMeta inputRowMeta;
   private Point mouseDownPoint;
   private Canvas wCanvas;
   private Label wlNodeName;
@@ -129,7 +140,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
   public GraphModelEditor(HopGui hopGui, MetadataManager<GraphModel> manager, GraphModel metadata) {
     super(hopGui, manager, metadata);
-    this.inputRowMeta = new RowMeta();
 
     props = PropsUi.getInstance();
 
@@ -159,6 +169,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     setWidgetsContent();
 
+    clearChanged();
+
     // Select the model tab
     //
     wTabs.setSelection(0);
@@ -168,19 +180,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   public void setWidgetsContent() {
     // Model tab
     wModelName.setText(Const.NVL(graphModel.getName(), ""));
-    wModelName.addListener(
-        SWT.Modify,
-        event -> {
-          graphModel.setName(wModelName.getText());
-          setChanged();
-        });
     wModelDescription.setText(Const.NVL(graphModel.getDescription(), ""));
-    wModelDescription.addListener(
-        SWT.Modify,
-        event -> {
-          graphModel.setDescription(wModelDescription.getText());
-          setChanged();
-        });
 
     refreshNodesList();
     if (graphModel.getNodes().size() > 0) {
@@ -386,6 +386,11 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdModelName.right = new FormAttachment(100, 0);
     fdModelName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     wModelName.setLayoutData(fdModelName);
+    wModelName.addModifyListener(
+        e -> {
+          setChanged();
+          graphModel.setName(wModelName.getText());
+        });
     Control lastControl = wModelName;
 
     Label wlModelDescription = new Label(wModelComp, SWT.RIGHT);
@@ -403,6 +408,11 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdModelDescription.right = new FormAttachment(100, 0);
     fdModelDescription.top = new FormAttachment(wlModelDescription, 0, SWT.CENTER);
     wModelDescription.setLayoutData(fdModelDescription);
+    wModelDescription.addModifyListener(
+        e -> {
+          setChanged();
+          graphModel.setDescription(wModelDescription.getText());
+        });
     lastControl = wModelDescription;
 
     Button wImportGraph = new Button(wModelComp, SWT.PUSH);
@@ -437,7 +447,30 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdCypherWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
     wCypherWorkbenchImportGraph.setLayoutData(fdCypherWorkbenchImportGraph);
     wCypherWorkbenchImportGraph.addListener(SWT.Selection, (e) -> importGraphFromCypherWorkbench());
-    // lastControl = wCypherWorkbenchImportGraph;
+    lastControl = wCypherWorkbenchImportGraph;
+
+    Button wArrowsAppImportGraph = new Button(wModelComp, SWT.PUSH);
+    wArrowsAppImportGraph.setText(
+        BaseMessages.getString(PKG, "GraphModelDialog.ImportArrowsApp.Button"));
+    props.setLook(wArrowsAppImportGraph);
+    FormData fdArrowsAppImportGraph = new FormData();
+    fdArrowsAppImportGraph.left = new FormAttachment(middle, 0);
+    fdArrowsAppImportGraph.right = new FormAttachment(75, 0);
+    fdArrowsAppImportGraph.top = new FormAttachment(lastControl, margin);
+    wArrowsAppImportGraph.setLayoutData(fdArrowsAppImportGraph);
+    wArrowsAppImportGraph.addListener(SWT.Selection, (e) -> importGraphFromArrowsApp());
+    lastControl = wArrowsAppImportGraph;
+
+    Button wCreateIndexAction = new Button(wModelComp, SWT.PUSH);
+    wCreateIndexAction.setText(
+        BaseMessages.getString(PKG, "GraphModelDialog.CreateIndexAction.Button"));
+    props.setLook(wCreateIndexAction);
+    FormData fdCreateIndexAction = new FormData();
+    fdCreateIndexAction.left = new FormAttachment(middle, 0);
+    fdCreateIndexAction.right = new FormAttachment(75, 0);
+    fdCreateIndexAction.top = new FormAttachment(lastControl, 50);
+    wCreateIndexAction.setLayoutData(fdCreateIndexAction);
+    wCreateIndexAction.addListener(SWT.Selection, (e) -> copyIndexActionToClipboard());
 
     FormData fdModelComp = new FormData();
     fdModelComp.left = new FormAttachment(0, 0);
@@ -504,10 +537,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     Button wNewRelationshipNode = new Button(wNodesComp, SWT.PUSH);
     wNewRelationshipNode.setText("New relationship");
     wNewRelationshipNode.addListener(SWT.Selection, (e) -> newRelationshipFromNode());
-
-    if (inputRowMeta == null) {
-      wImportNode.setEnabled(false);
-    }
 
     BaseTransformDialog.positionBottomButtons(
         wNodesComp,
@@ -806,52 +835,82 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   }
 
   private void importNodeProperties() {
-    if (activeNode == null || inputRowMeta == null) {
-      return;
-    }
-    String[] fieldNames = inputRowMeta.getFieldNames();
-
-    EnterListDialog dialog =
-        new EnterListDialog(
-            hopGui.getShell(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE, fieldNames);
-    String[] fields = dialog.open();
-    if (fields != null) {
-
-      for (String field : fields) {
-        // add this field as a property...
-        //
-        IValueMeta valueMeta = inputRowMeta.searchValueMeta(field);
-        GraphPropertyType propertyType;
-        switch (valueMeta.getType()) {
-          case IValueMeta.TYPE_INTEGER:
-            propertyType = GraphPropertyType.Integer;
-            break;
-          case IValueMeta.TYPE_NUMBER:
-            propertyType = GraphPropertyType.Float;
-            break;
-          case IValueMeta.TYPE_DATE:
-            propertyType = GraphPropertyType.LocalDateTime;
-            break;
-          case IValueMeta.TYPE_BOOLEAN:
-            propertyType = GraphPropertyType.Boolean;
-            break;
-          case IValueMeta.TYPE_TIMESTAMP:
-            propertyType = GraphPropertyType.LocalDateTime;
-            break;
-          case IValueMeta.TYPE_BINARY:
-            propertyType = GraphPropertyType.ByteArray;
-            break;
-          default:
-            propertyType = GraphPropertyType.String;
-            break;
-        }
-
-        String propertyName = Neo4jUtil.standardizePropertyName(valueMeta);
-        activeNode
-            .getProperties()
-            .add(new GraphProperty(propertyName, "", propertyType, false, false, false, false));
+    try {
+      if (activeNode == null) {
+        return;
       }
-      refreshNodeFields();
+
+      HopGuiPipelineGraph activePipelineGraph = HopGui.getActivePipelineGraph();
+      if (activePipelineGraph == null) {
+        return;
+      } else {
+        MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+        messageBox.setText("Sorry");
+        messageBox.setMessage(
+            "Sorry, I couldn't find an active pipeline to use to import output fields from a transform");
+        messageBox.open();
+      }
+      PipelineMeta pipelineMeta = activePipelineGraph.getPipelineMeta();
+      String[] transformNames = pipelineMeta.getTransformNames();
+
+      EnterSelectionDialog enterSelectionDialog =
+          new EnterSelectionDialog(
+              getShell(),
+              transformNames,
+              "Select transform",
+              "Enter the transform to use for the fields to input");
+      String transformName = enterSelectionDialog.open();
+      if (transformName == null) {
+        return;
+      }
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(getVariables(), transformName);
+
+      String[] fieldNames = inputRowMeta.getFieldNames();
+
+      EnterListDialog dialog =
+          new EnterListDialog(
+              hopGui.getShell(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE, fieldNames);
+      String[] fields = dialog.open();
+      if (fields != null) {
+
+        for (String field : fields) {
+          // add this field as a property...
+          //
+          IValueMeta valueMeta = inputRowMeta.searchValueMeta(field);
+          GraphPropertyType propertyType;
+          switch (valueMeta.getType()) {
+            case IValueMeta.TYPE_INTEGER:
+              propertyType = GraphPropertyType.Integer;
+              break;
+            case IValueMeta.TYPE_NUMBER:
+              propertyType = GraphPropertyType.Float;
+              break;
+            case IValueMeta.TYPE_DATE:
+              propertyType = GraphPropertyType.LocalDateTime;
+              break;
+            case IValueMeta.TYPE_BOOLEAN:
+              propertyType = GraphPropertyType.Boolean;
+              break;
+            case IValueMeta.TYPE_TIMESTAMP:
+              propertyType = GraphPropertyType.LocalDateTime;
+              break;
+            case IValueMeta.TYPE_BINARY:
+              propertyType = GraphPropertyType.ByteArray;
+              break;
+            default:
+              propertyType = GraphPropertyType.String;
+              break;
+          }
+
+          String propertyName = Neo4jUtil.standardizePropertyName(valueMeta);
+          activeNode
+              .getProperties()
+              .add(new GraphProperty(propertyName, "", propertyType, false, false, false, false));
+        }
+        refreshNodeFields();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error importing transform fields as properties", e);
     }
   }
 
@@ -1673,6 +1732,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             mouseDownPoint.x = e.x;
             mouseDownPoint.y = e.y;
             wCanvas.redraw();
+            setChanged();
             break;
           default:
             break;
@@ -1822,17 +1882,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     }
   }
 
-  public IRowMeta getInputRowMeta() {
-    return inputRowMeta;
-  }
-
-  public void setInputRowMeta(IRowMeta inputRowMeta) {
-    this.inputRowMeta = inputRowMeta;
-    if (wImportNode != null && !wImportNode.isDisposed()) {
-      wImportNode.setEnabled(inputRowMeta != null);
-    }
-  }
-
   private void importGraphFromFile() {
     try {
       EnterTextDialog dialog =
@@ -1854,6 +1903,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       // Refresh the dialog.
       //
       setWidgetsContent();
+      setChanged();
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
@@ -1899,6 +1949,41 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       // Refresh the dialog.
       //
       setWidgetsContent();
+      setChanged();
+
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
+    }
+  }
+
+  private void importGraphFromArrowsApp() {
+    try {
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              getShell(),
+              "Arrows JSON",
+              "Paste the Arrows application export in JSON format below",
+              "{}",
+              true);
+      String jsonModelString = dialog.open();
+      if (jsonModelString == null) {
+        return;
+      }
+
+      // The graph model is loaded, replace the one in memory
+      //
+      graphModel = ArrowsAppImporter.importFromArrowsJson(jsonModelString);
+
+      // Refresh the dialog.
+      //
+      setWidgetsContent();
+      setChanged();
+
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+      box.setText("Import successful");
+      box.setMessage(
+          "The import from the Arrows JSON was successful.  Please make sure to give this model a name and indicate the primary key fields of nodes.");
+      box.open();
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "ERROR", "Error importing JSON", e);
@@ -1909,10 +1994,125 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     return graphModel.getJSONString();
   }
 
-  public void setChanged() {
-    if (this.isChanged == false) {
-      this.isChanged = true;
-      MetadataPerspective.getInstance().updateEditor(this);
+  private void copyIndexActionToClipboard() {
+    try {
+
+      // Select the index name...
+      //
+      IHopMetadataSerializer<NeoConnection> connectionSerializer =
+          getMetadataManager().getMetadataProvider().getSerializer(NeoConnection.class);
+      java.util.List<String> connectionNames = connectionSerializer.listObjectNames();
+      EnterSelectionDialog enterSelectionDialog =
+          new EnterSelectionDialog(
+              getShell(),
+              connectionNames.toArray(new String[0]),
+              "Select connection",
+              "Select the Neo4j Connection to create indexes and constraints on in the generated actions:");
+      String connectionName = enterSelectionDialog.open();
+      if (connectionName == null) {
+        return;
+      }
+      NeoConnection connection = connectionSerializer.load(connectionName);
+
+      Neo4jIndex neo4jIndex = new Neo4jIndex();
+      neo4jIndex.setConnection(connection);
+
+      // We need indexes for all the indexed or primary key fields (one only) in the model nodes...
+      //
+      for (GraphNode node : graphModel.getNodes()) {
+        // Loop over all the labels
+        //
+        for (String label : node.getLabels()) {
+          for (GraphProperty property : node.getProperties()) {
+            // If the field is flagged indexed we index it,
+            // but not if the field is flagged as unique
+            // Note: Unique indexes are handled by a constraint below
+            //
+            if ((property.isIndexed() || property.isPrimary()) && !property.isUnique()) {
+              neo4jIndex
+                  .getIndexUpdates()
+                  .add(
+                      new IndexUpdate(
+                          UpdateType.CREATE,
+                          ObjectType.NODE,
+                          "IDX_" + label.toUpperCase() + "_" + property.getName().toUpperCase(),
+                          label,
+                          property.getName()));
+            }
+          }
+        }
+      }
+
+      // Wrap this in an action
+      //
+      ActionMeta indexMeta = new ActionMeta(neo4jIndex);
+      indexMeta.setName("Create indexes for graph model " + graphModel.getName());
+      indexMeta.setLocation(50, 50);
+      String xmlIndex = indexMeta.getXml();
+
+      Neo4jConstraint neo4jConstraint = new Neo4jConstraint();
+      neo4jConstraint.setConnection(connection);
+
+      // We need indexes on all the primary keys in the model nodes...
+      //
+      for (GraphNode node : graphModel.getNodes()) {
+        // Loop over all the labels
+        //
+        for (String label : node.getLabels()) {
+          String constraintName = label.toUpperCase();
+          String properties = "";
+          for (GraphProperty property : node.getProperties()) {
+            // If the field is flagged unique we create a constraint for it...
+            //
+            if (property.isUnique()) {
+
+              neo4jConstraint
+                  .getConstraintUpdates()
+                  .add(
+                      new ConstraintUpdate(
+                          org.apache.hop.neo4j.actions.constraint.UpdateType.CREATE,
+                          org.apache.hop.neo4j.actions.constraint.ObjectType.NODE,
+                          ConstraintType.UNIQUE,
+                          "COU_" + label.toUpperCase() + "_" + property.getName().toUpperCase(),
+                          label,
+                          property.getName()));
+            }
+          }
+        }
+      }
+
+      // Wrap this in an action
+      //
+      ActionMeta constraintMeta = new ActionMeta(neo4jConstraint);
+      constraintMeta.setName("Create constraints for graph model " + graphModel.getName());
+      constraintMeta.setLocation(100, 50);
+      String xmlConstraint = constraintMeta.getXml();
+
+      GuiResource.getInstance()
+          .toClipboard(
+              "<workflow-actions><actions>"
+                  + xmlIndex
+                  + xmlConstraint
+                  + "</actions></workflow-actions>");
+
+      MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      messageBox.setText("Copied to clipboard");
+      messageBox.setMessage(
+          "An Neo4j Index/Constraint actions were copied to the clipboard to create the required indexes and constraints for this model.  You can paste these actions in a workflow.");
+      messageBox.open();
+
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "ERROR", "Error serializing to JSON", e);
     }
+  }
+
+  public void setChanged() {
+    this.isChanged = true;
+    MetadataPerspective.getInstance().updateEditor(this);
+  }
+
+  public void clearChanged() {
+    this.isChanged = false;
+    MetadataPerspective.getInstance().updateEditor(this);
   }
 }
