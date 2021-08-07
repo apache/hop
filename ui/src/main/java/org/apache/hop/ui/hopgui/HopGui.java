@@ -337,7 +337,7 @@ public class HopGui
 
   /** Build the shell */
   protected void open() {
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(GuiResource.getInstance().getImageHopUiTaskbar());
 
     shell.setText(BaseMessages.getString(PKG, "HopGui.Application.Name"));
     addMainMenu();
