@@ -57,7 +57,7 @@ image:getting-started/gs-hop-gui-create-pipeline-6.png[]
 
 Use the search box in this dialog to find the transforms you need. Click or use the arrow keys and hit enter to add a transform to your pipeline.
 
-For now, add a https://hop.apache.org/manual/latest/pipeline/transforms/rowgenerator.html[Generate Rows] and a http://localhost:1313/manual/latest/pipeline/transforms/addsequence.html[Add Sequence] transform to your pipeline.
+For now, add a xref:pipeline/transforms/rowgenerator.adoc[Generate Rows] and a xref:pipeline/transforms/addsequence.adoc[Add Sequence] transform to your pipeline.
 
 image:getting-started/gs-hop-gui-create-pipeline-add-two-transforms.png[]
 
