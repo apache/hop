@@ -147,8 +147,10 @@ pipeline {
 
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
+                    sh "docker buildx create --name hop --use"
                     sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} --push"
                     sh "docker rmi ${DOCKER_REPO_WEB}:${env.POM_VERSION}"
+                    sh "docker buildx rm hop"
                   }
             }
         }
