@@ -34,7 +34,7 @@
   <description></description>
 
   <properties>
-    <neo4j.driver.version>4.3.1</neo4j.driver.version>
+    <neo4j.driver.version>4.3.4</neo4j.driver.version>
   </properties>
 
   <dependencies>
