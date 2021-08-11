@@ -155,6 +155,7 @@ public class PipelinePreviewProgressDialog {
     pipeline =
         new LocalPipelineEngine(pipelineMeta, variables, HopGui.getInstance().getLoggingObject());
     pipeline.setPreview(true);
+    pipeline.setMetadataProvider(HopGui.getInstance().getMetadataProvider());
 
     // Prepare the execution...
     //

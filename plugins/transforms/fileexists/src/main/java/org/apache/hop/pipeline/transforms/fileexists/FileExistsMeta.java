@@ -21,29 +21,22 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
-
-/*
- * Created on 03-Juin-2008
- *
- */
 
 @Transform(
     id = "FileExists",
@@ -56,16 +49,31 @@ public class FileExistsMeta extends BaseTransformMeta
     implements ITransformMeta<FileExists, FileExistsData> {
   private static final Class<?> PKG = FileExistsMeta.class; // For Translator
 
+  @HopMetadataProperty(
+      key = "addresultfilenames",
+      injectionKeyDescription = "FileExists.Injection.AddResultFileNames")
   private boolean addresultfilenames;
 
   /** dynamic filename */
+  @HopMetadataProperty(
+      key = "filenamefield",
+      injectionKeyDescription = "FileExists.Injection.FilenameField")
   private String filenamefield;
 
+  @HopMetadataProperty(
+      key = "filetypefieldname",
+      injectionKeyDescription = "FileExists.Injection.FileTypeFieldName")
   private String filetypefieldname;
 
+  @HopMetadataProperty(
+      key = "includefiletype",
+      injectionKeyDescription = "FileExists.Injection.IncludeFileType")
   private boolean includefiletype;
 
   /** function result: new value name */
+  @HopMetadataProperty(
+      key = "resultfieldname",
+      injectionKeyDescription = "FileExists.Injection.ResultFieldName")
   private String resultfieldname;
 
   public FileExistsMeta() {
@@ -73,62 +81,58 @@ public class FileExistsMeta extends BaseTransformMeta
   }
 
   /** @return Returns the filenamefield. */
-  public String getDynamicFilenameField() {
+  public String getFilenamefield() {
     return filenamefield;
   }
 
   /** @param filenamefield The filenamefield to set. */
-  public void setDynamicFilenameField(String filenamefield) {
+  public void setFilenamefield(String filenamefield) {
     this.filenamefield = filenamefield;
   }
 
   /** @return Returns the resultName. */
-  public String getResultFieldName() {
+  public String getResultfieldname() {
     return resultfieldname;
   }
 
   /** @param resultfieldname The resultfieldname to set. */
-  public void setResultFieldName(String resultfieldname) {
+  public void setResultfieldname(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
   /** @param filetypefieldname The filetypefieldname to set. */
-  public void setFileTypeFieldName(String filetypefieldname) {
+  public void setFiletypefieldname(String filetypefieldname) {
     this.filetypefieldname = filetypefieldname;
   }
 
   /** @return Returns the filetypefieldname. */
-  public String getFileTypeFieldName() {
+  public String getFiletypefieldname() {
     return filetypefieldname;
   }
 
-  public boolean includeFileType() {
+  public boolean isIncludefiletype() {
     return includefiletype;
   }
 
-  public boolean addResultFilenames() {
+  public boolean isAddresultfilenames() {
     return addresultfilenames;
   }
 
-  public void setaddResultFilenames(boolean addresultfilenames) {
+  public void setAddresultfilenames(boolean addresultfilenames) {
     this.addresultfilenames = addresultfilenames;
   }
 
-  public void setincludeFileType(boolean includefiletype) {
+  public void setIncludefiletype(boolean includefiletype) {
     this.includefiletype = includefiletype;
   }
 
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
+  @Override
   public Object clone() {
     FileExistsMeta retval = (FileExistsMeta) super.clone();
-
     return retval;
   }
 
+  @Override
   public void setDefault() {
     resultfieldname = "result";
     filetypefieldname = null;
@@ -136,6 +140,7 @@ public class FileExistsMeta extends BaseTransformMeta
     addresultfilenames = false;
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -158,33 +163,7 @@ public class FileExistsMeta extends BaseTransformMeta
     }
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    " + XmlHandler.addTagValue("filenamefield", filenamefield));
-    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    retval.append("    ").append(XmlHandler.addTagValue("includefiletype", includefiletype));
-    retval.append("    " + XmlHandler.addTagValue("filetypefieldname", filetypefieldname));
-    retval.append("    ").append(XmlHandler.addTagValue("addresultfilenames", addresultfilenames));
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      filenamefield = XmlHandler.getTagValue(transformNode, "filenamefield");
-      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-      includefiletype =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "includefiletype"));
-      filetypefieldname = XmlHandler.getTagValue(transformNode, "filetypefieldname");
-      addresultfilenames =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addresultfilenames"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "FileExistsMeta.Exception.UnableToReadTransformMeta"), e);
-    }
-  }
-
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -200,27 +179,27 @@ public class FileExistsMeta extends BaseTransformMeta
 
     if (Utils.isEmpty(resultfieldname)) {
       errorMessage = BaseMessages.getString(PKG, "FileExistsMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "FileExistsMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(filenamefield)) {
       errorMessage = BaseMessages.getString(PKG, "FileExistsMeta.CheckResult.FileFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "FileExistsMeta.CheckResult.FileFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FileExistsMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -228,7 +207,7 @@ public class FileExistsMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "FileExistsMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);
@@ -248,6 +227,7 @@ public class FileExistsMeta extends BaseTransformMeta
     return new FileExistsData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
