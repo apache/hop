@@ -24,35 +24,36 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Check if a table exists in a Database *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
-
-public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> implements ITransform<FileExistsMeta, FileExistsData> {
+/** Check if a file exists* */
+public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData>
+    implements ITransform<FileExistsMeta, FileExistsData> {
 
   private static final Class<?> PKG = FileExistsMeta.class; // For Translator
 
-  public FileExists( TransformMeta transformMeta, FileExistsMeta meta, FileExistsData data, int copyNr, PipelineMeta pipelineMeta,
-                     Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public FileExists(
+      TransformMeta transformMeta,
+      FileExistsMeta meta,
+      FileExistsData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
     String errorMessage = null;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
@@ -62,104 +63,120 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> im
     String filetype = null;
 
     try {
-      if ( first ) {
+      if (first) {
         first = false;
         // get the RowMeta
         data.previousRowMeta = getInputRowMeta().clone();
         data.NrPrevFields = data.previousRowMeta.size();
         data.outputRowMeta = data.previousRowMeta;
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
         // Check is tablename field is provided
-        if ( Utils.isEmpty( meta.getDynamicFilenameField() ) ) {
-          logError( BaseMessages.getString( PKG, "FileExists.Error.FilenameFieldMissing" ) );
-          throw new HopException( BaseMessages.getString( PKG, "FileExists.Error.FilenameFieldMissing" ) );
+        if (Utils.isEmpty(meta.getFilenamefield())) {
+          logError(BaseMessages.getString(PKG, "FileExists.Error.FilenameFieldMissing"));
+          throw new HopException(
+              BaseMessages.getString(PKG, "FileExists.Error.FilenameFieldMissing"));
         }
 
         // cache the position of the field
-        if ( data.indexOfFileename < 0 ) {
-          data.indexOfFileename = data.previousRowMeta.indexOfValue( meta.getDynamicFilenameField() );
-          if ( data.indexOfFileename < 0 ) {
+        if (data.indexOfFileename < 0) {
+          data.indexOfFileename = data.previousRowMeta.indexOfValue(meta.getFilenamefield());
+          if (data.indexOfFileename < 0) {
             // The field is unreachable !
-            logError( BaseMessages.getString( PKG, "FileExists.Exception.CouldnotFindField" )
-              + "[" + meta.getDynamicFilenameField() + "]" );
-            throw new HopException( BaseMessages.getString( PKG, "FileExists.Exception.CouldnotFindField", meta
-              .getDynamicFilenameField() ) );
+            logError(
+                BaseMessages.getString(PKG, "FileExists.Exception.CouldnotFindField")
+                    + "["
+                    + meta.getFilenamefield()
+                    + "]");
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "FileExists.Exception.CouldnotFindField", meta.getFilenamefield()));
           }
         }
       } // End If first
 
-      Object[] outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
-      for ( int i = 0; i < data.NrPrevFields; i++ ) {
-        outputRow[ i ] = r[ i ];
+      Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      for (int i = 0; i < data.NrPrevFields; i++) {
+        outputRow[i] = r[i];
       }
       // get filename
-      String filename = data.previousRowMeta.getString( r, data.indexOfFileename );
-      if ( !Utils.isEmpty( filename ) ) {
-        data.file = HopVfs.getFileObject( filename );
+      String filename = data.previousRowMeta.getString(r, data.indexOfFileename);
+      if (!Utils.isEmpty(filename)) {
+        data.file = HopVfs.getFileObject(filename);
 
         // Check if file
         fileexists = data.file.exists();
 
         // include file type?
-        if ( meta.includeFileType() && fileexists && !Utils.isEmpty( meta.getFileTypeFieldName() ) ) {
+        if (meta.isIncludefiletype() && fileexists && !Utils.isEmpty(meta.getFiletypefieldname())) {
           filetype = data.file.getType().toString();
         }
 
         // add filename to result filenames?
-        if ( meta.addResultFilenames() && fileexists && data.file.getType() == FileType.FILE ) {
+        if (meta.isAddresultfilenames() && fileexists && data.file.getType() == FileType.FILE) {
           // Add this to the result file names...
           ResultFile resultFile =
-            new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), getTransformName() );
-          resultFile.setComment( BaseMessages.getString( PKG, "FileExists.Log.FileAddedResult" ) );
-          addResultFile( resultFile );
+              new ResultFile(
+                  ResultFile.FILE_TYPE_GENERAL,
+                  data.file,
+                  getPipelineMeta().getName(),
+                  getTransformName());
+          resultFile.setComment(BaseMessages.getString(PKG, "FileExists.Log.FileAddedResult"));
+          addResultFile(resultFile);
 
-          if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "FileExists.Log.FilenameAddResult", data.file.toString() ) );
+          if (log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "FileExists.Log.FilenameAddResult", data.file.toString()));
           }
         }
       }
 
       // Add result field to input stream
-      outputRow[ data.NrPrevFields ] = fileexists;
+      outputRow[data.NrPrevFields] = fileexists;
       int rowIndex = data.NrPrevFields;
       rowIndex++;
 
-      if ( meta.includeFileType() && !Utils.isEmpty( meta.getFileTypeFieldName() ) ) {
-        outputRow[ rowIndex ] = filetype;
+      if (meta.isIncludefiletype() && !Utils.isEmpty(meta.getFiletypefieldname())) {
+        outputRow[rowIndex] = filetype;
       }
 
       // add new values to the row.
-      putRow( data.outputRowMeta, outputRow ); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if ( log.isRowLevel() ) {
-        logRowlevel( BaseMessages.getString( PKG, "FileExists.LineNumber", getLinesRead()
-          + " : " + getInputRowMeta().getString( r ) ) );
+      if (log.isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(
+                PKG,
+                "FileExists.LineNumber",
+                getLinesRead() + " : " + getInputRowMeta().getString(r)));
       }
-    } catch ( Exception e ) {
-      if ( getTransformMeta().isDoingErrorHandling() ) {
+    } catch (Exception e) {
+      if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError( BaseMessages.getString( PKG, "FileExists.ErrorInTransformRunning" ) + e.getMessage() );
-        setErrors( 1 );
+        logError(
+            BaseMessages.getString(PKG, "FileExists.ErrorInTransformRunning") + e.getMessage());
+        setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if ( sendToErrorRow ) {
+      if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "FileExistsO01" );
+        putError(getInputRowMeta(), r, 1, errorMessage, meta.getResultfieldname(), "FileExistsO01");
       }
     }
 
     return true;
   }
 
-  public boolean init(){
-    if ( super.init() ) {
-      if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
-        logError( BaseMessages.getString( PKG, "FileExists.Error.ResultFieldMissing" ) );
+  @Override
+  public boolean init() {
+    if (super.init()) {
+      if (Utils.isEmpty(meta.getResultfieldname())) {
+        logError(BaseMessages.getString(PKG, "FileExists.Error.ResultFieldMissing"));
         return false;
       }
       return true;
@@ -167,17 +184,16 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> im
     return false;
   }
 
-  public void dispose(){
-    if ( data.file != null ) {
+  @Override
+  public void dispose() {
+    if (data.file != null) {
       try {
         data.file.close();
         data.file = null;
-      } catch ( Exception e ) {
+      } catch (Exception e) {
         // Ignore close errors
       }
-
     }
     super.dispose();
   }
-
 }

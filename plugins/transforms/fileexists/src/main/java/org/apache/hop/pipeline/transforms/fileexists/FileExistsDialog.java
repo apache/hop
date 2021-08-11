@@ -47,7 +47,8 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
   private CCombo wFileName;
 
   private Label wlFileType;
-  private TextVar wResult, wFileType;
+  private TextVar wResult;
+  private TextVar wFileType;
 
   private Button wInclFileType;
 
@@ -130,7 +131,9 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wFileName.setLayoutData(fdFileName);
     wFileName.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing on focusLost
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -188,10 +191,10 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "FileExistsDialog.wAdditionalFields.Label"));
 
-    FormLayout AdditionalFieldsgroupLayout = new FormLayout();
-    AdditionalFieldsgroupLayout.marginWidth = 10;
-    AdditionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(AdditionalFieldsgroupLayout);
+    FormLayout additionalFieldsgroupLayout = new FormLayout();
+    additionalFieldsgroupLayout.marginWidth = 10;
+    additionalFieldsgroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
 
     // include filetype?
     Label wlInclFileType = new Label(wAdditionalFields, SWT.RIGHT);
@@ -215,6 +218,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // Enable/disable the right fields to allow a filename to be added to each row...
     wInclFileType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeFileType();
           }
@@ -266,17 +270,17 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getDynamicFilenameField() != null) {
-      wFileName.setText(input.getDynamicFilenameField());
+    if (input.getFilenamefield() != null) {
+      wFileName.setText(input.getFilenamefield());
     }
-    if (input.getResultFieldName() != null) {
-      wResult.setText(input.getResultFieldName());
+    if (input.getResultfieldname() != null) {
+      wResult.setText(input.getResultfieldname());
     }
-    wInclFileType.setSelection(input.includeFileType());
-    if (input.getFileTypeFieldName() != null) {
-      wFileType.setText(input.getFileTypeFieldName());
+    wInclFileType.setSelection(input.isIncludefiletype());
+    if (input.getFiletypefieldname() != null) {
+      wFileType.setText(input.getFiletypefieldname());
     }
-    wAddResult.setSelection(input.addResultFilenames());
+    wAddResult.setSelection(input.isAddresultfilenames());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -292,11 +296,11 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setDynamicFilenameField(wFileName.getText());
-    input.setResultFieldName(wResult.getText());
-    input.setincludeFileType(wInclFileType.getSelection());
-    input.setFileTypeFieldName(wFileType.getText());
-    input.setaddResultFilenames(wAddResult.getSelection());
+    input.setFilenamefield(wFileName.getText());
+    input.setResultfieldname(wResult.getText());
+    input.setIncludefiletype(wInclFileType.getSelection());
+    input.setFiletypefieldname(wFileType.getText());
+    input.setAddresultfilenames(wAddResult.getSelection());
     transformName = wTransformName.getText(); // return value
 
     dispose();
