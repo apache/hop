@@ -167,7 +167,7 @@ The current (1-july 2021) status is:
 |Pipeline Logging|N
 |Pipeline Probe|N
 |PostgreSQL Bulk Loader|Y
-|Process files|N
+|Process files|Y
 |Properties input|N
 |Properties output|N
 |Regex evaluation|N

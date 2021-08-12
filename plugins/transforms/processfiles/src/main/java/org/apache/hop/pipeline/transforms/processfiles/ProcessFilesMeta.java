@@ -18,15 +18,13 @@
 package org.apache.hop.pipeline.transforms.processfiles;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -34,7 +32,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -49,18 +46,43 @@ public class ProcessFilesMeta extends BaseTransformMeta
     implements ITransformMeta<ProcessFiles, ProcessFilesData> {
   private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
 
-  private boolean addresultfilenames;
-  private boolean overwritetargetfile;
-  private boolean createparentfolder;
+  @HopMetadataProperty(
+      key = "addresultfilenames",
+      injectionKeyDescription = "ProcessFiles.Injection.AddResultFilenames")
+  private boolean addResultFilenames;
+
+  @HopMetadataProperty(
+      key = "overwritetargetfile",
+      injectionKeyDescription = "ProcessFiles.Injection.OverwriteTargetFile")
+  private boolean overwriteTargetFile;
+
+  @HopMetadataProperty(
+      key = "createparentfolder",
+      injectionKeyDescription = "ProcessFiles.Injection.CreateParentFolder")
+  private boolean createParentFolder;
+
+  @HopMetadataProperty(
+      key = "simulate",
+      injectionKeyDescription = "ProcessFiles.Injection.Simulate")
   public boolean simulate;
 
-  /** dynamic filename */
-  private String sourcefilenamefield;
+  @HopMetadataProperty(
+      key = "sourcefilenamefield",
+      injectionKeyDescription = "ProcessFiles.Injection.SourceFilenameField")
+  private String sourceFilenameField;
 
-  private String targetfilenamefield;
+  @HopMetadataProperty(
+      key = "targetfilenamefield",
+      injectionKeyDescription = "ProcessFiles.Injection.TargetFilenameField")
+  private String targetFilenameField;
 
   /** Operations type */
   private int operationType;
+
+  @HopMetadataProperty(
+      key = "operation_type",
+      injectionKeyDescription = "ProcessFiles.Injection.OperationType")
+  private String operationTypeMeta;
 
   /** The operations description */
   public static final String[] operationTypeDesc = {
@@ -102,6 +124,7 @@ public class ProcessFilesMeta extends BaseTransformMeta
 
   public void setOperationType(int operationType) {
     this.operationType = operationType;
+    this.operationTypeMeta = getOperationTypeCode(operationType);
   }
 
   public static String getOperationTypeDesc(int i) {
@@ -112,65 +135,43 @@ public class ProcessFilesMeta extends BaseTransformMeta
   }
 
   /** @return Returns the sourcefilenamefield. */
-  public String getDynamicSourceFileNameField() {
-    return sourcefilenamefield;
+  public String getSourceFilenameField() {
+    return sourceFilenameField;
   }
 
-  /** @param sourcefilenamefield The sourcefilenamefield to set. */
-  public void setDynamicSourceFileNameField(String sourcefilenamefield) {
-    this.sourcefilenamefield = sourcefilenamefield;
+  /** @param sourceFilenameFieldield The sourcefilenamefield to set. */
+  public void setSourceFilenameField(String sourceFilenameFieldield) {
+    this.sourceFilenameField = sourceFilenameFieldield;
   }
 
   /** @return Returns the targetfilenamefield. */
-  public String getDynamicTargetFileNameField() {
-    return targetfilenamefield;
+  public String getTargetFilenameField() {
+    return targetFilenameField;
   }
 
-  /** @param targetfilenamefield The targetfilenamefield to set. */
-  public void setDynamicTargetFileNameField(String targetfilenamefield) {
-    this.targetfilenamefield = targetfilenamefield;
-  }
-
-  /**
-   * @return
-   * @deprecated use {@link #isAddTargetFileNameToResult()}
-   */
-  @Deprecated
-  public boolean isaddTargetFileNametoResult() {
-    return isAddTargetFileNameToResult();
-  }
-
-  public boolean isAddTargetFileNameToResult() {
-    return addresultfilenames;
+  /** @param targetFilenameField The targetFilenameField to set. */
+  public void setTargetFilenameField(String targetFilenameField) {
+    this.targetFilenameField = targetFilenameField;
   }
 
   public boolean isOverwriteTargetFile() {
-    return overwritetargetfile;
+    return overwriteTargetFile;
   }
 
   public boolean isCreateParentFolder() {
-    return createparentfolder;
+    return createParentFolder;
   }
 
-  /**
-   * @param addresultfilenames
-   * @deprecated use {@link #setAddTargetFileNameToResult(boolean)}
-   */
-  @Deprecated
-  public void setaddTargetFileNametoResult(boolean addresultfilenames) {
-    setAddTargetFileNameToResult(addresultfilenames);
-  }
-
-  public void setAddTargetFileNameToResult(boolean addresultfilenames) {
-    this.addresultfilenames = addresultfilenames;
+  public void setAddResultFilenames(boolean addresultfilenames) {
+    this.addResultFilenames = addresultfilenames;
   }
 
   public void setOverwriteTargetFile(boolean overwritetargetfile) {
-    this.overwritetargetfile = overwritetargetfile;
+    this.overwriteTargetFile = overwritetargetfile;
   }
 
   public void setCreateParentFolder(boolean createparentfolder) {
-    this.createparentfolder = createparentfolder;
+    this.createParentFolder = createparentfolder;
   }
 
   public void setSimulate(boolean simulate) {
@@ -181,45 +182,26 @@ public class ProcessFilesMeta extends BaseTransformMeta
     return this.simulate;
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+  public boolean isAddResultFilenames() {
+    return addResultFilenames;
   }
 
-  @Override
-  public Object clone() {
-    ProcessFilesMeta retval = (ProcessFilesMeta) super.clone();
+  public String getOperationTypeMeta() {
+    return operationTypeMeta;
+  }
 
-    return retval;
+  public void setOperationTypeMeta(String operationTypeMeta) {
+    this.operationTypeMeta = operationTypeMeta;
+    setOperationType(getOperationTypeByCode(operationTypeMeta));
   }
 
   @Override
   public void setDefault() {
-    addresultfilenames = false;
-    overwritetargetfile = false;
-    createparentfolder = false;
+    addResultFilenames = false;
+    overwriteTargetFile = false;
+    createParentFolder = false;
     simulate = true;
     operationType = OPERATION_TYPE_COPY;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    " + XmlHandler.addTagValue("sourcefilenamefield", sourcefilenamefield));
-    retval.append("    " + XmlHandler.addTagValue("targetfilenamefield", targetfilenamefield));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("operation_type", getOperationTypeCode(operationType)));
-    retval.append("    ").append(XmlHandler.addTagValue("addresultfilenames", addresultfilenames));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("overwritetargetfile", overwritetargetfile));
-    retval.append("    ").append(XmlHandler.addTagValue("createparentfolder", createparentfolder));
-    retval.append("    ").append(XmlHandler.addTagValue("simulate", simulate));
-
-    return retval.toString();
   }
 
   private static String getOperationTypeCode(int i) {
@@ -227,28 +209,6 @@ public class ProcessFilesMeta extends BaseTransformMeta
       return operationTypeCode[0];
     }
     return operationTypeCode[i];
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      sourcefilenamefield = XmlHandler.getTagValue(transformNode, "sourcefilenamefield");
-      targetfilenamefield = XmlHandler.getTagValue(transformNode, "targetfilenamefield");
-      operationType =
-          getOperationTypeByCode(
-              Const.NVL(XmlHandler.getTagValue(transformNode, "operation_type"), ""));
-      addresultfilenames =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addresultfilenames"));
-      overwritetargetfile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "overwritetargetfile"));
-      createparentfolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "createparentfolder"));
-      simulate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "simulate"));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ProcessFilesMeta.Exception.UnableToReadTransformMeta"), e);
-    }
   }
 
   private static int getOperationTypeByCode(String tt) {
@@ -279,24 +239,24 @@ public class ProcessFilesMeta extends BaseTransformMeta
     String errorMessage = "";
 
     // source filename
-    if (Utils.isEmpty(sourcefilenamefield)) {
+    if (Utils.isEmpty(sourceFilenameField)) {
       errorMessage =
           BaseMessages.getString(PKG, "ProcessFilesMeta.CheckResult.SourceFileFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ProcessFilesMeta.CheckResult.TargetFileFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
-    if (operationType != OPERATION_TYPE_DELETE && Utils.isEmpty(targetfilenamefield)) {
+    if (operationType != OPERATION_TYPE_DELETE && Utils.isEmpty(targetFilenameField)) {
       errorMessage =
           BaseMessages.getString(PKG, "ProcessFilesMeta.CheckResult.TargetFileFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ProcessFilesMeta.CheckResult.SourceFileFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -304,7 +264,7 @@ public class ProcessFilesMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "ProcessFilesMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -312,7 +272,7 @@ public class ProcessFilesMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "ProcessFilesMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);
