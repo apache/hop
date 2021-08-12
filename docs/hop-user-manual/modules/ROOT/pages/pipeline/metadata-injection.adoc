@@ -70,13 +70,13 @@ The current (1-july 2021) status is:
 |Call DB procedure|N
 |Cassandra input|Y
 |Cassandra output|Y
-|Change file encoding|N
-|Check if file is locked|N
+|Change file encoding|Y
+|Check if file is locked|Y
 |Check if webservice is available|N
 |Clone row|Y
 |Closure generator|N
 |Coalesce Fields|Y
-|Column exists|N
+|Column exists|Y
 |Combination lookup/update|Y
 |Concat Fields|N
 |Copy rows to result|N
@@ -86,7 +86,7 @@ The current (1-july 2021) status is:
 |Database join|N
 |Database lookup|Y
 |De-serialize from file|N
-|Delay row|N
+|Delay row|Y
 |Delete|Y
 |Detect empty stream|N
 |Dimension lookup/update|Y
@@ -103,7 +103,7 @@ The current (1-july 2021) status is:
 |Execute SQL script|Y
 |Execute Unit Tests|N
 |Fake data|N
-|File exists|N
+|File exists|Y
 |File Metadata|N
 |Filter rows|Y
 |Fuzzy match|N
