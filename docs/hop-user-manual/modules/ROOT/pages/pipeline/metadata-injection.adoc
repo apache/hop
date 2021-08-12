@@ -72,7 +72,7 @@ The current (1-july 2021) status is:
 |Cassandra output|Y
 |Change file encoding|Y
 |Check if file is locked|Y
-|Check if webservice is available|N
+|Check if webservice is available|Y
 |Clone row|Y
 |Closure generator|N
 |Coalesce Fields|Y

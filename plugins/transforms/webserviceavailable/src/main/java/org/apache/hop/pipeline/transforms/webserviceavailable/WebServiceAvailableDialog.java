@@ -32,11 +32,16 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class WebServiceAvailableDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
@@ -121,7 +126,9 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wURL.setLayoutData(fdURL);
     wURL.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable FocusLost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -227,8 +234,8 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
       logDebug(BaseMessages.getString(PKG, "WebServiceAvailableDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getURLField() != null) {
-      wURL.setText(input.getURLField());
+    if (input.getUrlField() != null) {
+      wURL.setText(input.getUrlField());
     }
     if (input.getConnectTimeOut() != null) {
       wConnectTimeOut.setText(input.getConnectTimeOut());
@@ -254,7 +261,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setURLField(wURL.getText());
+    input.setUrlField(wURL.getText());
     input.setConnectTimeOut(wConnectTimeOut.getText());
     input.setReadTimeOut(wReadTimeOut.getText());
     input.setResultFieldName(wResult.getText());
