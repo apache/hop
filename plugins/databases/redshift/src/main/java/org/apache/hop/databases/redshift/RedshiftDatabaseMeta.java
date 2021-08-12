@@ -45,7 +45,7 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
 
   @Override
   public String getDriverClass() {
-    return "com.amazon.redshift.jdbc4.Driver";
+    return "com.amazon.redshift.jdbc42.Driver";
   }
 
   @Override

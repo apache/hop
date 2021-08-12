@@ -80,6 +80,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
 
     SelectionAdapter lsButtonChanged =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -150,6 +151,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wOperation.setItems(ProcessFilesMeta.operationTypeDesc);
     wOperation.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             updateOperation();
           }
@@ -263,7 +265,9 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wSourceFileNameField.setLayoutData(fdSourceFileNameField);
     wSourceFileNameField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focusLost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -295,7 +299,9 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wTargetFileNameField.setLayoutData(fdTargetFileNameField);
     wTargetFileNameField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focusLost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -360,14 +366,14 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
       logDebug(BaseMessages.getString(PKG, "ProcessFilesDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getDynamicSourceFileNameField() != null) {
-      wSourceFileNameField.setText(input.getDynamicSourceFileNameField());
+    if (input.getSourceFilenameField() != null) {
+      wSourceFileNameField.setText(input.getSourceFilenameField());
     }
-    if (input.getDynamicTargetFileNameField() != null) {
-      wTargetFileNameField.setText(input.getDynamicTargetFileNameField());
+    if (input.getTargetFilenameField() != null) {
+      wTargetFileNameField.setText(input.getTargetFilenameField());
     }
     wOperation.setText(ProcessFilesMeta.getOperationTypeDesc(input.getOperationType()));
-    wAddResult.setSelection(input.isaddTargetFileNametoResult());
+    wAddResult.setSelection(input.isAddResultFilenames());
     wOverwriteTarget.setSelection(input.isOverwriteTargetFile());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
     wSimulate.setSelection(input.isSimulate());
@@ -386,10 +392,10 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setDynamicSourceFileNameField(wSourceFileNameField.getText());
-    input.setDynamicTargetFileNameField(wTargetFileNameField.getText());
+    input.setSourceFilenameField(wSourceFileNameField.getText());
+    input.setTargetFilenameField(wTargetFileNameField.getText());
     input.setOperationType(ProcessFilesMeta.getOperationTypeByDesc(wOperation.getText()));
-    input.setaddTargetFileNametoResult(wAddResult.getSelection());
+    input.setAddResultFilenames(wAddResult.getSelection());
     input.setOverwriteTargetFile(wOverwriteTarget.getSelection());
     input.setCreateParentFolder(wCreateParentFolder.getSelection());
     input.setSimulate(wSimulate.getSelection());

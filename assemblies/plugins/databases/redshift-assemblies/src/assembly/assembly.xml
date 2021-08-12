@@ -31,11 +31,6 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
-            <outputDirectory>lib</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
