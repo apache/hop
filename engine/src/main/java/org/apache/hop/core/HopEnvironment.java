@@ -18,6 +18,7 @@
 package org.apache.hop.core;
 
 import com.google.common.util.concurrent.SettableFuture;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
@@ -119,12 +120,23 @@ public class HopEnvironment {
 
         // If the HopConfig system properties is empty, initialize with the variables...
         //
-        List<DescribedVariable> configVariables = HopConfig.getInstance().getDescribedVariables();
+        HopConfig hopConfig = HopConfig.getInstance();
+        List<DescribedVariable> configVariables = hopConfig.getDescribedVariables();
         if (configVariables.isEmpty()) {
           List<DescribedVariable> describedVariables =
               HopVariablesList.getInstance().getEnvironmentVariables();
           for (DescribedVariable describedVariable : describedVariables) {
-            HopConfig.getInstance().setDescribedVariable(new DescribedVariable(describedVariable));
+            hopConfig.setDescribedVariable(new DescribedVariable(describedVariable));
+          }
+        }
+
+        // Set the system configuration variables in System
+        // Let's try very hard to not do this anywhere else!
+        //
+        for (DescribedVariable describedVariable : hopConfig.getDescribedVariables()) {
+          if (StringUtils.isNotEmpty(describedVariable.getName())) {
+            System.setProperty(
+                describedVariable.getName(), Const.NVL(describedVariable.getValue(), ""));
           }
         }
 

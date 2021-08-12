@@ -314,13 +314,6 @@
   </hop-variable>
 
   <hop-variable>
-    <description>Set this value to N if you don't want to automatically create a hop configuration file (hop-config.json) when it's missing
-    </description>
-    <variable>HOP_AUTO_CREATE_CONFIG</variable>
-    <default-value>Y</default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>This is the name of the variable which when set should contains the path to a file which will be included in the serialization of
       pipelines and workflows
     </description>
