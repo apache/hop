@@ -226,7 +226,7 @@ workflowMeta.addWorkflowHop(generatorDummyHop);
 === Workflow execution
 
 Workflow engines are also plugins.
-Which plugin is used to execute your workflow metadata is specified in a xref:/../../../../hop-user-manual/modules/ROOT/pages/workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configuration].
+Which plugin is used to execute your workflow metadata is specified in a xref:manual::workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configuration].
 
 To make it easy to get the engine we created a factory for you:
 
