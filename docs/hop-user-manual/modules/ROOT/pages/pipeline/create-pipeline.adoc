@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../assets/images
 = Create a Pipeline
 
-TODO: this content is based on the https://hop.apache.org/manual/latest/getting-started.html[Getting Started Guide]. Elaborate more.
+TODO: this content is based on the xref:getting-started/index.adoc[Getting Started Guide]. Elaborate more.
 
 Pipelines are the fundamentals of your project. A pipeline contains operations executed in a predefined order. Pipelines consist of a chain of transforms that read, process or write data. The image below shows a simple pipeline that reads data from a table, adds a message to the data and sends out an email.
 
@@ -38,7 +38,7 @@ Hops can be disabled by clicking on them, or through right-click -> disable.
 
 == Creation
 
-Create a new pipeline through the https://hop.apache.org/manual/latest/hop-gui/workitems.html[New Work Item] dialog. You'll be presented with the dialog shown below.
+Create a new pipeline through the work item dialog. You'll be presented with the dialog shown below.
 
 image::hop-gui/pipeline/new-pipeline.png[Hop - New Pipeline, 75%, align="left"]
 
@@ -55,7 +55,7 @@ Once you've found the transform you're looking for, click on it to add it to you
 Repeat this step now or whenever you want to add more transforms to your pipeline.
 Once you've added a transform to your pipeline, you can drag to reposition it.
 
-Check the https://hop.apache.org/manual/latest/plugins/transforms.html[list] of transforms to add to your pipeline for more details.
+Check the xref:pipeline/transforms.adoc[list] of transforms to add to your pipeline for more details.
 
 
 image::getting-started/getting-started-add-transform.png[Hop - Add Transform, 75% , align="left"]

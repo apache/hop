@@ -21,10 +21,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 03-02-2010
- */
 public class WebServiceAvailableData extends BaseTransformData implements ITransformData {
   public int indexOfURL;
   public int connectTimeOut;
@@ -40,5 +36,4 @@ public class WebServiceAvailableData extends BaseTransformData implements ITrans
     connectTimeOut = 0;
     readTimeOut = 0;
   }
-
 }

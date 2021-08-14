@@ -129,7 +129,6 @@
         <include>com.google.cloud:google-cloud-storage</include>
         <include>com.google.code.findbugs:jsr305</include>
         <include>com.google.code.gson:gson</include>
-        <include>com.googlecode.json-simple:json-simple</include>
         <include>com.google.errorprone:error_prone_annotations</include>
         <include>com.google.flogger:flogger</include>
         <include>com.google.flogger:flogger-system-backend</include>

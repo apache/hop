@@ -33,7 +33,9 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -129,10 +131,10 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wSourceFileGroup.setText(
         BaseMessages.getString(PKG, "ChangeFileEncodingDialog.Group.SourceFileGroup.Label"));
 
-    FormLayout SourceFilegroupLayout = new FormLayout();
-    SourceFilegroupLayout.marginWidth = 10;
-    SourceFilegroupLayout.marginHeight = 10;
-    wSourceFileGroup.setLayout(SourceFilegroupLayout);
+    FormLayout sourceFilegroupLayout = new FormLayout();
+    sourceFilegroupLayout.marginWidth = 10;
+    sourceFilegroupLayout.marginHeight = 10;
+    wSourceFileGroup.setLayout(sourceFilegroupLayout);
 
     // filename field
     Label wlFileName = new Label(wSourceFileGroup, SWT.RIGHT);
@@ -214,10 +216,10 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wTargetFileGroup.setText(
         BaseMessages.getString(PKG, "ChangeFileEncodingDialog.Group.TargetFileGroup.Label"));
 
-    FormLayout TargetFilegroupLayout = new FormLayout();
-    TargetFilegroupLayout.marginWidth = 10;
-    TargetFilegroupLayout.marginHeight = 10;
-    wTargetFileGroup.setLayout(TargetFilegroupLayout);
+    FormLayout targetFilegroupLayout = new FormLayout();
+    targetFilegroupLayout.marginWidth = 10;
+    targetFilegroupLayout.marginHeight = 10;
+    wTargetFileGroup.setLayout(targetFilegroupLayout);
 
     // TargetFileName field
     Label wlTargetFileName = new Label(wTargetFileGroup, SWT.RIGHT);
@@ -241,7 +243,9 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wTargetFileName.setLayoutData(fdTargetFileName);
     wTargetFileName.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focusLost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -332,8 +336,8 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
       logDebug(BaseMessages.getString(PKG, "ChangeFileEncodingDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getDynamicFilenameField() != null) {
-      wFileName.setText(input.getDynamicFilenameField());
+    if (input.getFilenameField() != null) {
+      wFileName.setText(input.getFilenameField());
     }
     if (input.getTargetFilenameField() != null) {
       wTargetFileName.setText(input.getTargetFilenameField());
@@ -345,8 +349,8 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
       wSourceEncoding.setText(input.getSourceEncoding());
     }
 
-    wSourceAddResult.setSelection(input.addSourceResultFilenames());
-    wTargetAddResult.setSelection(input.addSourceResultFilenames());
+    wSourceAddResult.setSelection(input.isAddSourceResultFilenames());
+    wTargetAddResult.setSelection(input.isAddTargetResultFilenames());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
 
     wTransformName.selectAll();
@@ -363,12 +367,12 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setDynamicFilenameField(wFileName.getText());
+    input.setFilenameField(wFileName.getText());
     input.setTargetFilenameField(wTargetFileName.getText());
     input.setSourceEncoding(wSourceEncoding.getText());
     input.setTargetEncoding(wTargetEncoding.getText());
-    input.setaddSourceResultFilenames(wSourceAddResult.getSelection());
-    input.setaddTargetResultFilenames(wTargetAddResult.getSelection());
+    input.setAddSourceResultFilenames(wSourceAddResult.getSelection());
+    input.setAddTargetResultFilenames(wTargetAddResult.getSelection());
     input.setCreateParentFolder(wCreateParentFolder.getSelection());
 
     transformName = wTransformName.getText(); // return value
@@ -405,20 +409,20 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     }
   }
 
-  private void setEncodings(ComboVar var) {
+  private void setEncodings(ComboVar cVar) {
     // Encoding of the text file:
     String encoding =
-        Const.NVL(var.getText(), Const.getEnvironmentVariable("file.encoding", "UTF-8"));
-    var.removeAll();
+        Const.NVL(cVar.getText(), Const.getEnvironmentVariable("file.encoding", "UTF-8"));
+    cVar.removeAll();
     ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
     for (Charset charSet : values) {
-      var.add(charSet.displayName());
+      cVar.add(charSet.displayName());
     }
 
     // Now select the default!
-    int idx = Const.indexOfString(encoding, var.getItems());
+    int idx = Const.indexOfString(encoding, cVar.getItems());
     if (idx >= 0) {
-      var.select(idx);
+      cVar.select(idx);
     }
   }
 }

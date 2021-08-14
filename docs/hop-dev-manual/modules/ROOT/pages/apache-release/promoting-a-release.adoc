@@ -88,10 +88,7 @@ docker build . -f docker/Dockerfile -t docker.io/apache/incubator-hop:X.XX -t do
 # Push to dockerhub
 docker image push --all-tags docker.io/apache/incubator-hop
 
-# Create Hop Web
-docker build . -f docker/Dockerfile.web -t docker.io/apache/incubator-hop-web:X.XX -t docker.io/apache/incubator-hop-web:latest
-
-# Push to dockerhub
-docker image push --all-tags docker.io/apache/incubator-hop-web
+# Create and push Hop Web
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/incubator-hop-web:X.XX -t docker.io/apache/incubator-hop-web:latest --push
 
 ----

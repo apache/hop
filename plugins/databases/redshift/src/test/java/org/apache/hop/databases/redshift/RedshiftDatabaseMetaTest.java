@@ -52,7 +52,7 @@ public class RedshiftDatabaseMetaTest {
 
   @Test
   public void testGetDriverClass() throws Exception {
-    assertEquals( "com.amazon.redshift.jdbc4.Driver", dbMeta.getDriverClass() );
+    assertEquals( "com.amazon.redshift.jdbc42.Driver", dbMeta.getDriverClass() );
   }
 
   @Test

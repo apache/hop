@@ -31,9 +31,10 @@ public class WebServiceAvailableMetaTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "URLField", "ConnectTimeOut", "ReadTimeOut", "ResultFieldName" );
+    List<String> attributes =
+        Arrays.asList("UrlField", "ConnectTimeOut", "ReadTimeOut", "ResultFieldName");
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( WebServiceAvailableMeta.class, attributes );
+    LoadSaveTester loadSaveTester = new LoadSaveTester(WebServiceAvailableMeta.class, attributes);
 
     loadSaveTester.testSerialization();
   }

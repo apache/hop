@@ -67,7 +67,11 @@ Linux)
   CLASSPATH="lib/*:libswt/linux/$(uname -m)/*"
   ;;
 Darwin)
-  CLASSPATH="lib/*:libswt/osx/$(uname -m)/*"
+  if [[ $(java -XshowSettings:properties -version 2>&1| grep "os.arch = ") == *"aarch64"* ]]; then
+      CLASSPATH="lib/*:libswt/osx/arm64/*"
+  else
+    CLASSPATH="lib/*:libswt/osx/x86_64/*"
+  fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
 esac

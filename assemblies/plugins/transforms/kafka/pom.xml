@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -37,7 +36,7 @@
   <description></description>
 
   <properties>
-    <kafka-clients.version>0.10.2.1</kafka-clients.version>
+    <kafka-clients.version>2.4.1</kafka-clients.version>
   </properties>
 
   <dependencies>

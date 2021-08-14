@@ -42,6 +42,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -206,7 +207,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     resetChanged();
 
     // Add listener to detect change after loading data
-    Listener modifyListener = event -> setChanged();
+    Listener modifyListener =
+        event -> {
+          setChanged();
+          MetadataPerspective.getInstance().updateEditor(this);
+        };
     wName.addListener(SWT.Modify, modifyListener);
     wConnectionType.addListener(SWT.Modify, modifyListener);
     wConnectionType.addListener(SWT.Modify, event -> changeConnectionType());
@@ -249,8 +254,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlConnectionType.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlConnectionType.right = new FormAttachment(middle, 0);
     wlConnectionType.setLayoutData(fdlConnectionType);
-    wConnectionType =
-        new CCombo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionType = new CCombo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wConnectionType);
     wConnectionType.setEditable(true);
     wConnectionType.setItems(getConnectionTypes());

@@ -29,35 +29,40 @@ import java.util.List;
 import java.util.Map;
 
 public class ChangeFileEncodingMetaTest {
-  @ClassRule
-  public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "filenamefield", "targetfilenamefield", "sourceencoding", "targetencoding",
-        "addsourceresultfilenames", "addtargetresultfilenames", "createparentfolder" );
+        Arrays.asList(
+            "filenamefield",
+            "targetfilenamefield",
+            "sourceencoding",
+            "targetencoding",
+            "addsourceresultfilenames",
+            "addtargetresultfilenames",
+            "createparentfolder");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "filenamefield", "getDynamicFilenameField" );
-    getterMap.put( "targetfilenamefield", "getTargetFilenameField" );
-    getterMap.put( "sourceencoding", "getSourceEncoding" );
-    getterMap.put( "targetencoding", "getTargetEncoding" );
-    getterMap.put( "addsourceresultfilenames", "addSourceResultFilenames" );
-    getterMap.put( "addtargetresultfilenames", "addTargetResultFilenames" );
-    getterMap.put( "createparentfolder", "isCreateParentFolder" );
+    getterMap.put("filenamefield", "getFilenameField");
+    getterMap.put("targetfilenamefield", "getTargetFilenameField");
+    getterMap.put("sourceencoding", "getSourceEncoding");
+    getterMap.put("targetencoding", "getTargetEncoding");
+    getterMap.put("addsourceresultfilenames", "isAddSourceResultFilenames");
+    getterMap.put("addtargetresultfilenames", "isAddTargetResultFilenames");
+    getterMap.put("createparentfolder", "isCreateParentFolder");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "filenamefield", "setDynamicFilenameField" );
-    setterMap.put( "targetfilenamefield", "setTargetFilenameField" );
-    setterMap.put( "sourceencoding", "setSourceEncoding" );
-    setterMap.put( "targetencoding", "setTargetEncoding" );
-    setterMap.put( "addsourceresultfilenames", "setaddSourceResultFilenames" );
-    setterMap.put( "addtargetresultfilenames", "setaddTargetResultFilenames" );
-    setterMap.put( "createparentfolder", "setCreateParentFolder" );
+    setterMap.put("filenamefield", "setFilenameField");
+    setterMap.put("targetfilenamefield", "setTargetFilenameField");
+    setterMap.put("sourceencoding", "setSourceEncoding");
+    setterMap.put("targetencoding", "setTargetEncoding");
+    setterMap.put("addsourceresultfilenames", "setAddSourceResultFilenames");
+    setterMap.put("addtargetresultfilenames", "setAddTargetResultFilenames");
+    setterMap.put("createparentfolder", "setCreateParentFolder");
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( ChangeFileEncodingMeta.class, attributes, getterMap, setterMap );
+        new LoadSaveTester(ChangeFileEncodingMeta.class, attributes, getterMap, setterMap);
     loadSaveTester.testSerialization();
   }
 }

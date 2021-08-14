@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -51,7 +50,6 @@
     <jsr311-api.version>1.1.1</jsr311-api.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <enunciate-core-annotations.version>1.27</enunciate-core-annotations.version>
-    <kafka-clients.version>0.10.2.1</kafka-clients.version>
     <tyrus-standalone-client.version>1.13.1</tyrus-standalone-client.version>
     <databricks.version>4.0.0</databricks.version>
     <paho.version>1.2.0</paho.version>

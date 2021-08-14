@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:toc:
+
 = The Hop SDK
 
 == Initializing
@@ -27,6 +29,12 @@ You can do this with:
 ----
 HopEnvironment.init();
 ----
+
+== Plugin folders
+
+If you need to load plugins from different folders you can set system property `HOP_PLUGIN_BASE_FOLDERS`.
+The default value is `plugins`, the relative path to the installation folder plugins folder.
+You can add your own plugin folders with commas (`,`) separating the values.
 
 == Hop Metadata Providers
 
@@ -50,11 +58,11 @@ IVariables variables = Variables.getADefaultVariableSpace();
 
 This method also takes into account variables which are configured in hop-config.json (if that file can be found);
 
-== Pipeline metadata
+== Pipelines
 
-=== Loading from a file
+=== Loading pipeline metadata from a file
 
-You can get the pipeline metadata using:
+You can get the pipeline metadata from a `.hpl` XML file using:
 
 [source,java]
 ----
@@ -66,7 +74,7 @@ PipelineMeta pipelineMeta = new PipelineMeta(
 );
 ----
 
-=== Loading from an input stream
+=== Loading pipeline metadata from an input stream
 
 [source,java]
 ----
@@ -109,7 +117,7 @@ pipelineMeta.addPipelineHop(generatorDummyHop);
 
 ----
 
-== Pipeline execution
+=== Pipeline execution
 
 The way a pipeline is executed depends on the run configuration you specify.
 To make it easy to get the engine we created a factory for you:
@@ -136,3 +144,107 @@ pipelineEngine.waitUnitlFinished();
 Result result = pipelineEngine.getResult();
 
 ----
+
+=== Injecting data into a pipeline
+
+You can only inject data into a `LocalPipelineEngine`.
+Do so using the `addRowProducer`.
+Call this method after your run `prepareExecution()` so that the row producer can be attached to the correct transform copy.
+After starting the execution of the pipeline you can then use the `RowProducer` to put rows into the pipeline using `putRow()`.
+Make sure to call `setFinished()` when you're done feeding rows into the pipeline.
+
+=== Retrieving rows from a pipeline
+
+This again is only supported on the local pipeline engine `LocalPipelineEngine`.
+After `prepareExecution()` you can add row listeners to the various transforms:
+
+[source,java]
+----
+ITransform transform = localPipeline.findTransformInterface("transform-name", 0);
+transform.addRowListener(new RowAdapter() {
+  void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+    // A row was written during execution
+  }
+});
+----
+
+== Workflows
+
+=== Loading workflow metadata from a file
+
+You can get the workflow metadata from a `.hwf` XML file using:
+
+[source,java]
+----
+WorkflowMeta workflowMeta = new WorkflowMeta(
+  variables,                     // see above
+  "path-to-your-filename.hwf",  // The filename
+  metadataProvider             // See above
+);
+----
+
+=== Loading workflow metadata from an input stream
+
+[source,java]
+----
+WorkflowMeta workflowMeta = new WorkflowMeta(
+  inputStream,                   // the inputstream to read the metadata from
+  metadataProvider,             // See above
+  variables                    // see above
+);
+----
+
+=== Construct workflow metadata with the Hop API
+
+You typically start with an empty workflow and then add the actions and hops you want:
+
+[source,java]
+----
+WorkflowMeta workflowMeta = new WorkflowMeta();
+
+// Add the Start action
+//
+ActionStart actionStart = new ActionStart("Start");
+ActionMeta startMeta = new ActionMeta(actionStart);
+startMeta.setLocation(50, 50);
+workflowMeta.addAction(startMeta);
+
+// Just a dummy placeholder for testing
+//
+ActionDummy actionDummy = new ActionDummy("Dummy");
+ActionMeta dummyMeta = new ActionMeta(dummyMeta);
+dummyMeta.setLocation(250, 50);
+workflowMeta.addAction(dummyMeta);
+
+// Add a hop between both
+//
+WorkflowHopMeta startDummyHop = new WorkflowHopMeta(startMeta, dummyMeta);
+workflowMeta.addWorkflowHop(generatorDummyHop);
+
+----
+
+=== Workflow execution
+
+Workflow engines are also plugins.
+Which plugin is used to execute your workflow metadata is specified in a xref:manual::workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configuration].
+
+To make it easy to get the engine we created a factory for you:
+
+[source,java]
+----
+IWorkflowEngine workflowEngine = WorkflowEngineFactory.createWorkflowEngine(
+  variables,           // see above
+  "local",            // The name of the run configuration defined in the metadata
+  metadataProvider,  // The metadata provider to resolve the run configuration details
+  workflowMeta,     // The workflow metadata
+  parentLogging    // The parent logging object
+);
+
+// We can now execute this engine...
+// This execution does not run in the background.
+// When you get the result, the execution has completed.
+//
+Result result = workflowEngine.startExecution();
+
+----
+

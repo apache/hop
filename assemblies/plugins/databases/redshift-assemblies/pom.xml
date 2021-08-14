@@ -37,7 +37,7 @@
     <description></description>
 
     <properties>
-        <redshift.version>1.2.27.1051</redshift.version>
+        <redshift.version>2.0.0.7</redshift.version>
     </properties>
 
 
@@ -47,20 +47,11 @@
             <artifactId>hop-databases-redshift</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.amazon.redshift</groupId>
+            <artifactId>redshift-jdbc42</artifactId>
+            <version>${redshift.version}</version>
+        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>mulesoft</id>
-            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-            <name>Mulesoft</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
 
 </project>

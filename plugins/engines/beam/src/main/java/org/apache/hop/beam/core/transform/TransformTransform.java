@@ -435,7 +435,6 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           pipeline = new LocalPipelineEngine(pipelineMeta);
           pipeline.setLogLevel(LogLevel.ERROR);
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
-          pipeline.prepareExecution();
 
           // Give transforms variables from above
           //
@@ -444,6 +443,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
               pipeline.setVariable(variableValue.getVariable(), variableValue.getValue());
             }
           }
+
+          pipeline.prepareExecution();
 
           // Create producers so we can efficiently pass data
           //

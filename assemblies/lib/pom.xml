@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -49,7 +48,6 @@
     <jsr311-api.version>1.1.1</jsr311-api.version>
     <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
     <enunciate-core-annotations.version>1.27</enunciate-core-annotations.version>
-    <kafka-clients.version>0.10.2.1</kafka-clients.version>
     <tyrus-standalone-client.version>1.13.1</tyrus-standalone-client.version>
     <spark.version>2.1.0</spark.version>
     <kafka.spark.version>2.3.2</kafka.spark.version>
@@ -291,13 +289,23 @@
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.common</artifactId>
       <version>${org.eclipse.equinox.version}</version>
-      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.commands</artifactId>
       <version>${org.eclipse.commands.version}</version>
-      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
@@ -305,20 +313,20 @@
   <build>
     <plugins>
       <plugin>
-      <artifactId>maven-dependency-plugin</artifactId>
-      <executions>
-      <execution>
-        <id>copy-libs</id>
-        <phase>prepare-package</phase>
-        <goals>
-          <goal>copy-dependencies</goal>
-        </goals>
-        <configuration>
-          <includeScope>compile</includeScope>
-          <outputDirectory>${assembly.dir}</outputDirectory>
-        </configuration>
-      </execution>
-      </executions>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-libs</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>compile</includeScope>
+              <outputDirectory>${assembly.dir}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

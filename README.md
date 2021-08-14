@@ -30,23 +30,24 @@ The Hop Orchestration Platform aims to facilitate all aspects of data and metada
 
 ## Trying Apache Hop 
 
-Hop is work in progress. After building, the UI can be started, but a lot of things may be broken. 
+Apache Hop aims to offer you a very stable user experience. Any feedback that you might have is welcome!  If you find that something is not working, have an idea for a new feature or simply if something is not to your liking, let us know!  Your help is invaluable.  
 
-There are various things you can do to help Hop moving forward as fast as possible: 
+There are various things you can do to help Hop continue moving forward quickly: 
 
-- log bugs, request features in the [Hop JIRA](https://issues.apache.org/jira/projects/HOP)
-- asking questions to the mailing list or [mattermost](https://chat.project-hop.org/hop/channels/dev)
-- help with documentation (lot of opportunities)
-- help fixing some [sonar issues](https://sonarcloud.io/dashboard?id=apache_incubator-hop)
+- Log bugs, request features in the [Hop JIRA](https://issues.apache.org/jira/projects/HOP)
+- Ask questions in the [mailing lists](https://hop.apache.org/community/mailing-list/) or [mattermost](https://chat.project-hop.org/hop/channels/dev)
+- Help us write or fix documentation (lot of opportunities)
+- Translate Hop. See our [i18n guide](https://hop.apache.org/dev-manual/latest/internationalisation.html).
+- help fix some [sonar issues](https://sonarcloud.io/dashboard?id=apache_incubator-hop)
 
-Check our [Contribution Guide](http://www.project-hop.org/community/contributing/) and the [Hop website](http://www.project-hop.org/) for more information on how to contribute.  
+Check our [Contribution Guide](https://hop.apache.org/community/contributing/) and the [Hop website](https://hop.apache.org) for more information on how to contribute.  
 
 ## Building Apache Hop
 
 ### From source repository
 
 Required: 
-- [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
+- [OpenJDK](https://openjdk.java.net/) Java 8 compiler.  Make sure to update your JDK to the latest possible patch version.
   
 Recommended:
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
@@ -74,7 +75,7 @@ We have also added mavenwrapper which simplifies build by using the correct Apac
 You can download a source release [here](https://downloads.apache.org/incubator/hop/)
 
 Required: 
-- [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
+- [OpenJDK](https://openjdk.java.net/) Java 8 compiler or higher.  Make sure to get the latest updates to support recent features like dark mode on the various platforms.
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
 
 Unzip the archive

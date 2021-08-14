@@ -1248,6 +1248,11 @@ public class GuiResource {
 
   /** @return the imageLogoSmall */
   public Image getImageHopUi() {
+      return getZoomedImaged(imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  /** @return the image size for Taskbar */
+  public Image getImageHopUiTaskbar() {
     if (OsHelper.isMac()) {
       return getZoomedImaged(imageLogo, display, 512, 512);
     } else {
