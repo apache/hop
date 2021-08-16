@@ -54,7 +54,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -1001,8 +1000,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              4),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              Const.getDateFormats()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,
