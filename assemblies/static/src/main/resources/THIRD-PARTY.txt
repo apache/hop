@@ -89,7 +89,7 @@
    beam-runners-spark - 2.28.0
    beam-vendor-sdks-java-extensions-protobuf - 2.28.0
    Bean Validation API -1.1.0.Final
-   BigQuery API v2-rev20191211-1.30.9
+   BigQuery API v2-rev20210410-1.31.0
    BigQuery - 1.128.3
    BigQuery Storage - 1.5.5
    Caffeine cache - 2.2.6
@@ -156,7 +156,7 @@
    Generex - 1.0.2
    Google Analytics API - v3-rev169-1.25.0
    Google Android Annotations Library - 4.1.1.4
-   Google APIs Client Library for Java - 1.30.9
+   Google APIs Client Library for Java - 1.31.1
    Google APIs Client Library for Java - 1.30.10
    Google App Engine extensions to the Google HTTP Client Library for Java. - 1.27.0
    Google App Engine extensions to the Google HTTP Client Library for Java. - 1.39.2

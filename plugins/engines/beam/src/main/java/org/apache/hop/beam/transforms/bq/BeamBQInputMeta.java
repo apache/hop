@@ -59,7 +59,7 @@ import java.util.Map;
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beambigqueryinput.html")
 public class BeamBQInputMeta extends BaseTransformMeta
-    implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
+    implements ITransformMeta<BeamBQInput, BeamBQInputData>, IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -82,18 +82,18 @@ public class BeamBQInputMeta extends BaseTransformMeta
   }
 
   @Override
-  public Dummy createTransform(
+  public BeamBQInput createTransform(
       TransformMeta transformMeta,
-      DummyData data,
+      BeamBQInputData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    return new Dummy(transformMeta, new DummyMeta(), data, copyNr, pipelineMeta, pipeline);
+    return new BeamBQInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
-  public DummyData getTransformData() {
-    return new DummyData();
+  public BeamBQInputData getTransformData() {
+    return new BeamBQInputData();
   }
 
   @Override
