@@ -41,87 +41,95 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Zip file *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
-
-public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements ITransform<ZipFileMeta, ZipFileData> {
+/** Zip file * */
+public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData>
+    implements ITransform<ZipFileMeta, ZipFileData> {
   private static final Class<?> PKG = ZipFileMeta.class; // For Translator
+  private static final String ZIP_COULD_NOT_FIND_FIELD = "ZipFile.Exception.CouldnotFindField";
 
-  public ZipFile(TransformMeta transformMeta, ZipFileMeta meta, ZipFileData data, int copyNr, PipelineMeta pipelineMeta,
-                    Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public ZipFile(
+      TransformMeta transformMeta,
+      ZipFileMeta meta,
+      ZipFileData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, getPipeline().getMetadataProvider() );
+      meta.getFields(
+          data.outputRowMeta,
+          getTransformName(),
+          null,
+          null,
+          this,
+          getPipeline().getMetadataProvider());
 
       // Check is source filename field is provided
-      if ( Utils.isEmpty( meta.getDynamicSourceFileNameField() ) ) {
-        throw new HopException( BaseMessages.getString( PKG, "ZipFile.Error.SourceFilenameFieldMissing" ) );
+      if (Utils.isEmpty(meta.getSourceFilenameField())) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ZipFile.Error.SourceFilenameFieldMissing"));
       }
       // Check is target filename field is provided
-      if ( Utils.isEmpty( meta.getDynamicTargetFileNameField() ) ) {
-        throw new HopException( BaseMessages.getString( PKG, "ZipFile.Error.TargetFilenameFieldMissing" ) );
+      if (Utils.isEmpty(meta.getTargetFilenameField())) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ZipFile.Error.TargetFilenameFieldMissing"));
       }
 
       // cache the position of the source filename field
-      if ( data.indexOfSourceFilename < 0 ) {
-        data.indexOfSourceFilename = getInputRowMeta().indexOfValue( meta.getDynamicSourceFileNameField() );
-        if ( data.indexOfSourceFilename < 0 ) {
+      if (data.indexOfSourceFilename < 0) {
+        data.indexOfSourceFilename = getInputRowMeta().indexOfValue(meta.getSourceFilenameField());
+        if (data.indexOfSourceFilename < 0) {
           // The field is unreachable !
-          throw new HopException( BaseMessages.getString( PKG, "ZipFile.Exception.CouldnotFindField", meta
-            .getDynamicSourceFileNameField() ) );
+          throw new HopException(
+              BaseMessages.getString(PKG, ZIP_COULD_NOT_FIND_FIELD, meta.getSourceFilenameField()));
         }
       }
 
-      data.indexOfZipFilename = getInputRowMeta().indexOfValue( meta.getDynamicTargetFileNameField() );
-      if ( data.indexOfZipFilename < 0 ) {
+      data.indexOfZipFilename = getInputRowMeta().indexOfValue(meta.getTargetFilenameField());
+      if (data.indexOfZipFilename < 0) {
         // The field is unreachable !
-        throw new HopException( BaseMessages.getString( PKG, "ZipFile.Exception.CouldnotFindField", meta
-          .getDynamicTargetFileNameField() ) );
+        throw new HopException(
+            BaseMessages.getString(PKG, ZIP_COULD_NOT_FIND_FIELD, meta.getTargetFilenameField()));
       }
 
-      if ( meta.isKeepSouceFolder() ) {
-        if ( !Utils.isEmpty( meta.getBaseFolderField() ) ) {
-          // cache the position of the source filename field
-          data.indexOfBaseFolder = getInputRowMeta().indexOfValue( meta.getBaseFolderField() );
-          if ( data.indexOfBaseFolder < 0 ) {
-            // The field is unreachable !
-            throw new HopException( BaseMessages.getString( PKG, "ZipFile.Exception.CouldnotFindField", meta
-              .getBaseFolderField() ) );
-          }
+      if (meta.isKeepSourceFolder() && !Utils.isEmpty(meta.getBaseFolderField())) {
+        // cache the position of the source filename field
+        data.indexOfBaseFolder = getInputRowMeta().indexOfValue(meta.getBaseFolderField());
+        if (data.indexOfBaseFolder < 0) {
+          // The field is unreachable !
+          throw new HopException(
+              BaseMessages.getString(PKG, ZIP_COULD_NOT_FIND_FIELD, meta.getBaseFolderField()));
         }
       }
 
       // Move to folder
-      if ( meta.getOperationType() == ZipFileMeta.OPERATION_TYPE_MOVE ) {
-        if ( Utils.isEmpty( meta.getMoveToFolderField() ) ) {
-          throw new HopException( BaseMessages.getString( PKG, "ZipFile.Exception.EmptyMovetoFolder" ) );
+      if (meta.getOperationType() == ZipFileMeta.OPERATION_TYPE_MOVE) {
+        if (Utils.isEmpty(meta.getMoveToFolderField())) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "ZipFile.Exception.EmptyMovetoFolder"));
         }
-        data.indexOfMoveToFolder = getInputRowMeta().indexOfValue( meta.getMoveToFolderField() );
-        if ( data.indexOfMoveToFolder < 0 ) {
+        data.indexOfMoveToFolder = getInputRowMeta().indexOfValue(meta.getMoveToFolderField());
+        if (data.indexOfMoveToFolder < 0) {
           // The field is unreachable !
-          throw new HopException( BaseMessages.getString( PKG, "ZipFile.Exception.CouldnotFindField", meta
-            .getMoveToFolderField() ) );
+          throw new HopException(
+              BaseMessages.getString(PKG, ZIP_COULD_NOT_FIND_FIELD, meta.getMoveToFolderField()));
         }
       }
-
     } // End If first
 
     boolean sendToErrorRow = false;
@@ -129,74 +137,77 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
 
     try {
       // get source filename
-      String sourceFilename = getInputRowMeta().getString( r, data.indexOfSourceFilename );
+      String sourceFilename = getInputRowMeta().getString(r, data.indexOfSourceFilename);
 
-      if ( Utils.isEmpty( sourceFilename ) ) {
-        log.logError( toString(), BaseMessages.getString( PKG, "ZipFile.Error.SourceFileEmpty" ) );
-        throw new HopException( BaseMessages.getString( PKG, "ZipFile.Error.SourceFileEmpty" ) );
+      if (Utils.isEmpty(sourceFilename)) {
+        log.logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
+        throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
       }
-      data.sourceFile = HopVfs.getFileObject( sourceFilename );
+      data.sourceFile = HopVfs.getFileObject(sourceFilename);
 
       // Check sourcefile
       boolean skip = false;
-      if ( !data.sourceFile.exists() ) {
-        log
-          .logError( toString(), BaseMessages
-            .getString( PKG, "ZipFile.Error.SourceFileNotExist", sourceFilename ) );
-        throw new HopException( BaseMessages
-          .getString( PKG, "ZipFile.Error.SourceFileNotExist", sourceFilename ) );
+      if (!data.sourceFile.exists()) {
+        log.logError(
+            toString(),
+            BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotExist", sourceFilename));
+        throw new HopException(
+            BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotExist", sourceFilename));
       } else {
-        if ( data.sourceFile.getType() != FileType.FILE ) {
-          log.logError( toString(), BaseMessages
-            .getString( PKG, "ZipFile.Error.SourceFileNotFile", sourceFilename ) );
-          throw new HopException( BaseMessages.getString(
-            PKG, "ZipFile.Error.SourceFileNotFile", sourceFilename ) );
+        if (data.sourceFile.getType() != FileType.FILE) {
+          log.logError(
+              toString(),
+              BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotFile", sourceFilename));
+          throw new HopException(
+              BaseMessages.getString(PKG, "ZipFile.Error.SourceFileNotFile", sourceFilename));
         }
       }
 
       // get basefolder
-      if ( data.indexOfBaseFolder > -1 ) {
-        data.baseFolder = getInputRowMeta().getString( r, data.indexOfBaseFolder );
+      if (data.indexOfBaseFolder > -1) {
+        data.baseFolder = getInputRowMeta().getString(r, data.indexOfBaseFolder);
       }
 
       // get destination folder
       String moveToFolder = null;
-      if ( data.indexOfMoveToFolder > -1 ) {
-        moveToFolder = getInputRowMeta().getString( r, data.indexOfMoveToFolder );
-        if ( Utils.isEmpty( moveToFolder ) ) {
-          throw new HopException( BaseMessages.getString( PKG, "ZipFile.Error.EmptyMoveToFolder" ) );
+      if (data.indexOfMoveToFolder > -1) {
+        moveToFolder = getInputRowMeta().getString(r, data.indexOfMoveToFolder);
+        if (Utils.isEmpty(moveToFolder)) {
+          throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.EmptyMoveToFolder"));
         }
       }
 
-      if ( !skip ) {
+      if (!skip) {
         // get value for target filename
-        String targetFilename = getInputRowMeta().getString( r, data.indexOfZipFilename );
+        String targetFilename = getInputRowMeta().getString(r, data.indexOfZipFilename);
 
-        if ( Utils.isEmpty( targetFilename ) ) {
-          log.logError( toString(), BaseMessages.getString( PKG, "ZipFile.Error.TargetFileEmpty" ) );
-          throw new HopException( BaseMessages.getString( PKG, "ZipFile.Error.TargetFileEmpty" ) );
+        if (Utils.isEmpty(targetFilename)) {
+          log.logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
+          throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
         }
-        data.zipFile = HopVfs.getFileObject( targetFilename );
-        if ( data.zipFile.exists() ) {
-          if ( log.isDetailed() ) {
-            log.logDetailed( toString(), BaseMessages.getString(
-              PKG, "ZipFile.Log.TargetFileExists", targetFilename ) );
+        data.zipFile = HopVfs.getFileObject(targetFilename);
+        if (data.zipFile.exists()) {
+          if (log.isDetailed()) {
+            log.logDetailed(
+                toString(),
+                BaseMessages.getString(PKG, "ZipFile.Log.TargetFileExists", targetFilename));
           }
         } else {
           // let's check parent folder
           FileObject parentFolder = data.zipFile.getParent();
-          if ( !parentFolder.exists() ) {
-            if ( !meta.isCreateParentFolder() ) {
+          if (!parentFolder.exists()) {
+            if (!meta.isCreateParentFolder()) {
               // Parent folder not exist
               // So we will fail
-              throw new HopException( BaseMessages.getString(
-                PKG, "ZipFile.Error.TargetParentFolderNotExists", parentFolder.toString() ) );
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ZipFile.Error.TargetParentFolderNotExists", parentFolder.toString()));
             } else {
               // Create parent folder
               parentFolder.createFolder();
             }
           }
-          if ( parentFolder != null ) {
+          if (parentFolder != null) {
             parentFolder.close();
           }
         }
@@ -205,63 +216,63 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
         zipFile();
 
         // file was zipped, let's see if we need to move or delete it
-        processFile( moveToFolder );
+        processFile(moveToFolder);
 
         // add filename to result filenames?
         addFilenameToResult();
       }
 
       getLinesInput();
-      putRow( data.outputRowMeta, r ); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
-      if ( checkFeedback( getLinesRead() ) ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ZipFile.LineNumber", "" + getLinesRead() ) );
-        }
+      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "ZipFile.LineNumber", "" + getLinesRead()));
       }
-    } catch ( Exception e ) {
-      if ( getTransformMeta().isDoingErrorHandling() ) {
+    } catch (Exception e) {
+      if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError( BaseMessages.getString( PKG, "ZipFile.ErrorInTransformRunning" ) + e.getMessage() );
-        setErrors( 1 );
+        logError(BaseMessages.getString(PKG, "ZipFile.ErrorInTransformRunning") + e.getMessage());
+        setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if ( sendToErrorRow ) {
+      if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), r, 1, errorMessage, null, "ZipFile001" );
+        putError(getInputRowMeta(), r, 1, errorMessage, null, "ZipFile001");
       }
     } finally {
       try {
-        if ( data.sourceFile != null ) {
+        if (data.sourceFile != null) {
           data.sourceFile.close();
         }
-        if ( data.zipFile != null ) {
+        if (data.zipFile != null) {
           data.zipFile.close();
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
 
     return true;
   }
 
-  private void processFile( String folder ) throws Exception {
+  private void processFile(String folder) throws Exception {
 
-    switch ( meta.getOperationType() ) {
+    switch (meta.getOperationType()) {
       case ZipFileMeta.OPERATION_TYPE_MOVE:
         FileObject file = null;
         FileObject moveToFolder = null;
         try {
           // Move to folder
-          moveToFolder = HopVfs.getFileObject( folder );
+          moveToFolder = HopVfs.getFileObject(folder);
 
-          if ( moveToFolder.exists() ) {
-            if ( moveToFolder.getType() != FileType.FOLDER ) {
-              throw new HopException( BaseMessages.getString( PKG, "ZipFile.Error.NotAFolder", folder ) );
+          if (moveToFolder.exists()) {
+            if (moveToFolder.getType() != FileType.FOLDER) {
+              throw new HopException(
+                  BaseMessages.getString(PKG, "ZipFile.Error.NotAFolder", folder));
             }
           } else {
             moveToFolder.createFolder();
@@ -269,24 +280,27 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
 
           // get target filename
           String targetfilename =
-            HopVfs.getFilename( moveToFolder )
-              + Const.FILE_SEPARATOR + data.sourceFile.getName().getBaseName();
-          file = HopVfs.getFileObject( targetfilename );
+              HopVfs.getFilename(moveToFolder)
+                  + Const.FILE_SEPARATOR
+                  + data.sourceFile.getName().getBaseName();
+          file = HopVfs.getFileObject(targetfilename);
 
           // Move file
-          data.sourceFile.moveTo( file );
+          data.sourceFile.moveTo(file);
 
         } finally {
-          if ( file != null ) {
+          if (file != null) {
             try {
               file.close();
-            } catch ( Exception e ) { /* Ignore */
+            } catch (Exception e) {
+              /* Ignore */
             }
           }
-          if ( moveToFolder != null ) {
+          if (moveToFolder != null) {
             try {
               moveToFolder.close();
-            } catch ( Exception e ) { /* Ignore */
+            } catch (Exception e) {
+              /* Ignore */
             }
           }
         }
@@ -300,33 +314,39 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
   }
 
   private void addFilenameToResult() throws FileSystemException {
-    if ( meta.isaddTargetFileNametoResult() ) {
+    if (meta.isAddResultFilenames()) {
       // Add this to the result file names...
       ResultFile resultFile =
-        new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.zipFile, getPipelineMeta().getName(), getTransformName() );
-      resultFile.setComment( BaseMessages.getString( PKG, "ZipFile.Log.FileAddedResult" ) );
-      addResultFile( resultFile );
+          new ResultFile(
+              ResultFile.FILE_TYPE_GENERAL,
+              data.zipFile,
+              getPipelineMeta().getName(),
+              getTransformName());
+      resultFile.setComment(BaseMessages.getString(PKG, "ZipFile.Log.FileAddedResult"));
+      addResultFile(resultFile);
 
-      if ( log.isDetailed() ) {
-        log.logDetailed( toString(), BaseMessages.getString( PKG, "ZipFile.Log.FilenameAddResult", data.sourceFile
-          .toString() ) );
+      if (log.isDetailed()) {
+        log.logDetailed(
+            toString(),
+            BaseMessages.getString(
+                PKG, "ZipFile.Log.FilenameAddResult", data.sourceFile.toString()));
       }
     }
   }
 
-  private File getFile( final String filename ) {
+  private File getFile(final String filename) {
     try {
-      URI uri = new URI( filename );
-      return new File( uri );
-    } catch ( URISyntaxException ex ) {
+      URI uri = new URI(filename);
+      return new File(uri);
+    } catch (URISyntaxException ex) {
       // Ignore errors
     }
-    return new File( filename );
+    return new File(filename);
   }
 
   private void zipFile() throws HopException {
 
-    String localrealZipfilename = HopVfs.getFilename( data.zipFile );
+    String localrealZipfilename = HopVfs.getFilename(data.zipFile);
     boolean updateZip = false;
 
     byte[] buffer = null;
@@ -341,49 +361,49 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
 
     try {
 
-      updateZip = ( data.zipFile.exists() && meta.isOverwriteZipEntry() );
+      updateZip = (data.zipFile.exists() && meta.isOverwriteZipEntry());
 
-      if ( updateZip ) {
+      if (updateZip) {
         // the Zipfile exists
         // and we weed to update entries
         // Let's create a temp file
-        File fileZip = getFile( localrealZipfilename );
-        tempFile = File.createTempFile( fileZip.getName(), null );
+        File fileZip = getFile(localrealZipfilename);
+        tempFile = File.createTempFile(fileZip.getName(), null);
         // delete it, otherwise we cannot rename existing zip to it.
         tempFile.delete();
 
-        updateZip = fileZip.renameTo( tempFile );
+        updateZip = fileZip.renameTo(tempFile);
       }
 
       // Prepare Zip File
-      buffer = new byte[ 18024 ];
-      dest = HopVfs.getOutputStream( localrealZipfilename, false );
-      buff = new BufferedOutputStream( dest );
-      out = new ZipOutputStream( buff );
+      buffer = new byte[18024];
+      dest = HopVfs.getOutputStream(localrealZipfilename, false);
+      buff = new BufferedOutputStream(dest);
+      out = new ZipOutputStream(buff);
 
-      if ( updateZip ) {
+      if (updateZip) {
         // User want to append files to existing Zip file
         // The idea is to rename the existing zip file to a temporary file
         // and then adds all entries in the existing zip along with the new files,
         // excluding the zip entries that have the same name as one of the new files.
 
-        zin = new ZipInputStream( new FileInputStream( tempFile ) );
+        zin = new ZipInputStream(new FileInputStream(tempFile));
         entry = zin.getNextEntry();
 
-        while ( entry != null ) {
+        while (entry != null) {
           String name = entry.getName();
 
-          if ( !fileSet.contains( name ) ) {
+          if (!fileSet.contains(name)) {
 
             // Add ZIP entry to output stream.
-            out.putNextEntry( new ZipEntry( name ) );
+            out.putNextEntry(new ZipEntry(name));
             // Transfer bytes from the ZIP file to the output file
             int len;
-            while ( ( len = zin.read( buffer ) ) > 0 ) {
-              out.write( buffer, 0, len );
+            while ((len = zin.read(buffer)) > 0) {
+              out.write(buffer, 0, len);
             }
 
-            fileSet.add( name );
+            fileSet.add(name);
           }
           entry = zin.getNextEntry();
         }
@@ -392,72 +412,71 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
       }
 
       // Set the method
-      out.setMethod( ZipOutputStream.DEFLATED );
-      out.setLevel( Deflater.BEST_COMPRESSION );
+      out.setMethod(ZipOutputStream.DEFLATED);
+      out.setLevel(Deflater.BEST_COMPRESSION);
 
       // Associate a file input stream for the current file
-      in = HopVfs.getInputStream( data.sourceFile );
+      in = HopVfs.getInputStream(data.sourceFile);
 
       // Add ZIP entry to output stream.
       //
       String relativeName = data.sourceFile.getName().getBaseName();
 
-      if ( meta.isKeepSouceFolder() ) {
+      if (meta.isKeepSourceFolder()) {
         // Get full filename
-        relativeName = HopVfs.getFilename( data.sourceFile );
+        relativeName = HopVfs.getFilename(data.sourceFile);
 
-        if ( data.baseFolder != null ) {
+        if (data.baseFolder != null) {
           // Remove base folder
           data.baseFolder += Const.FILE_SEPARATOR;
-          relativeName = relativeName.replace( data.baseFolder, "" );
+          relativeName = relativeName.replace(data.baseFolder, "");
         }
       }
-      if ( !fileSet.contains( relativeName ) ) {
-        out.putNextEntry( new ZipEntry( relativeName ) );
+      if (!fileSet.contains(relativeName)) {
+        out.putNextEntry(new ZipEntry(relativeName));
 
         int len;
-        while ( ( len = in.read( buffer ) ) > 0 ) {
-          out.write( buffer, 0, len );
+        while ((len = in.read(buffer)) > 0) {
+          out.write(buffer, 0, len);
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ZipFile.ErrorCreatingZip" ), e );
+    } catch (Exception e) {
+      throw new HopException(BaseMessages.getString(PKG, "ZipFile.ErrorCreatingZip"), e);
     } finally {
       try {
-        if ( in != null ) {
+        if (in != null) {
           // Close the current file input stream
           in.close();
         }
-        if ( out != null ) {
+        if (out != null) {
           // Close the ZipOutPutStream
           out.flush();
           out.closeEntry();
           out.close();
         }
-        if ( buff != null ) {
+        if (buff != null) {
           buff.close();
         }
-        if ( dest != null ) {
+        if (dest != null) {
           dest.close();
         }
         // Delete Temp File
-        if ( tempFile != null ) {
+        if (tempFile != null) {
           tempFile.delete();
+        }
+        if (zin != null) {
+          zin.close();
         }
         fileSet = null;
 
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
-
   }
 
+  @Override
   public boolean init() {
-
-    if ( super.init() ) {
-      return true;
-    }
-    return false;
+    return super.init();
   }
-
 }

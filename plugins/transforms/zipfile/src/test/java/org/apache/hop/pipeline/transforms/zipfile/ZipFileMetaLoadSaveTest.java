@@ -23,7 +23,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.zipfile.*;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,28 +40,38 @@ public class ZipFileMetaLoadSaveTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "dynamicSourceFileNameField", "dynamicTargetFileNameField", "baseFolderField", "moveToFolderField", "addResultFilenames",
-        "overwriteZipEntry", "createParentFolder", "keepSouceFolder", "operationType" );
+        Arrays.asList(
+            "sourceFilenameField",
+            "targetFilenameField",
+            "baseFolderField",
+            "moveToFolderField",
+            "addResultFilenames",
+            "overwriteZipEntry",
+            "createParentFolder",
+            "keepSourceFolder",
+            "operationType",
+            "operationTypeMeta");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "addResultFilenames", "isaddTargetFileNametoResult" );
+    getterMap.put("addResultFilenames", "isAddResultFilenames");
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "addResultFilenames", "setaddTargetFileNametoResult" );
+    setterMap.put("addResultFilenames", "setAddResultFilenames");
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "operationType", new IntLoadSaveValidator( ZipFileMeta.operationTypeCode.length ) );
+    attrValidatorMap.put(
+        "operationType", new IntLoadSaveValidator(ZipFileMeta.operationTypeCode.length));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }
