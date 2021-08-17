@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.lang.reflect.Method;
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class FakeData extends BaseTransformData implements ITransformData {
   public Faker faker;
   public IRowMeta outputRowMeta;
@@ -39,5 +35,4 @@ public class FakeData extends BaseTransformData implements ITransformData {
   public FakeData() {
     super();
   }
-
 }
