@@ -81,6 +81,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
 
     SelectionAdapter lsSel =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -219,7 +220,9 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wSourceFileNameField.setLayoutData(fdSourceFileNameField);
     wSourceFileNameField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -247,7 +250,9 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wTargetFileNameField.setLayoutData(fdTargetFileNameField);
     wTargetFileNameField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -300,7 +305,9 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wBaseFolderField.setLayoutData(fdBaseFolderField);
     wBaseFolderField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -328,6 +335,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wOperation.setItems(ZipFileMeta.operationTypeDesc);
     wOperation.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             updateOperation();
           }
@@ -355,7 +363,9 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wMoveToFolderField.setLayoutData(fdMoveToFolderField);
     wMoveToFolderField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             get();
@@ -392,21 +402,21 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     if (input.getBaseFolderField() != null) {
       wBaseFolderField.setText(input.getBaseFolderField());
     }
-    if (input.getDynamicSourceFileNameField() != null) {
-      wSourceFileNameField.setText(input.getDynamicSourceFileNameField());
+    if (input.getSourceFilenameField() != null) {
+      wSourceFileNameField.setText(input.getSourceFilenameField());
     }
-    if (input.getDynamicTargetFileNameField() != null) {
-      wTargetFileNameField.setText(input.getDynamicTargetFileNameField());
+    if (input.getTargetFilenameField() != null) {
+      wTargetFileNameField.setText(input.getTargetFilenameField());
     }
     wOperation.setText(ZipFileMeta.getOperationTypeDesc(input.getOperationType()));
     if (input.getMoveToFolderField() != null) {
       wMoveToFolderField.setText(input.getMoveToFolderField());
     }
 
-    wAddResult.setSelection(input.isaddTargetFileNametoResult());
+    wAddResult.setSelection(input.isAddResultFilenames());
     wOverwriteZipEntry.setSelection(input.isOverwriteZipEntry());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
-    wKeepFolders.setSelection(input.isKeepSouceFolder());
+    wKeepFolders.setSelection(input.isKeepSourceFolder());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -427,12 +437,12 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
       return;
     }
     input.setBaseFolderField(wBaseFolderField.getText());
-    input.setDynamicSourceFileNameField(wSourceFileNameField.getText());
-    input.setDynamicTargetFileNameField(wTargetFileNameField.getText());
-    input.setaddTargetFileNametoResult(wAddResult.getSelection());
+    input.setSourceFilenameField(wSourceFileNameField.getText());
+    input.setTargetFilenameField(wTargetFileNameField.getText());
+    input.setAddResultFilenames(wAddResult.getSelection());
     input.setOverwriteZipEntry(wOverwriteZipEntry.getSelection());
     input.setCreateParentFolder(wCreateParentFolder.getSelection());
-    input.setKeepSouceFolder(wKeepFolders.getSelection());
+    input.setKeepSourceFolder(wKeepFolders.getSelection());
     input.setOperationType(ZipFileMeta.getOperationTypeByDesc(wOperation.getText()));
     input.setMoveToFolderField(wMoveToFolderField.getText());
     transformName = wTransformName.getText(); // return value

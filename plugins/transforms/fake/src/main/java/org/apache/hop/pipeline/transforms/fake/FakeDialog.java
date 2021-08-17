@@ -31,18 +31,11 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -55,7 +48,6 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
   private ComboVar wLocale;
 
   private final FakeMeta input;
-  private ModifyListener lsMod;
 
   public FakeDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -71,7 +63,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(shell);
     setShellImage(shell, input);
 
-    lsMod = e -> input.setChanged();
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -220,7 +212,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
       int col = 1;
       item.setText(col++, Const.NVL(fakeField.getName(), ""));
       item.setText(col++, Const.NVL(fakeField.getType(), ""));
-      item.setText(col++, Const.NVL(fakeField.getTopic(), ""));
+      item.setText(col, Const.NVL(fakeField.getTopic(), ""));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -256,7 +248,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
       int col = 1;
       String name = tableItem.getText(col++);
       String typeDesc = tableItem.getText(col++);
-      String topic = tableItem.getText(col++);
+      String topic = tableItem.getText(col);
 
       FakerType fakerType = FakerType.getTypeUsingDescription(typeDesc);
       if (fakerType == null) {

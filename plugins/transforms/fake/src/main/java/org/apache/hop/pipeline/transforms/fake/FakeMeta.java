@@ -17,22 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,13 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/fake.html")
 public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, FakeData> {
 
+  @HopMetadataProperty(injectionKeyDescription = "Fake.Injection.Locale")
   private String locale;
+
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupDescription = "Fake.Injection.Fields")
   private List<FakeField> fields;
 
   public FakeMeta() {
@@ -87,44 +90,6 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
         rowMeta.addValueMeta(v);
       }
     }
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      locale = XmlHandler.getTagValue(transformNode, "locale");
-
-      Node fieldsNode = XmlHandler.getSubNode(transformNode, "fields");
-      List<Node> fieldNodes = XmlHandler.getNodes(fieldsNode, "field");
-      for (Node fieldNode : fieldNodes) {
-        String name = XmlHandler.getTagValue(fieldNode, "name");
-        String type = XmlHandler.getTagValue(fieldNode, "type");
-        String topic = XmlHandler.getTagValue(fieldNode, "topic");
-        fields.add(new FakeField(name, type, topic));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform metadata from XML", e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-
-    xml.append(XmlHandler.addTagValue("locale", locale));
-
-    xml.append("    <fields>").append(Const.CR);
-    for (FakeField field : fields) {
-      xml.append("      <field>").append(Const.CR);
-      xml.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-      xml.append("        ").append(XmlHandler.addTagValue("type", field.getType()));
-      xml.append("        ").append(XmlHandler.addTagValue("topic", field.getTopic()));
-      xml.append("      </field>").append(Const.CR);
-    }
-    xml.append("    </fields>").append(Const.CR);
-
-    return xml.toString();
   }
 
   @Override

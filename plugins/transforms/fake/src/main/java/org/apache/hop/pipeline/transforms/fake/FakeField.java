@@ -17,31 +17,37 @@
 package org.apache.hop.pipeline.transforms.fake;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class FakeField {
+  @HopMetadataProperty(injectionKeyDescription = "Fake.Injection.Name")
   private String name;
+
+  @HopMetadataProperty(injectionKeyDescription = "Fake.Injection.Type")
   private String type;
+
+  @HopMetadataProperty(injectionKeyDescription = "Fake.Injection.Topic")
   private String topic;
 
-  public FakeField() {
-  }
+  public FakeField() {}
 
-  public FakeField( String name, String type, String topic ) {
+  public FakeField(String name, String type, String topic) {
     this.name = name;
     this.type = type;
     this.topic = topic;
   }
 
-  public FakeField( FakeField f ) {
+  public FakeField(FakeField f) {
     this.name = f.name;
     this.type = f.type;
     this.topic = f.topic;
   }
 
   public boolean isValid() {
-    return ( StringUtils.isNotEmpty( name ) && StringUtils.isNotEmpty( type ) && StringUtils.isNotEmpty( topic ) );
+    return (StringUtils.isNotEmpty(name)
+        && StringUtils.isNotEmpty(type)
+        && StringUtils.isNotEmpty(topic));
   }
-
 
   /**
    * Gets name
@@ -52,10 +58,8 @@ public class FakeField {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -68,10 +72,8 @@ public class FakeField {
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( String type ) {
+  /** @param type The type to set */
+  public void setType(String type) {
     this.type = type;
   }
 
@@ -84,10 +86,8 @@ public class FakeField {
     return topic;
   }
 
-  /**
-   * @param topic The topic to set
-   */
-  public void setTopic( String topic ) {
+  /** @param topic The topic to set */
+  public void setTopic(String topic) {
     this.topic = topic;
   }
 }
