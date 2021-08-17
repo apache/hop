@@ -22,10 +22,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class ZipFileData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 
@@ -49,5 +45,4 @@ public class ZipFileData extends BaseTransformData implements ITransformData {
     baseFolder = null;
     indexOfMoveToFolder = -1;
   }
-
 }
