@@ -437,7 +437,7 @@ public class Condition implements Cloneable {
             if (searchString != null) {
               inIndex = Arrays.binarySearch(inList, searchString);
             }
-            retval = Boolean.valueOf(inIndex >= 0);
+            retval = inIndex >= 0;
             break;
           case FUNC_CONTAINS:
             retval =

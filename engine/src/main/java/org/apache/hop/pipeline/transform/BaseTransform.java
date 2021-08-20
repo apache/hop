@@ -2939,11 +2939,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     inputRowSetsLock.writeLock().lock();
     try {
       for (int i = 0; i < inputRowSets.size(); i++) {
-        BlockingRowSet rs = (BlockingRowSet) inputRowSets.get(i);
+        IRowSet rs = inputRowSets.get(i);
         if (rs.getOriginTransformName().equalsIgnoreCase(transformName)) {
           // swap this one and position 0...that means, the main stream is always stream 0 --> easy!
           //
-          BlockingRowSet zero = (BlockingRowSet) inputRowSets.get(0);
+          IRowSet zero = inputRowSets.get(0);
           inputRowSets.set(0, rs);
           inputRowSets.set(i, zero);
         }
