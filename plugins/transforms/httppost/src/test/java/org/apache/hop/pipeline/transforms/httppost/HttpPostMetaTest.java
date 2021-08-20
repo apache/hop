@@ -22,11 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -46,29 +42,44 @@ public class HttpPostMetaTest {
   @Before
   public void testLoadSaveRoundTrip() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "postAFile", "encoding", "url", "urlInField", "urlField", "requestEntity", "httpLogin",
-        "httpPassword", "proxyHost", "proxyPort", "socketTimeout", "connectionTimeout",
-        "closeIdleConnectionsTime", "argumentField", "argumentParameter", "argumentHeader", "queryField",
-        "queryParameter", "fieldName", "resultCodeFieldName", "responseTimeFieldName", "responseHeaderFieldName" );
+        Arrays.asList(
+            "postAFile",
+            "encoding",
+            "url",
+            "urlInField",
+            "urlField",
+            "requestEntity",
+            "httpLogin",
+            "httpPassword",
+            "proxyHost",
+            "proxyPort",
+            "socketTimeout",
+            "connectionTimeout",
+            "closeIdleConnectionsTime");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
-    //Arrays need to be consistent length
+    // Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
-      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
-    fieldLoadSaveValidatorAttributeMap.put( "argumentField", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "argumentParameter", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "argumentHeader", booleanArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "queryField", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "queryParameter", stringArrayLoadSaveValidator );
+        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 25);
+    fieldLoadSaveValidatorAttributeMap.put("argumentField", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("argumentParameter", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("argumentHeader", booleanArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("queryField", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("queryParameter", stringArrayLoadSaveValidator);
 
-    loadSaveTester = new LoadSaveTester( HttpPostMeta.class, attributes, new HashMap<>(),
-      new HashMap<>(), fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+    loadSaveTester =
+        new LoadSaveTester(
+            HttpPostMeta.class,
+            attributes,
+            new HashMap<>(),
+            new HashMap<>(),
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
   }
 
   @Test
@@ -79,9 +90,9 @@ public class HttpPostMetaTest {
   @Test
   public void setDefault() {
     HttpPostMeta meta = new HttpPostMeta();
-    assertNull( meta.getEncoding() );
+    assertNull(meta.getEncoding());
 
     meta.setDefault();
-    assertEquals( "UTF-8", meta.getEncoding() );
+    assertEquals("UTF-8", meta.getEncoding());
   }
 }
