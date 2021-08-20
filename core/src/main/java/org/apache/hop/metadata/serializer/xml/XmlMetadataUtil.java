@@ -121,7 +121,7 @@ public class XmlMetadataUtil {
         // Hang on, is this a password?
         //
         if (password) {
-          xml += XmlHandler.addTagValue(tag, Encr.encryptPassword((String) value));
+          xml += XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables((String) value));
         } else {
           xml += XmlHandler.addTagValue(tag, (String) value);
         }
