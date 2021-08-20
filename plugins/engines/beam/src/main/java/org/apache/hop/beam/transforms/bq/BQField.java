@@ -39,6 +39,11 @@ public class BQField {
     this.hopType = hopType;
   }
 
+  @Override
+  public String toString() {
+    return "BQField{" + "name='" + name + '\'' + ", hopType='" + hopType + '\'' + '}';
+  }
+
   public String getNewNameOrName() {
     if (StringUtils.isNotEmpty(newName)) {
       return newName;

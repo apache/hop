@@ -1922,6 +1922,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
   static void setRootScopeVariable(
       IPipelineEngine pipeline, String variableName, String variableValue) {
+
     pipeline.setVariable(variableName, variableValue);
 
     IVariables parentSpace = pipeline.getParentVariables();
@@ -2092,8 +2093,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
         Object scmO = actualObject.get("_transform_", actualObject);
         try {
-          ScriptValues transform =
-              (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
+          ScriptValues transform = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
           transform.putRow(transform.getOutputRowMeta(), newRow);
         } catch (Exception e) {
           ScriptValuesDummy transform =

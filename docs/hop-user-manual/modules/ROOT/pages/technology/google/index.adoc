@@ -21,7 +21,8 @@ under the License.
 
 == Introduction
 
-The Google technology stack is supported in Hop through a number of plugins.  We briefly touch upon them below.
+The Google technology stack is supported in Hop through a number of plugins.
+We briefly touch upon them below.
 
 == Pipeline Transforms
 
@@ -32,3 +33,10 @@ Apache xref:vfs.adoc[VFS Support] in Hop allows you to directly read from a mult
 * xref:vfs/google-drive-vfs.adoc[Google Drive]: read and write data directly from and to Google Drive files and folders.
 * xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]: read and write data directly from and to files and folders in Google Cloud Storage buckets
 
+== Beam vs Google Cloud
+
+When executing your pipeline using a Beam runner which is NOT DataFlow, make sure to pass the default Google cloud project ID by running:
+
+`gcloud config set project <project-id>`
+
+This affects Google Cloud specific APIs like BigQuery, Pub/Sub and others.

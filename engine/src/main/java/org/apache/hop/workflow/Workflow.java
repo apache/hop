@@ -1021,6 +1021,17 @@ public abstract class Workflow extends Variables
     this.parentWorkflow = parentWorkflow;
   }
 
+  @Override
+  public IVariables getParentVariables() {
+    if (getParentPipeline() != null) {
+      return getParentPipeline();
+    }
+    if (getParentWorkflow() != null) {
+      return getParentWorkflow();
+    }
+    return super.getParentVariables();
+  }
+
   public Result getResult() {
     return result;
   }

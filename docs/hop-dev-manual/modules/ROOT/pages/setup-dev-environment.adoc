@@ -19,7 +19,8 @@ under the License.
 
 == Introduction
 
-Thank you for wanting to help out with the development of Apache Hop. We really value your help.
+Thank you for wanting to help out with the development of Apache Hop.
+We really value your help.
 We assume you're going to be using the IntelliJ IDEA integrated development environment.
 
 == Fork Apache Hop!
@@ -28,12 +29,14 @@ If you visit the https://github.com/apache/incubator-hop[Apache Hop code] on git
 
 image::github-fork.png[width="25%"]
 
-Use this button to create a copy of the complete Hop codebase.  You can then work on this fork in all safety.
+Use this button to create a copy of the complete Hop codebase.
+You can then work on this fork in all safety.
 We call this new fork "origin" and the master copy of the Hop codebase "upstream" from your point of view.
 
 == Clone it
 
-Now that you have your own fork it's time to clone it onto your work computer.  We're going to assume you set up github security with proper keys and so on.
+Now that you have your own fork it's time to clone it onto your work computer.
+We're going to assume you set up github security with proper keys and so on.
 To get the URL of your fork you can use the copy button on this GitHub page:
 
 image::github-repository-url.png[width="75%"]
@@ -85,8 +88,7 @@ Replace 4 by the number of threads you can spend on your computer.
 
 == Code formatting
 
-Beyond following the obvious best practices of coding Java it's important to note that we are using a code formatter called
-*google-java-format*
+Beyond following the obvious best practices of coding Java it's important to note that we are using a code formatter called *google-java-format*
 
 To install it in IntelliJ IDEA:
 
@@ -100,7 +102,8 @@ All code which gets accepted into Hop is re-formatted with google-java-format vi
 
 == Copyright
 
-Please consider setting up an APL copyright header. In Idea this is done like this:
+Please consider setting up an APL copyright header.
+In Idea this is done like this:
 *File* / *Settings...* / *Editor - Copyright*
 
 Create a new copyright profile called "APL" with the following content:
@@ -125,6 +128,9 @@ limitations under the License.
 
 Set this as the default copyright profile for all files.
 
+If you want to create samples for the Apache Hop project, to be included in the source code, you can set variable HOP_LICENSE_HEADER_FILE in your environment(s) and point it to a file containing the license above.
+It will automatically insert the license header in your .hpl and .hwf files.
+
 == Run Apache Hop
 
 After a successful build, the Hop UI can be started.
@@ -133,7 +139,7 @@ After a successful build, the Hop UI can be started.
     $ unzip hop-client-*.zip
     $ cd hop 
 
-On Windows, run `hop-gui.bat`, on Mac and Linux, run `hop-gui.sh` 
+On Windows, run `hop-gui.bat`, on Mac and Linux, run `hop-gui.sh`
 
 == Debugging
 
@@ -156,17 +162,18 @@ You can now set breakpoints in your code and see what's going on.
 == Committing work
 
 Updating your fork can be done simply by committing locally and then pushing those changes to "origin".
-Make sure to always reference a HOP-xxxxx JIRA case!  For example:
+Make sure to always reference a HOP-xxxxx JIRA case!
+For example:
 
 [source]
 git commit -m "HOP-98765 : My work description" .
-
 
 == Updating your fork
 
 After a while it's likely your "origin" fork will be lagging behind with the main "upstream" Hop codebase.
 You can develop against the ```master``` branch of the codebase or you can create different branches for the features you're building or the JIRA cases you're fixing.
-In the commands below we assume you want to update your ```master``` branch.  If this is not the case, replace ```master``` with the branch you're interested in and later want to generate a pull request for.
+In the commands below we assume you want to update your ```master``` branch.
+If this is not the case, replace ```master``` with the branch you're interested in and later want to generate a pull request for.
 
 To update it you can add "upstream" to your local configuration:
 
@@ -190,7 +197,8 @@ git push --force-with-lease origin master
 
 == Generating a pull request
 
-Changes to the Hop codebase are done through Pull Requests.  They'll be built, compiled, tested and reviewed.
+Changes to the Hop codebase are done through Pull Requests.
+They'll be built, compiled, tested and reviewed.
 
 On the github page of your "origin" fork you'll now see something like the following:
 

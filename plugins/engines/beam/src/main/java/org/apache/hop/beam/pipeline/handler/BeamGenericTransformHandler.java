@@ -165,7 +165,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     // Send all the information on their way to the right nodes
     //
     PTransform<PCollection<HopRow>, PCollectionTuple> transformTransform;
-    if (needsBatching(transformMeta)) {
+    if (needsBatching(variables, transformMeta)) {
       transformTransform =
           new TransformBatchTransform(
               variableValues,
@@ -290,14 +290,14 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
             + infoTransforms.size());
   }
 
-  public static boolean needsBatching(TransformMeta transformMeta) {
+  public static boolean needsBatching(IVariables variables, TransformMeta transformMeta) {
     String value =
         transformMeta.getAttribute(
             BeamConst.STRING_HOP_BEAM, BeamConst.STRING_TRANSFORM_FLAG_BATCH);
 
     // If the copies string contains "BATCH" we'll batch the records...
     //
-    String copiesString = transformMeta.getCopiesString();
+    String copiesString = variables.resolve(transformMeta.getCopiesString());
 
     return value != null && "true".equalsIgnoreCase(value)
         || copiesString != null && copiesString.toUpperCase().contains("BATCH");
