@@ -35,6 +35,7 @@ The table below provides a quick overview of the VFS file systems supported by A
 |File System|Description|URI Format
 |xref:vfs/aws-s3-vfs.adoc[AWS S3]|Provides access to Amazon S3 Buckets|`s3://`
 |xref:vfs/azure-blob-storage-vfs.adoc[Azure Blob Storage]|Provides access to Azure Blob Storage|`azure://`
+|xref:vfs/dropbox-vfs.adoc[Dropbox]|Provides access to Dropbox|`dropbox://`
 |xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]|Provides access to Google Cloud Storage buckets|`gs://`
 |xref:vfs/google-drive-vfs.adoc[Google Drive]|Provides access to Google Drive folders|`googledrive://`
 |===
