@@ -488,6 +488,9 @@ public abstract class ActionBase
    */
   @Override
   public IVariables getParentVariables() {
+    if (parentWorkflow != null) {
+      return parentWorkflow;
+    }
     return variables.getParentVariables();
   }
 

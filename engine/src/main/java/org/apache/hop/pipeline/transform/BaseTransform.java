@@ -3256,6 +3256,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public IVariables getParentVariables() {
+    if (pipeline != null) {
+      return pipeline;
+    }
     return variables.getParentVariables();
   }
 
