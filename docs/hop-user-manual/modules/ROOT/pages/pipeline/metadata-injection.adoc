@@ -102,7 +102,7 @@ The current (1-july 2021) status is:
 |Execute row SQL script|Y
 |Execute SQL script|Y
 |Execute Unit Tests|N
-|Fake data|N
+|Fake data|Y
 |File exists|Y
 |File Metadata|N
 |Filter rows|Y
@@ -122,7 +122,7 @@ The current (1-july 2021) status is:
 |Get variables|Y
 |Group by|Y
 |HTTP client|N
-|HTTP post|N
+|HTTP post|Y (Partial)
 |Identify last row in a stream|N
 |If Null|Y
 |Injector|Y
@@ -229,5 +229,5 @@ The current (1-july 2021) status is:
 |XSD validator|N
 |XSL pipeline|N
 |YAML input |N
-|Zip file|N
+|Zip file|Y
 |===

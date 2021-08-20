@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -27,7 +28,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.*;
@@ -169,7 +169,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
@@ -190,10 +190,10 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     Group gSettings = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
     gSettings.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.SettingsGroup.Label"));
-    FormLayout SettingsLayout = new FormLayout();
-    SettingsLayout.marginWidth = 3;
-    SettingsLayout.marginHeight = 3;
-    gSettings.setLayout(SettingsLayout);
+    FormLayout settingsLayout = new FormLayout();
+    settingsLayout.marginWidth = 3;
+    settingsLayout.marginHeight = 3;
+    gSettings.setLayout(settingsLayout);
     props.setLook(gSettings);
 
     wlUrl = new Label(gSettings, SWT.RIGHT);
@@ -232,6 +232,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wUrlInField.setLayoutData(fdUrlInField);
     wUrlInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activeUrlInfield();
@@ -259,7 +260,9 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wUrlField.setLayoutData(fdUrlField);
     wUrlField.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -289,7 +292,9 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -321,7 +326,9 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wRequestEntity.setLayoutData(fdRequestEntity);
     wRequestEntity.addFocusListener(
         new FocusListener() {
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost event
+          }
 
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
@@ -425,10 +432,10 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     Group gOutputFields = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
     gOutputFields.setText(BaseMessages.getString(PKG, "HTTPDialog.OutputFieldsGroup.Label"));
-    FormLayout OutputFieldsLayout = new FormLayout();
-    OutputFieldsLayout.marginWidth = 3;
-    OutputFieldsLayout.marginHeight = 3;
-    gOutputFields.setLayout(OutputFieldsLayout);
+    FormLayout outputFieldsLayout = new FormLayout();
+    outputFieldsLayout.marginWidth = 3;
+    outputFieldsLayout.marginHeight = 3;
+    gOutputFields.setLayout(outputFieldsLayout);
     props.setLook(gOutputFields);
 
     // Result line...
@@ -663,7 +670,10 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlFields.top = new FormAttachment(gProxy, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getArgumentField().length;
+    int fieldsRows = 0;
+    if (input.getLookupfield().get(0).getArgumentField() != null) {
+      fieldsRows = input.getLookupfield().get(0).getArgumentField().size();
+    }
 
     colinf =
         new ColumnInfo[] {
@@ -688,7 +698,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
             wAdditionalComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            fieldsRows,
             lsMod,
             props);
 
@@ -714,7 +724,10 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlQuery.top = new FormAttachment(wFields, margin);
     wlQuery.setLayoutData(fdlQuery);
 
-    final int QueryRows = input.getQueryParameter().length;
+    int queryRows = 0;
+    if (input.getLookupfield().get(0).getQueryField() != null) {
+      queryRows = input.getLookupfield().get(0).getQueryField().size();
+    }
 
     colinfquery =
         new ColumnInfo[] {
@@ -735,7 +748,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
             wAdditionalComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinfquery,
-            QueryRows,
+            queryRows,
             lsMod,
             props);
 
@@ -888,26 +901,26 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
       logDebug(BaseMessages.getString(PKG, "HTTPPOSTDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getArgumentField() != null) {
-      for (int i = 0; i < input.getArgumentField().length; i++) {
+    if (input.getLookupfield().get(0).getArgumentField() != null) {
+      for (int i = 0; i < input.getLookupfield().get(0).getArgumentField().size(); i++) {
         TableItem item = wFields.table.getItem(i);
-        if (input.getArgumentField()[i] != null) {
-          item.setText(1, input.getArgumentField()[i]);
+        if (input.getLookupfield().get(0).getArgumentField().get(i).getName() != null) {
+          item.setText(1, input.getLookupfield().get(0).getArgumentField().get(i).getName());
         }
-        if (input.getArgumentParameter()[i] != null) {
-          item.setText(2, input.getArgumentParameter()[i]);
+        if (input.getLookupfield().get(0).getArgumentField().get(i).getParameter() != null) {
+          item.setText(2, input.getLookupfield().get(0).getArgumentField().get(i).getParameter());
         }
-        item.setText(3, (input.getArgumentHeader()[i]) ? YES : NO);
+        item.setText(3, (input.getLookupfield().get(0).getArgumentField().get(i).isHeader()) ? YES : NO);
       }
     }
-    if (input.getQueryField() != null) {
-      for (int i = 0; i < input.getQueryField().length; i++) {
+    if (input.getLookupfield().get(0).getQueryField() != null) {
+      for (int i = 0; i < input.getLookupfield().get(0).getQueryField().size(); i++) {
         TableItem item = wQuery.table.getItem(i);
-        if (input.getQueryField()[i] != null) {
-          item.setText(1, input.getQueryField()[i]);
+        if (input.getLookupfield().get(0).getQueryField().get(i).getName() != null) {
+          item.setText(1, input.getLookupfield().get(0).getQueryField().get(i).getName());
         }
-        if (input.getQueryParameter()[i] != null) {
-          item.setText(2, input.getQueryParameter()[i]);
+        if (input.getLookupfield().get(0).getQueryField().get(i).getParameter() != null) {
+          item.setText(2, input.getLookupfield().get(0).getQueryField().get(i).getParameter());
         }
       }
     }
@@ -921,14 +934,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     if (input.getRequestEntity() != null) {
       wRequestEntity.setText(input.getRequestEntity());
     }
-    if (input.getFieldName() != null) {
-      wResult.setText(input.getFieldName());
+    if (input.getHttpPostResultField().get(0).getName() != null) {
+      wResult.setText(input.getHttpPostResultField().get(0).getName());
     }
-    if (input.getResultCodeFieldName() != null) {
-      wResultCode.setText(input.getResultCodeFieldName());
+    if (input.getHttpPostResultField().get(0).getCode() != null) {
+      wResultCode.setText(input.getHttpPostResultField().get(0).getCode());
     }
-    if (input.getResponseTimeFieldName() != null) {
-      wResponseTime.setText(input.getResponseTimeFieldName());
+    if (input.getHttpPostResultField().get(0).getResponseTimeFieldName() != null) {
+      wResponseTime.setText(input.getHttpPostResultField().get(0).getResponseTimeFieldName());
     }
     if (input.getEncoding() != null) {
       wEncoding.setText(input.getEncoding());
@@ -947,8 +960,8 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     if (input.getProxyPort() != null) {
       wProxyPort.setText(input.getProxyPort());
     }
-    if (input.getResponseHeaderFieldName() != null) {
-      wResponseHeader.setText(input.getResponseHeaderFieldName());
+    if (input.getHttpPostResultField().get(0).getResponseHeaderFieldName() != null) {
+      wResponseHeader.setText(input.getHttpPostResultField().get(0).getResponseHeaderFieldName());
     }
 
     wSocketTimeOut.setText(Const.NVL(input.getSocketTimeout(), ""));
@@ -969,12 +982,12 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
   }
 
   private void ok() {
+    HttpPostLoookupField loookupField = new HttpPostLoookupField();
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
 
     int nrargs = wFields.nrNonEmpty();
-    input.allocate(nrargs);
 
     if (log.isDebug()) {
       logDebug(
@@ -983,13 +996,12 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrargs; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getArgumentField()[i] = item.getText(1);
-      input.getArgumentParameter()[i] = item.getText(2);
-      input.getArgumentHeader()[i] = YES.equals(item.getText(3));
+      HttpPostArgumentField argumentField =
+          new HttpPostArgumentField(item.getText(1), item.getText(2), YES.equals(item.getText(3)));
+      loookupField.getArgumentField().add(argumentField);
     }
 
     int nrqueryparams = wQuery.nrNonEmpty();
-    input.allocateQuery(nrqueryparams);
 
     if (log.isDebug()) {
       logDebug(
@@ -999,18 +1011,31 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrqueryparams; i++) {
       TableItem item = wQuery.getNonEmpty(i);
-      input.getQueryField()[i] = item.getText(1);
-      input.getQueryParameter()[i] = item.getText(2);
+      input.getLookupfield().get(0).getQueryField().clear();
+      HttpPostQuery httpPostQuery = new HttpPostQuery(item.getText(1), item.getText(2));
+      loookupField.getQueryField().add(httpPostQuery);
     }
+
+    List<HttpPostLoookupField> listLookupField = new ArrayList<>();
+    listLookupField.add(loookupField);
+    input.setLookupfield(listLookupField);
 
     input.setUrl(wUrl.getText());
     input.setUrlField(wUrlField.getText());
     input.setRequestEntity(wRequestEntity.getText());
     input.setUrlInField(wUrlInField.getSelection());
-    input.setFieldName(wResult.getText());
-    input.setResultCodeFieldName(wResultCode.getText());
-    input.setResponseTimeFieldName(wResponseTime.getText());
-    input.setResponseHeaderFieldName(wResponseHeader.getText());
+
+    HttpPostResultField httpPostResultField =
+        new HttpPostResultField(
+            wResult.getText(),
+            wResultCode.getText(),
+            wResponseTime.getText(),
+            wResponseHeader.getText());
+
+    List<HttpPostResultField> listHttpPostResultField= new ArrayList<>();
+    listHttpPostResultField.add(httpPostResultField);
+    input.setHttpPostResultField(listHttpPostResultField);
+
     input.setEncoding(wEncoding.getText());
     input.setPostAFile(wPostAFile.getSelection());
     input.setHttpLogin(wHttpLogin.getText());

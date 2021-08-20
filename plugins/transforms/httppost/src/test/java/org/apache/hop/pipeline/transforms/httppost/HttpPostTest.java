@@ -32,15 +32,16 @@ public class HttpPostTest {
 
   @Test
   public void getRequestBodyParametersAsStringWithNullEncoding() throws HopException {
-    HttpPost http = mock( HttpPost.class );
-    doCallRealMethod().when( http ).getRequestBodyParamsAsStr( any( NameValuePair[].class ), anyString() );
+    HttpPost http = mock(HttpPost.class);
+    doCallRealMethod()
+        .when(http)
+        .getRequestBodyParamsAsStr(any(NameValuePair[].class), anyString());
 
-    NameValuePair[] pairs = new NameValuePair[] {
-      new BasicNameValuePair( "u", "usr" ),
-      new BasicNameValuePair( "p", "pass" )
-    };
+    NameValuePair[] pairs =
+        new NameValuePair[] {
+          new BasicNameValuePair("u", "usr"), new BasicNameValuePair("p", "pass")
+        };
 
-    assertEquals( "u=usr&p=pass", http.getRequestBodyParamsAsStr( pairs, null ) );
+    assertEquals("u=usr&p=pass", http.getRequestBodyParamsAsStr(pairs, null));
   }
-
 }

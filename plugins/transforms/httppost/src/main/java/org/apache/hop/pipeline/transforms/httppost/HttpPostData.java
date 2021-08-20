@@ -17,16 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
-
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.http.NameValuePair;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class HttpPostData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta inputRowMeta;
@@ -68,5 +63,4 @@ public class HttpPostData extends BaseTransformData implements ITransformData {
     realHttpLogin = null;
     realHttpPassword = null;
   }
-
 }
