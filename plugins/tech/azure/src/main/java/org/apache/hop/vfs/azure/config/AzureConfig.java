@@ -34,7 +34,7 @@ public class AzureConfig {
     this();
     this.account = config.account;
     this.key = config.key;
-    this.blockIncrement = blockIncrement;
+    this.blockIncrement = config.blockIncrement;
   }
 
   /**
