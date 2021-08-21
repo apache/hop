@@ -55,6 +55,7 @@
         <module>azure</module>
         <module>avro</module>
         <module>cassandra</module>
+        <module>dropbox</module>
         <module>google</module>
         <module>neo4j</module>
         <module>parquet</module>
