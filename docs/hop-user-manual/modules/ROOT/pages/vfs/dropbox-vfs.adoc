@@ -1,0 +1,60 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /vfs/
+:language: en_US
+
+= Dropbox VFS
+
+== Scheme
+
+The scheme you can use to access your files in Dropbox is
+
+`**dropbox://**`
+
+== Configuration
+
+You need to set up an OAuth 2.0 access for Dropbox by using stored access tokens.
+
+
+ . Create an app at your Oauth2.0 provider Dropbox: (See https://www.dropbox.com/developers/reference/oauth-guide[Dropbox documentation])
+ .. Open a browser and go to https://www.dropbox.com/developers
+ .. Select My Apps and click Create app
+ .. Choose the API dropbox API . Choose the type of access that you need. Give a unique name for your app. Then, click Create App. Dropbox displays the App Settings panel for the app that you created
+ .. In the App Settings page, click Generated Access Token
+ .. Note the value of the access token that you created 
+
+ . Specify this access token in the Hop system configuration:  
+
+ ** This can be done in the Hop GUI: go to the "Dropbox" tab in the Options dialog (from the Tools menu) 
+ ** You can also use the `hop-conf` script with the following options:
+
+[source,shell script]
+----
+      -dbxt, --dropbox-access-token=<accessToken>
+                            Configure the access token to Dropbox
+----
+
+Once done you will see a `dropbox` entry in the central `hop-config.json` file:
+
+
+== Usage and testing
+
+To test if the configuration works you can simply put a small CSV file in Google Drive and then use File/Open in Hop GUI.  Then you type in dropbox:// as a file location and hit enter (or click the refresh button).  Browse to the CSV file you uploaded and open it.  If all is configured correctly you should be able to see the content in the Hop GUI.
+
+
+

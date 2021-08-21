@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.vfs;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
@@ -1231,6 +1232,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                 // If name changed
                 if (!item.getText().equals(text.getText())) {
                   try {
+                    
+                    // If the selected item to rename is folder, set parent for refresh
+                    if ( file.isFolder() ) {
+                      wFilename.setText(file.getParent().getName().getURI());
+                    }
+                                        
                     FileObject newFile =
                         HopVfs.getFileObject(
                             HopVfs.getFilename(file.getParent()) + "/" + text.getText());
@@ -1265,8 +1272,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
     FileObject file = getSelectedFileObject();
-    if (file != null) {        
-      try {
+    if (file != null) {                 
+      try {       
         MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText(
             BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Confirmation.Header"));
@@ -1277,6 +1284,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                 + file.getName());
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
+          
+          // If the selected item to delete is folder, set parent for refresh
+          if ( file.isFolder() ) {
+            wFilename.setText(file.getParent().getName().getURI());
+          }
+          
           boolean deleted = file.delete();
           if (deleted) {
             refreshBrowser();
@@ -1567,7 +1580,18 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   
   public void updateSelection() {
     FileObject file = getSelectedFileObject();
-    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_DELETE, file != null);
-    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_RENAME, file != null);
+    
+    boolean isEnabled =  false;
+    if ( file != null  ) {
+      try {
+        // Protect root can be modified
+        if ( file.getParent()!=null) isEnabled=true;
+      } catch (FileSystemException e) {
+        // Ignore
+      }      
+    }
+    
+    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_DELETE, isEnabled);
+    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_RENAME, isEnabled);
   }
 }
