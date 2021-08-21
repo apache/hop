@@ -323,6 +323,7 @@ under the License.
 * xref:vfs.adoc[Virtual File System]
 ** xref:vfs/aws-s3-vfs.adoc[Amazon Web Services S3]
 ** xref:vfs/azure-blob-storage-vfs.adoc[Microsoft Azure Storage]
+** xref:vfs/dropbox-vfs.adoc[Dropbox]
 ** xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]
 ** xref:vfs/google-drive-vfs.adoc[Google Drive]
 * xref:database/databases.adoc[Relational Database Connections]
