@@ -37,11 +37,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,14 +77,6 @@ public class GuiCompositeWidgets {
       Composite parent,
       String parentGuiElementId,
       Control lastControl) {
-
-    /*
-     The developer wants to be informed of any change to the content of the widget
-     We're just creating the widgets here so once the data is set it will generate a lot of modify listener events
-    */
-    if (sourceData != null && sourceData instanceof IGuiPluginCompositeWidgetsListener) {
-      compositeWidgetsListener = (IGuiPluginCompositeWidgetsListener) sourceData;
-    }
 
     // Find the GUI Elements for the given class...
     //
@@ -252,6 +244,9 @@ public class GuiCompositeWidgets {
       widgetsMap.put(guiElements.getId(), combo);
       control = combo;
     }
+ 
+    addModifyListener(control, guiElements.getId());
+    
     return control;
   }
 
@@ -324,17 +319,23 @@ public class GuiCompositeWidgets {
    * @param widgetId
    */
   private void addModifyListener(final Control control, String widgetId) {
-    if (compositeWidgetsListener != null) {
-      if (control instanceof Button) {
-        control.addListener(
-            SWT.Selection, e -> compositeWidgetsListener.widgetModified(this, control, widgetId));
-      } else {
-        control.addListener(
-            SWT.Modify, e -> compositeWidgetsListener.widgetModified(this, control, widgetId));
-      }
+    if (control instanceof Button) {
+      control.addListener(SWT.Selection, event -> notifyWidgetModified(event, control, widgetId));
+    }
+    else if (control instanceof Combo || control instanceof ComboVar) {
+        control.addListener(SWT.Selection, event -> notifyWidgetModified(event, control, widgetId));
+        control.addListener(SWT.Modify, event -> notifyWidgetModified(event, control, widgetId));
+    } else {
+      control.addListener(SWT.Modify, event -> notifyWidgetModified(event, control, widgetId));
     }
   }
 
+  protected void notifyWidgetModified(final Event event, final Control control, String widgetId) {
+    if (compositeWidgetsListener != null) {
+      compositeWidgetsListener.widgetModified(this, control, widgetId);
+    }
+  } 
+  
   private String[] getComboItems(Object sourceObject, String getComboValuesMethod) {
     try {
       Method method =
@@ -576,7 +577,15 @@ public class GuiCompositeWidgets {
       }
     }
   }
+  
+  public IGuiPluginCompositeWidgetsListener getWidgetsListener() {
+    return compositeWidgetsListener;
+  }
 
+  public void setWidgetsListener(IGuiPluginCompositeWidgetsListener listener) {
+    this.compositeWidgetsListener = listener;
+  }
+  
   public void enableWidgets(Object sourceData, String parentGuiElementId, boolean enabled) {
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements =

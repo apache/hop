@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -278,7 +279,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     fdlInterval.right = new FormAttachment(middle, 0);
     fdlInterval.top = new FormAttachment(lastControl, 2 * margin);
     wlInterval.setLayoutData(fdlInterval);
-    wInterval = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
+    wInterval = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wInterval);
     FormData fdInterval = new FormData();
     fdInterval.left = new FormAttachment(middle, margin);
@@ -288,18 +289,18 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wInterval.addListener(SWT.Selection, this::enableFields);
     lastControl = wlInterval;
 
-    // Add listener to detect change after loading data
-    ModifyListener lsMod = e -> setChanged();
-    wName.addModifyListener(lsMod);
-    wEnabled.addListener(SWT.Selection, e -> setChanged());
-    wLoggingParentsOnly.addListener(SWT.Selection, e -> setChanged());
-    wFilename.addModifyListener(lsMod);
-    wAtStart.addListener(SWT.Selection, e -> setChanged());
-    wAtEnd.addListener(SWT.Selection, e -> setChanged());
-    wPeriodic.addListener(SWT.Selection, e -> setChanged());
-    wInterval.addModifyListener(lsMod);
-
     setWidgetsContent();
+    
+    // Add listener to detect change after loading data
+    Listener modifyListener = e -> setChanged();
+    wName.addListener(SWT.Modify, modifyListener);
+    wEnabled.addListener(SWT.Selection, modifyListener);
+    wLoggingParentsOnly.addListener(SWT.Selection, modifyListener);
+    wFilename.addListener(SWT.Modify, modifyListener);
+    wAtStart.addListener(SWT.Selection, modifyListener);
+    wAtEnd.addListener(SWT.Selection, modifyListener);
+    wPeriodic.addListener(SWT.Selection, modifyListener);
+    wInterval.addListener(SWT.Modify, modifyListener);
   }
 
   /**

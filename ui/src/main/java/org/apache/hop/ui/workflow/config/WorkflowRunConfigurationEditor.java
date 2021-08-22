@@ -31,6 +31,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -184,20 +185,16 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
     // Add a composite area
     //
-    wPluginSpecificComp = new Composite( parent, SWT.BACKGROUND );
-    props.setLook( wPluginSpecificComp );
-    wPluginSpecificComp.setLayout( new FormLayout() );
+    wPluginSpecificComp = new Composite(parent, SWT.BACKGROUND);
+    props.setLook(wPluginSpecificComp);
+    wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
-    fdPluginSpecificComp.left = new FormAttachment( 0, 0 );
-    fdPluginSpecificComp.right = new FormAttachment( 100, 0 );
-    fdPluginSpecificComp.top = new FormAttachment( lastControl, 3 * margin );
-    fdPluginSpecificComp.bottom = new FormAttachment( lastControl, (int) ( props.getZoomFactor() * 400 ) );
-    wPluginSpecificComp.setLayoutData( fdPluginSpecificComp );
-
-    // Now add the run configuration plugin specific widgets
-    //
-    guiCompositeWidgets = new GuiCompositeWidgets( manager.getVariables(), 8 ); // max 8 lines
-
+    fdPluginSpecificComp.left = new FormAttachment(0, 0);
+    fdPluginSpecificComp.right = new FormAttachment(100, 0);
+    fdPluginSpecificComp.top = new FormAttachment(lastControl, 3 * margin);
+    fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
+    wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
+    
     // Add the plugin specific widgets
     //
     addGuiCompositeWidgets();
@@ -209,29 +206,33 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     
     // Add listeners...
     //
-    wName.addListener( SWT.Modify, modifyListener );
-    wDescription.addListener( SWT.Modify, modifyListener );
-    wPluginType.addListener( SWT.Modify, modifyListener );
-    wPluginType.addListener( SWT.Modify, e -> changeConnectionType() );
+    wName.addListener(SWT.Modify, modifyListener);
+    wDescription.addListener(SWT.Modify, modifyListener);
+    wPluginType.addListener(SWT.Modify, modifyListener);
+    wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
   }
 
 
 
   private void addGuiCompositeWidgets() {
 
-    // Remove existing children
+    // Remove existing widgets
     //
     for ( Control child : wPluginSpecificComp.getChildren() ) {
-      child.removeListener( SWT.Modify, modifyListener );
       child.dispose();
     }
 
+    // Now add the run configuration plugin specific widgets
+    //
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
-      guiCompositeWidgets = new GuiCompositeWidgets( manager.getVariables(), 8 );
+      guiCompositeWidgets = new GuiCompositeWidgets( manager.getVariables(), 8 ); // max 8 lines
       guiCompositeWidgets.createCompositeWidgets( workingConfiguration.getEngineRunConfiguration(), null, wPluginSpecificComp, WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
-      for ( Control control : guiCompositeWidgets.getWidgetsMap().values() ) {
-        control.addListener( SWT.Modify, modifyListener );
-      }
+      guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
+        @Override
+        public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+          setChanged(); 
+        }        
+      });
     }
   }
 

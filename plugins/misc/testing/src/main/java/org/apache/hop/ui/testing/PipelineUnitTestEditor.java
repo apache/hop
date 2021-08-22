@@ -39,7 +39,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -47,6 +46,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -288,13 +288,14 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     setWidgetsContent();
     
     // Add listener to detect change after loading data
-	ModifyListener lsMod = e -> setChanged();
-    wName.addModifyListener( lsMod );
-    wDescription.addModifyListener( lsMod );
-    wTestType.addModifyListener( lsMod );
-    wPipelineFilename.addModifyListener( lsMod );
-    wFilename.addModifyListener( lsMod );
-    wBasePath.addModifyListener( lsMod );
+	Listener modifyListener = e -> setChanged();
+    wName.addListener(SWT.Modify, modifyListener );
+    wDescription.addListener(SWT.Modify, modifyListener );
+    wTestType.addListener(SWT.Modify, modifyListener );
+    wPipelineFilename.addListener(SWT.Modify, modifyListener );
+    wFilename.addListener(SWT.Modify, modifyListener );
+    wBasePath.addListener(SWT.Modify, modifyListener );
+    wAutoOpen.addListener(SWT.Selection, modifyListener);
   }
 
   @Override

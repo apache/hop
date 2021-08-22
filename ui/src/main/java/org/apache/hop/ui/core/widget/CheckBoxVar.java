@@ -36,6 +36,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 
 /**
  * A Widget that combines a Check Box widget with a Variable button that will insert an Environment
@@ -106,6 +107,11 @@ public class CheckBoxVar extends Composite {
     wBox.setText(text);
   }
 
+  @Override
+  public void addListener(int eventType, Listener listener) {
+    wBox.addListener(eventType, listener);
+  }
+  
   public void addSelectionListener(SelectionAdapter lsDef) {
     wBox.addSelectionListener(lsDef);
   }

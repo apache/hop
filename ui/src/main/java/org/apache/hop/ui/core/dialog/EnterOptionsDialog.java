@@ -1239,7 +1239,10 @@ public class EnterOptionsDialog extends Dialog {
           compositeWidgets.createCompositeWidgets(
               sourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
           compositeWidgets.setWidgetsContents(sourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);
-
+          if ( sourceData instanceof IGuiPluginCompositeWidgetsListener) {
+            compositeWidgets.setWidgetsListener((IGuiPluginCompositeWidgetsListener) sourceData);
+          }
+          
           pluginWidgetContentsList.add(new PluginWidgetContents(compositeWidgets, sourceData));
 
           wPluginsComp.pack();

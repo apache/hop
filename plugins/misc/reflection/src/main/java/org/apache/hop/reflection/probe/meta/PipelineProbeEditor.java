@@ -38,13 +38,13 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -76,9 +76,6 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
-
-    // Add listener to detect change after loading data
-    ModifyListener lsMod = e -> setChanged();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());
@@ -191,12 +188,12 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
 
     // The locations in a table view:
     //
-    Label wlSources = new Label(parent, SWT.RIGHT);
+    Label wlSources = new Label(parent, SWT.LEFT);
     props.setLook(wlSources);
     wlSources.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Sources.Label"));
     FormData fdlSources = new FormData();
     fdlSources.left = new FormAttachment(0, 0);
-    fdlSources.right = new FormAttachment(middle, 0);
+    fdlSources.right = new FormAttachment(100, 0);
     fdlSources.top = new FormAttachment(lastControl, 2 * margin);
     wlSources.setLayoutData(fdlSources);
     lastControl = wlSources;
@@ -216,10 +213,10 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
         new TableView(
             manager.getVariables(),
             parent,
-            SWT.NONE,
+            SWT.BORDER,
             columns,
             metadata.getDataProbeLocations().size(),
-            lsMod,
+            e -> setChanged(),
             props);
     FormData fdSources = new FormData();
     fdSources.left = new FormAttachment(0, 0);
@@ -229,10 +226,12 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     wSources.setLayoutData(fdSources);
 
     setWidgetsContent();
-
-    wName.addModifyListener(lsMod);
-    wEnabled.addListener(SWT.Selection, e -> setChanged());
-    wFilename.addModifyListener(lsMod);
+    
+    // Add listener to detect change after loading data
+    Listener modifyListener = e -> setChanged();
+    wName.addListener(SWT.Modify, modifyListener);
+    wEnabled.addListener(SWT.Selection, modifyListener);
+    wFilename.addListener(SWT.Modify, modifyListener);
 
     resetChanged();
   }

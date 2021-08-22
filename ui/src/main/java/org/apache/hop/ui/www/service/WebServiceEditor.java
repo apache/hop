@@ -40,13 +40,13 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.www.service.WebService;
 import org.apache.http.entity.ContentType;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -199,7 +199,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlTransform.right = new FormAttachment(middle, 0);
     fdlTransform.top = new FormAttachment(lastControl, 2 * margin);
     wlTransform.setLayoutData(fdlTransform);
-    wTransform = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
+    wTransform = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wTransform);
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment(middle, margin);
@@ -218,7 +218,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlField.right = new FormAttachment(middle, 0);
     fdlField.top = new FormAttachment(lastControl, 2 * margin);
     wlField.setLayoutData(fdlField);
-    wField = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
+    wField = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wField);
     FormData fdField = new FormData();
     fdField.left = new FormAttachment(middle, margin);
@@ -237,7 +237,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlContentType.right = new FormAttachment(middle, 0);
     fdlContentType.top = new FormAttachment(lastControl, 2 * margin);
     wlContentType.setLayoutData(fdlContentType);
-    wContentType = new ComboVar(manager.getVariables(), parent, SWT.LEFT);
+    wContentType = new ComboVar(manager.getVariables(), parent, SWT.LEFT | SWT.BORDER);
     props.setLook(wContentType);
     FormData fdContentType = new FormData();
     fdContentType.left = new FormAttachment(middle, margin);
@@ -268,18 +268,18 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdListStatus.top = new FormAttachment(wlListStatus, 0, SWT.CENTER);
     wListStatus.setLayoutData(fdListStatus);
     lastControl = wlListStatus;
-    
-    // Add listener to detect change after loading data
-    ModifyListener lsMod = e -> setChanged();
-    wName.addModifyListener(lsMod);
-    wEnabled.addListener(SWT.Selection, e -> setChanged());
-    wFilename.addModifyListener(lsMod);
-    wTransform.addModifyListener(lsMod);
-    wField.addModifyListener(lsMod);
-    wContentType.addModifyListener(lsMod);
-    wListStatus.addListener(SWT.Selection, e -> setChanged());
 
     setWidgetsContent();
+    
+    // Add listener to detect change after loading data
+    Listener modifyListener = e -> setChanged();
+    wName.addListener(SWT.Modify, modifyListener);
+    wEnabled.addListener(SWT.Selection, modifyListener);
+    wFilename.addListener(SWT.Modify, modifyListener);
+    wTransform.addListener(SWT.Modify, modifyListener);
+    wField.addListener(SWT.Modify, modifyListener);
+    wContentType.addListener(SWT.Modify, modifyListener);
+    wListStatus.addListener(SWT.Selection, modifyListener);
   }
 
   /**
