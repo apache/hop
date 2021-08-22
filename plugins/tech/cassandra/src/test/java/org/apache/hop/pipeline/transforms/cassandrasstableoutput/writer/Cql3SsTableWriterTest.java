@@ -18,9 +18,11 @@
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -42,6 +44,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class Cql3SsTableWriterTest {
+  @Before
+  public void notOnWindows() {
+    org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
+  }
 
   public static final String KEY_FIELD = "KEY_FIELD";
   public static final String TABLE = "TABLE";
