@@ -62,13 +62,13 @@ public class CalculatorMetaFunctionTest {
             false);
     String xml = XmlMetadataUtil.serializeObjectToXml(function);
     assertEquals(
-        "<calc_type>COPY_FIELD</calc_type>\n"
-            + "<field_a>A</field_a>\n"
-            + "<field_name>copyA</field_name>\n"
-            + "<remove>N</remove>\n"
-            + "<value_length>100</value_length>\n"
-            + "<value_precision>-1</value_precision>\n"
-            + "<value_type>String</value_type>\n",
+        "<calc_type>COPY_FIELD</calc_type>" + System.lineSeparator()
+            + "<field_a>A</field_a>"  + System.lineSeparator()
+            + "<field_name>copyA</field_name>"  + System.lineSeparator()
+            + "<remove>N</remove>"  + System.lineSeparator()
+            + "<value_length>100</value_length>"  + System.lineSeparator()
+            + "<value_precision>-1</value_precision>"  + System.lineSeparator()
+            + "<value_type>String</value_type>"  + System.lineSeparator(),
         xml);
   }
 }

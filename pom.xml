@@ -1023,7 +1023,6 @@
             </properties>
             <dependencyManagement>
                 <dependencies>
-
                     <dependency>
                         <groupId>org.eclipse.platform</groupId>
                         <artifactId>${swt.artifactId}</artifactId>
