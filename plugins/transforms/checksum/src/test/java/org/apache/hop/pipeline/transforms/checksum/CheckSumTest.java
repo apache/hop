@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.checksum;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.apache.hop.core.Const;
@@ -43,10 +44,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -56,6 +54,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class CheckSumTest {
+  // calculations are different in Linux and Windows for files (due to CRLF vs LF)
+  @Before
+  public void notOnWindows() {
+    org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
+  }
+
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static Object previousHopDefaultNumberFormat;

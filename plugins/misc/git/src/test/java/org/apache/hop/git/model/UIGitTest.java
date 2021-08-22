@@ -406,11 +406,15 @@ public class UIGitTest extends RepositoryTestCase {
     StringWriter writer = new StringWriter();
     IOUtils.copy(inputStream, writer, "UTF-8");
     assertEquals("Hello world", writer.toString());
+    inputStream.close();
+    writer.close();
 
     inputStream = uiGit.open("Test.txt", VCS.WORKINGTREE);
     writer = new StringWriter();
     IOUtils.copy(inputStream, writer, "UTF-8");
     assertEquals("Hello world", writer.toString());
+    inputStream.close();
+    writer.close();
   }
 
   @Test
