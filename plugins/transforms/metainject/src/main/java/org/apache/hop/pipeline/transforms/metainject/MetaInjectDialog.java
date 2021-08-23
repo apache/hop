@@ -1119,7 +1119,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     //
     List<MappingTarget> mappingTargets = new ArrayList<>();
     List<String> targetStrings = new ArrayList<>();
-    for (TransformMeta transformMeta : injectPipelineMeta.getUsedTransforms()) {
+    for (TransformMeta transformMeta : injectPipelineMeta.getTransforms()) {
       ITransformMeta iTransformMeta = transformMeta.getTransform();
       if (BeanInjectionInfo.isInjectionSupported(iTransformMeta.getClass())) {
         // Add the groups...
