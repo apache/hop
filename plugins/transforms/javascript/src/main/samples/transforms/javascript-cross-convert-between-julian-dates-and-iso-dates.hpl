@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>javascript-cross-convert-between-julian-dates-and-iso-dates</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/08/18 09:08:36.888</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/08/18 09:08:36.888</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Conversion to and from ISO and JDE style julian dates</note>
+      <xloc>160</xloc>
+      <yloc>96</yloc>
+      <width>330</width>
+      <heigth>26</heigth>
+      <fontname>Arial</fontname>
+      <fontsize>10</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>144</backgroundcolorred>
+      <backgroundcolorgreen>238</backgroundcolorgreen>
+      <backgroundcolorblue>144</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Test date cases</from>
+      <to>Convert to and from JDE Julian CYYDDD and  ISO dates yyyy-MM-dd</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Convert to and from JDE Julian CYYDDD and  ISO dates yyyy-MM-dd</from>
+      <to>Polish Date Formats (yyyy-MM-dd)</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Convert to and from JDE Julian CYYDDD and  ISO dates yyyy-MM-dd</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>// Author		    : Brandon Jackson
+// Date  		    : August 18, 2021
+// Hop version used : 1.0-SNAPSHOT
+//
+
+// The field ISO_DATE_INPUT is coming in as a Java 7 style Date from Hop, which means the deprecated .getYear(), .getMonth(), and getDate(); apply.
+// You can see that we can use later Java supported objects like java.time.LocaDate which came about in Java 8 for easier date manipulation.
+
+var convertDate = new java.time.LocalDate.of(ISO_DATE_INPUT.getYear()+1900, ISO_DATE_INPUT.getMonth()+1, ISO_DATE_INPUT.getDate());
+//
+// The following section of code is only for determining if a given year is a leap year
+// It helped me know if the number of days since January 1st of the year in question
+// are valid when we take the difference between two dates.
+//
+var IS_LEAP_YEAR = convertDate.isLeapYear();
+
+
+// Julian Date Part 1: (convertDate.getYear()-2000+100)*1000;
+// Julian Date Part 2: Days elapsed from January 1 of the given year.
+//                     COBJ.ChronoUnit.DAYS.between(java.time.LocalDate.of(convertDate.getYear(), 1, 1), convertDate.plusDays(1))
+var COBJ = java.time.temporal;
+
+// Take an ISO DATE (yyyy-MM-dd) and convert it to the format JD Edwards tables use internally CYYDDD
+var JULIAN_DATE_OUTPUT = (convertDate.getYear() - 2000 + 100) * 1000 + COBJ.ChronoUnit.DAYS.between(java.time.LocalDate.of(convertDate.getYear(), 1, 1), convertDate.plusDays(1));
+
+// Take a JDE Julian date CYYDDD and convert it to a standard ISO date (yyyy-MM-dd)
+var ISO_DATE_OUTPUT = new Date(Date.UTC(1900+Math.floor(JULIAN_DATE_INPUT/1000), 0, JULIAN_DATE_INPUT % 1000+1));
+</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>JULIAN_DATE_OUTPUT</name>
+        <rename>JULIAN_DATE_OUTPUT</rename>
+        <type>Integer</type>
+        <length>16</length>
+        <precision>2</precision>
+        <replace>N</replace>
+      </field>
+      <field>
+        <name>ISO_DATE_OUTPUT</name>
+        <rename>ISO_DATE_OUTPUT</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+      <field>
+        <name>IS_LEAP_YEAR</name>
+        <rename>IS_LEAP_YEAR</rename>
+        <type>Boolean</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Test date cases</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <format>yyyy-MM-dd</format>
+        <length>0</length>
+        <name>ISO_DATE_INPUT</name>
+        <precision>0</precision>
+        <type>Date</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <format>#,###</format>
+        <length>0</length>
+        <name>JULIAN_DATE_INPUT</name>
+        <precision>0</precision>
+        <type>Number</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>0</length>
+        <name>NOTE</name>
+        <precision>0</precision>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1995-01-01</item>
+        <item>95001</item>
+        <item>The 1st day of 1995 or January 1, 1995</item>
+      </line>
+      <line>
+        <item>1997-11-04</item>
+        <item>097308</item>
+        <item>The 308th day of 1997 or November 4, 1997</item>
+      </line>
+      <line>
+        <item>2009-01-01</item>
+        <item>109001</item>
+        <item>The 1st day of 2009, or January 1, 2009</item>
+      </line>
+      <line>
+        <item>2011-01-13</item>
+        <item>111013</item>
+        <item>The 13th day of 2011 or January 13, 2011</item>
+      </line>
+      <line>
+        <item>2000-08-23</item>
+        <item>100236</item>
+        <item>The 236th day of 2000 or August 23, 2000 of a leap year</item>
+      </line>
+      <line>
+        <item>2000-12-31</item>
+        <item>100366</item>
+        <item>The 366th day of 2000 or December 31, 2000 of a leap year</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>160</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Polish Date Formats (yyyy-MM-dd)</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>ISO_DATE_OUTPUT</name>
+        <rename>ISO_DATE_OUTPUT</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type>normal</storage_type>
+      </meta>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1024</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
