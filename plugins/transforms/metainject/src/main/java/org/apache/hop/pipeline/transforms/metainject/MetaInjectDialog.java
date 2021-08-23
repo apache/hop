@@ -760,11 +760,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     } catch (HopXmlException e) {
       MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
       box.setText(
-          BaseMessages.getString(
-              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"));
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"));
       box.setMessage(
-          BaseMessages.getString(
-              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"));
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"));
       box.open();
     }
   }
@@ -853,7 +851,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       wTree.removeAll();
 
       List<TransformMeta> injectTransforms = new ArrayList<>();
-      for (TransformMeta transformMeta : injectPipelineMeta.getUsedTransforms()) {
+      for (TransformMeta transformMeta : injectPipelineMeta.getTransforms()) {
         ITransformMeta meta = transformMeta.getTransform();
         if (BeanInjectionInfo.isInjectionSupported(meta.getClass())) {
           injectTransforms.add(transformMeta);
@@ -989,8 +987,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(
-              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
           e);
     }
 
@@ -1084,8 +1081,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(
-              PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
+          BaseMessages.getString(PKG, "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message"),
           e);
       return;
     }
