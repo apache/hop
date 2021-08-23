@@ -443,7 +443,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
         };
     wFields =
         new TableView(
-            variables, shell, SWT.NONE, columns, input.getFields().size(), false, null, props);
+            variables, shell, SWT.BORDER, columns, input.getFields().size(), false, null, props);
     props.setLook(wFields);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);

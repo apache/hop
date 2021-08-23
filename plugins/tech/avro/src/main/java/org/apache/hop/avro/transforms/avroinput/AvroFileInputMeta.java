@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "Avro File Input",
     description = "Reads file serialized in the Apache Avro file format",
     image = "avro_input.svg",
-    categoryDescription = "Input",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/avro-file-input.html",
     keywords = {"Avro", "Read Avro"})

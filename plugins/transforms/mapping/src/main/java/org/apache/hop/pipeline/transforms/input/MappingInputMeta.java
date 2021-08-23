@@ -44,7 +44,7 @@ import java.util.List;
 @Transform(
   id = "MappingInput",
   name = "i18n::BaseTransform.TypeLongDesc.MappingInput",
-  description = "i18n:BaseTransform.TypeTooltipDesc.MappingInput",
+  description = "i18n::BaseTransform.TypeTooltipDesc.MappingInput",
   image = "MPI.svg",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
   documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mapping-input.html"

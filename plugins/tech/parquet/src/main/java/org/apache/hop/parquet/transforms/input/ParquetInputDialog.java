@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.Text;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ParquetInputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -174,8 +173,8 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetFormat.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              Const.getDateFormats(),
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetLength.Label"),
@@ -190,7 +189,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
         };
     wFields =
         new TableView(
-            variables, shell, SWT.NONE, columns, input.getFields().size(), false, null, props);
+            variables, shell, SWT.BORDER, columns, input.getFields().size(), false, null, props);
     props.setLook(wFields);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);

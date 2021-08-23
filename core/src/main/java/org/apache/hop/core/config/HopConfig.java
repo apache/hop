@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.util.Utils;
-import sun.security.krb5.internal.crypto.Des;
 
 import java.util.*;
 
@@ -36,7 +35,7 @@ public class HopConfig extends ConfigFile implements IConfigFile {
   private String configFilename;
 
   @JsonIgnore
-  private static HopConfig hopConfig;
+  private static HopConfig instance;
 
   private HopConfig() {
     try {
@@ -48,10 +47,10 @@ public class HopConfig extends ConfigFile implements IConfigFile {
   }
 
   public static HopConfig getInstance() {
-    if ( hopConfig == null ) {
-      hopConfig = new HopConfig();
+    if ( instance == null ) {
+      instance = new HopConfig();
     }
-    return hopConfig;
+    return instance;
   }
 
   public synchronized void saveOption( String optionKey, Object optionValue ) {
@@ -64,7 +63,7 @@ public class HopConfig extends ConfigFile implements IConfigFile {
     }
   }
 
-  public synchronized static void saveOptions( Map<String, Object> extraOptions ) {
+  public static synchronized void saveOptions( Map<String, Object> extraOptions ) {
     try {
       HopConfig hopConfig = getInstance();
       hopConfig.configMap.putAll( extraOptions );
@@ -106,7 +105,7 @@ public class HopConfig extends ConfigFile implements IConfigFile {
     if ( Utils.isEmpty( value.toString() ) ) {
       return defaultValue;
     }
-    return Integer.valueOf( value.toString() ).intValue();
+    return Integer.parseInt( value.toString() );
   }
 
   public static boolean readOptionBoolean( String optionKey, boolean defaultValue ) {
