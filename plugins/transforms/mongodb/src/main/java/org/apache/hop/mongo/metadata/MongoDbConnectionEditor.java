@@ -28,6 +28,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.IMetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
@@ -99,9 +100,12 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
 
     // Add changed listeners
     wName.addListener(SWT.Modify, e -> setChanged());
-    for (Control control : widgets.getWidgetsMap().values()) {
-      control.addListener(SWT.Modify, e -> setChanged());
-    }
+    widgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
+      @Override
+      public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+        setChanged(); 
+      }        
+    });          
   }
 
   @Override

@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -79,8 +80,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
   private TableView wVariables;
-
-  private Listener modifyListener = e -> setChanged();
 
   /**
    * @param hopGui
@@ -234,10 +233,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
     wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
 
-    // Now add the run configuration plugin specific widgets
-    //
-    guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 25); // max 8 lines
-
     // Add the plugin specific widgets
     //
     addGuiCompositeWidgets();
@@ -342,6 +337,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Add listeners...
     //
+    Listener modifyListener = e -> setChanged();
     wName.addListener(SWT.Modify, modifyListener);
     wDescription.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
@@ -349,25 +345,27 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   }
 
   private void addGuiCompositeWidgets() {
-
+    
     // Remove existing children
     //
-    for (Control child : wPluginSpecificComp.getChildren()) {
-      child.removeListener(SWT.Modify, modifyListener);
+    for ( Control child : wPluginSpecificComp.getChildren() ) {
       child.dispose();
     }
-
+    
     if (workingConfiguration.getEngineRunConfiguration() != null) {
-      guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 25);
+      guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 25); // max 8 lines
       guiCompositeWidgets.createCompositeWidgets(
           workingConfiguration.getEngineRunConfiguration(),
           null,
           wPluginSpecificComp,
           PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-          null);
-      for (Control control : guiCompositeWidgets.getWidgetsMap().values()) {
-        control.addListener(SWT.Modify, modifyListener);
-      }
+          null);    
+      guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
+         @Override
+         public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+           setChanged(); 
+         }        
+       });      
     }
   }
 

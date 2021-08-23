@@ -2258,7 +2258,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.TransformAction.EditDescription.Name",
       tooltip = "i18n::HopGuiPipelineGraph.TransformAction.EditDescription.Tooltip",
-      image = "ui/images/edit.svg",
+      image = "ui/images/edit_description.svg",
       category = "Basic",
       categoryOrder = "1")
   public void editDescription(HopGuiPipelineTransformContext context) {
@@ -3102,11 +3102,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.TransformDescription.Title");
     String message =
         BaseMessages.getString(PKG, "PipelineGraph.Dialog.TransformDescription.Message");
-    EnterTextDialog dd =
+    EnterTextDialog dialog =
         new EnterTextDialog(hopShell(), title, message, transformMeta.getDescription());
-    String d = dd.open();
-    if (d != null) {
-      transformMeta.setDescription(d);
+    String description = dialog.open();
+    if (description != null) {
+      transformMeta.setDescription(description);
       transformMeta.setChanged();
       updateGui();
     }

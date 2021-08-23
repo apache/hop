@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -542,30 +543,25 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     // This will inform the Metadata perspective in the Hop GUI that this object was modified and
     // needs to be saved.
     //
-    Control[] controls = {
-      wName,
-      wlServer,
-      wServer,
-      wDatabaseName,
-      wVersion4,
-      wBoltPort,
-      wBrowserPort,
-      wPolicy,
-      wUsername,
-      wPassword,
-      wRouting,
-      wEncryption,
-      wTrustAllCertificates,
-      wConnectionLivenessCheckTimeout,
-      wMaxConnectionLifetime,
-      wMaxConnectionPoolSize,
-      wConnectionAcquisitionTimeout,
-      wConnectionTimeout,
-      wMaxTransactionRetryTime
-    };
-    for (Control control : controls) {
-      control.addListener(SWT.Modify, e -> setChanged());
-    }
+    Listener modifyListener = e -> setChanged();
+    wName.addListener(SWT.Modify, modifyListener);
+    wServer.addListener(SWT.Modify, modifyListener);
+    wDatabaseName.addListener(SWT.Modify, modifyListener);
+    wVersion4.addListener(SWT.Selection, modifyListener);
+    wBoltPort.addListener(SWT.Selection, modifyListener);
+    wBrowserPort.addListener(SWT.Modify, modifyListener);
+    wPolicy.addListener(SWT.Modify, modifyListener);
+    wUsername.addListener(SWT.Modify, modifyListener);
+    wPassword.addListener(SWT.Modify, modifyListener);
+    wRouting.addListener(SWT.Selection, modifyListener);
+    wEncryption.addListener(SWT.Selection, modifyListener);
+    wTrustAllCertificates.addListener(SWT.Selection, modifyListener);
+    wConnectionLivenessCheckTimeout.addListener(SWT.Modify, modifyListener);
+    wMaxConnectionLifetime.addListener(SWT.Modify, modifyListener);
+    wMaxConnectionPoolSize.addListener(SWT.Modify, modifyListener);
+    wConnectionAcquisitionTimeout.addListener(SWT.Modify, modifyListener);
+    wConnectionTimeout.addListener(SWT.Modify, modifyListener);
+    wMaxTransactionRetryTime.addListener(SWT.Modify, modifyListener);
   }
 
   private void enableFields() {

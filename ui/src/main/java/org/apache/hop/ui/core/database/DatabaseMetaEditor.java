@@ -35,10 +35,10 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -231,8 +231,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
   private void addGeneralTab() {
 
-    DatabaseMeta databaseMeta = this.getMetadata();
-
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText("   " + BaseMessages.getString(PKG, "DatabaseDialog.DbTab.title") + "   ");
 
@@ -310,14 +308,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Add a composite area
     //
     wDatabaseSpecificComp = new Composite(wGeneralComp, SWT.BACKGROUND);
-    props.setLook(wDatabaseSpecificComp);
+    //props.setLook(wDatabaseSpecificComp);
     wDatabaseSpecificComp.setLayout(new FormLayout());
     FormData fdDatabaseSpecificComp = new FormData();
     fdDatabaseSpecificComp.left = new FormAttachment(0, 0);
     fdDatabaseSpecificComp.right = new FormAttachment(100, 0);
-    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, 3 * margin);
+    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, 2*margin);
+    fdDatabaseSpecificComp.bottom = new FormAttachment(100, 0);
     wDatabaseSpecificComp.setLayoutData(fdDatabaseSpecificComp);
     lastControl = wDatabaseSpecificComp;
+    
+   // wDatabaseSpecificComp.setBackground(wTabFolder.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
     // Now add the database plugin specific widgets
     //
@@ -329,6 +330,14 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
         null);
 
+    // Add listener to detect change
+    guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
+      @Override
+      public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+        setChanged(); 
+      }        
+    });  
+    
     addCompositeWidgetsUsernamePassword();
 
     // manual URL field
@@ -414,7 +423,13 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
         null);
-
+    guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
+      @Override
+      public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+        setChanged(); 
+      }        
+    });  
+    
     // System.out.println( "---- widgets created for class: " +
     // workingMeta.getIDatabase().getClass().getName() );
     addCompositeWidgetsUsernamePassword();
@@ -429,8 +444,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   }
 
   private void addAdvancedTab() {
-
-    DatabaseMeta databaseMeta = this.getMetadata();
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
     wAdvancedTab.setText(

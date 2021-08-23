@@ -1776,18 +1776,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.EditActionDescription.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EditActionDescription.Tooltip",
-      image = "ui/images/edit.svg",
+      image = "ui/images/edit_description.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editActionDescription(HopGuiWorkflowActionContext context) {
     ActionMeta action = context.getActionMeta();
     String title = BaseMessages.getString(PKG, "WorkflowGraph.Dialog.EditDescription.Title");
     String message = BaseMessages.getString(PKG, "WorkflowGraph.Dialog.EditDescription.Message");
-    EnterTextDialog dd =
+    EnterTextDialog dialog =
         new EnterTextDialog(hopShell(), title, message, context.getActionMeta().getDescription());
-    String des = dd.open();
-    if (des != null) {
-      action.setDescription(des);
+    String description = dialog.open();
+    if (description != null) {
+      action.setDescription(description);
       action.setChanged();
       updateGui();
     }

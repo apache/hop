@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.IMetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
@@ -96,9 +97,12 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
 
     // Add changed listeners
     wName.addListener(SWT.Modify, e -> setChanged());
-    for (Control control : widgets.getWidgetsMap().values()) {
-      control.addListener(SWT.Modify, e -> setChanged());
-    }
+    widgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
+      @Override
+      public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+        setChanged(); 
+      }        
+    });      
   }
 
   @Override
