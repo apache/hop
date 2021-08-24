@@ -28,28 +28,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A partition schema allow you to partition a transform according into a number of partitions that run independendly. It
- * allows us to "map"
+ * A partition schema allow you to partition a transform according into a number of partitions that
+ * run independendly. It allows us to "map"
  *
  * @author Matt
  */
 @HopMetadata(
-  key = "partition",
-  name = "Partition Schema",
-  description = "Describes a partition schema",
-  image = "ui/images/partition_schema.svg",
-  documentationUrl="https://hop.apache.org/manual/latest/metadata-types/partition-schema.html"
-)
+    key = "partition",
+    name = "Partition Schema",
+    description = "Describes a partition schema",
+    image = "ui/images/partition_schema.svg",
+    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/partition-schema.html")
 public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopMetadata {
 
-  @HopMetadataProperty
-  private List<String> partitionIDs;
+  @HopMetadataProperty private List<String> partitionIDs;
 
-  @HopMetadataProperty
-  private boolean dynamicallyDefined;
+  @HopMetadataProperty private boolean dynamicallyDefined;
 
-  @HopMetadataProperty
-  private String numberOfPartitions;
+  @HopMetadataProperty private String numberOfPartitions;
 
   public PartitionSchema() {
     this.dynamicallyDefined = true;
@@ -61,21 +57,21 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
    * @param name
    * @param partitionIDs
    */
-  public PartitionSchema( String name, List<String> partitionIDs ) {
+  public PartitionSchema(String name, List<String> partitionIDs) {
     this.name = name;
     this.partitionIDs = partitionIDs;
   }
 
   public Object clone() {
     PartitionSchema partitionSchema = new PartitionSchema();
-    partitionSchema.replaceMeta( this );
+    partitionSchema.replaceMeta(this);
     return partitionSchema;
   }
 
-  public void replaceMeta( PartitionSchema partitionSchema ) {
+  public void replaceMeta(PartitionSchema partitionSchema) {
     this.name = partitionSchema.name;
     this.partitionIDs = new ArrayList<>();
-    this.partitionIDs.addAll( partitionSchema.partitionIDs );
+    this.partitionIDs.addAll(partitionSchema.partitionIDs);
 
     this.dynamicallyDefined = partitionSchema.dynamicallyDefined;
     this.numberOfPartitions = partitionSchema.numberOfPartitions;
@@ -85,11 +81,11 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     return name;
   }
 
-  public boolean equals( Object obj ) {
-    if ( obj == null || name == null ) {
+  public boolean equals(Object obj) {
+    if (obj == null || name == null) {
       return false;
     }
-    return name.equals( ( (PartitionSchema) obj ).name );
+    return name.equals(((PartitionSchema) obj).name);
   }
 
   public int hashCode() {
@@ -97,11 +93,11 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
   }
 
   public List<String> calculatePartitionIds(IVariables variables) {
-    int nrPartitions = Const.toInt( variables.resolve( numberOfPartitions ), 0 );
-    if ( dynamicallyDefined ) {
+    int nrPartitions = Const.toInt(variables.resolve(numberOfPartitions), 0);
+    if (dynamicallyDefined) {
       List<String> list = new ArrayList<>();
-      for ( int i = 0; i < nrPartitions; i++ ) {
-        list.add( "Partition-" + ( i + 1 ) );
+      for (int i = 0; i < nrPartitions; i++) {
+        list.add("Partition-" + (i + 1));
       }
       return list;
     } else {
@@ -109,46 +105,33 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     }
   }
 
-  /**
-   * @return the partitionIDs
-   */
+  /** @return the partitionIDs */
   public List<String> getPartitionIDs() {
     return partitionIDs;
   }
 
-  /**
-   * @param partitionIDs the partitionIDs to set
-   */
-  public void setPartitionIDs( List<String> partitionIDs ) {
+  /** @param partitionIDs the partitionIDs to set */
+  public void setPartitionIDs(List<String> partitionIDs) {
     this.partitionIDs = partitionIDs;
   }
 
-  /**
-   * @return the dynamicallyDefined
-   */
+  /** @return the dynamicallyDefined */
   public boolean isDynamicallyDefined() {
     return dynamicallyDefined;
   }
 
-  /**
-   * @param dynamicallyDefined the dynamicallyDefined to set
-   */
-  public void setDynamicallyDefined( boolean dynamicallyDefined ) {
+  /** @param dynamicallyDefined the dynamicallyDefined to set */
+  public void setDynamicallyDefined(boolean dynamicallyDefined) {
     this.dynamicallyDefined = dynamicallyDefined;
   }
 
-  /**
-   * @return the number of partitions
-   */
+  /** @return the number of partitions */
   public String getNumberOfPartitions() {
     return numberOfPartitions;
   }
 
-  /**
-   * @param numberOfPartitions the number of partitions to set...
-   */
-  public void setNumberOfPartitions( String numberOfPartitions ) {
+  /** @param numberOfPartitions the number of partitions to set... */
+  public void setNumberOfPartitions(String numberOfPartitions) {
     this.numberOfPartitions = numberOfPartitions;
   }
-
 }

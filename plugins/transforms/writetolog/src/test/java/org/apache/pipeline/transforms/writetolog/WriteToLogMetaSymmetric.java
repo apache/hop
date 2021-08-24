@@ -22,13 +22,12 @@ import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 public class WriteToLogMetaSymmetric extends WriteToLogMeta {
 
   /**
-   * This class is here because of the asymmetry in WriteToLogMeta
-   * with respect to the getter and setter for the "loglevel" variable.
-   * The only getter for the variable actually returns a LogLevel object,
-   * and the setter expects an int. The underlying storage is a String.
-   * This asymmetry causes issues with test harnesses using reflection.
-   * <p>
-   * MB - 5/2016
+   * This class is here because of the asymmetry in WriteToLogMeta with respect to the getter and
+   * setter for the "loglevel" variable. The only getter for the variable actually returns a
+   * LogLevel object, and the setter expects an int. The underlying storage is a String. This
+   * asymmetry causes issues with test harnesses using reflection.
+   *
+   * <p>MB - 5/2016
    */
   public WriteToLogMetaSymmetric() {
     super();
@@ -36,15 +35,14 @@ public class WriteToLogMetaSymmetric extends WriteToLogMeta {
 
   public String getLogLevelString() {
     LogLevel lvl = super.getLogLevelByDesc();
-    if ( lvl == null ) {
+    if (lvl == null) {
       lvl = LogLevel.BASIC;
     }
-    return WriteToLogMeta.logLevelCodes[ lvl.getLevel() ];
+    return WriteToLogMeta.logLevelCodes[lvl.getLevel()];
   }
 
-  public void setLogLevelString( String value ) {
-    LogLevel lvl = LogLevel.getLogLevelForCode( value );
-    super.setLogLevel( lvl.getLevel() );
+  public void setLogLevelString(String value) {
+    LogLevel lvl = LogLevel.getLogLevelForCode(value);
+    super.setLogLevel(lvl.getLevel());
   }
-
 }

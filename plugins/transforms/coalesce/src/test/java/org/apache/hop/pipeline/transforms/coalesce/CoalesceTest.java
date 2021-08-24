@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
-import java.util.Arrays;
-import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -26,6 +24,9 @@ import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class CoalesceTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -37,10 +38,10 @@ public class CoalesceTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "treatEmptyStringsAsNulls" );
+    List<String> attributes = Arrays.asList("treatEmptyStringsAsNulls");
 
     LoadSaveTester<CoalesceMeta> loadSaveTester =
-      new LoadSaveTester<CoalesceMeta>( CoalesceMeta.class, attributes );
+        new LoadSaveTester<CoalesceMeta>(CoalesceMeta.class, attributes);
 
     loadSaveTester.testSerialization();
   }

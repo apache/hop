@@ -35,22 +35,24 @@ public class PropertyInputField implements Cloneable {
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
   public static final String[] trimTypeDesc = {
-    BaseMessages.getString( PKG, "PropertyInputField.TrimType.None" ),
-    BaseMessages.getString( PKG, "PropertyInputField.TrimType.Left" ),
-    BaseMessages.getString( PKG, "PropertyInputField.TrimType.Right" ),
-    BaseMessages.getString( PKG, "PropertyInputField.TrimType.Both" ) };
+    BaseMessages.getString(PKG, "PropertyInputField.TrimType.None"),
+    BaseMessages.getString(PKG, "PropertyInputField.TrimType.Left"),
+    BaseMessages.getString(PKG, "PropertyInputField.TrimType.Right"),
+    BaseMessages.getString(PKG, "PropertyInputField.TrimType.Both")
+  };
 
   public static final int COLUMN_KEY = 0;
   public static final int COLUMN_VALUE = 1;
 
-  public static final String[] ColumnCode = { "key", "value" };
+  public static final String[] ColumnCode = {"key", "value"};
 
   public static final String[] ColumnDesc = {
-    BaseMessages.getString( PKG, "PropertyInputField.Column.Key" ),
-    BaseMessages.getString( PKG, "PropertyInputField.Column.Value" ) };
+    BaseMessages.getString(PKG, "PropertyInputField.Column.Key"),
+    BaseMessages.getString(PKG, "PropertyInputField.Column.Value")
+  };
 
   private String name;
   private int column;
@@ -66,7 +68,7 @@ public class PropertyInputField implements Cloneable {
 
   private String[] samples;
 
-  public PropertyInputField( String fieldname ) {
+  public PropertyInputField(String fieldname) {
     this.name = fieldname;
     this.column = COLUMN_KEY;
     this.length = -1;
@@ -82,22 +84,32 @@ public class PropertyInputField implements Cloneable {
 
   @Override
   public String toString() {
-    return String.format( "PropertyInputField: (%s, %d, %d, %d, %s, %d, %d, %s, %s, %s, %b)",
-      name, column, type, length, format, trimtype, precision,
-      currencySymbol, decimalSymbol, groupSymbol, repeat );
+    return String.format(
+        "PropertyInputField: (%s, %d, %d, %d, %s, %d, %d, %s, %s, %s, %b)",
+        name,
+        column,
+        type,
+        length,
+        format,
+        trimtype,
+        precision,
+        currencySymbol,
+        decimalSymbol,
+        groupSymbol,
+        repeat);
   }
 
   public PropertyInputField() {
-    this( null );
+    this(null);
   }
 
-  public static final int getTrimTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeCode.length; i++) {
+      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -105,23 +117,23 @@ public class PropertyInputField implements Cloneable {
   }
 
   public String getColumnDesc() {
-    return getColumnDesc( column );
+    return getColumnDesc(column);
   }
 
-  public static final String getColumnDesc( int i ) {
-    if ( i < 0 || i >= ColumnDesc.length ) {
-      return ColumnDesc[ 0 ];
+  public static final String getColumnDesc(int i) {
+    if (i < 0 || i >= ColumnDesc.length) {
+      return ColumnDesc[0];
     }
-    return ColumnDesc[ i ];
+    return ColumnDesc[i];
   }
 
-  public static final int getTrimTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeDesc.length; i++) {
+      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -129,41 +141,41 @@ public class PropertyInputField implements Cloneable {
   }
 
   public String getColumnCode() {
-    return getColumnCode( column );
+    return getColumnCode(column);
   }
 
-  public static final String getColumnCode( int i ) {
-    if ( i < 0 || i >= ColumnCode.length ) {
-      return ColumnCode[ 0 ];
+  public static final String getColumnCode(int i) {
+    if (i < 0 || i >= ColumnCode.length) {
+      return ColumnCode[0];
     }
-    return ColumnCode[ i ];
+    return ColumnCode[i];
   }
 
-  public static final int getColumnByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getColumnByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ColumnCode.length; i++ ) {
-      if ( ColumnCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ColumnCode.length; i++) {
+      if (ColumnCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[ 0 ];
+  public static final String getTrimTypeCode(int i) {
+    if (i < 0 || i >= trimTypeCode.length) {
+      return trimTypeCode[0];
     }
-    return trimTypeCode[ i ];
+    return trimTypeCode[i];
   }
 
-  public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[ 0 ];
+  public static final String getTrimTypeDesc(int i) {
+    if (i < 0 || i >= trimTypeDesc.length) {
+      return trimTypeDesc[0];
     }
-    return trimTypeDesc[ i ];
+    return trimTypeDesc[i];
   }
 
   @Override
@@ -172,7 +184,7 @@ public class PropertyInputField implements Cloneable {
       PropertyInputField retval = (PropertyInputField) super.clone();
 
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -181,7 +193,7 @@ public class PropertyInputField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -189,7 +201,7 @@ public class PropertyInputField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -198,10 +210,10 @@ public class PropertyInputField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -209,11 +221,11 @@ public class PropertyInputField implements Cloneable {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
-  public void setSamples( String[] samples ) {
+  public void setSamples(String[] samples) {
     this.samples = samples;
   }
 
@@ -226,14 +238,14 @@ public class PropertyInputField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return getTrimTypeCode( trimtype );
+    return getTrimTypeCode(trimtype);
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc( trimtype );
+    return getTrimTypeDesc(trimtype);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
@@ -241,7 +253,7 @@ public class PropertyInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String group_symbol ) {
+  public void setGroupSymbol(String group_symbol) {
     this.groupSymbol = group_symbol;
   }
 
@@ -249,7 +261,7 @@ public class PropertyInputField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
+  public void setDecimalSymbol(String decimal_symbol) {
     this.decimalSymbol = decimal_symbol;
   }
 
@@ -257,7 +269,7 @@ public class PropertyInputField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
+  public void setCurrencySymbol(String currency_symbol) {
     this.currencySymbol = currency_symbol;
   }
 
@@ -265,7 +277,7 @@ public class PropertyInputField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -273,7 +285,7 @@ public class PropertyInputField implements Cloneable {
     return repeat;
   }
 
-  public void setRepeated( boolean repeat ) {
+  public void setRepeated(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -281,21 +293,20 @@ public class PropertyInputField implements Cloneable {
     repeat = !repeat;
   }
 
-  public static final int getColumnByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getColumnByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ColumnDesc.length; i++ ) {
-      if ( ColumnDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ColumnDesc.length; i++) {
+      if (ColumnDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public void setColumn( int column ) {
+  public void setColumn(int column) {
     this.column = column;
   }
-
 }

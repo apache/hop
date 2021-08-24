@@ -27,7 +27,7 @@ The functionality is backed by the Parso java library which you can find https:/
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 
@@ -35,9 +35,13 @@ The functionality is backed by the Parso java library which you can find https:/
 |Name of the transform this name has to be unique in a single pipeline.
 
 |Field in the input to use as filename
-|Select the input field that will contain the filename at runtime.  For example, you can use a "Get file names" transform to drive the content of this field.
+|Select the input field that will contain the filename at runtime.
+For example, you can use a "Get file names" transform to drive the content of this field.
 
 |The selected fields from the files
-|If you use the "Get Fields" button you can populate this data grid.  Please note that even though the sas7bdat file format only contains certain formats, that you can specify any desired data type and that PDI will convert for you.  Also note that not all fields need to be specified and that you can re-order fields and give them new names. The selection of the fields will be based on the name column.
+|If you use the "Get Fields" button you can populate this data grid.
+Please note that even though the sas7bdat file format only contains certain formats, that you can specify any desired data type and that PDI will convert for you.
+Also note that not all fields need to be specified and that you can re-order fields and give them new names.
+The selection of the fields will be based on the name column.
 
 |===

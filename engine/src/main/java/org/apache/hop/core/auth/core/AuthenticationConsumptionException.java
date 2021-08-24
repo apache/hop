@@ -22,11 +22,11 @@ import org.apache.hop.core.exception.HopException;
 public class AuthenticationConsumptionException extends HopException {
   private static final long serialVersionUID = 1139802265031922758L;
 
-  public AuthenticationConsumptionException( Exception cause ) {
-    super( cause );
+  public AuthenticationConsumptionException(Exception cause) {
+    super(cause);
   }
 
-  public AuthenticationConsumptionException( String message, Exception cause ) {
-    super( message, cause );
+  public AuthenticationConsumptionException(String message, Exception cause) {
+    super(message, cause);
   }
 }

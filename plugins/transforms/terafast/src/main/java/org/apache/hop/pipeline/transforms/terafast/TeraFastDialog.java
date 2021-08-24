@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.IPluginProperty;
 import org.apache.hop.core.util.KeyValue;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -47,7 +48,6 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
-import org.apache.hop.core.variables.IVariables;
 
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 

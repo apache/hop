@@ -39,12 +39,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.io.File;
 
@@ -450,8 +445,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
                 shell,
                 choices,
                 BaseMessages.getString(PKG, "CassandraOutputDialog.SelectKeyFieldsDialog.Title"),
-                BaseMessages.getString(PKG, "CassandraOutputDialog.SelectKeyFieldsDialog.Message")
-            );
+                BaseMessages.getString(PKG, "CassandraOutputDialog.SelectKeyFieldsDialog.Message"));
         dialog.setMulti(true);
         if (!Utils.isEmpty(wKeyField.getText())) {
           String current = wKeyField.getText();

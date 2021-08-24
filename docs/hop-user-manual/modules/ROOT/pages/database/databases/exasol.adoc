@@ -20,7 +20,7 @@ under the License.
 
 = Exasol
 
-[width="90%", cols="2*", options="header"]
+[width="90%",cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational

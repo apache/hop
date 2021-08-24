@@ -49,5 +49,4 @@ public class MailValidatorData extends BaseTransformData implements ITransformDa
     msgNotValidMail = null;
     msgValidMail = null;
   }
-
 }

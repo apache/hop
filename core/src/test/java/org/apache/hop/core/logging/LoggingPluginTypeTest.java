@@ -24,32 +24,30 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class LoggingPluginTypeTest {
 
   private LoggingPlugin annotation;
 
   @Before
   public void setUp() throws Exception {
-    annotation = mock( LoggingPlugin.class );
-    when( annotation.id() ).thenReturn( "id" );
+    annotation = mock(LoggingPlugin.class);
+    when(annotation.id()).thenReturn("id");
   }
 
   @Test
   public void pickUpsId() throws Exception {
-    assertEquals( "id", LoggingPluginType.getInstance().extractID( annotation ) );
+    assertEquals("id", LoggingPluginType.getInstance().extractID(annotation));
   }
 
   @Test
   public void pickUpName_NameIsSpecified() throws Exception {
-    when( annotation.name() ).thenReturn( "name" );
-    assertEquals( "name", LoggingPluginType.getInstance().extractName( annotation ) );
+    when(annotation.name()).thenReturn("name");
+    assertEquals("name", LoggingPluginType.getInstance().extractName(annotation));
   }
 
   @Test
   public void pickUpName_NameIsNotSpecified() throws Exception {
-    assertEquals( "id", LoggingPluginType.getInstance().extractName( annotation ) );
+    assertEquals("id", LoggingPluginType.getInstance().extractName(annotation));
   }
 }

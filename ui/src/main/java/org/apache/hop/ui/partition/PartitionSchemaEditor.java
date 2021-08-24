@@ -17,9 +17,6 @@
 
 package org.apache.hop.ui.partition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
@@ -35,11 +32,10 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dialog that allows you to edit the settings of the partition schema
@@ -154,8 +150,6 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdNumber.right = new FormAttachment(100, 0);
     wNumber.setLayoutData(fdNumber);
 
-
-
     // Schema list:
     wlPartitions = new Label(parent, SWT.LEFT);
     wlPartitions.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Partitions.Label"));
@@ -210,7 +204,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
   @Override
   public void setWidgetsContent() {
     PartitionSchema partitionSchema = getMetadata();
-    
+
     wName.setText(Const.NVL(partitionSchema.getName(), ""));
 
     refreshPartitions();
@@ -237,8 +231,8 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
   @Override
   public void getWidgetsContent(PartitionSchema partitionSchema) {
     partitionSchema.setName(wName.getText());
-    partitionSchema.setNumberOfPartitions( wNumber.getText() );
-    partitionSchema.setDynamicallyDefined( wDynamic.getSelection() );
+    partitionSchema.setNumberOfPartitions(wNumber.getText());
+    partitionSchema.setDynamicallyDefined(wDynamic.getSelection());
 
     List<String> parts = new ArrayList<>();
 
@@ -247,7 +241,6 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
       parts.add(wPartitions.getNonEmpty(i).getText(1));
     }
     partitionSchema.setPartitionIDs(parts);
-
   }
 
   @Override

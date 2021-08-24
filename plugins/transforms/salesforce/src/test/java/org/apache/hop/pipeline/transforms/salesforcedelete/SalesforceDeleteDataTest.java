@@ -27,12 +27,12 @@ public class SalesforceDeleteDataTest {
   @Test
   public void testConstructor() {
     SalesforceDeleteData data = new SalesforceDeleteData();
-    assertNull( data.inputRowMeta );
-    assertNull( data.outputRowMeta );
-    assertNull( data.deleteResult );
-    assertNull( data.deleteId );
-    assertNull( data.outputBuffer );
-    assertEquals( 0, data.iBufferPos );
-    assertEquals( -1, data.indexOfKeyField );
+    assertNull(data.inputRowMeta);
+    assertNull(data.outputRowMeta);
+    assertNull(data.deleteResult);
+    assertNull(data.deleteId);
+    assertNull(data.outputBuffer);
+    assertEquals(0, data.iBufferPos);
+    assertEquals(-1, data.indexOfKeyField);
   }
 }

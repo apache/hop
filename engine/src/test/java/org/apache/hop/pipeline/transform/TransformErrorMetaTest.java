@@ -31,23 +31,30 @@ public class TransformErrorMetaTest {
   @Test
   public void testGetErrorRowMeta() {
     IVariables vars = new Variables();
-    vars.setVariable( "VarNumberErrors", "nbrErrors" );
-    vars.setVariable( "VarErrorDescription", "errorDescription" );
-    vars.setVariable( "VarErrorFields", "errorFields" );
-    vars.setVariable( "VarErrorCodes", "errorCodes" );
-    TransformErrorMeta testObject = new TransformErrorMeta( new TransformMeta(), new TransformMeta(),
-      "${VarNumberErrors}", "${VarErrorDescription}", "${VarErrorFields}", "${VarErrorCodes}" );
-    IRowMeta result = testObject.getErrorRowMeta(vars); // 10, "some data was bad", "factId", "BAD131" );
+    vars.setVariable("VarNumberErrors", "nbrErrors");
+    vars.setVariable("VarErrorDescription", "errorDescription");
+    vars.setVariable("VarErrorFields", "errorFields");
+    vars.setVariable("VarErrorCodes", "errorCodes");
+    TransformErrorMeta testObject =
+        new TransformErrorMeta(
+            new TransformMeta(),
+            new TransformMeta(),
+            "${VarNumberErrors}",
+            "${VarErrorDescription}",
+            "${VarErrorFields}",
+            "${VarErrorCodes}");
+    IRowMeta result =
+        testObject.getErrorRowMeta(vars); // 10, "some data was bad", "factId", "BAD131" );
 
-    assertNotNull( result );
-    assertEquals( 4, result.size() );
-    assertEquals( IValueMeta.TYPE_INTEGER, result.getValueMeta( 0 ).getType() );
-    assertEquals( "nbrErrors", result.getValueMeta( 0 ).getName() );
-    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 1 ).getType() );
-    assertEquals( "errorDescription", result.getValueMeta( 1 ).getName() );
-    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 2 ).getType() );
-    assertEquals( "errorFields", result.getValueMeta( 2 ).getName() );
-    assertEquals( IValueMeta.TYPE_STRING, result.getValueMeta( 3 ).getType() );
-    assertEquals( "errorCodes", result.getValueMeta( 3 ).getName() );
+    assertNotNull(result);
+    assertEquals(4, result.size());
+    assertEquals(IValueMeta.TYPE_INTEGER, result.getValueMeta(0).getType());
+    assertEquals("nbrErrors", result.getValueMeta(0).getName());
+    assertEquals(IValueMeta.TYPE_STRING, result.getValueMeta(1).getType());
+    assertEquals("errorDescription", result.getValueMeta(1).getName());
+    assertEquals(IValueMeta.TYPE_STRING, result.getValueMeta(2).getType());
+    assertEquals("errorFields", result.getValueMeta(2).getName());
+    assertEquals(IValueMeta.TYPE_STRING, result.getValueMeta(3).getType());
+    assertEquals("errorCodes", result.getValueMeta(3).getName());
   }
 }

@@ -15,49 +15,47 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.beam.metadata;
 
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metadata.api.HopMetadataBase;
-import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @HopMetadata(
-  key = "file-definition",
-  name = "Beam File Definition",
-  description = "Describes a file layout in a Beam pipeline",
-  image = "ui/images/folder.svg",
-  documentationUrl="https://hop.apache.org/manual/latest/metadata-types/beam-file-definition.html"
-)
+    key = "file-definition",
+    name = "Beam File Definition",
+    description = "Describes a file layout in a Beam pipeline",
+    image = "ui/images/folder.svg",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/beam-file-definition.html")
 public class FileDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  @HopMetadataProperty
-  private List<FieldDefinition> fieldDefinitions;
+  @HopMetadataProperty private List<FieldDefinition> fieldDefinitions;
 
-  @HopMetadataProperty
-  private String separator;
+  @HopMetadataProperty private String separator;
 
-  @HopMetadataProperty
-  private String enclosure;
+  @HopMetadataProperty private String enclosure;
 
   public FileDefinition() {
     fieldDefinitions = new ArrayList<>();
   }
 
-  public FileDefinition( String name, String description, List<FieldDefinition> fieldDefinitions, String separator, String enclosure ) {
+  public FileDefinition(
+      String name,
+      String description,
+      List<FieldDefinition> fieldDefinitions,
+      String separator,
+      String enclosure) {
     this.name = name;
     this.description = description;
     this.fieldDefinitions = fieldDefinitions;
@@ -68,8 +66,8 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
   public IRowMeta getRowMeta() throws HopPluginException {
     IRowMeta rowMeta = new RowMeta();
 
-    for ( FieldDefinition fieldDefinition : fieldDefinitions) {
-      rowMeta.addValueMeta( fieldDefinition.getValueMeta() );
+    for (FieldDefinition fieldDefinition : fieldDefinitions) {
+      rowMeta.addValueMeta(fieldDefinition.getValueMeta());
     }
 
     return rowMeta;
@@ -84,10 +82,8 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -100,10 +96,8 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return fieldDefinitions;
   }
 
-  /**
-   * @param fieldDefinitions The fieldDefinitions to set
-   */
-  public void setFieldDefinitions( List<FieldDefinition> fieldDefinitions ) {
+  /** @param fieldDefinitions The fieldDefinitions to set */
+  public void setFieldDefinitions(List<FieldDefinition> fieldDefinitions) {
     this.fieldDefinitions = fieldDefinitions;
   }
 
@@ -116,10 +110,8 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return separator;
   }
 
-  /**
-   * @param separator The separator to set
-   */
-  public void setSeparator( String separator ) {
+  /** @param separator The separator to set */
+  public void setSeparator(String separator) {
     this.separator = separator;
   }
 
@@ -132,10 +124,8 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return enclosure;
   }
 
-  /**
-   * @param enclosure The enclosure to set
-   */
-  public void setEnclosure( String enclosure ) {
+  /** @param enclosure The enclosure to set */
+  public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
 }

@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is used to define debugging meta data for a certain transform. Basically it defines for which condition a
- * break-point becomes active.
+ * This class is used to define debugging meta data for a certain transform. Basically it defines
+ * for which condition a break-point becomes active.
  *
  * @author Matt
  */
@@ -57,46 +57,39 @@ public class TransformDebugMeta {
     readingFirstRows = true;
   }
 
-  public TransformDebugMeta( TransformMeta transformMeta ) {
+  public TransformDebugMeta(TransformMeta transformMeta) {
     this();
     this.transformMeta = transformMeta;
   }
 
-  /**
-   * @return the transformMeta
-   */
+  /** @return the transformMeta */
   public TransformMeta getTransformMeta() {
     return transformMeta;
   }
 
-  /**
-   * @param transformMeta the transformMeta to set
-   */
-  public void setTransformMeta( TransformMeta transformMeta ) {
+  /** @param transformMeta the transformMeta to set */
+  public void setTransformMeta(TransformMeta transformMeta) {
     this.transformMeta = transformMeta;
   }
 
-  /**
-   * @return the condition
-   */
+  /** @return the condition */
   public Condition getCondition() {
     return condition;
   }
 
-  /**
-   * @param condition the condition to set
-   */
-  public void setCondition( Condition condition ) {
+  /** @param condition the condition to set */
+  public void setCondition(Condition condition) {
     this.condition = condition;
   }
 
   /**
-   * Add a break-point listener to the debug information. The listener will be called whenever a condition is hit
+   * Add a break-point listener to the debug information. The listener will be called whenever a
+   * condition is hit
    *
    * @param breakPointListener the break point listener to add
    */
-  public void addBreakPointListener( IBreakPointListener breakPointListener ) {
-    breakPointListers.add( breakPointListener );
+  public void addBreakPointListener(IBreakPointListener breakPointListener) {
+    breakPointListers.add(breakPointListener);
   }
 
   /**
@@ -104,98 +97,74 @@ public class TransformDebugMeta {
    *
    * @param breakPointListener the break point listener to remove
    */
-  public void removeBreakPointListener( IBreakPointListener breakPointListener ) {
-    breakPointListers.remove( breakPointListener );
+  public void removeBreakPointListener(IBreakPointListener breakPointListener) {
+    breakPointListers.remove(breakPointListener);
   }
 
-  public void fireBreakPointListeners( PipelineDebugMeta pipelineDebugMeta ) {
-    for ( IBreakPointListener listener : breakPointListers ) {
-      listener.breakPointHit( pipelineDebugMeta, this, rowBufferMeta, rowBuffer );
+  public void fireBreakPointListeners(PipelineDebugMeta pipelineDebugMeta) {
+    for (IBreakPointListener listener : breakPointListers) {
+      listener.breakPointHit(pipelineDebugMeta, this, rowBufferMeta, rowBuffer);
     }
     numberOfHits++;
   }
 
-  /**
-   * @return the rowCount
-   */
+  /** @return the rowCount */
   public int getRowCount() {
     return rowCount;
   }
 
-  /**
-   * @param rowCount the rowCount to set
-   */
-  public void setRowCount( int rowCount ) {
+  /** @param rowCount the rowCount to set */
+  public void setRowCount(int rowCount) {
     this.rowCount = rowCount;
   }
 
-  /**
-   * @return the readingFirstRows
-   */
+  /** @return the readingFirstRows */
   public boolean isReadingFirstRows() {
     return readingFirstRows;
   }
 
-  /**
-   * @param readingFirstRows the readingFirstRows to set
-   */
-  public void setReadingFirstRows( boolean readingFirstRows ) {
+  /** @param readingFirstRows the readingFirstRows to set */
+  public void setReadingFirstRows(boolean readingFirstRows) {
     this.readingFirstRows = readingFirstRows;
   }
 
-  /**
-   * @return the pausingOnBreakPoint
-   */
+  /** @return the pausingOnBreakPoint */
   public boolean isPausingOnBreakPoint() {
     return pausingOnBreakPoint;
   }
 
-  /**
-   * @param pausingOnBreakPoint the pausingOnBreakPoint to set
-   */
-  public void setPausingOnBreakPoint( boolean pausingOnBreakPoint ) {
+  /** @param pausingOnBreakPoint the pausingOnBreakPoint to set */
+  public void setPausingOnBreakPoint(boolean pausingOnBreakPoint) {
     this.pausingOnBreakPoint = pausingOnBreakPoint;
   }
 
-  /**
-   * @return the rowBufferMeta
-   */
+  /** @return the rowBufferMeta */
   public IRowMeta getRowBufferMeta() {
     return rowBufferMeta;
   }
 
-  /**
-   * @param rowBufferMeta the rowBufferMeta to set
-   */
-  public void setRowBufferMeta( IRowMeta rowBufferMeta ) {
+  /** @param rowBufferMeta the rowBufferMeta to set */
+  public void setRowBufferMeta(IRowMeta rowBufferMeta) {
     this.rowBufferMeta = rowBufferMeta;
   }
 
-  /**
-   * @return the rowBuffer
-   */
+  /** @return the rowBuffer */
   public List<Object[]> getRowBuffer() {
     return rowBuffer;
   }
 
-  /**
-   * @param rowBuffer the rowBuffer to set
-   */
-  public void setRowBuffer( List<Object[]> rowBuffer ) {
+  /** @param rowBuffer the rowBuffer to set */
+  public void setRowBuffer(List<Object[]> rowBuffer) {
     this.rowBuffer = rowBuffer;
   }
 
-  /**
-   * @return the number of times the break-point listeners got called
-   */
+  /** @return the number of times the break-point listeners got called */
   public int getNumberOfHits() {
     return numberOfHits;
   }
 
-  /**
-   * @param numberOfHits the number of times the break-point listeners got called
-   */
-  public void setNumberOfHits( int numberOfHits ) {
+  /** @param numberOfHits the number of times the break-point listeners got called */
+  public void setNumberOfHits(int numberOfHits) {
     this.numberOfHits = numberOfHits;
   }
 }

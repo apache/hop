@@ -17,6 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
+import org.eclipse.swt.widgets.Shell;
+
 import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
@@ -25,23 +42,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlParserFactoryProducer;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.dom4j.Attribute;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
-import org.apache.hop.core.IProgressMonitor;
-import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes

@@ -18,13 +18,7 @@
 package org.apache.hop.pipeline.transforms.mock;
 
 import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILogChannelFactory;
-import org.apache.hop.core.logging.ILogMessage;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -40,13 +34,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITransformData> {
   public final TransformMeta transformMeta;

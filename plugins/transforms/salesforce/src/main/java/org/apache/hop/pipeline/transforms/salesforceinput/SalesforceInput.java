@@ -38,7 +38,8 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 /**
- * Read data from Salesforce module, convert them to rows and writes these to one or more output streams.
+ * Read data from Salesforce module, convert them to rows and writes these to one or more output
+ * streams.
  *
  * @author Samatar
  * @since 10-06-2007
@@ -46,38 +47,45 @@ import java.util.GregorianCalendar;
 public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, SalesforceInputData> {
   private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
-  public SalesforceInput( TransformMeta transformMeta, SalesforceInputMeta meta, SalesforceInputData data,
-                          int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public SalesforceInput(
+      TransformMeta transformMeta,
+      SalesforceInputMeta meta,
+      SalesforceInputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
   public boolean processRow() throws HopException {
-    if ( first ) {
+    if (first) {
       first = false;
 
       // Create the output row meta-data
       data.outputRowMeta = new RowMeta();
 
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
+      data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
 
       // Let's query Salesforce
-      data.connection.query( meta.isSpecifyQuery() );
+      data.connection.query(meta.isSpecifyQuery());
 
       data.limitReached = true;
       data.recordcount = data.connection.getQueryResultSize();
-      if ( data.recordcount > 0 ) {
+      if (data.recordcount > 0) {
         data.limitReached = false;
         data.nrRecords = data.connection.getRecordsCount();
       }
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.RecordCount" ) + " : " + data.recordcount );
+      if (log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "SalesforceInput.Log.RecordCount")
+                + " : "
+                + data.recordcount);
       }
-
     }
 
     Object[] outputRowData = null;
@@ -86,16 +94,17 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       // get one row ...
       outputRowData = getOneRow();
 
-      if ( outputRowData == null ) {
+      if (outputRowData == null) {
         setOutputDone();
         return false;
       }
 
-      putRow( data.outputRowMeta, outputRowData ); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
 
-      if ( checkFeedback( getLinesInput() ) ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "SalesforceInput.log.LineRow", "" + getLinesInput() ) );
+      if (checkFeedback(getLinesInput())) {
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "SalesforceInput.log.LineRow", "" + getLinesInput()));
         }
       }
 
@@ -103,30 +112,30 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       data.recordIndex++;
 
       return true;
-    } catch ( HopException e ) {
+    } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;
-      if ( getTransformMeta().isDoingErrorHandling() ) {
+      if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError( BaseMessages.getString( PKG, "SalesforceInput.log.Exception", e.getMessage() ) );
-        logError( Const.getStackTracker( e ) );
-        setErrors( 1 );
+        logError(BaseMessages.getString(PKG, "SalesforceInput.log.Exception", e.getMessage()));
+        logError(Const.getStackTracker(e));
+        setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if ( sendToErrorRow ) {
+      if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), outputRowData, 1, errorMessage, null, "SalesforceInput001" );
+        putError(getInputRowMeta(), outputRowData, 1, errorMessage, null, "SalesforceInput001");
       }
     }
     return true;
   }
 
   private Object[] getOneRow() throws HopException {
-    if ( data.limitReached || data.rownr >= data.recordcount ) {
+    if (data.limitReached || data.rownr >= data.recordcount) {
       return null;
     }
 
@@ -136,26 +145,29 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
     try {
 
       // check for limit rows
-      if ( data.limit > 0 && data.rownr >= data.limit ) {
+      if (data.limit > 0 && data.rownr >= data.limit) {
         // User specified limit and we reached it
         // We end here
         data.limitReached = true;
         return null;
       } else {
-        if ( data.rownr >= data.nrRecords || data.finishedRecord ) {
-          if ( meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED ) {
+        if (data.rownr >= data.nrRecords || data.finishedRecord) {
+          if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
             // We retrieved all records available here
             // maybe we need to query more again ...
-            if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.NeedQueryMore", "" + data.rownr ) );
+            if (log.isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG, "SalesforceInput.Log.NeedQueryMore", "" + data.rownr));
             }
 
-            if ( data.connection.queryMore() ) {
+            if (data.connection.queryMore()) {
               // We returned more result (query is not done yet)
               int nr = data.connection.getRecordsCount();
               data.nrRecords += nr;
-              if ( log.isDetailed() ) {
-                logDetailed( BaseMessages.getString( PKG, "SalesforceInput.Log.QueryMoreRetrieved", "" + nr ) );
+              if (log.isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(PKG, "SalesforceInput.Log.QueryMoreRetrieved", "" + nr));
               }
 
               // We need here to initialize recordIndex
@@ -171,104 +183,105 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
       }
 
       // Return a record
-      SalesforceRecordValue srvalue = data.connection.getRecord( data.recordIndex );
+      SalesforceRecordValue srvalue = data.connection.getRecord(data.recordIndex);
       data.finishedRecord = srvalue.isAllRecordsProcessed();
 
-      if ( meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_DELETED ) {
-        if ( srvalue.isRecordIndexChanges() ) {
+      if (meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_DELETED) {
+        if (srvalue.isRecordIndexChanges()) {
           // We have moved forward...
           data.recordIndex = srvalue.getRecordIndex();
         }
-        if ( data.finishedRecord && srvalue.getRecordValue() == null ) {
+        if (data.finishedRecord && srvalue.getRecordValue() == null) {
           // We processed all records
           return null;
         }
       }
-      for ( int i = 0; i < data.nrFields; i++ ) {
+      for (int i = 0; i < data.nrFields; i++) {
         String value =
-          data.connection.getRecordValue( srvalue.getRecordValue(), meta.getInputFields()[ i ].getField() );
+            data.connection.getRecordValue(
+                srvalue.getRecordValue(), meta.getInputFields()[i].getField());
 
         // DO Trimming!
-        switch ( meta.getInputFields()[ i ].getTrimType() ) {
+        switch (meta.getInputFields()[i].getTrimType()) {
           case SalesforceInputField.TYPE_TRIM_LEFT:
-            value = Const.ltrim( value );
+            value = Const.ltrim(value);
             break;
           case SalesforceInputField.TYPE_TRIM_RIGHT:
-            value = Const.rtrim( value );
+            value = Const.rtrim(value);
             break;
           case SalesforceInputField.TYPE_TRIM_BOTH:
-            value = Const.trim( value );
+            value = Const.trim(value);
             break;
           default:
             break;
         }
 
-        doConversions( outputRowData, i, value );
+        doConversions(outputRowData, i, value);
 
         // Do we need to repeat this field if it is null?
-        if ( meta.getInputFields()[ i ].isRepeated() ) {
-          if ( data.previousRow != null && Utils.isEmpty( value ) ) {
-            outputRowData[ i ] = data.previousRow[ i ];
+        if (meta.getInputFields()[i].isRepeated()) {
+          if (data.previousRow != null && Utils.isEmpty(value)) {
+            outputRowData[i] = data.previousRow[i];
           }
         }
-
       } // End of loop over fields...
 
       int rowIndex = data.nrFields;
 
       // See if we need to add the url to the row...
-      if ( meta.includeTargetURL() && !Utils.isEmpty( meta.getTargetURLField() ) ) {
-        outputRowData[ rowIndex++ ] = data.connection.getURL();
+      if (meta.includeTargetURL() && !Utils.isEmpty(meta.getTargetURLField())) {
+        outputRowData[rowIndex++] = data.connection.getURL();
       }
 
       // See if we need to add the module to the row...
-      if ( meta.includeModule() && !Utils.isEmpty( meta.getModuleField() ) ) {
-        outputRowData[ rowIndex++ ] = data.connection.getModule();
+      if (meta.includeModule() && !Utils.isEmpty(meta.getModuleField())) {
+        outputRowData[rowIndex++] = data.connection.getModule();
       }
 
       // See if we need to add the generated SQL to the row...
-      if ( meta.includeSQL() && !Utils.isEmpty( meta.getSQLField() ) ) {
-        outputRowData[ rowIndex++ ] = data.connection.getSQL();
+      if (meta.includeSQL() && !Utils.isEmpty(meta.getSQLField())) {
+        outputRowData[rowIndex++] = data.connection.getSQL();
       }
 
       // See if we need to add the server timestamp to the row...
-      if ( meta.includeTimestamp() && !Utils.isEmpty( meta.getTimestampField() ) ) {
-        outputRowData[ rowIndex++ ] = data.connection.getServerTimestamp();
+      if (meta.includeTimestamp() && !Utils.isEmpty(meta.getTimestampField())) {
+        outputRowData[rowIndex++] = data.connection.getServerTimestamp();
       }
 
       // See if we need to add the row number to the row...
-      if ( meta.includeRowNumber() && !Utils.isEmpty( meta.getRowNumberField() ) ) {
-        outputRowData[ rowIndex++ ] = new Long( data.rownr );
+      if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
+        outputRowData[rowIndex++] = new Long(data.rownr);
       }
 
-      if ( meta.includeDeletionDate() && !Utils.isEmpty( meta.getDeletionDateField() ) ) {
-        outputRowData[ rowIndex++ ] = srvalue.getDeletionDate();
+      if (meta.includeDeletionDate() && !Utils.isEmpty(meta.getDeletionDateField())) {
+        outputRowData[rowIndex++] = srvalue.getDeletionDate();
       }
 
       IRowMeta irow = getInputRowMeta();
 
-      data.previousRow = irow == null ? outputRowData : irow.cloneRow( outputRowData ); // copy it to make
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages
-        .getString( PKG, "SalesforceInput.Exception.CanNotReadFromSalesforce" ), e );
+      data.previousRow =
+          irow == null ? outputRowData : irow.cloneRow(outputRowData); // copy it to make
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "SalesforceInput.Exception.CanNotReadFromSalesforce"), e);
     }
 
     return outputRowData;
   }
 
   // DO CONVERSIONS...
-  void doConversions( Object[] outputRowData, int i, String value ) throws HopValueException {
-    IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta( i );
-    IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta( i );
+  void doConversions(Object[] outputRowData, int i, String value) throws HopValueException {
+    IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(i);
+    IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta(i);
 
-    if ( IValueMeta.TYPE_BINARY != targetValueMeta.getType() ) {
-      outputRowData[ i ] = targetValueMeta.convertData( sourceValueMeta, value );
+    if (IValueMeta.TYPE_BINARY != targetValueMeta.getType()) {
+      outputRowData[i] = targetValueMeta.convertData(sourceValueMeta, value);
     } else {
       // binary type of salesforce requires specific conversion
-      if ( value != null ) {
-        outputRowData[ i ] = Base64.decode( value.getBytes() );
+      if (value != null) {
+        outputRowData[i] = Base64.decode(value.getBytes());
       } else {
-        outputRowData[ i ] = null;
+        outputRowData[i] = null;
       }
     }
   }
@@ -280,39 +293,39 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
     String sql = "";
     SalesforceInputField[] fields = meta.getInputFields();
 
-    switch ( meta.getRecordsFilter() ) {
+    switch (meta.getRecordsFilter()) {
       case SalesforceConnectionUtils.RECORDS_FILTER_UPDATED:
-        for ( int i = 0; i < data.nrFields; i++ ) {
-          SalesforceInputField field = fields[ i ];
-          sql += resolve( field.getField() );
-          if ( i < data.nrFields - 1 ) {
+        for (int i = 0; i < data.nrFields; i++) {
+          SalesforceInputField field = fields[i];
+          sql += resolve(field.getField());
+          if (i < data.nrFields - 1) {
             sql += ",";
           }
         }
         break;
       case SalesforceConnectionUtils.RECORDS_FILTER_DELETED:
         sql += "SELECT ";
-        for ( int i = 0; i < data.nrFields; i++ ) {
-          SalesforceInputField field = fields[ i ];
-          sql += resolve( field.getField() );
-          if ( i < data.nrFields - 1 ) {
+        for (int i = 0; i < data.nrFields; i++) {
+          SalesforceInputField field = fields[i];
+          sql += resolve(field.getField());
+          if (i < data.nrFields - 1) {
             sql += ",";
           }
         }
-        sql += " FROM " + resolve( meta.getModule() ) + " WHERE isDeleted = true";
+        sql += " FROM " + resolve(meta.getModule()) + " WHERE isDeleted = true";
         break;
       default:
         sql += "SELECT ";
-        for ( int i = 0; i < data.nrFields; i++ ) {
-          SalesforceInputField field = fields[ i ];
-          sql += resolve( field.getField() );
-          if ( i < data.nrFields - 1 ) {
+        for (int i = 0; i < data.nrFields; i++) {
+          SalesforceInputField field = fields[i];
+          sql += resolve(field.getField());
+          if (i < data.nrFields - 1) {
             sql += ",";
           }
         }
-        sql = sql + " FROM " + resolve( meta.getModule() );
-        if ( !Utils.isEmpty( resolve( meta.getCondition() ) ) ) {
-          sql += " WHERE " + resolve( meta.getCondition().replace( "\n\r", "" ).replace( "\n", "" ) );
+        sql = sql + " FROM " + resolve(meta.getModule());
+        if (!Utils.isEmpty(resolve(meta.getCondition()))) {
+          sql += " WHERE " + resolve(meta.getCondition().replace("\n\r", "").replace("\n", ""));
         }
         break;
     }
@@ -326,80 +339,86 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
+    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
     return rowData;
   }
 
   @Override
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
       // get total fields in the grid
       data.nrFields = meta.getInputFields().length;
 
       // Check if field list is filled
-      if ( data.nrFields == 0 ) {
-        log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.FieldsMissing.DialogMessage" ) );
+      if (data.nrFields == 0) {
+        log.logError(
+            BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsMissing.DialogMessage"));
         return false;
       }
 
-      String soSQL = resolve( meta.getQuery() );
+      String soSQL = resolve(meta.getQuery());
       try {
 
-        if ( meta.isSpecifyQuery() ) {
+        if (meta.isSpecifyQuery()) {
           // Check if user specified a query
-          if ( Utils.isEmpty( soSQL ) ) {
-            log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.QueryMissing.DialogMessage" ) );
+          if (Utils.isEmpty(soSQL)) {
+            log.logError(
+                BaseMessages.getString(PKG, "SalesforceInputDialog.QueryMissing.DialogMessage"));
             return false;
           }
         } else {
           // check records filter
-          if ( meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL ) {
-            String realFromDateString = resolve( meta.getReadFrom() );
-            if ( Utils.isEmpty( realFromDateString ) ) {
-              log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.FromDateMissing.DialogMessage" ) );
+          if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
+            String realFromDateString = resolve(meta.getReadFrom());
+            if (Utils.isEmpty(realFromDateString)) {
+              log.logError(
+                  BaseMessages.getString(
+                      PKG, "SalesforceInputDialog.FromDateMissing.DialogMessage"));
               return false;
             }
-            String realToDateString = resolve( meta.getReadTo() );
-            if ( Utils.isEmpty( realToDateString ) ) {
-              log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.ToDateMissing.DialogMessage" ) );
+            String realToDateString = resolve(meta.getReadTo());
+            if (Utils.isEmpty(realToDateString)) {
+              log.logError(
+                  BaseMessages.getString(PKG, "SalesforceInputDialog.ToDateMissing.DialogMessage"));
               return false;
             }
             try {
-              SimpleDateFormat dateFormat = new SimpleDateFormat( SalesforceInputMeta.DATE_TIME_FORMAT );
+              SimpleDateFormat dateFormat =
+                  new SimpleDateFormat(SalesforceInputMeta.DATE_TIME_FORMAT);
               data.startCal = new GregorianCalendar();
-              data.startCal.setTime( dateFormat.parse( realFromDateString ) );
+              data.startCal.setTime(dateFormat.parse(realFromDateString));
               data.endCal = new GregorianCalendar();
-              data.endCal.setTime( dateFormat.parse( realToDateString ) );
+              data.endCal.setTime(dateFormat.parse(realToDateString));
               dateFormat = null;
-            } catch ( Exception e ) {
-              log.logError( BaseMessages.getString( PKG, "SalesforceInput.ErrorParsingDate" ), e );
+            } catch (Exception e) {
+              log.logError(BaseMessages.getString(PKG, "SalesforceInput.ErrorParsingDate"), e);
               return false;
             }
           }
         }
 
-        data.limit = Const.toLong( resolve( meta.getRowLimit() ), 0 );
+        data.limit = Const.toLong(resolve(meta.getRowLimit()), 0);
 
         // Do we have to query for all records included deleted records
-        data.connection.setQueryAll( meta.isQueryAll() );
+        data.connection.setQueryAll(meta.isQueryAll());
 
         // Build query if needed
-        if ( meta.isSpecifyQuery() ) {
+        if (meta.isSpecifyQuery()) {
           // Free hand SOQL Query
-          data.connection.setSQL( soSQL.replace( "\n\r", " " ).replace( "\n", " " ) );
+          data.connection.setSQL(soSQL.replace("\n\r", " ").replace("\n", " "));
         } else {
           // Set calendars for update or deleted records
-          if ( meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL ) {
-            data.connection.setCalendar( meta.getRecordsFilter(), data.startCal, data.endCal );
+          if (meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
+            data.connection.setCalendar(meta.getRecordsFilter(), data.startCal, data.endCal);
           }
 
-          if ( meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED ) {
+          if (meta.getRecordsFilter() == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
             // Return fields list
-            data.connection.setFieldsList( BuiltSOQl() );
+            data.connection.setFieldsList(BuiltSOQl());
           } else {
             // Build now SOQL
-            data.connection.setSQL( BuiltSOQl() );
+            data.connection.setSQL(BuiltSOQl());
           }
         }
 
@@ -407,9 +426,11 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         data.connection.connect();
 
         return true;
-      } catch ( HopException ke ) {
-        logError( BaseMessages.getString( PKG, "SalesforceInput.Log.ErrorOccurredDuringTransformInitialize" )
-          + ke.getMessage() );
+      } catch (HopException ke) {
+        logError(
+            BaseMessages.getString(
+                    PKG, "SalesforceInput.Log.ErrorOccurredDuringTransformInitialize")
+                + ke.getMessage());
         return false;
       }
     }
@@ -418,19 +439,19 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
   @Override
   public void dispose() {
-    if ( data.outputRowMeta != null ) {
+    if (data.outputRowMeta != null) {
       data.outputRowMeta = null;
     }
-    if ( data.convertRowMeta != null ) {
+    if (data.convertRowMeta != null) {
       data.convertRowMeta = null;
     }
-    if ( data.previousRow != null ) {
+    if (data.previousRow != null) {
       data.previousRow = null;
     }
-    if ( data.startCal != null ) {
+    if (data.startCal != null) {
       data.startCal = null;
     }
-    if ( data.endCal != null ) {
+    if (data.endCal != null) {
       data.endCal = null;
     }
     super.dispose();

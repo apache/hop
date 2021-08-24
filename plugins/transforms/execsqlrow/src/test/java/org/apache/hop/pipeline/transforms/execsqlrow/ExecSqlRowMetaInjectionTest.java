@@ -30,28 +30,30 @@ public class ExecSqlRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
 
   @Before
   public void setup() throws Exception {
-    setup( new ExecSqlRowMeta() );
+    setup(new ExecSqlRowMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SQL_FIELD_NAME", () -> meta.getSqlFieldName() );
-    check( "COMMIT_SIZE", () -> meta.getCommitSize() );
-    check( "READ_SQL_FROM_FILE", () -> meta.isSqlFromfile() );
-    check( "SEND_SINGLE_STATEMENT", () -> meta.IsSendOneStatement() );
-    check( "UPDATE_STATS", () -> meta.getUpdateField() );
-    check( "INSERT_STATS", () -> meta.getInsertField() );
-    check( "DELETE_STATS", () -> meta.getDeleteField() );
-    check( "READ_STATS", () -> meta.getReadField() );
+    check("SQL_FIELD_NAME", () -> meta.getSqlFieldName());
+    check("COMMIT_SIZE", () -> meta.getCommitSize());
+    check("READ_SQL_FROM_FILE", () -> meta.isSqlFromfile());
+    check("SEND_SINGLE_STATEMENT", () -> meta.IsSendOneStatement());
+    check("UPDATE_STATS", () -> meta.getUpdateField());
+    check("INSERT_STATS", () -> meta.getInsertField());
+    check("DELETE_STATS", () -> meta.getDeleteField());
+    check("READ_STATS", () -> meta.getReadField());
 
-    skipPropertyTest( "CONNECTION_NAME" );
+    skipPropertyTest("CONNECTION_NAME");
 
-    DatabaseMeta dbMeta = new DatabaseMeta( "testDBMeta", "None", "Native", "localhost", "test", "3306", "user", "password" );
-    metadataProvider.getSerializer( DatabaseMeta.class ).save(dbMeta);
-    meta.setMetadataProvider( metadataProvider );
+    DatabaseMeta dbMeta =
+        new DatabaseMeta(
+            "testDBMeta", "None", "Native", "localhost", "test", "3306", "user", "password");
+    metadataProvider.getSerializer(DatabaseMeta.class).save(dbMeta);
+    meta.setMetadataProvider(metadataProvider);
 
-    IValueMeta valueMeta = new ValueMetaString( "DBMETA" );
-    injector.setProperty( meta, "CONNECTION_NAME", setValue( valueMeta, "testDBMeta" ), "DBMETA" );
-    assertEquals( "testDBMeta", meta.getDatabaseMeta().getName() );
+    IValueMeta valueMeta = new ValueMetaString("DBMETA");
+    injector.setProperty(meta, "CONNECTION_NAME", setValue(valueMeta, "testDBMeta"), "DBMETA");
+    assertEquals("testDBMeta", meta.getDatabaseMeta().getName());
   }
 }

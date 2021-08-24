@@ -23,7 +23,7 @@ under the License.
 Doris is compatible with MySQL so you can use the MySQL or MariaDB JDBC drivers.
 Please see the https://doris.apache.org[Apache Doris website] for more information.
 
-[width="90%", cols="2*", options="header"]
+[width="90%",cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational

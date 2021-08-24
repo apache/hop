@@ -17,26 +17,22 @@
 
 package org.apache.hop.core.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * This annotation signals to the Hop plugin registry that it needs to consider the annotated class as a carte
- * servlet plugin. The class needs to implement the IHopServerPlugin interface
+ * This annotation signals to the Hop plugin registry that it needs to consider the annotated class
+ * as a carte servlet plugin. The class needs to implement the IHopServerPlugin interface
  *
  * @author Matt Casters
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface HopServerServlet {
 
   /**
-   * @return The ID of the plugin. You can specify more than one ID in a comma separated format: id1,id2,id3 for
-   * deprecation purposes.
+   * @return The ID of the plugin. You can specify more than one ID in a comma separated format:
+   *     id1,id2,id3 for deprecation purposes.
    */
   String id();
 
@@ -44,13 +40,12 @@ public @interface HopServerServlet {
 
   String description() default "";
 
-  /**
-   * @return True if a separate class loader is needed every time this class is instantiated
-   */
+  /** @return True if a separate class loader is needed every time this class is instantiated */
   boolean isSeparateClassLoaderNeeded() default false;
 
   /**
    * Please use the i18n:package:key format in name, description and categoryDescription
+   *
    * @return
    */
   @Deprecated

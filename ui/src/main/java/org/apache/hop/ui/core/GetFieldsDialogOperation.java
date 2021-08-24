@@ -21,9 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-/**
- * Created by ddiroma on 8/15/18.
- */
+/** Created by ddiroma on 8/15/18. */
 public class GetFieldsDialogOperation {
   private Shell shell;
   private int width;
@@ -32,8 +30,8 @@ public class GetFieldsDialogOperation {
   private String title;
   private List<String> paths;
 
-  public GetFieldsDialogOperation( Shell shell, int width, int height, String filename, String title, List<String>
-    paths ) {
+  public GetFieldsDialogOperation(
+      Shell shell, int width, int height, String filename, String title, List<String> paths) {
     this.shell = shell;
     this.width = width;
     this.height = height;
@@ -46,7 +44,7 @@ public class GetFieldsDialogOperation {
     return shell;
   }
 
-  public void setShell( Shell shell ) {
+  public void setShell(Shell shell) {
     this.shell = shell;
   }
 
@@ -54,7 +52,7 @@ public class GetFieldsDialogOperation {
     return width;
   }
 
-  public void setWidth( int width ) {
+  public void setWidth(int width) {
     this.width = width;
   }
 
@@ -62,7 +60,7 @@ public class GetFieldsDialogOperation {
     return height;
   }
 
-  public void setHeight( int height ) {
+  public void setHeight(int height) {
     this.height = height;
   }
 
@@ -70,7 +68,7 @@ public class GetFieldsDialogOperation {
     return filename;
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -78,7 +76,7 @@ public class GetFieldsDialogOperation {
     return paths;
   }
 
-  public void setPaths( List<String> paths ) {
+  public void setPaths(List<String> paths) {
     this.paths = paths;
   }
 
@@ -86,7 +84,7 @@ public class GetFieldsDialogOperation {
     return title;
   }
 
-  public void setTitle( String title ) {
+  public void setTitle(String title) {
     this.title = title;
   }
 }

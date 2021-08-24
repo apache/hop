@@ -63,9 +63,7 @@ public class ReplaceStringData extends BaseTransformData implements ITransformDa
 
   public int numFields;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public ReplaceStringData() {
     super();
     realChangeField = null;

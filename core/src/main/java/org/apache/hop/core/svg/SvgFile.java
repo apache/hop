@@ -23,24 +23,26 @@ public class SvgFile {
   private String filename;
   private ClassLoader classLoader;
 
-  public SvgFile( String filename, ClassLoader classLoader ) {
+  public SvgFile(String filename, ClassLoader classLoader) {
     this.filename = filename;
     this.classLoader = classLoader;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     SvgFile svgFile = (SvgFile) o;
-    return Objects.equals( filename, svgFile.filename );
+    return Objects.equals(filename, svgFile.filename);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( filename );
+  @Override
+  public int hashCode() {
+    return Objects.hash(filename);
   }
 
   /**
@@ -52,10 +54,8 @@ public class SvgFile {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -68,10 +68,8 @@ public class SvgFile {
     return classLoader;
   }
 
-  /**
-   * @param classLoader The classLoader to set
-   */
-  public void setClassLoader( ClassLoader classLoader ) {
+  /** @param classLoader The classLoader to set */
+  public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 }

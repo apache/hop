@@ -28,22 +28,22 @@ public class InsertUpdateMetaInjectionTest extends BaseMetadataInjectionTest<Ins
 
   @Before
   public void setup() throws Exception {
-    setup( new InsertUpdateMeta() );
+    setup(new InsertUpdateMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SCHEMA_NAME", () -> meta.getSchemaName() );
-    check( "TABLE_NAME", () -> meta.getTableName() );
-    check( "COMMIT_SIZE", () -> meta.getCommitSizeVar() );
-    check( "DO_NOT", () -> meta.isUpdateBypassed() );
-    check( "KEY_STREAM", () -> meta.getKeyStream()[ 0 ] );
-    check( "KEY_LOOKUP", () -> meta.getKeyLookup()[ 0 ] );
-    check( "KEY_CONDITION", () -> meta.getKeyCondition()[ 0 ] );
-    check( "KEY_STREAM2", () -> meta.getKeyStream2()[ 0 ] );
-    check( "UPDATE_LOOKUP", () -> meta.getUpdateLookup()[ 0 ] );
-    check( "UPDATE_STREAM", () -> meta.getUpdateStream()[ 0 ] );
-    check( "UPDATE_FLAG", () -> meta.getUpdate()[ 0 ] );
-    skipPropertyTest( "CONNECTIONNAME" );
+    check("SCHEMA_NAME", () -> meta.getSchemaName());
+    check("TABLE_NAME", () -> meta.getTableName());
+    check("COMMIT_SIZE", () -> meta.getCommitSizeVar());
+    check("DO_NOT", () -> meta.isUpdateBypassed());
+    check("KEY_STREAM", () -> meta.getKeyStream()[0]);
+    check("KEY_LOOKUP", () -> meta.getKeyLookup()[0]);
+    check("KEY_CONDITION", () -> meta.getKeyCondition()[0]);
+    check("KEY_STREAM2", () -> meta.getKeyStream2()[0]);
+    check("UPDATE_LOOKUP", () -> meta.getUpdateLookup()[0]);
+    check("UPDATE_STREAM", () -> meta.getUpdateStream()[0]);
+    check("UPDATE_FLAG", () -> meta.getUpdate()[0]);
+    skipPropertyTest("CONNECTIONNAME");
   }
 }

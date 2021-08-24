@@ -27,10 +27,12 @@ Use the FTP delete action to delete files on an FTP server.
 
 === General
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |Protocol a|
 
 * FTP
@@ -67,11 +69,12 @@ Use the FTP delete action to delete files on an FTP server.
 
 === Files
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Timeout|The timeout period.
-|Use active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open. The default is Passive mode.
+|Use active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open.
+The default is Passive mode.
 |Copy previous results to args?
 |Remote directory|The directory on the remote FTP server.
 |Check folder|Checks if the directory exists.
@@ -87,7 +90,7 @@ Use the FTP delete action to delete files on an FTP server.
 
 === Socks Proxy
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Host|Socks Proxy host name.

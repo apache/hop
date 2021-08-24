@@ -29,12 +29,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class WebServiceMetaLoadSaveTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -44,26 +39,43 @@ public class WebServiceMetaLoadSaveTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "url", "operationName", "operationRequestName", "operationNamespace", "inFieldContainerName",
-        "inFieldArgumentName", "outFieldContainerName", "outFieldArgumentName", "proxyHost", "proxyPort", "httpLogin",
-        "httpPassword", "passingInputData", "callTransform", "compatible", "repeatingElementName", "returningReplyAsString",
-        "fieldsIn", "fieldsOut" );
+        Arrays.asList(
+            "url",
+            "operationName",
+            "operationRequestName",
+            "operationNamespace",
+            "inFieldContainerName",
+            "inFieldArgumentName",
+            "outFieldContainerName",
+            "outFieldArgumentName",
+            "proxyHost",
+            "proxyPort",
+            "httpLogin",
+            "httpPassword",
+            "passingInputData",
+            "callTransform",
+            "compatible",
+            "repeatingElementName",
+            "returningReplyAsString",
+            "fieldsIn",
+            "fieldsOut");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldsIn",
-      new ListLoadSaveValidator<>( new WebServiceFieldLoadSaveValidator(), 5 ) );
-    attrValidatorMap.put( "fieldsOut",
-      new ListLoadSaveValidator<>( new WebServiceFieldLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put(
+        "fieldsIn", new ListLoadSaveValidator<>(new WebServiceFieldLoadSaveValidator(), 5));
+    attrValidatorMap.put(
+        "fieldsOut", new ListLoadSaveValidator<>(new WebServiceFieldLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -71,30 +83,30 @@ public class WebServiceMetaLoadSaveTest {
     loadSaveTester.testSerialization();
   }
 
-  public class WebServiceFieldLoadSaveValidator implements IFieldLoadSaveValidator<WebServiceField> {
+  public class WebServiceFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<WebServiceField> {
     final Random rand = new Random();
 
     @Override
     public WebServiceField getTestObject() {
       WebServiceField rtn = new WebServiceField();
-      rtn.setName( UUID.randomUUID().toString() );
-      rtn.setWsName( UUID.randomUUID().toString() );
-      rtn.setXsdType( XsdType.TYPES[ rand.nextInt( XsdType.TYPES.length ) ] );
+      rtn.setName(UUID.randomUUID().toString());
+      rtn.setWsName(UUID.randomUUID().toString());
+      rtn.setXsdType(XsdType.TYPES[rand.nextInt(XsdType.TYPES.length)]);
       return rtn;
     }
 
     @Override
-    public boolean validateTestObject( WebServiceField testObject, Object actual ) {
-      if ( !( actual instanceof WebServiceField ) ) {
+    public boolean validateTestObject(WebServiceField testObject, Object actual) {
+      if (!(actual instanceof WebServiceField)) {
         return false;
       }
       WebServiceField another = (WebServiceField) actual;
       return new EqualsBuilder()
-        .append( testObject.getName(), another.getName() )
-        .append( testObject.getWsName(), another.getWsName() )
-        .append( testObject.getXsdType(), another.getXsdType() )
-        .isEquals();
+          .append(testObject.getName(), another.getName())
+          .append(testObject.getWsName(), another.getWsName())
+          .append(testObject.getXsdType(), another.getXsdType())
+          .isEquals();
     }
   }
-
 }

@@ -41,11 +41,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -320,8 +316,12 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
       return true;
     } catch (Exception e) {
-      new ErrorDialog(shell, BaseMessages.getString(PKG, "PipelineDialog.RunConfigurationSettingsDialog.Error.Header")
-              , BaseMessages.getString(PKG, "PipelineDialog.RunConfigurationSettingsDialog.Error.Message"), e);
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "PipelineDialog.RunConfigurationSettingsDialog.Error.Header"),
+          BaseMessages.getString(
+              PKG, "PipelineDialog.RunConfigurationSettingsDialog.Error.Message"),
+          e);
       return false;
     }
   }

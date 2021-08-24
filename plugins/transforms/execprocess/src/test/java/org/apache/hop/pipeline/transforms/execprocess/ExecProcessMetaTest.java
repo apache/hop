@@ -32,10 +32,18 @@ public class ExecProcessMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "ProcessField", "ResultFieldName", "ErrorFieldName", "ExitValueFieldName",
-        "FailWhenNotSuccess", "OutputLineDelimiter", "ArgumentsInFields", "ArgumentFieldNames" );
+        Arrays.asList(
+            "ProcessField",
+            "ResultFieldName",
+            "ErrorFieldName",
+            "ExitValueFieldName",
+            "FailWhenNotSuccess",
+            "OutputLineDelimiter",
+            "ArgumentsInFields",
+            "ArgumentFieldNames");
 
-    LoadSaveTester<ExecProcessMeta> loadSaveTester = new LoadSaveTester<>( ExecProcessMeta.class, attributes );
+    LoadSaveTester<ExecProcessMeta> loadSaveTester =
+        new LoadSaveTester<>(ExecProcessMeta.class, attributes);
 
     loadSaveTester.testSerialization();
   }

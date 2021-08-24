@@ -20,43 +20,32 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 
-import javax.wsdl.Binding;
-import javax.wsdl.Fault;
-import javax.wsdl.Input;
-import javax.wsdl.Message;
-import javax.wsdl.Operation;
-import javax.wsdl.Output;
-import javax.wsdl.Part;
+import javax.wsdl.*;
 import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;
 
-/**
- * WSDL operation abstraction.
- */
+/** WSDL operation abstraction. */
 public final class WsdlOperation implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Parameter style enumeration.
-   */
+  /** Parameter style enumeration. */
   public enum SOAPParameterStyle {
-    BARE, WRAPPED
+    BARE,
+    WRAPPED
   }
 
-  /**
-   * SOAP Binding style enumeration.
-   */
+  /** SOAP Binding style enumeration. */
   public enum SOAPBindingStyle {
-    DOCUMENT, RPC
+    DOCUMENT,
+    RPC
   }
 
-  /**
-   * SOAP Binding use enumeration.
-   */
+  /** SOAP Binding use enumeration. */
   public enum SOAPBindingUse {
-    LITERAL, ENCODED
+    LITERAL,
+    ENCODED
   }
 
   private final SOAPBindingStyle _bindingStyle;
@@ -73,36 +62,36 @@ public final class WsdlOperation implements java.io.Serializable {
   /**
    * Create a new wsdl operation instance for the specified binding and operation.
    *
-   * @param binding   Binding for the operation.
-   * @param op        The operation.
+   * @param binding Binding for the operation.
+   * @param op The operation.
    * @param wsdlTypes WSDL type information.
    */
-  protected WsdlOperation( Binding binding, Operation op, WsdlTypes wsdlTypes ) throws HopException {
+  protected WsdlOperation(Binding binding, Operation op, WsdlTypes wsdlTypes) throws HopException {
 
-    _operationQName = new QName( wsdlTypes.getTargetNamespace(), op.getName() );
+    _operationQName = new QName(wsdlTypes.getTargetNamespace(), op.getName());
     _oneway = true;
 
-    String soapBindingStyle = WsdlUtils.getSOAPBindingStyle( binding );
-    if ( "rpc".equals( soapBindingStyle ) ) {
+    String soapBindingStyle = WsdlUtils.getSOAPBindingStyle(binding);
+    if ("rpc".equals(soapBindingStyle)) {
       _bindingStyle = SOAPBindingStyle.RPC;
     } else {
       _bindingStyle = SOAPBindingStyle.DOCUMENT;
     }
 
-    String soapBindingUse = WsdlUtils.getSOAPBindingUse( binding, op.getName() );
-    if ( "encoded".equals( soapBindingUse ) ) {
+    String soapBindingUse = WsdlUtils.getSOAPBindingUse(binding, op.getName());
+    if ("encoded".equals(soapBindingUse)) {
       _bindingUse = SOAPBindingUse.ENCODED;
     } else {
       _bindingUse = SOAPBindingUse.LITERAL;
     }
 
-    _soapAction = WsdlUtils.getSOAPAction( binding.getBindingOperation( op.getName(), null, null ) );
+    _soapAction = WsdlUtils.getSOAPAction(binding.getBindingOperation(op.getName(), null, null));
 
-    _params = new WsdlOpParameterList( op, binding, wsdlTypes );
-    loadParameters( op );
+    _params = new WsdlOpParameterList(op, binding, wsdlTypes);
+    loadParameters(op);
 
-    _faults = new WsdlOpFaultList( wsdlTypes );
-    loadFaults( op );
+    _faults = new WsdlOpFaultList(wsdlTypes);
+    loadFaults(op);
 
     _returnType = _params.getReturnType();
     _parameterStyle = _params.getParameterStyle();
@@ -194,11 +183,11 @@ public final class WsdlOperation implements java.io.Serializable {
    *
    * @param op Operation
    */
-  @SuppressWarnings( "unchecked" )
-  private void loadFaults( Operation op ) throws HopTransformException {
+  @SuppressWarnings("unchecked")
+  private void loadFaults(Operation op) throws HopTransformException {
     Map<?, Fault> faultMap = op.getFaults();
-    for ( Fault fault : faultMap.values() ) {
-      _faults.add( fault );
+    for (Fault fault : faultMap.values()) {
+      _faults.add(fault);
     }
   }
 
@@ -208,28 +197,28 @@ public final class WsdlOperation implements java.io.Serializable {
    * @param op Operation.
    * @throws HopTransformException
    */
-  @SuppressWarnings( "unchecked" )
-  private void loadParameters( Operation op ) throws HopTransformException {
+  @SuppressWarnings("unchecked")
+  private void loadParameters(Operation op) throws HopTransformException {
 
     Input input = op.getInput();
-    if ( input != null ) {
+    if (input != null) {
       Message in = input.getMessage();
       List<Object> paramOrdering = op.getParameterOrdering();
-      List<Part> inParts = in.getOrderedParts( paramOrdering );
+      List<Part> inParts = in.getOrderedParts(paramOrdering);
 
-      for ( Part part : inParts ) {
-        _params.add( part, true );
+      for (Part part : inParts) {
+        _params.add(part, true);
       }
     }
 
     Output output = op.getOutput();
-    if ( output != null ) {
+    if (output != null) {
       Message out = output.getMessage();
-      List<Part> outParts = out.getOrderedParts( null );
+      List<Part> outParts = out.getOrderedParts(null);
 
-      for ( Part part : outParts ) {
+      for (Part part : outParts) {
         _oneway = false;
-        _params.add( part, false );
+        _params.add(part, false);
       }
     }
   }

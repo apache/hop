@@ -21,81 +21,89 @@ import org.apache.hop.core.injection.Injection;
 
 public class JsonOutputField implements Cloneable {
 
-    @Injection( name = "JSON_FIELDNAME", group = "FIELDS" )
-    private String fieldName;
-    @Injection( name = "JSON_ELEMENTNAME", group = "FIELDS" )
-    private String elementName;
-    @Injection( name = "JSON_ISJSONFRAGMENT", group = "FIELDS" )
-    private boolean isJSONFragment;
-    @Injection( name = "JSON_REMOVEIFBLANK", group = "FIELDS" )
-    private boolean removeIfBlank;
+  @Injection(name = "JSON_FIELDNAME", group = "FIELDS")
+  private String fieldName;
 
-    public boolean isJSONFragment() {
-        return isJSONFragment;
+  @Injection(name = "JSON_ELEMENTNAME", group = "FIELDS")
+  private String elementName;
+
+  @Injection(name = "JSON_ISJSONFRAGMENT", group = "FIELDS")
+  private boolean isJSONFragment;
+
+  @Injection(name = "JSON_REMOVEIFBLANK", group = "FIELDS")
+  private boolean removeIfBlank;
+
+  public boolean isJSONFragment() {
+    return isJSONFragment;
+  }
+
+  public void setJSONFragment(boolean JSONFragment) {
+    isJSONFragment = JSONFragment;
+  }
+
+  public boolean isRemoveIfBlank() {
+    return removeIfBlank;
+  }
+
+  public void setRemoveIfBlank(boolean removeIfBlank) {
+    this.removeIfBlank = removeIfBlank;
+  }
+
+  public JsonOutputField(
+      String fieldName,
+      String elementName,
+      int type,
+      String format,
+      int length,
+      int precision,
+      String currencySymbol,
+      String decimalSymbol,
+      String groupSymbol,
+      String nullString,
+      boolean attribute,
+      String attributeParentName) {
+    this.fieldName = fieldName;
+    this.elementName = elementName;
+  }
+
+  public JsonOutputField() {}
+
+  public int compare(Object obj) {
+    JsonOutputField field = (JsonOutputField) obj;
+
+    return fieldName.compareTo(field.getFieldName());
+  }
+
+  public boolean equal(Object obj) {
+    JsonOutputField field = (JsonOutputField) obj;
+
+    return fieldName.equals(field.getFieldName());
+  }
+
+  public Object clone() {
+    try {
+      Object retval = super.clone();
+      return retval;
+    } catch (CloneNotSupportedException e) {
+      return null;
     }
+  }
 
-    public void setJSONFragment(boolean JSONFragment) {
-        isJSONFragment = JSONFragment;
-    }
+  public String getFieldName() {
+    return fieldName;
+  }
 
-    public boolean isRemoveIfBlank() {
-        return removeIfBlank;
-    }
+  public void setFieldName(String fieldname) {
+    this.fieldName = fieldname;
+  }
 
-    public void setRemoveIfBlank(boolean removeIfBlank) {
-        this.removeIfBlank = removeIfBlank;
-    }
+  /** @return Returns the elementName. */
+  public String getElementName() {
+    return elementName;
+  }
 
-    public JsonOutputField(String fieldName, String elementName, int type, String format, int length,
-                           int precision, String currencySymbol, String decimalSymbol, String groupSymbol, String nullString,
-                           boolean attribute, String attributeParentName) {
-        this.fieldName = fieldName;
-        this.elementName = elementName;
-    }
-
-    public JsonOutputField() {
-    }
-
-    public int compare(Object obj) {
-        JsonOutputField field = (JsonOutputField) obj;
-
-        return fieldName.compareTo(field.getFieldName());
-    }
-
-    public boolean equal(Object obj) {
-        JsonOutputField field = (JsonOutputField) obj;
-
-        return fieldName.equals(field.getFieldName());
-    }
-
-    public Object clone() {
-        try {
-            Object retval = super.clone();
-            return retval;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public void setFieldName(String fieldname) {
-        this.fieldName = fieldname;
-    }
-
-    /**
-     * @return Returns the elementName.
-     */
-    public String getElementName() {
-        return elementName;
-    }
-
-    /**
-     * @param elementName The elementName to set.
-     */
-    public void setElementName(String elementName) {
-        this.elementName = elementName;
-    }
+  /** @param elementName The elementName to set. */
+  public void setElementName(String elementName) {
+    this.elementName = elementName;
+  }
 }

@@ -26,7 +26,7 @@ public class TextFileLine {
 
   FileObject file;
 
-  public TextFileLine( String line, long lineNumber, FileObject file ) {
+  public TextFileLine(String line, long lineNumber, FileObject file) {
     super();
     this.line = line;
     this.lineNumber = lineNumber;

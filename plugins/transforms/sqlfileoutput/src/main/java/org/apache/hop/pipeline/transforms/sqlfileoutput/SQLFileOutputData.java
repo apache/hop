@@ -42,9 +42,7 @@ public class SQLFileOutputData extends BaseTransformData implements ITransformDa
   public OutputStream fos;
   public IRowMeta outputRowMeta;
 
-  /**
-   * ICache of the data formatter object
-   */
+  /** ICache of the data formatter object */
   public SimpleDateFormat dateFormater;
 
   public boolean sendToErrorRow;
@@ -56,7 +54,5 @@ public class SQLFileOutputData extends BaseTransformData implements ITransformDa
 
     db = null;
     tableName = null;
-
   }
-
 }

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -35,7 +36,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-import org.apache.hop.core.variables.IVariables;
 
 public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator

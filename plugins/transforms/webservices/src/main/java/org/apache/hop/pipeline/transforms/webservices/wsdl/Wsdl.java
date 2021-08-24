@@ -34,15 +34,9 @@ import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-/**
- * Wsdl abstraction.
- */
+/** Wsdl abstraction. */
 public final class Wsdl implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
   private Port _port;
@@ -55,50 +49,51 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Loads and parses the specified WSDL file.
    *
-   * @param wsdlURI      URI of a WSDL file.
+   * @param wsdlURI URI of a WSDL file.
    * @param serviceQName Name of the service in the WSDL, if null default to first service in WSDL.
-   * @param portName     The service port name, if null default to first port in service.
+   * @param portName The service port name, if null default to first port in service.
    */
-  public Wsdl( URI wsdlURI, QName serviceQName, String portName ) throws AuthenticationException {
-    this( wsdlURI, serviceQName, portName, null, null );
+  public Wsdl(URI wsdlURI, QName serviceQName, String portName) throws AuthenticationException {
+    this(wsdlURI, serviceQName, portName, null, null);
   }
 
-  public Wsdl( URI wsdlURI, QName serviceQName, String portName, String username, String password ) throws AuthenticationException {
+  public Wsdl(URI wsdlURI, QName serviceQName, String portName, String username, String password)
+      throws AuthenticationException {
 
     this.wsdlURI = wsdlURI;
     try {
-      _wsdlDefinition = parse( wsdlURI, username, password );
-    } catch ( AuthenticationException ae ) {
+      _wsdlDefinition = parse(wsdlURI, username, password);
+    } catch (AuthenticationException ae) {
       // throw this again since HopException is catching it
       throw ae;
-    } catch ( WSDLException e ) {
-      throw new RuntimeException( "Could not load WSDL file: " + e.getMessage(), e );
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Could not load WSDL file: " + e.getMessage(), e );
+    } catch (WSDLException e) {
+      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
+    } catch (HopException e) {
+      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
     }
-    if ( serviceQName == null ) {
+    if (serviceQName == null) {
       _service = (Service) _wsdlDefinition.getServices().values().iterator().next();
     } else {
-      _service = _wsdlDefinition.getService( serviceQName );
-      if ( _service == null ) {
-        throw new IllegalArgumentException( "Service: "
-          + serviceQName + " is not defined in the WSDL file " + wsdlURI );
+      _service = _wsdlDefinition.getService(serviceQName);
+      if (_service == null) {
+        throw new IllegalArgumentException(
+            "Service: " + serviceQName + " is not defined in the WSDL file " + wsdlURI);
       }
     }
 
-    if ( portName == null ) {
-      _port = getSoapPort( _service.getPorts().values() );
+    if (portName == null) {
+      _port = getSoapPort(_service.getPorts().values());
     } else {
-      _port = _service.getPort( portName );
-      if ( _port == null ) {
-        throw new IllegalArgumentException( "Port: "
-          + portName + " is not defined in the service: " + serviceQName );
+      _port = _service.getPort(portName);
+      if (_port == null) {
+        throw new IllegalArgumentException(
+            "Port: " + portName + " is not defined in the service: " + serviceQName);
       } else {
-        _port = _service.getPort( portName );
+        _port = _service.getPort(portName);
       }
     }
 
-    _wsdlTypes = new WsdlTypes( _wsdlDefinition );
+    _wsdlTypes = new WsdlTypes(_wsdlDefinition);
     _operationCache = new HashMap<>();
   }
 
@@ -108,12 +103,12 @@ public final class Wsdl implements java.io.Serializable {
    * @param portCollection
    * @return
    */
-  private Port getSoapPort( Collection<?> portCollection ) {
+  private Port getSoapPort(Collection<?> portCollection) {
     Port soapPort = null;
     Iterator<?> iterator = portCollection.iterator();
-    while ( iterator.hasNext() ) {
+    while (iterator.hasNext()) {
       Port port = (Port) iterator.next();
-      if ( WsdlUtils.isSoapPort( port ) ) {
+      if (WsdlUtils.isSoapPort(port)) {
         soapPort = port;
         break;
       }
@@ -124,45 +119,54 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Loads and parses the specified WSDL file.
    *
-   * @param wsdlLocator  A javax.wsdl.WSDLLocator instance.
+   * @param wsdlLocator A javax.wsdl.WSDLLocator instance.
    * @param serviceQName Name of the service in the WSDL.
-   * @param portName     The service port name.
+   * @param portName The service port name.
    */
-  public Wsdl(WSDLLocator wsdlLocator, QName serviceQName, String portName ) throws AuthenticationException {
-    this( wsdlLocator, serviceQName, portName, null, null );
+  public Wsdl(WSDLLocator wsdlLocator, QName serviceQName, String portName)
+      throws AuthenticationException {
+    this(wsdlLocator, serviceQName, portName, null, null);
   }
 
-  public Wsdl(WSDLLocator wsdlLocator, QName serviceQName, String portName, String username, String password ) throws AuthenticationException {
+  public Wsdl(
+      WSDLLocator wsdlLocator,
+      QName serviceQName,
+      String portName,
+      String username,
+      String password)
+      throws AuthenticationException {
 
     // load and parse the WSDL
     try {
-      _wsdlDefinition = parse( wsdlLocator, username, password );
-    } catch ( AuthenticationException ae ) {
+      _wsdlDefinition = parse(wsdlLocator, username, password);
+    } catch (AuthenticationException ae) {
       // throw it again or HopException will catch it
       throw ae;
-    } catch ( WSDLException e ) {
-      throw new RuntimeException( "Could not load WSDL file: " + e.getMessage(), e );
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Could not load WSDL file: " + e.getMessage(), e );
+    } catch (WSDLException e) {
+      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
+    } catch (HopException e) {
+      throw new RuntimeException("Could not load WSDL file: " + e.getMessage(), e);
     }
 
-    _service = _wsdlDefinition.getService( serviceQName );
-    if ( _service == null ) {
-      throw new IllegalArgumentException( "Service: " + serviceQName + " is not defined in the WSDL file." );
+    _service = _wsdlDefinition.getService(serviceQName);
+    if (_service == null) {
+      throw new IllegalArgumentException(
+          "Service: " + serviceQName + " is not defined in the WSDL file.");
     }
 
-    _port = _service.getPort( portName );
-    if ( _port == null ) {
-      throw new IllegalArgumentException( "Port: " + portName + " is not defined in the service: " + serviceQName );
+    _port = _service.getPort(portName);
+    if (_port == null) {
+      throw new IllegalArgumentException(
+          "Port: " + portName + " is not defined in the service: " + serviceQName);
     }
 
-    _wsdlTypes = new WsdlTypes( _wsdlDefinition );
+    _wsdlTypes = new WsdlTypes(_wsdlDefinition);
     _operationCache = new HashMap<>();
   }
 
   /**
-   * Get the WsdlComplexTypes instance of this wsdl. WsdlComplex types provides type information for named complextypes
-   * defined in the wsdl's &lt;types&gt; section.
+   * Get the WsdlComplexTypes instance of this wsdl. WsdlComplex types provides type information for
+   * named complextypes defined in the wsdl's &lt;types&gt; section.
    *
    * @return WsdlComplexTypes instance.
    */
@@ -176,26 +180,27 @@ public final class Wsdl implements java.io.Serializable {
    * @param operationName Name of operation to find.
    * @return A WsdlOperation instance, null if operation can not be found in WSDL.
    */
-  public WsdlOperation getOperation( String operationName ) throws HopTransformException {
+  public WsdlOperation getOperation(String operationName) throws HopTransformException {
 
     // is the operation in the cache?
-    if ( _operationCache.containsKey( operationName ) ) {
-      return _operationCache.get( operationName );
+    if (_operationCache.containsKey(operationName)) {
+      return _operationCache.get(operationName);
     }
 
     Binding b = _port.getBinding();
     PortType pt = b.getPortType();
-    Operation op = pt.getOperation( operationName, null, null );
-    if ( op != null ) {
+    Operation op = pt.getOperation(operationName, null, null);
+    if (op != null) {
       try {
-        WsdlOperation wop = new WsdlOperation( b, op, _wsdlTypes );
+        WsdlOperation wop = new WsdlOperation(b, op, _wsdlTypes);
         // cache the operation
-        _operationCache.put( operationName, wop );
+        _operationCache.put(operationName, wop);
         return wop;
-      } catch ( HopException kse ) {
-        LogChannel.GENERAL.logError( "Could not retrieve WSDL Operator for operation name: " + operationName );
+      } catch (HopException kse) {
+        LogChannel.GENERAL.logError(
+            "Could not retrieve WSDL Operator for operation name: " + operationName);
         throw new HopTransformException(
-          "Could not retrieve WSDL Operator for operation name: " + operationName, kse );
+            "Could not retrieve WSDL Operator for operation name: " + operationName, kse);
       }
     }
     return null;
@@ -206,17 +211,17 @@ public final class Wsdl implements java.io.Serializable {
    *
    * @return List of WsdlOperations.
    */
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings("unchecked")
   public List<WsdlOperation> getOperations() throws HopTransformException {
 
     List<WsdlOperation> opList = new ArrayList<>();
     PortType pt = _port.getBinding().getPortType();
 
     List<Operation> operations = pt.getOperations();
-    for ( Iterator<Operation> itr = operations.iterator(); itr.hasNext(); ) {
-      WsdlOperation operation = getOperation( itr.next().getName() );
-      if ( operation != null ) {
-        opList.add( operation );
+    for (Iterator<Operation> itr = operations.iterator(); itr.hasNext(); ) {
+      WsdlOperation operation = getOperation(itr.next().getName());
+      if (operation != null) {
+        opList.add(operation);
       }
     }
     return opList;
@@ -232,7 +237,8 @@ public final class Wsdl implements java.io.Serializable {
   }
 
   /**
-   * Get the PortType name for the service which has been specified by serviceName and portName at construction time.
+   * Get the PortType name for the service which has been specified by serviceName and portName at
+   * construction time.
    *
    * @return QName of the PortType.
    */
@@ -248,7 +254,7 @@ public final class Wsdl implements java.io.Serializable {
    * @return String containing the service endpoint.
    */
   public String getServiceEndpoint() {
-    return WsdlUtils.getSOAPAddress( _port );
+    return WsdlUtils.getSOAPAddress(_port);
   }
 
   /**
@@ -275,11 +281,12 @@ public final class Wsdl implements java.io.Serializable {
    * @param portName The new port name.
    * @throws IllegalArgumentException if port name is not defined in WSDL.
    */
-  public void setPort( QName portName ) {
+  public void setPort(QName portName) {
 
-    Port port = _service.getPort( portName.getLocalPart() );
-    if ( port == null ) {
-      throw new IllegalArgumentException( "Port name: '" + portName + "' was not found in the WSDL file." );
+    Port port = _service.getPort(portName.getLocalPart());
+    if (port == null) {
+      throw new IllegalArgumentException(
+          "Port name: '" + portName + "' was not found in the WSDL file.");
     }
 
     _port = port;
@@ -297,9 +304,9 @@ public final class Wsdl implements java.io.Serializable {
     WSDLFactory wsdlFactory = WSDLFactory.newInstance();
     WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
     ExtensionRegistry registry = wsdlFactory.newPopulatedExtensionRegistry();
-    wsdlReader.setExtensionRegistry( registry );
-    wsdlReader.setFeature( "javax.wsdl.verbose", true );
-    wsdlReader.setFeature( "javax.wsdl.importDocuments", true );
+    wsdlReader.setExtensionRegistry(registry);
+    wsdlReader.setFeature("javax.wsdl.verbose", true);
+    wsdlReader.setFeature("javax.wsdl.importDocuments", true);
     return wsdlReader;
   }
 
@@ -307,20 +314,20 @@ public final class Wsdl implements java.io.Serializable {
    * Load and parse the WSDL file using the wsdlLocator.
    *
    * @param wsdlLocator A WSDLLocator instance.
-   * @param username    to use for authentication
-   * @param password    to use for authentication
+   * @param username to use for authentication
+   * @param password to use for authentication
    * @return wsdl Definition.
    * @throws WSDLException on error.
    */
-  private Definition parse(WSDLLocator wsdlLocator, String username, String password ) throws WSDLException,
-    HopException, AuthenticationException {
+  private Definition parse(WSDLLocator wsdlLocator, String username, String password)
+      throws WSDLException, HopException, AuthenticationException {
 
     WSDLReader wsdlReader = getReader();
     try {
 
-      return wsdlReader.readWSDL( wsdlLocator );
-    } catch ( WSDLException we ) {
-      readWsdl( wsdlReader, wsdlURI.toString(), username, password );
+      return wsdlReader.readWSDL(wsdlLocator);
+    } catch (WSDLException we) {
+      readWsdl(wsdlReader, wsdlURI.toString(), username, password);
       return null;
     }
   }
@@ -328,35 +335,37 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Load and parse the WSDL file at the specified URI.
    *
-   * @param wsdlURI  URI of the WSDL file.
+   * @param wsdlURI URI of the WSDL file.
    * @param username to use for authentication
    * @param password to use for authentication
    * @return wsdl Definition
    * @throws WSDLException on error.
    */
-  private Definition parse( URI wsdlURI, String username, String password ) throws WSDLException, HopException,
-    AuthenticationException {
+  private Definition parse(URI wsdlURI, String username, String password)
+      throws WSDLException, HopException, AuthenticationException {
     WSDLReader wsdlReader = getReader();
-    return readWsdl( wsdlReader, wsdlURI.toString(), username, password );
+    return readWsdl(wsdlReader, wsdlURI.toString(), username, password);
   }
 
-  private Definition readWsdl( WSDLReader wsdlReader, String uri, String username, String password ) throws WSDLException, HopException, AuthenticationException {
+  private Definition readWsdl(WSDLReader wsdlReader, String uri, String username, String password)
+      throws WSDLException, HopException, AuthenticationException {
 
     try {
       HttpProtocol http = new HttpProtocol();
-      Document doc = XmlHandler.loadXmlString( http.get( wsdlURI.toString(), username, password ), true, false );
-      if ( doc != null ) {
-        return ( wsdlReader.readWSDL( doc.getBaseURI(), doc ) );
+      Document doc =
+          XmlHandler.loadXmlString(http.get(wsdlURI.toString(), username, password), true, false);
+      if (doc != null) {
+        return (wsdlReader.readWSDL(doc.getBaseURI(), doc));
       } else {
-        throw new HopException( "Unable to get document." );
+        throw new HopException("Unable to get document.");
       }
-    } catch ( MalformedURLException mue ) {
-      throw new HopException( mue );
-    } catch ( AuthenticationException ae ) {
+    } catch (MalformedURLException mue) {
+      throw new HopException(mue);
+    } catch (AuthenticationException ae) {
       // re-throw this. If not IOException seems to catch it
       throw ae;
-    } catch ( IOException ioe ) {
-      throw new HopException( ioe );
+    } catch (IOException ioe) {
+      throw new HopException(ioe);
     }
   }
 

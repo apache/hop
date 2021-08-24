@@ -27,7 +27,7 @@ public class ExtensionPointContext {
   private Object parent;
   private Object relation;
 
-  public ExtensionPointContext( Object subject, Object parent, Object relation ) {
+  public ExtensionPointContext(Object subject, Object parent, Object relation) {
     super();
     this.subject = subject;
     this.parent = parent;
@@ -38,7 +38,7 @@ public class ExtensionPointContext {
     return subject;
   }
 
-  public void setSubject( Object subject ) {
+  public void setSubject(Object subject) {
     this.subject = subject;
   }
 
@@ -46,7 +46,7 @@ public class ExtensionPointContext {
     return parent;
   }
 
-  public void setParent( Object parent ) {
+  public void setParent(Object parent) {
     this.parent = parent;
   }
 
@@ -54,7 +54,7 @@ public class ExtensionPointContext {
     return relation;
   }
 
-  public void setRelation( Object relation ) {
+  public void setRelation(Object relation) {
     this.relation = relation;
   }
 }

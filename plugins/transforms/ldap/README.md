@@ -19,7 +19,6 @@ under the License.
 
 ## Description
 
-
 ## Input
 
 See src/main/doc/ldapinput.adoc
@@ -27,7 +26,6 @@ See src/main/doc/ldapinput.adoc
 ## Output
 
 See src/main/doc/ldapputput.adoc
-
 
 ## Developer Resource
 
@@ -61,7 +59,7 @@ Certificate was added to keystore
 $ keytool -list -keystore self-signed.truststore
 ```
 
-
 ### Testing
 
-Enable JUnit test cases by uncommenting @Test annotation (TODO: Use JUnit include and exclude option so that these test case is not running in CI/CD (Jenkins)
+Enable JUnit test cases by uncommenting @Test annotation (TODO: Use JUnit include and exclude option so that these test
+case is not running in CI/CD (Jenkins)

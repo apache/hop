@@ -31,41 +31,40 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
-  extensionPointId = "HopGuiPipelineMetaExecutionStart",
-  id = "HopGuiFlagUnitTestExtensionPoint",
-  description = "Change the pipeline variables prior to execution but only in HopGui"
-)
+    extensionPointId = "HopGuiPipelineMetaExecutionStart",
+    id = "HopGuiFlagUnitTestExtensionPoint",
+    description = "Change the pipeline variables prior to execution but only in HopGui")
 /**
- * Sets the __UnitTest_Run__ and __UnitTest_Name__ variables
- * in the variables of the Hop GUI pipeline graph.
+ * Sets the __UnitTest_Run__ and __UnitTest_Name__ variables in the variables of the Hop GUI
+ * pipeline graph.
  *
- * These can then be picked up later by the other XP plugins.
+ * <p>These can then be picked up later by the other XP plugins.
  */
 public class HopGuiFlagUnitTestExtensionPoint implements IExtensionPoint<PipelineMeta> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, PipelineMeta pipelineMeta ) throws HopException {
+  public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
+      throws HopException {
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipelineMeta );
-    if ( unitTest == null ) {
+    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
+    if (unitTest == null) {
       return;
     }
 
     // Look up the variables of the current active pipeline graph...
     //
     HopGuiPipelineGraph activePipelineGraph = HopGui.getActivePipelineGraph();
-    if (activePipelineGraph==null) {
+    if (activePipelineGraph == null) {
       return;
     }
 
     String unitTestName = unitTest.getName();
 
-    if ( !StringUtil.isEmpty( unitTestName ) ) {
+    if (!StringUtil.isEmpty(unitTestName)) {
       // We're running in HopGui and there's a unit test selected : test it
       //
-      variables.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
-      variables.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, unitTestName );
+      variables.setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "Y");
+      variables.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, unitTestName);
     }
   }
-
 }

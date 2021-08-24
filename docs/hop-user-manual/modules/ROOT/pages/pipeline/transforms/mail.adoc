@@ -29,25 +29,26 @@ This transform uses an SMTP server to send an email containing data from the pre
 
 This tab defines the sender, contact person, and recipients of a Hop-generated email.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Destination address|The destination for the email. This can be a single address, a space-separated list of addresses , or an email alias for a distribution list
+|Destination address|The destination for the email.
+This can be a single address, a space-separated list of addresses , or an email alias for a distribution list
 |Cc|An email address, space-separated list of email addresses, or a distribution list to send a carbon copy of the email to.
 |Bcc|An email address, space-separated list of email addresses, or a distribution list to send a blind carbon copy of the email to.
 |Sender name|The name of the person you want the email to be from.
 |Sender Address|The email address of the person or account you want the email to be from.
 |Reply to|The email address that recipients will use if they reply to the email.
 |Contact|The name of the person to contact regarding the email's contents.
-|Contact phone|The phone number of the contact person defined in the previous field. 
+|Contact phone|The phone number of the contact person defined in the previous field.
 |===
 
 === Server
 
 This tab contains details for your SMTP server, including authentication and encryption.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |SMTP server|URL, hostname, or IP address of your SMTP server.
@@ -56,14 +57,14 @@ This tab contains details for your SMTP server, including authentication and enc
 |Authentication user|The SMTP username to use for server authentication.
 |Authentication password|The password for the previously defined SMTP username.
 |Use secure authentication|If checked you will be able to specify SSL or TLS encryption in the next field.
-|Secure connection type|Determines whether the server will use SSL or TLS encryption protocols. 
+|Secure connection type|Determines whether the server will use SSL or TLS encryption protocols.
 |===
 
 === Email Message
 
 This tab determines the text content of the email.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Include date in message?|If checked, the date will be printed in the email body.
@@ -75,21 +76,24 @@ This tab determines the text content of the email.
 |Importance|The importance level to assign in the email metadata.
 |Sensitivity|This allows to set the "Sensitivity" header information to Normal, Personal, Private, Confidential.
 |Subject|The email subject line.
-|Comment|The email body. See also the option "Attach content file". 
+|Comment|The email body.
+See also the option "Attach content file".
 |===
 
 === Attached Files
 
 This tab contains options for file attachments.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Attach content file?|If checked, you will use the next two fields to define which stream fields you want to use to create dynamic content of the mail message.
-|Content fieldname|The given field contains the field that points to a file that is loaded for the content. Internally this file content is put into is MimeBodyPart (using application/x-any).
+|Content fieldname|The given field contains the field that points to a file that is loaded for the content.
+Internally this file content is put into is MimeBodyPart (using application/x-any).
 |Filename fieldname|This field sets the filename within the MimeBodyPart.
 |Dynamic filenames?|If checked, you will use the next two fields to define which stream fields you want to use to create dynamic filenames for your attachments.
-|Filename field|The stream field you want to use for dynamic filenames of attachments. This can also be a folder name, in which case you would use the Wildcard field to determine filenames.
+|Filename field|The stream field you want to use for dynamic filenames of attachments.
+This can also be a folder name, in which case you would use the Wildcard field to determine filenames.
 |Wildcard field|A regular expression that creates dynamic filenames for attachments.
 |Filename/foldername|A static name and location of a file to attach.
 |Include subfolders|If checked, will attach files in subfolders of the specified folder.
@@ -98,19 +102,20 @@ This tab contains options for file attachments.
 |Is zip filename dynamic?|If checked, the name of the zip archive will be determined by a data stream.
 |Zipfilename field|The data field to use for the name of the zip archive.
 |Zip filename|A static name for the zip archive.
-|Zip files if size greater than|Only archives file attachments if their combined size is above this number (in bytes). 
+|Zip files if size greater than|Only archives file attachments if their combined size is above this number (in bytes).
 |===
 
 === Embedded Images
 
 This tab contains options for embedded images in HTML emails.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Filename|The name and location of the file you want to embed in the email.
-|Content ID|A unique identifier for this file. Hop will generate one if you don't specify one yourself.
+|Content ID|A unique identifier for this file.
+Hop will generate one if you don't specify one yourself.
 |#|The order that the attachment will be processed.
 |Image|The name of as added image.
-|Content ID (field)|The content ID of an added image. 
+|Content ID (field)|The content ID of an added image.
 |===

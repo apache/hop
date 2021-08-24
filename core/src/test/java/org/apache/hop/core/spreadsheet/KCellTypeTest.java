@@ -25,14 +25,14 @@ public class KCellTypeTest {
 
   @Test
   public void testEnums() {
-    assertEquals( "Empty", KCellType.EMPTY.getDescription() );
-    assertEquals( "Boolean", KCellType.BOOLEAN.getDescription() );
-    assertEquals( "Boolean formula", KCellType.BOOLEAN_FORMULA.getDescription() );
-    assertEquals( "Date", KCellType.DATE.getDescription() );
-    assertEquals( "Date formula", KCellType.DATE_FORMULA.getDescription() );
-    assertEquals( "Label", KCellType.LABEL.getDescription() );
-    assertEquals( "String formula", KCellType.STRING_FORMULA.getDescription() );
-    assertEquals( "Number", KCellType.NUMBER.getDescription() );
-    assertEquals( "Number formula", KCellType.NUMBER_FORMULA.getDescription() );
+    assertEquals("Empty", KCellType.EMPTY.getDescription());
+    assertEquals("Boolean", KCellType.BOOLEAN.getDescription());
+    assertEquals("Boolean formula", KCellType.BOOLEAN_FORMULA.getDescription());
+    assertEquals("Date", KCellType.DATE.getDescription());
+    assertEquals("Date formula", KCellType.DATE_FORMULA.getDescription());
+    assertEquals("Label", KCellType.LABEL.getDescription());
+    assertEquals("String formula", KCellType.STRING_FORMULA.getDescription());
+    assertEquals("Number", KCellType.NUMBER.getDescription());
+    assertEquals("Number formula", KCellType.NUMBER_FORMULA.getDescription());
   }
 }

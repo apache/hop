@@ -31,16 +31,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Variables tests.
@@ -53,42 +47,47 @@ public class VariablesTest {
   private Variables variables = new Variables();
 
   /**
-   * Checks if an ConcurrentModificationException while iterating over the System properties
-   * is occurred.
+   * Checks if an ConcurrentModificationException while iterating over the System properties is
+   * occurred.
    */
   @Test
   public void testinItializeVariablesFrom() {
-    final Variables variablesMock = mock( Variables.class );
-    doCallRealMethod().when( variablesMock ).initializeFrom( any( IVariables.class ) );
+    final Variables variablesMock = mock(Variables.class);
+    doCallRealMethod().when(variablesMock).initializeFrom(any(IVariables.class));
 
-    @SuppressWarnings( "unchecked" ) final Map<String, String> propertiesMock = mock( Map.class );
-    when( variablesMock.getProperties() ).thenReturn( propertiesMock );
+    @SuppressWarnings("unchecked")
+    final Map<String, String> propertiesMock = mock(Map.class);
+    when(variablesMock.getProperties()).thenReturn(propertiesMock);
 
-    doAnswer( new Answer<Map<String, String>>() {
-      final String keyStub = "key";
+    doAnswer(
+            new Answer<Map<String, String>>() {
+              final String keyStub = "key";
 
-      @Override
-      public Map<String, String> answer( InvocationOnMock invocation ) throws Throwable {
-        if ( System.getProperty( keyStub ) == null ) {
-          modifySystemproperties();
-        }
+              @Override
+              public Map<String, String> answer(InvocationOnMock invocation) throws Throwable {
+                if (System.getProperty(keyStub) == null) {
+                  modifySystemproperties();
+                }
 
-        if ( invocation.getArguments()[ 1 ] != null ) {
-          propertiesMock.put( (String) invocation.getArguments()[ 0 ], System.getProperties().getProperty(
-            (String) invocation.getArguments()[ 1 ] ) );
-        }
-        return propertiesMock;
-      }
-    } ).when( propertiesMock ).put( anyString(), anyString() );
+                if (invocation.getArguments()[1] != null) {
+                  propertiesMock.put(
+                      (String) invocation.getArguments()[0],
+                      System.getProperties().getProperty((String) invocation.getArguments()[1]));
+                }
+                return propertiesMock;
+              }
+            })
+        .when(propertiesMock)
+        .put(anyString(), anyString());
 
-    variablesMock.initializeFrom( null );
+    variablesMock.initializeFrom(null);
   }
 
   private void modifySystemproperties() {
     final String keyStub = "key";
     final String valueStub = "value";
 
-    Thread thread = new Thread( () -> System.setProperty( keyStub, valueStub ) );
+    Thread thread = new Thread(() -> System.setProperty(keyStub, valueStub));
     thread.start();
   }
 
@@ -102,23 +101,23 @@ public class VariablesTest {
 
     int threads = 20;
     List<Callable<Boolean>> callables = new ArrayList<>();
-    for ( int i = 0; i < threads; i++ ) {
-      callables.add( newCallable() );
+    for (int i = 0; i < threads; i++) {
+      callables.add(newCallable());
     }
 
     // Assert threads ran successfully.
-    for ( Future<Boolean> result : Executors.newFixedThreadPool( 5 ).invokeAll( callables ) ) {
-      assertTrue( result.get() );
+    for (Future<Boolean> result : Executors.newFixedThreadPool(5).invokeAll(callables)) {
+      assertTrue(result.get());
     }
   }
 
   // Note:  Not using lambda so this can be ported to older version compatible with 1.7
   private Callable<Boolean> newCallable() {
     return () -> {
-      for ( int i = 0; i < 300; i++ ) {
+      for (int i = 0; i < 300; i++) {
         String key = "key" + i;
-        variables.setVariable( key, "value" );
-        assertEquals( variables.resolve( "${" + key + "}" ), "value" );
+        variables.setVariable(key, "value");
+        assertEquals(variables.resolve("${" + key + "}"), "value");
       }
       return true;
     };
@@ -126,31 +125,32 @@ public class VariablesTest {
 
   @Test
   public void testFieldSubstitution() throws HopValueException {
-    Object[] rowData = new Object[] { "DataOne", "DataTwo" };
+    Object[] rowData = new Object[] {"DataOne", "DataTwo"};
     RowMeta rm = new RowMeta();
-    rm.addValueMeta( new ValueMetaString( "FieldOne" ) );
-    rm.addValueMeta( new ValueMetaString( "FieldTwo" ) );
+    rm.addValueMeta(new ValueMetaString("FieldOne"));
+    rm.addValueMeta(new ValueMetaString("FieldTwo"));
 
     Variables vars = new Variables();
-    assertNull( vars.resolve( null, rm, rowData ) );
-    assertEquals( "", vars.resolve( "", rm, rowData ) );
-    assertEquals( "DataOne", vars.resolve( "?{FieldOne}", rm, rowData ) );
-    assertEquals( "TheDataOne", vars.resolve( "The?{FieldOne}", rm, rowData ) );
+    assertNull(vars.resolve(null, rm, rowData));
+    assertEquals("", vars.resolve("", rm, rowData));
+    assertEquals("DataOne", vars.resolve("?{FieldOne}", rm, rowData));
+    assertEquals("TheDataOne", vars.resolve("The?{FieldOne}", rm, rowData));
   }
 
   @Test
   public void testEnvironmentSubstitute() {
     Variables vars = new Variables();
-    vars.setVariable( "VarOne", "DataOne" );
-    vars.setVariable( "VarTwo", "DataTwo" );
+    vars.setVariable("VarOne", "DataOne");
+    vars.setVariable("VarTwo", "DataTwo");
 
-    assertNull( vars.resolve( (String) null ) );
-    assertEquals( "", vars.resolve( "" ) );
-    assertEquals( "DataTwo", vars.resolve( "${VarTwo}" ) );
-    assertEquals( "DataTwoEnd", vars.resolve( "${VarTwo}End" ) );
+    assertNull(vars.resolve((String) null));
+    assertEquals("", vars.resolve(""));
+    assertEquals("DataTwo", vars.resolve("${VarTwo}"));
+    assertEquals("DataTwoEnd", vars.resolve("${VarTwo}End"));
 
-    assertEquals( 0, vars.resolve( new String[ 0 ] ).length );
-    assertArrayEquals( new String[] { "DataOne", "TheDataOne" },
-      vars.resolve( new String[] { "${VarOne}", "The${VarOne}" } ) );
+    assertEquals(0, vars.resolve(new String[0]).length);
+    assertArrayEquals(
+        new String[] {"DataOne", "TheDataOne"},
+        vars.resolve(new String[] {"${VarOne}", "The${VarOne}"}));
   }
 }

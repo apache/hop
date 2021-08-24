@@ -52,13 +52,22 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
   private List<String> xpPluginClasses;
 
   // Log and count errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BeamOutputTransform.class );
-  private static final Counter numErrors = Metrics.counter( "main", "BeamOutputError" );
+  private static final Logger LOG = LoggerFactory.getLogger(BeamOutputTransform.class);
+  private static final Counter numErrors = Metrics.counter("main", "BeamOutputError");
 
-  public BeamOutputTransform() {
-  }
+  public BeamOutputTransform() {}
 
-  public BeamOutputTransform( String transformName, String outputLocation, String filePrefix, String fileSuffix, String separator, String enclosure, boolean windowed, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamOutputTransform(
+      String transformName,
+      String outputLocation,
+      String filePrefix,
+      String fileSuffix,
+      String separator,
+      String enclosure,
+      boolean windowed,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.transformName = transformName;
     this.outputLocation = outputLocation;
     this.filePrefix = filePrefix;
@@ -71,7 +80,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     this.xpPluginClasses = xpPluginClasses;
   }
 
-  @Override public PDone expand( PCollection<HopRow> input ) {
+  @Override
+  public PDone expand(PCollection<HopRow> input) {
 
     try {
       // Only initialize once on this node/vm
@@ -80,34 +90,45 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
 
       // Inflate the metadata on the node where this is running...
       //
-      IRowMeta rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+      IRowMeta rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       // This is the end of a computing chain, we write out the results
       // We write a bunch of Strings, one per line basically
       //
-      PCollection<String> stringCollection = input.apply( transformName, ParDo.of( new HopToStringFn( transformName, outputLocation, separator, enclosure, rowMetaJson, transformPluginClasses, xpPluginClasses ) ) );
+      PCollection<String> stringCollection =
+          input.apply(
+              transformName,
+              ParDo.of(
+                  new HopToStringFn(
+                      transformName,
+                      outputLocation,
+                      separator,
+                      enclosure,
+                      rowMetaJson,
+                      transformPluginClasses,
+                      xpPluginClasses)));
 
       // We need to transform these lines into a file and then we're PDone
       //
       TextIO.Write write = TextIO.write();
-      if ( StringUtils.isNotEmpty(outputLocation)) {
+      if (StringUtils.isNotEmpty(outputLocation)) {
         String outputPrefix = outputLocation;
-        if (!outputPrefix.endsWith( File.separator)) {
-          outputPrefix+=File.separator;
+        if (!outputPrefix.endsWith(File.separator)) {
+          outputPrefix += File.separator;
         }
-        if (StringUtils.isNotEmpty( filePrefix )) {
-          outputPrefix+=filePrefix;
+        if (StringUtils.isNotEmpty(filePrefix)) {
+          outputPrefix += filePrefix;
         }
-        write = write.to( outputPrefix );
+        write = write.to(outputPrefix);
       }
-      if (StringUtils.isNotEmpty( fileSuffix )) {
-        write = write.withSuffix( fileSuffix );
+      if (StringUtils.isNotEmpty(fileSuffix)) {
+        write = write.withSuffix(fileSuffix);
       }
 
       // For streaming data sources...
       //
       if (windowed) {
-        write = write.withWindowedWrites().withNumShards( 4 ); // TODO config
+        write = write.withWindowedWrites().withNumShards(4); // TODO config
       }
 
       stringCollection.apply(write);
@@ -116,13 +137,12 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
       //
       return PDone.in(input.getPipeline());
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in beam output transform", e );
-      throw new RuntimeException( "Error in beam output transform", e );
+      LOG.error("Error in beam output transform", e);
+      throw new RuntimeException("Error in beam output transform", e);
     }
   }
-
 
   /**
    * Gets transformName
@@ -133,10 +153,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return transformName;
   }
 
-  /**
-   * @param transformName The transformName to set
-   */
-  public void setTransformName( String transformName ) {
+  /** @param transformName The transformName to set */
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -149,10 +167,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return outputLocation;
   }
 
-  /**
-   * @param outputLocation The outputLocation to set
-   */
-  public void setOutputLocation( String outputLocation ) {
+  /** @param outputLocation The outputLocation to set */
+  public void setOutputLocation(String outputLocation) {
     this.outputLocation = outputLocation;
   }
 
@@ -165,10 +181,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return filePrefix;
   }
 
-  /**
-   * @param filePrefix The filePrefix to set
-   */
-  public void setFilePrefix( String filePrefix ) {
+  /** @param filePrefix The filePrefix to set */
+  public void setFilePrefix(String filePrefix) {
     this.filePrefix = filePrefix;
   }
 
@@ -181,10 +195,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return fileSuffix;
   }
 
-  /**
-   * @param fileSuffix The fileSuffix to set
-   */
-  public void setFileSuffix( String fileSuffix ) {
+  /** @param fileSuffix The fileSuffix to set */
+  public void setFileSuffix(String fileSuffix) {
     this.fileSuffix = fileSuffix;
   }
 
@@ -197,10 +209,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return separator;
   }
 
-  /**
-   * @param separator The separator to set
-   */
-  public void setSeparator( String separator ) {
+  /** @param separator The separator to set */
+  public void setSeparator(String separator) {
     this.separator = separator;
   }
 
@@ -213,10 +223,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return enclosure;
   }
 
-  /**
-   * @param enclosure The enclosure to set
-   */
-  public void setEnclosure( String enclosure ) {
+  /** @param enclosure The enclosure to set */
+  public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
 
@@ -229,10 +237,8 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return rowMetaJson;
   }
 
-  /**
-   * @param rowMetaJson The inputRowMetaJson to set
-   */
-  public void setRowMetaJson( String rowMetaJson ) {
+  /** @param rowMetaJson The inputRowMetaJson to set */
+  public void setRowMetaJson(String rowMetaJson) {
     this.rowMetaJson = rowMetaJson;
   }
 }

@@ -29,25 +29,25 @@ public class ContainsKeyToRowSetMap extends KeyToRowSetMap {
     super();
   }
 
-  public Set<IRowSet> get(Object value ) {
+  public Set<IRowSet> get(Object value) {
     String valueStr = (String) value;
-    for ( String key : list ) {
-      if ( valueStr.contains( key ) ) {
-        return super.get( key );
+    for (String key : list) {
+      if (valueStr.contains(key)) {
+        return super.get(key);
       }
     }
     return null;
   }
 
-  protected void put( Object key, IRowSet rowSet ) {
-    super.put( key, rowSet );
-    list.add( (String) key );
+  protected void put(Object key, IRowSet rowSet) {
+    super.put(key, rowSet);
+    list.add((String) key);
   }
 
-  public boolean containsKey( Object key ) {
+  public boolean containsKey(Object key) {
     String keyStr = (String) key;
-    for ( String value : list ) {
-      if ( keyStr.contains( value ) ) {
+    for (String value : list) {
+      if (keyStr.contains(value)) {
         return true;
       }
     }

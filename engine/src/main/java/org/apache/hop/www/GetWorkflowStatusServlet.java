@@ -147,7 +147,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           jobStatus.setResult(workflow.getResult()); // might be null
 
           String xml = jobStatus.getXml();
-          byte[] data = xml.getBytes( Charset.forName( Const.XML_ENCODING ) );
+          byte[] data = xml.getBytes(Charset.forName(Const.XML_ENCODING));
           OutputStream out = response.getOutputStream();
           response.setContentLength(XML_HEADER.length + data.length);
           out.write(XML_HEADER);

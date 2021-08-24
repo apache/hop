@@ -24,19 +24,13 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class WorkflowActionFolderIsEmptyTest {
@@ -52,66 +46,64 @@ public class WorkflowActionFolderIsEmptyTest {
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
-    workflow = new LocalWorkflowEngine( new WorkflowMeta() );
+    workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionFolderIsEmpty();
 
-    workflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
-    action.setParentWorkflow( workflow );
-    WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    action.setParentWorkflowMeta( mockWorkflowMeta );
+    workflow.getWorkflowMeta().addAction(new ActionMeta(action));
+    action.setParentWorkflow(workflow);
+    WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
+    action.setParentWorkflowMeta(mockWorkflowMeta);
 
-    workflow.setStopped( false );
+    workflow.setStopped(false);
 
-    File dir = Files.createTempDirectory( "dir", new FileAttribute<?>[ 0 ] ).toFile();
+    File dir = Files.createTempDirectory("dir", new FileAttribute<?>[0]).toFile();
     dir.deleteOnExit();
     emptyDir = dir.getPath();
 
-    dir = Files.createTempDirectory( "dir", new FileAttribute<?>[ 0 ] ).toFile();
+    dir = Files.createTempDirectory("dir", new FileAttribute<?>[0]).toFile();
     dir.deleteOnExit();
     nonEmptyDir = dir.getPath();
 
-    File file = File.createTempFile( "existingFile", "ext", dir );
+    File file = File.createTempFile("existingFile", "ext", dir);
     file.deleteOnExit();
   }
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testSetNrErrorsSuccess() throws Exception {
-    action.setFoldername( emptyDir );
+    action.setFoldername(emptyDir);
 
-    Result result = action.execute( new Result(), 0 );
+    Result result = action.execute(new Result(), 0);
 
-    assertTrue( "For empty folder result should be true", result.getResult() );
-    assertEquals( "There should be no errors", 0, result.getNrErrors() );
+    assertTrue("For empty folder result should be true", result.getResult());
+    assertEquals("There should be no errors", 0, result.getNrErrors());
   }
 
   @Test
   public void testSetNrErrorsNewBehaviorFail() throws Exception {
-    action.setFoldername( nonEmptyDir );
+    action.setFoldername(nonEmptyDir);
 
-    Result result = action.execute( new Result(), 0 );
+    Result result = action.execute(new Result(), 0);
 
-    assertFalse( "For non-empty folder result should be false", result.getResult() );
-    assertEquals( "There should be still no errors", 0, result.getNrErrors() );
+    assertFalse("For non-empty folder result should be false", result.getResult());
+    assertEquals("There should be still no errors", 0, result.getNrErrors());
   }
 
   @Test
   public void testSetNrErrorsOldBehaviorFail() throws Exception {
-    action.setFoldername( nonEmptyDir );
+    action.setFoldername(nonEmptyDir);
 
-    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
 
-    Result result = action.execute( new Result(), 0 );
+    Result result = action.execute(new Result(), 0);
 
-    assertFalse( "For non-empty folder result should be false", result.getResult() );
-    assertEquals( "According to old behaviour there should be an error", 1, result.getNrErrors() );
+    assertFalse("For non-empty folder result should be false", result.getResult());
+    assertEquals("According to old behaviour there should be an error", 1, result.getNrErrors());
   }
 }

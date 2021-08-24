@@ -17,9 +17,7 @@
 
 package org.apache.hop.core.database;
 
-/**
- * Created by ddiroma on 5/10/2018.
- */
+/** Created by ddiroma on 5/10/2018. */
 public class DatabaseTestResults {
   private String message;
   private boolean success;
@@ -28,7 +26,7 @@ public class DatabaseTestResults {
     return message;
   }
 
-  public void setMessage( String message ) {
+  public void setMessage(String message) {
     this.message = message;
   }
 
@@ -36,7 +34,7 @@ public class DatabaseTestResults {
     return success;
   }
 
-  public void setSuccess( boolean success ) {
+  public void setSuccess(boolean success) {
     this.success = success;
   }
 }

@@ -30,9 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Lazily load the searchables during next()
- */
+/** Lazily load the searchables during next() */
 public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
 
   private HopGui hopGui;
@@ -40,7 +38,8 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
   private List<ISearchable> searchables;
   private Iterator<ISearchable> searchableIterator;
 
-  public HopGuiSearchLocationIterator( HopGui hopGui, HopGuiSearchLocation location ) throws HopException {
+  public HopGuiSearchLocationIterator(HopGui hopGui, HopGuiSearchLocation location)
+      throws HopException {
     this.hopGui = hopGui;
     this.location = location;
 
@@ -48,36 +47,44 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
 
     // Get a list of searchables from every perspective
     //
-    for ( IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives() ) {
-      searchables.addAll( perspective.getSearchables() );
+    for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
+      searchables.addAll(perspective.getSearchables());
     }
 
     // Add the available metadata objects
     //
-    for ( Class<IHopMetadata> metadataClass : hopGui.getMetadataProvider().getMetadataClasses() ) {
-      IHopMetadataSerializer<IHopMetadata> serializer = hopGui.getMetadataProvider().getSerializer( metadataClass );
-      for ( final String metadataName : serializer.listObjectNames() ) {
-        IHopMetadata hopMetadata = serializer.load( metadataName );
-        HopGuiMetadataSearchable searchable = new HopGuiMetadataSearchable( hopGui.getMetadataProvider(), serializer, hopMetadata, serializer.getManagedClass() );
-        searchables.add( searchable );
+    for (Class<IHopMetadata> metadataClass : hopGui.getMetadataProvider().getMetadataClasses()) {
+      IHopMetadataSerializer<IHopMetadata> serializer =
+          hopGui.getMetadataProvider().getSerializer(metadataClass);
+      for (final String metadataName : serializer.listObjectNames()) {
+        IHopMetadata hopMetadata = serializer.load(metadataName);
+        HopGuiMetadataSearchable searchable =
+            new HopGuiMetadataSearchable(
+                hopGui.getMetadataProvider(),
+                serializer,
+                hopMetadata,
+                serializer.getManagedClass());
+        searchables.add(searchable);
       }
     }
 
     // the described variables in HopConfig...
     //
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
-    for ( DescribedVariable describedVariable : describedVariables ) {
-      searchables.add( new HopGuiDescribedVariableSearchable( describedVariable, null ) );
+    for (DescribedVariable describedVariable : describedVariables) {
+      searchables.add(new HopGuiDescribedVariableSearchable(describedVariable, null));
     }
 
     searchableIterator = searchables.iterator();
   }
 
-  @Override public boolean hasNext() {
+  @Override
+  public boolean hasNext() {
     return searchableIterator.hasNext();
   }
 
-  @Override public ISearchable next() {
+  @Override
+  public ISearchable next() {
     return searchableIterator.next();
   }
 
@@ -90,10 +97,8 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
     return hopGui;
   }
 
-  /**
-   * @param hopGui The hopGui to set
-   */
-  public void setHopGui( HopGui hopGui ) {
+  /** @param hopGui The hopGui to set */
+  public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
 
@@ -106,10 +111,8 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
     return location;
   }
 
-  /**
-   * @param location The location to set
-   */
-  public void setLocation( HopGuiSearchLocation location ) {
+  /** @param location The location to set */
+  public void setLocation(HopGuiSearchLocation location) {
     this.location = location;
   }
 }

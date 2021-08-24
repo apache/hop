@@ -16,7 +16,6 @@
  */
 package org.apache.hop.core.parameters;
 
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,9 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by mburgess on 10/13/15.
- */
+/** Created by mburgess on 10/13/15. */
 public class UnknownParamExceptionTest {
 
   UnknownParamException exception;
@@ -34,19 +31,19 @@ public class UnknownParamExceptionTest {
   @Test
   public void testConstructors() {
     exception = new UnknownParamException();
-    assertNotNull( exception );
-    NamedParamsExceptionTest.assertMessage( "null", exception );
+    assertNotNull(exception);
+    NamedParamsExceptionTest.assertMessage("null", exception);
 
-    exception = new UnknownParamException( "message" );
-    NamedParamsExceptionTest.assertMessage( "message", exception );
+    exception = new UnknownParamException("message");
+    NamedParamsExceptionTest.assertMessage("message", exception);
 
-    Throwable t = mock( Throwable.class );
-    when( t.getStackTrace() ).thenReturn( new StackTraceElement[ 0 ] );
-    exception = new UnknownParamException( t );
-    assertEquals( t, exception.getCause() );
+    Throwable t = mock(Throwable.class);
+    when(t.getStackTrace()).thenReturn(new StackTraceElement[0]);
+    exception = new UnknownParamException(t);
+    assertEquals(t, exception.getCause());
 
-    exception = new UnknownParamException( "message", t );
-    NamedParamsExceptionTest.assertMessage( "message", exception );
-    assertEquals( t, exception.getCause() );
+    exception = new UnknownParamException("message", t);
+    NamedParamsExceptionTest.assertMessage("message", exception);
+    assertEquals(t, exception.getCause());
   }
 }

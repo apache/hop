@@ -33,7 +33,6 @@ import java.util.Properties;
  * @author Samatar
  * @since 13-Apr-2008
  */
-
 public class PropertyOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
@@ -55,7 +54,7 @@ public class PropertyOutputData extends BaseTransformData implements ITransformD
   public PropertyOutputData() {
     super();
 
-    dateParser = new SimpleDateFormat( DATE_FORMAT );
+    dateParser = new SimpleDateFormat(DATE_FORMAT);
 
     indexOfKeyField = -1;
     indexOfValueField = -1;
@@ -66,5 +65,4 @@ public class PropertyOutputData extends BaseTransformData implements ITransformD
     KeySet = new HashSet<>();
     filename = null;
   }
-
 }

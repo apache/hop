@@ -23,12 +23,10 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 public class FileMetadataData extends BaseTransformData implements ITransformData {
 
-	public IRowMeta outputRowMeta;
-    public boolean isReceivingInput;
+  public IRowMeta outputRowMeta;
+  public boolean isReceivingInput;
 
-    public FileMetadataData()
-	{
-		super();
-	}
+  public FileMetadataData() {
+    super();
+  }
 }
-	

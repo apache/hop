@@ -17,9 +17,7 @@
 
 package org.apache.hop.ui.core;
 
-/**
- * Created by bmorrise on 8/17/17.
- */
+/** Created by bmorrise on 8/17/17. */
 public class FileDialogOperation {
 
   public static String SELECT_FOLDER = "selectFolder";
@@ -38,11 +36,11 @@ public class FileDialogOperation {
   private String filename;
   private String fileType;
 
-  public FileDialogOperation( String command ) {
+  public FileDialogOperation(String command) {
     this.command = command;
   }
 
-  public FileDialogOperation( String command, String origin ) {
+  public FileDialogOperation(String command, String origin) {
     this.command = command;
     this.origin = origin;
   }
@@ -51,7 +49,7 @@ public class FileDialogOperation {
     return command;
   }
 
-  public void setCommand( String command ) {
+  public void setCommand(String command) {
     this.command = command;
   }
 
@@ -59,7 +57,7 @@ public class FileDialogOperation {
     return filter;
   }
 
-  public void setFilter( String filter ) {
+  public void setFilter(String filter) {
     this.filter = filter;
   }
 
@@ -67,7 +65,7 @@ public class FileDialogOperation {
     return origin;
   }
 
-  public void setOrigin( String origin ) {
+  public void setOrigin(String origin) {
     this.origin = origin;
   }
 
@@ -75,7 +73,7 @@ public class FileDialogOperation {
     return startDir;
   }
 
-  public void setStartDir( String startDir ) {
+  public void setStartDir(String startDir) {
     this.startDir = startDir;
   }
 
@@ -83,7 +81,7 @@ public class FileDialogOperation {
     return title;
   }
 
-  public void setTitle( String title ) {
+  public void setTitle(String title) {
     this.title = title;
   }
 
@@ -91,7 +89,7 @@ public class FileDialogOperation {
     return filename;
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -99,7 +97,7 @@ public class FileDialogOperation {
     return fileType;
   }
 
-  public void setFileType( String fileType ) {
+  public void setFileType(String fileType) {
     this.fileType = fileType;
   }
 }

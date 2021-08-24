@@ -30,8 +30,9 @@ public class ModPartitionerTest {
 
   @Test
   public void testSerialization() throws HopException {
-    List<String> attributes = Arrays.asList( "FieldName" );
-    PartitionerLoadSaveTester<ModPartitioner> tester = new PartitionerLoadSaveTester<>( ModPartitioner.class, attributes );
+    List<String> attributes = Arrays.asList("FieldName");
+    PartitionerLoadSaveTester<ModPartitioner> tester =
+        new PartitionerLoadSaveTester<>(ModPartitioner.class, attributes);
 
     tester.testSerialization();
   }

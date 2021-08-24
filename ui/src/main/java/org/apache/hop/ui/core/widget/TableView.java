@@ -2562,7 +2562,6 @@ public class TableView extends Composite {
     editor.setEditor(button);
 
     button.setFocus();
-
   }
 
   public void setRowNums() {
@@ -3074,7 +3073,7 @@ public class TableView extends Composite {
       return null; // No undo left!
     }
 
-      return undo.get(undoPosition);
+    return undo.get(undoPosition);
   }
 
   private ChangeAction nextUndo() {

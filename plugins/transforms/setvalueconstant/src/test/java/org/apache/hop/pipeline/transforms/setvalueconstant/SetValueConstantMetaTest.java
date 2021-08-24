@@ -29,13 +29,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class SetValueConstantMetaTest implements IInitializer<ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -45,62 +39,70 @@ public class SetValueConstantMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "fields", "usevar" );
+    PluginRegistry.init(false);
+    List<String> attributes = Arrays.asList("fields", "usevar");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "fields", "getFields" );
-        put( "usevar", "isUseVars" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "fields", "setFields" );
-        put( "usevar", "setUseVars" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("fields", "getFields");
+            put("usevar", "isUseVars");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("fields", "setFields");
+            put("usevar", "setUseVars");
+          }
+        };
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fields", new ListLoadSaveValidator<>( new SetValueConstantMetaFieldLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put(
+        "fields", new ListLoadSaveValidator<>(new SetValueConstantMetaFieldLoadSaveValidator(), 5));
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   @Override
-  public void modify( ITransformMeta someMeta ) {
-  }
+  public void modify(ITransformMeta someMeta) {}
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
 
-  public class SetValueConstantMetaFieldLoadSaveValidator implements IFieldLoadSaveValidator<SetValueConstantMeta.Field> {
+  public class SetValueConstantMetaFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<SetValueConstantMeta.Field> {
     final Random rand = new Random();
 
     @Override
     public SetValueConstantMeta.Field getTestObject() {
       SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
-      field.setReplaceMask( UUID.randomUUID().toString() );
-      field.setReplaceValue( UUID.randomUUID().toString() );
-      field.setEmptyString( rand.nextBoolean() );
-      field.setFieldName( UUID.randomUUID().toString() );
+      field.setReplaceMask(UUID.randomUUID().toString());
+      field.setReplaceValue(UUID.randomUUID().toString());
+      field.setEmptyString(rand.nextBoolean());
+      field.setFieldName(UUID.randomUUID().toString());
       return field;
     }
 
     @Override
-    public boolean validateTestObject( SetValueConstantMeta.Field testObject, Object actual ) {
-      if ( !( actual instanceof SetValueConstantMeta.Field ) ) {
+    public boolean validateTestObject(SetValueConstantMeta.Field testObject, Object actual) {
+      if (!(actual instanceof SetValueConstantMeta.Field)) {
         return false;
       }
       SetValueConstantMeta.Field actualInput = (SetValueConstantMeta.Field) actual;
-      return ( actualInput.equals( testObject ) );
+      return (actualInput.equals(testObject));
     }
   }
-
 }

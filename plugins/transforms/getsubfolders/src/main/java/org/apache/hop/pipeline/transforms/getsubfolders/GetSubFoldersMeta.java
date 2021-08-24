@@ -60,7 +60,8 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.GetSubFolders",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetSubFolders",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getsubfolders.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/getsubfolders.html")
 public class GetSubFoldersMeta extends BaseTransformMeta
     implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator

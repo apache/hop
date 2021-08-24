@@ -23,12 +23,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation when applied to a PluginType expresses the main class to associate with that type.
+ * This annotation when applied to a PluginType expresses the main class to associate with that
+ * type.
  *
  * @author nbaker
  */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface PluginMainClassType {
   Class<?> value();
 }

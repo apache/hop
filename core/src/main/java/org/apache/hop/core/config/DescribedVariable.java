@@ -27,34 +27,35 @@ public class DescribedVariable {
 
   private String description;
 
-  public DescribedVariable() {
-  }
+  public DescribedVariable() {}
 
-  public DescribedVariable( String name, String value, String description ) {
+  public DescribedVariable(String name, String value, String description) {
     this.name = name;
     this.value = value;
     this.description = description;
   }
 
-  public DescribedVariable( DescribedVariable e) {
+  public DescribedVariable(DescribedVariable e) {
     this.name = e.name;
     this.value = e.value;
     this.description = e.description;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     DescribedVariable that = (DescribedVariable) o;
-    return Objects.equals( name, that.name );
+    return Objects.equals(name, that.name);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name );
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
 
   /**
@@ -66,10 +67,8 @@ public class DescribedVariable {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -82,10 +81,8 @@ public class DescribedVariable {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 
@@ -98,10 +95,8 @@ public class DescribedVariable {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 }

@@ -17,18 +17,14 @@
 
 package org.apache.hop.core.auth;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation signals to the plugin system that the class is an authentication provider plugin.
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface AuthenticationProviderPlugin {
 
   String id();
@@ -37,13 +33,12 @@ public @interface AuthenticationProviderPlugin {
 
   String description() default "Authentication Plugin";
 
-  /**
-   * @return True if a separate class loader is needed every time this class is instantiated
-   */
+  /** @return True if a separate class loader is needed every time this class is instantiated */
   boolean isSeparateClassLoaderNeeded() default false;
 
   /**
    * Please use the i18n:package:key format in name, description and categoryDescription
+   *
    * @return
    */
   @Deprecated

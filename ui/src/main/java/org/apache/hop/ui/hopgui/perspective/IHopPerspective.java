@@ -22,15 +22,12 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import java.util.List;
 
-/**
- * This interface describes the methods of a Hop GUI perspective.
- */
+/** This interface describes the methods of a Hop GUI perspective. */
 public interface IHopPerspective extends IActionContextHandlersProvider {
 
   String getId();
@@ -47,7 +44,7 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    *
    * @param activeFileTypeHandler
    */
-  void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler );
+  void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler);
 
   /**
    * Get a list of supported file types for this perspective
@@ -56,24 +53,16 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    */
   List<IHopFileType> getSupportedHopFileTypes();
 
-  /**
-   * Switch to this perspective (shown).
-   */
+  /** Switch to this perspective (shown). */
   void activate();
 
-  /**
-   * Notify this perspective that it has been activated.
-   */
+  /** Notify this perspective that it has been activated. */
   void perspectiveActivated();
-  
-  /**
-   * Navigate the file usage history to the previous file
-   */
+
+  /** Navigate the file usage history to the previous file */
   void navigateToPreviousFile();
 
-  /**
-   * Navigate the file usage history to the next file
-   */
+  /** Navigate the file usage history to the next file */
   void navigateToNextFile();
 
   /**
@@ -89,15 +78,13 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    * @param hopGui The parent Hop GUI
    * @parem parent the parent perspectives composite
    */
-  void initialize( HopGui hopGui, Composite parent );
+  void initialize(HopGui hopGui, Composite parent);
 
   boolean hasNavigationPreviousFile();
 
   boolean hasNavigationNextFile();
 
-  /**
-   * @return The control of this perspective
-   */
+  /** @return The control of this perspective */
   Control getControl();
 
   /**
@@ -106,16 +93,15 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    * @param typeHandler The file type handler to remove
    * @return
    */
-  boolean remove( IHopFileTypeHandler typeHandler );
+  boolean remove(IHopFileTypeHandler typeHandler);
 
   /**
    * Get the list of tabs handled by and currently open in the perspective
+   *
    * @return The list of tab items
    */
   List<TabItemHandler> getItems();
 
-  /**
-   * @return A list of searchable items
-   */
+  /** @return A list of searchable items */
   List<ISearchable> getSearchables();
 }

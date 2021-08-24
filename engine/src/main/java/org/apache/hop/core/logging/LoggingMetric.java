@@ -20,7 +20,8 @@ package org.apache.hop.core.logging;
 import org.apache.hop.core.metrics.IMetricsSnapshot;
 
 /**
- * Just a small wrapper class to allow us to pass a few extra details along with a metrics snapshot (like the batch id)
+ * Just a small wrapper class to allow us to pass a few extra details along with a metrics snapshot
+ * (like the batch id)
  *
  * @author matt
  */
@@ -32,37 +33,28 @@ public class LoggingMetric {
    * @param batchId
    * @param snapshot
    */
-  public LoggingMetric( long batchId, IMetricsSnapshot snapshot ) {
+  public LoggingMetric(long batchId, IMetricsSnapshot snapshot) {
     this.batchId = batchId;
     this.snapshot = snapshot;
   }
 
-  /**
-   * @return the batchId
-   */
+  /** @return the batchId */
   public long getBatchId() {
     return batchId;
   }
 
-  /**
-   * @param batchId the batchId to set
-   */
-  public void setBatchId( long batchId ) {
+  /** @param batchId the batchId to set */
+  public void setBatchId(long batchId) {
     this.batchId = batchId;
   }
 
-  /**
-   * @return the snapshot
-   */
+  /** @return the snapshot */
   public IMetricsSnapshot getSnapshot() {
     return snapshot;
   }
 
-  /**
-   * @param snapshot the snapshot to set
-   */
-  public void setSnapshot( IMetricsSnapshot snapshot ) {
+  /** @param snapshot the snapshot to set */
+  public void setSnapshot(IMetricsSnapshot snapshot) {
     this.snapshot = snapshot;
   }
-
 }

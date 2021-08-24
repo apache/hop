@@ -21,12 +21,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -35,13 +33,19 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 30-08-2008
  */
-public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, DetectEmptyStreamData> implements ITransform<DetectEmptyStreamMeta, DetectEmptyStreamData> {
+public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, DetectEmptyStreamData>
+    implements ITransform<DetectEmptyStreamMeta, DetectEmptyStreamData> {
 
   private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
-  public DetectEmptyStream( TransformMeta transformMeta, DetectEmptyStreamMeta meta, DetectEmptyStreamData data, int copyNr,
-                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public DetectEmptyStream(
+      TransformMeta transformMeta,
+      DetectEmptyStreamMeta meta,
+      DetectEmptyStreamData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   /**
@@ -51,23 +55,24 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
    */
   private Object[] buildOneRow() throws HopTransformException {
     // return previous fields name
-    Object[] outputRowData = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
+    Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
     return outputRowData;
   }
 
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
-      if ( first ) {
+      if (first) {
         // input stream is empty !
-        data.outputRowMeta = getPipelineMeta().getPrevTransformFields( this, getTransformMeta() );
-        putRow( data.outputRowMeta, buildOneRow() ); // copy row to possible alternate rowset(s).
+        data.outputRowMeta = getPipelineMeta().getPrevTransformFields(this, getTransformMeta());
+        putRow(data.outputRowMeta, buildOneRow()); // copy row to possible alternate rowset(s).
 
-        if ( checkFeedback( getLinesRead() ) ) {
-          if ( log.isBasic() ) {
-            logBasic( BaseMessages.getString( PKG, "DetectEmptyStream.Log.LineNumber" ) + getLinesRead() );
+        if (checkFeedback(getLinesRead())) {
+          if (log.isBasic()) {
+            logBasic(
+                BaseMessages.getString(PKG, "DetectEmptyStream.Log.LineNumber") + getLinesRead());
           }
         }
       }
@@ -75,11 +80,10 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
     }
 
     return true;
   }
-
 }

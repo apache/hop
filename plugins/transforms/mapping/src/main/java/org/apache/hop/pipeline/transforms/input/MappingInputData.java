@@ -35,5 +35,4 @@ public class MappingInputData extends BaseTransformData implements ITransformDat
   public MappingInputData() {
     super();
   }
-
 }

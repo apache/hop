@@ -21,11 +21,12 @@ under the License.
 
 == Description
 
-The Kafka Producer allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access. A Kafka Producer transform publishes a stream of records to one Kafka topic.
+The Kafka Producer allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
+A Kafka Producer transform publishes a stream of records to one Kafka topic.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|the name for this transform
@@ -33,19 +34,20 @@ The Kafka Producer allows you to publish messages in near-real-time across worke
 
 === Setup
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|the name for this transform
 |===
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Bootstrap servers|comma separated list of bootstrap servers in a Kafka cluster
 |Client ID|The unique Client identifier, used to identify and set up a durable connection path to the server to make requests and to distinguish between different clients.
 |Topic|The category to which records are published.
-|Key Field|In Kafka, all messages can be keyed, allowing for messages to be distributed to partitions based on their keys in a default routing scheme. If no key is present, messages are randomly distributed to partitions.
+|Key Field|In Kafka, all messages can be keyed, allowing for messages to be distributed to partitions based on their keys in a default routing scheme.
+If no key is present, messages are randomly distributed to partitions.
 |Message Field|The individual record contained in a topic.
 |===
 
@@ -53,11 +55,14 @@ The Kafka Producer allows you to publish messages in near-real-time across worke
 
 === Options
 
-Use this tab to configure the property formats of the Kafka consumer broker sources.  A few of the most common property formats have been included for your convenience. You can enter any desired Kafka property. For further information on these input names, see the Apache Kafka documentation site: https://kafka.apache.org/documentation/.
+Use this tab to configure the property formats of the Kafka consumer broker sources.
+A few of the most common property formats have been included for your convenience.
+You can enter any desired Kafka property.
+For further information on these input names, see the Apache Kafka documentation site: https://kafka.apache.org/documentation/.
 
 The options that are included by default are:
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |NName|Value
 |auto.offset.reset|latest

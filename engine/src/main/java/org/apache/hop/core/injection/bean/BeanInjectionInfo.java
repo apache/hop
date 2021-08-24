@@ -30,15 +30,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /** Storage for bean annotations info for Metadata Injection and Load/Save. */
 public class BeanInjectionInfo<Meta extends Object> {
@@ -199,7 +191,13 @@ public class BeanInjectionInfo<Meta extends Object> {
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
           path.add(fieldLevelInfo);
           path.add(childLevelInfo);
-          Property p = new Property(injectionKey, injectionKeyDescription, injectionGroupKey, path, property.isExcludedFromInjection());
+          Property p =
+              new Property(
+                  injectionKey,
+                  injectionKeyDescription,
+                  injectionGroupKey,
+                  path,
+                  property.isExcludedFromInjection());
           group.properties.add(p);
           properties.put(injectionKey, p);
         } else {
@@ -229,7 +227,11 @@ public class BeanInjectionInfo<Meta extends Object> {
               if (isChildlessClass(childFieldType, childProperty)) {
                 Property p =
                     new Property(
-                        childInjectionKey, childInjectionKeyDescription, injectionGroupKey, path, property.isExcludedFromInjection());
+                        childInjectionKey,
+                        childInjectionKeyDescription,
+                        injectionGroupKey,
+                        path,
+                        property.isExcludedFromInjection());
                 group.properties.add(p);
                 properties.put(childInjectionKey, p);
               } else {
@@ -248,7 +250,13 @@ public class BeanInjectionInfo<Meta extends Object> {
           //
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
           path.add(fieldLevelInfo);
-          Property p = new Property(injectionKey, injectionKeyDescription, "", path, property.isExcludedFromInjection());
+          Property p =
+              new Property(
+                  injectionKey,
+                  injectionKeyDescription,
+                  "",
+                  path,
+                  property.isExcludedFromInjection());
           rootGroup.properties.add(p);
           properties.put(injectionKey, p);
         } else {
@@ -489,7 +497,12 @@ public class BeanInjectionInfo<Meta extends Object> {
     public final int pathArraysCount;
     private final boolean isExcludedFromInjection;
 
-    public Property(String key, String description, String groupKey, List<BeanLevelInfo> path, boolean isExcludedFromInjection) {
+    public Property(
+        String key,
+        String description,
+        String groupKey,
+        List<BeanLevelInfo> path,
+        boolean isExcludedFromInjection) {
 
       this.key = key;
       this.description = description;

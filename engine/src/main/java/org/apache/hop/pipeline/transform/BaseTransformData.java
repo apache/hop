@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transform;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 
 /**
- * This class is the base class for the ITransformData and contains the methods to set and retrieve the status of the
- * transform data.
+ * This class is the base class for the ITransformData and contains the methods to set and retrieve
+ * the status of the transform data.
  *
  * @author Matt
  * @since 20-jan-2005
@@ -30,14 +30,10 @@ public abstract class BaseTransformData implements ITransformData {
 
   private static final Class<?> PKG = BaseTransform.class; // For Translator
 
-  /**
-   * The status.
-   */
+  /** The status. */
   private ComponentExecutionStatus status;
 
-  /**
-   * Instantiates a new base transform data.
-   */
+  /** Instantiates a new base transform data. */
   public BaseTransformData() {
     status = ComponentExecutionStatus.STATUS_EMPTY;
   }
@@ -47,7 +43,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @param status the new status.
    */
-  @Override public void setStatus( ComponentExecutionStatus status ) {
+  @Override
+  public void setStatus(ComponentExecutionStatus status) {
     this.status = status;
   }
 
@@ -56,7 +53,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return the status of the transform data
    */
-  @Override public ComponentExecutionStatus getStatus() {
+  @Override
+  public ComponentExecutionStatus getStatus() {
     return status;
   }
 
@@ -65,7 +63,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return true, if is empty
    */
-  @Override public boolean isEmpty() {
+  @Override
+  public boolean isEmpty() {
     return status == ComponentExecutionStatus.STATUS_EMPTY;
   }
 
@@ -74,7 +73,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return true, if is initialising
    */
-  @Override public boolean isInitialising() {
+  @Override
+  public boolean isInitialising() {
     return status == ComponentExecutionStatus.STATUS_INIT;
   }
 
@@ -83,7 +83,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return true, if is running
    */
-  @Override public boolean isRunning() {
+  @Override
+  public boolean isRunning() {
     return status == ComponentExecutionStatus.STATUS_RUNNING;
   }
 
@@ -92,7 +93,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return true, if is idle
    */
-  @Override public boolean isIdle() {
+  @Override
+  public boolean isIdle() {
     return status == ComponentExecutionStatus.STATUS_IDLE;
   }
 
@@ -101,7 +103,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return true, if is finished
    */
-  @Override public boolean isFinished() {
+  @Override
+  public boolean isFinished() {
     return status == ComponentExecutionStatus.STATUS_FINISHED;
   }
 
@@ -119,7 +122,8 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return true, if is disposed
    */
-  @Override public boolean isDisposed() {
+  @Override
+  public boolean isDisposed() {
     return status == ComponentExecutionStatus.STATUS_DISPOSED;
   }
 }

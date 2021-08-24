@@ -57,13 +57,22 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
   private List<String> xpPluginClasses;
 
   // Log and count errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BeamBQOutputTransform.class );
-  private static final Counter numErrors = Metrics.counter( "main", "BeamOutputError" );
+  private static final Logger LOG = LoggerFactory.getLogger(BeamBQOutputTransform.class);
+  private static final Counter numErrors = Metrics.counter("main", "BeamOutputError");
 
-  public BeamBQOutputTransform() {
-  }
+  public BeamBQOutputTransform() {}
 
-  public BeamBQOutputTransform( String transformName, String projectId, String datasetId, String tableId, boolean createIfNeeded, boolean truncateTable, boolean failIfNotEmpty, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamBQOutputTransform(
+      String transformName,
+      String projectId,
+      String datasetId,
+      String tableId,
+      boolean createIfNeeded,
+      boolean truncateTable,
+      boolean failIfNotEmpty,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.transformName = transformName;
     this.projectId = projectId;
     this.datasetId = datasetId;
@@ -76,51 +85,66 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     this.xpPluginClasses = xpPluginClasses;
   }
 
-  @Override public PDone expand( PCollection<HopRow> input ) {
+  @Override
+  public PDone expand(PCollection<HopRow> input) {
 
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init( transformPluginClasses, xpPluginClasses );
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
 
       // Inflate the metadata on the node where this is running...
       //
-      IRowMeta rowMeta = JsonRowMeta.fromJson( rowMetaJson );
-
+      IRowMeta rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       // Which table do we write to?
       //
       TableReference tableReference = new TableReference();
-      if ( StringUtils.isNotEmpty( projectId ) ) {
-        tableReference.setProjectId( projectId );
+      if (StringUtils.isNotEmpty(projectId)) {
+        tableReference.setProjectId(projectId);
       }
-      tableReference.setDatasetId( datasetId );
-      tableReference.setTableId( tableId );
+      tableReference.setDatasetId(datasetId);
+      tableReference.setTableId(tableId);
 
       TableSchema tableSchema = new TableSchema();
       List<TableFieldSchema> schemaFields = new ArrayList<>();
-      for ( IValueMeta valueMeta : rowMeta.getValueMetaList() ) {
+      for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
         TableFieldSchema schemaField = new TableFieldSchema();
-        schemaField.setName( valueMeta.getName() );
-        switch(valueMeta.getType()){
-          case IValueMeta.TYPE_STRING: schemaField.setType( "STRING" ); break;
-          case IValueMeta.TYPE_INTEGER: schemaField.setType( "INTEGER" ); break;
-          case IValueMeta.TYPE_DATE: schemaField.setType( "DATETIME" ); break;
-          case IValueMeta.TYPE_BOOLEAN: schemaField.setType( "BOOLEAN" ); break;
-          case IValueMeta.TYPE_NUMBER: schemaField.setType( "FLOAT" ); break;
+        schemaField.setName(valueMeta.getName());
+        switch (valueMeta.getType()) {
+          case IValueMeta.TYPE_STRING:
+            schemaField.setType("STRING");
+            break;
+          case IValueMeta.TYPE_INTEGER:
+            schemaField.setType("INTEGER");
+            break;
+          case IValueMeta.TYPE_DATE:
+            schemaField.setType("DATETIME");
+            break;
+          case IValueMeta.TYPE_BOOLEAN:
+            schemaField.setType("BOOLEAN");
+            break;
+          case IValueMeta.TYPE_NUMBER:
+            schemaField.setType("FLOAT");
+            break;
           default:
-            throw new RuntimeException( "Conversion from Hop value "+valueMeta.toString()+" to BigQuery TableRow isn't supported yet" );
+            throw new RuntimeException(
+                "Conversion from Hop value "
+                    + valueMeta.toString()
+                    + " to BigQuery TableRow isn't supported yet");
         }
         schemaFields.add(schemaField);
       }
-      tableSchema.setFields( schemaFields );
+      tableSchema.setFields(schemaFields);
 
-      SerializableFunction<HopRow, TableRow> formatFunction = new HopToBQTableRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses );
+      SerializableFunction<HopRow, TableRow> formatFunction =
+          new HopToBQTableRowFn(
+              transformName, rowMetaJson, transformPluginClasses, xpPluginClasses);
 
       BigQueryIO.Write.CreateDisposition createDisposition;
       if (createIfNeeded) {
         createDisposition = BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED;
-      }  else {
+      } else {
         createDisposition = BigQueryIO.Write.CreateDisposition.CREATE_NEVER;
       }
 
@@ -135,26 +159,26 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
         }
       }
 
-      BigQueryIO.Write<HopRow> bigQueryWrite = BigQueryIO
-        .<HopRow>write()
-        .to( tableReference )
-        .withSchema( tableSchema )
-        .withCreateDisposition( createDisposition )
-        .withWriteDisposition( writeDisposition )
-        .withFormatFunction( formatFunction );
+      BigQueryIO.Write<HopRow> bigQueryWrite =
+          BigQueryIO.<HopRow>write()
+              .to(tableReference)
+              .withSchema(tableSchema)
+              .withCreateDisposition(createDisposition)
+              .withWriteDisposition(writeDisposition)
+              .withFormatFunction(formatFunction);
 
       // TODO: pass the results along the way at some point
       //
-      input.apply( transformName, bigQueryWrite );
+      input.apply(transformName, bigQueryWrite);
 
       // End of the line
       //
-      return PDone.in( input.getPipeline() );
+      return PDone.in(input.getPipeline());
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in Beam BigQuery output transform", e );
-      throw new RuntimeException( "Error in Beam BigQuery output transform", e );
+      LOG.error("Error in Beam BigQuery output transform", e);
+      throw new RuntimeException("Error in Beam BigQuery output transform", e);
     }
   }
 }

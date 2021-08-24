@@ -53,16 +53,20 @@ image:hop-import/import-dialog.png[Import Dialog]
 
 The options in this dialog are:
 
-[options="header", width=90%]
+[options="header",width=90%]
 |===
 |Option|Description|Optional
 |Import From|The folder to import Kettle/PDI jobs and transformations from|No
 |Import in existing project|check to import into an existing project, uncheck to import into a folder|No
 |Import in project|Dropdown list of available projects to import the Kettle/PDI project into|Conditional
-|Import to folder|Path to import the Kettle/PDI project to. All imported items will be imported into a Hop project in this folder.|Conditional
-|Path to kettle.properties|Path to a kettle.properties file. All properties in this file will be imported as variables in the Hop project.|Yes
-|Path to shared.xml|Path to a shared.xml file. All database connections in this file will be imported as Hop relational database connection metadata objects in the specified Hop project or folder.|Yes
-|Path to jdbc.properties|Path to a jdbc.properties file. All Kettle/PDI JNDI database connections in this file will be imported as Hop (generic) relational database connection metadata objects in the specified Hop project or folder.|Yes
+|Import to folder|Path to import the Kettle/PDI project to.
+All imported items will be imported into a Hop project in this folder.|Conditional
+|Path to kettle.properties|Path to a kettle.properties file.
+All properties in this file will be imported as variables in the Hop project.|Yes
+|Path to shared.xml|Path to a shared.xml file.
+All database connections in this file will be imported as Hop relational database connection metadata objects in the specified Hop project or folder.|Yes
+|Path to jdbc.properties|Path to a jdbc.properties file.
+All Kettle/PDI JNDI database connections in this file will be imported as Hop (generic) relational database connection metadata objects in the specified Hop project or folder.|Yes
 |===
 
 After entering your import details, click the 'Import' button.
@@ -79,9 +83,11 @@ The migration summary shows:
 * number of variables
 * number of database connections
 
-NOTE: Only migrated items will be shown. Items that were not available in the specified folders or files for this import will not be shown.
+NOTE: Only migrated items will be shown.
+Items that were not available in the specified folders or files for this import will not be shown.
 
-When multiple database connections with the same name but different configurations were found (see 'Known limitations'), a `connnections.csv` file will be created in the project folder. This file contains a list of all jobs and transformations, with the connections they use.
+When multiple database connections with the same name but different configurations were found (see 'Known limitations'), a `connnections.csv` file will be created in the project folder.
+This file contains a list of all jobs and transformations, with the connections they use.
 
 
 

@@ -51,7 +51,5 @@ public class AnalyticQueryData extends BaseTransformData implements ITransformDa
 
   public AnalyticQueryData() {
     super();
-
   }
-
 }

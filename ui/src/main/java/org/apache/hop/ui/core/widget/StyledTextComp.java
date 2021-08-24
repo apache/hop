@@ -35,12 +35,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 public class StyledTextComp extends Composite {
   private static final Class<?> PKG = StyledTextComp.class; // For Translator
@@ -70,19 +65,14 @@ public class StyledTextComp extends Composite {
     textWidget = new Text(this, args);
     styledTextPopupmenu = new Menu(parent.getShell(), SWT.POP_UP);
     xParent = parent;
-    this.setLayout(new FormLayout());  
-    
+    this.setLayout(new FormLayout());
+
     buildingStyledTextMenu();
 
     // Default layout without variables
     textWidget.setLayoutData(
-        new FormDataBuilder()
-            .top()
-            .left()
-            .right(100, 0)
-            .bottom(100, 0)
-            .result());
-    
+        new FormDataBuilder().top().left().right(100, 0).bottom(100, 0).result());
+
     // Special layout for variables decorator
     if (varsSensitive) {
       textWidget.addKeyListener(new ControlSpaceKeyAdapter(variables, textWidget));
@@ -114,9 +104,8 @@ public class StyledTextComp extends Composite {
                 .right(new FormAttachment(controlDecoration, 0, 0))
                 .bottom(100, 0)
                 .result());
-
       }
-    }   
+    }
   }
 
   public String getSelectionText() {

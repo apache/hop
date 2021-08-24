@@ -22,7 +22,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ConditionLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -47,20 +46,21 @@ public class JoinRowsMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "directory", "prefix", "cacheSize", "mainTransformName", "condition" );
+        Arrays.asList("directory", "prefix", "cacheSize", "mainTransformName", "condition");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "condition", new ConditionLoadSaveValidator() );
+    attrValidatorMap.put("condition", new ConditionLoadSaveValidator());
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -71,46 +71,46 @@ public class JoinRowsMetaTest {
   @Test
   public void testCleanAfterHopToRemove_NullParameter() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
-    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( ITransformMeta.class ) );
-    joinRowsMeta.setMainTransform( transformMeta1 );
-    joinRowsMeta.setMainTransformName( transformMeta1.getName() );
+    TransformMeta transformMeta1 = new TransformMeta("Transform1", mock(ITransformMeta.class));
+    joinRowsMeta.setMainTransform(transformMeta1);
+    joinRowsMeta.setMainTransformName(transformMeta1.getName());
 
     // This call must not throw an exception
-    joinRowsMeta.cleanAfterHopToRemove( null );
+    joinRowsMeta.cleanAfterHopToRemove(null);
 
     // And no change to the transform should be made
-    assertEquals( transformMeta1, joinRowsMeta.getMainTransform() );
-    assertEquals( transformMeta1.getName(), joinRowsMeta.getMainTransformName() );
+    assertEquals(transformMeta1, joinRowsMeta.getMainTransform());
+    assertEquals(transformMeta1.getName(), joinRowsMeta.getMainTransformName());
   }
 
   @Test
   public void testCleanAfterHopToRemove_UnknownTransform() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
 
-    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( ITransformMeta.class ) );
-    TransformMeta transformMeta2 = new TransformMeta( "Transform2", mock( ITransformMeta.class ) );
-    joinRowsMeta.setMainTransform( transformMeta1 );
-    joinRowsMeta.setMainTransformName( transformMeta1.getName() );
+    TransformMeta transformMeta1 = new TransformMeta("Transform1", mock(ITransformMeta.class));
+    TransformMeta transformMeta2 = new TransformMeta("Transform2", mock(ITransformMeta.class));
+    joinRowsMeta.setMainTransform(transformMeta1);
+    joinRowsMeta.setMainTransformName(transformMeta1.getName());
 
-    joinRowsMeta.cleanAfterHopToRemove( transformMeta2 );
+    joinRowsMeta.cleanAfterHopToRemove(transformMeta2);
 
     // No change to the transform should be made
-    assertEquals( transformMeta1, joinRowsMeta.getMainTransform() );
-    assertEquals( transformMeta1.getName(), joinRowsMeta.getMainTransformName() );
+    assertEquals(transformMeta1, joinRowsMeta.getMainTransform());
+    assertEquals(transformMeta1.getName(), joinRowsMeta.getMainTransformName());
   }
 
   @Test
   public void testCleanAfterHopToRemove_ReferredTransform() {
     JoinRowsMeta joinRowsMeta = new JoinRowsMeta();
 
-    TransformMeta transformMeta1 = new TransformMeta( "Transform1", mock( ITransformMeta.class ) );
-    joinRowsMeta.setMainTransform( transformMeta1 );
-    joinRowsMeta.setMainTransformName( transformMeta1.getName() );
+    TransformMeta transformMeta1 = new TransformMeta("Transform1", mock(ITransformMeta.class));
+    joinRowsMeta.setMainTransform(transformMeta1);
+    joinRowsMeta.setMainTransformName(transformMeta1.getName());
 
-    joinRowsMeta.cleanAfterHopToRemove( transformMeta1 );
+    joinRowsMeta.cleanAfterHopToRemove(transformMeta1);
 
     // No change to the transform should be made
-    assertNull( joinRowsMeta.getMainTransform() );
-    assertNull( joinRowsMeta.getMainTransformName() );
+    assertNull(joinRowsMeta.getMainTransform());
+    assertNull(joinRowsMeta.getMainTransformName());
   }
 }

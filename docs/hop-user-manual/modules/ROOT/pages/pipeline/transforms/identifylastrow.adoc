@@ -25,9 +25,10 @@ The Identify last row in a stream pipeline transform generates a Boolean field f
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
-|Result fieldname|Defines the field to use to mark the last row of a stream. It generates a Boolean field filled with true for the last row, and falseotherwise. 
+|Result fieldname|Defines the field to use to mark the last row of a stream.
+It generates a Boolean field filled with true for the last row, and falseotherwise.
 |===

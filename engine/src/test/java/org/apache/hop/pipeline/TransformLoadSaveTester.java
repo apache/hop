@@ -30,16 +30,26 @@ import java.util.Map;
 
 public class TransformLoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
 
-  public TransformLoadSaveTester( Class<T> clazz, List<String> commonAttributes, List<String> xmlAttributes,
-                                  Map<String, String> getterMap, Map<String, String> setterMap,
-                                  Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-                                  Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
+  public TransformLoadSaveTester(
+      Class<T> clazz,
+      List<String> commonAttributes,
+      List<String> xmlAttributes,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) {
+    super(
+        clazz,
+        commonAttributes,
+        xmlAttributes,
+        getterMap,
+        setterMap,
+        fieldLoadSaveValidatorAttributeMap,
+        fieldLoadSaveValidatorTypeMap);
   }
 
-  public TransformLoadSaveTester( Class<T> clazz, List<String> commonAttributes ) {
-    super( clazz, commonAttributes );
+  public TransformLoadSaveTester(Class<T> clazz, List<String> commonAttributes) {
+    super(clazz, commonAttributes);
   }
 
   public void testSerialization() throws HopException {
@@ -50,22 +60,23 @@ public class TransformLoadSaveTester<T extends ITransformMeta> extends LoadSaveB
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
-      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+        createValidatorMapAndInvokeSetters(xmlAttributes, metaToSave);
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXml() + "</transform>";
-    InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXmlFile( is, null, false, false ), "transform" ), metadataProvider );
-    validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
+    InputStream is = new ByteArrayInputStream(xml.getBytes());
+    metaLoaded.loadXml(
+        XmlHandler.getSubNode(XmlHandler.loadXmlFile(is, null, false, false), "transform"),
+        metadataProvider);
+    validateLoadedMeta(xmlAttributes, validatorMap, metaToSave, metaLoaded);
   }
-
 
   protected void testClone() {
     T metaToSave = createMeta();
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
-      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+        createValidatorMapAndInvokeSetters(xmlAttributes, metaToSave);
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings("unchecked")
     T metaLoaded = (T) metaToSave.clone();
-    validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
+    validateLoadedMeta(xmlAttributes, validatorMap, metaToSave, metaLoaded);
   }
 }

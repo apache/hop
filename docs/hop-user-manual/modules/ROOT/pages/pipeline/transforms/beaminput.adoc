@@ -25,7 +25,7 @@ The Beam Input transform reads files using a file definition with the Beam execu
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
@@ -40,7 +40,7 @@ The Beam Input transform reads files using a file definition with the Beam execu
 
 A file definition can be used to define a file structure definition.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Name|The file definition name.

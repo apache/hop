@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transform;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /**
- * This interface is used to launch Transform Dialogs. All dialogs that implement this simple interface can be opened by
- * HopGui.
+ * This interface is used to launch Transform Dialogs. All dialogs that implement this simple
+ * interface can be opened by HopGui.
  *
  * @author Matt
  * @since 4-aug-2004
@@ -37,10 +37,10 @@ public interface ITransformDialog {
 
   /**
    * void populateComposite( Composite parent);
-   * <p>
-   * /**
+   *
+   * <p>/**
    *
    * @param metadataProvider The MetaStore to pass
    */
-  void setMetadataProvider( IHopMetadataProvider metadataProvider );
+  void setMetadataProvider(IHopMetadataProvider metadataProvider);
 }

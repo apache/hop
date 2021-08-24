@@ -22,17 +22,22 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore( "Ignored, not running with ant build. Investigate." )
+@Ignore("Ignored, not running with ant build. Investigate.")
 public class CubeInputContentParsingTest extends BaseCubeInputParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void test() throws Exception {
-    init( "input.ser" );
+    init("input.ser");
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" }, {
-      "\u043d\u0435-\u043b\u0430\u0446\u0456\u043d\u043a\u0430(non-latin)", "4", "4" } } );
+    check(
+        new Object[][] {
+          {"first", "1", "1.1"},
+          {"second", "2", "2.2"},
+          {"third", "3", "3.3"},
+          {"\u043d\u0435-\u043b\u0430\u0446\u0456\u043d\u043a\u0430(non-latin)", "4", "4"}
+        });
   }
 }

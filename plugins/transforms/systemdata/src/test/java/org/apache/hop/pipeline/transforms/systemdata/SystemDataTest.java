@@ -34,33 +34,33 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-/**
- * User: Dzmitry Stsiapanau Date: 1/20/14 Time: 12:12 PM
- */
+/** User: Dzmitry Stsiapanau Date: 1/20/14 Time: 12:12 PM */
 public class SystemDataTest {
   private class SystemDataHandler extends SystemData {
 
-    Object[] row = new Object[] { "anyData" };
+    Object[] row = new Object[] {"anyData"};
     Object[] outputRow;
 
-    public SystemDataHandler(TransformMeta transformMeta, SystemDataMeta meta, SystemDataData data, int copyNr, PipelineMeta pipelineMeta,
-                             Pipeline pipeline ) {
-      super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+    public SystemDataHandler(
+        TransformMeta transformMeta,
+        SystemDataMeta meta,
+        SystemDataData data,
+        int copyNr,
+        PipelineMeta pipelineMeta,
+        Pipeline pipeline) {
+      super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
     }
 
-    @SuppressWarnings( "unused" )
-    public void setRow( Object[] row ) {
+    @SuppressWarnings("unused")
+    public void setRow(Object[] row) {
       this.row = row;
     }
 
     /**
-     * In case of getRow, we receive data from previous transforms through the input rowset. In case we split the stream, we
-     * have to copy the data to the alternate splits: rowsets 1 through n.
+     * In case of getRow, we receive data from previous transforms through the input rowset. In case
+     * we split the stream, we have to copy the data to the alternate splits: rowsets 1 through n.
      */
     @Override
     public Object[] getRow() throws HopException {
@@ -68,22 +68,21 @@ public class SystemDataTest {
     }
 
     /**
-     * putRow is used to copy a row, to the alternate rowset(s) This should get priority over everything else!
-     * (synchronized) If distribute is true, a row is copied only once to the output rowsets, otherwise copies are sent
-     * to each rowset!
+     * putRow is used to copy a row, to the alternate rowset(s) This should get priority over
+     * everything else! (synchronized) If distribute is true, a row is copied only once to the
+     * output rowsets, otherwise copies are sent to each rowset!
      *
      * @param row The row to put to the destination rowset(s).
      * @throws HopTransformException
      */
     @Override
-    public void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+    public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
       outputRow = row;
     }
 
     public Object[] getOutputRow() {
       return outputRow;
     }
-
   }
 
   private TransformMockHelper<SystemDataMeta, SystemDataData> transformMockHelper;
@@ -91,12 +90,11 @@ public class SystemDataTest {
   @Before
   public void setUp() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<>( "SYSTEM_DATA TEST", SystemDataMeta.class,
-        SystemDataData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
-    verify( transformMockHelper.pipeline, never() ).stopAll();
+        new TransformMockHelper<>("SYSTEM_DATA TEST", SystemDataMeta.class, SystemDataData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
+    verify(transformMockHelper.pipeline, never()).stopAll();
   }
 
   @After
@@ -109,24 +107,33 @@ public class SystemDataTest {
   public void testProcessRow() throws Exception {
     SystemDataData systemDataData = new SystemDataData();
     SystemDataMeta systemDataMeta = new SystemDataMeta();
-    systemDataMeta.allocate( 2 );
+    systemDataMeta.allocate(2);
     String[] names = systemDataMeta.getFieldName();
     SystemDataTypes[] types = systemDataMeta.getFieldType();
-    names[ 0 ] = "hostname";
-    names[ 1 ] = "hostname_real";
-    types[ 0 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription() );
-    types[ 1 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription() );
+    names[0] = "hostname";
+    names[1] = "hostname_real";
+    types[0] =
+        SystemDataTypes.getTypeFromString(
+            SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription());
+    types[1] =
+        SystemDataTypes.getTypeFromString(
+            SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription());
     SystemDataHandler systemData =
-      new SystemDataHandler( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
-    Object[] expectedRow = new Object[] { Const.getHostname(), Const.getHostnameReal() };
-    IRowMeta inputRowMeta = mock( IRowMeta.class );
-    when( inputRowMeta.clone() ).thenReturn( inputRowMeta );
-    when( inputRowMeta.size() ).thenReturn( 2 );
+        new SystemDataHandler(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    Object[] expectedRow = new Object[] {Const.getHostname(), Const.getHostnameReal()};
+    IRowMeta inputRowMeta = mock(IRowMeta.class);
+    when(inputRowMeta.clone()).thenReturn(inputRowMeta);
+    when(inputRowMeta.size()).thenReturn(2);
     systemDataData.outputRowMeta = inputRowMeta;
     systemData.init();
-    assertFalse( systemData.processRow());
+    assertFalse(systemData.processRow());
     Object[] out = systemData.getOutputRow();
-    assertArrayEquals( expectedRow, out );
+    assertArrayEquals(expectedRow, out);
   }
 }

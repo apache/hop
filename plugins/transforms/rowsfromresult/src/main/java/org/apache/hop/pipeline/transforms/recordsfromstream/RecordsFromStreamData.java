@@ -19,5 +19,4 @@ package org.apache.hop.pipeline.transforms.recordsfromstream;
 
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultData;
 
-public class RecordsFromStreamData extends RowsFromResultData {
-}
+public class RecordsFromStreamData extends RowsFromResultData {}

@@ -21,15 +21,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
- * Extended {@link HopException} to allow passing of extra context info up the chain (sheet, row, and column IDs).
- * <p>
- * If we were really obsessive, we'd cache both the names and indexes of all the items, including the input file. But
- * this will do for a start.
+ * Extended {@link HopException} to allow passing of extra context info up the chain (sheet, row,
+ * and column IDs).
+ *
+ * <p>If we were really obsessive, we'd cache both the names and indexes of all the items, including
+ * the input file. But this will do for a start.
  *
  * @author timh
  * @since 14-FEB-2008
  */
-
 public class HopCellValueException extends HopException {
 
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
@@ -43,17 +43,19 @@ public class HopCellValueException extends HopException {
 
   /**
    * Standard constructor.
-   * <p/>
-   * <em>Note:</em> All indexes below have a 0-origin (internal index), but are reported with a 1-origin (human index).
    *
-   * @param ex        The Exception to wrap.
-   * @param sheetnr   Sheet number
-   * @param rownr     Row number
-   * @param colnr     Column number
+   * <p><em>Note:</em> All indexes below have a 0-origin (internal index), but are reported with a
+   * 1-origin (human index).
+   *
+   * @param ex The Exception to wrap.
+   * @param sheetnr Sheet number
+   * @param rownr Row number
+   * @param colnr Column number
    * @param fieldName The name of the field being converted
    */
-  public HopCellValueException( HopException ex, int sheetnr, int rownr, int colnr, String fieldName ) {
-    super( ex );
+  public HopCellValueException(
+      HopException ex, int sheetnr, int rownr, int colnr, String fieldName) {
+    super(ex);
     // Note that internal indexes start at 0
     this.sheetnr = sheetnr + 1;
     this.rownr = rownr + 1;
@@ -64,10 +66,14 @@ public class HopCellValueException extends HopException {
   @Override
   public String getMessage() {
     String msgText =
-      BaseMessages.getString( PKG, "HopCellValueException.CannotConvertFieldFromCell", Integer
-        .toString( sheetnr ), Integer.toString( rownr ), Integer.toString( colnr ), fieldName, super
-        .getMessage() );
+        BaseMessages.getString(
+            PKG,
+            "HopCellValueException.CannotConvertFieldFromCell",
+            Integer.toString(sheetnr),
+            Integer.toString(rownr),
+            Integer.toString(colnr),
+            fieldName,
+            super.getMessage());
     return msgText;
   }
-
 }

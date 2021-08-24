@@ -23,7 +23,8 @@ under the License.
 
 Connections can be created and edited using the logo (click on it to edit), and the drop down menu (arrow down) which you can find on the right of every connection line on the various Cassandra action or transform dialogs.
 
-They can also be managed with the metadata perspective in the Hop GUI. Finally, please note that Cassandra Connections are serialized as JSON in the Hop metadata folder under
+They can also be managed with the metadata perspective in the Hop GUI.
+Finally, please note that Cassandra Connections are serialized as JSON in the Hop metadata folder under
 
 `metadata/cassandra-connection/`
 
@@ -48,7 +49,10 @@ They can also be managed with the metadata perspective in the Hop GUI. Finally, 
 |Set an optional connection timeout period, specified in milliseconds.
 
 |Keyspace
-|Specify the keyspace (database) name. You can use the `Select Keyspace` button to select a keyspace.  You can use the `Execute CQL` button to create one.  For example:
+|Specify the keyspace (database) name.
+You can use the `Select Keyspace` button to select a keyspace.
+You can use the `Execute CQL` button to create one.
+For example:
 `CREATE KEYSPACE IF NOT EXISTS hop
 WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3} ;`
 

@@ -41,8 +41,9 @@ import java.util.List;
 @Transform(
     id = "SSTableOutput",
     image = "Cassandra.svg",
-    name = "SSTable output",    
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sstable-output.html",
+    name = "SSTable output",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/sstable-output.html",
     description = "Writes to a filesystem directory as a Cassandra SSTable",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "SSTableOutput.Injection.")

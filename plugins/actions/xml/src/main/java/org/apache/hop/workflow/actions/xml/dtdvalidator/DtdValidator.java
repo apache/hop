@@ -138,7 +138,8 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 

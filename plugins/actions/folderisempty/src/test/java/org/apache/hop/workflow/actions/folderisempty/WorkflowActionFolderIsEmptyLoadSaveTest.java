@@ -17,15 +17,16 @@
 
 package org.apache.hop.workflow.actions.folderisempty;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionFolderIsEmptyLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionFolderIsEmpty> {
+public class WorkflowActionFolderIsEmptyLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionFolderIsEmpty> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -35,24 +36,24 @@ public class WorkflowActionFolderIsEmptyLoadSaveTest extends WorkflowActionLoadS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( "foldername", "includeSubfolders", "specifywildcard", "wildcard" );
+    return Arrays.asList("foldername", "includeSubfolders", "specifywildcard", "wildcard");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "foldername", "getFoldername",
-      "includeSubfolders", "isIncludeSubFolders",
-      "specifywildcard", "isSpecifyWildcard",
-      "wildcard", "getWildcard" );
+        "foldername", "getFoldername",
+        "includeSubfolders", "isIncludeSubFolders",
+        "specifywildcard", "isSpecifyWildcard",
+        "wildcard", "getWildcard");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "foldername", "setFoldername",
-      "includeSubfolders", "setIncludeSubFolders",
-      "specifywildcard", "setSpecifyWildcard",
-      "wildcard", "setWildcard" );
+        "foldername", "setFoldername",
+        "includeSubfolders", "setIncludeSubFolders",
+        "specifywildcard", "setSpecifyWildcard",
+        "wildcard", "setWildcard");
   }
 }

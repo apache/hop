@@ -47,24 +47,23 @@ public class DataGridMeta extends BaseTransformMeta
     implements ITransformMeta<DataGrid, DataGridData> {
 
   @HopMetadataProperty(
-          groupKey = "fields",
-          key = "field",
-          injectionGroupDescription = "DataGridDialog.Meta.Label")
+      groupKey = "fields",
+      key = "field",
+      injectionGroupDescription = "DataGridDialog.Meta.Label")
   private List<DataGridFieldMeta> dataGridFields;
 
-
   @HopMetadataProperty(
-          groupKey = "data",
-          key = "line",
-          injectionGroupDescription = "DataGridDialog.Data.Label")
+      groupKey = "data",
+      key = "line",
+      injectionGroupDescription = "DataGridDialog.Data.Label")
   private List<DataGridDataMeta> dataLines;
 
-  public DataGridMeta(){
+  public DataGridMeta() {
     dataGridFields = new ArrayList<>();
     dataLines = new ArrayList<>();
   }
 
-  public DataGridMeta(DataGridMeta m){
+  public DataGridMeta(DataGridMeta m) {
     this.dataGridFields = m.dataGridFields;
     this.dataLines = m.dataLines;
   }
@@ -118,11 +117,11 @@ public class DataGridMeta extends BaseTransformMeta
           rowMeta.addValueMeta(v);
         }
       } catch (Exception e) {
-        throw new HopTransformException("Unable to create value of type " + dataGridFields.get(i).getType(), e);
+        throw new HopTransformException(
+            "Unable to create value of type " + dataGridFields.get(i).getType(), e);
       }
     }
   }
-
 
   @Override
   public DataGrid createTransform(

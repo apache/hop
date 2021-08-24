@@ -14,4 +14,5 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-Hop Gui is the visual IDE where Hop data developers create, test, run and manage the life cycle for workflows and pipelines. In addition to functionality for development and life cycle management, Hop Gui contains tools and perspectives to manage projects and environments, to search and manage metadata, to manage and version control a large variety of files and to explore logging in a Neo4j graph.
+Hop Gui is the visual IDE where Hop data developers create, test, run and manage the life cycle for workflows and pipelines.
+In addition to functionality for development and life cycle management, Hop Gui contains tools and perspectives to manage projects and environments, to search and manage metadata, to manage and version control a large variety of files and to explore logging in a Neo4j graph.

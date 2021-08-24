@@ -25,12 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class HopGuiEventsHandlerTest {
 
@@ -63,7 +58,7 @@ public class HopGuiEventsHandlerTest {
   @Test
   public void testAddRemoveListeners() throws Exception {
     Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap =
-      events.getGuiEventListenerMap();
+        events.getGuiEventListenerMap();
 
     events.addEventListener("guiId-1", e -> {}, "eventId-1");
     events.addEventListener("guiId-1", e -> {}, "eventId-2");

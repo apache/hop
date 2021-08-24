@@ -26,16 +26,17 @@ import java.io.OutputStream;
 
 public class SnappyCompressionOutputStream extends CompressionOutputStream {
 
-  public SnappyCompressionOutputStream( OutputStream out, ICompressionProvider provider ) throws IOException {
-    super( getDelegate( out ), provider );
+  public SnappyCompressionOutputStream(OutputStream out, ICompressionProvider provider)
+      throws IOException {
+    super(getDelegate(out), provider);
   }
 
-  private static SnappyOutputStream getDelegate( OutputStream out ) throws IOException {
+  private static SnappyOutputStream getDelegate(OutputStream out) throws IOException {
     SnappyOutputStream delegate;
-    if ( out instanceof SnappyOutputStream ) {
+    if (out instanceof SnappyOutputStream) {
       delegate = (SnappyOutputStream) out;
     } else {
-      delegate = new SnappyOutputStream( out );
+      delegate = new SnappyOutputStream(out);
     }
     return delegate;
   }
@@ -48,7 +49,7 @@ public class SnappyCompressionOutputStream extends CompressionOutputStream {
   }
 
   @Override
-  public void write( int b ) throws IOException {
-    delegate.write( b );
+  public void write(int b) throws IOException {
+    delegate.write(b);
   }
 }

@@ -18,7 +18,7 @@
 package org.apache.hop.core.injection;
 
 public class MetaBeanLevel2Base {
-  @Injection( name = "BASE" )
+  @Injection(name = "BASE")
   private String baseField;
 
   private String first;
@@ -27,8 +27,8 @@ public class MetaBeanLevel2Base {
     return first;
   }
 
-  @Injection( name = "FIRST" )
-  public void firstset( int a ) {
+  @Injection(name = "FIRST")
+  public void firstset(int a) {
     first = "" + a;
   }
 }

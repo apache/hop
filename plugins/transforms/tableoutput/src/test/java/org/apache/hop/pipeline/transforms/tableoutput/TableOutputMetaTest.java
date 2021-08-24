@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMeta;
@@ -38,16 +38,10 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
+public class TableOutputMetaTest implements IInitializer<ITransformMeta> {
 
   private IVariables variables;
   private List<DatabaseMeta> databases;
@@ -155,7 +149,7 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
 
     List<String> attributesList = new ArrayList<>();
     Map<String, String> getterMap = new HashMap<>();
@@ -164,29 +158,36 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
-            "fields", new ListLoadSaveValidator<>(new TableOutputFieldInputFieldLoadSaveValidator(), 5));
+        "fields",
+        new ListLoadSaveValidator<>(new TableOutputFieldInputFieldLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-            new LoadSaveTester( testMetaClass, attributesList, new ArrayList<>(),
-                    getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributesList,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
-
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof TableOutputMeta ) {
-      ((TableOutputMeta) someMeta ).getFields().clear();
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof TableOutputMeta) {
+      ((TableOutputMeta) someMeta).getFields().clear();
       ((TableOutputMeta) someMeta)
-              .getFields()
-              .addAll(
-                      Arrays.asList(
-                              new TableOutputField("DatabaseField1","StreamField1" ),
-                              new TableOutputField("DatabaseField2","StreamField2" ),
-                              new TableOutputField("DatabaseField3", "StreamField3" ),
-                              new TableOutputField("DatabaseField4","StreamField4" ),
-                              new TableOutputField("DatabaseField5","StreamField5" )));
+          .getFields()
+          .addAll(
+              Arrays.asList(
+                  new TableOutputField("DatabaseField1", "StreamField1"),
+                  new TableOutputField("DatabaseField2", "StreamField2"),
+                  new TableOutputField("DatabaseField3", "StreamField3"),
+                  new TableOutputField("DatabaseField4", "StreamField4"),
+                  new TableOutputField("DatabaseField5", "StreamField5")));
     }
   }
 
@@ -196,7 +197,7 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
   }
 
   public class TableOutputFieldInputFieldLoadSaveValidator
-          implements IFieldLoadSaveValidator<TableOutputField> {
+      implements IFieldLoadSaveValidator<TableOutputField> {
     final Random rand = new Random();
 
     @Override
@@ -204,9 +205,7 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
       String[] types = ValueMetaFactory.getAllValueMetaNames();
 
       TableOutputField field =
-              new TableOutputField(
-                      UUID.randomUUID().toString(),
-                      UUID.randomUUID().toString());
+          new TableOutputField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
       return field;
     }
@@ -218,11 +217,9 @@ public class TableOutputMetaTest  implements IInitializer<ITransformMeta> {
       }
       TableOutputField another = (TableOutputField) actual;
       return new EqualsBuilder()
-              .append(testObject.getFieldStream(), another.getFieldStream())
-              .append(testObject.getFieldDatabase(), another.getFieldDatabase())
-              .isEquals();
+          .append(testObject.getFieldStream(), another.getFieldStream())
+          .append(testObject.getFieldDatabase(), another.getFieldDatabase())
+          .isEquals();
     }
   }
-
-
 }

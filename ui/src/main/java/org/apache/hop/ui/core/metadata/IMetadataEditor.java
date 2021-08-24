@@ -28,10 +28,11 @@ public interface IMetadataEditor<T extends IHopMetadata> {
 
   void setMetadata(T metadata);
 
-  /** 
+  /**
    * Return the title of the editor
-   * 
-   * @return The title of this editor */
+   *
+   * @return The title of this editor
+   */
   String getTitle();
 
   /**
@@ -48,7 +49,7 @@ public interface IMetadataEditor<T extends IHopMetadata> {
    */
   String getTitleToolTip();
 
-  void createControl( Composite _parent );
+  void createControl(Composite _parent);
 
   /**
    * Returns whether the contents of this editor have changed since the last save operation.
@@ -57,21 +58,17 @@ public interface IMetadataEditor<T extends IHopMetadata> {
    */
   boolean hasChanged();
 
-  /**
-   * Flag the editor as changed
-   */
+  /** Flag the editor as changed */
   void setChanged();
 
-  /**
-   * Clear the changed flag
-   */
+  /** Clear the changed flag */
   void resetChanged();
 
   /** Save the editor input */
   void save() throws HopException;
 
   /** Save the editor input to file after asking for a filename */
-  void saveAs( String filename ) throws HopException;
+  void saveAs(String filename) throws HopException;
 
   boolean setFocus();
 

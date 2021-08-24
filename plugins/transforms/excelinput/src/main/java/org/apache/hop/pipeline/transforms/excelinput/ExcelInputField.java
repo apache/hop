@@ -29,26 +29,35 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
  * @since 12-04-2006
  */
 public class ExcelInputField implements Cloneable {
-  @Injection( name = "NAME", group = "FIELDS" )
+  @Injection(name = "NAME", group = "FIELDS")
   private String name;
+
   private int type;
-  @Injection( name = "LENGTH", group = "FIELDS" )
+
+  @Injection(name = "LENGTH", group = "FIELDS")
   private int length = -1;
-  @Injection( name = "PRECISION", group = "FIELDS" )
+
+  @Injection(name = "PRECISION", group = "FIELDS")
   private int precision = -1;
+
   private int trimtype;
-  @Injection( name = "FORMAT", group = "FIELDS" )
+
+  @Injection(name = "FORMAT", group = "FIELDS")
   private String format;
-  @Injection( name = "CURRENCY", group = "FIELDS" )
+
+  @Injection(name = "CURRENCY", group = "FIELDS")
   private String currencySymbol;
-  @Injection( name = "DECIMAL", group = "FIELDS" )
+
+  @Injection(name = "DECIMAL", group = "FIELDS")
   private String decimalSymbol;
-  @Injection( name = "GROUP", group = "FIELDS" )
+
+  @Injection(name = "GROUP", group = "FIELDS")
   private String groupSymbol;
-  @Injection( name = "REPEAT", group = "FIELDS" )
+
+  @Injection(name = "REPEAT", group = "FIELDS")
   private boolean repeat;
 
-  public ExcelInputField( String fieldname, int position, int length ) {
+  public ExcelInputField(String fieldname, int position, int length) {
     this.name = fieldname;
     this.length = length;
     this.type = IValueMeta.TYPE_STRING;
@@ -62,7 +71,7 @@ public class ExcelInputField implements Cloneable {
   }
 
   public ExcelInputField() {
-    this( null, -1, -1 );
+    this(null, -1, -1);
   }
 
   @Override
@@ -70,7 +79,7 @@ public class ExcelInputField implements Cloneable {
     try {
       Object retval = super.clone();
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -79,7 +88,7 @@ public class ExcelInputField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -87,7 +96,7 @@ public class ExcelInputField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -96,23 +105,23 @@ public class ExcelInputField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
-  @Injection( name = "TYPE", group = "FIELDS" )
-  public void setType( String typeDesc ) {
-    this.type = ValueMetaFactory.getIdForValueMeta( typeDesc );
+  @Injection(name = "TYPE", group = "FIELDS")
+  public void setType(String typeDesc) {
+    this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
 
   public String getFormat() {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -121,27 +130,27 @@ public class ExcelInputField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return ExcelInputMeta.getTrimTypeCode( trimtype );
+    return ExcelInputMeta.getTrimTypeCode(trimtype);
   }
 
   public String getTrimTypeDesc() {
-    return ExcelInputMeta.getTrimTypeDesc( trimtype );
+    return ExcelInputMeta.getTrimTypeDesc(trimtype);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
-  @Injection( name = "TRIM_TYPE", group = "FIELDS" )
-  public void setTrimType( String trimType ) {
-    this.trimtype = ValueMetaBase.getTrimTypeByCode( trimType );
+  @Injection(name = "TRIM_TYPE", group = "FIELDS")
+  public void setTrimType(String trimType) {
+    this.trimtype = ValueMetaBase.getTrimTypeByCode(trimType);
   }
 
   public String getGroupSymbol() {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String symbol ) {
+  public void setGroupSymbol(String symbol) {
     this.groupSymbol = symbol;
   }
 
@@ -149,7 +158,7 @@ public class ExcelInputField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String symbol ) {
+  public void setDecimalSymbol(String symbol) {
     this.decimalSymbol = symbol;
   }
 
@@ -157,7 +166,7 @@ public class ExcelInputField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String symbol ) {
+  public void setCurrencySymbol(String symbol) {
     this.currencySymbol = symbol;
   }
 
@@ -165,7 +174,7 @@ public class ExcelInputField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -173,7 +182,7 @@ public class ExcelInputField implements Cloneable {
     return repeat;
   }
 
-  public void setRepeated( boolean repeat ) {
+  public void setRepeated(boolean repeat) {
     this.repeat = repeat;
   }
 

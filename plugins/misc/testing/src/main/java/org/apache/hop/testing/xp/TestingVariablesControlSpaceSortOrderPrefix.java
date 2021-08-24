@@ -27,14 +27,15 @@ import org.apache.hop.testing.util.DataSetConst;
 import java.util.Map;
 
 @ExtensionPoint(
-  id = "TestingVariablesControlSpaceSortOrderPrefix",
-  extensionPointId = "HopGuiGetControlSpaceSortOrderPrefix",
-  description = "Set a prefix sort order for the testing variables, push fairly back"
-)
-public class TestingVariablesControlSpaceSortOrderPrefix implements IExtensionPoint<Map<String,String>> {
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Map<String, String> prefixMap ) throws HopException {
+    id = "TestingVariablesControlSpaceSortOrderPrefix",
+    extensionPointId = "HopGuiGetControlSpaceSortOrderPrefix",
+    description = "Set a prefix sort order for the testing variables, push fairly back")
+public class TestingVariablesControlSpaceSortOrderPrefix
+    implements IExtensionPoint<Map<String, String>> {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, Map<String, String> prefixMap) throws HopException {
 
-    prefixMap.put( DataSetConst.VAR_UNIT_TEST_NAME, "450_" );
-
+    prefixMap.put(DataSetConst.VAR_UNIT_TEST_NAME, "450_");
   }
 }

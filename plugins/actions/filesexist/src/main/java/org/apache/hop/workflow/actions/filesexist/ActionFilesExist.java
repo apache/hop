@@ -18,8 +18,8 @@
 package org.apache.hop.workflow.actions.filesexist;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
@@ -27,10 +27,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -42,15 +42,13 @@ import java.util.List;
  * @author Samatar
  * @since 10-12-2007
  */
-
 @Action(
-  id = "FILES_EXIST",
-  name = "i18n::ActionFilesExist.Name",
-  description = "i18n::ActionFilesExist.Description",
-  image = "FilesExist.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/filesexist.html"
-)
+    id = "FILES_EXIST",
+    name = "i18n::ActionFilesExist.Name",
+    description = "i18n::ActionFilesExist.Description",
+    image = "FilesExist.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/filesexist.html")
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFilesExist.class; // For Translator
 
@@ -58,75 +56,77 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
 
   private String[] arguments;
 
-  public ActionFilesExist( String n ) {
-    super( n, "" );
+  public ActionFilesExist(String n) {
+    super(n, "");
     filename = null;
   }
 
   public ActionFilesExist() {
-    this( "" );
+    this("");
   }
 
-  public void allocate( int nrFields ) {
-    arguments = new String[ nrFields ];
+  public void allocate(int nrFields) {
+    arguments = new String[nrFields];
   }
 
   public Object clone() {
     ActionFilesExist je = (ActionFilesExist) super.clone();
-    if ( arguments != null ) {
+    if (arguments != null) {
       int nrFields = arguments.length;
-      je.allocate( nrFields );
-      System.arraycopy( arguments, 0, je.arguments, 0, nrFields );
+      je.allocate(nrFields);
+      System.arraycopy(arguments, 0, je.arguments, 0, nrFields);
     }
     return je;
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 30 );
+    StringBuilder retval = new StringBuilder(30);
 
-    retval.append( super.getXml() );
+    retval.append(super.getXml());
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
 
-    retval.append( "      <fields>" ).append( Const.CR );
-    if ( arguments != null ) {
-      for ( int i = 0; i < arguments.length; i++ ) {
-        retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "name", arguments[ i ] ) );
-        retval.append( "        </field>" ).append( Const.CR );
+    retval.append("      <fields>").append(Const.CR);
+    if (arguments != null) {
+      for (int i = 0; i < arguments.length; i++) {
+        retval.append("        <field>").append(Const.CR);
+        retval.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
+        retval.append("        </field>").append(Const.CR);
       }
     }
-    retval.append( "      </fields>" ).append( Const.CR );
+    retval.append("      </fields>").append(Const.CR);
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      super.loadXml(entrynode);
+      filename = XmlHandler.getTagValue(entrynode, "filename");
 
-      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode(entrynode, "fields");
 
       // How many field arguments?
-      int nrFields = XmlHandler.countNodes( fields, "field" );
-      allocate( nrFields );
+      int nrFields = XmlHandler.countNodes(fields, "field");
+      allocate(nrFields);
 
       // Read them all...
-      for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+      for (int i = 0; i < nrFields; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
 
-        arguments[ i ] = XmlHandler.getTagValue( fnode, "name" );
-
+        arguments[i] = XmlHandler.getTagValue(fnode, "name");
       }
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "ActionFilesExist.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node", xe.getMessage() ) );
+    } catch (HopXmlException xe) {
+      throw new HopXmlException(
+          BaseMessages.getString(
+              PKG,
+              "ActionFilesExist.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node",
+              xe.getMessage()));
     }
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -138,77 +138,86 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     return arguments;
   }
 
-  public void setArguments( String[] arguments ) {
+  public void setArguments(String[] arguments) {
     this.arguments = arguments;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
-    result.setNrErrors( 0 );
+    result.setResult(false);
+    result.setNrErrors(0);
     int missingfiles = 0;
     int nrErrors = 0;
 
     boolean oldBehavior =
-      "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
+        "Y"
+            .equalsIgnoreCase(
+                getVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N"));
 
-    if ( arguments != null ) {
-      for ( int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++ ) {
+    if (arguments != null) {
+      for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
         FileObject file = null;
 
         try {
-          String realFilefoldername = resolve( arguments[ i ] );
-          file = HopVfs.getFileObject( realFilefoldername );
+          String realFilefoldername = resolve(arguments[i]);
+          file = HopVfs.getFileObject(realFilefoldername);
 
-          if ( file.exists() && file.isReadable() ) { // TODO: is it needed to check file for readability?
-            if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "ActionFilesExist.File_Exists", realFilefoldername ) );
+          if (file.exists()
+              && file.isReadable()) { // TODO: is it needed to check file for readability?
+            if (log.isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(PKG, "ActionFilesExist.File_Exists", realFilefoldername));
             }
           } else {
             missingfiles++;
-            if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString(
-                PKG, "ActionFilesExist.File_Does_Not_Exist", realFilefoldername ) );
+            if (log.isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG, "ActionFilesExist.File_Does_Not_Exist", realFilefoldername));
             }
           }
 
-        } catch ( Exception e ) {
+        } catch (Exception e) {
           nrErrors++;
           missingfiles++;
-          logError( BaseMessages.getString( PKG, "ActionFilesExist.ERROR_0004_IO_Exception", e.toString() ), e );
+          logError(
+              BaseMessages.getString(PKG, "ActionFilesExist.ERROR_0004_IO_Exception", e.toString()),
+              e);
         } finally {
-          if ( file != null ) {
+          if (file != null) {
             try {
               file.close();
               file = null;
-            } catch ( IOException ex ) { /* Ignore */
+            } catch (IOException ex) {
+              /* Ignore */
             }
           }
         }
       }
-
     }
 
-    result.setNrErrors( nrErrors );
+    result.setNrErrors(nrErrors);
 
-    if ( oldBehavior ) {
-      result.setNrErrors( missingfiles );
+    if (oldBehavior) {
+      result.setNrErrors(missingfiles);
     }
 
-    if ( missingfiles == 0 ) {
-      result.setResult( true );
+    if (missingfiles == 0) {
+      result.setResult(true);
     }
 
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-  }
-
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {}
 }

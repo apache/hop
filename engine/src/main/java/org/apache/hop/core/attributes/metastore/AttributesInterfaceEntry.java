@@ -21,13 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.IOException;
 
-/**
- * @author nhudak
- */
+/** @author nhudak */
 interface AttributesInterfaceEntry {
-  @JsonIgnore String groupName();
+  @JsonIgnore
+  String groupName();
 
-  @JsonIgnore String key();
+  @JsonIgnore
+  String key();
 
-  @JsonIgnore String jsonValue() throws IOException;
+  @JsonIgnore
+  String jsonValue() throws IOException;
 }

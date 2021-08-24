@@ -27,16 +27,16 @@ public class MemoryGroupByMetaInjectionTest extends BaseMetadataInjectionTest<Me
 
   @Before
   public void setup() throws Exception {
-    setup( new MemoryGroupByMeta() );
+    setup(new MemoryGroupByMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "GROUPFIELD", () -> meta.getGroupField()[ 0 ] );
-    check( "AGGREGATEFIELD", () -> meta.getAggregateField()[ 0 ] );
-    check( "SUBJECTFIELD", () -> meta.getSubjectField()[ 0 ] );
-    check( "AGGREGATETYPE", () -> meta.getAggregateType()[ 0 ] );
-    check( "VALUEFIELD", () -> meta.getValueField()[ 0 ] );
-    check( "ALWAYSGIVINGBACKONEROW", () -> meta.isAlwaysGivingBackOneRow() );
+    check("GROUPFIELD", () -> meta.getGroupField()[0]);
+    check("AGGREGATEFIELD", () -> meta.getAggregateField()[0]);
+    check("SUBJECTFIELD", () -> meta.getSubjectField()[0]);
+    check("AGGREGATETYPE", () -> meta.getAggregateType()[0]);
+    check("VALUEFIELD", () -> meta.getValueField()[0]);
+    check("ALWAYSGIVINGBACKONEROW", () -> meta.isAlwaysGivingBackOneRow());
   }
 }

@@ -22,6 +22,6 @@ import org.eclipse.rap.rwt.SingletonUtil;
 
 public class GuiContextUtilImpl implements ISingletonProvider {
   public Object getInstanceInternal() {
-    return SingletonUtil.getSessionInstance( GuiContextUtil.class );
+    return SingletonUtil.getSessionInstance(GuiContextUtil.class);
   }
 }

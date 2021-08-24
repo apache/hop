@@ -22,8 +22,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * The ICompressionProvider interface specifies the operations needed to interact with a stream whose data is compressed
- * on output and decompressed on input.
+ * The ICompressionProvider interface specifies the operations needed to interact with a stream
+ * whose data is compressed on output and decompressed on input.
  */
 public interface ICompressionProvider {
 
@@ -34,7 +34,7 @@ public interface ICompressionProvider {
    * @return a CompressionInputStream object that decompresses incoming data
    * @throws IOException
    */
-  CompressionInputStream createInputStream( InputStream in ) throws IOException;
+  CompressionInputStream createInputStream(InputStream in) throws IOException;
 
   /**
    * Whether this compression provider supports input streams
@@ -50,7 +50,7 @@ public interface ICompressionProvider {
    * @return a CompressionOutputStream object that compresses outgoing data
    * @throws IOException
    */
-  CompressionOutputStream createOutputStream( OutputStream out ) throws IOException;
+  CompressionOutputStream createOutputStream(OutputStream out) throws IOException;
 
   /**
    * Whether this compression provider supports output streams
@@ -60,7 +60,8 @@ public interface ICompressionProvider {
   boolean supportsOutput();
 
   /**
-   * Gets the name of this provider. Used for display and as a reference in saved artifacts (pipelines, e.g.)
+   * Gets the name of this provider. Used for display and as a reference in saved artifacts
+   * (pipelines, e.g.)
    *
    * @return A String containing the name of this provider
    */
@@ -74,9 +75,9 @@ public interface ICompressionProvider {
   String getDescription();
 
   /**
-   * Gets the default file extension for this provider. If the streams are wrapped in File streams, this method can be
-   * used to determine an appropriate extension to append to the filename so the file will be recognized as an artifact
-   * of the compression mechanism (.zip, .bz2, e.g.)
+   * Gets the default file extension for this provider. If the streams are wrapped in File streams,
+   * this method can be used to determine an appropriate extension to append to the filename so the
+   * file will be recognized as an artifact of the compression mechanism (.zip, .bz2, e.g.)
    *
    * @return A String containing the default file extension for this provider
    */

@@ -14,10 +14,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+
 [[Loops]]
 :imagesdir: ../../assets/images
 
-Avoid looping in workflows.  The easiest way to loop over a set of values, rows, files, ... is to use an Executor transform.
+Avoid looping in workflows.
+The easiest way to loop over a set of values, rows, files, ... is to use an Executor transform.
 
 * xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor] : run a pipeline for each input row
 * xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor] : run a workflow for each input row

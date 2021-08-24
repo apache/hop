@@ -27,25 +27,25 @@ public class GetTableNamesMetaInjectionTest extends BaseMetadataInjectionTest<Ge
 
   @Before
   public void setup() throws Exception {
-    setup( new GetTableNamesMeta() );
+    setup(new GetTableNamesMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SCHEMANAME", () -> meta.getSchemaName() );
-    check( "TABLENAMEFIELDNAME", () -> meta.getTablenameFieldName() );
-    check( "SQLCREATIONFIELDNAME", () -> meta.getSqlCreationFieldName() );
-    check( "OBJECTTYPEFIELDNAME", () -> meta.getObjectTypeFieldName() );
-    check( "ISSYSTEMOBJECTFIELDNAME", () -> meta.isSystemObjectFieldName() );
-    check( "INCLUDECATALOG", () -> meta.isIncludeCatalog() );
-    check( "INCLUDESCHEMA", () -> meta.isIncludeSchema() );
-    check( "INCLUDETABLE", () -> meta.isIncludeTable() );
-    check( "INCLUDEVIEW", () -> meta.isIncludeView() );
-    check( "INCLUDEPROCEDURE", () -> meta.isIncludeProcedure() );
-    check( "INCLUDESYNONYM", () -> meta.isIncludeSynonym() );
-    check( "ADDSCHEMAINOUTPUT", () -> meta.isAddSchemaInOut() );
-    check( "DYNAMICSCHEMA", () -> meta.isDynamicSchema() );
-    check( "SCHEMANAMEFIELD", () -> meta.getSchemaFieldName() );
-    check( "CONNECTIONNAME", () -> "My Connection", "My Connection" );
+    check("SCHEMANAME", () -> meta.getSchemaName());
+    check("TABLENAMEFIELDNAME", () -> meta.getTablenameFieldName());
+    check("SQLCREATIONFIELDNAME", () -> meta.getSqlCreationFieldName());
+    check("OBJECTTYPEFIELDNAME", () -> meta.getObjectTypeFieldName());
+    check("ISSYSTEMOBJECTFIELDNAME", () -> meta.isSystemObjectFieldName());
+    check("INCLUDECATALOG", () -> meta.isIncludeCatalog());
+    check("INCLUDESCHEMA", () -> meta.isIncludeSchema());
+    check("INCLUDETABLE", () -> meta.isIncludeTable());
+    check("INCLUDEVIEW", () -> meta.isIncludeView());
+    check("INCLUDEPROCEDURE", () -> meta.isIncludeProcedure());
+    check("INCLUDESYNONYM", () -> meta.isIncludeSynonym());
+    check("ADDSCHEMAINOUTPUT", () -> meta.isAddSchemaInOut());
+    check("DYNAMICSCHEMA", () -> meta.isDynamicSchema());
+    check("SCHEMANAMEFIELD", () -> meta.getSchemaFieldName());
+    check("CONNECTIONNAME", () -> "My Connection", "My Connection");
   }
 }

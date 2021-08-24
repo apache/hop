@@ -17,9 +17,6 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-
 public class NoConsumeConsumer {
-  public NoConsumeConsumer( String one ) {
-
-  }
+  public NoConsumeConsumer(String one) {}
 }

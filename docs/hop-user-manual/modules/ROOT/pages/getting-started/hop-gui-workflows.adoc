@@ -20,7 +20,8 @@ under the License.
 
 = Workflows
 
-In xref:getting-started/hop-concepts.adoc[Concepts], we walked through workflows, actions and hops. Let’s remember:
+In xref:getting-started/hop-concepts.adoc[Concepts], we walked through workflows, actions and hops.
+Let’s remember:
 
 * A _workflow_ is by default a sequential process that has a starting point and one or more endpoints.
 * An _action_ is a step that executes pipelines already implemented or any other element that allows orchestrating the execution of the data integration processes.
@@ -50,7 +51,8 @@ NOTE: Note that when you create a workflow, Apache Hop automatically adds http:/
 
 === Add Actions
 
-Now you are ready to add the first action. Click anywhere in the workflow canvas, the area where you’ll see the image below.
+Now you are ready to add the first action.
+Click anywhere in the workflow canvas, the area where you’ll see the image below.
 
 image:getting-started/gs-hop-gui-create-workflow-5.png[]
 
@@ -58,20 +60,25 @@ After clicking you will see a dialog:
 
 image:getting-started/gs-hop-gui-create-workflow-6.png[]
 
-Just like you did with pipelines, use the search box in this dialog to find the actions you need. Click or use the arrow keys and hit enter to add an action to your workflow.
+Just like you did with pipelines, use the search box in this dialog to find the actions you need.
+Click or use the arrow keys and hit enter to add an action to your workflow.
 
 For now, add a xref:workflow/actions/pipeline.adoc[Pipeline] action to your workflow.
 
-TIP: check the xref:workflow/actions.adoc[full list of actions]. There are over 50 actions available in Hop 0.70, but you'll soon get to know the most commonly used ones.
-
+TIP: check the xref:workflow/actions.adoc[full list of actions].
+There are over 50 actions available in Hop 0.70, but you'll soon get to know the most commonly used ones.
 
 === Create a hop
 
 Creating a hop is identical to creating a hop in a pipeline:
 
-* **shift-drag**: while holding down the shift key on your keyboard. Click on an action, while holding down your primary mouse button, drag to the second action. Release the primary mouse button and the shift key.
-* **scroll-drag**: scroll-click on an action , while holding down your mouse’s scroll button, drag to the second action. Release the scroll button.
-* click on an action in your pipeline to open the '**click anywhere**' dialog. Click the 'Create hop' image:getting-started/icons/HOP.svg[Create hop, 25px, align="bottom"] button and select the action you want to create the hop to.
+* **shift-drag**: while holding down the shift key on your keyboard.
+Click on an action, while holding down your primary mouse button, drag to the second action.
+Release the primary mouse button and the shift key.
+* **scroll-drag**: scroll-click on an action , while holding down your mouse’s scroll button, drag to the second action.
+Release the scroll button.
+* click on an action in your pipeline to open the '**click anywhere**' dialog.
+Click the 'Create hop' image:getting-started/icons/HOP.svg[Create hop,25px,align="bottom"] button and select the action you want to create the hop to.
 
 image:getting-started/gs-hop-gui-create-workflow-add-pipeline-action.png[]
 
@@ -79,7 +86,8 @@ Save your workflow:
 
 image:getting-started/gs-hop-gui-create-workflow-save.png[]
 
-At first, we have the Workflow run configuration session. A Workflow Run Configuration is a metadata object in Apache Hop and defines where the workflow is executed.
+At first, we have the Workflow run configuration session.
+A Workflow Run Configuration is a metadata object in Apache Hop and defines where the workflow is executed.
 
 Select the 'local' workflow runtime configuration that is available by default in your Hop installation and click 'Launch'.
 

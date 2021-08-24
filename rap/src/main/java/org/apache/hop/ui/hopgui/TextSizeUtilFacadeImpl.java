@@ -27,5 +27,4 @@ public class TextSizeUtilFacadeImpl extends TextSizeUtilFacade {
   Point textExtentInternal(String text) {
     return TextSizeUtil.stringExtent(Display.getCurrent().getSystemFont(), text);
   }
-
 }

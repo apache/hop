@@ -56,43 +56,61 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
 
   private BaseTransform baseTransform;
 
-  public AbstractFileErrorHandler( Date date, String destinationDirectory, String fileExtension, String encoding,
-                                   BaseTransform baseTransform ) {
+  public AbstractFileErrorHandler(
+      Date date,
+      String destinationDirectory,
+      String fileExtension,
+      String encoding,
+      BaseTransform baseTransform) {
     this.destinationDirectory = destinationDirectory;
     this.fileExtension = fileExtension;
     this.encoding = encoding;
     this.baseTransform = baseTransform;
     this.writers = new HashMap<>();
-    initDateFormatter( date );
+    initDateFormatter(date);
   }
 
-  private void initDateFormatter( Date date ) {
-    dateString = createDateFormat().format( date );
+  private void initDateFormatter(Date date) {
+    dateString = createDateFormat().format(date);
   }
 
   public static DateFormat createDateFormat() {
-    return new SimpleDateFormat( DD_MMYYYY_HHMMSS );
+    return new SimpleDateFormat(DD_MMYYYY_HHMMSS);
   }
 
-  public static FileObject getReplayFilename( String destinationDirectory, String processingFilename,
-                                              String dateString, String extension, Object source ) throws HopFileException {
+  public static FileObject getReplayFilename(
+      String destinationDirectory,
+      String processingFilename,
+      String dateString,
+      String extension,
+      Object source)
+      throws HopFileException {
     String name = null;
     String sourceAdding = "";
-    if ( !NO_PARTS.equals( source ) ) {
+    if (!NO_PARTS.equals(source)) {
       sourceAdding = "_" + source.toString();
     }
-    if ( extension == null || extension.length() == 0 ) {
+    if (extension == null || extension.length() == 0) {
       name = processingFilename + sourceAdding + "." + dateString;
     } else {
       name = processingFilename + sourceAdding + "." + dateString + "." + extension;
     }
-    return HopVfs.getFileObject( destinationDirectory + "/" + name );
+    return HopVfs.getFileObject(destinationDirectory + "/" + name);
   }
 
-  public static FileObject getReplayFilename( String destinationDirectory, String processingFilename, Date date,
-                                              String extension, Object source ) throws HopFileException {
+  public static FileObject getReplayFilename(
+      String destinationDirectory,
+      String processingFilename,
+      Date date,
+      String extension,
+      Object source)
+      throws HopFileException {
     return getReplayFilename(
-      destinationDirectory, processingFilename, createDateFormat().format( date ), extension, source );
+        destinationDirectory,
+        processingFilename,
+        createDateFormat().format(date),
+        extension,
+        source);
   }
 
   /**
@@ -101,68 +119,76 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
    * @return
    * @throws HopException
    */
-  Writer getWriter( Object source ) throws HopException {
+  Writer getWriter(Object source) throws HopException {
     try {
-      Writer outputStreamWriter = writers.get( source );
-      if ( outputStreamWriter != null ) {
+      Writer outputStreamWriter = writers.get(source);
+      if (outputStreamWriter != null) {
         return outputStreamWriter;
       }
       FileObject file =
-        getReplayFilename( destinationDirectory, processingFilename, dateString, fileExtension, source );
+          getReplayFilename(
+              destinationDirectory, processingFilename, dateString, fileExtension, source);
       ResultFile resultFile =
-        new ResultFile( ResultFile.FILE_TYPE_GENERAL, file, baseTransform.getPipelineMeta().getName(), baseTransform
-          .getTransformName() );
-      baseTransform.addResultFile( resultFile );
+          new ResultFile(
+              ResultFile.FILE_TYPE_GENERAL,
+              file,
+              baseTransform.getPipelineMeta().getName(),
+              baseTransform.getTransformName());
+      baseTransform.addResultFile(resultFile);
       try {
-        if ( encoding == null ) {
-          outputStreamWriter = new OutputStreamWriter( HopVfs.getOutputStream( file, false ) );
+        if (encoding == null) {
+          outputStreamWriter = new OutputStreamWriter(HopVfs.getOutputStream(file, false));
         } else {
-          outputStreamWriter = new OutputStreamWriter( HopVfs.getOutputStream( file, false ), encoding );
+          outputStreamWriter =
+              new OutputStreamWriter(HopVfs.getOutputStream(file, false), encoding);
         }
-      } catch ( Exception e ) {
-        throw new HopException( BaseMessages.getString(
-          PKG, "AbstractFileErrorHandler.Exception.CouldNotCreateFileErrorHandlerForFile" )
-          + file.getName().getURI(), e );
+      } catch (Exception e) {
+        throw new HopException(
+            BaseMessages.getString(
+                    PKG, "AbstractFileErrorHandler.Exception.CouldNotCreateFileErrorHandlerForFile")
+                + file.getName().getURI(),
+            e);
       }
-      writers.put( source, outputStreamWriter );
+      writers.put(source, outputStreamWriter);
       return outputStreamWriter;
-    } catch ( HopFileException e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "AbstractFileErrorHandler.Exception.CouldNotCreateFileErrorHandlerForFile" ), e );
+    } catch (HopFileException e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "AbstractFileErrorHandler.Exception.CouldNotCreateFileErrorHandlerForFile"),
+          e);
     }
   }
 
   public void close() throws HopException {
-    for ( Iterator<Writer> iter = writers.values().iterator(); iter.hasNext(); ) {
-      close( iter.next() );
+    for (Iterator<Writer> iter = writers.values().iterator(); iter.hasNext(); ) {
+      close(iter.next());
     }
     writers = new HashMap<>();
-
   }
 
-  private void close( Writer outputStreamWriter ) throws HopException {
-    if ( outputStreamWriter != null ) {
+  private void close(Writer outputStreamWriter) throws HopException {
+    if (outputStreamWriter != null) {
       try {
         outputStreamWriter.flush();
-      } catch ( IOException exception ) {
+      } catch (IOException exception) {
         baseTransform.logError(
-          BaseMessages.getString( PKG, "AbstractFileErrorHandler.Log.CouldNotFlushContentToFile" ), exception
-            .getLocalizedMessage() );
+            BaseMessages.getString(PKG, "AbstractFileErrorHandler.Log.CouldNotFlushContentToFile"),
+            exception.getLocalizedMessage());
       }
       try {
         outputStreamWriter.close();
-      } catch ( IOException exception ) {
-        throw new HopException( BaseMessages.getString(
-          PKG, "AbstractFileErrorHandler.Exception.CouldNotCloseFile" ), exception );
+      } catch (IOException exception) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "AbstractFileErrorHandler.Exception.CouldNotCloseFile"),
+            exception);
       } finally {
         outputStreamWriter = null;
       }
     }
   }
 
-  public void handleFile( FileObject file ) throws HopException {
+  public void handleFile(FileObject file) throws HopException {
     close();
     this.processingFilename = file.getName().getBaseName();
   }
-
 }

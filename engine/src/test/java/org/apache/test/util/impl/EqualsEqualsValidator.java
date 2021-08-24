@@ -24,7 +24,8 @@ import static org.junit.Assert.assertTrue;
 public class EqualsEqualsValidator<T> implements IObjectValidator<T> {
 
   @Override
-  public void validate( T expected, Object actual ) {
-    assertTrue( "Expected " + expected + " == " + actual + " to evaluate to true.", expected == actual );
+  public void validate(T expected, Object actual) {
+    assertTrue(
+        "Expected " + expected + " == " + actual + " to evaluate to true.", expected == actual);
   }
 }

@@ -17,52 +17,63 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
+import org.apache.hop.core.exception.HopException;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.core.exception.HopException;
-import org.junit.Test;
 
 public class XsdValidatorMetaTest {
 
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-        Arrays.asList( "xdsfilename", "xmlstream", "resultfieldname", "addvalidationmsg", "validationmsgfield",
-            "ifxmlunvalid", "ifxmlvalid", "outputstringfield", "xmlsourcefile", "xsddefinedfield", "xsdsource" );
+        Arrays.asList(
+            "xdsfilename",
+            "xmlstream",
+            "resultfieldname",
+            "addvalidationmsg",
+            "validationmsgfield",
+            "ifxmlunvalid",
+            "ifxmlvalid",
+            "outputstringfield",
+            "xmlsourcefile",
+            "xsddefinedfield",
+            "xsdsource");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "xdsfilename", "getXSDFilename" );
-    getterMap.put( "xmlstream", "getXMLStream" );
-    getterMap.put( "resultfieldname", "getResultfieldname" );
-    getterMap.put( "addvalidationmsg", "useAddValidationMessage" );
-    getterMap.put( "validationmsgfield", "getValidationMessageField" );
-    getterMap.put( "ifxmlunvalid", "getIfXmlInvalid" );
-    getterMap.put( "ifxmlvalid", "getIfXmlValid" );
-    getterMap.put( "outputstringfield", "getOutputStringField" );
-    getterMap.put( "xmlsourcefile", "getXMLSourceFile" );
-    getterMap.put( "xsddefinedfield", "getXSDDefinedField" );
-    getterMap.put( "xsdsource", "getXSDSource" );
+    getterMap.put("xdsfilename", "getXSDFilename");
+    getterMap.put("xmlstream", "getXMLStream");
+    getterMap.put("resultfieldname", "getResultfieldname");
+    getterMap.put("addvalidationmsg", "useAddValidationMessage");
+    getterMap.put("validationmsgfield", "getValidationMessageField");
+    getterMap.put("ifxmlunvalid", "getIfXmlInvalid");
+    getterMap.put("ifxmlvalid", "getIfXmlValid");
+    getterMap.put("outputstringfield", "getOutputStringField");
+    getterMap.put("xmlsourcefile", "getXMLSourceFile");
+    getterMap.put("xsddefinedfield", "getXSDDefinedField");
+    getterMap.put("xsdsource", "getXSDSource");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "xdsfilename", "setXSDfilename" );
-    setterMap.put( "xmlstream", "setXMLStream" );
-    setterMap.put( "resultfieldname", "setResultfieldname" );
-    setterMap.put( "addvalidationmsg", "setAddValidationMessage" );
-    setterMap.put( "validationmsgfield", "setValidationMessageField" );
-    setterMap.put( "ifxmlunvalid", "setIfXmlInvalid" );
-    setterMap.put( "ifxmlvalid", "setIfXMLValid" );
-    setterMap.put( "outputstringfield", "setOutputStringField" );
-    setterMap.put( "xmlsourcefile", "setXMLSourceFile" );
-    setterMap.put( "xsddefinedfield", "setXSDDefinedField" );
-    setterMap.put( "xsdsource", "setXSDSource" );
+    setterMap.put("xdsfilename", "setXSDfilename");
+    setterMap.put("xmlstream", "setXMLStream");
+    setterMap.put("resultfieldname", "setResultfieldname");
+    setterMap.put("addvalidationmsg", "setAddValidationMessage");
+    setterMap.put("validationmsgfield", "setValidationMessageField");
+    setterMap.put("ifxmlunvalid", "setIfXmlInvalid");
+    setterMap.put("ifxmlvalid", "setIfXMLValid");
+    setterMap.put("outputstringfield", "setOutputStringField");
+    setterMap.put("xmlsourcefile", "setXMLSourceFile");
+    setterMap.put("xsddefinedfield", "setXSDDefinedField");
+    setterMap.put("xsdsource", "setXSDSource");
 
-//    TransformLoadSaveTester loadSaveTester =
-//        new TransformLoadSaveTester( XsdValidatorMeta.class, attributes, getterMap, setterMap,
-//            new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
-//
-//    loadSaveTester.testXmlRoundTrip();
+    //    TransformLoadSaveTester loadSaveTester =
+    //        new TransformLoadSaveTester( XsdValidatorMeta.class, attributes, getterMap, setterMap,
+    //            new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String,
+    // IFieldLoadSaveValidator<?>>() );
+    //
+    //    loadSaveTester.testXmlRoundTrip();
   }
 }

@@ -16,13 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +29,8 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidato
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import java.util.*;
 
 public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   LoadSaveTester<LdapInputMeta> loadSaveTester;
@@ -77,16 +72,13 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
-        "inputFields",
-      new ArrayLoadSaveValidator<>( new LDAPInputFieldLoadSaveValidator(), 5 ));
+        "inputFields", new ArrayLoadSaveValidator<>(new LDAPInputFieldLoadSaveValidator(), 5));
     attrValidatorMap.put(
         "searchScope", new IntLoadSaveValidator(LdapInputMeta.searchScopeCode.length));
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
         new LoadSaveTester<>(

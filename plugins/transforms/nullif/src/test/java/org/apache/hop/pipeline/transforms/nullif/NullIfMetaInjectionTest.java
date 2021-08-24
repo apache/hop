@@ -28,12 +28,12 @@ public class NullIfMetaInjectionTest extends BaseMetadataInjectionTest<NullIfMet
 
   @Before
   public void setup() throws Exception {
-    setup( new NullIfMeta() );
+    setup(new NullIfMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELDNAME", () -> meta.getFields()[ 0 ].getFieldName() );
-    check( "FIELDVALUE", () -> meta.getFields()[ 0 ].getFieldValue() );
+    check("FIELDNAME", () -> meta.getFields()[0].getFieldName());
+    check("FIELDVALUE", () -> meta.getFields()[0].getFieldValue());
   }
 }

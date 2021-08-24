@@ -165,7 +165,8 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 }

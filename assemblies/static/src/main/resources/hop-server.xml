@@ -18,35 +18,35 @@
 
 <hop-server-config>
 
-  <hop-server>
-    <name>server-8181</name>
-    <hostname>localhost</hostname>
-    <port>8181</port>
-  </hop-server>
+    <hop-server>
+        <name>server-8181</name>
+        <hostname>localhost</hostname>
+        <port>8181</port>
+    </hop-server>
 
-  <!-- Join the web server thread and wait until it's finished.
-       The default is true
-  -->
-  <joining>true</joining>
+    <!-- Join the web server thread and wait until it's finished.
+         The default is true
+    -->
+    <joining>true</joining>
 
-  <!-- The maximum number of log lines kept in memory by the server.
-       The default is 0 which means: keep all lines
-   -->
-  <max_log_lines>0</max_log_lines>
+    <!-- The maximum number of log lines kept in memory by the server.
+         The default is 0 which means: keep all lines
+     -->
+    <max_log_lines>0</max_log_lines>
 
-  <!-- The time (in minutes) it takes for a log line to be cleaned up in memory.
-       The default is 0 which means: never clean up log lines
-  -->
-  <max_log_timeout_minutes>1440</max_log_timeout_minutes>
+    <!-- The time (in minutes) it takes for a log line to be cleaned up in memory.
+         The default is 0 which means: never clean up log lines
+    -->
+    <max_log_timeout_minutes>1440</max_log_timeout_minutes>
 
-  <!-- The time (in minutes) it takes for a pipeline or workflow execution to be removed from the server status.
-       The default is 0 which means: never clean executions
-  -->
-  <object_timeout_minutes>1440</object_timeout_minutes>
+    <!-- The time (in minutes) it takes for a pipeline or workflow execution to be removed from the server status.
+         The default is 0 which means: never clean executions
+    -->
+    <object_timeout_minutes>1440</object_timeout_minutes>
 
-  <!-- The folder to read metadata objects from so that web services and database connections for sequences can be found.
-       The default is that no metadata is configured: remotely executed pipelines and workflows will have their own metadata.
-  -->
-  <metadata_folder></metadata_folder>
+    <!-- The folder to read metadata objects from so that web services and database connections for sequences can be found.
+         The default is that no metadata is configured: remotely executed pipelines and workflows will have their own metadata.
+    -->
+    <metadata_folder></metadata_folder>
 
 </hop-server-config>

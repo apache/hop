@@ -46,37 +46,45 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
 
   public BaseRowSet() {
     // not done putting data into this IRowSet
-    done = new AtomicBoolean( false );
+    done = new AtomicBoolean(false);
 
-    originTransformCopy = new AtomicInteger( 0 );
-    destinationTransformCopy = new AtomicInteger( 0 );
+    originTransformCopy = new AtomicInteger(0);
+    destinationTransformCopy = new AtomicInteger(0);
     lock = new ReentrantReadWriteLock();
   }
 
   /**
-   * Compares using the target transforms and copy, not the source.
-   * That way, re-partitioning is always done in the same way.
+   * Compares using the target transforms and copy, not the source. That way, re-partitioning is
+   * always done in the same way.
    */
   @Override
-  public int compareTo( IRowSet rowSet ) {
+  public int compareTo(IRowSet rowSet) {
     lock.readLock().lock();
     String target;
 
     try {
-      target = remoteHopServerName + "." + destinationTransformName + "." + destinationTransformCopy.intValue();
+      target =
+          remoteHopServerName
+              + "."
+              + destinationTransformName
+              + "."
+              + destinationTransformCopy.intValue();
     } finally {
       lock.readLock().unlock();
     }
 
     String comp =
-      rowSet.getRemoteHopServerName()
-        + "." + rowSet.getDestinationTransformName() + "." + rowSet.getDestinationTransformCopy();
+        rowSet.getRemoteHopServerName()
+            + "."
+            + rowSet.getDestinationTransformName()
+            + "."
+            + rowSet.getDestinationTransformCopy();
 
-    return target.compareTo( comp );
+    return target.compareTo(comp);
   }
 
-  public boolean equals( BaseRowSet rowSet ) {
-    return compareTo( rowSet ) == 0;
+  public boolean equals(BaseRowSet rowSet) {
+    return compareTo(rowSet) == 0;
   }
 
   /*
@@ -85,7 +93,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.IRowMeta, java.lang.Object[])
    */
   @Override
-  public abstract boolean putRow( IRowMeta rowMeta, Object[] rowData );
+  public abstract boolean putRow(IRowMeta rowMeta, Object[] rowData);
 
   /*
    * (non-Javadoc)
@@ -94,7 +102,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * long, java.util.concurrent.TimeUnit)
    */
   @Override
-  public abstract boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu );
+  public abstract boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu);
 
   // default getRow with wait time = 100ms
   //
@@ -120,7 +128,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * @see org.apache.hop.core.RowSetInterface#getRowWait(long, java.util.concurrent.TimeUnit)
    */
   @Override
-  public abstract Object[] getRowWait( long timeout, TimeUnit tu );
+  public abstract Object[] getRowWait(long timeout, TimeUnit tu);
 
   /*
    * (non-Javadoc)
@@ -129,7 +137,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    */
   @Override
   public void setDone() {
-    done.set( true );
+    done.set(true);
   }
 
   /*
@@ -206,15 +214,15 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * @see org.apache.hop.core.RowSetInterface#setThreadNameFromToCopy(java.lang.String, int, java.lang.String, int)
    */
   @Override
-  public void setThreadNameFromToCopy( String from, int fromCopy, String to, int toCopy ) {
+  public void setThreadNameFromToCopy(String from, int fromCopy, String to, int toCopy) {
 
     lock.writeLock().lock();
     try {
       originTransformName = from;
-      originTransformCopy.set( fromCopy );
+      originTransformCopy.set(fromCopy);
 
       destinationTransformName = to;
-      destinationTransformCopy.set( toCopy );
+      destinationTransformCopy.set(toCopy);
     } finally {
       lock.writeLock().unlock();
     }
@@ -226,18 +234,17 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
 
     lock.readLock().lock();
     try {
-      str = new StringBuilder( Const.NVL(originTransformName, "?") )
-        .append( "." )
-        .append( originTransformCopy )
-        .append( " - " )
-        .append( Const.NVL(destinationTransformName, "?") )
-        .append( "." )
-        .append( destinationTransformCopy );
+      str =
+          new StringBuilder(Const.NVL(originTransformName, "?"))
+              .append(".")
+              .append(originTransformCopy)
+              .append(" - ")
+              .append(Const.NVL(destinationTransformName, "?"))
+              .append(".")
+              .append(destinationTransformCopy);
 
-      if ( !Utils.isEmpty( remoteHopServerName ) ) {
-        str.append( " (" )
-          .append( remoteHopServerName )
-          .append( ")" );
+      if (!Utils.isEmpty(remoteHopServerName)) {
+        str.append(" (").append(remoteHopServerName).append(")");
       }
     } finally {
       lock.readLock().unlock();
@@ -262,7 +269,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * @see org.apache.hop.core.RowSetInterface#setRowMeta(org.apache.hop.core.row.IRowMeta)
    */
   @Override
-  public void setRowMeta( IRowMeta rowMeta ) {
+  public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }
 
@@ -282,7 +289,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * @see org.apache.hop.core.RowSetInterface#setRemoteHopServerName(java.lang.String)
    */
   @Override
-  public void setRemoteHopServerName( String remoteHopServerName ) {
+  public void setRemoteHopServerName(String remoteHopServerName) {
     this.remoteHopServerName = remoteHopServerName;
   }
 
@@ -295,5 +302,4 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
   public boolean isBlocking() {
     return false;
   }
-
 }

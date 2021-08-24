@@ -53,7 +53,6 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/streamschemamerge.html")
-
 public class StreamSchemaMeta extends BaseTransformMeta
     implements ITransformMeta<StreamSchema, StreamSchemaData> {
 
@@ -81,9 +80,9 @@ public class StreamSchemaMeta extends BaseTransformMeta
   }
 
   /**
-   * This method is called every time a new transform is created and should allocate/set the transform
-   * configuration to sensible defaults. The values set here will be used by Spoon when a new transform
-   * is created.
+   * This method is called every time a new transform is created and should allocate/set the
+   * transform configuration to sensible defaults. The values set here will be used by Spoon when a
+   * new transform is created.
    */
   public void setDefault() {
     // intentionally empty
@@ -126,12 +125,11 @@ public class StreamSchemaMeta extends BaseTransformMeta
   }
 
   /**
-   * This method is used when a transform is duplicated in Spoon. It needs to return a deep copy of this
-   * transform meta object. Be sure to create proper deep copies if the transform configuration is stored in
-   * modifiable objects.
+   * This method is used when a transform is duplicated in Spoon. It needs to return a deep copy of
+   * this transform meta object. Be sure to create proper deep copies if the transform configuration
+   * is stored in modifiable objects.
    *
-   * <p>See RowGeneratorMeta.clone() for an example on
-   * creating a deep copy.
+   * <p>See RowGeneratorMeta.clone() for an example on creating a deep copy.
    *
    * @return a deep copy of this
    */
@@ -188,7 +186,8 @@ public class StreamSchemaMeta extends BaseTransformMeta
 
       transformsToMerge.clear();
 
-      // we need to add a stream for each transform we want to merge to ensure it gets treated as an info
+      // we need to add a stream for each transform we want to merge to ensure it gets treated as an
+      // info
       // stream
       for (int i = 0; i < nrtransforms; i++) {
         getTransformIOMeta()
@@ -315,8 +314,8 @@ public class StreamSchemaMeta extends BaseTransformMeta
   */
 
   /**
-   * Called by Apache Hop to get a new instance of the transform implementation. A standard implementation
-   * passing the arguments to the constructor of the transform class is recommended.
+   * Called by Apache Hop to get a new instance of the transform implementation. A standard
+   * implementation passing the arguments to the constructor of the transform class is recommended.
    *
    * @param transformMeta description of the transform
    * @param data instance of a transform data class

@@ -18,37 +18,40 @@
 
 package org.apache.hop.vfs.dropbox;
 
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.v2.DbxClientV2;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.Capability;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileSystem;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.UserAuthenticationData;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.hop.vfs.dropbox.config.DropboxConfig;
 import org.apache.hop.vfs.dropbox.config.DropboxConfigSingleton;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
 
-/**
- * A provider for dropbox file systems.
- */
+/** A provider for dropbox file systems. */
 public class DropboxFileProvider extends AbstractOriginatingFileProvider {
 
   private static final String APPLICATION_NAME = "Apache-Hop-Dropbox-VFS";
 
   protected static final Collection<Capability> capabilities =
-      Collections.unmodifiableCollection(Arrays.asList(Capability.CREATE, Capability.DELETE,
-          Capability.RENAME, Capability.GET_TYPE, Capability.LIST_CHILDREN, Capability.READ_CONTENT,
-          Capability.GET_LAST_MODIFIED, Capability.URI, Capability.WRITE_CONTENT));
+      Collections.unmodifiableCollection(
+          Arrays.asList(
+              Capability.CREATE,
+              Capability.DELETE,
+              Capability.RENAME,
+              Capability.GET_TYPE,
+              Capability.LIST_CHILDREN,
+              Capability.READ_CONTENT,
+              Capability.GET_LAST_MODIFIED,
+              Capability.URI,
+              Capability.WRITE_CONTENT));
 
   public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-      new UserAuthenticationData.Type[] {UserAuthenticationData.USERNAME,
-          UserAuthenticationData.PASSWORD};
+      new UserAuthenticationData.Type[] {
+        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
+      };
 
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 
@@ -79,11 +82,12 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
         throw new FileSystemException(
             "Please configure the Dropbox access token to use in the configuration (Options dialog or with hop-conf)");
       }
-            
-      DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder(APPLICATION_NAME).withAutoRetryEnabled().build();     
+
+      DbxRequestConfig requestConfig =
+          DbxRequestConfig.newBuilder(APPLICATION_NAME).withAutoRetryEnabled().build();
 
       return new DbxClientV2(requestConfig, config.getAccessToken());
-      
+
     } catch (Exception e) {
       throw new FileSystemException(e);
     }

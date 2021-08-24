@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This interface describes the plugin itself, the IDs it listens too, what libraries (jar files) it uses, the names,
- * the i18n detailes, etc.
+ * This interface describes the plugin itself, the IDs it listens too, what libraries (jar files) it
+ * uses, the names, the i18n detailes, etc.
  *
  * @author matt
  */
@@ -32,161 +32,121 @@ public interface IPlugin {
 
   /**
    * @return All the possible IDs that this plugin corresponds with.<br>
-   * Multiple IDs are typically used when you migrate 2 different plugins into a single one with the same
-   * functionality.<br>
-   * It can also happen if you deprecate an older plugin and you want to have a new one provide compatibility
-   * for it.<br>
+   *     Multiple IDs are typically used when you migrate 2 different plugins into a single one with
+   *     the same functionality.<br>
+   *     It can also happen if you deprecate an older plugin and you want to have a new one provide
+   *     compatibility for it.<br>
    */
   String[] getIds();
 
-  /**
-   * @return The type of plugin
-   */
+  /** @return The type of plugin */
   Class<? extends IPluginType> getPluginType();
 
-  /**
-   * @return The main class assigned to this Plugin.
-   */
+  /** @return The main class assigned to this Plugin. */
   Class<?> getMainType();
 
-  /**
-   * @return The libraries (jar file names) that are used by this plugin
-   */
+  /** @return The libraries (jar file names) that are used by this plugin */
   List<String> getLibraries();
 
-  /**
-   * @return The name of the plugin
-   */
+  /** @return The name of the plugin */
   String getName();
 
-  /**
-   * @return The description of the plugin
-   */
+  /** @return The description of the plugin */
   String getDescription();
 
-  /**
-   * @return The location of the image (icon) file for this plugin
-   */
+  /** @return The location of the image (icon) file for this plugin */
   String getImageFile();
 
-  /**
-   * @param imageFile the location of the image (icon) file for this plugin
-   */
-  void setImageFile( String imageFile );
+  /** @param imageFile the location of the image (icon) file for this plugin */
+  void setImageFile(String imageFile);
 
-  /**
-   * @return The category of this plugin or null if this is not applicable
-   */
+  /** @return The category of this plugin or null if this is not applicable */
   String getCategory();
 
-  /**
-   * @return True if a separate class loader is needed every time this class is instantiated
-   */
+  /** @return True if a separate class loader is needed every time this class is instantiated */
   boolean isSeparateClassLoaderNeeded();
 
-  /**
-   * @return true if this is considered to be a standard native plugin.
-   */
+  /** @return true if this is considered to be a standard native plugin. */
   boolean isNativePlugin();
 
-  /**
-   * @return All the possible class names that can be loaded with this plugin, split up by type.
-   */
+  /** @return All the possible class names that can be loaded with this plugin, split up by type. */
   Map<Class<?>, String> getClassMap();
 
   /**
    * @param id the plugin id to match
    * @return true if one of the ids matches the given argument. Return false if it doesn't.
    */
-  boolean matches( String id );
+  boolean matches(String id);
 
   /**
-   * @return An optional location to a help file that the plugin can refer to in case there is a loading problem. This
-   * usually happens if a jar file is not installed correctly (class not found exceptions) etc.
+   * @return An optional location to a help file that the plugin can refer to in case there is a
+   *     loading problem. This usually happens if a jar file is not installed correctly (class not
+   *     found exceptions) etc.
    */
   String getErrorHelpFile();
 
-  /**
-   * @param errorHelpFile the errorHelpFile to set
-   */
-  void setErrorHelpFile( String errorHelpFile );
+  /** @param errorHelpFile the errorHelpFile to set */
+  void setErrorHelpFile(String errorHelpFile);
 
-  /**
-   * @return keywords describing this plugin
-   */
+  /** @return keywords describing this plugin */
   String[] getKeywords();
 
-  /**
-   * @param keywords keywords describing this plugin
-   */
-  public void setKeywords( String[] keywords );
+  /** @param keywords keywords describing this plugin */
+  public void setKeywords(String[] keywords);
 
   URL getPluginDirectory();
 
-  /**
-   * @return the documentationUrl
-   */
+  /** @return the documentationUrl */
   String getDocumentationUrl();
 
-  /**
-   * @param documentationUrl the documentationUrl to set
-   */
-  void setDocumentationUrl( String documentationUrl );
+  /** @param documentationUrl the documentationUrl to set */
+  void setDocumentationUrl(String documentationUrl);
 
-  /**
-   * @return The cases URL of the plugin
-   */
+  /** @return The cases URL of the plugin */
   String getCasesUrl();
 
-  /**
-   * @param casesUrl the cases URL to set for this plugin
-   */
-  void setCasesUrl( String casesUrl );
+  /** @param casesUrl the cases URL to set for this plugin */
+  void setCasesUrl(String casesUrl);
 
-  /**
-   * @return the forum URL
-   */
+  /** @return the forum URL */
   String getForumUrl();
 
-  /**
-   * @param forumUrl the forum URL to set
-   */
-  void setForumUrl( String forumUrl );
+  /** @param forumUrl the forum URL to set */
+  void setForumUrl(String forumUrl);
 
   /**
-   * @return The group to which this class loader belongs.
-   * Returns null if the plugin does not belong to a group (the default)
+   * @return The group to which this class loader belongs. Returns null if the plugin does not
+   *     belong to a group (the default)
    */
   String getClassLoaderGroup();
 
-  void setSuggestion( String suggestion );
+  void setSuggestion(String suggestion);
 
   String getSuggestion();
 
   /**
-   * @param group The group to which this class loader belongs.
-   *              Set to null if the plugin does not belong to a group (the default)
+   * @param group The group to which this class loader belongs. Set to null if the plugin does not
+   *     belong to a group (the default)
    */
-  void setClassLoaderGroup( String group );
+  void setClassLoaderGroup(String group);
 
-  /**
-   * @param fragment A plugin interface to merge with
-   */
-  default void merge( IPlugin fragment ) {
-    if ( fragment != null ) {
-      Optional.ofNullable( fragment.getClassMap() ).ifPresent( this.getClassMap()::putAll );
-      Optional.ofNullable( fragment.getImageFile() ).ifPresent( this::setImageFile );
-      Optional.ofNullable( fragment.getLibraries() ).ifPresent( this.getLibraries()::addAll );
-      Optional.ofNullable( fragment.getErrorHelpFile() ).ifPresent( this::setErrorHelpFile );
-      Optional.ofNullable( fragment.getDocumentationUrl() ).ifPresent( this::setDocumentationUrl );
-      Optional.ofNullable( fragment.getCasesUrl() ).ifPresent( this::setCasesUrl );
-      Optional.ofNullable( fragment.getForumUrl() ).ifPresent( this::setForumUrl );
-      Optional.ofNullable( fragment.getClassLoaderGroup() ).ifPresent( this::setClassLoaderGroup );
+  /** @param fragment A plugin interface to merge with */
+  default void merge(IPlugin fragment) {
+    if (fragment != null) {
+      Optional.ofNullable(fragment.getClassMap()).ifPresent(this.getClassMap()::putAll);
+      Optional.ofNullable(fragment.getImageFile()).ifPresent(this::setImageFile);
+      Optional.ofNullable(fragment.getLibraries()).ifPresent(this.getLibraries()::addAll);
+      Optional.ofNullable(fragment.getErrorHelpFile()).ifPresent(this::setErrorHelpFile);
+      Optional.ofNullable(fragment.getDocumentationUrl()).ifPresent(this::setDocumentationUrl);
+      Optional.ofNullable(fragment.getCasesUrl()).ifPresent(this::setCasesUrl);
+      Optional.ofNullable(fragment.getForumUrl()).ifPresent(this::setForumUrl);
+      Optional.ofNullable(fragment.getClassLoaderGroup()).ifPresent(this::setClassLoaderGroup);
     }
   }
 
   /**
    * A flag to indicate that the plugin needs libraries outside of the plugin folder
+   *
    * @return true if there are extra libraries that need to be included outside the plugin folder
    */
   boolean isUsingLibrariesOutsidePluginFolder();

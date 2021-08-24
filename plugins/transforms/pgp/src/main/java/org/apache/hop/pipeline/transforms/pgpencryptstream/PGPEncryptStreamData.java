@@ -18,9 +18,9 @@
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 
 /**
  * @author Samatar
@@ -43,5 +43,4 @@ public class PGPEncryptStreamData extends BaseTransformData implements ITransfor
     this.keyName = null;
     this.indexOfKeyName = -1;
   }
-
 }

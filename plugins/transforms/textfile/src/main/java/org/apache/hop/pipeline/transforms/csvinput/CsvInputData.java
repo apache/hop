@@ -99,10 +99,10 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
     //
     bufferSize = endBuffer - startBuffer;
     int newSize = bufferSize + preferredBufferSize;
-    byte[] newByteBuffer = new byte[ newSize + 100 ];
+    byte[] newByteBuffer = new byte[newSize + 100];
 
     // copy over the old data...
-    System.arraycopy( byteBuffer, startBuffer, newByteBuffer, 0, bufferSize );
+    System.arraycopy(byteBuffer, startBuffer, newByteBuffer, 0, bufferSize);
 
     // replace the old byte buffer...
     byteBuffer = newByteBuffer;
@@ -116,16 +116,17 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
   private int readBufferFromFile() throws IOException {
     // See if the line is not longer than the buffer.
     // In that case we need to increase the size of the byte buffer.
-    // Since this method doesn't get called every other character, I'm sure we can spend a bit of time here without
+    // Since this method doesn't get called every other character, I'm sure we can spend a bit of
+    // time here without
     // major performance loss.
     //
-    if ( endBuffer >= bb.capacity() ) {
-      resizeByteBuffer( (int) ( bb.capacity() * 1.5 ) );
+    if (endBuffer >= bb.capacity()) {
+      resizeByteBuffer((int) (bb.capacity() * 1.5));
     }
 
-    bb.position( endBuffer );
-    int n = fc.read( bb );
-    if ( n >= 0 ) {
+    bb.position(endBuffer);
+    int n = fc.read(bb);
+    if (n >= 0) {
 
       // adjust the highest used position...
       //
@@ -133,25 +134,25 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
 
       // Make sure we have room in the target byte buffer array
       //
-      if ( byteBuffer.length < bufferSize ) {
-        byte[] newByteBuffer = new byte[ bufferSize ];
-        System.arraycopy( byteBuffer, 0, newByteBuffer, 0, byteBuffer.length );
+      if (byteBuffer.length < bufferSize) {
+        byte[] newByteBuffer = new byte[bufferSize];
+        System.arraycopy(byteBuffer, 0, newByteBuffer, 0, byteBuffer.length);
         byteBuffer = newByteBuffer;
       }
 
       // Store the data in our byte array
       //
-      bb.position( endBuffer );
-      bb.get( byteBuffer, endBuffer, n );
+      bb.position(endBuffer);
+      bb.get(byteBuffer, endBuffer, n);
     }
 
     return n;
   }
 
-  private void resizeByteBuffer( int newSize ) {
-    ByteBuffer newBuffer = ByteBuffer.allocateDirect( newSize ); // Increase by 50%
-    newBuffer.position( 0 );
-    newBuffer.put( bb );
+  private void resizeByteBuffer(int newSize) {
+    ByteBuffer newBuffer = ByteBuffer.allocateDirect(newSize); // Increase by 50%
+    newBuffer.position(0);
+    newBuffer.put(bb);
     bb = newBuffer;
   }
 
@@ -163,7 +164,7 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
    * @throws IOException in case there is a I/O problem (read error)
    */
   boolean resizeBufferIfNeeded() throws IOException {
-    if ( endOfBuffer() ) {
+    if (endOfBuffer()) {
       // Oops, we need to read more data...
       // Better resize this before we read other things in it...
       //
@@ -183,36 +184,39 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
 
   /**
    * Moves the endBuffer pointer by one.<br>
-   * If there is not enough room in the buffer to go there, resize the byte buffer and read more data.<br>
-   * if there is no more data to read and if the endBuffer pointer has reached the end of the byte buffer, we return
-   * true.<br>
+   * If there is not enough room in the buffer to go there, resize the byte buffer and read more
+   * data.<br>
+   * if there is no more data to read and if the endBuffer pointer has reached the end of the byte
+   * buffer, we return true.<br>
    *
    * @return true if we reached the end of the byte buffer.
    * @throws IOException In case we get an error reading from the input file.
    */
   boolean moveEndBufferPointer() throws IOException {
-    return moveEndBufferPointer( true );
+    return moveEndBufferPointer(true);
   }
 
-  void moveEndBufferPointerXTimes( int xTimes ) throws IOException {
-    for ( int i = 0; i < xTimes; i++ ) {
-      moveEndBufferPointer( true );
+  void moveEndBufferPointerXTimes(int xTimes) throws IOException {
+    for (int i = 0; i < xTimes; i++) {
+      moveEndBufferPointer(true);
     }
   }
 
   /**
-   * This method should be used very carefully. Moving pointer without increasing number of written bytes
-   * can lead to data corruption.
+   * This method should be used very carefully. Moving pointer without increasing number of written
+   * bytes can lead to data corruption.
    */
-  boolean moveEndBufferPointer( boolean increaseTotalBytes ) throws IOException {
+  boolean moveEndBufferPointer(boolean increaseTotalBytes) throws IOException {
     endBuffer++;
-    if ( increaseTotalBytes ) {
+    if (increaseTotalBytes) {
       totalBytesRead++;
     }
     return resizeBufferIfNeeded();
   }
 
   /**
+   *
+   *
    * <pre>
    *       [abcd "" defg] --> [abcd " defg]
    *       [""""] --> [""]
@@ -221,12 +225,12 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
    *
    * @return the byte array with escaped enclosures escaped.
    */
-  byte[] removeEscapedEnclosures( byte[] field, int nrEnclosuresFound ) {
-    byte[] result = new byte[ field.length - nrEnclosuresFound ];
+  byte[] removeEscapedEnclosures(byte[] field, int nrEnclosuresFound) {
+    byte[] result = new byte[field.length - nrEnclosuresFound];
     int resultIndex = 0;
-    for ( int i = 0; i < field.length; i++ ) {
-      result[ resultIndex++ ] = field[ i ];
-      if ( field[ i ] == enclosure[ 0 ] && i + 1 < field.length && field[ i + 1 ] == enclosure[ 0 ] ) {
+    for (int i = 0; i < field.length; i++) {
+      result[resultIndex++] = field[i];
+      if (field[i] == enclosure[0] && i + 1 < field.length && field[i + 1] == enclosure[0]) {
         // Skip the escaped enclosure after adding the first one
         i++;
       }
@@ -234,41 +238,42 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
     return result;
   }
 
-  byte[] getField( boolean delimiterFound, boolean enclosureFound, boolean newLineFound, boolean endOfBuffer ) {
+  byte[] getField(
+      boolean delimiterFound, boolean enclosureFound, boolean newLineFound, boolean endOfBuffer) {
     int fieldStart = startBuffer;
     int fieldEnd = endBuffer;
 
-    if ( newLineFound && !endOfBuffer ) {
+    if (newLineFound && !endOfBuffer) {
       fieldEnd -= encodingType.getLength();
     }
 
-    if ( enclosureFound ) {
+    if (enclosureFound) {
       fieldStart += enclosure.length;
       fieldEnd -= enclosure.length;
     }
 
     int length = fieldEnd - fieldStart;
 
-    if ( length <= 0 ) {
+    if (length <= 0) {
       length = 0;
     }
 
-    byte[] field = new byte[ length ];
-    System.arraycopy( byteBuffer, fieldStart, field, 0, length );
+    byte[] field = new byte[length];
+    System.arraycopy(byteBuffer, fieldStart, field, 0, length);
 
     return field;
   }
 
   void closeFile() throws HopException {
     try {
-      if ( fc != null ) {
+      if (fc != null) {
         fc.close();
       }
-      if ( fis != null ) {
+      if (fis != null) {
         fis.close();
       }
-    } catch ( IOException e ) {
-      throw new HopException( "Unable to close file channel for file '" + filenames[ filenr - 1 ], e );
+    } catch (IOException e) {
+      throw new HopException("Unable to close file channel for file '" + filenames[filenr - 1], e);
     }
   }
 
@@ -276,7 +281,7 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
     return startBuffer;
   }
 
-  void setStartBuffer( int startBuffer ) {
+  void setStartBuffer(int startBuffer) {
     this.startBuffer = startBuffer;
   }
 
@@ -285,19 +290,20 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
   }
 
   boolean isCarriageReturn() {
-    return encodingType.isReturn( byteBuffer[ endBuffer ] );
+    return encodingType.isReturn(byteBuffer[endBuffer]);
   }
 
   boolean newLineFound() {
-    return crLfMatcher.isReturn( byteBuffer, endBuffer ) || crLfMatcher.isLineFeed( byteBuffer, endBuffer );
+    return crLfMatcher.isReturn(byteBuffer, endBuffer)
+        || crLfMatcher.isLineFeed(byteBuffer, endBuffer);
   }
 
   boolean delimiterFound() {
-    return delimiterMatcher.matchesPattern( byteBuffer, endBuffer, delimiter );
+    return delimiterMatcher.matchesPattern(byteBuffer, endBuffer, delimiter);
   }
 
   boolean enclosureFound() {
-    return enclosureMatcher.matchesPattern( byteBuffer, endBuffer, enclosure );
+    return enclosureMatcher.matchesPattern(byteBuffer, endBuffer, enclosure);
   }
 
   boolean endOfBuffer() {

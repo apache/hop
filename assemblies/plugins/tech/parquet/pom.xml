@@ -19,63 +19,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-tech</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-tech</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-tech-parquet</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Technology Parquet</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-tech-parquet</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Hop Assemblies Plugins Technology Parquet</name>
-  <description></description>
+    <properties>
+        <parquet.version>1.12.0</parquet.version>
+        <hadoop.version>2.6.5</hadoop.version>
+        <avro.version>1.8.2</avro.version>
+    </properties>
 
-  <properties>
-    <parquet.version>1.12.0</parquet.version>
-    <hadoop.version>2.6.5</hadoop.version>
-    <avro.version>1.8.2</avro.version>
-  </properties>
+    <dependencies>
 
-  <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-tech-parquet</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-common</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-plugins-tech-parquet</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.parquet</groupId>
-      <artifactId>parquet-common</artifactId>
-      <version>${parquet.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-format-structures</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.parquet</groupId>
-      <artifactId>parquet-format-structures</artifactId>
-      <version>${parquet.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-column</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.parquet</groupId>
-      <artifactId>parquet-column</artifactId>
-      <version>${parquet.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.parquet</groupId>
-      <artifactId>parquet-avro</artifactId>
-      <version>${parquet.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
-      <version>${hadoop.version}</version>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 
 </project>

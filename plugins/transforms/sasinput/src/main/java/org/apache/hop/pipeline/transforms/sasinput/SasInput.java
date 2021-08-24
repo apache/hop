@@ -44,10 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Reads data from a SAS file in SAS7BAT format.
- *
- */
+/** Reads data from a SAS file in SAS7BAT format. */
 public class SasInput extends BaseTransform<SasInputMeta, SasInputData>
     implements ITransform<SasInputMeta, SasInputData> {
   private static Class<?> PKG = SasInputMeta.class; // for Translator
@@ -160,17 +157,16 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData>
           int outputIndex = getInputRowMeta().size() + i;
           if (sasValue instanceof byte[]) {
             inputValueMeta = new ValueMetaString(fieldName);
-            if (sasFileProperties.getEncoding()!=null) {
-              value = new String((byte[])sasValue, sasFileProperties.getEncoding());
+            if (sasFileProperties.getEncoding() != null) {
+              value = new String((byte[]) sasValue, sasFileProperties.getEncoding());
             } else {
               // TODO: user defined encoding.
-              value = new String((byte[])sasValue);
+              value = new String((byte[]) sasValue);
             }
           }
           if (sasValue instanceof String) {
             inputValueMeta = new ValueMetaString(fieldName);
             value = sasValue;
-
           }
           if (sasValue instanceof Double) {
             inputValueMeta = new ValueMetaNumber(fieldName);

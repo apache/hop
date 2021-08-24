@@ -29,13 +29,15 @@ import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.ui.hopgui.HopGui;
 
 @ExtensionPoint(
-  id = "HopGuiUnitTestCreateBeforeDialog",
-  extensionPointId = "HopGuiMetadataObjectCreateBeforeDialog",
-  description = "Changes the name of the default unit test and calculates a relative path"
-)
-public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged implements IExtensionPoint {
+    id = "HopGuiUnitTestCreateBeforeDialog",
+    extensionPointId = "HopGuiMetadataObjectCreateBeforeDialog",
+    description = "Changes the name of the default unit test and calculates a relative path")
+public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged
+    implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
+  @Override
+  public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
+      throws HopException {
 
     // Ignore all other metadata object changes
     //
@@ -44,10 +46,10 @@ public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged impl
     }
     PipelineUnitTest test = (PipelineUnitTest) object;
     PipelineMeta pipelineMeta = TestingGuiPlugin.getActivePipelineMeta();
-    if (pipelineMeta!=null) {
-      test.setName( pipelineMeta.getName() + " UNIT" );
-      test.setType( TestType.UNIT_TEST );
-      test.setRelativeFilename( HopGui.getInstance().getVariables(), pipelineMeta.getFilename() );
+    if (pipelineMeta != null) {
+      test.setName(pipelineMeta.getName() + " UNIT");
+      test.setType(TestType.UNIT_TEST);
+      test.setRelativeFilename(HopGui.getInstance().getVariables(), pipelineMeta.getFilename());
     }
   }
 }

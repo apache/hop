@@ -32,23 +32,14 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-import org.apache.hop.vfs.googledrive.config.GoogleDriveConfig;
 import org.apache.hop.vfs.googledrive.config.GoogleDriveConfigSingleton;
 import org.apache.hop.vfs.googledrive.util.CustomDataStoreFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -219,31 +210,33 @@ public class GoogleDriveFileObject extends AbstractFileObject {
 
   /**
    * Creates an authorized Credential object.
+   *
    * @param HTTP_TRANSPORT The network HTTP Transport.
    * @return An authorized Credential object.
    * @throws IOException If the credentials.json file cannot be found.
    */
-  private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+  private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
+      throws IOException {
     // Load client secrets.
-    InputStream in = new FileInputStream( getCredentialsFile());
+    InputStream in = new FileInputStream(getCredentialsFile());
     if (in == null) {
       throw new FileNotFoundException("Resource not found: " + getCredentialsFile());
     }
-    GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+    GoogleClientSecrets clientSecrets =
+        GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
     // Build flow and trigger user authorization request.
-    GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-      HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-      .setDataStoreFactory(new FileDataStoreFactory(getTokensFolder()))
-      .setAccessType("offline")
-      .build();
+    GoogleAuthorizationCodeFlow flow =
+        new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+            .setDataStoreFactory(new FileDataStoreFactory(getTokensFolder()))
+            .setAccessType("offline")
+            .build();
     LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
     return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
   }
 
-
   private Drive getDriveService() throws IOException {
-    Credential credential = getCredentials( HTTP_TRANSPORT );
+    Credential credential = getCredentials(HTTP_TRANSPORT);
     return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
         .setApplicationName(APPLICATION_NAME)
         .build();
@@ -251,8 +244,9 @@ public class GoogleDriveFileObject extends AbstractFileObject {
 
   private static java.io.File getTokensFolder() throws FileSystemException {
     String tokensFolder = GoogleDriveConfigSingleton.getConfig().getTokensFolder();
-    if (tokensFolder==null) {
-      throw new FileSystemException( "Google Drive VFS: please specify a local folder to store tokens in the configuration.  You can do this in the 'Google Drive' tab of the options dialog in the GUI or using the Hop Config script." );
+    if (tokensFolder == null) {
+      throw new FileSystemException(
+          "Google Drive VFS: please specify a local folder to store tokens in the configuration.  You can do this in the 'Google Drive' tab of the options dialog in the GUI or using the Hop Config script.");
     }
     return new java.io.File(tokensFolder);
   }
@@ -260,8 +254,9 @@ public class GoogleDriveFileObject extends AbstractFileObject {
   public static String getCredentialsFile() throws FileSystemException {
 
     String credentialsFile = GoogleDriveConfigSingleton.getConfig().getCredentialsFile();
-    if (credentialsFile==null) {
-      throw new FileSystemException( "Google Drive VFS: please specify a credentials JSON file in the configuration. You can do this in the 'Google Drive' tab of the options dialog in the GUI or using the Hop Config script." );
+    if (credentialsFile == null) {
+      throw new FileSystemException(
+          "Google Drive VFS: please specify a credentials JSON file in the configuration. You can do this in the 'Google Drive' tab of the options dialog in the GUI or using the Hop Config script.");
     }
     return credentialsFile;
   }

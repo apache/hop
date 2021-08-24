@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * WsdlOpParameterList represents the list of parameters for an operation.
- */
+/** WsdlOpParameterList represents the list of parameters for an operation. */
 public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
 
   private static final long serialVersionUID = 1L;
@@ -44,17 +42,17 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Constructor.
    *
-   * @param op        Operation this arg list is for.
-   * @param binding   Binding for the operation.
+   * @param op Operation this arg list is for.
+   * @param binding Binding for the operation.
    * @param wsdlTypes Wsdl types.
    */
-  protected WsdlOpParameterList( Operation op, Binding binding, WsdlTypes wsdlTypes ) {
+  protected WsdlOpParameterList(Operation op, Binding binding, WsdlTypes wsdlTypes) {
 
     _wsdlTypes = wsdlTypes;
     _returnParam = null;
     _operation = op;
     _parameterStyle = WsdlOperation.SOAPParameterStyle.BARE;
-    _headerNames = WsdlUtils.getSOAPHeaders( binding, op.getName() );
+    _headerNames = WsdlUtils.getSOAPHeaders(binding, op.getName());
   }
 
   /**
@@ -75,9 +73,7 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
     return _parameterStyle;
   }
 
-  /**
-   * @return the operation for this parameter list
-   */
+  /** @return the operation for this parameter list */
   public Operation getOperation() {
     return _operation;
   }
@@ -85,25 +81,25 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Add a parameter to this list.
    *
-   * @param p           Message part defining the parameter.
+   * @param p Message part defining the parameter.
    * @param requestPart tue if this parameter is part of an reqest message.
    * @return true if this collection was modified as a result of this call.
    */
-  protected boolean add( Part p, boolean requestPart ) throws HopTransformException {
+  protected boolean add(Part p, boolean requestPart) throws HopTransformException {
 
-    List<WsdlOpParameter> params = getParameter( p, requestPart );
-    for ( WsdlOpParameter op : params ) {
+    List<WsdlOpParameter> params = getParameter(p, requestPart);
+    for (WsdlOpParameter op : params) {
 
-      if ( _headerNames.contains( op.getName().getLocalPart() ) ) {
+      if (_headerNames.contains(op.getName().getLocalPart())) {
         op.setHeader();
       }
 
-      if ( requestPart ) {
+      if (requestPart) {
         // just set mode and add
-        op.setMode( op.getMode() ); // TODO: WTF??
-        add( op );
+        op.setMode(op.getMode()); // TODO: WTF??
+        add(op);
       } else {
-        addOutputParameter( op );
+        addOutputParameter(op);
       }
     }
     return true;
@@ -112,49 +108,58 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Generate a WsdlOpParameter from the message part.
    *
-   * @param part       A list of message part.
+   * @param part A list of message part.
    * @param requesPart true if part from request message.
    */
-  private List<WsdlOpParameter> getParameter( Part part, boolean requesPart ) throws HopTransformException {
+  private List<WsdlOpParameter> getParameter(Part part, boolean requesPart)
+      throws HopTransformException {
 
     List<WsdlOpParameter> params = new ArrayList<>();
 
-    if ( part.getElementName() != null ) {
-      if ( WsdlUtils.isWrappedParameterStyle( _operation.getName(), !requesPart, part.getName() ) ) {
+    if (part.getElementName() != null) {
+      if (WsdlUtils.isWrappedParameterStyle(_operation.getName(), !requesPart, part.getName())) {
         _parameterStyle = WsdlOperation.SOAPParameterStyle.WRAPPED;
       }
-      params.addAll( resolvePartElement( part ) );
+      params.addAll(resolvePartElement(part));
     } else {
-      params.add( new WsdlOpParameter( part.getName(), part.getTypeName(), _wsdlTypes.findNamedType( part
-        .getTypeName() ), _wsdlTypes ) );
+      params.add(
+          new WsdlOpParameter(
+              part.getName(),
+              part.getTypeName(),
+              _wsdlTypes.findNamedType(part.getTypeName()),
+              _wsdlTypes));
     }
     return params;
   }
 
   /**
-   * Add an response param to the parameter list. Some rules for determining if the request param is the return value
-   * for the operation:
-   * <p/>
+   * Add an response param to the parameter list. Some rules for determining if the request param is
+   * the return value for the operation:
+   *
+   * <p>
+   *
    * <ol>
-   * <li>If the operation has 'parameterOrder' set:</li>
-   * <ol>
-   * <li>If the response parameter is not in the operation's parameterOrder attribute, then it represents the return
-   * value of the call. If there is no such part, then the method does not return a value.</li>
-   * b) If the response parameter is found in the parameterOrder list, add it as an OUT mode parameter.</li>
-   * </ol>
-   * <li>If the operation does not have 'parameterOrder' set:</li>
-   * <ol>
-   * <li>If there is a single part in the output message that is not also in the input message it is mapped to the
-   * return type of the method.</li>
-   * <li>If there is more than one part in the output message that is not in the input message they are all mapped as
-   * out arguments and the return type of the method is void.</li>
-   * </ol>
+   *   <li>If the operation has 'parameterOrder' set:
+   *       <ol>
+   *         <li>If the response parameter is not in the operation's parameterOrder attribute, then
+   *             it represents the return value of the call. If there is no such part, then the
+   *             method does not return a value. b) If the response parameter is found in the
+   *             parameterOrder list, add it as an OUT mode parameter.
+   *       </ol>
+   *   <li>If the operation does not have 'parameterOrder' set:
+   *       <ol>
+   *         <li>If there is a single part in the output message that is not also in the input
+   *             message it is mapped to the return type of the method.
+   *         <li>If there is more than one part in the output message that is not in the input
+   *             message they are all mapped as out arguments and the return type of the method is
+   *             void.
+   *       </ol>
    * </ol>
    *
    * @param responseParam Parameter to process.
    */
-  @SuppressWarnings( "unchecked" )
-  private void addOutputParameter( WsdlOpParameter responseParam ) {
+  @SuppressWarnings("unchecked")
+  private void addOutputParameter(WsdlOpParameter responseParam) {
     //
     // is this in IN/OUT param ?
     //
@@ -167,25 +172,25 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
     // responseParam.setMode(WsdlOpParameter.ParameterMode.OUT);
 
     List<String> parameterOrder = _operation.getParameterOrdering();
-    if ( parameterOrder != null ) {
-      if ( !parameterOrder.contains( responseParam.getName().getLocalPart() ) ) {
+    if (parameterOrder != null) {
+      if (!parameterOrder.contains(responseParam.getName().getLocalPart())) {
         // assert _returnParam == null : "Invalid state!!!";
         _returnParam = responseParam;
       } else {
-        add( responseParam );
+        add(responseParam);
       }
     } else {
-      if ( _returnParam == null && !_outOnly ) {
+      if (_returnParam == null && !_outOnly) {
         _returnParam = responseParam;
-      } else if ( _returnParam != null ) {
+      } else if (_returnParam != null) {
         // move _returnParam into main arg list
-        add( _returnParam );
+        add(_returnParam);
         _returnParam = null;
         _outOnly = true;
 
-        add( responseParam );
+        add(responseParam);
       } else {
-        add( responseParam );
+        add(responseParam);
       }
     }
   }
@@ -194,39 +199,39 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
    * Resolve a Part's element attribute value to a concrete XML type.
    *
    * @param p A message part.
-   * @return A list of parameters resulting from the schema type -- typically the list will only contains a single
-   * parameter.
+   * @return A list of parameters resulting from the schema type -- typically the list will only
+   *     contains a single parameter.
    */
-  private List<WsdlOpParameter> resolvePartElement( Part p ) throws HopTransformException {
+  private List<WsdlOpParameter> resolvePartElement(Part p) throws HopTransformException {
 
     List<WsdlOpParameter> resolvedParams = new ArrayList<>();
-    Element schemaElement = _wsdlTypes.findNamedElement( p.getElementName() );
+    Element schemaElement = _wsdlTypes.findNamedElement(p.getElementName());
 
-    if ( schemaElement.hasAttribute( WsdlUtils.ELEMENT_TYPE_ATTR ) ) {
+    if (schemaElement.hasAttribute(WsdlUtils.ELEMENT_TYPE_ATTR)) {
       // this is a simple type
-      resolvedParams.add( new WsdlOpParameter( p.getName(), schemaElement, _wsdlTypes ) );
+      resolvedParams.add(new WsdlOpParameter(p.getName(), schemaElement, _wsdlTypes));
     } else {
       // this is a complex type
-      Element complex = DomUtils.getChildElementByName( schemaElement, WsdlUtils.COMPLEX_TYPE_NAME );
-      Element sequence = DomUtils.getChildElementByName( complex, WsdlUtils.SEQUENCE_TAG_NAME );
+      Element complex = DomUtils.getChildElementByName(schemaElement, WsdlUtils.COMPLEX_TYPE_NAME);
+      Element sequence = DomUtils.getChildElementByName(complex, WsdlUtils.SEQUENCE_TAG_NAME);
 
       // may occasionally find a <complex/> tag map to empty but this may be a bug in WSM
       //
-      if ( sequence == null ) {
+      if (sequence == null) {
         return resolvedParams;
       }
 
-      List<Element> seqElements = DomUtils.getChildElementsByName( sequence, WsdlUtils.ELEMENT_NAME );
+      List<Element> seqElements = DomUtils.getChildElementsByName(sequence, WsdlUtils.ELEMENT_NAME);
 
-      for ( Element e : seqElements ) {
-        WsdlOpParameter op = new WsdlOpParameter( e, _wsdlTypes );
+      for (Element e : seqElements) {
+        WsdlOpParameter op = new WsdlOpParameter(e, _wsdlTypes);
 
         // special case for bare arrays, change the name of the param
         // to the name of the complex type.
-        if ( op.isArray() && _parameterStyle == WsdlOperation.SOAPParameterStyle.BARE ) {
-          op.setName( schemaElement.getAttribute( WsdlUtils.NAME_ATTR ), _wsdlTypes );
+        if (op.isArray() && _parameterStyle == WsdlOperation.SOAPParameterStyle.BARE) {
+          op.setName(schemaElement.getAttribute(WsdlUtils.NAME_ATTR), _wsdlTypes);
         }
-        resolvedParams.add( op );
+        resolvedParams.add(op);
       }
     }
     return resolvedParams;

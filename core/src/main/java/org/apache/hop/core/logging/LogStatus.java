@@ -23,12 +23,16 @@ package org.apache.hop.core.logging;
  * @author matt
  */
 public enum LogStatus {
-
-  START( "start" ), END( "end" ), STOP( "stop" ), ERROR( "error" ), RUNNING( "running" ), PAUSED( "paused" );
+  START("start"),
+  END("end"),
+  STOP("stop"),
+  ERROR("error"),
+  RUNNING("running"),
+  PAUSED("paused");
 
   private String status;
 
-  private LogStatus( String status ) {
+  private LogStatus(String status) {
     this.status = status;
   }
 
@@ -41,8 +45,8 @@ public enum LogStatus {
     return status;
   }
 
-  public boolean equals( LogStatus logStatus ) {
-    return status.equalsIgnoreCase( logStatus.status );
+  public boolean equals(LogStatus logStatus) {
+    return status.equalsIgnoreCase(logStatus.status);
   }
 
   /**
@@ -51,9 +55,9 @@ public enum LogStatus {
    * @param status the status string to search for
    * @return the LogStatus or null if none is found
    */
-  public static LogStatus findStatus( String status ) {
-    for ( LogStatus logStatus : values() ) {
-      if ( logStatus.status.equalsIgnoreCase( status ) ) {
+  public static LogStatus findStatus(String status) {
+    for (LogStatus logStatus : values()) {
+      if (logStatus.status.equalsIgnoreCase(status)) {
         return logStatus;
       }
     }

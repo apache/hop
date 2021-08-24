@@ -21,12 +21,14 @@ under the License.
 
 Enter the insert process settings in the following transform options:
 
-[options="header", width="90%"]
+[options="header",width="90%"]
 |===
 |Option|Description
 |Time out|Specify the timeout interval in milliseconds before the transform times out.
 |Use compression|Select to compress (.gzip) data when connecting between Hop and Salesforce.
-|Rollback all changes on|Revert changes unless all records are processed successfully. When you select this option, records without errors are inserted, while records with errors are marked as failed in the insertion results. The default behavior is to allow partial success of insertion.
+|Rollback all changes on|Revert changes unless all records are processed successfully.
+When you select this option, records without errors are inserted, while records with errors are marked as failed in the insertion results.
+The default behavior is to allow partial success of insertion.
 |Batch Size|Indicate the maximum number of records to collect before the insert is committed.
 |Module a| Select the module (table) in which you want to insert records. +
 

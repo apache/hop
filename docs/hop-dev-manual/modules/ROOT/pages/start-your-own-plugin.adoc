@@ -17,10 +17,13 @@ under the License.
 [[PluginDevelopment-OwnPluginDevelopment]]
 = Creating a remote plugin
 
-This guide is to help you set up and start development on a plugin that will not be included in the Hop repository. For more information on plugin types and how to add them to the Hop repository check out xref:plugin-development.adoc[following guide].
+This guide is to help you set up and start development on a plugin that will not be included in the Hop repository.
+For more information on plugin types and how to add them to the Hop repository check out xref:plugin-development.adoc[following guide].
 
-The Apache software foundation has a strict policy on source licenses including all dependencies used to provide certain functionality. To see which dependencies are allowed in an Apache project check https://www.apache.org/legal/resolved.html[following page].
-If your plugin consists of code and dependencies in category A it can safely be added to the Hop repository and community can help maintain the code. If it uses category B or X it can no longer be added to the default distribution of Hop.
+The Apache software foundation has a strict policy on source licenses including all dependencies used to provide certain functionality.
+To see which dependencies are allowed in an Apache project check https://www.apache.org/legal/resolved.html[following page].
+If your plugin consists of code and dependencies in category A it can safely be added to the Hop repository and community can help maintain the code.
+If it uses category B or X it can no longer be added to the default distribution of Hop.
 
 == Getting started
 
@@ -45,8 +48,8 @@ the main modules are:
 ** assemblies-transform-sample
 ** debug
 
-In our sample repository one action and one transform are provided, they all work but they do not manipulate data or perform any actions. The assemblies module is used to create a distribution or test your action or transform during development. 
-
+In our sample repository one action and one transform are provided, they all work but they do not manipulate data or perform any actions.
+The assemblies module is used to create a distribution or test your action or transform during development.
 
 === Debugging
 

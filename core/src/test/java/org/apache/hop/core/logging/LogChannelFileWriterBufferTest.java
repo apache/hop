@@ -28,11 +28,11 @@ public class LogChannelFileWriterBufferTest {
     String id = "1";
     String logMessage = "Log message";
 
-    LogChannelFileWriterBuffer buffer = new LogChannelFileWriterBuffer( id );
+    LogChannelFileWriterBuffer buffer = new LogChannelFileWriterBuffer(id);
 
-    buffer.addEvent( new HopLoggingEvent( logMessage, System.currentTimeMillis(), LogLevel.BASIC ) );
+    buffer.addEvent(new HopLoggingEvent(logMessage, System.currentTimeMillis(), LogLevel.BASIC));
 
     String log = buffer.getBuffer().toString();
-    assertTrue( log.contains( logMessage ) );
+    assertTrue(log.contains(logMessage));
   }
 }

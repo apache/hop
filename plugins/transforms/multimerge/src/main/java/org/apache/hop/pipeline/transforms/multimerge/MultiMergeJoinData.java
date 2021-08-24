@@ -31,7 +31,6 @@ import java.util.PriorityQueue;
  * @author Biswapesh
  * @since 24-nov-2005
  */
-
 public class MultiMergeJoinData extends BaseTransformData implements ITransformData {
   public static class QueueEntry {
     public Object[] row;
@@ -41,19 +40,19 @@ public class MultiMergeJoinData extends BaseTransformData implements ITransformD
   public static class QueueComparator implements Comparator<QueueEntry> {
     MultiMergeJoinData data;
 
-    QueueComparator( MultiMergeJoinData data ) {
+    QueueComparator(MultiMergeJoinData data) {
       this.data = data;
     }
 
     @Override
-    public int compare( QueueEntry a, QueueEntry b ) {
+    public int compare(QueueEntry a, QueueEntry b) {
       try {
         int cmp =
-          data.metas[ a.index ].compare(
-            a.row, data.metas[ b.index ], b.row, data.keyNrs[ a.index ], data.keyNrs[ b.index ] );
+            data.metas[a.index].compare(
+                a.row, data.metas[b.index], b.row, data.keyNrs[a.index], data.keyNrs[b.index]);
         return cmp > 0 ? 1 : cmp < 0 ? -1 : 0;
-      } catch ( HopException e ) {
-        throw new RuntimeException( e.getMessage() );
+      } catch (HopException e) {
+        throw new RuntimeException(e.getMessage());
       }
     }
   }
@@ -72,9 +71,7 @@ public class MultiMergeJoinData extends BaseTransformData implements ITransformD
   public QueueEntry[] queueEntries;
   public int[] rowLengths;
 
-  /**
-   * Default initializer
-   */
+  /** Default initializer */
   public MultiMergeJoinData() {
     super();
     rows = null;
@@ -83,5 +80,4 @@ public class MultiMergeJoinData extends BaseTransformData implements ITransformD
     optional = false;
     keyNrs = null;
   }
-
 }

@@ -27,9 +27,10 @@ Use this transform if you deliberately want to slow down your pipeline.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
-|Timeout|The timeout value in seconds, minutes or hours 
+|transform name|Name of the transform.
+Note: This name has to be unique in a single pipeline.
+|Timeout|The timeout value in seconds, minutes or hours
 |===

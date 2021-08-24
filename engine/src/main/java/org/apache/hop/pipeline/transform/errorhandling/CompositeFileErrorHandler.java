@@ -25,38 +25,38 @@ import java.util.List;
 public class CompositeFileErrorHandler implements IFileErrorHandler {
   private List<IFileErrorHandler> handlers;
 
-  public CompositeFileErrorHandler( List<IFileErrorHandler> handlers ) {
+  public CompositeFileErrorHandler(List<IFileErrorHandler> handlers) {
     super();
     this.handlers = handlers;
   }
 
-  public void handleFile( FileObject file ) throws HopException {
-    for ( IFileErrorHandler handler : handlers ) {
-      handler.handleFile( file );
+  public void handleFile(FileObject file) throws HopException {
+    for (IFileErrorHandler handler : handlers) {
+      handler.handleFile(file);
     }
   }
 
-  public void handleLineError( long lineNr, String filePart ) throws HopException {
-    for ( IFileErrorHandler handler : handlers ) {
-      handler.handleLineError( lineNr, filePart );
+  public void handleLineError(long lineNr, String filePart) throws HopException {
+    for (IFileErrorHandler handler : handlers) {
+      handler.handleLineError(lineNr, filePart);
     }
   }
 
   public void close() throws HopException {
-    for ( IFileErrorHandler handler : handlers ) {
+    for (IFileErrorHandler handler : handlers) {
       handler.close();
     }
   }
 
-  public void handleNonExistantFile( FileObject file ) throws HopException {
-    for ( IFileErrorHandler handler : handlers ) {
-      handler.handleNonExistantFile( file );
+  public void handleNonExistantFile(FileObject file) throws HopException {
+    for (IFileErrorHandler handler : handlers) {
+      handler.handleNonExistantFile(file);
     }
   }
 
-  public void handleNonAccessibleFile( FileObject file ) throws HopException {
-    for ( IFileErrorHandler handler : handlers ) {
-      handler.handleNonAccessibleFile( file );
+  public void handleNonAccessibleFile(FileObject file) throws HopException {
+    for (IFileErrorHandler handler : handlers) {
+      handler.handleNonAccessibleFile(file);
     }
   }
 }

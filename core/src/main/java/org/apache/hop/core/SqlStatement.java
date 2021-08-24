@@ -20,8 +20,8 @@ package org.apache.hop.core;
 import org.apache.hop.core.database.DatabaseMeta;
 
 /**
- * This class contains all that is needed to execute an SQL statement in a database. --> The Database connection --> The
- * SQL statement
+ * This class contains all that is needed to execute an SQL statement in a database. --> The
+ * Database connection --> The SQL statement
  *
  * @author Matt
  * @since 02-dec-2004
@@ -36,9 +36,9 @@ public class SqlStatement {
    * Creates a new SqlStatement
    *
    * @param dbinfo The database connection
-   * @param sql    The sql to execute on the connection
+   * @param sql The sql to execute on the connection
    */
-  public SqlStatement( String transformName, DatabaseMeta dbinfo, String sql ) {
+  public SqlStatement(String transformName, DatabaseMeta dbinfo, String sql) {
     this.transformName = transformName;
     this.dbinfo = dbinfo;
     this.sql = sql;
@@ -50,7 +50,7 @@ public class SqlStatement {
    *
    * @param transformName the name of the transform for which the SQL is intended
    */
-  public void setTransformName( String transformName ) {
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -68,7 +68,7 @@ public class SqlStatement {
    *
    * @param dbinfo The databaseconnection
    */
-  public void setDatabase( DatabaseMeta dbinfo ) {
+  public void setDatabase(DatabaseMeta dbinfo) {
     this.dbinfo = dbinfo;
   }
 
@@ -77,7 +77,7 @@ public class SqlStatement {
    *
    * @param sql The sql to execute, without trailing ";" or anything else.
    */
-  public void setSql( String sql ) {
+  public void setSql(String sql) {
     this.sql = sql;
   }
 
@@ -104,7 +104,7 @@ public class SqlStatement {
    *
    * @param error The error that occurred when obtaining the SQL.
    */
-  public void setError( String error ) {
+  public void setError(String error) {
     this.error = error;
   }
 

@@ -24,11 +24,11 @@ public class ServerPushSessionFacadeImpl extends ServerPushSessionFacade {
 
   @Override
   void startInternal() {
-    SingletonUtil.getSessionInstance( ServerPushSession.class ).start();
+    SingletonUtil.getSessionInstance(ServerPushSession.class).start();
   }
 
   @Override
   void stopInternal() {
-    SingletonUtil.getSessionInstance( ServerPushSession.class ).stop();
+    SingletonUtil.getSessionInstance(ServerPushSession.class).stop();
   }
 }

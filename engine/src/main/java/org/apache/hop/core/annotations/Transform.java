@@ -17,29 +17,25 @@
 
 package org.apache.hop.core.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * An alternate way of defining transforms. Classes annotated with "Transform" are automatically recognized and registered as a
- * transform.
- * <p>
- * Important: The XML definitions alienate annotated transforms and the two methods of definition are therefore mutually
- * exclusive.
+ * An alternate way of defining transforms. Classes annotated with "Transform" are automatically
+ * recognized and registered as a transform.
+ *
+ * <p>Important: The XML definitions alienate annotated transforms and the two methods of definition
+ * are therefore mutually exclusive.
  *
  * @author Alex Silva
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface Transform {
 
   /**
-   * @return The ID of the transform. You can specify more than one ID in a comma separated format: id1,id2,id3 for
-   * deprecation purposes.
+   * @return The ID of the transform. You can specify more than one ID in a comma separated format:
+   *     id1,id2,id3 for deprecation purposes.
    */
   String id();
 
@@ -47,14 +43,10 @@ public @interface Transform {
 
   String description() default "";
 
-  /**
-   * @return The image resource path
-   */
+  /** @return The image resource path */
   String image() default "";
 
-  /**
-   * @return True if a separate class loader is needed every time this class is instantiated
-   */
+  /** @return True if a separate class loader is needed every time this class is instantiated */
   boolean isSeparateClassLoaderNeeded() default false;
 
   String classLoaderGroup() default "";
@@ -62,26 +54,21 @@ public @interface Transform {
   String categoryDescription() default "";
 
   /**
-   * This is a deprecated method: please use the i18n:package:key format in name, description and categoryDescription
+   * This is a deprecated method: please use the i18n:package:key format in name, description and
+   * categoryDescription
    *
    * @return
    */
   @Deprecated
   String i18nPackageName() default "";
 
-  /**
-   * @return The documentation url
-   */
+  /** @return The documentation url */
   String documentationUrl() default "";
 
-  /**
-   * @return The cases url
-   */
+  /** @return The cases url */
   String casesUrl() default "";
 
-  /**
-   * @return The forum url
-   */
+  /** @return The forum url */
   String forumUrl() default "";
 
   String suggestion() default "";

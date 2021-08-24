@@ -35,11 +35,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.math.BigDecimal;
 
@@ -48,12 +44,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /** @author Andrey Khayrutdinov */
 public class SelectValuesTest {
@@ -193,7 +185,7 @@ public class SelectValuesTest {
             null,
             null,
             null); // no specified conversion type so should have default conversion mask for
-                   // Double.
+    // Double.
 
     transformData = new SelectValuesData();
     transformData.select = true;
@@ -375,7 +367,7 @@ public class SelectValuesTest {
             null,
             null,
             null); // no specified conversion type so should have default conversion mask for
-                   // Double.
+    // Double.
 
     transformData = new SelectValuesData();
     transformData.select = true;

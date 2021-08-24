@@ -20,43 +20,43 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.*;
 
 import java.util.List;
 
-public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
+public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta
+    implements ITransformMeta<ITransform, ITransformData> {
 
-  @InjectionDeep
-  public List<T> items;
+  @InjectionDeep public List<T> items;
 
-  @Injection( name = "A" )
+  @Injection(name = "A")
   A obj;
 
-  @InjectionDeep( prefix = "ITEM" )
+  @InjectionDeep(prefix = "ITEM")
   public T test1() {
     return null;
   }
 
-  @InjectionDeep( prefix = "SUB" )
+  @InjectionDeep(prefix = "SUB")
   public List<T> test2() {
     return null;
   }
 
+  @Override
+  public void setDefault() {}
 
-
-
-  @Override public void setDefault() {
-  }
-
-  @Override public ITransform createTransform( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  @Override
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      ITransformData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     return null;
   }
 
-  @Override public ITransformData getTransformData() {
+  @Override
+  public ITransformData getTransformData() {
     return null;
   }
 }

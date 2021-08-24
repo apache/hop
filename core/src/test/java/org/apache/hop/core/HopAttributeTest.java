@@ -18,9 +18,7 @@ package org.apache.hop.core;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class HopAttributeTest {
@@ -31,26 +29,26 @@ public class HopAttributeTest {
     final String description = "description";
     final String tooltip = "tooltip";
     final int type = 6;
-    final IHopAttribute parent = mock( IHopAttribute.class );
-    HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, type, parent );
-    assertSame( key, attribute.getKey() );
-    assertSame( xmlCode, attribute.getXmlCode() );
-    assertSame( description, attribute.getDescription() );
-    assertSame( tooltip, attribute.getTooltip() );
-    assertEquals( type, attribute.getType() );
-    assertSame( parent, attribute.getParent() );
+    final IHopAttribute parent = mock(IHopAttribute.class);
+    HopAttribute attribute = new HopAttribute(key, xmlCode, description, tooltip, type, parent);
+    assertSame(key, attribute.getKey());
+    assertSame(xmlCode, attribute.getXmlCode());
+    assertSame(description, attribute.getDescription());
+    assertSame(tooltip, attribute.getTooltip());
+    assertEquals(type, attribute.getType());
+    assertSame(parent, attribute.getParent());
 
-    attribute.setKey( null );
-    assertNull( attribute.getKey() );
-    attribute.setXmlCode( null );
-    assertNull( attribute.getXmlCode() );
-    attribute.setDescription( null );
-    assertNull( attribute.getDescription() );
-    attribute.setTooltip( null );
-    assertNull( attribute.getTooltip() );
-    attribute.setType( -6 );
-    assertEquals( -6, attribute.getType() );
-    attribute.setParent( null );
-    assertNull( attribute.getParent() );
+    attribute.setKey(null);
+    assertNull(attribute.getKey());
+    attribute.setXmlCode(null);
+    assertNull(attribute.getXmlCode());
+    attribute.setDescription(null);
+    assertNull(attribute.getDescription());
+    attribute.setTooltip(null);
+    assertNull(attribute.getTooltip());
+    attribute.setType(-6);
+    assertEquals(-6, attribute.getType());
+    attribute.setParent(null);
+    assertNull(attribute.getParent());
   }
 }

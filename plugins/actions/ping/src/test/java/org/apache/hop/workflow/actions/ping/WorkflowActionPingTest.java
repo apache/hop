@@ -16,8 +16,8 @@
  */
 package org.apache.hop.workflow.actions.ping;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -34,27 +34,22 @@ public class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<Ac
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "hostname",
-      "nbrPackets",
-      "timeout",
-      "pingtype" );
+    return Arrays.asList("hostname", "nbrPackets", "timeout", "pingtype");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "hostname", "getHostname",
-      "nbrPackets", "getNbrPackets",
-      "timeout", "getTimeOut" );
+        "hostname", "getHostname",
+        "nbrPackets", "getNbrPackets",
+        "timeout", "getTimeOut");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "hostname", "setHostname",
-      "nbrPackets", "setNbrPackets",
-      "timeout", "setTimeOut" );
+        "hostname", "setHostname",
+        "nbrPackets", "setNbrPackets",
+        "timeout", "setTimeOut");
   }
-
 }

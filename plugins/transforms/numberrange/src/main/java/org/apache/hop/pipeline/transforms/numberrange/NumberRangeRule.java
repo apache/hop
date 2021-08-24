@@ -19,39 +19,31 @@ package org.apache.hop.pipeline.transforms.numberrange;
 
 import java.util.Objects;
 
-/**
- * Contains one rule for a number range
- *
- */
+/** Contains one rule for a number range */
 public class NumberRangeRule {
 
-  /**
-   * Lower bound for which the rule matches (lowerBound <= x)
-   */
+  /** Lower bound for which the rule matches (lowerBound <= x) */
   private double lowerBound;
 
-  /**
-   * Upper bound for which the rule matches (x < upperBound)
-   */
+  /** Upper bound for which the rule matches (x < upperBound) */
   private double upperBound;
 
-  /**
-   * Value that is returned if the number to be tested is within the range
-   */
+  /** Value that is returned if the number to be tested is within the range */
   private String value;
 
-  public NumberRangeRule( double lowerBound, double upperBound, String value ) {
+  public NumberRangeRule(double lowerBound, double upperBound, String value) {
     this.lowerBound = lowerBound;
     this.upperBound = upperBound;
     this.value = value;
   }
 
   /**
-   * Evaluates if the current value is within the range. If so, it returns the value. Otherwise it returns null.
+   * Evaluates if the current value is within the range. If so, it returns the value. Otherwise it
+   * returns null.
    */
-  public String evaluate( double compareValue ) {
+  public String evaluate(double compareValue) {
     // Check if the value is within the range
-    if ( ( compareValue >= lowerBound ) && ( compareValue < upperBound ) ) {
+    if ((compareValue >= lowerBound) && (compareValue < upperBound)) {
       return value;
     }
 
@@ -72,18 +64,19 @@ public class NumberRangeRule {
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( !obj.getClass().equals( this.getClass() ) ) {
+  public boolean equals(Object obj) {
+    if (!obj.getClass().equals(this.getClass())) {
       return false;
     } else {
       NumberRangeRule target = (NumberRangeRule) obj;
       return getLowerBound() == target.getLowerBound()
-        && getUpperBound() == target.getUpperBound() && getValue().equals( target.getValue() );
+          && getUpperBound() == target.getUpperBound()
+          && getValue().equals(target.getValue());
     }
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash( lowerBound, upperBound, value );
+    return Objects.hash(lowerBound, upperBound, value);
   }
 }

@@ -26,41 +26,40 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import java.util.Objects;
 
 @HopMetadata(
-  key = "type-2",
-  name = "type 2",
-  description = "This is a simple test object type 2",
-  image = "ui/images/dummy.svg")
-
+    key = "type-2",
+    name = "type 2",
+    description = "This is a simple test object type 2",
+    image = "ui/images/dummy.svg")
 public class MetadataType2 extends HopMetadataBase implements IHopMetadata {
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  @HopMetadataProperty
-  private String value;
+  @HopMetadataProperty private String value;
 
-  public MetadataType2( String name, String description, String value ) {
+  public MetadataType2(String name, String description, String value) {
     super(name);
     this.description = description;
     this.value = value;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    if ( !super.equals( o ) ) {
+    if (!super.equals(o)) {
       return false;
     }
     MetadataType2 that = (MetadataType2) o;
-    return Objects.equals( description, that.description ) && Objects.equals( value, that.value );
+    return Objects.equals(description, that.description) && Objects.equals(value, that.value);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( super.hashCode(), description, value );
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), description, value);
   }
 
   /**
@@ -72,10 +71,8 @@ public class MetadataType2 extends HopMetadataBase implements IHopMetadata {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -88,10 +85,8 @@ public class MetadataType2 extends HopMetadataBase implements IHopMetadata {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 }

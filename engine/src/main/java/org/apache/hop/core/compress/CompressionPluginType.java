@@ -23,85 +23,83 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This class represents the compression plugin type.
- */
-@PluginMainClassType( ICompressionProvider.class )
-@PluginAnnotationType( CompressionPlugin.class )
+/** This class represents the compression plugin type. */
+@PluginMainClassType(ICompressionProvider.class)
+@PluginAnnotationType(CompressionPlugin.class)
 public class CompressionPluginType extends BasePluginType<CompressionPlugin> {
   protected static CompressionPluginType pluginType;
 
   private CompressionPluginType() {
-    super( CompressionPlugin.class, "COMPRESSION", "Compression" );
+    super(CompressionPlugin.class, "COMPRESSION", "Compression");
   }
 
   public static CompressionPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new CompressionPluginType();
     }
     return pluginType;
   }
-  
+
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( CompressionPlugin annotation ) {
+  protected String extractCategory(CompressionPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).description();
+  protected String extractDesc(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).description();
   }
 
   @Override
-  protected String extractID( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).id();
+  protected String extractID(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).id();
   }
 
   @Override
-  protected String extractName( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).name();
+  protected String extractName(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).name();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).isSeparateClassLoaderNeeded();
+  protected boolean extractSeparateClassLoader(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, CompressionPlugin annotation ) {
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, CompressionPlugin annotation) {}
+
+  @Override
+  protected String extractDocumentationUrl(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).documentationUrl();
   }
 
   @Override
-  protected String extractDocumentationUrl( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).documentationUrl();
+  protected String extractCasesUrl(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).casesUrl();
   }
 
   @Override
-  protected String extractCasesUrl( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).casesUrl();
+  protected String extractForumUrl(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).forumUrl();
   }
 
   @Override
-  protected String extractForumUrl( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).forumUrl();
-  }
-
-  @Override
-  protected String extractImageFile( CompressionPlugin annotation ) {
+  protected String extractImageFile(CompressionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( CompressionPlugin annotation ) {
+  protected String extractSuggestion(CompressionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( CompressionPlugin annotation ) {
-    return ( (CompressionPlugin) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup(CompressionPlugin annotation) {
+    return ((CompressionPlugin) annotation).classLoaderGroup();
   }
 }

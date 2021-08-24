@@ -24,22 +24,22 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class BaseGuiElements {
 
-  protected String getTranslation(String string, String i18nPackage, Class<?> resourceClass ) {
+  protected String getTranslation(String string, String i18nPackage, Class<?> resourceClass) {
 
-    if ( StringUtils.isEmpty( string ) ) {
+    if (StringUtils.isEmpty(string)) {
       return null;
     }
-    if (string.startsWith( Const.I18N_PREFIX )) {
+    if (string.startsWith(Const.I18N_PREFIX)) {
       String[] parts = string.split(":");
       if (parts.length == 3) {
         String alternativePackage = Const.NVL(parts[1], i18nPackage);
         String key = parts[2];
-        return BaseMessages.getString( alternativePackage, key, resourceClass );
+        return BaseMessages.getString(alternativePackage, key, resourceClass);
       }
     }
 
-    String translation = BaseMessages.getString( i18nPackage, string, resourceClass );
-    if (translation.startsWith( "!" ) && translation.endsWith( "!" )) {
+    String translation = BaseMessages.getString(i18nPackage, string, resourceClass);
+    if (translation.startsWith("!") && translation.endsWith("!")) {
       // Just return the original string, we did our best
       //
       return string;
@@ -47,21 +47,19 @@ public class BaseGuiElements {
     return translation;
   }
 
-  protected String calculateGetterMethod( GuiWidgetElement guiElement, String fieldName ) {
-    if ( StringUtils.isNotEmpty( guiElement.getterMethod() ) ) {
+  protected String calculateGetterMethod(GuiWidgetElement guiElement, String fieldName) {
+    if (StringUtils.isNotEmpty(guiElement.getterMethod())) {
       return guiElement.getterMethod();
     }
-    String getter = "get" + StringUtil.initCap( fieldName );
+    String getter = "get" + StringUtil.initCap(fieldName);
     return getter;
   }
 
-
-  protected String calculateSetterMethod( GuiWidgetElement guiElement, String fieldName ) {
-    if ( StringUtils.isNotEmpty( guiElement.setterMethod() ) ) {
+  protected String calculateSetterMethod(GuiWidgetElement guiElement, String fieldName) {
+    if (StringUtils.isNotEmpty(guiElement.setterMethod())) {
       return guiElement.setterMethod();
     }
-    String getter = "set" + StringUtil.initCap( fieldName );
+    String getter = "set" + StringUtil.initCap(fieldName);
     return getter;
   }
-
 }

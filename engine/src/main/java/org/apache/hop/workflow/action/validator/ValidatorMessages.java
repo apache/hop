@@ -32,27 +32,27 @@ public class ValidatorMessages {
 
   private static final String BUNDLE_NAME = "org.apache.hop.workflow.entry.messages.validator";
 
-  public static String getString( final String key, final Object... params ) {
-    return getStringFromBundle( BUNDLE_NAME, key, params );
+  public static String getString(final String key, final Object... params) {
+    return getStringFromBundle(BUNDLE_NAME, key, params);
   }
 
-  public static String getStringFromBundle( final String bundleName, final String key, final Object... params ) {
+  public static String getStringFromBundle(
+      final String bundleName, final String key, final Object... params) {
     ResourceBundle bundle = null;
     try {
-      bundle = GlobalMessageUtil.getBundle( bundleName, ValidatorMessages.class );
-    } catch ( MissingResourceException e ) {
+      bundle = GlobalMessageUtil.getBundle(bundleName, ValidatorMessages.class);
+    } catch (MissingResourceException e) {
       return "??? missing resource ???";
-    } catch ( NullPointerException e ) {
+    } catch (NullPointerException e) {
       return "??? baseName null ???";
     }
     String unformattedString = null;
     try {
-      unformattedString = bundle.getString( key );
-    } catch ( Exception e ) {
+      unformattedString = bundle.getString(key);
+    } catch (Exception e) {
       return "??? " + key + " ???";
     }
-    String formattedString = MessageFormat.format( unformattedString, params );
+    String formattedString = MessageFormat.format(unformattedString, params);
     return formattedString;
   }
-
 }

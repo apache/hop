@@ -17,9 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -32,6 +29,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Coalesce Transformation selects the first non null value from a group of input fields and
@@ -80,8 +80,8 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
 
       first = false;
       // clone the input row structure and place it in our data object
-      data.outputRowMeta = getInputRowMeta().clone();    
-      
+      data.outputRowMeta = getInputRowMeta().clone();
+
       // use meta.getFields() to change it, so it reflects the output row
       // structure
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
@@ -89,11 +89,12 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
       // Check output name
       for (CoalesceField coalesce : meta.getFields()) {
         String name = this.resolve(coalesce.getName());
-        if ( Utils.isEmpty(name) ) {
-          throw new HopException(BaseMessages.getString(PKG,"CoalesceTransform.Log.MissingFieldName"));
-        }        
+        if (Utils.isEmpty(name)) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "CoalesceTransform.Log.MissingFieldName"));
+        }
       }
-            
+
       checkInputFieldsExist(meta);
     }
 
@@ -118,12 +119,14 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     // or in case it was None to reflect on the default data type logic.
     for (CoalesceField coalesce : meta.getFields()) {
 
-      int inputIndex = getFirstNonNullValueIndex(inputRowMeta, row, coalesce.getInputFieldNames(), meta.isTreatEmptyStringsAsNulls());
+      int inputIndex =
+          getFirstNonNullValueIndex(
+              inputRowMeta, row, coalesce.getInputFieldNames(), meta.isTreatEmptyStringsAsNulls());
 
       // Resolve variable name
       String name = this.resolve(coalesce.getName());
       outputIndex = data.outputRowMeta.indexOfValue(name);
-      
+
       IValueMeta vm = data.outputRowMeta.getValueMeta(outputIndex);
       try {
         Object result = null;
@@ -188,10 +191,11 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
   }
 
   /** The actual coalesce logic, returns the index of the first non null value */
-  private int getFirstNonNullValueIndex(      
+  private int getFirstNonNullValueIndex(
       final IRowMeta inputRowMeta,
       Object[] row,
-      List<String> fields, boolean isTreatEmptyStringsAsNulls) {
+      List<String> fields,
+      boolean isTreatEmptyStringsAsNulls) {
 
     for (String fieldName : fields) {
 

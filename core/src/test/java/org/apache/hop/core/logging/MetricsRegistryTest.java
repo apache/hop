@@ -24,11 +24,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -44,39 +40,36 @@ public class MetricsRegistryTest {
   public void setUp() {
     metricsRegistry = MetricsRegistry.getInstance();
     metricsRegistry.reset();
-    logIds = new ArrayList<>( logChannelIdCount );
-    for ( int i = 1; i <= logChannelIdCount; i++ ) {
-      logIds.add( "logChannelId_" + i );
+    logIds = new ArrayList<>(logChannelIdCount);
+    for (int i = 1; i <= logChannelIdCount; i++) {
+      logIds.add("logChannelId_" + i);
     }
-    countDownLatch = new CountDownLatch( 1 );
+    countDownLatch = new CountDownLatch(1);
   }
-
 
   @Test
   public void testConcurrencySnap() throws Exception {
-    ExecutorService service = Executors.newFixedThreadPool( threadCount );
-    for ( int i = 0; i < threadCount; i++ ) {
-      service.submit( new ConcurrentPutIfAbsent( logIds.get( i % 20 ) ) );
+    ExecutorService service = Executors.newFixedThreadPool(threadCount);
+    for (int i = 0; i < threadCount; i++) {
+      service.submit(new ConcurrentPutIfAbsent(logIds.get(i % 20)));
     }
     countDownLatch.countDown();
-    service.awaitTermination( 2000, TimeUnit.MILLISECONDS );
+    service.awaitTermination(2000, TimeUnit.MILLISECONDS);
     int expectedQueueCount = logChannelIdCount > threadCount ? threadCount : logChannelIdCount;
-    assertEquals( expectedQueueCount, metricsRegistry.getSnapshotLists().size() );
+    assertEquals(expectedQueueCount, metricsRegistry.getSnapshotLists().size());
   }
 
   private class ConcurrentPutIfAbsent implements Callable<Queue> {
     private String id;
 
-    ConcurrentPutIfAbsent( String id ) {
+    ConcurrentPutIfAbsent(String id) {
       this.id = id;
     }
 
     @Override
     public Queue call() throws Exception {
       countDownLatch.await();
-      return metricsRegistry.getSnapshotList( id );
+      return metricsRegistry.getSnapshotList(id);
     }
-
   }
-
 }

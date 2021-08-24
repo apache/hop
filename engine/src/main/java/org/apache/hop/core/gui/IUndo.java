@@ -23,16 +23,22 @@ public interface IUndo {
   /**
    * Add an undo operation to the undo list
    *
-   * @param from           array of objects representing the old state
-   * @param to             array of objectes representing the new state
-   * @param pos            An array of object locations
-   * @param prev           An array of points representing the old positions
-   * @param curr           An array of points representing the new positions
+   * @param from array of objects representing the old state
+   * @param to array of objectes representing the new state
+   * @param pos An array of object locations
+   * @param prev An array of points representing the old positions
+   * @param curr An array of points representing the new positions
    * @param type_of_change The type of change that's being done to the pipeline.
-   * @param nextAlso       indicates that the next undo operation needs to follow this one.
+   * @param nextAlso indicates that the next undo operation needs to follow this one.
    */
-  void addUndo( Object[] from, Object[] to, int[] pos, Point[] prev, Point[] curr, int typeOfChange,
-                boolean nextAlso );
+  void addUndo(
+      Object[] from,
+      Object[] to,
+      int[] pos,
+      Point[] prev,
+      Point[] curr,
+      int typeOfChange,
+      boolean nextAlso);
 
   /**
    * Get the maximum number of undo operations possible
@@ -46,7 +52,7 @@ public interface IUndo {
    *
    * @param mu The maximum number of undo operations that are allowed.
    */
-  void setMaxUndo( int mu );
+  void setMaxUndo(int mu);
 
   /**
    * Get the previous undo operation and change the undo pointer
@@ -82,5 +88,4 @@ public interface IUndo {
    * @return The next undo transaction (for redo)
    */
   ChangeAction viewNextUndo();
-
 }

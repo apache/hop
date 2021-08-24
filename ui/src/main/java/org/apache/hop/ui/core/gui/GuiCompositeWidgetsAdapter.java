@@ -22,19 +22,15 @@ import org.eclipse.swt.widgets.Control;
 public abstract class GuiCompositeWidgetsAdapter implements IGuiPluginCompositeWidgetsListener {
 
   @Override
-  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
-  }
+  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {}
 
   @Override
-  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-  }
+  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {}
 
   @Override
-  public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-  }
+  public void widgetModified(
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {}
 
   @Override
-  public void persistContents(GuiCompositeWidgets compositeWidgets) {
-  }
-
+  public void persistContents(GuiCompositeWidgets compositeWidgets) {}
 }

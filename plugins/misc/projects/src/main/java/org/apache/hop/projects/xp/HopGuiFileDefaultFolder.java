@@ -30,27 +30,29 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 
 public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialogExtension> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiFileDialogExtension ext ) {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiFileDialogExtension ext) {
 
     // Is there an active project?
     //
     String projectName = HopNamespace.getNamespace();
-    if ( StringUtil.isEmpty(projectName)) {
+    if (StringUtil.isEmpty(projectName)) {
       return;
     }
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      ProjectConfig projectConfig = config.findProjectConfig( projectName );
-      if (projectConfig==null) {
+      ProjectConfig projectConfig = config.findProjectConfig(projectName);
+      if (projectConfig == null) {
         return;
       }
       String homeFolder = projectConfig.getProjectHome();
-      if (homeFolder!=null) {
+      if (homeFolder != null) {
         IFileDialog dialog = ext.getFileDialog();
         dialog.setFilterPath(homeFolder);
       }
-    } catch(Exception e) {
-      log.logError( "Error setting default folder for project "+projectName, e );
+    } catch (Exception e) {
+      log.logError("Error setting default folder for project " + projectName, e);
     }
   }
 }

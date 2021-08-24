@@ -24,8 +24,9 @@ public class CanvasListenerImpl implements ISingletonProvider, Listener {
   public Object getInstanceInternal() {
     return this;
   }
+
   @Override
-  public void handleEvent( Event event ) {
+  public void handleEvent(Event event) {
     // do nothing
   }
 }

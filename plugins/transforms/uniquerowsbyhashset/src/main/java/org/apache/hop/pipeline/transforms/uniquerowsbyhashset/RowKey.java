@@ -26,35 +26,35 @@ class RowKey {
   private int hash;
   private Object[] storedFieldValues;
 
-  public RowKey( Object[] row, UniqueRowsByHashSetData sdi ) {
+  public RowKey(Object[] row, UniqueRowsByHashSetData sdi) {
     Object[] keyFields;
     // If we are keying on the entire row
-    if ( sdi.fieldnrs.length == 0 ) {
+    if (sdi.fieldnrs.length == 0) {
       keyFields = row;
     } else {
-      keyFields = new Object[ sdi.fieldnrs.length ];
-      for ( int i = 0; i < sdi.fieldnrs.length; i++ ) {
-        keyFields[ i ] = row[ sdi.fieldnrs[ i ] ];
+      keyFields = new Object[sdi.fieldnrs.length];
+      for (int i = 0; i < sdi.fieldnrs.length; i++) {
+        keyFields[i] = row[sdi.fieldnrs[i]];
       }
     }
-    hash = calculateHashCode( keyFields );
+    hash = calculateHashCode(keyFields);
 
     this.storeValues = sdi.storeValues;
-    if ( storeValues ) {
+    if (storeValues) {
       this.storedFieldValues = keyFields;
     }
   }
 
-  private int calculateHashCode( Object[] keyFields ) {
+  private int calculateHashCode(Object[] keyFields) {
     // deep used because Binary type is a native byte[]
-    return Arrays.deepHashCode( keyFields );
+    return Arrays.deepHashCode(keyFields);
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( storeValues ) {
+  public boolean equals(Object obj) {
+    if (storeValues) {
       // deep used because Binary type is a native byte[]
-      return Arrays.deepEquals( storedFieldValues, ( (RowKey) obj ).storedFieldValues );
+      return Arrays.deepEquals(storedFieldValues, ((RowKey) obj).storedFieldValues);
     } else {
       return true;
     }

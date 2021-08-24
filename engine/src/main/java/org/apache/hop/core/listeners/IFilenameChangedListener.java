@@ -17,17 +17,14 @@
 
 package org.apache.hop.core.listeners;
 
-/**
- * A listener that will signal when the filename of an object changes.
- *
- */
+/** A listener that will signal when the filename of an object changes. */
 public interface IFilenameChangedListener {
   /**
    * The method that is executed when the filename of an object changes
    *
-   * @param object      The object for which there is a filename change
+   * @param object The object for which there is a filename change
    * @param oldFilename the old filename
    * @param newFilename the new filename
    */
-  void filenameChanged( Object object, String oldFilename, String newFilename );
+  void filenameChanged(Object object, String oldFilename, String newFilename);
 }

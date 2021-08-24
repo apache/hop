@@ -25,7 +25,7 @@ The Beam Window transform adds event-time-based window functions using the Beam 
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
@@ -46,17 +46,21 @@ The Beam Window transform adds event-time-based window functions using the Beam 
 
 === Fixed
 
-Fixed or tumbling windows are used to repeatedly segment data into distinct time segments and do not overlap. Events cannot belong to more than one window.
+Fixed or tumbling windows are used to repeatedly segment data into distinct time segments and do not overlap.
+Events cannot belong to more than one window.
 
 === Sliding
 
-Sliding windows produce an output only when an event occurs and continuously move forward. Every window will have at least one event and can overlap. Events can belong to more than one window.
+Sliding windows produce an output only when an event occurs and continuously move forward.
+Every window will have at least one event and can overlap.
+Events can belong to more than one window.
 
 === Session
 
 Session windows group events which arrive at similar times and filter out periods of time when there is no data.
 
-The window begins when the first event occurs and extends to include new events within a specified timeout. If events keep occurring the window will keep extending until maximum duration is reached.
+The window begins when the first event occurs and extends to include new events within a specified timeout.
+If events keep occurring the window will keep extending until maximum duration is reached.
 
 === Global
 

@@ -23,8 +23,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 
 /**
- * This class takes care of mapping output data from the mapping transform back to the parent pipeline, renaming
- * columns mainly.
+ * This class takes care of mapping output data from the mapping transform back to the parent
+ * pipeline, renaming columns mainly.
  *
  * @author matt
  */
@@ -36,36 +36,36 @@ public class RowOutputDataMapper extends RowAdapter {
   private IRowMeta renamedRowMeta;
   private IPutRow iPutRow;
 
-  public RowOutputDataMapper( MappingIODefinition inputDefinition, MappingIODefinition outputDefinition,
-                              IPutRow iPutRow ) {
+  public RowOutputDataMapper(
+      MappingIODefinition inputDefinition, MappingIODefinition outputDefinition, IPutRow iPutRow) {
     this.inputDefinition = inputDefinition;
     this.outputDefinition = outputDefinition;
     this.iPutRow = iPutRow;
   }
 
   @Override
-  public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
 
-    if ( first ) {
+    if (first) {
       first = false;
       renamedRowMeta = rowMeta.clone();
 
-      if ( inputDefinition.isRenamingOnOutput() ) {
-        for ( MappingValueRename valueRename : inputDefinition.getValueRenames() ) {
-          IValueMeta valueMeta = renamedRowMeta.searchValueMeta( valueRename.getTargetValueName() );
-          if ( valueMeta != null ) {
-            valueMeta.setName( valueRename.getSourceValueName() );
+      if (inputDefinition.isRenamingOnOutput()) {
+        for (MappingValueRename valueRename : inputDefinition.getValueRenames()) {
+          IValueMeta valueMeta = renamedRowMeta.searchValueMeta(valueRename.getTargetValueName());
+          if (valueMeta != null) {
+            valueMeta.setName(valueRename.getSourceValueName());
           }
         }
       }
-      for ( MappingValueRename valueRename : outputDefinition.getValueRenames() ) {
-        IValueMeta valueMeta = renamedRowMeta.searchValueMeta( valueRename.getSourceValueName() );
-        if ( valueMeta != null ) {
-          valueMeta.setName( valueRename.getTargetValueName() );
+      for (MappingValueRename valueRename : outputDefinition.getValueRenames()) {
+        IValueMeta valueMeta = renamedRowMeta.searchValueMeta(valueRename.getSourceValueName());
+        if (valueMeta != null) {
+          valueMeta.setName(valueRename.getTargetValueName());
         }
       }
     }
 
-    iPutRow.putRow( renamedRowMeta, row );
+    iPutRow.putRow(renamedRowMeta, row);
   }
 }

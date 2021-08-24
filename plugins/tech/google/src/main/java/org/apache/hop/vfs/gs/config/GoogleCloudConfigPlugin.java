@@ -61,7 +61,6 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       description = "Configure the path to a Google Cloud service account JSON key file")
   private String serviceAccountKeyFile;
 
-
   /**
    * Gets instance
    *
@@ -86,7 +85,10 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
 
       if (serviceAccountKeyFile != null) {
         config.setServiceAccountKeyFile(serviceAccountKeyFile);
-        log.logBasic("The Google Cloud service account JSON jey file is set to '" + serviceAccountKeyFile + "'");
+        log.logBasic(
+            "The Google Cloud service account JSON jey file is set to '"
+                + serviceAccountKeyFile
+                + "'");
         changed = true;
       }
 
@@ -140,10 +142,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     return serviceAccountKeyFile;
   }
 
-  /**
-   * @param serviceAccountKeyFile The serviceAccountKeyFile to set
-   */
-  public void setServiceAccountKeyFile( String serviceAccountKeyFile ) {
+  /** @param serviceAccountKeyFile The serviceAccountKeyFile to set */
+  public void setServiceAccountKeyFile(String serviceAccountKeyFile) {
     this.serviceAccountKeyFile = serviceAccountKeyFile;
   }
 }

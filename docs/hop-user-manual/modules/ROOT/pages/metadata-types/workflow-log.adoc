@@ -25,7 +25,8 @@ image:icons/workflow-log.svg[]
 
 Allows to log the activity of a workflow with a pipeline.
 
-A workflow log streams logging information from a running workflow to a pipeline. This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+A workflow log streams logging information from a running workflow to a pipeline.
+This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
 
 == Related Plugins
 

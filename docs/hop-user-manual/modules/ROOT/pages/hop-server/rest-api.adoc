@@ -29,7 +29,8 @@ name::
 addExport
 
 description::
-Upload a resources export file. Add a zipped pipeline or workflow to the body payload as a binary file.
+Upload a resources export file.
+Add a zipped pipeline or workflow to the body payload as a binary file.
 
 endPoint::
 GET `hop/addExport`
@@ -43,7 +44,8 @@ example request::
 
 result::
 A zip file with the export is created on the server's file system.
-[source, xml]
+
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <webresult>
@@ -65,14 +67,12 @@ endPoint::
 GET `hop/addPipeline`
 
 parameters::
-* xml
-Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
+* xml Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
 
 example request::
 `+http://localhost:8081/hop/addPipeline/xml=Y+` with XML payload
 
 result::
-
 
 == addWorkflow
 
@@ -86,8 +86,7 @@ endPoint::
 GET `hop/addWorkflow`
 
 parameters::
-* xml
-Request body should contain xml containing workflow_configuration (pipeline and workflow_execution_configuration wrapped in pipeline_configuration tag).
+* xml Request body should contain xml containing workflow_configuration (pipeline and workflow_execution_configuration wrapped in pipeline_configuration tag).
 
 example request::
 `+http://localhost:8081/hop/addWorkflow/xml=Y+` with XML payload
@@ -174,7 +173,6 @@ GET `+http://localhost:8081/hop/workflowImage/?name=<NAME>>&id=<ID>+`
 result::
 an SVG image of the workflow graph
 
-
 == getWorkflowStatus
 
 name::
@@ -195,7 +193,6 @@ GET `+http://localhost:8081/hop/workflowStatus/?name=<NAME>&id=<ID>+`
 
 result::
 an HTML response with the execution status, action details and canvas preview for this workflow
-
 
 == pausePipeline
 
@@ -218,7 +215,7 @@ GET `+http://localhost:8081/hop/pausePipeline/?name=<NAME>&id=<ID>+`
 result::
 HTML page with the request status, e.g.
 
-[source, html]
+[source,html]
 ----
 <HTML>
 
@@ -237,7 +234,6 @@ HTML page with the request status, e.g.
 
 </HTML>
 ----
-
 
 == Prepare Execution
 
@@ -307,14 +303,12 @@ endPoint::
 GET `hop/registerPipeline`
 
 parameters::
-* xml
-Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
+* xml Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
 
 example request::
 `+http://localhost:8081/hop/registerPipeline/xml=Y+` with XML payload
 
 result::
-
 
 == Register Workflow
 
@@ -358,7 +352,7 @@ result::
 
 Example result:
 
-[source, html]
+[source,html]
 ----
 <HTML>
 
@@ -374,7 +368,6 @@ Example result:
 	<p>
 </BODY>
 ----
-
 
 == Remove Workflow
 
@@ -398,7 +391,7 @@ result::
 
 Example result:
 
-[source, html]
+[source,html]
 ----
 <HTML>
 
@@ -445,7 +438,6 @@ Example result (empty):
 <row-meta/>
 </row-buffer>
 
-
 == Start Pipeline Execution
 
 name::
@@ -487,7 +479,6 @@ Example result:
 </HTML>
 ----
 
-
 == Start Pipeline
 
 name::
@@ -528,7 +519,6 @@ Example result:
 
 </HTML>
 ----
-
 
 == Start Workflow
 

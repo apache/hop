@@ -27,7 +27,7 @@ The result is a boolean flag field that gets added to the input fields in the ou
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; This name has to be unique in a single pipeline

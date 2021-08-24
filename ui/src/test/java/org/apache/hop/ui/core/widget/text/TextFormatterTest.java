@@ -20,25 +20,25 @@ package org.apache.hop.ui.core.widget.text;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by bmorrise on 9/15/17.
- */
+/** Created by bmorrise on 9/15/17. */
 public class TextFormatterTest {
 
   @Test
   public void testUrlFormatter() {
     String value =
-      "This has one [this is the first value](http://www.example.com/page/index.html?query=test1) [this is the second"
-        + " value](http://www.example.com/page/index.html?query=test2)";
+        "This has one [this is the first value](http://www.example.com/page/index.html?query=test1) [this is the second"
+            + " value](http://www.example.com/page/index.html?query=test2)";
 
-    Format format = TextFormatter.getInstance().execute( value );
+    Format format = TextFormatter.getInstance().execute(value);
 
-    Assert.assertEquals( "This has one this is the first value this is the second value", format.getText() );
-    Assert.assertEquals( 2, format.getStyleRanges().size() );
-    Assert.assertEquals( format.getStyleRanges().get( 0 ).data, "http://www.example.com/page/index.html?query=test1" );
-    Assert.assertEquals( format.getStyleRanges().get( 1 ).data, "http://www.example.com/page/index.html?query=test2" );
-    Assert.assertEquals( 13, format.getStyleRanges().get( 0 ).start );
-    Assert.assertEquals( 37, format.getStyleRanges().get( 1 ).start );
+    Assert.assertEquals(
+        "This has one this is the first value this is the second value", format.getText());
+    Assert.assertEquals(2, format.getStyleRanges().size());
+    Assert.assertEquals(
+        format.getStyleRanges().get(0).data, "http://www.example.com/page/index.html?query=test1");
+    Assert.assertEquals(
+        format.getStyleRanges().get(1).data, "http://www.example.com/page/index.html?query=test2");
+    Assert.assertEquals(13, format.getStyleRanges().get(0).start);
+    Assert.assertEquals(37, format.getStyleRanges().get(1).start);
   }
-
 }

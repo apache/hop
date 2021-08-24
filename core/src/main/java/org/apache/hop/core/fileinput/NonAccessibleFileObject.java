@@ -18,14 +18,7 @@
 package org.apache.hop.core.fileinput;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelector;
-import org.apache.commons.vfs2.FileSystem;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.NameScope;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.operations.FileOperations;
 
 import java.net.MalformedURLException;
@@ -36,22 +29,20 @@ import java.util.List;
 public class NonAccessibleFileObject implements FileObject {
   private final String fullyQualifiedName;
 
-  public NonAccessibleFileObject( String fullyQualifiedName ) {
+  public NonAccessibleFileObject(String fullyQualifiedName) {
     this.fullyQualifiedName = fullyQualifiedName;
   }
 
   @Override
-  public boolean canRenameTo( FileObject arg0 ) {
+  public boolean canRenameTo(FileObject arg0) {
     return false;
   }
 
   @Override
-  public void close() throws FileSystemException {
-
-  }
+  public void close() throws FileSystemException {}
 
   @Override
-  public void copyFrom( FileObject arg0, FileSelector arg1 ) throws FileSystemException {
+  public void copyFrom(FileObject arg0, FileSelector arg1) throws FileSystemException {
     throw new NotImplementedException();
   }
 
@@ -71,11 +62,12 @@ public class NonAccessibleFileObject implements FileObject {
   }
 
   @Override
-  public int delete( FileSelector arg0 ) throws FileSystemException {
+  public int delete(FileSelector arg0) throws FileSystemException {
     return 0;
   }
 
-  @Override public int deleteAll() throws FileSystemException {
+  @Override
+  public int deleteAll() throws FileSystemException {
     return 0;
   }
 
@@ -85,17 +77,18 @@ public class NonAccessibleFileObject implements FileObject {
   }
 
   @Override
-  public FileObject[] findFiles( FileSelector arg0 ) throws FileSystemException {
+  public FileObject[] findFiles(FileSelector arg0) throws FileSystemException {
     throw new NotImplementedException();
   }
 
   @Override
-  public void findFiles( FileSelector arg0, boolean arg1, @SuppressWarnings( "rawtypes" ) List arg2 ) throws FileSystemException {
+  public void findFiles(FileSelector arg0, boolean arg1, @SuppressWarnings("rawtypes") List arg2)
+      throws FileSystemException {
     throw new NotImplementedException();
   }
 
   @Override
-  public FileObject getChild( String arg0 ) throws FileSystemException {
+  public FileObject getChild(String arg0) throws FileSystemException {
     throw new NotImplementedException();
   }
 
@@ -129,7 +122,8 @@ public class NonAccessibleFileObject implements FileObject {
     throw new NotImplementedException();
   }
 
-  @Override public String getPublicURIString() {
+  @Override
+  public String getPublicURIString() {
     throw new NotImplementedException();
   }
 
@@ -141,9 +135,9 @@ public class NonAccessibleFileObject implements FileObject {
   @Override
   public URL getURL() throws FileSystemException {
     try {
-      return new URL( fullyQualifiedName );
-    } catch ( MalformedURLException e ) {
-      throw new FileSystemException( e );
+      return new URL(fullyQualifiedName);
+    } catch (MalformedURLException e) {
+      throw new FileSystemException(e);
     }
   }
 
@@ -157,15 +151,18 @@ public class NonAccessibleFileObject implements FileObject {
     return false;
   }
 
-  @Override public boolean isExecutable() throws FileSystemException {
+  @Override
+  public boolean isExecutable() throws FileSystemException {
     throw new NotImplementedException();
   }
 
-  @Override public boolean isFile() throws FileSystemException {
+  @Override
+  public boolean isFile() throws FileSystemException {
     throw new NotImplementedException();
   }
 
-  @Override public boolean isFolder() throws FileSystemException {
+  @Override
+  public boolean isFolder() throws FileSystemException {
     throw new NotImplementedException();
   }
 
@@ -185,42 +182,45 @@ public class NonAccessibleFileObject implements FileObject {
   }
 
   @Override
-  public void moveTo( FileObject arg0 ) throws FileSystemException {
+  public void moveTo(FileObject arg0) throws FileSystemException {
     throw new NotImplementedException();
   }
 
   @Override
-  public void refresh() throws FileSystemException {
-
-  }
+  public void refresh() throws FileSystemException {}
 
   @Override
-  public FileObject resolveFile( String arg0 ) throws FileSystemException {
+  public FileObject resolveFile(String arg0) throws FileSystemException {
     throw new NotImplementedException();
   }
 
   @Override
-  public FileObject resolveFile( String arg0, NameScope arg1 ) throws FileSystemException {
+  public FileObject resolveFile(String arg0, NameScope arg1) throws FileSystemException {
     throw new NotImplementedException();
   }
 
-  @Override public boolean setExecutable( boolean b, boolean b1 ) throws FileSystemException {
+  @Override
+  public boolean setExecutable(boolean b, boolean b1) throws FileSystemException {
     throw new NotImplementedException();
   }
 
-  @Override public boolean setReadable( boolean b, boolean b1 ) throws FileSystemException {
+  @Override
+  public boolean setReadable(boolean b, boolean b1) throws FileSystemException {
     throw new NotImplementedException();
   }
 
-  @Override public boolean setWritable( boolean b, boolean b1 ) throws FileSystemException {
+  @Override
+  public boolean setWritable(boolean b, boolean b1) throws FileSystemException {
     throw new NotImplementedException();
   }
 
-  @Override public int compareTo( FileObject o ) {
+  @Override
+  public int compareTo(FileObject o) {
     throw new NotImplementedException();
   }
 
-  @Override public Iterator<FileObject> iterator() {
+  @Override
+  public Iterator<FileObject> iterator() {
     throw new NotImplementedException();
   }
 }

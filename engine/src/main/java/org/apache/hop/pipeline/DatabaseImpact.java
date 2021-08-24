@@ -33,13 +33,14 @@ public class DatabaseImpact {
   public static final int TYPE_IMPACT_UPDATE = 6;
 
   public static final String[] typeDesc = {
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.None" ),
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.Read" ),
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.Write" ),
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.ReadOrWrite" ),
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.Truncate" ),
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.Delete" ),
-    BaseMessages.getString( PKG, "DatabaseImpact.TypeDesc.Label.Update" ) };
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.None"),
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.Read"),
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.Write"),
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.ReadOrWrite"),
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.Truncate"),
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.Delete"),
+    BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.Update")
+  };
 
   private String pipelineName;
   private String transformName;
@@ -52,8 +53,17 @@ public class DatabaseImpact {
   private String remark;
   private int type;
 
-  public DatabaseImpact( int type, String pipelineName, String transformName, String dbname, String table, String field,
-                         String valuename, String valueorigin, String sql, String remark ) {
+  public DatabaseImpact(
+      int type,
+      String pipelineName,
+      String transformName,
+      String dbname,
+      String table,
+      String field,
+      String valuename,
+      String valueorigin,
+      String sql,
+      String remark) {
     this.type = type;
     this.pipelineName = pipelineName;
     this.transformName = transformName;
@@ -103,12 +113,12 @@ public class DatabaseImpact {
   }
 
   public String getTypeDesc() {
-    return typeDesc[ type ];
+    return typeDesc[type];
   }
 
-  public static final int getTypeDesc( String typedesc ) {
-    for ( int i = 1; i < typeDesc.length; i++ ) {
-      if ( typeDesc[ i ].equalsIgnoreCase( typedesc ) ) {
+  public static final int getTypeDesc(String typedesc) {
+    for (int i = 1; i < typeDesc.length; i++) {
+      if (typeDesc[i].equalsIgnoreCase(typedesc)) {
         return i;
       }
     }
@@ -122,44 +132,37 @@ public class DatabaseImpact {
   public RowMetaAndData getRow() {
     RowMetaAndData r = new RowMetaAndData();
     r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Type" ) ),
-      getTypeDesc() );
-    r.addValue( new ValueMetaString(
-      BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Pipeline" ) ), getPipelineName() );
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Type")),
+        getTypeDesc());
     r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Transform" ) ),
-      getTransformName() );
-    r
-      .addValue(
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Pipeline")),
+        getPipelineName());
+    r.addValue(
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Transform")),
+        getTransformName());
+    r.addValue(
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Database")),
+        getDatabaseName());
+    r.addValue(
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Table")),
+        getTable());
+    r.addValue(
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Field")),
+        getField());
+    r.addValue(
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Value")),
+        getValue());
+    r.addValue(
         new ValueMetaString(
-          BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Database" ) ), getDatabaseName() );
+            BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.ValueOrigin")),
+        getValueOrigin());
     r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Table" ) ),
-      getTable() );
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.SQL")),
+        getSql());
     r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Field" ) ),
-      getField() );
-    r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Value" ) ),
-      getValue() );
-    r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.ValueOrigin" ) ), getValueOrigin() );
-    r.addValue(
-      new ValueMetaString(
-        BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.SQL" ) ),
-      getSql() );
-    r
-      .addValue(
-        new ValueMetaString(
-          BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.Remarks" ) ), getRemark() );
+        new ValueMetaString(BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Remarks")),
+        getRemark());
 
     return r;
   }
-
 }

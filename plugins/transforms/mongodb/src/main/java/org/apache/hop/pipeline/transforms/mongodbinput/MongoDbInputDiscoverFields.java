@@ -28,25 +28,25 @@ import java.util.List;
 public interface MongoDbInputDiscoverFields {
 
   List<MongoField> discoverFields(
-    IVariables variables,
-    MongoDbConnection connection,
-    String collection,
-    String query,
-    String fields,
-    boolean isPipeline,
-    int docsToSample,
-    MongoDbInputMeta transform )
+      IVariables variables,
+      MongoDbConnection connection,
+      String collection,
+      String query,
+      String fields,
+      boolean isPipeline,
+      int docsToSample,
+      MongoDbInputMeta transform)
       throws HopException;
 
   void discoverFields(
-    IVariables variables,
-    MongoDbConnection connection,
-    String collection,
-    String query,
-    String fields,
-    boolean isPipeline,
-    int docsToSample,
-    MongoDbInputMeta transform,
-    DiscoverFieldsCallback discoverFieldsCallback )
+      IVariables variables,
+      MongoDbConnection connection,
+      String collection,
+      String query,
+      String fields,
+      boolean isPipeline,
+      int docsToSample,
+      MongoDbInputMeta transform,
+      DiscoverFieldsCallback discoverFieldsCallback)
       throws HopException;
 }

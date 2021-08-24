@@ -49,5 +49,4 @@ public class TableCompareData extends BaseTransformData implements ITransformDat
   public TableCompareData() {
     super();
   }
-
 }

@@ -20,12 +20,7 @@ package org.apache.hop.neo4j.model.cw;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.neo4j.model.GraphModel;
-import org.apache.hop.neo4j.model.GraphNode;
-import org.apache.hop.neo4j.model.GraphPresentation;
-import org.apache.hop.neo4j.model.GraphProperty;
-import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.neo4j.model.GraphRelationship;
+import org.apache.hop.neo4j.model.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 

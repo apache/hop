@@ -20,9 +20,9 @@ package org.apache.hop.i18n;
 import org.apache.hop.laf.IHandler;
 
 /**
- * Standard Message handler that takes a root package, plus key and resolves that into one/more resultant messages. This
- * IHandler is used by all message types to enable flexible look and feel as well as i18n to be implemented in variable
- * ways.
+ * Standard Message handler that takes a root package, plus key and resolves that into one/more
+ * resultant messages. This IHandler is used by all message types to enable flexible look and feel
+ * as well as i18n to be implemented in variable ways.
  *
  * @author dhushon
  */
@@ -34,7 +34,7 @@ public interface IMessageHandler extends IHandler {
    * @param key
    * @return
    */
-  public String getString( String key );
+  public String getString(String key);
 
   /**
    * get a key from the defined package bundle, by key
@@ -43,7 +43,7 @@ public interface IMessageHandler extends IHandler {
    * @param key
    * @return
    */
-  public String getString( String packageName, String key );
+  public String getString(String packageName, String key);
 
   /**
    * get a key from the defined package bundle, by key
@@ -53,7 +53,7 @@ public interface IMessageHandler extends IHandler {
    * @param parameters
    * @return
    */
-  public String getString( String packageName, String key, String... parameters );
+  public String getString(String packageName, String key, String... parameters);
 
   /**
    * Get a string from the defined package bundle, by key and by a resource class
@@ -64,5 +64,6 @@ public interface IMessageHandler extends IHandler {
    * @param parameters
    * @return
    */
-  public String getString( String packageName, String key, Class<?> resourceClass, String... parameters );
+  public String getString(
+      String packageName, String key, Class<?> resourceClass, String... parameters);
 }

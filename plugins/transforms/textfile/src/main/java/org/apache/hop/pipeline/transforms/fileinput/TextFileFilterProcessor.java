@@ -26,27 +26,24 @@ package org.apache.hop.pipeline.transforms.fileinput;
 @Deprecated
 public class TextFileFilterProcessor {
 
-  /**
-   * The filters to process
-   */
+  /** The filters to process */
   private TextFileFilter[] filters;
+
   private boolean stopProcessing;
 
-  /**
-   * @param filters The filters to process
-   */
-  public TextFileFilterProcessor( TextFileFilter[] filters ) {
+  /** @param filters The filters to process */
+  public TextFileFilterProcessor(TextFileFilter[] filters) {
     this.filters = filters;
     this.stopProcessing = false;
 
-    if ( filters.length == 0 ) {
+    if (filters.length == 0) {
       // This makes processing faster in case there are no filters.
       filters = null;
     }
   }
 
-  public boolean doFilters( String line ) {
-    if ( filters == null ) {
+  public boolean doFilters(String line) {
+    if (filters == null) {
       return true;
     }
 
@@ -58,20 +55,20 @@ public class TextFileFilterProcessor {
     // Negative filters will always take precendence, meaning that the line
     // is skipped if one of them is found
 
-    for ( int f = 0; f < filters.length && filterOK; f++ ) {
-      TextFileFilter filter = filters[ f ];
-      if ( filter.isFilterPositive() ) {
+    for (int f = 0; f < filters.length && filterOK; f++) {
+      TextFileFilter filter = filters[f];
+      if (filter.isFilterPositive()) {
         positiveMode = true;
       }
 
-      if ( filter.getFilterString() != null && filter.getFilterString().length() > 0 ) {
+      if (filter.getFilterString() != null && filter.getFilterString().length() > 0) {
         int from = filter.getFilterPosition();
-        if ( from >= 0 ) {
+        if (from >= 0) {
           int to = from + filter.getFilterString().length();
-          if ( line.length() >= from && line.length() >= to ) {
-            String sub = line.substring( filter.getFilterPosition(), to );
-            if ( sub.equalsIgnoreCase( filter.getFilterString() ) ) {
-              if ( filter.isFilterPositive() ) {
+          if (line.length() >= from && line.length() >= to) {
+            String sub = line.substring(filter.getFilterPosition(), to);
+            if (sub.equalsIgnoreCase(filter.getFilterString())) {
+              if (filter.isFilterPositive()) {
                 positiveMatchFound = true;
               } else {
                 filterOK = false; // skip this one!
@@ -79,9 +76,9 @@ public class TextFileFilterProcessor {
             }
           }
         } else { // anywhere on the line
-          int idx = line.indexOf( filter.getFilterString() );
-          if ( idx >= 0 ) {
-            if ( filter.isFilterPositive() ) {
+          int idx = line.indexOf(filter.getFilterString());
+          if (idx >= 0) {
+            if (filter.isFilterPositive()) {
               positiveMatchFound = true;
             } else {
               filterOK = false; // skip this one!
@@ -89,9 +86,9 @@ public class TextFileFilterProcessor {
           }
         }
 
-        if ( !filterOK ) {
+        if (!filterOK) {
           boolean isFilterLastLine = filter.isFilterLastLine();
-          if ( isFilterLastLine ) {
+          if (isFilterLastLine) {
             stopProcessing = true;
           }
         }
@@ -99,7 +96,7 @@ public class TextFileFilterProcessor {
     }
 
     // Positive mode and no match found? Discard the line
-    if ( filterOK && positiveMode && !positiveMatchFound ) {
+    if (filterOK && positiveMode && !positiveMatchFound) {
       filterOK = false;
     }
 

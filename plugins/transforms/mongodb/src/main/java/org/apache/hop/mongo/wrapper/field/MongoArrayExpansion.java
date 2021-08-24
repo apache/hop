@@ -91,8 +91,8 @@ public class MongoArrayExpansion {
   /**
    * Reset this field. Should be called prior to processing a new field value from the avro file
    *
-   * @param variables environment variables (values that environment variables resolve to cannot contain
-   *     "."s)
+   * @param variables environment variables (values that environment variables resolve to cannot
+   *     contain "."s)
    */
   public void reset(IVariables variables) {
     tempParts.clear();
@@ -160,7 +160,8 @@ public class MongoArrayExpansion {
     return nullResult();
   }
 
-  public Object[][] convertToHopValue(BasicDBList mongoList, IVariables variables) throws HopException {
+  public Object[][] convertToHopValue(BasicDBList mongoList, IVariables variables)
+      throws HopException {
 
     if (mongoList == null) {
       return nullResult();

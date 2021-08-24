@@ -17,24 +17,20 @@
 
 package org.apache.hop.core.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * An alternate way of defining partiioners. Classes annotated with "PartitionerPlugin" are automatically recognized and
- * registered as a partitioner plugin.
- * <p>
- * Important: The XML definitions alienate annoated transforms and the two methods of definition are therefore mutually
- * exclusive.
+ * An alternate way of defining partiioners. Classes annotated with "PartitionerPlugin" are
+ * automatically recognized and registered as a partitioner plugin.
+ *
+ * <p>Important: The XML definitions alienate annoated transforms and the two methods of definition
+ * are therefore mutually exclusive.
  *
  * @author Alex Silva
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface PartitionerPlugin {
   String id();
 
@@ -44,6 +40,7 @@ public @interface PartitionerPlugin {
 
   /**
    * Please use the i18n:package:key format in name, description and categoryDescription
+   *
    * @return
    */
   @Deprecated

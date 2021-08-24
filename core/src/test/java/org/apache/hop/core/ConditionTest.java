@@ -17,8 +17,8 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -39,42 +39,43 @@ public class ConditionTest {
     int func = Condition.FUNC_TRUE;
     boolean negate = true;
 
-    Condition condition = new Condition( negate, left, func, right, null );
-    assertFalse( condition.evaluate( new RowMeta(), new Object[] { "test" } ) );
+    Condition condition = new Condition(negate, left, func, right, null);
+    assertFalse(condition.evaluate(new RowMeta(), new Object[] {"test"}));
   }
 
   @Test
   public void testPdi13227() throws Exception {
     IRowMeta rowMeta1 = new RowMeta();
-    rowMeta1.addValueMeta( new ValueMetaNumber( "name1" ) );
-    rowMeta1.addValueMeta( new ValueMetaNumber( "name2" ) );
-    rowMeta1.addValueMeta( new ValueMetaNumber( "name3" ) );
+    rowMeta1.addValueMeta(new ValueMetaNumber("name1"));
+    rowMeta1.addValueMeta(new ValueMetaNumber("name2"));
+    rowMeta1.addValueMeta(new ValueMetaNumber("name3"));
 
     IRowMeta rowMeta2 = new RowMeta();
-    rowMeta2.addValueMeta( new ValueMetaNumber( "name2" ) );
-    rowMeta2.addValueMeta( new ValueMetaNumber( "name1" ) );
-    rowMeta2.addValueMeta( new ValueMetaNumber( "name3" ) );
+    rowMeta2.addValueMeta(new ValueMetaNumber("name2"));
+    rowMeta2.addValueMeta(new ValueMetaNumber("name1"));
+    rowMeta2.addValueMeta(new ValueMetaNumber("name3"));
 
     String left = "name1";
     String right = "name3";
-    Condition condition = new Condition( left, Condition.FUNC_EQUAL, right, null );
+    Condition condition = new Condition(left, Condition.FUNC_EQUAL, right, null);
 
-    assertTrue( condition.evaluate( rowMeta1, new Object[] { 1.0, 2.0, 1.0 } ) );
-    assertTrue( condition.evaluate( rowMeta2, new Object[] { 2.0, 1.0, 1.0 } ) );
+    assertTrue(condition.evaluate(rowMeta1, new Object[] {1.0, 2.0, 1.0}));
+    assertTrue(condition.evaluate(rowMeta2, new Object[] {2.0, 1.0, 1.0}));
   }
 
   @Test
   public void testNullLessThanNumberEvaluatesAsFalse() throws Exception {
     IRowMeta rowMeta1 = new RowMeta();
-    rowMeta1.addValueMeta( new ValueMetaInteger( "name1" ) );
+    rowMeta1.addValueMeta(new ValueMetaInteger("name1"));
 
     String left = "name1";
-    ValueMetaAndData rightExact = new ValueMetaAndData( new ValueMetaInteger( "name1" ), new Long( -10 ) );
+    ValueMetaAndData rightExact =
+        new ValueMetaAndData(new ValueMetaInteger("name1"), new Long(-10));
 
-    Condition condition = new Condition( left, Condition.FUNC_SMALLER, null, rightExact );
-    assertFalse( condition.evaluate( rowMeta1, new Object[] { null, "test" } ) );
+    Condition condition = new Condition(left, Condition.FUNC_SMALLER, null, rightExact);
+    assertFalse(condition.evaluate(rowMeta1, new Object[] {null, "test"}));
 
-    condition = new Condition( left, Condition.FUNC_SMALLER_EQUAL, null, rightExact );
-    assertFalse( condition.evaluate( rowMeta1, new Object[] { null, "test" } ) );
+    condition = new Condition(left, Condition.FUNC_SMALLER_EQUAL, null, rightExact);
+    assertFalse(condition.evaluate(rowMeta1, new Object[] {null, "test"}));
   }
 }

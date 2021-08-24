@@ -18,21 +18,20 @@
 
 package org.apache.hop.vfs.dropbox;
 
-import org.apache.commons.vfs2.Capability;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemOptions;
+import com.dropbox.core.v2.DbxClientV2;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
+
 import java.util.Collection;
-import com.dropbox.core.v2.DbxClientV2;
 
 public class DropboxFileSystem extends AbstractFileSystem {
 
   private final DbxClientV2 client;
 
-  protected DropboxFileSystem(final FileName rootName, final DbxClientV2 client,
+  protected DropboxFileSystem(
+      final FileName rootName,
+      final DbxClientV2 client,
       final FileSystemOptions fileSystemOptions) {
     super(rootName, null, fileSystemOptions);
     this.client = client;
@@ -47,7 +46,7 @@ public class DropboxFileSystem extends AbstractFileSystem {
   protected FileObject createFile(final AbstractFileName name) throws FileSystemException {
     return new DropboxFileObject(name, this);
   }
-  
+
   /* package */ DbxClientV2 getClient() {
     return client;
   }

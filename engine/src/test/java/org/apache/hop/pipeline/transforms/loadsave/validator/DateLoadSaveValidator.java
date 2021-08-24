@@ -27,15 +27,14 @@ public class DateLoadSaveValidator implements IFieldLoadSaveValidator<Date> {
     Long time = System.currentTimeMillis();
     // forward or back less than a month
     time += new Random().nextInt();
-    return new Date( time );
+    return new Date(time);
   }
 
   @Override
-  public boolean validateTestObject( Date testObject, Object actual ) {
-    if ( !( actual instanceof Date ) ) {
+  public boolean validateTestObject(Date testObject, Object actual) {
+    if (!(actual instanceof Date)) {
       return false;
     }
-    return testObject.equals( actual );
+    return testObject.equals(actual);
   }
-
 }

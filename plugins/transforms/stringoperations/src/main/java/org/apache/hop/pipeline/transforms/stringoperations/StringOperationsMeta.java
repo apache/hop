@@ -363,7 +363,8 @@ public class StringOperationsMeta extends BaseTransformMeta
     return retval;
   }
 
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
       int nrkeys;
 
@@ -413,7 +414,7 @@ public class StringOperationsMeta extends BaseTransformMeta
     retval.append("    <fields>").append(Const.CR);
 
     for (int i = 0; i < fieldInStream.length; i++) {
-      //defaults when not present
+      // defaults when not present
       String lPadChar = ((padChar.length == 0 || padChar.length <= i)) ? "" : padChar[i];
       String lPadLen = ((padLen.length == 0 || padLen.length <= i)) ? "" : padLen[i];
 

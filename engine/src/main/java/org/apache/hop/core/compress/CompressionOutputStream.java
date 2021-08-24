@@ -25,7 +25,7 @@ public abstract class CompressionOutputStream extends OutputStream {
   private ICompressionProvider compressionProvider;
   protected OutputStream delegate;
 
-  public CompressionOutputStream( OutputStream out, ICompressionProvider provider ) {
+  public CompressionOutputStream(OutputStream out, ICompressionProvider provider) {
     this();
     delegate = out;
     compressionProvider = provider;
@@ -39,7 +39,7 @@ public abstract class CompressionOutputStream extends OutputStream {
     return compressionProvider;
   }
 
-  public void addEntry( String filename, String extension ) throws IOException {
+  public void addEntry(String filename, String extension) throws IOException {
     // Default no-op behavior
   }
 
@@ -49,17 +49,17 @@ public abstract class CompressionOutputStream extends OutputStream {
   }
 
   @Override
-  public void write( int b ) throws IOException {
-    delegate.write( b );
+  public void write(int b) throws IOException {
+    delegate.write(b);
   }
 
   @Override
-  public void write( byte[] b ) throws IOException {
-    delegate.write( b );
+  public void write(byte[] b) throws IOException {
+    delegate.write(b);
   }
 
   @Override
-  public void write( byte[] b, int off, int len ) throws IOException {
-    delegate.write( b, off, len );
+  public void write(byte[] b, int off, int len) throws IOException {
+    delegate.write(b, off, len);
   }
 }

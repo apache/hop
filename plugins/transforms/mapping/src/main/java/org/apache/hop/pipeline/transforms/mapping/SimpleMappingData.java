@@ -65,9 +65,7 @@ public class SimpleMappingData extends BaseTransformData implements ITransformDa
 
   public RowDataInputMapper rowDataInputMapper;
 
-  /**
-   *
-   */
+  /** */
   public SimpleMappingData() {
     super();
     mappingPipeline = null;
@@ -79,7 +77,7 @@ public class SimpleMappingData extends BaseTransformData implements ITransformDa
     return mappingPipeline;
   }
 
-  public void setMappingPipeline( Pipeline mappingPipeline ) {
+  public void setMappingPipeline(Pipeline mappingPipeline) {
     this.mappingPipeline = mappingPipeline;
   }
 }

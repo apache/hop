@@ -19,7 +19,6 @@
 package org.apache.hop.reflection.probe.transform;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 

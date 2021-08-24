@@ -28,78 +28,78 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IRowDistribution.class )
-@PluginAnnotationType( RowDistributionPlugin.class )
+@PluginMainClassType(IRowDistribution.class)
+@PluginAnnotationType(RowDistributionPlugin.class)
 public class RowDistributionPluginType extends BasePluginType<RowDistributionPlugin> {
   private static RowDistributionPluginType instance;
 
   private RowDistributionPluginType() {
-    super( RowDistributionPlugin.class, "ROW_DISTRIBUTION", "Row Distribution" );
+    super(RowDistributionPlugin.class, "ROW_DISTRIBUTION", "Row Distribution");
   }
 
   public static RowDistributionPluginType getInstance() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new RowDistributionPluginType();
     }
     return instance;
   }
 
   @Override
-  protected String extractCategory( RowDistributionPlugin annotation ) {
+  protected String extractCategory(RowDistributionPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( RowDistributionPlugin annotation ) {
+  protected String extractDesc(RowDistributionPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( RowDistributionPlugin annotation ) {
+  protected String extractID(RowDistributionPlugin annotation) {
     return annotation.code();
   }
 
   @Override
-  protected String extractName( RowDistributionPlugin annotation ) {
+  protected String extractName(RowDistributionPlugin annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( RowDistributionPlugin annotation ) {
+  protected String extractImageFile(RowDistributionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( RowDistributionPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(RowDistributionPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, RowDistributionPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, RowDistributionPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( RowDistributionPlugin annotation ) {
+  protected String extractDocumentationUrl(RowDistributionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( RowDistributionPlugin annotation ) {
+  protected String extractCasesUrl(RowDistributionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( RowDistributionPlugin annotation ) {
+  protected String extractForumUrl(RowDistributionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( RowDistributionPlugin annotation ) {
+  protected String extractSuggestion(RowDistributionPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( RowDistributionPlugin annotation ) {
+  protected String extractClassLoaderGroup(RowDistributionPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 }

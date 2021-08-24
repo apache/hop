@@ -18,23 +18,14 @@
 package org.apache.hop.workflow.action;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.IAttributes;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.ICheckResultSource;
-import org.apache.hop.core.IExtensionData;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -44,21 +35,17 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.resource.IResourceHolder;
 import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

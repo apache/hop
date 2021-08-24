@@ -21,10 +21,9 @@ public interface IExecutor {
 
   String getExecutingServer();
 
-  void setExecutingServer( String executingServer );
+  void setExecutingServer(String executingServer);
 
   String getExecutingUser();
 
-  void setExecutingUser( String executingUser );
-
+  void setExecutingUser(String executingUser);
 }

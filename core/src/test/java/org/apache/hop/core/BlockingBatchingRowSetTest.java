@@ -28,11 +28,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test class for the basic functionality of the blocking & batching row set.
@@ -45,79 +41,81 @@ public class BlockingBatchingRowSetTest {
   public IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();
 
-    IValueMeta[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
+    IValueMeta[] valuesMeta = {
+      new ValueMetaInteger("ROWNR"),
+    };
 
-    for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[ i ] );
+    for (int i = 0; i < valuesMeta.length; i++) {
+      rm.addValueMeta(valuesMeta[i]);
     }
 
     return rm;
   }
 
-  /**
-   * The basic stuff.
-   */
+  /** The basic stuff. */
   @Test
   public void testBasicCreation() {
-    IRowSet set = new BlockingBatchingRowSet( 10 );
+    IRowSet set = new BlockingBatchingRowSet(10);
 
-    assertTrue( !set.isDone() );
-    assertEquals( 0, set.size() );
+    assertTrue(!set.isDone());
+    assertEquals(0, set.size());
   }
 
-  /**
-   * Functionality test.
-   */
+  /** Functionality test. */
   @Test
   public void testFuntionality1() {
-    BlockingBatchingRowSet set = new BlockingBatchingRowSet( 10 );
+    BlockingBatchingRowSet set = new BlockingBatchingRowSet(10);
 
     IRowMeta rm = createRowMetaInterface();
 
     List<Object[]> rows = new ArrayList<>();
-    for ( int i = 0; i < 5; i++ ) {
-      rows.add( new Object[] { new Long( i ), } );
+    for (int i = 0; i < 5; i++) {
+      rows.add(
+          new Object[] {
+            new Long(i),
+          });
     }
 
-    assertEquals( 0, set.size() );
+    assertEquals(0, set.size());
 
     // Pop off row. This should return null (no row available: has a timeout)
     //
     Object[] r = set.getRow();
-    assertNull( r );
+    assertNull(r);
 
     // Add rows. set doesn't report rows, batches them
-    // this batching row set has 2 buffers with 2 rows, the 5th row will cause the rows to be exposed.
+    // this batching row set has 2 buffers with 2 rows, the 5th row will cause the rows to be
+    // exposed.
     //
     int index = 0;
-    while ( index < 4 ) {
-      set.putRow( rm, rows.get( index++ ) );
-      assertEquals( 0, set.size() );
+    while (index < 4) {
+      set.putRow(rm, rows.get(index++));
+      assertEquals(0, set.size());
     }
-    set.putRow( rm, rows.get( index++ ) );
-    assertEquals( 5, set.size() );
+    set.putRow(rm, rows.get(index++));
+    assertEquals(5, set.size());
 
     // Signal done...
     //
     set.setDone();
-    assertTrue( set.isDone() );
+    assertTrue(set.isDone());
 
     // Get a row back...
     //
     r = set.getRow();
-    assertNotNull( r );
-    assertArrayEquals( rows.get( 0 ), r );
+    assertNotNull(r);
+    assertArrayEquals(rows.get(0), r);
 
     // Get a row back...
     //
     r = set.getRow();
-    assertNotNull( r );
-    assertArrayEquals( rows.get( 1 ), r );
+    assertNotNull(r);
+    assertArrayEquals(rows.get(1), r);
 
     // Get a row back...
     //
     r = set.getRow();
-    assertNotNull( r );
-    assertArrayEquals( rows.get( 2 ), r );
+    assertNotNull(r);
+    assertArrayEquals(rows.get(2), r);
   }
 }

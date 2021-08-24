@@ -35,26 +35,26 @@ public class WorkflowEntryTest {
   @Test
   public void testJobEntrymailPasswordFixed() {
     ActionMail jem = new ActionMail();
-    Assert.assertEquals( jem.getPassword( "asdf" ), "asdf" );
+    Assert.assertEquals(jem.getPassword("asdf"), "asdf");
   }
 
   @Test
   public void testJobEntrymailPasswordEcr() {
     ActionMail jem = new ActionMail();
-    Assert.assertEquals( jem.getPassword( "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc" ), "asdf" );
+    Assert.assertEquals(jem.getPassword("Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc"), "asdf");
   }
 
   @Test
   public void testJobEntrymailPasswordVar() {
     ActionMail jem = new ActionMail();
-    jem.setVariable( "my_pass", "asdf" );
-    Assert.assertEquals( jem.getPassword( "${my_pass}" ), "asdf" );
+    jem.setVariable("my_pass", "asdf");
+    Assert.assertEquals(jem.getPassword("${my_pass}"), "asdf");
   }
 
   @Test
   public void testJobEntrymailPasswordEncrVar() {
     ActionMail jem = new ActionMail();
-    jem.setVariable( "my_pass", "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc" );
-    Assert.assertEquals( jem.getPassword( "${my_pass}" ), "asdf" );
+    jem.setVariable("my_pass", "Encrypted 2be98afc86aa7f2e4cb79ce10df81abdc");
+    Assert.assertEquals(jem.getPassword("${my_pass}"), "asdf");
   }
 }

@@ -16,17 +16,17 @@
  */
 package org.apache.hop.workflow.actions.simpleeval;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionSimpleEvalLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionSimpleEval> {
+public class WorkflowActionSimpleEvalLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionSimpleEval> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
 
   @Override
   protected Class<ActionSimpleEval> getActionClass() {
@@ -36,42 +36,39 @@ public class WorkflowActionSimpleEvalLoadSaveTest extends WorkflowActionLoadSave
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-      "fieldname",
-      "variablename",
-      "mask",
-      "comparevalue",
-      "minvalue",
-      "maxvalue",
-      "successwhenvarset"
-    );
+        "fieldname",
+        "variablename",
+        "mask",
+        "comparevalue",
+        "minvalue",
+        "maxvalue",
+        "successwhenvarset");
   }
 
   @Override
   protected List<String> listXmlAttributes() {
-    return Arrays.asList( "name", "description" );
+    return Arrays.asList("name", "description");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "fieldname", "getFieldName",
-      "variablename", "getVariableName",
-      "comparevalue", "getCompareValue",
-      "minvalue", "getMinValue",
-      "maxvalue", "getMaxValue",
-      "successwhenvarset", "isSuccessWhenVarSet"
-    );
+        "fieldname", "getFieldName",
+        "variablename", "getVariableName",
+        "comparevalue", "getCompareValue",
+        "minvalue", "getMinValue",
+        "maxvalue", "getMaxValue",
+        "successwhenvarset", "isSuccessWhenVarSet");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "fieldname", "setFieldName",
-      "variablename", "setVariableName",
-      "comparevalue", "setCompareValue",
-      "minvalue", "setMinValue",
-      "maxvalue", "setMaxValue",
-      "successwhenvarset", "setSuccessWhenVarSet"
-    );
+        "fieldname", "setFieldName",
+        "variablename", "setVariableName",
+        "comparevalue", "setCompareValue",
+        "minvalue", "setMinValue",
+        "maxvalue", "setMaxValue",
+        "successwhenvarset", "setSuccessWhenVarSet");
   }
 }

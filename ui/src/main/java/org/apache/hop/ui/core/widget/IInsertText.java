@@ -18,5 +18,5 @@
 package org.apache.hop.ui.core.widget;
 
 public interface IInsertText {
-  void insertText( String text, int position );
+  void insertText(String text, int position);
 }

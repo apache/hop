@@ -18,24 +18,19 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
 /**
@@ -111,7 +106,7 @@ public class CheckBoxVar extends Composite {
   public void addListener(int eventType, Listener listener) {
     wBox.addListener(eventType, listener);
   }
-  
+
   public void addSelectionListener(SelectionAdapter lsDef) {
     wBox.addSelectionListener(lsDef);
   }

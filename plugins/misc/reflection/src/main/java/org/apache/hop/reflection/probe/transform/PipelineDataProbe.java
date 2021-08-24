@@ -52,13 +52,13 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     // Get a row from the probe
     //
     Object[] inputRow = getRow();
-    if (inputRow==null) {
+    if (inputRow == null) {
       setOutputDone();
       return false;
     }
 
     if (first) {
-      first=false;
+      first = false;
 
       // Calculate the output fields of this transform
       //
@@ -66,10 +66,9 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     }
 
-
     // Normalize this data...
     //
-    for ( int v=0 ; v<getInputRowMeta().size() ; v++) {
+    for (int v = 0; v < getInputRowMeta().size(); v++) {
       IValueMeta valueMeta = getInputRowMeta().getValueMeta(v);
       Object valueData = inputRow[v];
 
@@ -85,8 +84,8 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
       outputRow[++index] = valueMeta.getName();
       outputRow[++index] = valueMeta.getTypeDesc();
       outputRow[++index] = valueMeta.getFormatMask();
-      outputRow[++index] = (long)valueMeta.getLength();
-      outputRow[++index] = (long)valueMeta.getPrecision();
+      outputRow[++index] = (long) valueMeta.getLength();
+      outputRow[++index] = (long) valueMeta.getPrecision();
       outputRow[++index] = valueMeta.getString(valueData);
 
       putRow(data.outputRowMeta, outputRow);
@@ -104,10 +103,8 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourcePipelineName;
   }
 
-  /**
-   * @param sourcePipelineName The sourcePipelineName to set
-   */
-  public void setSourcePipelineName( String sourcePipelineName ) {
+  /** @param sourcePipelineName The sourcePipelineName to set */
+  public void setSourcePipelineName(String sourcePipelineName) {
     this.sourcePipelineName = sourcePipelineName;
   }
 
@@ -120,10 +117,8 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourceTransformLogChannelId;
   }
 
-  /**
-   * @param sourceTransformLogChannelId The sourceTransformLogChannelId to set
-   */
-  public void setSourceTransformLogChannelId( String sourceTransformLogChannelId ) {
+  /** @param sourceTransformLogChannelId The sourceTransformLogChannelId to set */
+  public void setSourceTransformLogChannelId(String sourceTransformLogChannelId) {
     this.sourceTransformLogChannelId = sourceTransformLogChannelId;
   }
 
@@ -136,10 +131,8 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourceTransformName;
   }
 
-  /**
-   * @param sourceTransformName The sourceTransformName to set
-   */
-  public void setSourceTransformName( String sourceTransformName ) {
+  /** @param sourceTransformName The sourceTransformName to set */
+  public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }
 
@@ -152,10 +145,8 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourceTransformCopy;
   }
 
-  /**
-   * @param sourceTransformCopy The sourceTransformCopy to set
-   */
-  public void setSourceTransformCopy( long sourceTransformCopy ) {
+  /** @param sourceTransformCopy The sourceTransformCopy to set */
+  public void setSourceTransformCopy(long sourceTransformCopy) {
     this.sourceTransformCopy = sourceTransformCopy;
   }
 }

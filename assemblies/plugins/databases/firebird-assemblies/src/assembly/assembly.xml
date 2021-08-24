@@ -34,7 +34,7 @@
             <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
             <outputDirectory>lib</outputDirectory>
             <filtered>true</filtered>
-        </file>        
+        </file>
     </files>
     <fileSets>
         <fileSet>
@@ -50,6 +50,6 @@
             <includes>
                 <include>org.apache.hop:hop-databases-firebird:jar</include>
             </includes>
-        </dependencySet>               
+        </dependencySet>
     </dependencySets>
 </assembly>

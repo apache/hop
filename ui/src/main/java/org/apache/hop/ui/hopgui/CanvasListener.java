@@ -21,9 +21,11 @@ import org.eclipse.swt.widgets.Listener;
 
 public class CanvasListener {
   private static final ISingletonProvider PROVIDER;
+
   static {
-    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( CanvasListener.class );
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(CanvasListener.class);
   }
+
   public static final Listener getInstance() {
     return (Listener) PROVIDER.getInstanceInternal();
   }

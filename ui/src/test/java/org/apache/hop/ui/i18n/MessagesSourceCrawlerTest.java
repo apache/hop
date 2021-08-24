@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 public class MessagesSourceCrawlerTest {
 
@@ -36,18 +36,18 @@ public class MessagesSourceCrawlerTest {
   @Before
   public void before() throws Exception {
     HopEnvironment.init();
-    crawler = new MessagesSourceCrawler( LogChannel.GENERAL, ".", new BundlesStore() );
+    crawler = new MessagesSourceCrawler(LogChannel.GENERAL, ".", new BundlesStore());
   }
 
   @Test
   public void lookForOccurrencesInFile_HopGui() throws Exception {
     String sourceFolder = "src/main/java/org/apache/hop/ui/hopgui/";
-    String sourceFile = sourceFolder+"HopGui.java";
-    FileObject fileObject = HopVfs.getFileObject( sourceFile );
+    String sourceFile = sourceFolder + "HopGui.java";
+    FileObject fileObject = HopVfs.getFileObject(sourceFile);
 
-    crawler.lookForOccurrencesInFile( sourceFolder, fileObject);
+    crawler.lookForOccurrencesInFile(sourceFolder, fileObject);
 
-    List<KeyOccurrence> keyOccurrences = crawler.getKeyOccurrences( sourceFolder );
+    List<KeyOccurrence> keyOccurrences = crawler.getKeyOccurrences(sourceFolder);
     assertFalse(keyOccurrences.isEmpty());
   }
 
@@ -55,13 +55,14 @@ public class MessagesSourceCrawlerTest {
   public void lookForOccurrencesInFile_PkgReferenceByOtherClass() throws Exception {
 
     String sourceFolder = "../plugins/actions/mailvalidator/";
-    String sourceFile = sourceFolder+"src/main/java/org/apache/hop/workflow/actions/mailvalidator/MailValidation.java";
-    FileObject fileObject = HopVfs.getFileObject( sourceFile );
+    String sourceFile =
+        sourceFolder
+            + "src/main/java/org/apache/hop/workflow/actions/mailvalidator/MailValidation.java";
+    FileObject fileObject = HopVfs.getFileObject(sourceFile);
 
-    crawler.lookForOccurrencesInFile( sourceFolder, fileObject );
+    crawler.lookForOccurrencesInFile(sourceFolder, fileObject);
 
-    List<KeyOccurrence> keyOccurrences = crawler.getKeyOccurrences( sourceFolder );
+    List<KeyOccurrence> keyOccurrences = crawler.getKeyOccurrences(sourceFolder);
     assertFalse(keyOccurrences.isEmpty());
-
   }
 }

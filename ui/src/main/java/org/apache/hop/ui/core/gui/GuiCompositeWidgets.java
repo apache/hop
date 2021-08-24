@@ -33,13 +33,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -224,7 +218,7 @@ public class GuiCompositeWidgets {
     Control control;
 
     String[] comboItems = getEnumValues(guiElements.getFieldClass());
-    if (comboItems==null) {
+    if (comboItems == null) {
       if (StringUtils.isNotEmpty(guiElements.getGetComboValuesMethod())) {
         comboItems = getComboItems(sourceObject, guiElements.getGetComboValuesMethod());
       } else {
@@ -244,9 +238,9 @@ public class GuiCompositeWidgets {
       widgetsMap.put(guiElements.getId(), combo);
       control = combo;
     }
- 
+
     addModifyListener(control, guiElements.getId());
-    
+
     return control;
   }
 
@@ -262,7 +256,7 @@ public class GuiCompositeWidgets {
       if (fieldClass.isEnum()) {
         Object[] enumConstants = fieldClass.getEnumConstants();
         String[] values = new String[enumConstants.length];
-        for (int i=0;i<values.length;i++) {
+        for (int i = 0; i < values.length; i++) {
           values[i] = enumConstants[i].toString();
         }
         return values;
@@ -270,10 +264,11 @@ public class GuiCompositeWidgets {
         // Not an enum
         return null;
       }
-    } catch(Exception e) {
+    } catch (Exception e) {
       // This is unexpected, log it!
       //
-      LogChannel.UI.logError( "Error finding enum values of field class: "+fieldClass.getName(), e );
+      LogChannel.UI.logError(
+          "Error finding enum values of field class: " + fieldClass.getName(), e);
       return null;
     }
   }
@@ -321,10 +316,9 @@ public class GuiCompositeWidgets {
   private void addModifyListener(final Control control, String widgetId) {
     if (control instanceof Button) {
       control.addListener(SWT.Selection, event -> notifyWidgetModified(event, control, widgetId));
-    }
-    else if (control instanceof Combo || control instanceof ComboVar) {
-        control.addListener(SWT.Selection, event -> notifyWidgetModified(event, control, widgetId));
-        control.addListener(SWT.Modify, event -> notifyWidgetModified(event, control, widgetId));
+    } else if (control instanceof Combo || control instanceof ComboVar) {
+      control.addListener(SWT.Selection, event -> notifyWidgetModified(event, control, widgetId));
+      control.addListener(SWT.Modify, event -> notifyWidgetModified(event, control, widgetId));
     } else {
       control.addListener(SWT.Modify, event -> notifyWidgetModified(event, control, widgetId));
     }
@@ -334,8 +328,8 @@ public class GuiCompositeWidgets {
     if (compositeWidgetsListener != null) {
       compositeWidgetsListener.widgetModified(this, control, widgetId);
     }
-  } 
-  
+  }
+
   private String[] getComboItems(Object sourceObject, String getComboValuesMethod) {
     try {
       Method method =
@@ -535,20 +529,20 @@ public class GuiCompositeWidgets {
         //
         try {
           Class<?> fieldClass = guiElements.getFieldClass();
-          if ( fieldClass.isEnum()) {
+          if (fieldClass.isEnum()) {
             // set enum value
             //
             Class<Enum> enumClass = (Class<Enum>) fieldClass;
 
             // Look up the value as an enum...
             //
-            if (value!=null) {
-              value = Enum.valueOf( enumClass, value.toString() );
+            if (value != null) {
+              value = Enum.valueOf(enumClass, value.toString());
             }
           }
           new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
-            .getWriteMethod()
-            .invoke(sourceData, value);
+              .getWriteMethod()
+              .invoke(sourceData, value);
 
         } catch (Exception e) {
           System.err.println(
@@ -577,7 +571,7 @@ public class GuiCompositeWidgets {
       }
     }
   }
-  
+
   public IGuiPluginCompositeWidgetsListener getWidgetsListener() {
     return compositeWidgetsListener;
   }
@@ -585,7 +579,7 @@ public class GuiCompositeWidgets {
   public void setWidgetsListener(IGuiPluginCompositeWidgetsListener listener) {
     this.compositeWidgetsListener = listener;
   }
-  
+
   public void enableWidgets(Object sourceData, String parentGuiElementId, boolean enabled) {
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements =

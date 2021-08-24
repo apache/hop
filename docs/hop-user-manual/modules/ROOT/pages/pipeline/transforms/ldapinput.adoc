@@ -21,12 +21,12 @@ under the License.
 
 == Description
 
-The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server. The following sections describe the available options for the LDAP input transform.
-
+The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server.
+The following sections describe the available options for the LDAP input transform.
 
 == General Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline.
@@ -44,7 +44,7 @@ The LDAP Input transform allows you to read information like users, roles and ot
 
 == Search Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Dynamic search base|Enables the search base field.
@@ -52,13 +52,13 @@ The LDAP Input transform allows you to read information like users, roles and ot
 |Search base|Base LDAP node to search the LDAP contents.
 |Dynamic filter string|Enables the filter string field.
 |Filter string fieldname|The field containing the filter string.
-|Filter String|LDAP filter to search the customized contents, in the current stage only "single filter format" is supported like. 
- Example: mail=*
+|Filter String|LDAP filter to search the customized contents, in the current stage only "single filter format" is supported like.
+Example: mail=*
 |===
 
 == Advanced Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Include rownum in output?|Adds a row number to the output.
@@ -73,10 +73,11 @@ The LDAP Input transform allows you to read information like users, roles and ot
 
 == Fields Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Name|The name of the imported field. Note: If you renamed a field in the Select & Alter tab, the name here must match the renamed value.
+|Name|The name of the imported field.
+Note: If you renamed a field in the Select & Alter tab, the name here must match the renamed value.
 |Attribute|
 |Fetch as|String, Binary
 |Is sorted Key?| Y/N
@@ -86,7 +87,8 @@ The LDAP Input transform allows you to read information like users, roles and ot
 |Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits.
 |Currency|Symbol used to represent currencies
 |Decimal|A decimal point; this is either a dot or a comma
-|Group|A method of separating units of thousands in numbers of four digits or larger. This is either a dot or a comma.
+|Group|A method of separating units of thousands in numbers of four digits or larger.
+This is either a dot or a comma.
 |Trim type|Where to trim the field, left, right, both, none
 |Repeat|If LDAP returns no value for an attribute, use the value from the previous row
 |Get fields|Gets the result fields

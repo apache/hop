@@ -25,7 +25,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -34,23 +33,29 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 03June2008
  */
-public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> implements ITransform<DetectLastRowMeta, DetectLastRowData> {
+public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData>
+    implements ITransform<DetectLastRowMeta, DetectLastRowData> {
 
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
 
   private Object[] previousRow;
 
-  public DetectLastRow( TransformMeta transformMeta, DetectLastRowMeta meta, DetectLastRowData data, int copyNr, PipelineMeta pipelineMeta,
-                        Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public DetectLastRow(
+      TransformMeta transformMeta,
+      DetectLastRowMeta meta,
+      DetectLastRowData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
 
-    if ( first ) {
-      if ( getInputRowMeta() == null ) {
+    if (first) {
+      if (getInputRowMeta() == null) {
         setOutputDone();
         return false;
       }
@@ -59,31 +64,33 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
       data.previousRowMeta = getInputRowMeta().clone();
       data.NrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = data.previousRowMeta;
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     }
     Object[] outputRow = null;
 
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
-      if ( previousRow != null ) {
+      if (previousRow != null) {
         //
         // Output the last row with last row indicator set to true.
         //
-        if ( !Utils.isEmpty( meta.getResultFieldName() ) ) {
-          outputRow = RowDataUtil.addRowData( previousRow, getInputRowMeta().size(), data.getTrueArray() );
+        if (!Utils.isEmpty(meta.getResultFieldName())) {
+          outputRow =
+              RowDataUtil.addRowData(previousRow, getInputRowMeta().size(), data.getTrueArray());
         } else {
           outputRow = previousRow;
         }
 
-        putRow( data.outputRowMeta, outputRow ); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
 
-        if ( log.isRowLevel() ) {
-          logRowlevel( BaseMessages.getString( PKG, "DetectLastRow.Log.WroteRowToNextTransform" )
-            + data.outputRowMeta.getString( outputRow ) );
+        if (log.isRowLevel()) {
+          logRowlevel(
+              BaseMessages.getString(PKG, "DetectLastRow.Log.WroteRowToNextTransform")
+                  + data.outputRowMeta.getString(outputRow));
         }
 
-        if ( checkFeedback( getLinesRead() ) ) {
-          logBasic( BaseMessages.getString( PKG, "DetectLastRow.Log.LineNumber" ) + getLinesRead() );
+        if (checkFeedback(getLinesRead())) {
+          logBasic(BaseMessages.getString(PKG, "DetectLastRow.Log.LineNumber") + getLinesRead());
         }
       }
 
@@ -91,22 +98,24 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
       return false;
     }
 
-    if ( !first ) {
-      outputRow = RowDataUtil.addRowData( previousRow, getInputRowMeta().size(), data.getFalseArray() );
-      putRow( data.outputRowMeta, outputRow ); // copy row to output rowset(s);
+    if (!first) {
+      outputRow =
+          RowDataUtil.addRowData(previousRow, getInputRowMeta().size(), data.getFalseArray());
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
 
-      if ( log.isRowLevel() ) {
-        logRowlevel( BaseMessages.getString( PKG, "DetectLastRow.Log.WroteRowToNextTransform" )
-          + data.outputRowMeta.getString( outputRow ) );
+      if (log.isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(PKG, "DetectLastRow.Log.WroteRowToNextTransform")
+                + data.outputRowMeta.getString(outputRow));
       }
 
-      if ( checkFeedback( getLinesRead() ) ) {
-        logBasic( BaseMessages.getString( PKG, "DetectLastRow.Log.LineNumber" ) + getLinesRead() );
+      if (checkFeedback(getLinesRead())) {
+        logBasic(BaseMessages.getString(PKG, "DetectLastRow.Log.LineNumber") + getLinesRead());
       }
     }
     // keep track of the current row
     previousRow = r;
-    if ( first ) {
+    if (first) {
       first = false;
     }
 
@@ -115,9 +124,9 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
 
   public boolean init() {
 
-    if ( super.init() ) {
-      if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
-        logError( BaseMessages.getString( PKG, "DetectLastRow.Error.ResultFieldMissing" ) );
+    if (super.init()) {
+      if (Utils.isEmpty(meta.getResultFieldName())) {
+        logError(BaseMessages.getString(PKG, "DetectLastRow.Error.ResultFieldMissing"));
         return false;
       }
 
@@ -125,5 +134,4 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
     }
     return false;
   }
-
 }

@@ -17,11 +17,13 @@ under the License.
 [[MetadataPlugins-MetadataPlugins]]
 = Metadata plugins
 
-Writing metadata plugins is easy in Hop.  Any Plain Old Java Object can be used as a starting point.
+Writing metadata plugins is easy in Hop.
+Any Plain Old Java Object can be used as a starting point.
 
 == @HopMetadata Annotation
 
-This annotation signals to the Metadata plugin type that there is something worth looking at.  The class which carries this annotation will contain the metadata.
+This annotation signals to the Metadata plugin type that there is something worth looking at.
+The class which carries this annotation will contain the metadata.
 
 Here are the attributes of the @HopMetadata annotation:
 
@@ -57,10 +59,10 @@ Here are the supported data types:
 * java.util.List<T> : with T any of the data types listed here.
 * POJO : Any class with more @HopMetadataProperty annotations in it.
 
-
 == An Editor class to edit the metadata
 
-You also want to have a way to edit the metadata in the GUI.  This can be done by extending the class `MetadataEditor<IHopMetadata>`.
+You also want to have a way to edit the metadata in the GUI.
+This can be done by extending the class `MetadataEditor<IHopMetadata>`.
 
 Example: https://github.com/apache/incubator-hop/blob/master/ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java[PartitionSchemaEditor.java]
 
@@ -74,20 +76,28 @@ Working examples:
 
 === Some methods explained
 
-* createControl() : create the various controls on the given parent Composite.  The composite has a FormLayout set.
+* createControl() : create the various controls on the given parent Composite.
+The composite has a FormLayout set.
 * setWidgetsContent(): Using the metadata object (or getMetadata()) you can set the content on the created controls.
 * getWidgetsContent(): Grab the values of the various controls and modify the metadata
 * save(): verify settings, grab metadata and call super.save()
-* setFocus(): sets the focus on the metadata dialog or tab.  Choose the control to set the focus to (usually the name).
+* setFocus(): sets the focus on the metadata dialog or tab.
+Choose the control to set the focus to (usually the name).
 * createButtonsForButtonBar(): if you want to add buttons at the bottom to do things like testing, viewing, ... you can use this method
 
 == Metadata serialisation
 
 As mentioned above, the key or ID the @HopMetadata plugin is used as a top level folder to store objects in.
-For the serialisation to JSON most simple data types are supported. However we suggest you use the KISS principle.
+For the serialisation to JSON most simple data types are supported.
+However we suggest you use the KISS principle.
 If you want to serialize interfaces (for example like IDatabase used by DatabaseMeta) you might want to flag the interface with the @HopMetadataObject annotation.
-This annotation allows you to specify an object factory for those classes.  Such an object factory implements interface ```IHopMetadataObjectFactory``` with the 2 following methods:
+This annotation allows you to specify an object factory for those classes.
+Such an object factory implements interface ```IHopMetadataObjectFactory``` with the 2 following methods:
 
-* ```public Object createObject( String id, Object parentObject ) throws HopException``` -> Creates an object using an ID.  The parent object is often another metadata object.  You can use it to check if it implements IVariables so you can inherit variables from there.
-* ```public String getObjectId( Object object ) throws HopException``` -> Retrieves the object ID from the given object. We recommend that you check the instance of the object until the factory interface supports generics. (TODO)
+* ```public Object createObject( String id, Object parentObject ) throws HopException``` -> Creates an object using an ID.
+The parent object is often another metadata object.
+You can use it to check if it implements IVariables so you can inherit variables from there.
+* ```public String getObjectId( Object object ) throws HopException``` -> Retrieves the object ID from the given object.
+We recommend that you check the instance of the object until the factory interface supports generics.
+(TODO)
 

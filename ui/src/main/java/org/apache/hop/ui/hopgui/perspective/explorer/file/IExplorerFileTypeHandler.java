@@ -19,7 +19,6 @@
 package org.apache.hop.ui.hopgui.perspective.explorer.file;
 
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.eclipse.swt.widgets.Composite;
 
 public interface IExplorerFileTypeHandler extends IHopFileTypeHandler {
@@ -28,6 +27,5 @@ public interface IExplorerFileTypeHandler extends IHopFileTypeHandler {
    *
    * @param composite The parent composite in a new tab in the explorer perspective
    */
-  void renderFile( Composite composite);
-
+  void renderFile(Composite composite);
 }

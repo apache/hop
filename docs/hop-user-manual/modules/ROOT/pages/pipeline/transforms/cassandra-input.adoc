@@ -30,16 +30,19 @@ The Cassandra Input transform reads data from a Cassandra table of an Apache Cas
 |Option |Description
 
 |Cassandra connection
-|Here you specify the name of the connection to use either as a fixed value or as a variable expression. There are buttons to the right of the input field to hel you manage the metadata.
+|Here you specify the name of the connection to use either as a fixed value or as a variable expression.
+There are buttons to the right of the input field to hel you manage the metadata.
 
 |Transport max length
-|Set an optional maximum object size that can be sent. Leaving it blank means that the default cluster value is used. (typically 16384000)
+|Set an optional maximum object size that can be sent.
+Leaving it blank means that the default cluster value is used. (typically 16384000)
 
 |Execute query for each incoming row?
 |This will cause the query to be executed repeatedly: once per input row.
 
 |CQL
-|The Cassandra Query Language statement you want to use.  For more information on CQL, see https://docs.datastax.com/en/cql-oss/3.x/cql/cqlIntro.html[Introduction to Cassandra Query Language]
+|The Cassandra Query Language statement you want to use.
+For more information on CQL, see https://docs.datastax.com/en/cql-oss/3.x/cql/cqlIntro.html[Introduction to Cassandra Query Language]
 
 |===
 

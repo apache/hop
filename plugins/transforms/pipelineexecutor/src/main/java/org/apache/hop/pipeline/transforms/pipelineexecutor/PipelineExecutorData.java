@@ -21,7 +21,6 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData;

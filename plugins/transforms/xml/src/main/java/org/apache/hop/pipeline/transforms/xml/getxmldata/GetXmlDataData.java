@@ -17,19 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.text.DateFormatSymbols;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,6 +24,11 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.dom4j.Document;
 import org.dom4j.Node;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.text.*;
+import java.util.*;
 
 /**
  * @author Samatar
@@ -58,10 +50,14 @@ public class GetXmlDataData extends BaseTransformData implements ITransformData 
 
   public int nrInputFields;
   public String PathValue;
-  public String prunePath; // identical to meta.getPrunePath() with some conditions set at init(), null when no pruning
+  public String
+      prunePath; // identical to meta.getPrunePath() with some conditions set at init(), null when
+                 // no pruning
   public boolean stopPruning; // used for a trick to stop the reader in pruning mode
-  public boolean errorInRowButContinue; // true when actual row has an error and error handling is active: means
-                                        // continue (error handling in this transform should be redesigned)
+  public boolean
+      errorInRowButContinue; // true when actual row has an error and error handling is active:
+                             // means
+  // continue (error handling in this transform should be redesigned)
   public String tokenStart;
   public String tokenEnd;
   public int nodenr;
@@ -74,9 +70,7 @@ public class GetXmlDataData extends BaseTransformData implements ITransformData 
 
   public int nrReadRow;
 
-  /**
-   * The XML files to read
-   */
+  /** The XML files to read */
   public FileInputList files;
 
   public FileObject file;
@@ -103,9 +97,7 @@ public class GetXmlDataData extends BaseTransformData implements ITransformData 
   public String rootUriName;
   public long size;
 
-  /**
-   *
-   */
+  /** */
   public GetXmlDataData() {
     super();
 

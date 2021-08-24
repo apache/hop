@@ -19,40 +19,48 @@ package org.apache.hop.core.injection;
 
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.*;
 
-@InjectionSupported( localizationPrefix = "", groups = { "FILENAME_LINES", "FILENAME_LINES2" }, hide = {
-  "FLONG_HIDDEN" } )
-public class MetaBeanLevel1 extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
+@InjectionSupported(
+    localizationPrefix = "",
+    groups = {"FILENAME_LINES", "FILENAME_LINES2"},
+    hide = {"FLONG_HIDDEN"})
+public class MetaBeanLevel1 extends BaseTransformMeta
+    implements ITransformMeta<ITransform, ITransformData> {
 
-  @InjectionDeep
-  private MetaBeanLevel2 sub;
+  @InjectionDeep private MetaBeanLevel2 sub;
 
-  @Injection( name = "FBOOLEAN" )
+  @Injection(name = "FBOOLEAN")
   public boolean fboolean;
-  @Injection( name = "FINT" )
+
+  @Injection(name = "FINT")
   public int fint;
-  @Injection( name = "FLONG" )
+
+  @Injection(name = "FLONG")
   public long flong;
-  @Injection( name = "FLONG_HIDDEN" )
+
+  @Injection(name = "FLONG_HIDDEN")
   public long flong_hidden;
 
   public MetaBeanLevel2 getSub() {
     return sub;
   }
 
-  @Override public void setDefault() {
-  }
+  @Override
+  public void setDefault() {}
 
-  @Override public ITransform createTransform( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  @Override
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      ITransformData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     return null;
   }
 
-  @Override public ITransformData getTransformData() {
+  @Override
+  public ITransformData getTransformData() {
     return null;
   }
 }

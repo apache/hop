@@ -15,10 +15,7 @@
  * limitations under the License.
  */
 
-/**
- * Author = Shailesh Ahuja
- */
-
+/** Author = Shailesh Ahuja */
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import org.apache.hop.core.exception.HopException;
@@ -45,7 +42,8 @@ import java.util.Map;
  */
 public class StaxPoiWorkbook implements IKWorkbook {
 
-  private static final String RELATION_NS_URI = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  private static final String RELATION_NS_URI =
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
   private ILogChannel log;
 
@@ -63,80 +61,79 @@ public class StaxPoiWorkbook implements IKWorkbook {
 
   protected StaxPoiWorkbook() {
     openSheetsMap = new HashMap<>();
-    this.log = HopLogStore.getLogChannelFactory().create( this );
+    this.log = HopLogStore.getLogChannelFactory().create(this);
   }
 
-  public StaxPoiWorkbook( String filename, String encoding ) throws HopException {
+  public StaxPoiWorkbook(String filename, String encoding) throws HopException {
     this();
     try {
-      opcpkg = OPCPackage.open( filename );
-      openFile( opcpkg, encoding );
-    } catch ( Exception e ) {
-      throw new HopException( e );
+      opcpkg = OPCPackage.open(filename);
+      openFile(opcpkg, encoding);
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
-  public StaxPoiWorkbook( InputStream inputStream, String encoding ) throws HopException {
+  public StaxPoiWorkbook(InputStream inputStream, String encoding) throws HopException {
     this();
     try {
-      opcpkg = OPCPackage.open( inputStream );
-      openFile( opcpkg, encoding );
-    } catch ( Exception e ) {
-      throw new HopException( e );
+      opcpkg = OPCPackage.open(inputStream);
+      openFile(opcpkg, encoding);
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
-  private void openFile( OPCPackage pkg, String encoding ) throws HopException, IOException, XMLStreamException {
+  private void openFile(OPCPackage pkg, String encoding)
+      throws HopException, IOException, XMLStreamException {
     InputStream workbookData = null;
     XMLStreamReader workbookReader = null;
     try {
-      reader = new XSSFReader( pkg );
+      reader = new XSSFReader(pkg);
       sheetNameIDMap = new LinkedHashMap<>();
       workbookData = reader.getWorkbookData();
       XMLInputFactory factory = StaxUtil.safeXMLInputFactory();
-      workbookReader = factory.createXMLStreamReader( workbookData );
-      while ( workbookReader.hasNext() ) {
-        if ( workbookReader.next() == XMLStreamConstants.START_ELEMENT
-          && workbookReader.getLocalName().equals( "sheet" ) ) {
-          String sheetName = workbookReader.getAttributeValue( null, "name" );
-          String sheetID = workbookReader.getAttributeValue( RELATION_NS_URI, "id" );
-          sheetNameIDMap.put( sheetName, sheetID );
+      workbookReader = factory.createXMLStreamReader(workbookData);
+      while (workbookReader.hasNext()) {
+        if (workbookReader.next() == XMLStreamConstants.START_ELEMENT
+            && workbookReader.getLocalName().equals("sheet")) {
+          String sheetName = workbookReader.getAttributeValue(null, "name");
+          String sheetID = workbookReader.getAttributeValue(RELATION_NS_URI, "id");
+          sheetNameIDMap.put(sheetName, sheetID);
         }
       }
-      sheetNames = new String[ sheetNameIDMap.size() ];
+      sheetNames = new String[sheetNameIDMap.size()];
       int i = 0;
-      for ( String sheetName : sheetNameIDMap.keySet() ) {
-        sheetNames[ i++ ] = sheetName;
+      for (String sheetName : sheetNameIDMap.keySet()) {
+        sheetNames[i++] = sheetName;
       }
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     } finally {
-      if ( workbookReader != null ) {
-          workbookReader.close();
+      if (workbookReader != null) {
+        workbookReader.close();
       }
-      if ( workbookData != null ) {
-          workbookData.close();
+      if (workbookData != null) {
+        workbookData.close();
       }
     }
   }
 
   @Override
-  /**
-   * return the same sheet if it already is created otherwise instantiate a new one
-   */
-  public IKSheet getSheet( String sheetName ) {
-    String sheetID = sheetNameIDMap.get( sheetName );
-    if ( sheetID == null ) {
+  /** return the same sheet if it already is created otherwise instantiate a new one */
+  public IKSheet getSheet(String sheetName) {
+    String sheetID = sheetNameIDMap.get(sheetName);
+    if (sheetID == null) {
       return null;
     }
-    StaxPoiSheet sheet = openSheetsMap.get( sheetID );
+    StaxPoiSheet sheet = openSheetsMap.get(sheetID);
 
-    if ( sheet == null ) {
+    if (sheet == null) {
       try {
-        sheet = new StaxPoiSheet( reader, sheetName, sheetID );
-        openSheetsMap.put( sheetID, sheet );
-      } catch ( Exception e ) {
-        log.logError( sheetName, e );
+        sheet = new StaxPoiSheet(reader, sheetName, sheetID);
+        openSheetsMap.put(sheetID, sheet);
+      } catch (Exception e) {
+        log.logError(sheetName, e);
       }
     }
     return sheet;
@@ -144,24 +141,24 @@ public class StaxPoiWorkbook implements IKWorkbook {
 
   @Override
   public String[] getSheetNames() {
-    String[] sheets = new String[ sheetNameIDMap.size() ];
-    return sheetNameIDMap.keySet().toArray( sheets );
+    String[] sheets = new String[sheetNameIDMap.size()];
+    return sheetNameIDMap.keySet().toArray(sheets);
   }
 
   @Override
   public void close() {
     // close all the sheets
-    for ( StaxPoiSheet sheet : openSheetsMap.values() ) {
+    for (StaxPoiSheet sheet : openSheetsMap.values()) {
       try {
         sheet.close();
-      } catch ( IOException e ) {
-        log.logError( "Could not close workbook", e );
-      } catch ( XMLStreamException e ) {
-        log.logError( "Could not close xmlstream", e );
+      } catch (IOException e) {
+        log.logError("Could not close workbook", e);
+      } catch (XMLStreamException e) {
+        log.logError("Could not close xmlstream", e);
       }
     }
-    if ( opcpkg != null ) {
-      //We should not save change in xlsx because it is input transform.
+    if (opcpkg != null) {
+      // We should not save change in xlsx because it is input transform.
       opcpkg.revert();
     }
   }
@@ -172,19 +169,18 @@ public class StaxPoiWorkbook implements IKWorkbook {
   }
 
   @Override
-  public IKSheet getSheet( int sheetNr ) {
-    if ( sheetNr >= 0 && sheetNr < sheetNames.length ) {
-      return getSheet( sheetNames[ sheetNr ] );
+  public IKSheet getSheet(int sheetNr) {
+    if (sheetNr >= 0 && sheetNr < sheetNames.length) {
+      return getSheet(sheetNames[sheetNr]);
     }
     return null;
   }
 
   @Override
-  public String getSheetName( int sheetNr ) {
-    if ( sheetNr >= 0 && sheetNr < sheetNames.length ) {
-      return sheetNames[ sheetNr ];
+  public String getSheetName(int sheetNr) {
+    if (sheetNr >= 0 && sheetNr < sheetNames.length) {
+      return sheetNames[sheetNr];
     }
     return null;
   }
-
 }

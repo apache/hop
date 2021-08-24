@@ -21,21 +21,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class MapLoadSaveValidator<KeyObjectType, ValueObjectType> implements
-  IFieldLoadSaveValidator<Map<KeyObjectType, ValueObjectType>> {
+public class MapLoadSaveValidator<KeyObjectType, ValueObjectType>
+    implements IFieldLoadSaveValidator<Map<KeyObjectType, ValueObjectType>> {
   private final IFieldLoadSaveValidator<KeyObjectType> keyValidator;
   private final IFieldLoadSaveValidator<ValueObjectType> valueValidator;
   private final Integer elements;
 
-  public MapLoadSaveValidator( IFieldLoadSaveValidator<KeyObjectType> keyFieldValidator,
-                               IFieldLoadSaveValidator<ValueObjectType> valueFieldValidator ) {
+  public MapLoadSaveValidator(
+      IFieldLoadSaveValidator<KeyObjectType> keyFieldValidator,
+      IFieldLoadSaveValidator<ValueObjectType> valueFieldValidator) {
     keyValidator = keyFieldValidator;
     valueValidator = valueFieldValidator;
     elements = null;
   }
 
-  public MapLoadSaveValidator( IFieldLoadSaveValidator<KeyObjectType> keyFieldValidator,
-                               IFieldLoadSaveValidator<ValueObjectType> valueFieldValidator, Integer elements ) {
+  public MapLoadSaveValidator(
+      IFieldLoadSaveValidator<KeyObjectType> keyFieldValidator,
+      IFieldLoadSaveValidator<ValueObjectType> valueFieldValidator,
+      Integer elements) {
     keyValidator = keyFieldValidator;
     valueValidator = valueFieldValidator;
     this.elements = elements;
@@ -43,27 +46,28 @@ public class MapLoadSaveValidator<KeyObjectType, ValueObjectType> implements
 
   @Override
   public Map<KeyObjectType, ValueObjectType> getTestObject() {
-    int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
+    int max = elements == null ? new Random().nextInt(100) + 50 : elements;
     Map<KeyObjectType, ValueObjectType> result = new LinkedHashMap<>();
-    for ( int i = 0; i < max; i++ ) {
-      result.put( keyValidator.getTestObject(), valueValidator.getTestObject() );
+    for (int i = 0; i < max; i++) {
+      result.put(keyValidator.getTestObject(), valueValidator.getTestObject());
     }
     return result;
   }
 
   @Override
-  public boolean validateTestObject( Map<KeyObjectType, ValueObjectType> original, Object actual ) {
-    if ( actual instanceof Map ) {
-      @SuppressWarnings( "unchecked" )
+  public boolean validateTestObject(Map<KeyObjectType, ValueObjectType> original, Object actual) {
+    if (actual instanceof Map) {
+      @SuppressWarnings("unchecked")
       Map<KeyObjectType, ValueObjectType> actualMap = (Map<KeyObjectType, ValueObjectType>) actual;
-      if ( original.size() != actualMap.size() ) {
+      if (original.size() != actualMap.size()) {
         return false;
       }
-      for ( KeyObjectType originalKey : original.keySet() ) {
-        if ( !actualMap.containsKey( originalKey ) ) {
+      for (KeyObjectType originalKey : original.keySet()) {
+        if (!actualMap.containsKey(originalKey)) {
           return false;
         }
-        if ( !this.valueValidator.validateTestObject( original.get( originalKey ), actualMap.get( originalKey ) ) ) {
+        if (!this.valueValidator.validateTestObject(
+            original.get(originalKey), actualMap.get(originalKey))) {
           return false;
         }
       }

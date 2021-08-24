@@ -41,5 +41,4 @@ public class CreditCardValidatorData extends BaseTransformData implements ITrans
     realCardTypeFieldname = null;
     realNotValidMsgFieldname = null;
   }
-
 }

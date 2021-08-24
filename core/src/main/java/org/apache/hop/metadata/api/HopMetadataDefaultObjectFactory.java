@@ -29,27 +29,29 @@ public class HopMetadataDefaultObjectFactory implements IHopMetadataObjectFactor
    * @return
    * @throws HopException
    */
-  @Override public Object createObject( String id, Object parentObject ) throws HopException {
+  @Override
+  public Object createObject(String id, Object parentObject) throws HopException {
     try {
-      Object object = Class.forName( id );
+      Object object = Class.forName(id);
 
       // By default, inherit variables from a parent object.
       //
-      if (parentObject!=null) {
-        if (parentObject instanceof IVariables ) {
+      if (parentObject != null) {
+        if (parentObject instanceof IVariables) {
           if (object instanceof IVariables) {
-            ((IVariables)object).initializeFrom( (IVariables) parentObject );
+            ((IVariables) object).initializeFrom((IVariables) parentObject);
           }
         }
       }
 
       return object;
-    } catch(Exception e) {
-      throw new HopException("Unable to create object for id : "+id, e);
+    } catch (Exception e) {
+      throw new HopException("Unable to create object for id : " + id, e);
     }
   }
 
-  @Override public String getObjectId( Object object ) {
+  @Override
+  public String getObjectId(Object object) {
     return object.getClass().getName();
   }
 }

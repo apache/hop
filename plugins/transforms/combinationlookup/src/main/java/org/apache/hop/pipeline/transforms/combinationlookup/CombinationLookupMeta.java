@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -66,7 +62,8 @@ import java.util.Objects;
     image = "combinationlookup.svg",
     name = "i18n::CombinationLookup.Name",
     description = "i18n::CombinationLookup.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/combinationlookup.html")
 @InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
@@ -485,7 +482,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -689,7 +686,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
         if (!Utils.isEmpty(tableName)) {
           String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             boolean doHash = false;
             String crTable = null;
@@ -1127,13 +1124,14 @@ public class CombinationLookupMeta extends BaseTransformMeta
   }
 
   Database createDatabaseObject(IVariables variables) {
-    return new Database(loggingObject, variables, databaseMeta );
+    return new Database(loggingObject, variables, databaseMeta);
   }
 
   @Override
   public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
     try {
-      return (RowMeta) getDatabaseTableFields(createDatabaseObject(variables), schemaName, getTableName());
+      return (RowMeta)
+          getDatabaseTableFields(createDatabaseObject(variables), schemaName, getTableName());
     } catch (HopDatabaseException e) {
       log.logError("", e);
       return new RowMeta();

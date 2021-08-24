@@ -27,8 +27,8 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * This singleton class remembers whether or not a TreeItem is expanded. When the tree is refreshed, it remembers,
- * making for a better user experience.
+ * This singleton class remembers whether or not a TreeItem is expanded. When the tree is refreshed,
+ * it remembers, making for a better user experience.
  *
  * @author Matt
  */
@@ -38,7 +38,7 @@ public class TreeMemory {
   private Map<TreeMemoryEntry, Boolean> map;
 
   public static final TreeMemory getInstance() {
-    if ( treeMemory != null ) {
+    if (treeMemory != null) {
       return treeMemory;
     }
 
@@ -48,36 +48,36 @@ public class TreeMemory {
   }
 
   private TreeMemory() {
-    map = new Hashtable<>( 100 );
+    map = new Hashtable<>(100);
   }
 
   private class TreeMemoryEntry {
     private String treeName;
     private String[] path;
 
-    TreeMemoryEntry( String treeName, String[] path ) {
+    TreeMemoryEntry(String treeName, String[] path) {
       this.path = path;
       this.treeName = treeName;
     }
 
     public int hashCode() {
       int code = treeName.hashCode();
-      for ( String p : path ) {
+      for (String p : path) {
         code ^= p.hashCode();
       }
       return code;
     }
 
-    public boolean equals( Object obj ) {
+    public boolean equals(Object obj) {
       TreeMemoryEntry entry = (TreeMemoryEntry) obj;
-      if ( !entry.treeName.equals( treeName ) ) {
+      if (!entry.treeName.equals(treeName)) {
         return false;
       }
-      if ( entry.path.length != path.length ) {
+      if (entry.path.length != path.length) {
         return false;
       }
-      for ( int i = 0; i < path.length; i++ ) {
-        if ( !path[ i ].equals( entry.path[ i ] ) ) {
+      for (int i = 0; i < path.length; i++) {
+        if (!path[i].equals(entry.path[i])) {
           return false;
         }
       }
@@ -85,42 +85,42 @@ public class TreeMemory {
     }
 
     public String toString() {
-      StringBuilder string = new StringBuilder( 50 );
-      string.append( "{" );
-      for ( int i = 0; i < path.length; i++ ) {
-        if ( i > 0 ) {
-          string.append( "|" );
+      StringBuilder string = new StringBuilder(50);
+      string.append("{");
+      for (int i = 0; i < path.length; i++) {
+        if (i > 0) {
+          string.append("|");
         }
-        string.append( path[ i ] );
+        string.append(path[i]);
       }
-      string.append( ":" ).append( treeName ).append( "}" );
+      string.append(":").append(treeName).append("}");
       return string.toString();
     }
   }
 
-  public void storeExpanded( String treeName, TreeItem treeItem, boolean expanded ) {
-    String[] path = ConstUi.getTreeStrings( treeItem );
-    storeExpanded( treeName, path, expanded );
+  public void storeExpanded(String treeName, TreeItem treeItem, boolean expanded) {
+    String[] path = ConstUi.getTreeStrings(treeItem);
+    storeExpanded(treeName, path, expanded);
   }
 
-  public void storeExpanded( String treeName, String[] path, boolean expanded ) {
-    TreeMemoryEntry key = new TreeMemoryEntry( treeName, path ); // key.hashCode();
-    if ( expanded ) {
-      map.put( key, Boolean.valueOf( expanded ) );
+  public void storeExpanded(String treeName, String[] path, boolean expanded) {
+    TreeMemoryEntry key = new TreeMemoryEntry(treeName, path); // key.hashCode();
+    if (expanded) {
+      map.put(key, Boolean.valueOf(expanded));
     } else {
-      map.remove( key );
+      map.remove(key);
     }
   }
 
-  public boolean isExpanded( String treeName, String[] path ) {
-    TreeMemoryEntry key = new TreeMemoryEntry( treeName, path );
+  public boolean isExpanded(String treeName, String[] path) {
+    TreeMemoryEntry key = new TreeMemoryEntry(treeName, path);
     /*
      * // key.hashCode() Set<TreeMemoryEntry> keySet = map.keySet(); for (Iterator<TreeMemoryEntry> iterator =
      * keySet.iterator(); iterator.hasNext();) { TreeMemoryEntry entry = iterator.next();
      */
 
-    Boolean expanded = map.get( key );
-    if ( expanded != null ) {
+    Boolean expanded = map.get(key);
+    if (expanded != null) {
       return expanded.booleanValue();
     } else {
       return false;
@@ -132,30 +132,31 @@ public class TreeMemory {
   }
 
   /**
-   * This method creates, adds and returns a tree listener that will keep track of the expanded/collapsed state of the
-   * TreeItems. This state will then be stored in the TreeMemory singleton.
+   * This method creates, adds and returns a tree listener that will keep track of the
+   * expanded/collapsed state of the TreeItems. This state will then be stored in the TreeMemory
+   * singleton.
    *
    * @param tree The tree to add the listener to
    * @return The created/added TreeListener
    */
-  public static final TreeListener addTreeListener( final Tree tree, final String treeName ) {
-    TreeListener treeListener = new TreeListener() {
-      public void treeExpanded( TreeEvent e ) {
-        TreeItem treeItem = (TreeItem) e.item;
-        String[] path = ConstUi.getTreeStrings( treeItem );
-        TreeMemory treeMemory = TreeMemory.getInstance();
-        treeMemory.storeExpanded( treeName, path, true );
-      }
+  public static final TreeListener addTreeListener(final Tree tree, final String treeName) {
+    TreeListener treeListener =
+        new TreeListener() {
+          public void treeExpanded(TreeEvent e) {
+            TreeItem treeItem = (TreeItem) e.item;
+            String[] path = ConstUi.getTreeStrings(treeItem);
+            TreeMemory treeMemory = TreeMemory.getInstance();
+            treeMemory.storeExpanded(treeName, path, true);
+          }
 
-      public void treeCollapsed( TreeEvent e ) {
-        TreeItem treeItem = (TreeItem) e.item;
-        String[] path = ConstUi.getTreeStrings( treeItem );
-        TreeMemory treeMemory = TreeMemory.getInstance();
-        treeMemory.storeExpanded( treeName, path, false );
-      }
-
-    };
-    tree.addTreeListener( treeListener );
+          public void treeCollapsed(TreeEvent e) {
+            TreeItem treeItem = (TreeItem) e.item;
+            String[] path = ConstUi.getTreeStrings(treeItem);
+            TreeMemory treeMemory = TreeMemory.getInstance();
+            treeMemory.storeExpanded(treeName, path, false);
+          }
+        };
+    tree.addTreeListener(treeListener);
     return treeListener;
   }
 
@@ -164,23 +165,23 @@ public class TreeMemory {
    *
    * @param tree The tree to format.
    */
-  public static void setExpandedFromMemory( Tree tree, String treeName ) {
+  public static void setExpandedFromMemory(Tree tree, String treeName) {
     TreeItem[] items = tree.getItems();
-    for ( int i = 0; i < items.length; i++ ) {
-      setExpandedFromMemory( tree, treeName, items[ i ] );
+    for (int i = 0; i < items.length; i++) {
+      setExpandedFromMemory(tree, treeName, items[i]);
     }
   }
 
-  private static void setExpandedFromMemory( Tree tree, String treeName, TreeItem treeItem ) {
+  private static void setExpandedFromMemory(Tree tree, String treeName, TreeItem treeItem) {
     TreeMemory treeMemory = TreeMemory.getInstance();
 
-    String[] path = ConstUi.getTreeStrings( treeItem );
-    boolean expanded = treeMemory.isExpanded( treeName, path );
-    treeItem.setExpanded( expanded );
+    String[] path = ConstUi.getTreeStrings(treeItem);
+    boolean expanded = treeMemory.isExpanded(treeName, path);
+    treeItem.setExpanded(expanded);
 
     TreeItem[] items = treeItem.getItems();
-    for ( int i = 0; i < items.length; i++ ) {
-      setExpandedFromMemory( tree, treeName, items[ i ] );
+    for (int i = 0; i < items.length; i++) {
+      setExpandedFromMemory(tree, treeName, items[i]);
     }
   }
 }

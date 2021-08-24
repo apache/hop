@@ -26,109 +26,88 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-public class StringListPluginProperty extends KeyValue<List<String>> implements IPluginProperty, Iterable<String> {
+public class StringListPluginProperty extends KeyValue<List<String>>
+    implements IPluginProperty, Iterable<String> {
 
-  /**
-   * Serial version UID.
-   */
+  /** Serial version UID. */
   private static final long serialVersionUID = 2003662016166396542L;
 
-  /**
-   * Value XML tag name.
-   */
+  /** Value XML tag name. */
   public static final String VALUE_XML_TAG_NAME = "value";
 
-  /**
-   * The separator character.
-   */
+  /** The separator character. */
   public static final char SEPARATOR_CHAR = ',';
 
-  /**
-   * @param key key to use.
-   */
-  public StringListPluginProperty( final String key ) {
-    super( key, new ArrayList<>() );
+  /** @param key key to use. */
+  public StringListPluginProperty(final String key) {
+    super(key, new ArrayList<>());
   }
 
   /**
    * @param list list to transform, maybe null.
    * @return string, never null.
    */
-  public static String asString( final List<String> list ) {
-    if ( list == null ) {
+  public static String asString(final List<String> list) {
+    if (list == null) {
       return "";
     }
-    return StringUtils.join( list, SEPARATOR_CHAR );
+    return StringUtils.join(list, SEPARATOR_CHAR);
   }
 
   /**
    * @param input the input.
    * @return new list, never null.
    */
-  public static List<String> fromString( final String input ) {
+  public static List<String> fromString(final String input) {
     final List<String> result = new ArrayList<>();
-    if ( StringUtils.isBlank( input ) ) {
+    if (StringUtils.isBlank(input)) {
       return result;
     }
-    for ( String value : StringUtils.split( input, SEPARATOR_CHAR ) ) {
-      result.add( value );
+    for (String value : StringUtils.split(input, SEPARATOR_CHAR)) {
+      result.add(value);
     }
     return result;
   }
 
-  /**
-   *
-   */
-  public void appendXml( final StringBuilder builder ) {
-    if ( !this.evaluate() ) {
+  /** */
+  public void appendXml(final StringBuilder builder) {
+    if (!this.evaluate()) {
       return;
     }
-    final String value = asString( this.getValue() );
-    builder.append( XmlHandler.addTagValue( this.getKey(), value ) );
+    final String value = asString(this.getValue());
+    builder.append(XmlHandler.addTagValue(this.getKey(), value));
   }
 
-  /**
-   *
-   */
+  /** */
   public boolean evaluate() {
-    return CollectionPredicates.NOT_NULL_OR_EMPTY_COLLECTION.evaluate( this.getValue() );
+    return CollectionPredicates.NOT_NULL_OR_EMPTY_COLLECTION.evaluate(this.getValue());
   }
 
-  /**
-   *
-   */
-  public void loadXml( final Node node ) {
-    final String stringValue = XmlHandler.getTagValue( node, this.getKey() );
-    final List<String> values = fromString( stringValue );
-    this.setValue( values );
+  /** */
+  public void loadXml(final Node node) {
+    final String stringValue = XmlHandler.getTagValue(node, this.getKey());
+    final List<String> values = fromString(stringValue);
+    this.setValue(values);
   }
 
-  /**
-   *
-   */
-  public void readFromPreferences( final Preferences node ) {
-    final String stringValue = node.get( this.getKey(), asString( this.getValue() ) );
-    this.setValue( fromString( stringValue ) );
+  /** */
+  public void readFromPreferences(final Preferences node) {
+    final String stringValue = node.get(this.getKey(), asString(this.getValue()));
+    this.setValue(fromString(stringValue));
   }
 
-
-  /**
-   *
-   */
-  public void saveToPreferences( final Preferences node ) {
-    node.put( this.getKey(), asString( this.getValue() ) );
+  /** */
+  public void saveToPreferences(final Preferences node) {
+    node.put(this.getKey(), asString(this.getValue()));
   }
 
-
-  /**
-   * @param values values to set, no validation.
-   */
-  public void setValues( final String... values ) {
-    if ( this.getValue() == null ) {
-      this.setValue( new ArrayList<>() );
+  /** @param values values to set, no validation. */
+  public void setValues(final String... values) {
+    if (this.getValue() == null) {
+      this.setValue(new ArrayList<>());
     }
-    for ( String value : values ) {
-      this.getValue().add( value );
+    for (String value : values) {
+      this.getValue().add(value);
     }
   }
 
@@ -142,9 +121,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
     return this.getValue().iterator();
   }
 
-  /**
-   * @return true if list is empty .
-   */
+  /** @return true if list is empty . */
   public boolean isEmpty() {
     this.assertValueNotNull();
     return this.getValue().isEmpty();
@@ -165,9 +142,8 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
    * @throws IllegalStateException if this.value is null.
    */
   public void assertValueNotNull() throws IllegalStateException {
-    if ( this.getValue() == null ) {
-      throw new IllegalStateException( "Value is null" );
+    if (this.getValue() == null) {
+      throw new IllegalStateException("Value is null");
     }
   }
-
 }

@@ -23,79 +23,79 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-@PluginMainClassType( IPipelineEngine.class )
-@PluginAnnotationType( PipelineEnginePlugin.class )
+@PluginMainClassType(IPipelineEngine.class)
+@PluginAnnotationType(PipelineEnginePlugin.class)
 public class PipelineEnginePluginType extends BasePluginType<PipelineEnginePlugin> {
 
   private PipelineEnginePluginType() {
-    super( PipelineEnginePlugin.class, "HOP_PIPELINE_ENGINES", "Hop Pipeline Engines" );
+    super(PipelineEnginePlugin.class, "HOP_PIPELINE_ENGINES", "Hop Pipeline Engines");
   }
 
   private static PipelineEnginePluginType pluginType;
 
   public static PipelineEnginePluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new PipelineEnginePluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractCategory( PipelineEnginePlugin annotation ) {
+  protected String extractCategory(PipelineEnginePlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( PipelineEnginePlugin annotation ) {
-    return ( (PipelineEnginePlugin) annotation ).description();
+  protected String extractDesc(PipelineEnginePlugin annotation) {
+    return ((PipelineEnginePlugin) annotation).description();
   }
 
   @Override
-  protected String extractID( PipelineEnginePlugin annotation ) {
-    return ( (PipelineEnginePlugin) annotation ).id();
+  protected String extractID(PipelineEnginePlugin annotation) {
+    return ((PipelineEnginePlugin) annotation).id();
   }
 
   @Override
-  protected String extractName( PipelineEnginePlugin annotation ) {
-    return ( (PipelineEnginePlugin) annotation ).name();
+  protected String extractName(PipelineEnginePlugin annotation) {
+    return ((PipelineEnginePlugin) annotation).name();
   }
 
   @Override
-  protected String extractImageFile( PipelineEnginePlugin annotation ) {
+  protected String extractImageFile(PipelineEnginePlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( PipelineEnginePlugin annotation ) {
+  protected boolean extractSeparateClassLoader(PipelineEnginePlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, PipelineEnginePlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, PipelineEnginePlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( PipelineEnginePlugin annotation ) {
+  protected String extractDocumentationUrl(PipelineEnginePlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( PipelineEnginePlugin annotation ) {
+  protected String extractCasesUrl(PipelineEnginePlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( PipelineEnginePlugin annotation ) {
+  protected String extractForumUrl(PipelineEnginePlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( PipelineEnginePlugin annotation ) {
+  protected String extractSuggestion(PipelineEnginePlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( PipelineEnginePlugin annotation ) {
+  protected String extractClassLoaderGroup(PipelineEnginePlugin annotation) {
     return null;
   }
 }

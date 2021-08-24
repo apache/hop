@@ -29,80 +29,79 @@ import java.util.Map;
  *
  * @author matt
  */
-
-@PluginMainClassType( IValueMeta.class )
-@PluginAnnotationType( ValueMetaPlugin.class )
+@PluginMainClassType(IValueMeta.class)
+@PluginAnnotationType(ValueMetaPlugin.class)
 public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> {
 
   private static ValueMetaPluginType valueMetaPluginType;
 
   private ValueMetaPluginType() {
-    super( ValueMetaPlugin.class, "VALUEMETA", "ValueMeta" );
+    super(ValueMetaPlugin.class, "VALUEMETA", "ValueMeta");
   }
 
   public static ValueMetaPluginType getInstance() {
-    if ( valueMetaPluginType == null ) {
+    if (valueMetaPluginType == null) {
       valueMetaPluginType = new ValueMetaPluginType();
     }
     return valueMetaPluginType;
   }
 
   @Override
-  protected String extractCategory( ValueMetaPlugin annotation ) {
+  protected String extractCategory(ValueMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( ValueMetaPlugin annotation ) {
+  protected String extractDesc(ValueMetaPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( ValueMetaPlugin annotation ) {
+  protected String extractID(ValueMetaPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( ValueMetaPlugin annotation ) {
+  protected String extractName(ValueMetaPlugin annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( ValueMetaPlugin annotation ) {
+  protected String extractImageFile(ValueMetaPlugin annotation) {
     return annotation.image();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( ValueMetaPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(ValueMetaPlugin annotation) {
     return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, ValueMetaPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, ValueMetaPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( ValueMetaPlugin annotation ) {
+  protected String extractDocumentationUrl(ValueMetaPlugin annotation) {
     return annotation.documentationUrl();
   }
 
   @Override
-  protected String extractSuggestion( ValueMetaPlugin annotation ) {
+  protected String extractSuggestion(ValueMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( ValueMetaPlugin annotation ) {
+  protected String extractCasesUrl(ValueMetaPlugin annotation) {
     return annotation.casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( ValueMetaPlugin annotation ) {
+  protected String extractForumUrl(ValueMetaPlugin annotation) {
     return annotation.forumUrl();
   }
 
   @Override
-  protected String extractClassLoaderGroup( ValueMetaPlugin annotation ) {
+  protected String extractClassLoaderGroup(ValueMetaPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 }

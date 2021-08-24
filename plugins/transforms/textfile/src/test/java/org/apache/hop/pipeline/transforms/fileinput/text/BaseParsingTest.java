@@ -27,14 +27,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.IRowListener;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -44,17 +40,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
-/**
- * Base class for all tests for BaseFileInput transforms.
- */
-@Ignore( "No tests in abstract base class" )
-public abstract class BaseParsingTest<Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform> {
+/** Base class for all tests for BaseFileInput transforms. */
+@Ignore("No tests in abstract base class")
+public abstract class BaseParsingTest<
+    Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform> {
 
-  protected ILogChannel log = new LogChannel( "junit" );
+  protected ILogChannel log = new LogChannel("junit");
   protected FileSystemManager fs;
   protected String inPrefix;
   protected Meta meta;
@@ -67,54 +60,47 @@ public abstract class BaseParsingTest<Meta extends ITransformMeta, Data extends 
   protected List<Object[]> rows = new ArrayList<>();
   protected int errorsCount;
 
-  /**
-   * Initialize transform info. Method is final against redefine in descendants.
-   */
+  /** Initialize transform info. Method is final against redefine in descendants. */
   @Before
   public final void beforeCommon() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.addPluginType( CompressionPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(CompressionPluginType.getInstance());
+    PluginRegistry.init(false);
 
     transformMeta = new TransformMeta();
-    transformMeta.setName( "test" );
+    transformMeta.setName("test");
 
     pipeline = new LocalPipelineEngine();
-    pipeline.setLogChannel( log );
-    pipeline.setRunning( true );
-    pipelineMeta = new PipelineMeta() {
-      @Override
-      public TransformMeta findTransform( String name ) {
-        return transformMeta;
-      }
-    };
+    pipeline.setLogChannel(log);
+    pipeline.setRunning(true);
+    pipelineMeta =
+        new PipelineMeta() {
+          @Override
+          public TransformMeta findTransform(String name) {
+            return transformMeta;
+          }
+        };
 
     fs = VFS.getManager();
-    inPrefix = '/' + this.getClass().getPackage().getName().replace( '.', '/' ) + "/files/";
+    inPrefix = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
   }
 
-  /**
-   * Resolve file from test directory.
-   */
-  protected FileObject getFile( String filename ) throws Exception {
-    URL res = this.getClass().getResource( inPrefix + filename );
-    assertNotNull( "There is no file", res );
-    FileObject file = fs.resolveFile( res.toExternalForm() );
-    assertNotNull( "There is no file", file );
+  /** Resolve file from test directory. */
+  protected FileObject getFile(String filename) throws Exception {
+    URL res = this.getClass().getResource(inPrefix + filename);
+    assertNotNull("There is no file", res);
+    FileObject file = fs.resolveFile(res.toExternalForm());
+    assertNotNull("There is no file", file);
     return file;
   }
 
-  /**
-   * Declare fields for test.
-   */
-  protected abstract void setFields( BaseFileField... fields ) throws Exception;
+  /** Declare fields for test. */
+  protected abstract void setFields(BaseFileField... fields) throws Exception;
 
-  /**
-   * Process all rows.
-   */
+  /** Process all rows. */
   protected void process() throws Exception {
-    //CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
-    while ( transform.processRow() ) {
+    // CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
+    while (transform.processRow()) {
       // nothing here - just make sure the rows process
     }
   }
@@ -122,62 +108,60 @@ public abstract class BaseParsingTest<Meta extends ITransformMeta, Data extends 
   /**
    * Check result of parsing.
    *
-   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
-   *                 "field 1 value in row 2","field 2 value in row 2"} }
+   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row
+   *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
-  protected void check( Object[][] expected ) throws Exception {
+  protected void check(Object[][] expected) throws Exception {
     checkErrors();
-    checkRowCount( expected );
+    checkRowCount(expected);
   }
 
-  /**
-   * Check result no has errors.
-   */
+  /** Check result no has errors. */
   protected void checkErrors() throws Exception {
-    assertEquals( "There are errors", 0, errorsCount );
-    assertEquals( "There are transform errors", 0, transform.getErrors() );
+    assertEquals("There are errors", 0, errorsCount);
+    assertEquals("There are transform errors", 0, transform.getErrors());
   }
 
   /**
    * Check result of parsing.
    *
-   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
-   *                 "field 1 value in row 2","field 2 value in row 2"} }
+   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row
+   *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
-  protected void checkRowCount( Object[][] expected ) throws Exception {
-    assertEquals( "Wrong rows count", expected.length, rows.size() );
-    checkContent( expected );
+  protected void checkRowCount(Object[][] expected) throws Exception {
+    assertEquals("Wrong rows count", expected.length, rows.size());
+    checkContent(expected);
   }
 
   /**
    * Check content of parsing.
    *
-   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
-   *                 "field 1 value in row 2","field 2 value in row 2"} }
+   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row
+   *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
-  protected void checkContent( Object[][] expected ) throws Exception {
-    for ( int i = 0; i < expected.length; i++ ) {
-      assertArrayEquals( "Wrong row: " + Arrays.asList( rows.get( i ) ), expected[ i ], rows.get( i ) );
+  protected void checkContent(Object[][] expected) throws Exception {
+    for (int i = 0; i < expected.length; i++) {
+      assertArrayEquals("Wrong row: " + Arrays.asList(rows.get(i)), expected[i], rows.get(i));
     }
   }
 
-  /**
-   * Listener for parsing result.
-   */
-  protected IRowListener rowListener = new IRowListener() {
-    @Override
-    public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-      rows.add( Arrays.copyOf( row, rowMeta.size() ) );
-    }
+  /** Listener for parsing result. */
+  protected IRowListener rowListener =
+      new IRowListener() {
+        @Override
+        public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+          rows.add(Arrays.copyOf(row, rowMeta.size()));
+        }
 
-    @Override
-    public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-      System.out.println();
-    }
+        @Override
+        public void rowReadEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+          System.out.println();
+        }
 
-    @Override
-    public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-      errorsCount++;
-    }
-  };
+        @Override
+        public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row)
+            throws HopTransformException {
+          errorsCount++;
+        }
+      };
 }

@@ -18,7 +18,6 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.Variables;
 
 import java.util.Random;
 import java.util.UUID;

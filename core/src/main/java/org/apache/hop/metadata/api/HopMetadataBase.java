@@ -27,35 +27,34 @@ public class HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty protected String name;
 
   /**
-   * The metadata provider name is optionally used at runtime to figure out where the metadata came from.
-   * Optionally used by plugins. It's volatile because it's never persisted.
+   * The metadata provider name is optionally used at runtime to figure out where the metadata came
+   * from. Optionally used by plugins. It's volatile because it's never persisted.
    */
-  @JsonIgnore
-  protected volatile String metadataProviderName;
+  @JsonIgnore protected volatile String metadataProviderName;
 
-  public HopMetadataBase() {
-  }
+  public HopMetadataBase() {}
 
-  public HopMetadataBase( String name ) {
+  public HopMetadataBase(String name) {
     this();
     this.name = name;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     HopMetadataBase that = (HopMetadataBase) o;
-    return name.equals( that.name );
+    return name.equals(that.name);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name );
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
-
 
   /**
    * Get the name of the metadata object.
@@ -91,7 +90,7 @@ public class HopMetadataBase implements IHopMetadata {
    *
    * @param metadataProviderName The source of metadata or null if it's not specified
    */
-  public void setMetadataProviderName( String metadataProviderName ) {
+  public void setMetadataProviderName(String metadataProviderName) {
     this.metadataProviderName = metadataProviderName;
   }
 }

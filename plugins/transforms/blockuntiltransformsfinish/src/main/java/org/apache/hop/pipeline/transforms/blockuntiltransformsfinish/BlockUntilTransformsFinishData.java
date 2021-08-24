@@ -19,11 +19,9 @@ package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

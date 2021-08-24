@@ -27,11 +27,7 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -54,7 +50,8 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SystemInfo",
     description = "i18n::BaseTransform.TypeTooltipDesc.SystemInfo",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getsystemdata.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/getsystemdata.html")
 public class SystemDataMeta extends BaseTransformMeta
     implements ITransformMeta<SystemData, SystemDataData> {
   private static final Class<?> PKG = SystemDataMeta.class; // For Translator

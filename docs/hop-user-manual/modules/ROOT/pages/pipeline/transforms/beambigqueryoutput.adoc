@@ -25,7 +25,7 @@ The Beam BigQuery Input transform can be used to input data from link:https://cl
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.

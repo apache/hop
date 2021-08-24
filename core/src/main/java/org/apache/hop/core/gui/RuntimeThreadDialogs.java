@@ -20,10 +20,9 @@ package org.apache.hop.core.gui;
 public class RuntimeThreadDialogs implements IThreadDialogs {
 
   @Override
-  public boolean threadMessageBox( String message, String text, boolean allowCancel, int type ) {
+  public boolean threadMessageBox(String message, String text, boolean allowCancel, int type) {
 
     // assume its ok to return to ok
     return true;
   }
-
 }

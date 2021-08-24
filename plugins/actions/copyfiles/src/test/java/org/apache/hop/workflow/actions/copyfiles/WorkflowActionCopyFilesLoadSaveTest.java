@@ -16,20 +16,17 @@
  */
 package org.apache.hop.workflow.actions.copyfiles;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-public class WorkflowActionCopyFilesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionCopyFiles> {
+public class WorkflowActionCopyFilesLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionCopyFiles> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -39,49 +36,58 @@ public class WorkflowActionCopyFilesLoadSaveTest extends WorkflowActionLoadSaveT
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( "copyEmptyFolders", "argFromPrevious", "overwriteFiles", "includeSubFolders",
-      "removeSourceFiles", "addResultFilenames", "destinationIsAFile", "createDestinationFolder",
-      "sourceFileFolder", "destinationFileFolder", "wildcard" );
+    return Arrays.asList(
+        "copyEmptyFolders",
+        "argFromPrevious",
+        "overwriteFiles",
+        "includeSubFolders",
+        "removeSourceFiles",
+        "addResultFilenames",
+        "destinationIsAFile",
+        "createDestinationFolder",
+        "sourceFileFolder",
+        "destinationFileFolder",
+        "wildcard");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "copyEmptyFolders", "isCopyEmptyFolders",
-      "argFromPrevious", "isArgFromPrevious",
-      "overwriteFiles", "isOverwriteFiles",
-      "includeSubFolders", "isIncludeSubFolders",
-      "removeSourceFiles", "isRemoveSourceFiles",
-      "addResultFilenames", "isAddResultFilenames",
-      "destinationIsAFile", "isDestinationIsAFile",
-      "createDestinationFolder", "isCreateDestinationFolder"
-    );
+        "copyEmptyFolders", "isCopyEmptyFolders",
+        "argFromPrevious", "isArgFromPrevious",
+        "overwriteFiles", "isOverwriteFiles",
+        "includeSubFolders", "isIncludeSubFolders",
+        "removeSourceFiles", "isRemoveSourceFiles",
+        "addResultFilenames", "isAddResultFilenames",
+        "destinationIsAFile", "isDestinationIsAFile",
+        "createDestinationFolder", "isCreateDestinationFolder");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "copyEmptyFolders", "setCopyEmptyFolders",
-      "argFromPrevious", "setArgFromPrevious",
-      "overwriteFiles", "setOverwriteFiles",
-      "includeSubFolders", "setIncludeSubFolders",
-      "removeSourceFiles", "setRemoveSourceFiles",
-      "addResultFilenames", "setAddResultFilenames",
-      "destinationIsAFile", "setDestinationIsAFile",
-      "createDestinationFolder", "setCreateDestinationFolder"
-    );
+        "copyEmptyFolders", "setCopyEmptyFolders",
+        "argFromPrevious", "setArgFromPrevious",
+        "overwriteFiles", "setOverwriteFiles",
+        "includeSubFolders", "setIncludeSubFolders",
+        "removeSourceFiles", "setRemoveSourceFiles",
+        "addResultFilenames", "setAddResultFilenames",
+        "destinationIsAFile", "setDestinationIsAFile",
+        "createDestinationFolder", "setCreateDestinationFolder");
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    int fileArraySize = new Random().nextInt( 5 ) + 1;
+    int fileArraySize = new Random().nextInt(5) + 1;
     Map<String, IFieldLoadSaveValidator<?>> attrMap = new HashMap<>();
-    attrMap.put( "sourceFileFolder",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), fileArraySize ) );
-    attrMap.put( "destinationFileFolder",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), fileArraySize ) );
-    attrMap.put( "wildcard", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), fileArraySize ) );
+    attrMap.put(
+        "sourceFileFolder",
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), fileArraySize));
+    attrMap.put(
+        "destinationFileFolder",
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), fileArraySize));
+    attrMap.put(
+        "wildcard", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), fileArraySize));
     return attrMap;
   }
-
 }

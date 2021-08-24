@@ -20,19 +20,17 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.row.IValueMeta;
 
 @ValueMetaPlugin(
-  id = "7",
-  name = "Serializable",
-  description = "Serializable",
-  image = "images/binary.svg"
-)
+    id = "7",
+    name = "Serializable",
+    description = "Serializable",
+    image = "images/binary.svg")
 public class ValueMetaSerializable extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaSerializable() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaSerializable( String name ) {
-    super( name, IValueMeta.TYPE_SERIALIZABLE );
+  public ValueMetaSerializable(String name) {
+    super(name, IValueMeta.TYPE_SERIALIZABLE);
   }
-
 }

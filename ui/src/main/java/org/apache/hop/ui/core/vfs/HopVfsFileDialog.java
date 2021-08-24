@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.vfs;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
@@ -41,7 +40,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 import org.apache.hop.ui.core.dialog.IFileDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -58,49 +56,20 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceAdapter;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetAdapter;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.*;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @GuiPlugin(description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
@@ -208,8 +177,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     try {
 
-      bookmarks =
-          AuditManager.getActive().loadMap(usedNamespace, BOOKMARKS_AUDIT_TYPE);
+      bookmarks = AuditManager.getActive().loadMap(usedNamespace, BOOKMARKS_AUDIT_TYPE);
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading bookmarks", e);
       bookmarks = new HashMap<>();
@@ -374,7 +342,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
             if (selected < 0 || selected >= wBookmarks.getItemCount()) return;
             MenuItem removeBookmarkMenuItem = new MenuItem(menu, SWT.NONE);
-            removeBookmarkMenuItem.setText(BaseMessages.getString(PKG, "HopVfsFileDialog.Delete.MenuItem.Label"));
+            removeBookmarkMenuItem.setText(
+                BaseMessages.getString(PKG, "HopVfsFileDialog.Delete.MenuItem.Label"));
             removeBookmarkMenuItem.addListener(SWT.Selection, e -> removeBookmark());
           }
         });
@@ -414,8 +383,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                 String name = file.getName().getBaseName();
                 EnterStringDialog dialog =
                     new EnterStringDialog(
-                        shell, name, BaseMessages.getString(PKG, "HopVfsFileDialog.BookmarkDialog.Header")
-                            , BaseMessages.getString(PKG, "HopVfsFileDialog.BookmarkDialog.Message"));
+                        shell,
+                        name,
+                        BaseMessages.getString(PKG, "HopVfsFileDialog.BookmarkDialog.Header"),
+                        BaseMessages.getString(PKG, "HopVfsFileDialog.BookmarkDialog.Message"));
                 name = dialog.open();
                 if (name != null) {
                   String path = HopVfs.getFilename(file);
@@ -505,12 +476,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           }
         });
 
-    
     // Create Tree editor for rename
     wBrowserEditor = new TreeEditor(wBrowser);
     wBrowserEditor.horizontalAlignment = SWT.LEFT;
     wBrowserEditor.grabHorizontal = true;
-    
+
     // Put file details or message/logging label at the bottom...
     //
     wDetails = new Text(browseSash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
@@ -618,7 +588,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       activeFileObject = HopVfs.getFileObject(wFilename.getText());
       ok();
     } catch (Throwable e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.ParsingFilename.Error.Message", wFilename.getText()), e);
+      showError(
+          BaseMessages.getString(
+              PKG, "HopVfsFileDialog.ParsingFilename.Error.Message", wFilename.getText()),
+          e);
     }
   }
 
@@ -661,7 +634,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     FileObject selectedFile = getSelectedFileObject();
     if (selectedFile != null) {
       showFilename(selectedFile);
-    }    
+    }
     updateSelection();
   }
 
@@ -674,29 +647,67 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       String details = "";
 
       if (fileObject.isFolder()) {
-        details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Folder", HopVfs.getFilename(fileObject)) + Const.CR;
+        details +=
+            BaseMessages.getString(
+                    PKG, "HopVfsFileDialog.FileInfo.Tooltip.Folder", HopVfs.getFilename(fileObject))
+                + Const.CR;
       } else {
-        details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Name", fileObject.getName().getBaseName()) + "   ";
-        details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Folder", HopVfs.getFilename(fileObject.getParent())) + "   ";
-        details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Size",  content.getSize());
+        details +=
+            BaseMessages.getString(
+                    PKG,
+                    "HopVfsFileDialog.FileInfo.Tooltip.Name",
+                    fileObject.getName().getBaseName())
+                + "   ";
+        details +=
+            BaseMessages.getString(
+                    PKG,
+                    "HopVfsFileDialog.FileInfo.Tooltip.Folder",
+                    HopVfs.getFilename(fileObject.getParent()))
+                + "   ";
+        details +=
+            BaseMessages.getString(
+                PKG, "HopVfsFileDialog.FileInfo.Tooltip.Size", content.getSize());
         if (content.getSize() >= 1024) {
           details += " (" + getFileSize(fileObject) + ")";
         }
         details += Const.CR;
       }
-      details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.LastModified",  getFileDate(fileObject)) + Const.CR;
-      details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Readable"
-              , (fileObject.isReadable() ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label") : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label"))) + "  ";
-      details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Writeable"
-              , (fileObject.isWriteable() ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label") : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label"))) + "  ";
-      details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Executable"
-              , (fileObject.isExecutable() ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label") : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label"))) + Const.CR;
+      details +=
+          BaseMessages.getString(
+                  PKG, "HopVfsFileDialog.FileInfo.Tooltip.LastModified", getFileDate(fileObject))
+              + Const.CR;
+      details +=
+          BaseMessages.getString(
+                  PKG,
+                  "HopVfsFileDialog.FileInfo.Tooltip.Readable",
+                  (fileObject.isReadable()
+                      ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label")
+                      : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label")))
+              + "  ";
+      details +=
+          BaseMessages.getString(
+                  PKG,
+                  "HopVfsFileDialog.FileInfo.Tooltip.Writeable",
+                  (fileObject.isWriteable()
+                      ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label")
+                      : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label")))
+              + "  ";
+      details +=
+          BaseMessages.getString(
+                  PKG,
+                  "HopVfsFileDialog.FileInfo.Tooltip.Executable",
+                  (fileObject.isExecutable()
+                      ? BaseMessages.getString(PKG, "HopVfsFileDialog.Yes.Label")
+                      : BaseMessages.getString(PKG, "HopVfsFileDialog.No.Label")))
+              + Const.CR;
       if (fileObject.isSymbolicLink()) {
-        details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Symlink") + Const.CR;
+        details +=
+            BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Symlink") + Const.CR;
       }
       Map<String, Object> attributes = content.getAttributes();
       if (attributes != null && !attributes.isEmpty()) {
-        details += BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Attributes") + Const.CR;
+        details +=
+            BaseMessages.getString(PKG, "HopVfsFileDialog.FileInfo.Tooltip.Attributes") + Const.CR;
         for (String key : attributes.keySet()) {
           Object value = attributes.get(key);
           details += "   " + key + " : " + (value == null ? "" : value.toString()) + Const.CR;
@@ -704,7 +715,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       }
       showDetails(details);
     } catch (Throwable e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.FilenameInfo.Error.Message", fileObject.toString()), e);
+      showError(
+          BaseMessages.getString(
+              PKG, "HopVfsFileDialog.FilenameInfo.Error.Message", fileObject.toString()),
+          e);
     }
   }
 
@@ -732,7 +746,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         okButton();
       }
     } catch (Throwable e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.DefaultSelection.Handling.Error.Message", fileObject.toString()), e);
+      showError(
+          BaseMessages.getString(
+              PKG,
+              "HopVfsFileDialog.DefaultSelection.Handling.Error.Message",
+              fileObject.toString()),
+          e);
     }
   }
 
@@ -805,10 +824,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       populateFolder(activeFolder, parentFolderItem);
 
       parentFolderItem.setExpanded(true);
-      
+
       updateSelection();
     } catch (Throwable e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.Browsing.Error.Message", filename), e);
+      showError(
+          BaseMessages.getString(PKG, "HopVfsFileDialog.Browsing.Error.Message", filename), e);
     }
   }
 
@@ -950,9 +970,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         IPlugin plugin =
             PluginRegistry.getInstance().getPlugin(HopFileTypePluginType.class, fileType);
         if (plugin != null && plugin.getImageFile() != null) {
-          ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader( plugin );
+          ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader(plugin);
           return GuiResource.getInstance()
-              .getImage(plugin.getImageFile(), classLoader, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+              .getImage(
+                  plugin.getImageFile(),
+                  classLoader,
+                  ConstUi.SMALL_ICON_SIZE,
+                  ConstUi.SMALL_ICON_SIZE);
         }
       }
     } catch (HopException e) {
@@ -1007,7 +1031,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       }
       dispose();
     } catch (FileSystemException e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.FindParentFolder.Error.Message", activeFileObject.toString()), e);
+      showError(
+          BaseMessages.getString(
+              PKG, "HopVfsFileDialog.FindParentFolder.Error.Message", activeFileObject.toString()),
+          e);
     }
   }
 
@@ -1015,8 +1042,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     instance = null;
     try {
       AuditManager.getActive()
-          .storeList(
-            usedNamespace, BOOKMARKS_AUDIT_TYPE, new AuditList(navigationHistory));
+          .storeList(usedNamespace, BOOKMARKS_AUDIT_TYPE, new AuditList(navigationHistory));
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error storing navigation history", e);
     }
@@ -1041,8 +1067,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       String name = selectedFile.getName().getBaseName();
       EnterStringDialog dialog =
           new EnterStringDialog(
-              shell, name, BaseMessages.getString(PKG, "HopVfsFileDialog.NameBookmark.Header")
-                  , BaseMessages.getString(PKG, "HopVfsFileDialog.NameBookmark.Message"));
+              shell,
+              name,
+              BaseMessages.getString(PKG, "HopVfsFileDialog.NameBookmark.Header"),
+              BaseMessages.getString(PKG, "HopVfsFileDialog.NameBookmark.Message"));
       name = dialog.open();
       if (name != null) {
         String path = HopVfs.getFilename(selectedFile);
@@ -1071,10 +1099,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private void saveBookmarks() {
     try {
-      AuditManager.getActive()
-          .saveMap(usedNamespace, BOOKMARKS_AUDIT_TYPE, bookmarks);
+      AuditManager.getActive().saveMap(usedNamespace, BOOKMARKS_AUDIT_TYPE, bookmarks);
     } catch (Throwable e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.Bookmark.Error.Message", activeFileObject.toString()), e);
+      showError(
+          BaseMessages.getString(
+              PKG, "HopVfsFileDialog.Bookmark.Error.Message", activeFileObject.toString()),
+          e);
     }
   }
 
@@ -1172,7 +1202,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         navigateTo(HopVfs.getFilename(parent), true);
       }
     } catch (Throwable e) {
-      showError(BaseMessages.getString(PKG, "HopVfsFileDialog.NavigateFolderUp.Error.Message", activeFileObject.toString()), e);
+      showError(
+          BaseMessages.getString(
+              PKG, "HopVfsFileDialog.NavigateFolderUp.Error.Message", activeFileObject.toString()),
+          e);
     }
   }
 
@@ -1188,7 +1221,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             shell,
             folder,
             BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Header"),
-                BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Message", activeFolder));
+            BaseMessages.getString(PKG, "HopVfsFileDialog.CreateFolder.Message", activeFolder));
     folder = dialog.open();
     if (folder != null) {
       String newPath = activeFolder.toString();
@@ -1201,7 +1234,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         newFolder.createFolder();
         refreshBrowser();
       } catch (Throwable e) {
-        showError( BaseMessages.getString(PKG, "HopVfsFileDialog.FolderCreate.Error.Message", newPath), e);
+        showError(
+            BaseMessages.getString(PKG, "HopVfsFileDialog.FolderCreate.Error.Message", newPath), e);
       }
     }
   }
@@ -1216,9 +1250,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void renameFile() {
     FileObject file = getSelectedFileObject();
-    if (file != null) {    
+    if (file != null) {
       TreeItem item = wBrowser.getSelection()[0];
-      
+
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(wBrowser, SWT.BORDER);
       text.setText(file.getName().getBaseName());
@@ -1232,18 +1266,21 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                 // If name changed
                 if (!item.getText().equals(text.getText())) {
                   try {
-                    
+
                     // If the selected item to rename is folder, set parent for refresh
-                    if ( file.isFolder() ) {
+                    if (file.isFolder()) {
                       wFilename.setText(file.getParent().getName().getURI());
                     }
-                                        
+
                     FileObject newFile =
                         HopVfs.getFileObject(
                             HopVfs.getFilename(file.getParent()) + "/" + text.getText());
                     file.moveTo(newFile);
                   } catch (Exception e) {
-                    showError(BaseMessages.getString(PKG, "HopVfsFileDialog.RenameFile.Error.Message", file), e);
+                    showError(
+                        BaseMessages.getString(
+                            PKG, "HopVfsFileDialog.RenameFile.Error.Message", file),
+                        e);
                   } finally {
                     text.dispose();
                     refreshBrowser();
@@ -1258,7 +1295,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
       text.selectAll();
       text.setFocus();
-      wBrowserEditor.setEditor(text, item);    
+      wBrowserEditor.setEditor(text, item);
     }
   }
 
@@ -1272,11 +1309,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
     FileObject file = getSelectedFileObject();
-    if (file != null) {                 
-      try {       
+    if (file != null) {
+      try {
         MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText(
-            BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Confirmation.Header"));
+        box.setText(BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Confirmation.Header"));
         box.setMessage(
             BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Confirmation.Message")
                 + Const.CR
@@ -1284,24 +1320,26 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                 + file.getName());
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
-          
+
           // If the selected item to delete is folder, set parent for refresh
-          if ( file.isFolder() ) {
+          if (file.isFolder()) {
             wFilename.setText(file.getParent().getName().getURI());
           }
-          
+
           boolean deleted = file.delete();
           if (deleted) {
             refreshBrowser();
-            }
           }
+        }
       } catch (Exception e) {
-        showError(BaseMessages.getString(PKG, "HopVfsFileDialog.DeleteFile.Error.Message", file.toString()), e);
+        showError(
+            BaseMessages.getString(
+                PKG, "HopVfsFileDialog.DeleteFile.Error.Message", file.toString()),
+            e);
       }
-    }      
+    }
+  }
 
-  } 
-  
   @GuiToolbarElement(
       root = NAVIGATE_TOOLBAR_PARENT_ID,
       id = NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS,
@@ -1344,7 +1382,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         toolItem.setImage(GuiResource.getInstance().getImageHide());
       }
     }
-    
+
     refreshBrowser();
   }
 
@@ -1577,20 +1615,20 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   public void setSaveFilename(String saveFilename) {
     this.saveFilename = saveFilename;
   }
-  
+
   public void updateSelection() {
     FileObject file = getSelectedFileObject();
-    
-    boolean isEnabled =  false;
-    if ( file != null  ) {
+
+    boolean isEnabled = false;
+    if (file != null) {
       try {
         // Protect root can be modified
-        if ( file.getParent()!=null) isEnabled=true;
+        if (file.getParent() != null) isEnabled = true;
       } catch (FileSystemException e) {
         // Ignore
-      }      
+      }
     }
-    
+
     browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_DELETE, isEnabled);
     browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_RENAME, isEnabled);
   }

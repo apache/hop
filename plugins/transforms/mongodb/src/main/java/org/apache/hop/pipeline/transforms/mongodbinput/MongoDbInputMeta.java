@@ -175,7 +175,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         jsonValueMeta.setOrigin(origin);
         rowMeta.addValueMeta(jsonValueMeta);
       } else {
-        for (MongoField f : fields ) {
+        for (MongoField f : fields) {
           int type = ValueMetaFactory.getIdForValueMeta(f.hopType);
           IValueMeta vm = ValueMetaFactory.createValueMeta(f.fieldName, type);
           vm.setOrigin(origin);
@@ -195,7 +195,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
     StringBuilder xml = new StringBuilder(300);
 
     xml.append("    ").append(XmlHandler.addTagValue("connection", connectionName));
-    xml.append("    ").append(XmlHandler.addTagValue("fields_name", jsonField ));
+    xml.append("    ").append(XmlHandler.addTagValue("fields_name", jsonField));
     xml.append("    ").append(XmlHandler.addTagValue("collection", collection));
     xml.append("    ").append(XmlHandler.addTagValue("json_field_name", jsonFieldName));
     xml.append("    ").append(XmlHandler.addTagValue("json_query", jsonQuery));
@@ -204,10 +204,10 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
     xml.append("    ")
         .append(XmlHandler.addTagValue("execute_for_each_row", executeForEachIncomingRow));
 
-    if ( fields != null && fields.size() > 0) {
+    if (fields != null && fields.size() > 0) {
       xml.append("\n    ").append(XmlHandler.openTag("mongo_fields"));
 
-      for (MongoField f : fields ) {
+      for (MongoField f : fields) {
         xml.append("\n      ").append(XmlHandler.openTag("mongo_field"));
 
         xml.append("\n        ").append(XmlHandler.addTagValue("field_name", f.fieldName));

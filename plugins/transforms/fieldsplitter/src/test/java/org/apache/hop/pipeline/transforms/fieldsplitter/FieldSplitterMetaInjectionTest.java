@@ -32,39 +32,39 @@ public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<Fi
 
   @Before
   public void setup() throws Exception {
-    setup( new FieldSplitterMeta() );
+    setup(new FieldSplitterMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_TO_SPLIT", () -> meta.getSplitField() );
-    check( "DELIMITER", () -> meta.getDelimiter() );
-    check( "ENCLOSURE", () -> meta.getEnclosure() );
-    check( "ESCAPE_STRING", () -> meta.getEscapeString() );
-    check( "NAME", () -> meta.getFieldName()[ 0 ] );
-    check( "ID", () -> meta.getFieldID()[ 0 ] );
-    check( "REMOVE_ID", () -> meta.getFieldRemoveID()[ 0 ] );
-    check( "FORMAT", () -> meta.getFieldFormat()[ 0 ] );
-    check( "GROUPING", () -> meta.getFieldGroup()[ 0 ] );
-    check( "DECIMAL", () -> meta.getFieldDecimal()[ 0 ] );
-    check( "CURRENCY", () -> meta.getFieldCurrency()[ 0 ] );
-    check( "LENGTH", () -> meta.getFieldLength()[ 0 ] );
-    check( "PRECISION", () -> meta.getFieldPrecision()[ 0 ] );
-    check( "NULL_IF", () -> meta.getFieldNullIf()[ 0 ] );
-    check( "DEFAULT", () -> meta.getFieldIfNull()[ 0 ] );
+    check("FIELD_TO_SPLIT", () -> meta.getSplitField());
+    check("DELIMITER", () -> meta.getDelimiter());
+    check("ENCLOSURE", () -> meta.getEnclosure());
+    check("ESCAPE_STRING", () -> meta.getEscapeString());
+    check("NAME", () -> meta.getFieldName()[0]);
+    check("ID", () -> meta.getFieldID()[0]);
+    check("REMOVE_ID", () -> meta.getFieldRemoveID()[0]);
+    check("FORMAT", () -> meta.getFieldFormat()[0]);
+    check("GROUPING", () -> meta.getFieldGroup()[0]);
+    check("DECIMAL", () -> meta.getFieldDecimal()[0]);
+    check("CURRENCY", () -> meta.getFieldCurrency()[0]);
+    check("LENGTH", () -> meta.getFieldLength()[0]);
+    check("PRECISION", () -> meta.getFieldPrecision()[0]);
+    check("NULL_IF", () -> meta.getFieldNullIf()[0]);
+    check("DEFAULT", () -> meta.getFieldIfNull()[0]);
 
-    IValueMeta mftt = new ValueMetaString( "f" );
-    injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "none" ), "f" );
-    assertEquals( 0, meta.getFieldTrimType()[ 0 ] );
-    injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "left" ), "f" );
-    assertEquals( 1, meta.getFieldTrimType()[ 0 ] );
-    injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "right" ), "f" );
-    assertEquals( 2, meta.getFieldTrimType()[ 0 ] );
-    injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "both" ), "f" );
-    assertEquals( 3, meta.getFieldTrimType()[ 0 ] );
-    skipPropertyTest( "TRIM_TYPE" );
+    IValueMeta mftt = new ValueMetaString("f");
+    injector.setProperty(meta, "TRIM_TYPE", setValue(mftt, "none"), "f");
+    assertEquals(0, meta.getFieldTrimType()[0]);
+    injector.setProperty(meta, "TRIM_TYPE", setValue(mftt, "left"), "f");
+    assertEquals(1, meta.getFieldTrimType()[0]);
+    injector.setProperty(meta, "TRIM_TYPE", setValue(mftt, "right"), "f");
+    assertEquals(2, meta.getFieldTrimType()[0]);
+    injector.setProperty(meta, "TRIM_TYPE", setValue(mftt, "both"), "f");
+    assertEquals(3, meta.getFieldTrimType()[0]);
+    skipPropertyTest("TRIM_TYPE");
 
     // TODO check field type plugins
-    skipPropertyTest( "DATA_TYPE" );
+    skipPropertyTest("DATA_TYPE");
   }
 }

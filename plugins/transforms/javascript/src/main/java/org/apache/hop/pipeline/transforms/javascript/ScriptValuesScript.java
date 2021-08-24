@@ -29,19 +29,18 @@ public class ScriptValuesScript {
   private int iScriptType;
   private boolean bScriptActive;
 
-  @Injection( name = "SCRIPT_NAME", group = "SCRIPTS" )
+  @Injection(name = "SCRIPT_NAME", group = "SCRIPTS")
   private String sScriptName;
 
-  @Injection( name = "SCRIPT", group = "SCRIPTS" )
+  @Injection(name = "SCRIPT", group = "SCRIPTS")
   private String sScript;
 
-  public ScriptValuesScript() {
-  }
+  public ScriptValuesScript() {}
 
   // private Date dModDate;
   // private Date dFirstDate;
 
-  public ScriptValuesScript( int iScriptType, String sScriptName, String sScript ) {
+  public ScriptValuesScript(int iScriptType, String sScriptName, String sScript) {
     super();
     this.iScriptType = iScriptType;
     this.sScriptName = sScriptName;
@@ -55,7 +54,7 @@ public class ScriptValuesScript {
     return iScriptType;
   }
 
-  public void setScriptType( int iScriptType ) {
+  public void setScriptType(int iScriptType) {
     this.iScriptType = iScriptType;
   }
 
@@ -63,7 +62,7 @@ public class ScriptValuesScript {
     return this.sScript;
   }
 
-  public void setScript( String sScript ) {
+  public void setScript(String sScript) {
     this.sScript = sScript;
   }
 
@@ -71,12 +70,12 @@ public class ScriptValuesScript {
     return sScriptName;
   }
 
-  public void setScriptName( String sScriptName ) {
+  public void setScriptName(String sScriptName) {
     this.sScriptName = sScriptName;
   }
 
   public boolean isTransformScript() {
-    if ( this.bScriptActive && this.iScriptType == TRANSFORM_SCRIPT ) {
+    if (this.bScriptActive && this.iScriptType == TRANSFORM_SCRIPT) {
       return true;
     } else {
       return false;
@@ -84,7 +83,7 @@ public class ScriptValuesScript {
   }
 
   public boolean isStartScript() {
-    if ( this.bScriptActive && this.iScriptType == START_SCRIPT ) {
+    if (this.bScriptActive && this.iScriptType == START_SCRIPT) {
       return true;
     } else {
       return false;
@@ -92,7 +91,7 @@ public class ScriptValuesScript {
   }
 
   public boolean isEndScript() {
-    if ( this.bScriptActive && this.iScriptType == END_SCRIPT ) {
+    if (this.bScriptActive && this.iScriptType == END_SCRIPT) {
       return true;
     } else {
       return false;
@@ -104,7 +103,6 @@ public class ScriptValuesScript {
   }
 
   public String toString() {
-    return String.format( "ScriptValuesScript: (%d, %s, %s)", iScriptType, sScriptName, sScript );
+    return String.format("ScriptValuesScript: (%d, %s, %s)", iScriptType, sScriptName, sScript);
   }
-
 }

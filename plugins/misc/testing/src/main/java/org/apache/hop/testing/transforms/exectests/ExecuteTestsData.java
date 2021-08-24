@@ -32,7 +32,5 @@ public class ExecuteTestsData extends BaseTransformData implements ITransformDat
   public IRowMeta outputRowMeta;
   public boolean hasPrevious;
 
-  public ExecuteTestsData() {
-  }
-
+  public ExecuteTestsData() {}
 }

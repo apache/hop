@@ -60,8 +60,8 @@ public class GreenplumValueMetaBaseTest {
     private List<HopLoggingEvent> events = new ArrayList<>();
 
     @Override
-    public void eventAdded( HopLoggingEvent event ) {
-      events.add( event );
+    public void eventAdded(HopLoggingEvent event) {
+      events.add(event);
     }
 
     public List<HopLoggingEvent> getEvents() {
@@ -71,9 +71,8 @@ public class GreenplumValueMetaBaseTest {
 
   private StoreLoggingEventListener listener;
 
-  @Spy
-  private DatabaseMeta databaseMetaSpy = spy( new DatabaseMeta() );
-  private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
+  @Spy private DatabaseMeta databaseMetaSpy = spy(new DatabaseMeta());
+  private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private ValueMetaBase valueMetaBase;
@@ -81,68 +80,68 @@ public class GreenplumValueMetaBaseTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.addPluginType( DatabasePluginType.getInstance() );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
-    DatabasePluginType.getInstance().registerClassPathPlugin( GreenplumDatabaseMeta.class );
+    DatabasePluginType.getInstance().registerClassPathPlugin(GreenplumDatabaseMeta.class);
   }
 
   @Before
   public void setUp() {
     listener = new StoreLoggingEventListener();
-    HopLogStore.getAppender().addLoggingEventListener( listener );
+    HopLogStore.getAppender().addLoggingEventListener(listener);
 
     valueMetaBase = new ValueMetaBase();
-    dbMeta = spy( new DatabaseMeta() );
-    resultSet = mock( ResultSet.class );
-    variables = spy(new Variables() );
+    dbMeta = spy(new DatabaseMeta());
+    resultSet = mock(ResultSet.class);
+    variables = spy(new Variables());
   }
 
   @After
   public void tearDown() {
-    HopLogStore.getAppender().removeLoggingEventListener( listener );
+    HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }
 
   @Ignore
   @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 0 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
-    assertTrue( valueMeta.isBigNumber() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( -1, valueMeta.getLength() );
+  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum()
+      throws SQLException, HopDatabaseException {
+    doReturn(Types.NUMERIC).when(resultSet).getInt("DATA_TYPE");
+    doReturn(0).when(resultSet).getInt("COLUMN_SIZE");
+    doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
+    doReturn(0).when(resultSet).getInt("DECIMAL_DIGITS");
+    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
+    assertTrue(valueMeta.isBigNumber());
+    assertEquals(-1, valueMeta.getPrecision());
+    assertEquals(-1, valueMeta.getLength());
   }
-
-
 
   @Test
   public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
+    doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
+    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
+    assertTrue(valueMeta.isBinary());
   }
 
   @Test
   public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables , dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
-    assertTrue( valueMeta.isBinary() );
+    doReturn(Types.BLOB).when(resultSet).getInt("DATA_TYPE");
+    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
+    assertTrue(valueMeta.isBinary());
+    assertTrue(valueMeta.isBinary());
   }
 
   @Test
-  public void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
+  public void testMetdataPreviewSqlVarBinaryToHopBinary()
+      throws SQLException, HopDatabaseException {
+    doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
+    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
+    assertTrue(valueMeta.isBinary());
   }
 }

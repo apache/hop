@@ -33,7 +33,7 @@
     </fileSets>
     <files>
         <file>
-            <source> ${project.build.directory}/generated-docs/index.html</source>
+            <source>${project.build.directory}/generated-docs/index.html</source>
             <outputDirectory>/pages/</outputDirectory>
         </file>
     </files>

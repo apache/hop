@@ -17,7 +17,6 @@
 
 package org.apache.hop.core.logging;
 
-
 import org.apache.hop.core.metrics.IMetricsSnapshot;
 
 import java.util.Map;
@@ -26,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * This singleton will capture all the metrics coming from the various log channels based on the log channel ID.
+ * This singleton will capture all the metrics coming from the various log channels based on the log
+ * channel ID.
  *
  * @author matt
  */
@@ -45,22 +45,22 @@ public class MetricsRegistry {
     snapshotLists = new ConcurrentHashMap<>();
   }
 
-  public void addSnapshot( ILogChannel logChannel, IMetricsSnapshot snapshot ) {
+  public void addSnapshot(ILogChannel logChannel, IMetricsSnapshot snapshot) {
     IMetrics metric = snapshot.getMetric();
     String channelId = logChannel.getLogChannelId();
-    switch ( metric.getType() ) {
+    switch (metric.getType()) {
       case START:
       case STOP:
-        Queue<IMetricsSnapshot> list = getSnapshotList( channelId );
-        list.add( snapshot );
+        Queue<IMetricsSnapshot> list = getSnapshotList(channelId);
+        list.add(snapshot);
 
         break;
       case MIN:
       case MAX:
       case SUM:
       case COUNT:
-        Map<String, IMetricsSnapshot> map = getSnapshotMap( channelId );
-        map.put( snapshot.getKey(), snapshot );
+        Map<String, IMetricsSnapshot> map = getSnapshotMap(channelId);
+        map.put(snapshot.getKey(), snapshot);
 
         break;
       default:
@@ -77,32 +77,33 @@ public class MetricsRegistry {
   }
 
   /**
-   * Get the snapshot list for the given log channel ID. If no list is available, one is created (and stored).
+   * Get the snapshot list for the given log channel ID. If no list is available, one is created
+   * (and stored).
    *
    * @param logChannelId The log channel to use.
    * @return an existing or a new metrics snapshot list.
    */
-  public Queue<IMetricsSnapshot> getSnapshotList( String logChannelId ) {
-    Queue<IMetricsSnapshot> list = snapshotLists.get( logChannelId );
-    if ( list == null ) {
+  public Queue<IMetricsSnapshot> getSnapshotList(String logChannelId) {
+    Queue<IMetricsSnapshot> list = snapshotLists.get(logChannelId);
+    if (list == null) {
       list = new ConcurrentLinkedQueue<>();
-      snapshotLists.put( logChannelId, list );
+      snapshotLists.put(logChannelId, list);
     }
     return list;
-
   }
 
   /**
-   * Get the snapshot map for the given log channel ID. If no map is available, one is created (and stored).
+   * Get the snapshot map for the given log channel ID. If no map is available, one is created (and
+   * stored).
    *
    * @param logChannelId The log channel to use.
    * @return an existing or a new metrics snapshot map.
    */
-  public Map<String, IMetricsSnapshot> getSnapshotMap( String logChannelId ) {
-    Map<String, IMetricsSnapshot> map = snapshotMaps.get( logChannelId );
-    if ( map == null ) {
+  public Map<String, IMetricsSnapshot> getSnapshotMap(String logChannelId) {
+    Map<String, IMetricsSnapshot> map = snapshotMaps.get(logChannelId);
+    if (map == null) {
       map = new ConcurrentHashMap<>();
-      snapshotMaps.put( logChannelId, map );
+      snapshotMaps.put(logChannelId, map);
     }
     return map;
   }

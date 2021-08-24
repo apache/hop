@@ -29,25 +29,25 @@ public class LogChannelFileWriterBuffer {
 
   private String logChannelId;
 
-  private final List<HopLoggingEvent> buffer = Collections.synchronizedList( new LinkedList<>() );
+  private final List<HopLoggingEvent> buffer = Collections.synchronizedList(new LinkedList<>());
 
-  public LogChannelFileWriterBuffer( String logChannelId ) {
+  public LogChannelFileWriterBuffer(String logChannelId) {
     this.logChannelId = logChannelId;
-    layout = new HopLogLayout( true );
+    layout = new HopLogLayout(true);
   }
 
-  public void addEvent( HopLoggingEvent event ) {
-    synchronized ( buffer ) {
-      buffer.add( event );
+  public void addEvent(HopLoggingEvent event) {
+    synchronized (buffer) {
+      buffer.add(event);
     }
   }
 
   public StringBuffer getBuffer() {
-    StringBuffer stringBuffer = new StringBuffer( 1000 );
+    StringBuffer stringBuffer = new StringBuffer(1000);
 
-    synchronized ( buffer ) {
-      for ( HopLoggingEvent event : buffer ) {
-        stringBuffer.append( layout.format( event ) ).append( Const.CR );
+    synchronized (buffer) {
+      for (HopLoggingEvent event : buffer) {
+        stringBuffer.append(layout.format(event)).append(Const.CR);
       }
 
       buffer.clear();

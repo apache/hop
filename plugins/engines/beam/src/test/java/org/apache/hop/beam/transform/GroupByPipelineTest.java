@@ -17,25 +17,22 @@
 
 package org.apache.hop.beam.transform;
 
-import org.junit.Test;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.junit.Test;
 
 public class GroupByPipelineTest extends PipelineTestBase {
 
   @Test
   public void testGroupByPipeline() throws Exception {
 
-    PipelineMeta pipelineMeta = BeamPipelineMetaUtil.generateBeamGroupByPipelineMeta(
-      "io-group-output",
-      "INPUT",
-      "OUTPUT",
-      metadataProvider
-    );
+    PipelineMeta pipelineMeta =
+        BeamPipelineMetaUtil.generateBeamGroupByPipelineMeta(
+            "io-group-output", "INPUT", "OUTPUT", metadataProvider);
 
     try {
-      createRunPipeline( variables, pipelineMeta );
-    } catch(Exception e) {
+      createRunPipeline(variables, pipelineMeta);
+    } catch (Exception e) {
       e.printStackTrace();
       throw e;
     }

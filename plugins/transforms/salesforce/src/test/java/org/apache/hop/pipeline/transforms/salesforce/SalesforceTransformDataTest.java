@@ -26,6 +26,6 @@ public class SalesforceTransformDataTest {
   @Test
   public void testConstructor() {
     SalesforceTransformData data = new SalesforceTransformData();
-    assertNull( data.connection );
+    assertNull(data.connection);
   }
 }

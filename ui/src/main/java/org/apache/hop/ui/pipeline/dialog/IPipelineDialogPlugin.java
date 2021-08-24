@@ -24,11 +24,11 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Shell;
 
 public interface IPipelineDialogPlugin {
-  void addTab( PipelineMeta pipelineMeta, Shell shell, CTabFolder tabFolder );
+  void addTab(PipelineMeta pipelineMeta, Shell shell, CTabFolder tabFolder);
 
-  void getData( PipelineMeta pipelineMeta ) throws HopException;
+  void getData(PipelineMeta pipelineMeta) throws HopException;
 
-  void ok( PipelineMeta pipelineMeta ) throws HopException;
+  void ok(PipelineMeta pipelineMeta) throws HopException;
 
   CTabItem getTab();
 }

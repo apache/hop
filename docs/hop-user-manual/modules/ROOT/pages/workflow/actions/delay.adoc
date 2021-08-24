@@ -25,10 +25,10 @@ This workflow action creates a delay between workflows.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
 |Wait for|The delay to wait
-|Unit time|Specify the unit time (second, minute and hour) 
+|Unit time|Specify the unit time (second, minute and hour)
 |===

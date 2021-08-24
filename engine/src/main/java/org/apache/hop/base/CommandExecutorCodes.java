@@ -22,29 +22,29 @@ import java.util.Arrays;
 public class CommandExecutorCodes {
 
   public enum Pan {
-
-    SUCCESS( 0, "The pipeline ran without a problem" ),
-    ERRORS_DURING_PROCESSING( 1, "Errors occurred during processing" ),
-    UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading / running of the pipeline" ),
-    UNABLE_TO_PREP_INIT_PIPELINE( 3, "Unable to prepare and initialize this pipeline" ),
-    HOP_VERSION_PRINT( 6, "Hop Version printing" ),
-    COULD_NOT_LOAD_PIPELINE( 7, "The pipeline couldn't be de-serialized" ),
-    ERROR_LOADING_TRANSFORMS_PLUGINS( 8, "Error loading transforms or plugins (error in loading one of the plugins mostly)" ),
-    CMD_LINE_PRINT( 9, "Command line usage printing" );
+    SUCCESS(0, "The pipeline ran without a problem"),
+    ERRORS_DURING_PROCESSING(1, "Errors occurred during processing"),
+    UNEXPECTED_ERROR(2, "An unexpected error occurred during loading / running of the pipeline"),
+    UNABLE_TO_PREP_INIT_PIPELINE(3, "Unable to prepare and initialize this pipeline"),
+    HOP_VERSION_PRINT(6, "Hop Version printing"),
+    COULD_NOT_LOAD_PIPELINE(7, "The pipeline couldn't be de-serialized"),
+    ERROR_LOADING_TRANSFORMS_PLUGINS(
+        8, "Error loading transforms or plugins (error in loading one of the plugins mostly)"),
+    CMD_LINE_PRINT(9, "Command line usage printing");
 
     private int code;
     private String description;
 
-    Pan( int code, String description ) {
-      setCode( code );
-      setDescription( description );
+    Pan(int code, String description) {
+      setCode(code);
+      setDescription(description);
     }
 
     public int getCode() {
       return code;
     }
 
-    public void setCode( int code ) {
+    public void setCode(int code) {
       this.code = code;
     }
 
@@ -52,47 +52,48 @@ public class CommandExecutorCodes {
       return description;
     }
 
-    public void setDescription( String description ) {
+    public void setDescription(String description) {
       this.description = description;
     }
 
-    public static Pan getByCode( final int code ) {
-      return Arrays.asList( Pan.values() ).stream()
-        .filter( pan -> pan.getCode() == code )
-        .findAny().orElse( null );
+    public static Pan getByCode(final int code) {
+      return Arrays.asList(Pan.values()).stream()
+          .filter(pan -> pan.getCode() == code)
+          .findAny()
+          .orElse(null);
     }
 
-    public static boolean isFailedExecution( final int code ) {
+    public static boolean isFailedExecution(final int code) {
       return Pan.UNEXPECTED_ERROR.getCode() == code
-        || Pan.UNABLE_TO_PREP_INIT_PIPELINE.getCode() == code
-        || Pan.COULD_NOT_LOAD_PIPELINE.getCode() == code
-        || Pan.ERROR_LOADING_TRANSFORMS_PLUGINS.getCode() == code;
+          || Pan.UNABLE_TO_PREP_INIT_PIPELINE.getCode() == code
+          || Pan.COULD_NOT_LOAD_PIPELINE.getCode() == code
+          || Pan.ERROR_LOADING_TRANSFORMS_PLUGINS.getCode() == code;
     }
   }
 
   public enum Kitchen {
-
-    SUCCESS( 0, "The workflow ran without a problem" ),
-    ERRORS_DURING_PROCESSING( 1, "Errors occurred during processing" ),
-    UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading or running of the workflow" ),
-    HOP_VERSION_PRINT( 6, "Hop Version printing" ),
-    COULD_NOT_LOAD_JOB( 7, "The workflow couldn't be de-serialized" ),
-    ERROR_LOADING_TRANSFORMS_PLUGINS( 8, "Error loading transforms or plugins (error in loading one of the plugins mostly)" ),
-    CMD_LINE_PRINT( 9, "Command line usage printing" );
+    SUCCESS(0, "The workflow ran without a problem"),
+    ERRORS_DURING_PROCESSING(1, "Errors occurred during processing"),
+    UNEXPECTED_ERROR(2, "An unexpected error occurred during loading or running of the workflow"),
+    HOP_VERSION_PRINT(6, "Hop Version printing"),
+    COULD_NOT_LOAD_JOB(7, "The workflow couldn't be de-serialized"),
+    ERROR_LOADING_TRANSFORMS_PLUGINS(
+        8, "Error loading transforms or plugins (error in loading one of the plugins mostly)"),
+    CMD_LINE_PRINT(9, "Command line usage printing");
 
     private int code;
     private String description;
 
-    Kitchen( int code, String description ) {
-      setCode( code );
-      setDescription( description );
+    Kitchen(int code, String description) {
+      setCode(code);
+      setDescription(description);
     }
 
     public int getCode() {
       return code;
     }
 
-    public void setCode( int code ) {
+    public void setCode(int code) {
       this.code = code;
     }
 
@@ -100,20 +101,21 @@ public class CommandExecutorCodes {
       return description;
     }
 
-    public void setDescription( String description ) {
+    public void setDescription(String description) {
       this.description = description;
     }
 
-    public static Kitchen getByCode( final int code ) {
-      return Arrays.asList( Kitchen.values() ).stream()
-        .filter( kitchen -> kitchen.getCode() == code )
-        .findAny().orElse( null );
+    public static Kitchen getByCode(final int code) {
+      return Arrays.asList(Kitchen.values()).stream()
+          .filter(kitchen -> kitchen.getCode() == code)
+          .findAny()
+          .orElse(null);
     }
 
-    public static boolean isFailedExecution( final int code ) {
+    public static boolean isFailedExecution(final int code) {
       return Kitchen.UNEXPECTED_ERROR.getCode() == code
-        || Kitchen.COULD_NOT_LOAD_JOB.getCode() == code
-        || Kitchen.ERROR_LOADING_TRANSFORMS_PLUGINS.getCode() == code;
+          || Kitchen.COULD_NOT_LOAD_JOB.getCode() == code
+          || Kitchen.ERROR_LOADING_TRANSFORMS_PLUGINS.getCode() == code;
     }
   }
 }

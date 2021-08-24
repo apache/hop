@@ -31,5 +31,4 @@ public class RowsFromResultData extends BaseTransformData implements ITransformD
   public RowsFromResultData() {
     super();
   }
-
 }

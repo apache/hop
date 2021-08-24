@@ -45,74 +45,74 @@ public class SalesforceMetaTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
-    PluginRegistry.init( true );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init(true);
     String passwordEncoderPluginID =
-      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   public static List<String> getDefaultAttributes() {
-    return Arrays.asList( "targetUrl", "username", "password", "timeout", "compression", "module" );
+    return Arrays.asList("targetUrl", "username", "password", "timeout", "compression", "module");
   }
 
-  @SuppressWarnings( "deprecation" )
+  @SuppressWarnings("deprecation")
   @Test
   public void testBaseCheck() {
-    SalesforceTransformMeta meta = mock( SalesforceTransformMeta.class, Mockito.CALLS_REAL_METHODS );
+    SalesforceTransformMeta meta = mock(SalesforceTransformMeta.class, Mockito.CALLS_REAL_METHODS);
     meta.setDefault();
     List<ICheckResult> remarks = new ArrayList<>();
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     boolean hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertTrue( hasError );
+    assertFalse(remarks.isEmpty());
+    assertTrue(hasError);
     remarks.clear();
 
     meta.setDefault();
-    meta.setUsername( "anonymous" );
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.setUsername("anonymous");
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertFalse( hasError );
+    assertFalse(remarks.isEmpty());
+    assertFalse(hasError);
     remarks.clear();
 
     meta.setDefault();
-    meta.setTargetUrl( null );
-    meta.setUserName( "anonymous" );
-    meta.setPassword( "password" );
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.setTargetUrl(null);
+    meta.setUserName("anonymous");
+    meta.setPassword("password");
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertTrue( hasError );
+    assertFalse(remarks.isEmpty());
+    assertTrue(hasError);
     remarks.clear();
 
     meta.setDefault();
-    meta.setUsername( "anonymous" );
-    meta.setModule( null );
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.setUsername("anonymous");
+    meta.setModule(null);
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertTrue( hasError );
+    assertFalse(remarks.isEmpty());
+    assertTrue(hasError);
   }
 }

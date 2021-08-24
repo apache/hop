@@ -20,34 +20,34 @@ package org.apache.hop.testing;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
- * This class simply replaces all occurrences of a certain database connection with another one.
- * It allows developers to point to a test database for lookup data and database related transforms like
- * database lookup, dimension lookup and so on.
+ * This class simply replaces all occurrences of a certain database connection with another one. It
+ * allows developers to point to a test database for lookup data and database related transforms
+ * like database lookup, dimension lookup and so on.
  *
  * @author matt
  */
 public class PipelineUnitTestDatabaseReplacement {
 
-  @HopMetadataProperty( key = "original_connection" )
+  @HopMetadataProperty(key = "original_connection")
   private String originalDatabaseName;
 
-  @HopMetadataProperty( key = "replacement_connection" )
+  @HopMetadataProperty(key = "replacement_connection")
   private String replacementDatabaseName;
 
-  public PipelineUnitTestDatabaseReplacement( String originalDatabaseName, String replacementDatabaseName ) {
+  public PipelineUnitTestDatabaseReplacement(
+      String originalDatabaseName, String replacementDatabaseName) {
     this();
     this.originalDatabaseName = originalDatabaseName;
     this.replacementDatabaseName = replacementDatabaseName;
   }
 
-  public PipelineUnitTestDatabaseReplacement() {
-  }
+  public PipelineUnitTestDatabaseReplacement() {}
 
   public String getOriginalDatabaseName() {
     return originalDatabaseName;
   }
 
-  public void setOriginalDatabaseName( String originalDatabaseName ) {
+  public void setOriginalDatabaseName(String originalDatabaseName) {
     this.originalDatabaseName = originalDatabaseName;
   }
 
@@ -55,7 +55,7 @@ public class PipelineUnitTestDatabaseReplacement {
     return replacementDatabaseName;
   }
 
-  public void setReplacementDatabaseName( String replacementDatabaseName ) {
+  public void setReplacementDatabaseName(String replacementDatabaseName) {
     this.replacementDatabaseName = replacementDatabaseName;
   }
 }

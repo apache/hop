@@ -22,11 +22,11 @@ import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 import java.lang.reflect.Type;
 
 public interface IFieldLoadSaveValidatorFactory {
-  <T> IFieldLoadSaveValidator<T> createValidator( IGetter<T> getterMethod );
+  <T> IFieldLoadSaveValidator<T> createValidator(IGetter<T> getterMethod);
 
-  void registerValidator( String typeString, IFieldLoadSaveValidator<?> validator );
+  void registerValidator(String typeString, IFieldLoadSaveValidator<?> validator);
 
-  String getName( Class<?> type, Class<?>... parameters );
+  String getName(Class<?> type, Class<?>... parameters);
 
-  String getName( Type type );
+  String getName(Type type);
 }

@@ -25,40 +25,43 @@ import org.apache.hop.core.ICheckResultSource;
 
 import java.util.List;
 
-/**
- * Fails if a field's value is not an integer.
- */
+/** Fails if a field's value is not an integer. */
 public class IntegerValidator implements IActionValidator {
 
   public static final IntegerValidator INSTANCE = new IntegerValidator();
 
   private String VALIDATOR_NAME = "integer";
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
 
     Object result = null;
     String value = null;
 
-    value = ValidatorUtils.getValueAsString( source, propertyName );
+    value = ValidatorUtils.getValueAsString(source, propertyName);
 
-    if ( GenericValidator.isBlankOrNull( value ) ) {
+    if (GenericValidator.isBlankOrNull(value)) {
       return true;
     }
 
-    result = GenericTypeValidator.formatInt( value );
+    result = GenericTypeValidator.formatInt(value);
 
-    if ( result == null ) {
-      ActionValidatorUtils.addFailureRemark( source, propertyName, VALIDATOR_NAME, remarks,
-        ActionValidatorUtils.getLevelOnFail( context, VALIDATOR_NAME ) );
+    if (result == null) {
+      ActionValidatorUtils.addFailureRemark(
+          source,
+          propertyName,
+          VALIDATOR_NAME,
+          remarks,
+          ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
       return false;
     }
     return true;
-
   }
 
   public String getName() {
     return VALIDATOR_NAME;
   }
-
 }

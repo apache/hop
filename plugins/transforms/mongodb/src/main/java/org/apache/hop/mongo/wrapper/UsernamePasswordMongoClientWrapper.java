@@ -30,8 +30,7 @@ import java.util.List;
  * Implementation of MongoClientWrapper which uses no credentials. Should only be instantiated by
  * MongoClientWrapperFactory.
  */
-class UsernamePasswordMongoClientWrapper
-    extends NoAuthMongoClientWrapper {
+class UsernamePasswordMongoClientWrapper extends NoAuthMongoClientWrapper {
   private final String user;
 
   /**

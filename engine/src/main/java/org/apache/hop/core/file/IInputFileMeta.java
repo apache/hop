@@ -18,15 +18,14 @@
 package org.apache.hop.core.file;
 
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
-/**
- * @deprecated replaced by implementation in the ...transforms.fileinput.text package
- */
+/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
 @Deprecated
-public interface IInputFileMeta<Main extends ITransform, Data extends ITransformData> extends ITransformMeta<Main, Data> {
+public interface IInputFileMeta<Main extends ITransform, Data extends ITransformData>
+    extends ITransformMeta<Main, Data> {
 
   TextFileInputField[] getInputFields();
 
@@ -36,7 +35,7 @@ public interface IInputFileMeta<Main extends ITransform, Data extends ITransform
 
   int getNrHeaderLines();
 
-  String[] getFilePaths( IVariables variables );
+  String[] getFilePaths(IVariables variables);
 
   boolean isErrorIgnored();
 

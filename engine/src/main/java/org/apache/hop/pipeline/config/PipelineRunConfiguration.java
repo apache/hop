@@ -29,43 +29,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 @HopMetadata(
-  key = "pipeline-run-configuration",
-  name = "Pipeline Run Configuration",
-  description = "Describes how and with which engine a pipeline is to be executed",
-  image = "ui/images/pipeline_run_config.svg",
-  documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-run-config.html"
-)
+    key = "pipeline-run-configuration",
+    name = "Pipeline Run Configuration",
+    description = "Describes how and with which engine a pipeline is to be executed",
+    image = "ui/images/pipeline_run_config.svg",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/pipeline-run-config.html")
 public class PipelineRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
-  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PipelineRunConfiguration-PluginSpecific-Options";
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =
+      "PipelineRunConfiguration-PluginSpecific-Options";
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  @HopMetadataProperty
-  private List<VariableValueDescription> configurationVariables;
+  @HopMetadataProperty private List<VariableValueDescription> configurationVariables;
 
-  @HopMetadataProperty
-  private IPipelineEngineRunConfiguration engineRunConfiguration;
+  @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
 
   public PipelineRunConfiguration() {
     configurationVariables = new ArrayList<>();
   }
 
-  public PipelineRunConfiguration( String name, String description, List<VariableValueDescription> configurationVariables,
-                                   IPipelineEngineRunConfiguration engineRunConfiguration ) {
+  public PipelineRunConfiguration(
+      String name,
+      String description,
+      List<VariableValueDescription> configurationVariables,
+      IPipelineEngineRunConfiguration engineRunConfiguration) {
     this.name = name;
     this.description = description;
     this.configurationVariables = configurationVariables;
     this.engineRunConfiguration = engineRunConfiguration;
   }
 
-  public PipelineRunConfiguration( PipelineRunConfiguration runConfiguration ) {
+  public PipelineRunConfiguration(PipelineRunConfiguration runConfiguration) {
     this();
     this.name = runConfiguration.name;
     this.description = runConfiguration.description;
-    this.configurationVariables.addAll( runConfiguration.getConfigurationVariables() );
-    if ( runConfiguration.getEngineRunConfiguration() != null ) {
+    this.configurationVariables.addAll(runConfiguration.getConfigurationVariables());
+    if (runConfiguration.getEngineRunConfiguration() != null) {
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();
     }
   }
@@ -79,10 +80,8 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -95,10 +94,8 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     return configurationVariables;
   }
 
-  /**
-   * @param configurationVariables The configurationVariables to set
-   */
-  public void setConfigurationVariables( List<VariableValueDescription> configurationVariables ) {
+  /** @param configurationVariables The configurationVariables to set */
+  public void setConfigurationVariables(List<VariableValueDescription> configurationVariables) {
     this.configurationVariables = configurationVariables;
   }
 
@@ -111,17 +108,15 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     return engineRunConfiguration;
   }
 
-  /**
-   * @param engineRunConfiguration The engineRunConfiguration to set
-   */
-  public void setEngineRunConfiguration( IPipelineEngineRunConfiguration engineRunConfiguration ) {
+  /** @param engineRunConfiguration The engineRunConfiguration to set */
+  public void setEngineRunConfiguration(IPipelineEngineRunConfiguration engineRunConfiguration) {
     this.engineRunConfiguration = engineRunConfiguration;
   }
 
-  public void applyToVariables( IVariables variables ) {
-    for ( VariableValueDescription vvd : configurationVariables ) {
-      if ( StringUtils.isNotEmpty( vvd.getName() ) ) {
-        variables.setVariable( vvd.getName(), variables.resolve( vvd.getValue() ) );
+  public void applyToVariables(IVariables variables) {
+    for (VariableValueDescription vvd : configurationVariables) {
+      if (StringUtils.isNotEmpty(vvd.getName())) {
+        variables.setVariable(vvd.getName(), variables.resolve(vvd.getValue()));
       }
     }
   }

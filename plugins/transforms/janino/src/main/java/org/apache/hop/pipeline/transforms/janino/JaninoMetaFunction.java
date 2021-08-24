@@ -44,8 +44,7 @@ public class JaninoMetaFunction implements Cloneable {
   @Injection(name = "REPLACE_FIELD", group = "FORMULA")
   private String replaceField;
 
-  public JaninoMetaFunction() {
-  }
+  public JaninoMetaFunction() {}
 
   /**
    * @param fieldName
@@ -54,8 +53,13 @@ public class JaninoMetaFunction implements Cloneable {
    * @param valueLength
    * @param valuePrecision
    */
-  public JaninoMetaFunction( String fieldName, String formula, int valueType, int valueLength, int valuePrecision,
-                             String replaceField ) {
+  public JaninoMetaFunction(
+      String fieldName,
+      String formula,
+      int valueType,
+      int valueLength,
+      int valuePrecision,
+      String replaceField) {
     this.fieldName = fieldName;
     this.formula = formula;
     this.valueType = valueType;
@@ -64,10 +68,10 @@ public class JaninoMetaFunction implements Cloneable {
     this.replaceField = replaceField;
   }
 
-  public boolean equals( Object obj ) {
-    if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
+  public boolean equals(Object obj) {
+    if (obj != null && (obj.getClass().equals(this.getClass()))) {
       JaninoMetaFunction mf = (JaninoMetaFunction) obj;
-      return ( getXml().equals( mf.getXml() ) );
+      return (getXml().equals(mf.getXml()));
     }
 
     return false;
@@ -75,14 +79,14 @@ public class JaninoMetaFunction implements Cloneable {
 
   @Override
   public int hashCode() {
-    return Objects.hash( fieldName, formula, valueType, valueLength, valuePrecision, replaceField );
+    return Objects.hash(fieldName, formula, valueType, valueLength, valuePrecision, replaceField);
   }
 
   public Object clone() {
     try {
       JaninoMetaFunction retval = (JaninoMetaFunction) super.clone();
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -90,116 +94,91 @@ public class JaninoMetaFunction implements Cloneable {
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XmlHandler.openTag( XML_TAG ) );
+    xml.append(XmlHandler.openTag(XML_TAG));
 
-    xml.append( XmlHandler.addTagValue( "field_name", fieldName ) );
-    xml.append( XmlHandler.addTagValue( "formula_string", formula ) );
-    xml.append( XmlHandler.addTagValue( "value_type", ValueMetaFactory.getValueMetaName( valueType ) ) );
-    xml.append( XmlHandler.addTagValue( "value_length", valueLength ) );
-    xml.append( XmlHandler.addTagValue( "value_precision", valuePrecision ) );
-    xml.append( XmlHandler.addTagValue( "replace_field", replaceField ) );
+    xml.append(XmlHandler.addTagValue("field_name", fieldName));
+    xml.append(XmlHandler.addTagValue("formula_string", formula));
+    xml.append(XmlHandler.addTagValue("value_type", ValueMetaFactory.getValueMetaName(valueType)));
+    xml.append(XmlHandler.addTagValue("value_length", valueLength));
+    xml.append(XmlHandler.addTagValue("value_precision", valuePrecision));
+    xml.append(XmlHandler.addTagValue("replace_field", replaceField));
 
-    xml.append( XmlHandler.closeTag( XML_TAG ) );
+    xml.append(XmlHandler.closeTag(XML_TAG));
 
     return xml.toString();
   }
 
-  public JaninoMetaFunction( Node calcnode ) {
-    fieldName = XmlHandler.getTagValue( calcnode, "field_name" );
-    formula = XmlHandler.getTagValue( calcnode, "formula_string" );
-    valueType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( calcnode, "value_type" ) );
-    valueLength = Const.toInt( XmlHandler.getTagValue( calcnode, "value_length" ), -1 );
-    valuePrecision = Const.toInt( XmlHandler.getTagValue( calcnode, "value_precision" ), -1 );
-    replaceField = XmlHandler.getTagValue( calcnode, "replace_field" );
+  public JaninoMetaFunction(Node calcnode) {
+    fieldName = XmlHandler.getTagValue(calcnode, "field_name");
+    formula = XmlHandler.getTagValue(calcnode, "formula_string");
+    valueType = ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(calcnode, "value_type"));
+    valueLength = Const.toInt(XmlHandler.getTagValue(calcnode, "value_length"), -1);
+    valuePrecision = Const.toInt(XmlHandler.getTagValue(calcnode, "value_precision"), -1);
+    replaceField = XmlHandler.getTagValue(calcnode, "replace_field");
   }
 
-  /**
-   * @return Returns the fieldName.
-   */
+  /** @return Returns the fieldName. */
   public String getFieldName() {
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName The fieldName to set. */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
-  /**
-   * @return Returns the valueLength.
-   */
+  /** @return Returns the valueLength. */
   public int getValueLength() {
     return valueLength;
   }
 
-  /**
-   * @param valueLength The valueLength to set.
-   */
-  public void setValueLength( int valueLength ) {
+  /** @param valueLength The valueLength to set. */
+  public void setValueLength(int valueLength) {
     this.valueLength = valueLength;
   }
 
-  /**
-   * @return Returns the valuePrecision.
-   */
+  /** @return Returns the valuePrecision. */
   public int getValuePrecision() {
     return valuePrecision;
   }
 
-  /**
-   * @param valuePrecision The valuePrecision to set.
-   */
-  public void setValuePrecision( int valuePrecision ) {
+  /** @param valuePrecision The valuePrecision to set. */
+  public void setValuePrecision(int valuePrecision) {
     this.valuePrecision = valuePrecision;
   }
 
-  /**
-   * @return Returns the valueType.
-   */
+  /** @return Returns the valueType. */
   public int getValueType() {
     return valueType;
   }
 
-  /**
-   * @param valueType The valueType to set.
-   */
-  public void setValueType( int valueType ) {
+  /** @param valueType The valueType to set. */
+  public void setValueType(int valueType) {
     this.valueType = valueType;
   }
 
-  @Injection( name = "VALUE_TYPE", group = "FORMULA" )
-  public void setValueType( String typeDesc ) {
-    this.valueType = ValueMetaFactory.getIdForValueMeta( typeDesc );
+  @Injection(name = "VALUE_TYPE", group = "FORMULA")
+  public void setValueType(String typeDesc) {
+    this.valueType = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
 
-  /**
-   * @return the formula
-   */
+  /** @return the formula */
   public String getFormula() {
     return formula;
   }
 
-  /**
-   * @param formula the formula to set
-   */
-  public void setFormula( String formula ) {
+  /** @param formula the formula to set */
+  public void setFormula(String formula) {
     this.formula = formula;
   }
 
-  /**
-   * @return the replaceField
-   */
+  /** @return the replaceField */
   public String getReplaceField() {
     return replaceField;
   }
 
-  /**
-   * @param replaceField the replaceField to set
-   */
-  public void setReplaceField( String replaceField ) {
+  /** @param replaceField the replaceField to set */
+  public void setReplaceField(String replaceField) {
     this.replaceField = replaceField;
   }
-
 }

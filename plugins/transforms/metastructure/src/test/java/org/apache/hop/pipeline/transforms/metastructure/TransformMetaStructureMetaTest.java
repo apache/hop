@@ -34,7 +34,8 @@ public class TransformMetaStructureMetaTest {
   @Test
   public void testTransformMeta() throws HopException {
     List<String> attributes = Arrays.asList("outputRowcount", "rowcountField");
-    // At present, none of the other fields in TransformMetaStructureMeta are being persisted or read
+    // At present, none of the other fields in TransformMetaStructureMeta are being persisted or
+    // read
     // All the other fields in the class are set from message bundles and not persisted. See
     // default() method.
     // MB - 5/2016
@@ -42,7 +43,7 @@ public class TransformMetaStructureMetaTest {
     Map<String, String> setterMap = new HashMap<String, String>();
 
     LoadSaveTester loadSaveTester =
-        new LoadSaveTester( TransformMetaStructureMeta.class, attributes, getterMap, setterMap);
+        new LoadSaveTester(TransformMetaStructureMeta.class, attributes, getterMap, setterMap);
     loadSaveTester.testSerialization();
   }
 }

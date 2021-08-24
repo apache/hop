@@ -43,33 +43,12 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.ColorDialog;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FontDialog;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -1239,10 +1218,10 @@ public class EnterOptionsDialog extends Dialog {
           compositeWidgets.createCompositeWidgets(
               sourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
           compositeWidgets.setWidgetsContents(sourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);
-          if ( sourceData instanceof IGuiPluginCompositeWidgetsListener) {
+          if (sourceData instanceof IGuiPluginCompositeWidgetsListener) {
             compositeWidgets.setWidgetsListener((IGuiPluginCompositeWidgetsListener) sourceData);
           }
-          
+
           pluginWidgetContentsList.add(new PluginWidgetContents(compositeWidgets, sourceData));
 
           wPluginsComp.pack();

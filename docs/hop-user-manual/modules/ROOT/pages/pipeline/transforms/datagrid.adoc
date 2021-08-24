@@ -21,21 +21,28 @@ under the License.
 
 == Description
 
-The Data Grid transform allows you to enter a static list of rows in a grid.  This is usually done for testing, reference or demo purposes.
+The Data Grid transform allows you to enter a static list of rows in a grid.
+This is usually done for testing, reference or demo purposes.
 
 == Options
 
 [width="90%, options="header"]
 |===
 |Meta tab|specify the field metadata (output specification) of the data
-|Data Tab|contains the data.  Everything is entered in String format so make sure you use the correct format masks in the metadata tab.
+|Data Tab|contains the data.
+Everything is entered in String format so make sure you use the correct format masks in the metadata tab.
 |===
 
 == Metadata Injection Support
-This transform supports metadata injection. It is made up out of 2 parts the meta (field definitions) and the data.
-The meta requires multiple rows to define the fields. The data part contains 2 injection fields, the first is a concatenated string that contains all values the second is the delimiter used to split that specific row. Mixing delimiters is possible, when empty "," is used as string to split with.
+
+This transform supports metadata injection.
+It is made up out of 2 parts the meta (field definitions) and the data.
+The meta requires multiple rows to define the fields.
+The data part contains 2 injection fields, the first is a concatenated string that contains all values the second is the delimiter used to split that specific row.
+Mixing delimiters is possible, when empty "," is used as string to split with.
 
 == Limitations
+
 It is not yet possible to insert columns in between 2 existing one or in general re-order the fields in the metadata tab.
 
 If you plan to do this, make sure to copy the data section first to a spreadsheet (Select all rows and copy/paste the whole grid), change the data and copy it back into the data section.

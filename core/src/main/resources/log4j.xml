@@ -32,59 +32,59 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
-  <!-- ================================= -->
-  <!-- Preserve messages in a local file -->
-  <!-- ================================= -->
+    <!-- ================================= -->
+    <!-- Preserve messages in a local file -->
+    <!-- ================================= -->
 
-  <!-- A time/date based rolling appender -->
-  <appender name="HOPFILE" class="org.apache.log4j.DailyRollingFileAppender">
+    <!-- A time/date based rolling appender -->
+    <appender name="HOPFILE" class="org.apache.log4j.DailyRollingFileAppender">
 
-    <param name="File" value="logs/pdi.log"/>
-    <param name="Append" value="false"/>
+        <param name="File" value="logs/pdi.log"/>
+        <param name="Append" value="false"/>
 
-    <!-- Rollover at midnight each day -->
-    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <!-- Rollover at midnight each day -->
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
-    <!-- Rollover at the top of each hour
-    <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
-    -->
+        <!-- Rollover at the top of each hour
+        <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
+        -->
 
-    <layout class="org.apache.log4j.PatternLayout">
-      <!-- The default pattern: Date Priority [Category] Message\n -->
-      <param name="ConversionPattern" value="%d %-5p [%c] %m%n"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <!-- The default pattern: Date Priority [Category] Message\n -->
+            <param name="ConversionPattern" value="%d %-5p [%c] %m%n"/>
 
-      <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n
-      <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
-       -->
-    </layout>
-  </appender>
+            <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n
+            <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
+             -->
+        </layout>
+    </appender>
 
-  <!-- ============================== -->
-  <!-- Append messages to the console -->
-  <!-- ============================== -->
+    <!-- ============================== -->
+    <!-- Append messages to the console -->
+    <!-- ============================== -->
 
-  <appender name="HOPCONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <param name="Target" value="System.out"/>
-    <param name="Threshold" value="INFO"/>
+    <appender name="HOPCONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <param name="Threshold" value="INFO"/>
 
-    <layout class="org.apache.log4j.PatternLayout">
-      <!-- The default pattern: Date Priority [Category] Message\n -->
-      <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
-    </layout>
-  </appender>
+        <layout class="org.apache.log4j.PatternLayout">
+            <!-- The default pattern: Date Priority [Category] Message\n -->
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+        </layout>
+    </appender>
 
-  <!-- ================ -->
-  <!-- Limit categories -->
-  <!-- ================ -->
+    <!-- ================ -->
+    <!-- Limit categories -->
+    <!-- ================ -->
 
-  <!-- ======================= -->
-  <!-- Setup the Root category -->
-  <!-- ======================= -->
+    <!-- ======================= -->
+    <!-- Setup the Root category -->
+    <!-- ======================= -->
 
-  <root>
-    <priority value="ERROR"/>
-    <!-- <appender-ref ref="HOPCONSOLE"/> -->
-    <!--<appender-ref ref="HOPFILE"/>-->
-  </root>
+    <root>
+        <priority value="ERROR"/>
+        <!-- <appender-ref ref="HOPCONSOLE"/> -->
+        <!--<appender-ref ref="HOPFILE"/>-->
+    </root>
 
 </log4j:configuration>

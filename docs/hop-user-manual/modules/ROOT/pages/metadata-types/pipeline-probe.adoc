@@ -25,7 +25,8 @@ image:icons/probe.svg[]
 
 Allows to stream output rows of a pipeline to another pipeline.
 
-A pipeline log streams data from a running pipeline to another pipeline. This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc
+A pipeline log streams data from a running pipeline to another pipeline.
+This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc
 
 == Related Plugins
 

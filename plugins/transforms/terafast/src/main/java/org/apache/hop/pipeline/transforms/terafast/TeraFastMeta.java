@@ -26,61 +26,43 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.AbstractTransformMeta;
-import org.apache.hop.core.util.BooleanPluginProperty;
-import org.apache.hop.core.util.GenericTransformData;
-import org.apache.hop.core.util.IntegerPluginProperty;
-import org.apache.hop.core.util.PluginMessages;
-import org.apache.hop.core.util.StringListPluginProperty;
-import org.apache.hop.core.util.StringPluginProperty;
+import org.apache.hop.core.util.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 
 import java.util.List;
 
 @Transform(
-  id = "TeraFast",
-  image = "TeraFast.svg",
-  description = "i18n::TeraFast.Description",
-  name = "i18n::TeraFast.Name",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/terafast.html"
-)
-public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
+    id = "TeraFast",
+    image = "TeraFast.svg",
+    description = "i18n::TeraFast.Description",
+    name = "i18n::TeraFast.Name",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/terafast.html")
+public class TeraFastMeta extends AbstractTransformMeta
+    implements ITransformMeta<ITransform, ITransformData> {
 
-  public static final PluginMessages MESSAGES = PluginMessages.getMessages( TeraFastMeta.class );
+  public static final PluginMessages MESSAGES = PluginMessages.getMessages(TeraFastMeta.class);
 
-  /**
-   * Default fast load path.
-   */
+  /** Default fast load path. */
   public static final String DEFAULT_FASTLOAD_PATH = "/usr/bin/fastload";
 
-  /**
-   * Default data file.
-   */
+  /** Default data file. */
   public static final String DEFAULT_DATA_FILE = "${Internal.Transform.CopyNr}.dat";
 
   public static final String DEFAULT_TARGET_TABLE = "${TARGET_TABLE}_${RUN_ID}";
 
-  /**
-   * Default session.
-   */
+  /** Default session. */
   public static final int DEFAULT_SESSIONS = 2;
 
   public static final boolean DEFAULT_TRUNCATETABLE = true;
 
   public static final boolean DEFAULT_VARIABLE_SUBSTITUTION = true;
 
-  /**
-   * Default error limit.
-   */
+  /** Default error limit. */
   public static final int DEFAULT_ERROR_LIMIT = 25;
 
   /* custom xml values */
@@ -108,9 +90,7 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
 
   private static final String VARIABLE_SUBSTITUTION = "variable_substitution";
 
-  /**
-   * available options.
-   **/
+  /** available options. */
   private StringPluginProperty fastloadPath;
 
   private StringPluginProperty controlFile;
@@ -135,89 +115,110 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
 
   private StringListPluginProperty streamFieldList;
 
-  /**
-   *
-   */
+  /** */
   public TeraFastMeta() {
     super();
-    this.fastloadPath = this.getPropertyFactory().createString( FASTLOADPATH );
-    this.controlFile = this.getPropertyFactory().createString( CONTROLFILE );
-    this.dataFile = this.getPropertyFactory().createString( DATAFILE );
-    this.logFile = this.getPropertyFactory().createString( LOGFILE );
-    this.sessions = this.getPropertyFactory().createInteger( SESSIONS );
-    this.errorLimit = this.getPropertyFactory().createInteger( ERRORLIMIT );
-    this.targetTable = this.getPropertyFactory().createString( TARGETTABLE );
-    this.useControlFile = this.getPropertyFactory().createBoolean( USECONTROLFILE );
-    this.truncateTable = this.getPropertyFactory().createBoolean( TRUNCATETABLE );
-    this.tableFieldList = this.getPropertyFactory().createStringList( TABLE_FIELD_LIST );
-    this.streamFieldList = this.getPropertyFactory().createStringList( STREAM_FIELD_LIST );
-    this.variableSubstitution = this.getPropertyFactory().createBoolean( VARIABLE_SUBSTITUTION );
+    this.fastloadPath = this.getPropertyFactory().createString(FASTLOADPATH);
+    this.controlFile = this.getPropertyFactory().createString(CONTROLFILE);
+    this.dataFile = this.getPropertyFactory().createString(DATAFILE);
+    this.logFile = this.getPropertyFactory().createString(LOGFILE);
+    this.sessions = this.getPropertyFactory().createInteger(SESSIONS);
+    this.errorLimit = this.getPropertyFactory().createInteger(ERRORLIMIT);
+    this.targetTable = this.getPropertyFactory().createString(TARGETTABLE);
+    this.useControlFile = this.getPropertyFactory().createBoolean(USECONTROLFILE);
+    this.truncateTable = this.getPropertyFactory().createBoolean(TRUNCATETABLE);
+    this.tableFieldList = this.getPropertyFactory().createStringList(TABLE_FIELD_LIST);
+    this.streamFieldList = this.getPropertyFactory().createStringList(STREAM_FIELD_LIST);
+    this.variableSubstitution = this.getPropertyFactory().createBoolean(VARIABLE_SUBSTITUTION);
   }
 
-  public void check( final List<ICheckResult> remarks, final PipelineMeta pipelineMeta, final TransformMeta transformMeta,
-                     final IRowMeta prev, final String[] input, final String[] output, final IRowMeta info,
-                     IVariables variables, IHopMetadataProvider metadataProvider ) {
+  public void check(
+      final List<ICheckResult> remarks,
+      final PipelineMeta pipelineMeta,
+      final TransformMeta transformMeta,
+      final IRowMeta prev,
+      final String[] input,
+      final String[] output,
+      final IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult checkResult;
     try {
-      IRowMeta tableFields = getRequiredFields( variables );
+      IRowMeta tableFields = getRequiredFields(variables);
       checkResult =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
-          .getString( "TeraFastMeta.Message.ConnectionEstablished" ), transformMeta );
-      remarks.add( checkResult );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              MESSAGES.getString("TeraFastMeta.Message.ConnectionEstablished"),
+              transformMeta);
+      remarks.add(checkResult);
 
       checkResult =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
-          .getString( "TeraFastMeta.Message.TableExists" ), transformMeta );
-      remarks.add( checkResult );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              MESSAGES.getString("TeraFastMeta.Message.TableExists"),
+              transformMeta);
+      remarks.add(checkResult);
 
       boolean error = false;
-      for ( String field : this.tableFieldList.getValue() ) {
-        if ( tableFields.searchValueMeta( field ) == null ) {
+      for (String field : this.tableFieldList.getValue()) {
+        if (tableFields.searchValueMeta(field) == null) {
           error = true;
           checkResult =
-            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, MESSAGES
-              .getString( "TeraFastMeta.Exception.TableFieldNotFound" ), transformMeta );
-          remarks.add( checkResult );
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  MESSAGES.getString("TeraFastMeta.Exception.TableFieldNotFound"),
+                  transformMeta);
+          remarks.add(checkResult);
         }
       }
-      if ( !error ) {
+      if (!error) {
         checkResult =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
-            .getString( "TeraFastMeta.Message.AllTableFieldsFound" ), transformMeta );
-        remarks.add( checkResult );
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                MESSAGES.getString("TeraFastMeta.Message.AllTableFieldsFound"),
+                transformMeta);
+        remarks.add(checkResult);
       }
-      if ( prev != null && prev.size() > 0 ) {
+      if (prev != null && prev.size() > 0) {
         // transform mode. transform receiving input
         checkResult =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
-            .getString( "TeraFastMeta.Message.TransformInputDataFound" ), transformMeta );
-        remarks.add( checkResult );
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                MESSAGES.getString("TeraFastMeta.Message.TransformInputDataFound"),
+                transformMeta);
+        remarks.add(checkResult);
 
         error = false;
-        for ( String field : this.streamFieldList.getValue() ) {
-          if ( prev.searchValueMeta( field ) == null ) {
+        for (String field : this.streamFieldList.getValue()) {
+          if (prev.searchValueMeta(field) == null) {
             error = true;
             checkResult =
-              new CheckResult( ICheckResult.TYPE_RESULT_ERROR, MESSAGES
-                .getString( "TeraFastMeta.Exception.StreamFieldNotFound" ), transformMeta );
-            remarks.add( checkResult );
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    MESSAGES.getString("TeraFastMeta.Exception.StreamFieldNotFound"),
+                    transformMeta);
+            remarks.add(checkResult);
           }
         }
-        if ( !error ) {
+        if (!error) {
           checkResult =
-            new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
-              .getString( "TeraFastMeta.Message.AllStreamFieldsFound" ), transformMeta );
-          remarks.add( checkResult );
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_OK,
+                  MESSAGES.getString("TeraFastMeta.Message.AllStreamFieldsFound"),
+                  transformMeta);
+          remarks.add(checkResult);
         }
       }
-    } catch ( HopDatabaseException e ) {
+    } catch (HopDatabaseException e) {
       checkResult =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, MESSAGES
-          .getString( "TeraFastMeta.Exception.ConnectionFailed" ), transformMeta );
-      remarks.add( checkResult );
-    } catch ( HopException e ) {
-      checkResult = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta );
-      remarks.add( checkResult );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              MESSAGES.getString("TeraFastMeta.Exception.ConnectionFailed"),
+              transformMeta);
+      remarks.add(checkResult);
+    } catch (HopException e) {
+      checkResult = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta);
+      remarks.add(checkResult);
     }
   }
 
@@ -226,24 +227,27 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
    * @throws HopException if an error occurs.
    */
   public Database connectToDatabase(IVariables variables) throws HopException {
-    if ( this.getDbMeta() != null ) {
-      Database db = new Database( loggingObject, variables, this.getDbMeta() );
+    if (this.getDbMeta() != null) {
+      Database db = new Database(loggingObject, variables, this.getDbMeta());
       db.connect();
       return db;
     }
-    throw new HopException( MESSAGES.getString( "TeraFastMeta.Exception.ConnectionNotDefined" ) );
+    throw new HopException(MESSAGES.getString("TeraFastMeta.Exception.ConnectionNotDefined"));
   }
 
   /**
    * {@inheritDoc}
    *
-   * @see ITransformMeta#createTransform(TransformMeta,
-   * ITransformData, int, PipelineMeta, Pipeline)
+   * @see ITransformMeta#createTransform(TransformMeta, ITransformData, int, PipelineMeta, Pipeline)
    */
   @Override
-  public ITransform createTransform( final TransformMeta transformMeta, final ITransformData data, final int cnr,
-                                     final PipelineMeta pipelineMeta, final Pipeline disp ) {
-    return new TeraFast( transformMeta, this, (GenericTransformData) data, cnr, pipelineMeta, disp );
+  public ITransform createTransform(
+      final TransformMeta transformMeta,
+      final ITransformData data,
+      final int cnr,
+      final PipelineMeta pipelineMeta,
+      final Pipeline disp) {
+    return new TeraFast(transformMeta, this, (GenericTransformData) data, cnr, pipelineMeta, disp);
   }
 
   /**
@@ -262,19 +266,25 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
    * @see ITransformMeta#setDefault()
    */
   public void setDefault() {
-    this.fastloadPath.setValue( DEFAULT_FASTLOAD_PATH );
-    this.dataFile.setValue( DEFAULT_DATA_FILE );
-    this.sessions.setValue( DEFAULT_SESSIONS );
-    this.errorLimit.setValue( DEFAULT_ERROR_LIMIT );
-    this.truncateTable.setValue( DEFAULT_TRUNCATETABLE );
-    this.variableSubstitution.setValue( DEFAULT_VARIABLE_SUBSTITUTION );
-    this.targetTable.setValue( DEFAULT_TARGET_TABLE );
-    this.useControlFile.setValue( true );
+    this.fastloadPath.setValue(DEFAULT_FASTLOAD_PATH);
+    this.dataFile.setValue(DEFAULT_DATA_FILE);
+    this.sessions.setValue(DEFAULT_SESSIONS);
+    this.errorLimit.setValue(DEFAULT_ERROR_LIMIT);
+    this.truncateTable.setValue(DEFAULT_TRUNCATETABLE);
+    this.variableSubstitution.setValue(DEFAULT_VARIABLE_SUBSTITUTION);
+    this.targetTable.setValue(DEFAULT_TARGET_TABLE);
+    this.useControlFile.setValue(true);
   }
 
   @Override
-  public void getFields( final IRowMeta inputRowMeta, final String name, final IRowMeta[] info,
-                         final TransformMeta nextTransform, final IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      final IRowMeta inputRowMeta,
+      final String name,
+      final IRowMeta[] info,
+      final TransformMeta nextTransform,
+      final IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
@@ -284,16 +294,15 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
    * @see BaseTransformMeta#getRequiredFields(IVariables)
    */
   @Override
-  public IRowMeta getRequiredFields( final IVariables variables ) throws HopException {
-    if ( !this.useControlFile.getValue() ) {
+  public IRowMeta getRequiredFields(final IVariables variables) throws HopException {
+    if (!this.useControlFile.getValue()) {
       final Database database = connectToDatabase(variables);
       IRowMeta fields =
-        database.getTableFieldsMeta(
-          StringUtils.EMPTY,
-          variables.resolve( this.targetTable.getValue() ) );
+          database.getTableFieldsMeta(
+              StringUtils.EMPTY, variables.resolve(this.targetTable.getValue()));
       database.disconnect();
-      if ( fields == null ) {
-        throw new HopException( MESSAGES.getString( "TeraFastMeta.Exception.TableNotFound" ) );
+      if (fields == null) {
+        throw new HopException(MESSAGES.getString("TeraFastMeta.Exception.TableNotFound"));
       }
       return fields;
     }
@@ -310,172 +319,123 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
     return super.clone();
   }
 
-  /**
-   * @return the fastloadPath
-   */
+  /** @return the fastloadPath */
   public StringPluginProperty getFastloadPath() {
     return this.fastloadPath;
   }
 
-  /**
-   * @param fastloadPath the fastloadPath to set
-   */
-  public void setFastloadPath( final StringPluginProperty fastloadPath ) {
+  /** @param fastloadPath the fastloadPath to set */
+  public void setFastloadPath(final StringPluginProperty fastloadPath) {
     this.fastloadPath = fastloadPath;
   }
 
-  /**
-   * @return the controlFile
-   */
+  /** @return the controlFile */
   public StringPluginProperty getControlFile() {
     return this.controlFile;
   }
 
-  /**
-   * @param controlFile the controlFile to set
-   */
-  public void setControlFile( final StringPluginProperty controlFile ) {
+  /** @param controlFile the controlFile to set */
+  public void setControlFile(final StringPluginProperty controlFile) {
     this.controlFile = controlFile;
   }
 
-  /**
-   * @return the dataFile
-   */
+  /** @return the dataFile */
   public StringPluginProperty getDataFile() {
     return this.dataFile;
   }
 
-  /**
-   * @param dataFile the dataFile to set
-   */
-  public void setDataFile( final StringPluginProperty dataFile ) {
+  /** @param dataFile the dataFile to set */
+  public void setDataFile(final StringPluginProperty dataFile) {
     this.dataFile = dataFile;
   }
 
-  /**
-   * @return the logFile
-   */
+  /** @return the logFile */
   public StringPluginProperty getLogFile() {
     return this.logFile;
   }
 
-  /**
-   * @param logFile the logFile to set
-   */
-  public void setLogFile( final StringPluginProperty logFile ) {
+  /** @param logFile the logFile to set */
+  public void setLogFile(final StringPluginProperty logFile) {
     this.logFile = logFile;
   }
 
-  /**
-   * @return the sessions
-   */
+  /** @return the sessions */
   public IntegerPluginProperty getSessions() {
     return this.sessions;
   }
 
-  /**
-   * @param sessions the sessions to set
-   */
-  public void setSessions( final IntegerPluginProperty sessions ) {
+  /** @param sessions the sessions to set */
+  public void setSessions(final IntegerPluginProperty sessions) {
     this.sessions = sessions;
   }
 
-  /**
-   * @return the errorLimit
-   */
+  /** @return the errorLimit */
   public IntegerPluginProperty getErrorLimit() {
     return this.errorLimit;
   }
 
-  /**
-   * @param errorLimit the errorLimit to set
-   */
-  public void setErrorLimit( final IntegerPluginProperty errorLimit ) {
+  /** @param errorLimit the errorLimit to set */
+  public void setErrorLimit(final IntegerPluginProperty errorLimit) {
     this.errorLimit = errorLimit;
   }
 
-  /**
-   * @return the useControlFile
-   */
+  /** @return the useControlFile */
   public BooleanPluginProperty getUseControlFile() {
     return this.useControlFile;
   }
 
-  /**
-   * @param useControlFile the useControlFile to set
-   */
-  public void setUseControlFile( final BooleanPluginProperty useControlFile ) {
+  /** @param useControlFile the useControlFile to set */
+  public void setUseControlFile(final BooleanPluginProperty useControlFile) {
     this.useControlFile = useControlFile;
   }
 
-  /**
-   * @return the targetTable
-   */
+  /** @return the targetTable */
   public StringPluginProperty getTargetTable() {
     return this.targetTable;
   }
 
-  /**
-   * @param targetTable the targetTable to set
-   */
-  public void setTargetTable( final StringPluginProperty targetTable ) {
+  /** @param targetTable the targetTable to set */
+  public void setTargetTable(final StringPluginProperty targetTable) {
     this.targetTable = targetTable;
   }
 
-  /**
-   * @return the truncateTable
-   */
+  /** @return the truncateTable */
   public BooleanPluginProperty getTruncateTable() {
     return this.truncateTable;
   }
 
-  /**
-   * @param truncateTable the truncateTable to set
-   */
-  public void setTruncateTable( final BooleanPluginProperty truncateTable ) {
+  /** @param truncateTable the truncateTable to set */
+  public void setTruncateTable(final BooleanPluginProperty truncateTable) {
     this.truncateTable = truncateTable;
   }
 
-  /**
-   * @return the tableFieldList
-   */
+  /** @return the tableFieldList */
   public StringListPluginProperty getTableFieldList() {
     return this.tableFieldList;
   }
 
-  /**
-   * @param tableFieldList the tableFieldList to set
-   */
-  public void setTableFieldList( final StringListPluginProperty tableFieldList ) {
+  /** @param tableFieldList the tableFieldList to set */
+  public void setTableFieldList(final StringListPluginProperty tableFieldList) {
     this.tableFieldList = tableFieldList;
   }
 
-  /**
-   * @return the streamFieldList
-   */
+  /** @return the streamFieldList */
   public StringListPluginProperty getStreamFieldList() {
     return this.streamFieldList;
   }
 
-  /**
-   * @param streamFieldList the streamFieldList to set
-   */
-  public void setStreamFieldList( final StringListPluginProperty streamFieldList ) {
+  /** @param streamFieldList the streamFieldList to set */
+  public void setStreamFieldList(final StringListPluginProperty streamFieldList) {
     this.streamFieldList = streamFieldList;
   }
 
-  /**
-   * @return the variableSubstitution
-   */
+  /** @return the variableSubstitution */
   public BooleanPluginProperty getVariableSubstitution() {
     return this.variableSubstitution;
   }
 
-  /**
-   * @param variableSubstitution the variableSubstitution to set
-   */
-  public void setVariableSubstitution( BooleanPluginProperty variableSubstitution ) {
+  /** @param variableSubstitution the variableSubstitution to set */
+  public void setVariableSubstitution(BooleanPluginProperty variableSubstitution) {
     this.variableSubstitution = variableSubstitution;
   }
-
 }

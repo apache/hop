@@ -20,5 +20,5 @@ title_page:
 
 page:
   layout: portrait
-  margin: [0.75in, 1in, 0.75in, 1in]
+  margin: [ 0.75in, 1in, 0.75in, 1in ]
   size: A4

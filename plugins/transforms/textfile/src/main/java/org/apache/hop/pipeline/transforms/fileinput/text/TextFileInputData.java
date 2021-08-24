@@ -56,9 +56,7 @@ public class TextFileInputData extends BaseFileInputTransformData {
 
   public int fileType;
 
-  /**
-   * The separator (delimiter)
-   */
+  /** The separator (delimiter) */
   public String separator;
 
   public String enclosure;
@@ -77,6 +75,6 @@ public class TextFileInputData extends BaseFileInputTransformData {
     nrLinesOnPage = 0;
 
     filterProcessor = null;
-    lineStringBuilder = new StringBuilder( 256 );
+    lineStringBuilder = new StringBuilder(256);
   }
 }

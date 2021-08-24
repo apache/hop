@@ -28,51 +28,50 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ClickhouseDatabaseMetaTest {
-	@ClassRule
-	public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-	ClickhouseDatabaseMeta nativeMeta;
+  ClickhouseDatabaseMeta nativeMeta;
 
-	@Before
-	public void setupOnce() throws Exception {
-		nativeMeta = new ClickhouseDatabaseMeta();
-		nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+  @Before
+  public void setupOnce() throws Exception {
+    nativeMeta = new ClickhouseDatabaseMeta();
+    nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
-		HopClientEnvironment.init();
-	}
+    HopClientEnvironment.init();
+  }
 
-	@Test
-	public void testAccessType() throws Exception {
-		int[] aTypes = new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
-		assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
-	}
+  @Test
+  public void testAccessType() throws Exception {
+    int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
+    assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
+  }
 
-	
-	@Test
-	public void testUrl() throws Exception {
-		assertEquals("cc.blynk.clickhouse.ClickHouseDriver", nativeMeta.getDriverClass());
+  @Test
+  public void testUrl() throws Exception {
+    assertEquals("cc.blynk.clickhouse.ClickHouseDriver", nativeMeta.getDriverClass());
 
-		assertEquals("jdbc:clickhouse://localhost:8123/sampledb",
-				nativeMeta.getURL("localhost", "8123", "sampledb"));
-		try {
-			assertEquals("jdbc:clickhouse://localhost:8123/sampledb",
-					nativeMeta.getURL("", "8123", "sampledb"));
-			fail("Should have thrown IllegalArgumentException");
-		} catch (IllegalArgumentException dummy) {
-			// expected if host is null or empty
-		}
-	}
-	
-	@Test
-	public void testSupport() throws Exception {
-		assertFalse(nativeMeta.supportsSchemas());
-		assertTrue(nativeMeta.supportsViews());
-		assertFalse(nativeMeta.supportsSequences());
-		assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
-		assertFalse(nativeMeta.supportsBooleanDataType());
-		assertTrue(nativeMeta.supportsBitmapIndex());
-		assertFalse(nativeMeta.supportsTransactions());
-		assertFalse(nativeMeta.supportsTimeStampToDateConversion());
-		assertTrue(nativeMeta.supportsSynonyms());
-	}
+    assertEquals(
+        "jdbc:clickhouse://localhost:8123/sampledb",
+        nativeMeta.getURL("localhost", "8123", "sampledb"));
+    try {
+      assertEquals(
+          "jdbc:clickhouse://localhost:8123/sampledb", nativeMeta.getURL("", "8123", "sampledb"));
+      fail("Should have thrown IllegalArgumentException");
+    } catch (IllegalArgumentException dummy) {
+      // expected if host is null or empty
+    }
+  }
+
+  @Test
+  public void testSupport() throws Exception {
+    assertFalse(nativeMeta.supportsSchemas());
+    assertTrue(nativeMeta.supportsViews());
+    assertFalse(nativeMeta.supportsSequences());
+    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertFalse(nativeMeta.supportsBooleanDataType());
+    assertTrue(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.supportsTransactions());
+    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+    assertTrue(nativeMeta.supportsSynonyms());
+  }
 }

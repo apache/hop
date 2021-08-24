@@ -35,14 +35,14 @@ import org.apache.hop.testing.UnitTestResult;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "ExecuteTests",
-  description = "Execute Unit Tests",
-  name = "Execute Unit Tests",
-  image = "executetests.svg",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/exectests.html"
-)
-public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
+    id = "ExecuteTests",
+    description = "Execute Unit Tests",
+    name = "Execute Unit Tests",
+    image = "executetests.svg",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/exectests.html")
+public class ExecuteTestsMeta extends BaseTransformMeta
+    implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
 
   public static final String TAG_TEST_NAME_INPUT_FIELD = "test_name_input_field";
   public static final String TAG_TYPE_TO_EXECUTE = "type_to_execute";
@@ -66,61 +66,77 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     super();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables variables, IHopMetadataProvider metadataProvider ) {
+  @Override
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     IRowMeta rowMeta = UnitTestResult.getRowMeta();
     int index = 0;
-    rowMeta.getValueMeta( index++ ).setName( variables.resolve( pipelineNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.resolve( unitTestNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.resolve( dataSetNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.resolve( transformNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.resolve( errorField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.resolve( commentField ) );
+    rowMeta.getValueMeta(index++).setName(variables.resolve(pipelineNameField));
+    rowMeta.getValueMeta(index++).setName(variables.resolve(unitTestNameField));
+    rowMeta.getValueMeta(index++).setName(variables.resolve(dataSetNameField));
+    rowMeta.getValueMeta(index++).setName(variables.resolve(transformNameField));
+    rowMeta.getValueMeta(index++).setName(variables.resolve(errorField));
+    rowMeta.getValueMeta(index++).setName(variables.resolve(commentField));
 
     inputRowMeta.clear();
-    inputRowMeta.addRowMeta( rowMeta );
+    inputRowMeta.addRowMeta(rowMeta);
   }
 
   @Override
   public String getXml() throws HopException {
     StringBuilder xml = new StringBuilder();
-    xml.append( XmlHandler.addTagValue( TAG_TEST_NAME_INPUT_FIELD, testNameInputField ) );
-    xml.append( XmlHandler.addTagValue( TAG_TYPE_TO_EXECUTE, typeToExecute == null ? TestType.DEVELOPMENT.name() : typeToExecute.name() ) );
-    xml.append( XmlHandler.addTagValue( TAG_PIPELINE_NAME_FIELD, pipelineNameField ) );
-    xml.append( XmlHandler.addTagValue( TAG_UNIT_TEST_NAME_FIELD, unitTestNameField ) );
-    xml.append( XmlHandler.addTagValue( TAG_DATASET_NAME_FIELD, dataSetNameField ) );
-    xml.append( XmlHandler.addTagValue( TAG_TRANSFORM_NAME_FIELD, transformNameField ) );
-    xml.append( XmlHandler.addTagValue( TAG_ERROR_FIELD, errorField ) );
-    xml.append( XmlHandler.addTagValue( TAG_COMMENT_FIELD, commentField ) );
+    xml.append(XmlHandler.addTagValue(TAG_TEST_NAME_INPUT_FIELD, testNameInputField));
+    xml.append(
+        XmlHandler.addTagValue(
+            TAG_TYPE_TO_EXECUTE,
+            typeToExecute == null ? TestType.DEVELOPMENT.name() : typeToExecute.name()));
+    xml.append(XmlHandler.addTagValue(TAG_PIPELINE_NAME_FIELD, pipelineNameField));
+    xml.append(XmlHandler.addTagValue(TAG_UNIT_TEST_NAME_FIELD, unitTestNameField));
+    xml.append(XmlHandler.addTagValue(TAG_DATASET_NAME_FIELD, dataSetNameField));
+    xml.append(XmlHandler.addTagValue(TAG_TRANSFORM_NAME_FIELD, transformNameField));
+    xml.append(XmlHandler.addTagValue(TAG_ERROR_FIELD, errorField));
+    xml.append(XmlHandler.addTagValue(TAG_COMMENT_FIELD, commentField));
 
     return xml.toString();
   }
 
   @Override
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
 
-      testNameInputField = XmlHandler.getTagValue( transformNode, TAG_TEST_NAME_INPUT_FIELD );
-      String typeDesc = XmlHandler.getTagValue( transformNode, TAG_TYPE_TO_EXECUTE );
+      testNameInputField = XmlHandler.getTagValue(transformNode, TAG_TEST_NAME_INPUT_FIELD);
+      String typeDesc = XmlHandler.getTagValue(transformNode, TAG_TYPE_TO_EXECUTE);
       try {
-        typeToExecute = TestType.valueOf( typeDesc );
-      } catch ( Exception e ) {
+        typeToExecute = TestType.valueOf(typeDesc);
+      } catch (Exception e) {
         typeToExecute = TestType.DEVELOPMENT;
       }
-      pipelineNameField = XmlHandler.getTagValue( transformNode, TAG_PIPELINE_NAME_FIELD );
-      unitTestNameField = XmlHandler.getTagValue( transformNode, TAG_UNIT_TEST_NAME_FIELD );
-      dataSetNameField = XmlHandler.getTagValue( transformNode, TAG_DATASET_NAME_FIELD );
-      transformNameField = XmlHandler.getTagValue( transformNode, TAG_TRANSFORM_NAME_FIELD );
-      errorField = XmlHandler.getTagValue( transformNode, TAG_ERROR_FIELD );
-      commentField = XmlHandler.getTagValue( transformNode, TAG_COMMENT_FIELD );
+      pipelineNameField = XmlHandler.getTagValue(transformNode, TAG_PIPELINE_NAME_FIELD);
+      unitTestNameField = XmlHandler.getTagValue(transformNode, TAG_UNIT_TEST_NAME_FIELD);
+      dataSetNameField = XmlHandler.getTagValue(transformNode, TAG_DATASET_NAME_FIELD);
+      transformNameField = XmlHandler.getTagValue(transformNode, TAG_TRANSFORM_NAME_FIELD);
+      errorField = XmlHandler.getTagValue(transformNode, TAG_ERROR_FIELD);
+      commentField = XmlHandler.getTagValue(transformNode, TAG_COMMENT_FIELD);
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load execute test transform details", e );
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to load execute test transform details", e);
     }
   }
 
-  @Override public ITransform createTransform( TransformMeta transformMeta, ExecuteTestsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ExecuteTests( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  @Override
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      ExecuteTestsData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new ExecuteTests(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -142,9 +158,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     transformNameField = "transform";
     errorField = "error";
     commentField = "comment";
-
   }
-
 
   /**
    * Gets testNameInputField
@@ -155,10 +169,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return testNameInputField;
   }
 
-  /**
-   * @param testNameInputField The testNameInputField to set
-   */
-  public void setTestNameInputField( String testNameInputField ) {
+  /** @param testNameInputField The testNameInputField to set */
+  public void setTestNameInputField(String testNameInputField) {
     this.testNameInputField = testNameInputField;
   }
 
@@ -171,10 +183,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return typeToExecute;
   }
 
-  /**
-   * @param typeToExecute The typeToExecute to set
-   */
-  public void setTypeToExecute( TestType typeToExecute ) {
+  /** @param typeToExecute The typeToExecute to set */
+  public void setTypeToExecute(TestType typeToExecute) {
     this.typeToExecute = typeToExecute;
   }
 
@@ -187,10 +197,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return pipelineNameField;
   }
 
-  /**
-   * @param pipelineNameField The pipelineNameField to set
-   */
-  public void setPipelineNameField( String pipelineNameField ) {
+  /** @param pipelineNameField The pipelineNameField to set */
+  public void setPipelineNameField(String pipelineNameField) {
     this.pipelineNameField = pipelineNameField;
   }
 
@@ -203,10 +211,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return unitTestNameField;
   }
 
-  /**
-   * @param unitTestNameField The unitTestNameField to set
-   */
-  public void setUnitTestNameField( String unitTestNameField ) {
+  /** @param unitTestNameField The unitTestNameField to set */
+  public void setUnitTestNameField(String unitTestNameField) {
     this.unitTestNameField = unitTestNameField;
   }
 
@@ -219,10 +225,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return dataSetNameField;
   }
 
-  /**
-   * @param dataSetNameField The dataSetNameField to set
-   */
-  public void setDataSetNameField( String dataSetNameField ) {
+  /** @param dataSetNameField The dataSetNameField to set */
+  public void setDataSetNameField(String dataSetNameField) {
     this.dataSetNameField = dataSetNameField;
   }
 
@@ -235,10 +239,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return transformNameField;
   }
 
-  /**
-   * @param transformNameField The transform name field to set
-   */
-  public void setTransformNameField( String transformNameField ) {
+  /** @param transformNameField The transform name field to set */
+  public void setTransformNameField(String transformNameField) {
     this.transformNameField = transformNameField;
   }
 
@@ -251,10 +253,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return errorField;
   }
 
-  /**
-   * @param errorField The errorField to set
-   */
-  public void setErrorField( String errorField ) {
+  /** @param errorField The errorField to set */
+  public void setErrorField(String errorField) {
     this.errorField = errorField;
   }
 
@@ -267,10 +267,8 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
     return commentField;
   }
 
-  /**
-   * @param commentField The commentField to set
-   */
-  public void setCommentField( String commentField ) {
+  /** @param commentField The commentField to set */
+  public void setCommentField(String commentField) {
     this.commentField = commentField;
   }
 }

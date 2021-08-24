@@ -26,7 +26,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -38,13 +37,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "PipelineLogging",
-  name = "i18n::PipelineLogging.Transform.Name",
-  description = "i18n::PipelineLogging.Transform.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",      
-  image = "pipeline-log.svg",
-  documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
-  keywords = "audit,log,metrics")
+    id = "PipelineLogging",
+    name = "i18n::PipelineLogging.Transform.Name",
+    description = "i18n::PipelineLogging.Transform.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    image = "pipeline-log.svg",
+    documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
+    keywords = "audit,log,metrics")
 public class PipelineLoggingMeta extends BaseTransformMeta
     implements ITransformMeta<PipelineLogging, PipelineLoggingData> {
 
@@ -152,16 +151,19 @@ public class PipelineLoggingMeta extends BaseTransformMeta
     }
   }
 
-  @Override public String getXml() throws HopException {
+  @Override
+  public String getXml() throws HopException {
     StringBuffer xml = new StringBuffer();
-    xml.append( XmlHandler.addTagValue( "log_transforms", loggingTransforms ) );
+    xml.append(XmlHandler.addTagValue("log_transforms", loggingTransforms));
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
 
-    loggingTransforms="Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "log_transforms" ) );
-
+    loggingTransforms =
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
   }
 
   @Override

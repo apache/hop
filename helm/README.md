@@ -19,12 +19,11 @@ under the License.
 
 A **Hop Helm chart** supporting **long-lived** setups.
 
-
 ## Variables
 
 You can provide values for the following variables in the values.yaml file:
 
-Variable	| Required	| Description
+Variable    | Required    | Description
 ---	|----	|---
 replicaCount | Yes | Number of replicas
 image.tag | Yes | Hop release

@@ -22,7 +22,7 @@ import org.apache.hop.core.config.plugin.ConfigFile;
 public class DescribedVariablesConfigFile extends ConfigFile implements IConfigFile {
   private String configFilename;
 
-  public DescribedVariablesConfigFile( String configFilename ) {
+  public DescribedVariablesConfigFile(String configFilename) {
     super();
     this.configFilename = configFilename;
     this.serializer = new ConfigFileSerializer();
@@ -33,14 +33,14 @@ public class DescribedVariablesConfigFile extends ConfigFile implements IConfigF
    *
    * @return value of configFilename
    */
-  @Override public String getConfigFilename() {
+  @Override
+  public String getConfigFilename() {
     return configFilename;
   }
 
-  /**
-   * @param configFilename The configFilename to set
-   */
-  @Override public void setConfigFilename( String configFilename ) {
+  /** @param configFilename The configFilename to set */
+  @Override
+  public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
   }
 }

@@ -28,80 +28,80 @@ import java.util.Map;
  *
  * @author matt
  */
-
-@PluginMainClassType( ITwoWayPasswordEncoder.class )
-@PluginAnnotationType( TwoWayPasswordEncoderPlugin.class )
+@PluginMainClassType(ITwoWayPasswordEncoder.class)
+@PluginAnnotationType(TwoWayPasswordEncoderPlugin.class)
 public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswordEncoderPlugin> {
 
   private static TwoWayPasswordEncoderPluginType twoWayPasswordEncoderPluginType;
 
   private TwoWayPasswordEncoderPluginType() {
-    super( TwoWayPasswordEncoderPlugin.class, "TWOWAYPASSWORDENCODERPLUGIN", "TwoWayPasswordEncoder" );
+    super(
+        TwoWayPasswordEncoderPlugin.class, "TWOWAYPASSWORDENCODERPLUGIN", "TwoWayPasswordEncoder");
   }
 
   public static TwoWayPasswordEncoderPluginType getInstance() {
-    if ( twoWayPasswordEncoderPluginType == null ) {
+    if (twoWayPasswordEncoderPluginType == null) {
       twoWayPasswordEncoderPluginType = new TwoWayPasswordEncoderPluginType();
     }
     return twoWayPasswordEncoderPluginType;
   }
 
   @Override
-  protected String extractCategory( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractCategory(TwoWayPasswordEncoderPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractDesc(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractID(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractName(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractImageFile(TwoWayPasswordEncoderPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( TwoWayPasswordEncoderPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, TwoWayPasswordEncoderPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, TwoWayPasswordEncoderPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractDocumentationUrl(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.documentationUrl();
   }
 
   @Override
-  protected String extractCasesUrl( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractCasesUrl(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractForumUrl(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.forumUrl();
   }
 
   @Override
-  protected String extractSuggestion( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractSuggestion(TwoWayPasswordEncoderPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( TwoWayPasswordEncoderPlugin annotation ) {
+  protected String extractClassLoaderGroup(TwoWayPasswordEncoderPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 }

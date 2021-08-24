@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@HopServerServlet(id="registerWorkflow", name = "Add a workflow to the server")
+@HopServerServlet(id = "registerWorkflow", name = "Add a workflow to the server")
 public class RegisterWorkflowServlet extends BaseWorkflowServlet {
 
   private static final long serialVersionUID = 7416802722393075758L;
@@ -41,16 +41,25 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXml, IVariables variables ) throws IOException, HopException, HopException, ParseException {
+  WebResult generateBody(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      boolean useXml,
+      IVariables variables)
+      throws IOException, HopException, HopException, ParseException {
 
-    final String xml = IOUtils.toString( request.getInputStream() );
+    final String xml = IOUtils.toString(request.getInputStream());
 
     // Parse the XML, create a workflow configuration
-    WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml( xml, variables);
+    WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml(xml, variables);
 
-    IWorkflowEngine<WorkflowMeta> workflow = createWorkflow( workflowConfiguration );
+    IWorkflowEngine<WorkflowMeta> workflow = createWorkflow(workflowConfiguration);
 
-    String message = "Workflow '" + workflow.getWorkflowName() + "' was added to the list with id " + workflow.getContainerId();
-    return new WebResult( WebResult.STRING_OK, message, workflow.getContainerId() );
+    String message =
+        "Workflow '"
+            + workflow.getWorkflowName()
+            + "' was added to the list with id "
+            + workflow.getContainerId();
+    return new WebResult(WebResult.STRING_OK, message, workflow.getContainerId());
   }
 }

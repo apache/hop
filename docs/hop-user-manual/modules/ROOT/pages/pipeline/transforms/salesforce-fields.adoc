@@ -19,20 +19,23 @@ under the License.
 
 === Fields
 
-You can specify what fields to insert into your Salesforce database through the Fields table. Click Get fields to populate the table with input from the Hop data stream.
+You can specify what fields to insert into your Salesforce database through the Fields table.
+Click Get fields to populate the table with input from the Hop data stream.
 
 The table contains the following columns:
 
-[options="header", width="90%"]
+[options="header",width="90%"]
 |===
 |Option|Description
 |Module field|The name of the field within the Module
 |Stream field|The name of the field in the Hop data stream
-|Use External id? a|The flag indicating if the field links to an external ID. To resolve the ID, Salesforce needs the object type, column name, and relationship name in the following syntax: +
+|Use External id? a|The flag indicating if the field links to an external ID.
+To resolve the ID, Salesforce needs the object type, column name, and relationship name in the following syntax: +
 
-[source, shell]
+[source,shell]
 Object name.column name/relationship
 
 |===
 
-Optionally, click Edit mapping to specify custom mapping. For example, you can map a single Hop field to multiple Salesforce fields.
+Optionally, click Edit mapping to specify custom mapping.
+For example, you can map a single Hop field to multiple Salesforce fields.

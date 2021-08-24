@@ -16,20 +16,17 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
+import java.util.*;
 
 /** Class encapsulating Ldap protocol configuration */
 public class LdapProtocol {
@@ -63,8 +60,7 @@ public class LdapProtocol {
       ILogChannel log, IVariables variables, ILdapMeta meta, Collection<String> binaryAttributes) {
     this.log = log;
     hostname = variables.resolve(meta.getHost());
-    port =
-        Const.toInt(variables.resolve(meta.getPort()), LdapConnection.DEFAULT_PORT);
+    port = Const.toInt(variables.resolve(meta.getPort()), LdapConnection.DEFAULT_PORT);
     derefAliases = meta.getDerefAliases();
     referral = meta.getReferrals();
 

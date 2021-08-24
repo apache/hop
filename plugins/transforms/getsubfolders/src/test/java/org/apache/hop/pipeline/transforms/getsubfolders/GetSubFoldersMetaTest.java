@@ -29,16 +29,9 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GetSubFoldersMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -49,81 +42,94 @@ public class GetSubFoldersMetaTest {
     String transformName = UUID.randomUUID().toString();
 
     RowMeta rowMeta = new RowMeta();
-    transformMeta.getFields( rowMeta, transformName, null, null, new Variables(), null );
+    transformMeta.getFields(rowMeta, transformName, null, null, new Variables(), null);
 
-    assertFalse( transformMeta.includeRowNumber() );
-    assertEquals( 10, rowMeta.size() );
-    assertEquals( "folderName", rowMeta.getValueMeta( 0 ).getName() );
-    assertEquals( "short_folderName", rowMeta.getValueMeta( 1 ).getName() );
-    assertEquals( "path", rowMeta.getValueMeta( 2 ).getName() );
-    assertEquals( "ishidden", rowMeta.getValueMeta( 3 ).getName() );
-    assertEquals( "isreadable", rowMeta.getValueMeta( 4 ).getName() );
-    assertEquals( "iswriteable", rowMeta.getValueMeta( 5 ).getName() );
-    assertEquals( "lastmodifiedtime", rowMeta.getValueMeta( 6 ).getName() );
-    assertEquals( "uri", rowMeta.getValueMeta( 7 ).getName() );
-    assertEquals( "rooturi", rowMeta.getValueMeta( 8 ).getName() );
-    assertEquals( "childrens", rowMeta.getValueMeta( 9 ).getName() );
+    assertFalse(transformMeta.includeRowNumber());
+    assertEquals(10, rowMeta.size());
+    assertEquals("folderName", rowMeta.getValueMeta(0).getName());
+    assertEquals("short_folderName", rowMeta.getValueMeta(1).getName());
+    assertEquals("path", rowMeta.getValueMeta(2).getName());
+    assertEquals("ishidden", rowMeta.getValueMeta(3).getName());
+    assertEquals("isreadable", rowMeta.getValueMeta(4).getName());
+    assertEquals("iswriteable", rowMeta.getValueMeta(5).getName());
+    assertEquals("lastmodifiedtime", rowMeta.getValueMeta(6).getName());
+    assertEquals("uri", rowMeta.getValueMeta(7).getName());
+    assertEquals("rooturi", rowMeta.getValueMeta(8).getName());
+    assertEquals("childrens", rowMeta.getValueMeta(9).getName());
 
-    transformMeta.setIncludeRowNumber( true );
+    transformMeta.setIncludeRowNumber(true);
     rowMeta = new RowMeta();
-    transformMeta.getFields( rowMeta, transformName, null, null, new Variables(), null );
-    assertTrue( transformMeta.includeRowNumber() );
-    assertEquals( 11, rowMeta.size() );
-    assertEquals( "folderName", rowMeta.getValueMeta( 0 ).getName() );
-    assertEquals( "short_folderName", rowMeta.getValueMeta( 1 ).getName() );
-    assertEquals( "path", rowMeta.getValueMeta( 2 ).getName() );
-    assertEquals( "ishidden", rowMeta.getValueMeta( 3 ).getName() );
-    assertEquals( "isreadable", rowMeta.getValueMeta( 4 ).getName() );
-    assertEquals( "iswriteable", rowMeta.getValueMeta( 5 ).getName() );
-    assertEquals( "lastmodifiedtime", rowMeta.getValueMeta( 6 ).getName() );
-    assertEquals( "uri", rowMeta.getValueMeta( 7 ).getName() );
-    assertEquals( "rooturi", rowMeta.getValueMeta( 8 ).getName() );
-    assertEquals( "childrens", rowMeta.getValueMeta( 9 ).getName() );
-    assertEquals( null, rowMeta.getValueMeta( 10 ).getName() );
+    transformMeta.getFields(rowMeta, transformName, null, null, new Variables(), null);
+    assertTrue(transformMeta.includeRowNumber());
+    assertEquals(11, rowMeta.size());
+    assertEquals("folderName", rowMeta.getValueMeta(0).getName());
+    assertEquals("short_folderName", rowMeta.getValueMeta(1).getName());
+    assertEquals("path", rowMeta.getValueMeta(2).getName());
+    assertEquals("ishidden", rowMeta.getValueMeta(3).getName());
+    assertEquals("isreadable", rowMeta.getValueMeta(4).getName());
+    assertEquals("iswriteable", rowMeta.getValueMeta(5).getName());
+    assertEquals("lastmodifiedtime", rowMeta.getValueMeta(6).getName());
+    assertEquals("uri", rowMeta.getValueMeta(7).getName());
+    assertEquals("rooturi", rowMeta.getValueMeta(8).getName());
+    assertEquals("childrens", rowMeta.getValueMeta(9).getName());
+    assertEquals(null, rowMeta.getValueMeta(10).getName());
 
-    transformMeta.setRowNumberField( "MyRowNumber" );
+    transformMeta.setRowNumberField("MyRowNumber");
     rowMeta = new RowMeta();
-    transformMeta.getFields( rowMeta, transformName, null, null, new Variables(), null );
-    assertEquals( "MyRowNumber", transformMeta.getRowNumberField() );
-    assertEquals( 11, rowMeta.size() );
-    assertEquals( "MyRowNumber", rowMeta.getValueMeta( 10 ).getName() );
+    transformMeta.getFields(rowMeta, transformName, null, null, new Variables(), null);
+    assertEquals("MyRowNumber", transformMeta.getRowNumberField());
+    assertEquals(11, rowMeta.size());
+    assertEquals("MyRowNumber", rowMeta.getValueMeta(10).getName());
   }
 
   @Test
   public void loadSaveTest() throws HopException {
     List<String> attributes =
-      Arrays.asList( "rownum", "foldername_dynamic", "rownum_field",
-        "foldername_field", "limit", "name", "file_required" );
+        Arrays.asList(
+            "rownum",
+            "foldername_dynamic",
+            "rownum_field",
+            "foldername_field",
+            "limit",
+            "name",
+            "file_required");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "rownum", "includeRowNumber" );
-    getterMap.put( "foldername_dynamic", "isFoldernameDynamic" );
-    getterMap.put( "foldername_field", "getDynamicFoldernameField" );
-    getterMap.put( "rownum_field", "getRowNumberField" );
-    getterMap.put( "limit", "getRowLimit" );
-    getterMap.put( "name", "getFolderName" );
-    getterMap.put( "file_required", "getFolderRequired" );
+    getterMap.put("rownum", "includeRowNumber");
+    getterMap.put("foldername_dynamic", "isFoldernameDynamic");
+    getterMap.put("foldername_field", "getDynamicFoldernameField");
+    getterMap.put("rownum_field", "getRowNumberField");
+    getterMap.put("limit", "getRowLimit");
+    getterMap.put("name", "getFolderName");
+    getterMap.put("file_required", "getFolderRequired");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "rownum", "setIncludeRowNumber" );
-    setterMap.put( "foldername_dynamic", "setFolderField" );
-    setterMap.put( "foldername_field", "setDynamicFoldernameField" );
-    setterMap.put( "rownum_field", "setRowNumberField" );
-    setterMap.put( "limit", "setRowLimit" );
-    setterMap.put( "name", "setFolderName" );
-    setterMap.put( "file_required", "setFolderRequired" );
+    setterMap.put("rownum", "setIncludeRowNumber");
+    setterMap.put("foldername_dynamic", "setFolderField");
+    setterMap.put("foldername_field", "setDynamicFoldernameField");
+    setterMap.put("rownum_field", "setRowNumberField");
+    setterMap.put("limit", "setRowLimit");
+    setterMap.put("name", "setFolderName");
+    setterMap.put("file_required", "setFolderRequired");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
-    fieldLoadSaveValidatorAttributeMap.put( "file_required",
-      new ArrayLoadSaveValidator<>( new FileRequiredFieldLoadSaveValidator(), 50 ) );
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
+    fieldLoadSaveValidatorAttributeMap.put(
+        "file_required",
+        new ArrayLoadSaveValidator<>(new FileRequiredFieldLoadSaveValidator(), 50));
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<>();
-    fieldLoadSaveValidatorTypeMap.put( String[].class.getCanonicalName(),
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
+    fieldLoadSaveValidatorTypeMap.put(
+        String[].class.getCanonicalName(),
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 50));
 
-    LoadSaveTester tester = new LoadSaveTester( GetSubFoldersMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
+    LoadSaveTester tester =
+        new LoadSaveTester(
+            GetSubFoldersMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            fieldLoadSaveValidatorTypeMap);
 
     tester.testSerialization();
   }
@@ -132,12 +138,13 @@ public class GetSubFoldersMetaTest {
 
     @Override
     public String getTestObject() {
-      return GetSubFoldersMeta.RequiredFoldersCode[ new Random().nextInt( GetSubFoldersMeta.RequiredFoldersCode.length ) ];
+      return GetSubFoldersMeta.RequiredFoldersCode[
+          new Random().nextInt(GetSubFoldersMeta.RequiredFoldersCode.length)];
     }
 
     @Override
-    public boolean validateTestObject( String testObject, Object actual ) {
-      return testObject.equals( actual );
+    public boolean validateTestObject(String testObject, Object actual) {
+      return testObject.equals(actual);
     }
   }
 }

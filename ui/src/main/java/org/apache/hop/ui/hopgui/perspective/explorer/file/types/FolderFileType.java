@@ -34,11 +34,10 @@ import java.util.List;
 import java.util.Properties;
 
 @HopFileTypePlugin(
-  id = "FolderFileType",
-  name = "Folder File Type",
-  description = "Folder handling in the explorer perspective",
-  image = "ui/images/folder.svg")
-
+    id = "FolderFileType",
+    name = "Folder File Type",
+    description = "Folder handling in the explorer perspective",
+    image = "ui/images/folder.svg")
 public class FolderFileType implements IHopFileType {
   @Override
   public String getName() {

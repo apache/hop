@@ -21,15 +21,17 @@ under the License.
 
 == Description
 
-This transform allows you to set variables in a workflow or in the virtual machine. It accepts one (and only one) row of data to set the value of a variable.
+This transform allows you to set variables in a workflow or in the virtual machine.
+It accepts one (and only one) row of data to set the value of a variable.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Apply formatting|When this option is set, it formats the value (date, numbers etc.) according to the format options. Otherwise no formatting is done.
+|Apply formatting|When this option is set, it formats the value (date, numbers etc.) according to the format options.
+Otherwise no formatting is done.
 |Field Name|Name of the field that is used
 |Variable Name|Name of the variable to set (without ${...} or %%...%% sigils)
 |Variable scope type a|Define the scope of the variable, possible options are:
@@ -39,5 +41,5 @@ This transform allows you to set variables in a workflow or in the virtual machi
 * Valid in the grand-parent workflow: the variable is valid in the grand-parent workflow and all the child workflows and pipelines.
 * Valid in the root workflow: the variable is valid in the root workflow and all the child workflows and pipelines.
 
-|Default value|Name of the variable to set 
+|Default value|Name of the variable to set
 |===

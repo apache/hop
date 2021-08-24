@@ -35,11 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /** Lets you combine multiple fields into one, selecting the first value that is non-null. */
 @Transform(
@@ -55,13 +51,20 @@ public class CoalesceMeta extends BaseTransformMeta
   private static final Class<?> PKG = CoalesceMeta.class; // for i18n purposes
 
   /** The fields to coalesce */
-  @HopMetadataProperty(key = "field", groupKey = "fields", injectionGroupDescription = "CoalesceMeta.Injection.Fields", injectionKeyDescription = "CoalesceMeta.Injection.Field")
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupDescription = "CoalesceMeta.Injection.Fields",
+      injectionKeyDescription = "CoalesceMeta.Injection.Field")
   private List<CoalesceField> fields = new ArrayList<>();
 
-  /** additional options */  
-  @HopMetadataProperty(key = "empty_is_null", injectionKey="EMPTY_STRING_AS_NULLS", injectionKeyDescription = "CoalesceMeta.Injection.EmptyStringAsNulls") 
+  /** additional options */
+  @HopMetadataProperty(
+      key = "empty_is_null",
+      injectionKey = "EMPTY_STRING_AS_NULLS",
+      injectionKeyDescription = "CoalesceMeta.Injection.EmptyStringAsNulls")
   private boolean treatEmptyStringsAsNulls;
-  
+
   public CoalesceMeta() {
     fields = new ArrayList<>();
   }
@@ -69,7 +72,7 @@ public class CoalesceMeta extends BaseTransformMeta
   public CoalesceMeta(CoalesceMeta c) {
     super();
     this.treatEmptyStringsAsNulls = c.treatEmptyStringsAsNulls;
-    for (CoalesceField field: c.getFields())  {
+    for (CoalesceField field : c.getFields()) {
       fields.add(new CoalesceField(field));
     }
   }

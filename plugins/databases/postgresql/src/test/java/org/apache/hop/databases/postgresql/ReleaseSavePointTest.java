@@ -24,17 +24,18 @@ import static org.junit.Assert.assertTrue;
 
 public class ReleaseSavePointTest {
 
-  IDatabase[] support = new IDatabase[] {
-    new PostgreSqlDatabaseMeta(),
-  };
+  IDatabase[] support =
+      new IDatabase[] {
+        new PostgreSqlDatabaseMeta(),
+      };
 
   @Test
   public void testReleaseSavePointBooleans() {
     try {
-      for ( IDatabase db : support ) {
-        assertTrue( db.releaseSavepoint() );
+      for (IDatabase db : support) {
+        assertTrue(db.releaseSavepoint());
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }

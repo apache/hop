@@ -17,21 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
 
-/**
- * Base class for all CSV input transform tests.
- */
-@Ignore( "No tests in abstract base class" )
-public class BasePropertyParsingTest extends BaseParsingTest<PropertyInputMeta, PropertyInputData, PropertyInput> {
-  /**
-   * Initialize transform info.
-   */
+/** Base class for all CSV input transform tests. */
+@Ignore("No tests in abstract base class")
+public class BasePropertyParsingTest
+    extends BaseParsingTest<PropertyInputMeta, PropertyInputData, PropertyInput> {
+  /** Initialize transform info. */
   @Before
   public void before() {
     meta = new PropertyInputMeta();
@@ -41,33 +38,27 @@ public class BasePropertyParsingTest extends BaseParsingTest<PropertyInputMeta, 
     data.outputRowMeta = new RowMeta();
   }
 
-  /**
-   * Initialize for processing specified file.
-   */
-  protected void init( String file ) throws Exception {
-    meta.setFileName( new String[] { getFile( file ).getURL().getFile() } );
-    meta.setFileMask( new String[ 1 ] );
-    meta.setExcludeFileMask( new String[ 1 ] );
+  /** Initialize for processing specified file. */
+  protected void init(String file) throws Exception {
+    meta.setFileName(new String[] {getFile(file).getURL().getFile()});
+    meta.setFileMask(new String[1]);
+    meta.setExcludeFileMask(new String[1]);
 
-    transform = new PropertyInput( transformMeta, meta, data, 1, pipelineMeta, pipeline );
+    transform = new PropertyInput(transformMeta, meta, data, 1, pipelineMeta, pipeline);
     transform.init();
-    transform.addRowListener( rowListener );
+    transform.addRowListener(rowListener);
   }
 
-  /**
-   * Declare fields for test.
-   */
-  protected void setFields( PropertyInputField... fields ) throws Exception {
-    meta.setInputFields( fields );
-    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
-    data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
+  /** Declare fields for test. */
+  protected void setFields(PropertyInputField... fields) throws Exception {
+    meta.setInputFields(fields);
+    meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
+    data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
   }
 
-  /**
-   * For BaseFileInput fields.
-   */
+  /** For BaseFileInput fields. */
   @Override
-  protected void setFields( BaseFileField... fields ) throws Exception {
-    throw new RuntimeException( "Not implemented" );
+  protected void setFields(BaseFileField... fields) throws Exception {
+    throw new RuntimeException("Not implemented");
   }
 }

@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.pgpverify;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-public class WorkflowActionPGPVerifyTest extends WorkflowActionLoadSaveTestSupport<ActionPGPVerify> {
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public class WorkflowActionPGPVerifyTest
+    extends WorkflowActionLoadSaveTestSupport<ActionPGPVerify> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,29 +35,24 @@ public class WorkflowActionPGPVerifyTest extends WorkflowActionLoadSaveTestSuppo
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "gpglocation",
-      "filename",
-      "detachedfilename",
-      "useDetachedSignature" );
+    return Arrays.asList("gpglocation", "filename", "detachedfilename", "useDetachedSignature");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "gpglocation", "getGPGLocation",
-      "filename", "getFilename",
-      "detachedfilename", "getDetachedfilename",
-      "useDetachedSignature", "useDetachedfilename" );
+        "gpglocation", "getGPGLocation",
+        "filename", "getFilename",
+        "detachedfilename", "getDetachedfilename",
+        "useDetachedSignature", "useDetachedfilename");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "gpglocation", "setGPGLocation",
-      "filename", "setFilename",
-      "detachedfilename", "setDetachedfilename",
-      "useDetachedSignature", "setUseDetachedfilename" );
+        "gpglocation", "setGPGLocation",
+        "filename", "setFilename",
+        "detachedfilename", "setDetachedfilename",
+        "useDetachedSignature", "setUseDetachedfilename");
   }
-
 }

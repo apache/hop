@@ -21,11 +21,14 @@ under the License.
 
 From the https://cassandra.apache.org/[Apache Cassandra] website:
 
-The database is the right choice when you need scalability and high availability without compromising performance. http://techblog.netflix.com/2011/11/benchmarking-cassandra-scalability-on.html[Linear scalability] and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data. Cassandra's support for replicating across multiple datacenters is best-in-class, providing lower latency for your users and the peace of mind of knowing that you can survive regional outages.
+The database is the right choice when you need scalability and high availability without compromising performance. http://techblog.netflix.com/2011/11/benchmarking-cassandra-scalability-on.html[Linear scalability] and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.
+Cassandra's support for replicating across multiple datacenters is best-in-class, providing lower latency for your users and the peace of mind of knowing that you can survive regional outages.
 
 From https://en.wikipedia.org/wiki/Apache_Cassandra[Wikipedia]:
 
-Apache Cassandra is a free and open-source, distributed, wide-column store, NoSQL database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure. Cassandra offers support for clusters spanning multiple datacenters,[2] with asynchronous masterless replication allowing low latency operations for all clients. Cassandra was designed to implement a combination of Amazon's Dynamo distributed storage and replication techniques combined with Google's Bigtable data and storage engine model.[3]
+Apache Cassandra is a free and open-source, distributed, wide-column store, NoSQL database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure.
+Cassandra offers support for clusters spanning multiple datacenters,[2] with asynchronous masterless replication allowing low latency operations for all clients.
+Cassandra was designed to implement a combination of Amazon's Dynamo distributed storage and replication techniques combined with Google's Bigtable data and storage engine model.[3]
 
 == Cassandra Support in Hop
 

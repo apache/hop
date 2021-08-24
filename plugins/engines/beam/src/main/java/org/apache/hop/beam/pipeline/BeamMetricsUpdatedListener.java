@@ -21,5 +21,5 @@ import org.apache.beam.sdk.PipelineResult;
 
 public interface BeamMetricsUpdatedListener {
 
-  void beamMetricsUpdated( PipelineResult pipelineResult );
+  void beamMetricsUpdated(PipelineResult pipelineResult);
 }

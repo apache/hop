@@ -17,22 +17,15 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-public class WorkflowActionSetVariablesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionSetVariables> {
+public class WorkflowActionSetVariablesLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionSetVariables> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -42,20 +35,31 @@ public class WorkflowActionSetVariablesLoadSaveTest extends WorkflowActionLoadSa
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "replaceVars", "filename", "fileVariableType",
-      "variableName", "variableValue", "variableType" } );
+    return Arrays.asList(
+        new String[] {
+          "replaceVars",
+          "filename",
+          "fileVariableType",
+          "variableName",
+          "variableValue",
+          "variableType"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put( "fileVariableType", new IntLoadSaveValidator( ActionSetVariables.variableTypeCode.length ) );
+    validators.put(
+        "fileVariableType", new IntLoadSaveValidator(ActionSetVariables.variableTypeCode.length));
 
-    int count = new Random().nextInt( 50 ) + 1;
+    int count = new Random().nextInt(50) + 1;
 
-    validators.put( "variableName", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
-    validators.put( "variableValue", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
-    validators.put( "variableType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 3 ), count ) );
+    validators.put(
+        "variableName", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), count));
+    validators.put(
+        "variableValue", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), count));
+    validators.put(
+        "variableType", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(3), count));
 
     return validators;
   }

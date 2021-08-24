@@ -30,13 +30,13 @@ public class ValidatorContext {
     return map;
   }
 
-  public ValidatorContext put( String key, Object value ) {
-    map.put( key, value );
+  public ValidatorContext put(String key, Object value) {
+    map.put(key, value);
     return this;
   }
 
-  public ValidatorContext putAsList( String key, Object... value ) {
-    map.put( key, value );
+  public ValidatorContext putAsList(String key, Object... value) {
+    map.put(key, value);
     return this;
   }
 
@@ -44,20 +44,20 @@ public class ValidatorContext {
     map.clear();
   }
 
-  public boolean containsKey( String key ) {
-    return map.containsKey( key );
+  public boolean containsKey(String key) {
+    return map.containsKey(key);
   }
 
-  public boolean containsValue( Object value ) {
-    return map.containsValue( value );
+  public boolean containsValue(Object value) {
+    return map.containsValue(value);
   }
 
   public Set<Map.Entry<String, Object>> entrySet() {
     return map.entrySet();
   }
 
-  public Object get( String key ) {
-    return map.get( key );
+  public Object get(String key) {
+    return map.get(key);
   }
 
   public boolean isEmpty() {
@@ -68,13 +68,13 @@ public class ValidatorContext {
     return map.keySet();
   }
 
-  public ValidatorContext putAll( Map<String, Object> t ) {
-    map.putAll( t );
+  public ValidatorContext putAll(Map<String, Object> t) {
+    map.putAll(t);
     return this;
   }
 
-  public Object remove( String key ) {
-    return map.remove( key );
+  public Object remove(String key) {
+    return map.remove(key);
   }
 
   public int size() {
@@ -84,5 +84,4 @@ public class ValidatorContext {
   public Collection<Object> values() {
     return map.values();
   }
-
 }

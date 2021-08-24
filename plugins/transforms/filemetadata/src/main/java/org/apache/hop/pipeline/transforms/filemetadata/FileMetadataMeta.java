@@ -44,8 +44,7 @@ import java.util.ArrayList;
     image = "icon.svg",
     description = "i18n::FileMetadata.Name.Desc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/filemetadata.html"
-)
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/filemetadata.html")
 public class FileMetadataMeta extends BaseTransformMeta
     implements ITransformMeta<FileMetadata, FileMetadataData> {
 
@@ -85,9 +84,9 @@ public class FileMetadataMeta extends BaseTransformMeta
   }
 
   /**
-   * This method is called every time a new transform is created and should allocate/set the transform
-   * configuration to sensible defaults. The values set here will be used by Spoon when a new transform
-   * is created.
+   * This method is called every time a new transform is created and should allocate/set the
+   * transform configuration to sensible defaults. The values set here will be used by Spoon when a
+   * new transform is created.
    */
   public void setDefault() {
     fileName = "";
@@ -106,8 +105,8 @@ public class FileMetadataMeta extends BaseTransformMeta
 
   /**
    * This method is used when a transform is duplicated. It needs to return a deep copy of this
-   * object. Be sure to create proper deep copies if the transform configuration is stored in modifiable
-   * objects.
+   * object. Be sure to create proper deep copies if the transform configuration is stored in
+   * modifiable objects.
    *
    * @return a deep copy of this
    */

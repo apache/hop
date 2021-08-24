@@ -16,6 +16,7 @@
  */
 
 package org.apache.hop.pipeline.transforms.mapping;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
@@ -28,7 +29,6 @@ import org.w3c.dom.Node;
  * @author matt
  * @version 3.0
  * @since 2007-06-27
- *
  */
 public class MappingParameters implements Cloneable {
 
@@ -39,7 +39,7 @@ public class MappingParameters implements Cloneable {
   /** The name of the variable to set in the sub-transformation */
   private String[] variable;
 
-  /** This is a simple String with optionally variables in them **/
+  /** This is a simple String with optionally variables in them * */
   private String[] input;
 
   /** This flag causes the sub-transformation to inherit all variables from the parent */
@@ -58,87 +58,72 @@ public class MappingParameters implements Cloneable {
   public Object clone() {
     try {
       return super.clone();
-    } catch ( CloneNotSupportedException e ) {
-      throw new RuntimeException( e ); // Nope, we don't want that in our code.
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException(e); // Nope, we don't want that in our code.
     }
   }
 
-  public MappingParameters( Node paramNode ) {
+  public MappingParameters(Node paramNode) {
 
-    int nrVariables = XmlHandler.countNodes( paramNode, XML_VARIABLES_TAG );
+    int nrVariables = XmlHandler.countNodes(paramNode, XML_VARIABLES_TAG);
     variable = new String[nrVariables];
     input = new String[nrVariables];
 
-    for ( int i = 0; i < variable.length; i++ ) {
-      Node variableMappingNode = XmlHandler.getSubNodeByNr( paramNode, XML_VARIABLES_TAG, i );
+    for (int i = 0; i < variable.length; i++) {
+      Node variableMappingNode = XmlHandler.getSubNodeByNr(paramNode, XML_VARIABLES_TAG, i);
 
-      variable[i] = XmlHandler.getTagValue( variableMappingNode, "variable" );
-      input[i] = XmlHandler.getTagValue( variableMappingNode, "input" );
+      variable[i] = XmlHandler.getTagValue(variableMappingNode, "variable");
+      input[i] = XmlHandler.getTagValue(variableMappingNode, "input");
     }
 
-    inheritingAllVariables = "Y".equalsIgnoreCase( XmlHandler.getTagValue( paramNode, "inherit_all_vars" ) );
+    inheritingAllVariables =
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(paramNode, "inherit_all_vars"));
   }
 
   public String getXml() {
-    StringBuilder xml = new StringBuilder( 200 );
+    StringBuilder xml = new StringBuilder(200);
 
-    xml.append( "    " ).append( XmlHandler.openTag( XML_TAG ) );
+    xml.append("    ").append(XmlHandler.openTag(XML_TAG));
 
-    for ( int i = 0; i < variable.length; i++ ) {
-      xml.append( "       " ).append( XmlHandler.openTag( XML_VARIABLES_TAG ) );
-      xml.append( XmlHandler.addTagValue( "variable", variable[i], false ) );
-      xml.append( XmlHandler.addTagValue( "input", input[i], false ) );
-      xml.append( XmlHandler.closeTag( XML_VARIABLES_TAG ) ).append( Const.CR );
+    for (int i = 0; i < variable.length; i++) {
+      xml.append("       ").append(XmlHandler.openTag(XML_VARIABLES_TAG));
+      xml.append(XmlHandler.addTagValue("variable", variable[i], false));
+      xml.append(XmlHandler.addTagValue("input", input[i], false));
+      xml.append(XmlHandler.closeTag(XML_VARIABLES_TAG)).append(Const.CR);
     }
-    xml.append( "    " ).append( XmlHandler.addTagValue( "inherit_all_vars", inheritingAllVariables ) );
-    xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) );
+    xml.append("    ").append(XmlHandler.addTagValue("inherit_all_vars", inheritingAllVariables));
+    xml.append("    ").append(XmlHandler.closeTag(XML_TAG));
 
     return xml.toString();
   }
 
-  /**
-   * @return the inputField
-   */
+  /** @return the inputField */
   public String[] getInputField() {
     return input;
   }
 
-  /**
-   * @param inputField
-   *          the inputField to set
-   */
-  public void setInputField( String[] inputField ) {
+  /** @param inputField the inputField to set */
+  public void setInputField(String[] inputField) {
     this.input = inputField;
   }
 
-  /**
-   * @return the variable
-   */
+  /** @return the variable */
   public String[] getVariable() {
     return variable;
   }
 
-  /**
-   * @param variable
-   *          the variable to set
-   */
-  public void setVariable( String[] variable ) {
+  /** @param variable the variable to set */
+  public void setVariable(String[] variable) {
     this.variable = variable;
   }
 
-  /**
-   * @return the inheritingAllVariables
-   */
+  /** @return the inheritingAllVariables */
   public boolean isInheritingAllVariables() {
     return inheritingAllVariables;
   }
 
-  /**
-   * @param inheritingAllVariables
-   *          the inheritingAllVariables to set
-   */
-  public void setInheritingAllVariables( boolean inheritingAllVariables ) {
+  /** @param inheritingAllVariables the inheritingAllVariables to set */
+  public void setInheritingAllVariables(boolean inheritingAllVariables) {
     this.inheritingAllVariables = inheritingAllVariables;
   }
-
 }

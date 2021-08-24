@@ -21,8 +21,6 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.IGuiSize;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 

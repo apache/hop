@@ -22,9 +22,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
-/**
- * Implements common functionality needed by partitioner plugins.
- */
+/** Implements common functionality needed by partitioner plugins. */
 public abstract class BasePartitioner implements IPartitioner {
 
   protected TransformPartitioningMeta meta;
@@ -32,11 +30,8 @@ public abstract class BasePartitioner implements IPartitioner {
   protected String id;
   protected String description;
 
-  /**
-   * Instantiates a new base partitioner.
-   */
-  public BasePartitioner() {
-  }
+  /** Instantiates a new base partitioner. */
+  public BasePartitioner() {}
 
   /*
    * (non-Javadoc)
@@ -45,9 +40,9 @@ public abstract class BasePartitioner implements IPartitioner {
    */
   public IPartitioner clone() {
     IPartitioner partitioner = getInstance();
-    partitioner.setId( id );
-    partitioner.setDescription( description );
-    partitioner.setMeta( meta );
+    partitioner.setId(id);
+    partitioner.setDescription(description);
+    partitioner.setMeta(meta);
     return partitioner;
   }
 
@@ -65,7 +60,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @param nrPartitions the new nr partitions
    */
-  public void setNrPartitions( int nrPartitions ) {
+  public void setNrPartitions(int nrPartitions) {
     this.nrPartitions = nrPartitions;
   }
 
@@ -76,12 +71,11 @@ public abstract class BasePartitioner implements IPartitioner {
    * @param rowMeta the row meta
    * @throws HopException the hop exception
    */
-  public void init( IVariables variables, IRowMeta rowMeta ) throws HopException {
+  public void init(IVariables variables, IRowMeta rowMeta) throws HopException {
 
-    if ( nrPartitions < 0 ) {
+    if (nrPartitions < 0) {
       nrPartitions = meta.getPartitionSchema().calculatePartitionIds(variables).size();
     }
-
   }
 
   /**
@@ -98,7 +92,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#setMeta(org.apache.hop.pipeline.transform.TransformPartitioningMeta)
    */
-  public void setMeta( TransformPartitioningMeta meta ) {
+  public void setMeta(TransformPartitioningMeta meta) {
     this.meta = meta;
   }
 
@@ -123,7 +117,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#setDescription(java.lang.String)
    */
-  public void setDescription( String description ) {
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -141,8 +135,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#setId(java.lang.String)
    */
-  public void setId( String id ) {
+  public void setId(String id) {
     this.id = id;
   }
-
 }

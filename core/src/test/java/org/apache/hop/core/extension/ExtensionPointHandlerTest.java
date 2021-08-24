@@ -23,14 +23,8 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class ExtensionPointHandlerTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -38,23 +32,23 @@ public class ExtensionPointHandlerTest {
 
   @Test
   public void callExtensionPointTest() throws Exception {
-    IPluginMock pluginInterface = mock( IPluginMock.class );
-    when( pluginInterface.getName() ).thenReturn( TEST_NAME );
-    when( pluginInterface.getMainType() ).thenReturn( (Class) IExtensionPoint.class );
-    when( pluginInterface.getIds() ).thenReturn( new String[] { "testID" } );
+    IPluginMock pluginInterface = mock(IPluginMock.class);
+    when(pluginInterface.getName()).thenReturn(TEST_NAME);
+    when(pluginInterface.getMainType()).thenReturn((Class) IExtensionPoint.class);
+    when(pluginInterface.getIds()).thenReturn(new String[] {"testID"});
 
-    IExtensionPoint extensionPoint = mock( IExtensionPoint.class );
-    when( pluginInterface.loadClass( IExtensionPoint.class ) ).thenReturn( extensionPoint );
+    IExtensionPoint extensionPoint = mock(IExtensionPoint.class);
+    when(pluginInterface.loadClass(IExtensionPoint.class)).thenReturn(extensionPoint);
 
-    PluginRegistry.addPluginType( ExtensionPointPluginType.getInstance() );
-    PluginRegistry.getInstance().registerPlugin( ExtensionPointPluginType.class, pluginInterface );
+    PluginRegistry.addPluginType(ExtensionPointPluginType.getInstance());
+    PluginRegistry.getInstance().registerPlugin(ExtensionPointPluginType.class, pluginInterface);
 
-    final ILogChannel log = mock( ILogChannel.class );
+    final ILogChannel log = mock(ILogChannel.class);
 
-    ExtensionPointHandler.callExtensionPoint( log, null, "noPoint", null );
-    verify( extensionPoint, never() ).callExtensionPoint( any( ILogChannel.class ), any(), any() );
+    ExtensionPointHandler.callExtensionPoint(log, null, "noPoint", null);
+    verify(extensionPoint, never()).callExtensionPoint(any(ILogChannel.class), any(), any());
 
-    ExtensionPointHandler.callExtensionPoint( log, null, TEST_NAME, null );
-    verify( extensionPoint, times( 1 ) ).callExtensionPoint( eq( log ), any(), isNull() );
+    ExtensionPointHandler.callExtensionPoint(log, null, TEST_NAME, null);
+    verify(extensionPoint, times(1)).callExtensionPoint(eq(log), any(), isNull());
   }
 }

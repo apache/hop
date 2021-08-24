@@ -39,12 +39,26 @@ public class TableCompareMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "referenceConnection", "referenceSchemaField", "referenceTableField", "compareConnection",
-        "compareSchemaField", "compareTableField", "keyFieldsField", "excludeFieldsField", "nrErrorsField",
-        "nrRecordsReferenceField", "nrRecordsCompareField", "nrErrorsLeftJoinField", "nrErrorsInnerJoinField",
-        "nrErrorsRightJoinField", "keyDescriptionField", "valueReferenceField", "valueCompareField" );
+        Arrays.asList(
+            "referenceConnection",
+            "referenceSchemaField",
+            "referenceTableField",
+            "compareConnection",
+            "compareSchemaField",
+            "compareTableField",
+            "keyFieldsField",
+            "excludeFieldsField",
+            "nrErrorsField",
+            "nrRecordsReferenceField",
+            "nrRecordsCompareField",
+            "nrErrorsLeftJoinField",
+            "nrErrorsInnerJoinField",
+            "nrErrorsRightJoinField",
+            "keyDescriptionField",
+            "valueReferenceField",
+            "valueCompareField");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
@@ -53,7 +67,8 @@ public class TableCompareMetaTest {
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test

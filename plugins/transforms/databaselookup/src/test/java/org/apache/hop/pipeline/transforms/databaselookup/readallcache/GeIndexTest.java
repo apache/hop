@@ -26,10 +26,8 @@ import java.util.List;
 
 import static org.junit.Assert.fail;
 
-/**
- * @author Andrey Khayrutdinov
- */
-@RunWith( Parameterized.class )
+/** @author Andrey Khayrutdinov */
+@RunWith(Parameterized.class)
 public class GeIndexTest extends IndexTestBase<LtIndex> {
 
   @Parameterized.Parameters
@@ -37,51 +35,52 @@ public class GeIndexTest extends IndexTestBase<LtIndex> {
     return IndexTestBase.createSampleData();
   }
 
-  public GeIndexTest( Long[][] rows ) {
-    super( LtIndex.class, rows );
+  public GeIndexTest(Long[][] rows) {
+    super(LtIndex.class, rows);
   }
 
   @Override
-  void doAssertMatches( BitSet candidates, long lookupValue, long actualValue ) {
-    if ( !( actualValue >= lookupValue ) ) {
-      fail( String.format( "All found values are expected to be greater than [%d] or equal to it, but got [%d] among %s",
-        lookupValue, actualValue, candidates ) );
+  void doAssertMatches(BitSet candidates, long lookupValue, long actualValue) {
+    if (!(actualValue >= lookupValue)) {
+      fail(
+          String.format(
+              "All found values are expected to be greater than [%d] or equal to it, but got [%d] among %s",
+              lookupValue, actualValue, candidates));
     }
   }
 
   @Override
-  LtIndex createIndexInstance( int column, IValueMeta meta, int rowsAmount ) throws Exception {
-    return (LtIndex) LtIndex.greaterOrEqualCache( column, meta, rowsAmount );
+  LtIndex createIndexInstance(int column, IValueMeta meta, int rowsAmount) throws Exception {
+    return (LtIndex) LtIndex.greaterOrEqualCache(column, meta, rowsAmount);
   }
-
 
   @Override
   public void lookupFor_MinusOne() {
-    testFindsCorrectly( -1, 5 );
+    testFindsCorrectly(-1, 5);
   }
 
   @Override
   public void lookupFor_Zero() {
-    testFindsCorrectly( 0, 5 );
+    testFindsCorrectly(0, 5);
   }
 
   @Override
   public void lookupFor_One() {
-    testFindsCorrectly( 1, 4 );
+    testFindsCorrectly(1, 4);
   }
 
   @Override
   public void lookupFor_Two() {
-    testFindsCorrectly( 2, 3 );
+    testFindsCorrectly(2, 3);
   }
 
   @Override
   public void lookupFor_Three() {
-    testFindsCorrectly( 3, 1 );
+    testFindsCorrectly(3, 1);
   }
 
   @Override
   public void lookupFor_Hundred() {
-    testFindsNothing( 100 );
+    testFindsNothing(100);
   }
 }

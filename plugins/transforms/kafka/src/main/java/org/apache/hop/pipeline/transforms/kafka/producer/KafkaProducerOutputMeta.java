@@ -202,13 +202,7 @@ public class KafkaProducerOutputMeta extends BaseTransformMeta
                     .append("        ")
                     .append(
                         XmlHandler.addTagValue(
-                            CONFIG_OPTION,
-                            "",
-                            true,
-                            OPTION_PROPERTY,
-                            key,
-                            OPTION_VALUE,
-                            value)));
+                            CONFIG_OPTION, "", true, OPTION_PROPERTY, key, OPTION_VALUE, value)));
     retval.append("    ").append(XmlHandler.closeTag(ADVANCED_CONFIG)).append(Const.CR);
 
     return retval.toString();

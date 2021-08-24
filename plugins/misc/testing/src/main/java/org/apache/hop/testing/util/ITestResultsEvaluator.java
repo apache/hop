@@ -18,7 +18,6 @@
 
 package org.apache.hop.testing.util;
 
-import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.UnitTestResult;
@@ -27,6 +26,6 @@ import java.util.List;
 
 public interface ITestResultsEvaluator {
 
-  void evaluateTestResults( IPipelineEngine pipeline, List<UnitTestResult> testResults ) throws HopException;
-
+  void evaluateTestResults(IPipelineEngine pipeline, List<UnitTestResult> testResults)
+      throws HopException;
 }

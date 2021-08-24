@@ -17,5 +17,5 @@
   -->
 
 <dependencies>
-  <folder>../mysql</folder>
+    <folder>../mysql</folder>
 </dependencies>

@@ -17,8 +17,8 @@
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
@@ -38,73 +38,74 @@ public class FieldHelper {
   private int index = -1;
   private IValueMeta meta;
 
-  public FieldHelper( IRowMeta rowMeta, String fieldName ) {
-    this.meta = rowMeta.searchValueMeta( fieldName );
-    this.index = rowMeta.indexOfValue( fieldName );
-    if ( this.index == -1 ) {
-      throw new IllegalArgumentException( String.format(
-        "FieldHelper could not be initialized. The field named '%s' not found in RowMeta: %s", fieldName,
-        rowMeta.toStringMeta() ) );
+  public FieldHelper(IRowMeta rowMeta, String fieldName) {
+    this.meta = rowMeta.searchValueMeta(fieldName);
+    this.index = rowMeta.indexOfValue(fieldName);
+    if (this.index == -1) {
+      throw new IllegalArgumentException(
+          String.format(
+              "FieldHelper could not be initialized. The field named '%s' not found in RowMeta: %s",
+              fieldName, rowMeta.toStringMeta()));
     }
   }
 
-  public Object getObject( Object[] dataRow ) {
-    return dataRow[ index ];
+  public Object getObject(Object[] dataRow) {
+    return dataRow[index];
   }
 
   @Deprecated
-  public BigDecimal getBigNumber( Object[] dataRow ) throws HopValueException {
-    return getBigDecimal( dataRow );
+  public BigDecimal getBigNumber(Object[] dataRow) throws HopValueException {
+    return getBigDecimal(dataRow);
   }
 
-  public BigDecimal getBigDecimal( Object[] dataRow ) throws HopValueException {
-    return meta.getBigNumber( dataRow[ index ] );
+  public BigDecimal getBigDecimal(Object[] dataRow) throws HopValueException {
+    return meta.getBigNumber(dataRow[index]);
   }
 
-  public byte[] getBinary( Object[] dataRow ) throws HopValueException {
-    return meta.getBinary( dataRow[ index ] );
+  public byte[] getBinary(Object[] dataRow) throws HopValueException {
+    return meta.getBinary(dataRow[index]);
   }
 
-  public Boolean getBoolean( Object[] dataRow ) throws HopValueException {
-    return meta.getBoolean( dataRow[ index ] );
+  public Boolean getBoolean(Object[] dataRow) throws HopValueException {
+    return meta.getBoolean(dataRow[index]);
   }
 
-  public Date getDate( Object[] dataRow ) throws HopValueException {
-    return meta.getDate( dataRow[ index ] );
-  }
-
-  @Deprecated
-  public Long getInteger( Object[] dataRow ) throws HopValueException {
-    return getLong( dataRow );
-  }
-
-  public Long getLong( Object[] dataRow ) throws HopValueException {
-    return meta.getInteger( dataRow[ index ] );
+  public Date getDate(Object[] dataRow) throws HopValueException {
+    return meta.getDate(dataRow[index]);
   }
 
   @Deprecated
-  public Double getNumber( Object[] dataRow ) throws HopValueException {
-    return getDouble( dataRow );
+  public Long getInteger(Object[] dataRow) throws HopValueException {
+    return getLong(dataRow);
   }
 
-  public Double getDouble( Object[] dataRow ) throws HopValueException {
-    return meta.getNumber( dataRow[ index ] );
+  public Long getLong(Object[] dataRow) throws HopValueException {
+    return meta.getInteger(dataRow[index]);
   }
 
-  public Timestamp getTimestamp( Object[] dataRow ) throws HopValueException {
-    return ( (ValueMetaTimestamp) meta ).getTimestamp( dataRow[ index ] );
+  @Deprecated
+  public Double getNumber(Object[] dataRow) throws HopValueException {
+    return getDouble(dataRow);
   }
 
-  public InetAddress getInetAddress( Object[] dataRow ) throws HopValueException {
-    return ( (ValueMetaInternetAddress) meta ).getInternetAddress( dataRow[ index ] );
+  public Double getDouble(Object[] dataRow) throws HopValueException {
+    return meta.getNumber(dataRow[index]);
   }
 
-  public Serializable getSerializable( Object[] dataRow ) throws HopValueException {
-    return (Serializable) dataRow[ index ];
+  public Timestamp getTimestamp(Object[] dataRow) throws HopValueException {
+    return ((ValueMetaTimestamp) meta).getTimestamp(dataRow[index]);
   }
 
-  public String getString( Object[] dataRow ) throws HopValueException {
-    return meta.getString( dataRow[ index ] );
+  public InetAddress getInetAddress(Object[] dataRow) throws HopValueException {
+    return ((ValueMetaInternetAddress) meta).getInternetAddress(dataRow[index]);
+  }
+
+  public Serializable getSerializable(Object[] dataRow) throws HopValueException {
+    return (Serializable) dataRow[index];
+  }
+
+  public String getString(Object[] dataRow) throws HopValueException {
+    return meta.getString(dataRow[index]);
   }
 
   public IValueMeta getValueMeta() {
@@ -115,79 +116,83 @@ public class FieldHelper {
     return index;
   }
 
-  public void setValue( Object[] dataRow, Object value ) {
-    dataRow[ index ] = value;
+  public void setValue(Object[] dataRow, Object value) {
+    dataRow[index] = value;
   }
 
-  public void setValue( Object[] dataRow, byte[] value ) {
-    dataRow[ index ] = value;
+  public void setValue(Object[] dataRow, byte[] value) {
+    dataRow[index] = value;
   }
 
-  private static final Pattern validJavaIdentifier = Pattern.compile( "^[\\w&&\\D]\\w*" );
+  private static final Pattern validJavaIdentifier = Pattern.compile("^[\\w&&\\D]\\w*");
 
-  public static String getAccessor( boolean isIn, String fieldName ) {
-    StringBuilder sb = new StringBuilder( "get(Fields." );
-    sb.append( isIn ? "In" : "Out" );
-    sb.append( String.format( ", \"%s\")", fieldName.replace( "\\", "\\\\" ).replace( "\"", "\\\"" ) ) );
+  public static String getAccessor(boolean isIn, String fieldName) {
+    StringBuilder sb = new StringBuilder("get(Fields.");
+    sb.append(isIn ? "In" : "Out");
+    sb.append(String.format(", \"%s\")", fieldName.replace("\\", "\\\\").replace("\"", "\\\"")));
     return sb.toString();
   }
 
-  public static String getGetSignature( String accessor, IValueMeta v ) {
+  public static String getGetSignature(String accessor, IValueMeta v) {
     StringBuilder sb = new StringBuilder();
 
-    switch ( v.getType() ) {
+    switch (v.getType()) {
       case IValueMeta.TYPE_BIGNUMBER:
-        sb.append( "BigDecimal " );
+        sb.append("BigDecimal ");
         break;
       case IValueMeta.TYPE_BINARY:
-        sb.append( "byte[] " );
+        sb.append("byte[] ");
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        sb.append( "Boolean " );
+        sb.append("Boolean ");
         break;
       case IValueMeta.TYPE_DATE:
-        sb.append( "Date " );
+        sb.append("Date ");
         break;
       case IValueMeta.TYPE_INTEGER:
-        sb.append( "Long " );
+        sb.append("Long ");
         break;
       case IValueMeta.TYPE_NUMBER:
-        sb.append( "Double " );
+        sb.append("Double ");
         break;
       case IValueMeta.TYPE_STRING:
-        sb.append( "String " );
+        sb.append("String ");
         break;
       case IValueMeta.TYPE_INET:
-        sb.append( "InetAddress " );
+        sb.append("InetAddress ");
         break;
       case IValueMeta.TYPE_TIMESTAMP:
-        sb.append( "Timestamp " );
+        sb.append("Timestamp ");
         break;
       case IValueMeta.TYPE_SERIALIZABLE:
       default:
-        sb.append( "Object " );
+        sb.append("Object ");
         break;
     }
 
-    if ( validJavaIdentifier.matcher( v.getName() ).matches() ) {
-      sb.append( v.getName() );
+    if (validJavaIdentifier.matcher(v.getName()).matches()) {
+      sb.append(v.getName());
     } else {
-      sb.append( "value" );
+      sb.append("value");
     }
-    String name = getNativeDataTypeSimpleName( v );
-    sb
-      .append( " = " ).append( accessor ).append( ".get" ).append( "-".equals( name ) ? "Object" : name )
-      .append( "(r);" );
+    String name = getNativeDataTypeSimpleName(v);
+    sb.append(" = ")
+        .append(accessor)
+        .append(".get")
+        .append("-".equals(name) ? "Object" : name)
+        .append("(r);");
 
     return sb.toString();
   }
 
-  public static String getNativeDataTypeSimpleName( IValueMeta v ) {
+  public static String getNativeDataTypeSimpleName(IValueMeta v) {
     try {
-      return v.getType() != IValueMeta.TYPE_BINARY ? v.getNativeDataTypeClass().getSimpleName() : "Binary";
-    } catch ( HopValueException e ) {
-      ILogChannel log = new LogChannel( v );
-      log.logDebug( BaseMessages.getString( PKG, "FieldHelper.Log.UnknownNativeDataTypeSimpleName" ) );
+      return v.getType() != IValueMeta.TYPE_BINARY
+          ? v.getNativeDataTypeClass().getSimpleName()
+          : "Binary";
+    } catch (HopValueException e) {
+      ILogChannel log = new LogChannel(v);
+      log.logDebug(BaseMessages.getString(PKG, "FieldHelper.Log.UnknownNativeDataTypeSimpleName"));
       return "Object";
     }
   }

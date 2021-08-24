@@ -26,104 +26,103 @@ import java.util.LinkedList;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
-import static org.apache.hop.core.logging.LoggingObjectType.WORKFLOW;
-import static org.apache.hop.core.logging.LoggingObjectType.ACTION;
-import static org.apache.hop.core.logging.LoggingObjectType.TRANSFORM;
-import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
+import static org.apache.hop.core.logging.LoggingObjectType.*;
 
 public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
 
-  @VisibleForTesting Logger pipelineLogger = LoggerFactory.getLogger( "org.apache.hop.pipeline.Pipeline" );
+  @VisibleForTesting
+  Logger pipelineLogger = LoggerFactory.getLogger("org.apache.hop.pipeline.Pipeline");
 
-  @VisibleForTesting Logger jobLogger = LoggerFactory.getLogger( "org.apache.hop.workflow.Workflow" );
+  @VisibleForTesting Logger jobLogger = LoggerFactory.getLogger("org.apache.hop.workflow.Workflow");
 
-  @VisibleForTesting Logger diLogger = LoggerFactory.getLogger( "org.apache.hop" );
+  @VisibleForTesting Logger diLogger = LoggerFactory.getLogger("org.apache.hop");
 
-  @VisibleForTesting Function<String, ILoggingObject> logObjProvider =
-      objId -> LoggingRegistry.getInstance().getLoggingObject( objId );
+  @VisibleForTesting
+  Function<String, ILoggingObject> logObjProvider =
+      objId -> LoggingRegistry.getInstance().getLoggingObject(objId);
 
   private static final String SEPARATOR = "/";
 
-  public Slf4jLoggingEventListener() {
-  }
-
+  public Slf4jLoggingEventListener() {}
 
   @Override
-  public void eventAdded( HopLoggingEvent event ) {
+  public void eventAdded(HopLoggingEvent event) {
     Object messageObject = event.getMessage();
-    checkNotNull( messageObject, "Expected log message to be defined." );
-    if ( messageObject instanceof LogMessage ) {
+    checkNotNull(messageObject, "Expected log message to be defined.");
+    if (messageObject instanceof LogMessage) {
       LogMessage message = (LogMessage) messageObject;
-      ILoggingObject loggingObject = logObjProvider.apply( message.getLogChannelId() );
+      ILoggingObject loggingObject = logObjProvider.apply(message.getLogChannelId());
 
-      if ( loggingObject == null ) {
+      if (loggingObject == null) {
         // this can happen if logObject has been discarded while log events are still in flight.
-        logToLogger( diLogger, message.getLevel(),
-          message.getSubject() + " " + message.getMessage() );
-      } else if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == TRANSFORM || loggingObject.getObjectType() == DATABASE ) {
-        logToLogger( pipelineLogger, message.getLevel(), loggingObject, message );
-      } else if ( loggingObject.getObjectType() == WORKFLOW || loggingObject.getObjectType() == ACTION ) {
-        logToLogger( jobLogger, message.getLevel(), loggingObject, message );
+        logToLogger(
+            diLogger, message.getLevel(), message.getSubject() + " " + message.getMessage());
+      } else if (loggingObject.getObjectType() == PIPELINE
+          || loggingObject.getObjectType() == TRANSFORM
+          || loggingObject.getObjectType() == DATABASE) {
+        logToLogger(pipelineLogger, message.getLevel(), loggingObject, message);
+      } else if (loggingObject.getObjectType() == WORKFLOW
+          || loggingObject.getObjectType() == ACTION) {
+        logToLogger(jobLogger, message.getLevel(), loggingObject, message);
       }
     }
   }
 
-  private void logToLogger( Logger logger, LogLevel logLevel, ILoggingObject loggingObject,
-                            LogMessage message ) {
-    logToLogger( logger, logLevel,
-      "[" + getDetailedSubject( loggingObject ) + "]  " + message.getMessage() );
+  private void logToLogger(
+      Logger logger, LogLevel logLevel, ILoggingObject loggingObject, LogMessage message) {
+    logToLogger(
+        logger, logLevel, "[" + getDetailedSubject(loggingObject) + "]  " + message.getMessage());
   }
 
-  private void logToLogger( Logger logger, LogLevel logLevel, String message ) {
-    switch ( logLevel ) {
+  private void logToLogger(Logger logger, LogLevel logLevel, String message) {
+    switch (logLevel) {
       case NOTHING:
         break;
       case ERROR:
-        logger.error( message );
+        logger.error(message);
         break;
       case MINIMAL:
-        logger.warn( message );
+        logger.warn(message);
         break;
       case BASIC:
       case DETAILED:
-        logger.info( message );
+        logger.info(message);
         break;
       case DEBUG:
-        logger.debug( message );
+        logger.debug(message);
         break;
       case ROWLEVEL:
-        logger.trace( message );
+        logger.trace(message);
         break;
       default:
         break;
     }
   }
 
-  private String getDetailedSubject( ILoggingObject loggingObject ) {
+  private String getDetailedSubject(ILoggingObject loggingObject) {
     LinkedList<String> subjects = new LinkedList<>();
-    while ( loggingObject != null ) {
-      if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == WORKFLOW ) {
+    while (loggingObject != null) {
+      if (loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == WORKFLOW) {
         String filename = loggingObject.getFilename();
-        if ( filename != null && filename.length() > 0 ) {
-          subjects.add( filename );
+        if (filename != null && filename.length() > 0) {
+          subjects.add(filename);
         }
       }
       loggingObject = loggingObject.getParent();
     }
-    if ( subjects.size() > 0 ) {
-      return subjects.size() > 1 ? formatDetailedSubject( subjects ) : subjects.get( 0 );
+    if (subjects.size() > 0) {
+      return subjects.size() > 1 ? formatDetailedSubject(subjects) : subjects.get(0);
     } else {
       return "";
     }
   }
 
-  private String formatDetailedSubject( LinkedList<String> subjects ) {
+  private String formatDetailedSubject(LinkedList<String> subjects) {
     StringBuilder string = new StringBuilder();
-    for ( Iterator<String> it = subjects.descendingIterator(); it.hasNext(); ) {
-      string.append( it.next() );
-      if ( it.hasNext() ) {
-        string.append( "  " );
+    for (Iterator<String> it = subjects.descendingIterator(); it.hasNext(); ) {
+      string.append(it.next());
+      if (it.hasNext()) {
+        string.append("  ");
       }
     }
     return string.toString();

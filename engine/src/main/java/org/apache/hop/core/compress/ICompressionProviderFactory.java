@@ -21,11 +21,11 @@ import java.util.Collection;
 
 public interface ICompressionProviderFactory {
 
-  ICompressionProvider createCompressionProviderInstance( String name );
+  ICompressionProvider createCompressionProviderInstance(String name);
 
   Collection<ICompressionProvider> getCompressionProviders();
 
   String[] getCompressionProviderNames();
 
-  ICompressionProvider getCompressionProviderByName( String name );
+  ICompressionProvider getCompressionProviderByName(String name);
 }

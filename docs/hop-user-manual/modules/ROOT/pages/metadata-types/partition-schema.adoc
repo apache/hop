@@ -23,7 +23,9 @@ under the License.
 
 image:icons/partition_schema.svg[]
 
-Describes a partition schema. A partition schema defines how many ways the row stream will be split. The names used for the partitions can be anything you like.
+Describes a partition schema.
+A partition schema defines how many ways the row stream will be split.
+The names used for the partitions can be anything you like.
 
 == Related Plugins
 

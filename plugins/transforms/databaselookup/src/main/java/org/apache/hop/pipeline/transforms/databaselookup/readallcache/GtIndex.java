@@ -21,34 +21,31 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 class GtIndex extends Index {
 
-  static Index lessOrEqualCache( int column, IValueMeta valueMeta, int rowsAmount ) {
-    return new GtIndex( column, valueMeta, rowsAmount, true );
+  static Index lessOrEqualCache(int column, IValueMeta valueMeta, int rowsAmount) {
+    return new GtIndex(column, valueMeta, rowsAmount, true);
   }
-
 
   private final boolean isMatchingLessOrEqual;
 
-  GtIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
-    this( column, valueMeta, rowsAmount, false );
+  GtIndex(int column, IValueMeta valueMeta, int rowsAmount) {
+    this(column, valueMeta, rowsAmount, false);
   }
 
-  GtIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingLessOrEqual ) {
-    super( column, valueMeta, rowsAmount );
+  GtIndex(int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingLessOrEqual) {
+    super(column, valueMeta, rowsAmount);
     this.isMatchingLessOrEqual = isMatchingLessOrEqual;
   }
 
   @Override
-  void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) {
-    int firstValue = findInsertionPointOf( new IndexedValue( lookupValue, Integer.MAX_VALUE ) );
+  void doApply(SearchingContext context, IValueMeta lookupMeta, Object lookupValue) {
+    int firstValue = findInsertionPointOf(new IndexedValue(lookupValue, Integer.MAX_VALUE));
     final int length = values.length;
-    if ( firstValue == length ) {
+    if (firstValue == length) {
       // everything is less than lookupValue
-      if ( isMatchingLessOrEqual ) {
+      if (isMatchingLessOrEqual) {
         // then do nothing
         return;
       }
@@ -57,7 +54,7 @@ class GtIndex extends Index {
       BitSet bitSet = context.getWorkingSet();
 
       int start, end;
-      if ( firstValue < length / 2 ) {
+      if (firstValue < length / 2) {
         start = 0;
         end = firstValue;
       } else {
@@ -65,11 +62,11 @@ class GtIndex extends Index {
         end = length;
       }
 
-      for ( int i = start; i < end; i++ ) {
-        bitSet.set( values[ i ].row, true );
+      for (int i = start; i < end; i++) {
+        bitSet.set(values[i].row, true);
       }
 
-      context.intersect( bitSet, ( start == 0 ) ^ isMatchingLessOrEqual );
+      context.intersect(bitSet, (start == 0) ^ isMatchingLessOrEqual);
     }
   }
 

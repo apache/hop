@@ -22,8 +22,10 @@ under the License.
 
 == Description
 
-If the string representation of a certain field is equal to the specified value, then the value is set the null (empty). You can add all fields from the input stream(s) using Get Fields.
+If the string representation of a certain field is equal to the specified value, then the value is set the null (empty).
+You can add all fields from the input stream(s) using Get Fields.
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

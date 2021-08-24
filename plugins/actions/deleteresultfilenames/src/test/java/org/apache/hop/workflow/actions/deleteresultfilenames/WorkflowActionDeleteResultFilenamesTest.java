@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.deleteresultfilenames;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionDeleteResultFilenamesTest extends WorkflowActionLoadSaveTestSupport<ActionDeleteResultFilenames> {
+public class WorkflowActionDeleteResultFilenamesTest
+    extends WorkflowActionLoadSaveTestSupport<ActionDeleteResultFilenames> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,28 +35,24 @@ public class WorkflowActionDeleteResultFilenamesTest extends WorkflowActionLoadS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "foldername",
-      "specifywildcard",
-      "wildcard",
-      "wildcardexclude" );
+    return Arrays.asList("foldername", "specifywildcard", "wildcard", "wildcardexclude");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "foldername", "getFoldername",
-      "specifywildcard", "isSpecifyWildcard",
-      "wildcard", "getWildcard",
-      "wildcardexclude", "getWildcardExclude" );
+        "foldername", "getFoldername",
+        "specifywildcard", "isSpecifyWildcard",
+        "wildcard", "getWildcard",
+        "wildcardexclude", "getWildcardExclude");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "foldername", "setFoldername",
-      "specifywildcard", "setSpecifyWildcard",
-      "wildcard", "setWildcard",
-      "wildcardexclude", "setWildcardExclude" );
+        "foldername", "setFoldername",
+        "specifywildcard", "setSpecifyWildcard",
+        "wildcard", "setWildcard",
+        "wildcardexclude", "setWildcardExclude");
   }
 }

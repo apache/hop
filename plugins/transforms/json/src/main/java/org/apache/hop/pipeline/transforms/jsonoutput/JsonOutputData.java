@@ -17,18 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
-import java.io.Writer;
-import java.text.DateFormatSymbols;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.io.Writer;
+import java.text.*;
 
 /**
  * @author Matt
@@ -67,9 +63,7 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
   public Writer writer;
   public int nrRowsInBloc;
 
-  /**
-   *
-   */
+  /** */
   public JsonOutputData() {
     super();
     this.ja = new JSONArray();
@@ -79,5 +73,4 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
     this.writer = null;
     this.nrRowsInBloc = 0;
   }
-
 }

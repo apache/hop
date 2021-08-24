@@ -23,12 +23,12 @@ import org.eclipse.swt.widgets.Shell;
 
 public interface IPartitionSchemaSelection {
   /**
-   * Perform the schema selection.  Return a non-null string if a selection happened (in a dialog)
+   * Perform the schema selection. Return a non-null string if a selection happened (in a dialog)
    *
    * @param shell
    * @param partitionSettings
    * @return
    * @throws HopException
    */
-  String schemaFieldSelection( Shell shell, PartitionSettings partitionSettings ) throws HopException;
+  String schemaFieldSelection(Shell shell, PartitionSettings partitionSettings) throws HopException;
 }

@@ -35,34 +35,34 @@ public class SynchronizeAfterMergeTest {
   @Ignore
   @Test
   public void initWithCommitSizeVariable() {
-    TransformMeta transformMeta = mock( TransformMeta.class );
-    doReturn( TRANSFORM_NAME ).when( transformMeta ).getName();
-    doReturn( 1 ).when( transformMeta ).getCopies(any( IVariables.class ) );
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    doReturn(TRANSFORM_NAME).when(transformMeta).getName();
+    doReturn(1).when(transformMeta).getCopies(any(IVariables.class));
 
-    SynchronizeAfterMergeMeta smi = mock( SynchronizeAfterMergeMeta.class );
-    SynchronizeAfterMergeData sdi = mock( SynchronizeAfterMergeData.class );
+    SynchronizeAfterMergeMeta smi = mock(SynchronizeAfterMergeMeta.class);
+    SynchronizeAfterMergeData sdi = mock(SynchronizeAfterMergeData.class);
 
-    DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    doReturn( mock( NoneDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    DatabaseMeta dbMeta = mock(DatabaseMeta.class);
+    doReturn(mock(NoneDatabaseMeta.class)).when(dbMeta).getIDatabase();
 
-    doReturn( dbMeta ).when( smi ).getDatabaseMeta();
-    doReturn( "${commit.size}" ).when( smi ).getCommitSize();
+    doReturn(dbMeta).when(smi).getDatabaseMeta();
+    doReturn("${commit.size}").when(smi).getCommitSize();
 
-    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    doReturn( transformMeta ).when( pipelineMeta ).findTransform( TRANSFORM_NAME );
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    doReturn(transformMeta).when(pipelineMeta).findTransform(TRANSFORM_NAME);
 
-    SynchronizeAfterMerge transform = mock( SynchronizeAfterMerge.class );
-    doCallRealMethod().when( transform ).setPipelineMeta( any( PipelineMeta.class ) );
-    doCallRealMethod().when( transform ).setTransformMeta( any( TransformMeta.class ) );
-    doCallRealMethod().when( transform ).init();
-    doReturn( transformMeta ).when( transform ).getTransformMeta();
-    doReturn( pipelineMeta ).when( transform ).getPipelineMeta();
-    doReturn( "120" ).when( transform ).resolve( "${commit.size}" );
+    SynchronizeAfterMerge transform = mock(SynchronizeAfterMerge.class);
+    doCallRealMethod().when(transform).setPipelineMeta(any(PipelineMeta.class));
+    doCallRealMethod().when(transform).setTransformMeta(any(TransformMeta.class));
+    doCallRealMethod().when(transform).init();
+    doReturn(transformMeta).when(transform).getTransformMeta();
+    doReturn(pipelineMeta).when(transform).getPipelineMeta();
+    doReturn("120").when(transform).resolve("${commit.size}");
 
-    transform.setPipelineMeta( pipelineMeta );
-    transform.setTransformMeta( transformMeta );
+    transform.setPipelineMeta(pipelineMeta);
+    transform.setTransformMeta(transformMeta);
     transform.init();
 
-    assertEquals( 120, sdi.commitSize );
+    assertEquals(120, sdi.commitSize);
   }
 }

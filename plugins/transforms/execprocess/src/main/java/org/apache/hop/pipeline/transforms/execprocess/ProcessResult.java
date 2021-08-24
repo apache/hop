@@ -37,7 +37,7 @@ public class ProcessResult {
     return this.outputStream;
   }
 
-  public void setOutputStream( String string ) {
+  public void setOutputStream(String string) {
     this.outputStream = string;
   }
 
@@ -45,7 +45,7 @@ public class ProcessResult {
     return this.errorStream;
   }
 
-  public void setErrorStream( String string ) {
+  public void setErrorStream(String string) {
     this.errorStream = string;
   }
 
@@ -53,7 +53,7 @@ public class ProcessResult {
     return this.exitValue;
   }
 
-  public void setExistStatus( long value ) {
+  public void setExistStatus(long value) {
     this.exitValue = value;
   }
 }

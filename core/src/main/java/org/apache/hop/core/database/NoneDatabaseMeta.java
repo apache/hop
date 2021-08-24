@@ -25,37 +25,57 @@ public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
 
-
-  /**
-   * @param driverClass The driverClass to set
-   */
-  public void setDriverClass( String driverClass ) {
-    getAttributes().put( ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass );
+  /** @param driverClass The driverClass to set */
+  public void setDriverClass(String driverClass) {
+    getAttributes().put(ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass);
   }
 
   @Override
   public String getDriverClass() {
-    return getAttributeProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
+    return getAttributeProperty(ATRRIBUTE_CUSTOM_DRIVER_CLASS, "");
   }
 
-  @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoIncrement, boolean addFieldName, boolean addCr ) {
+  @Override
+  public String getFieldDefinition(
+      IValueMeta v,
+      String tk,
+      String pk,
+      boolean useAutoIncrement,
+      boolean addFieldName,
+      boolean addCr) {
     return null;
   }
 
-  @Override public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
+  @Override
+  public int[] getAccessTypeList() {
+    return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-
-  @Override public String getURL( String hostname, String port, String databaseName ) throws HopDatabaseException {
+  @Override
+  public String getURL(String hostname, String port, String databaseName)
+      throws HopDatabaseException {
     return "jdbc://none";
   }
 
-  @Override public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement, String pk, boolean semicolon ) {
+  @Override
+  public String getAddColumnStatement(
+      String tableName,
+      IValueMeta v,
+      String tk,
+      boolean useAutoIncrement,
+      String pk,
+      boolean semicolon) {
     return "";
   }
 
-  @Override public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement, String pk, boolean semicolon ) {
+  @Override
+  public String getModifyColumnStatement(
+      String tableName,
+      IValueMeta v,
+      String tk,
+      boolean useAutoIncrement,
+      String pk,
+      boolean semicolon) {
     return "";
   }
 }

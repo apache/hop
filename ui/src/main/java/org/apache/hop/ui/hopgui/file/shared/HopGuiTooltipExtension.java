@@ -31,7 +31,8 @@ public class HopGuiTooltipExtension {
   public Image tooltipImage;
   public StringBuilder tip;
 
-  public HopGuiTooltipExtension( int x, int y, int screenX, int screenY, AreaOwner areaOwner, StringBuilder tip ) {
+  public HopGuiTooltipExtension(
+      int x, int y, int screenX, int screenY, AreaOwner areaOwner, StringBuilder tip) {
     this.x = x;
     this.y = y;
     this.screenX = screenX;

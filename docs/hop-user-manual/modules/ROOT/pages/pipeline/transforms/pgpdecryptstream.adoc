@@ -25,7 +25,7 @@ The PGP decrypt stream transform decrypts PGP encrypted text.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

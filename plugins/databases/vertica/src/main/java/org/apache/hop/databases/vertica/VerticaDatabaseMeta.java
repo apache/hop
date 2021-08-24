@@ -19,9 +19,9 @@ package org.apache.hop.databases.vertica;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -33,11 +33,8 @@ import org.apache.hop.core.row.IValueMeta;
  * @since 2009-03-16
  * @since May-2008
  */
-@DatabaseMetaPlugin(
-  type = "VERTICA",
-  typeDescription = "Vertica"
-)
-@GuiPlugin( id = "GUI-VerticaDatabaseMeta" )
+@DatabaseMetaPlugin(type = "VERTICA", typeDescription = "Vertica")
+@GuiPlugin(id = "GUI-VerticaDatabaseMeta")
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /*
@@ -49,8 +46,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public int[] getAccessTypeList() {
-    return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE };
+    return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
   @Override
@@ -59,7 +55,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
+  public String getURL(String hostname, String port, String databaseName) {
     return "jdbc:vertica://" + hostname + ":" + port + "/" + databaseName;
   }
 
@@ -73,66 +69,69 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /**
-   * @return true if the database supports bitmap indexes
-   */
+  /** @return true if the database supports bitmap indexes */
   @Override
   public boolean supportsBitmapIndex() {
     return false;
   }
 
   /**
-   * Generates the SQL statement to add a column to the specified table For this generic type, i set it to the most
-   * common possibility.
+   * Generates the SQL statement to add a column to the specified table For this generic type, i set
+   * it to the most common possibility.
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                       String pk, boolean semicolon ) {
+  public String getAddColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
-      + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+        + tableName
+        + " ADD "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                          String pk, boolean semicolon ) {
+  public String getModifyColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
-      + tableName + " ALTER COLUMN "
-      + v.getName() + " SET DATA TYPE " + getFieldDefinition( v, tk, pk, useAutoinc, false, false );
+        + tableName
+        + " ALTER COLUMN "
+        + v.getName()
+        + " SET DATA TYPE "
+        + getFieldDefinition(v, tk, pk, useAutoinc, false, false);
   }
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldName, boolean addCr ) {
+  public String getFieldDefinition(
+      IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
     String retval = "";
 
     String fieldname = v.getName();
     int length = v.getLength();
 
-    if ( addFieldName ) {
+    if (addFieldName) {
       retval += fieldname + " ";
     }
 
     int type = v.getType();
-    switch ( type ) {
+    switch (type) {
       case IValueMeta.TYPE_DATE:
       case IValueMeta.TYPE_TIMESTAMP:
         retval += "TIMESTAMP";
@@ -150,7 +149,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_STRING:
         if (length < 1) {
           retval += "VARCHAR";
-        } else if(length > LONG) {
+        } else if (length > LONG) {
           retval += "LONG VARCHAR(" + length + ")";
         } else {
           retval += "VARCHAR(" + length + ")";
@@ -159,7 +158,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_BINARY:
         if (length < 1) {
           retval += "VARBINARY";
-        } else if(length > LONG) {
+        } else if (length > LONG) {
           retval += "LONG VARBINARY(" + length + ")";
         } else {
           retval += "VARBINARY(" + length + ")";
@@ -170,7 +169,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         break;
     }
 
-    if ( addCr ) {
+    if (addCr) {
       retval += Const.CR;
     }
 
@@ -183,7 +182,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getLimitClause( int nrRows ) {
+  public String getLimitClause(int nrRows) {
     return " LIMIT " + nrRows;
   }
 
@@ -196,58 +195,378 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public String[] getReservedWords() {
     return new String[] {
       // From "SQL Reference Manual.pdf" found on support.vertica.com
-      "ABORT", "ABSOLUTE", "ACCESS", "ACTION", "ADD", "AFTER", "AGGREGATE", "ALL", "ALSO", "ALTER", "ANALYSE",
-      "ANALYZE", "AND", "ANY", "ARRAY", "AS", "ASC", "ASSERTION", "ASSIGNMENT", "AT", "AUTHORIZATION",
-      "BACKWARD", "BEFORE", "BEGIN", "BETWEEN", "BIGINT", "BINARY", "BIT", "BLOCK_DICT", "BLOCKDICT_COMP",
-      "BOOLEAN", "BOTH", "BY", "CACHE", "CALLED", "CASCADE", "CASE", "CAST", "CATALOG_PATH", "CHAIN", "CHAR",
-      "CHARACTER", "CHARACTERISTICS", "CHECK", "CHECKPOINT", "CLASS", "CLOSE", "CLUSTER", "COALESCE", "COLLATE",
-      "COLUMN", "COMMENT", "COMMIT", "COMMITTED", "COMMONDELTA_COMP", "CONSTRAINT", "CONSTRAINTS", "CONVERSION",
-      "CONVERT", "COPY", "CORRELATION", "CREATE", "CREATEDB", "CREATEUSER", "CROSS", "CSV", "CURRENT_DATABASE",
-      "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "CYCLE", "DATA",
-      "DATABASE", "DATAPATH", "DAY", "DEALLOCATE", "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DEFAULTS",
-      "DEFERRABLE", "DEFERRED", "DEFINER", "DELETE", "DELIMITER", "DELIMITERS", "DELTARANGE_COMP",
-      "DELTARANGE_COMP_SP", "DELTAVAL", "DESC", "DETERMINES", "DIRECT", "DISTINCT", "DISTVALINDEX", "DO",
-      "DOMAIN", "DOUBLE", "DROP", "EACH", "ELSE", "ENCODING", "ENCRYPTED", "END", "EPOCH", "ERROR", "ESCAPE",
-      "EXCEPT", "EXCEPTIONS", "EXCLUDING", "EXCLUSIVE", "EXECUTE", "EXISTS", "EXPLAIN", "EXTERNAL", "EXTRACT",
-      "FALSE", "FETCH", "FIRST", "FLOAT", "FOR", "FORCE", "FOREIGN", "FORWARD", "FREEZE", "FROM", "FULL",
-      "FUNCTION", "GLOBAL", "GRANT", "GROUP", "HANDLER", "HAVING", "HOLD", "HOUR", "ILIKE", "IMMEDIATE",
-      "IMMUTABLE", "IMPLICIT", "IN", "IN_P", "INCLUDING", "INCREMENT", "INDEX", "INHERITS", "INITIALLY",
-      "INNER", "INOUT", "INPUT", "INSENSITIVE", "INSERT", "INSTEAD", "INT", "INTEGER", "INTERSECT", "INTERVAL",
-      "INTO", "INVOKER", "IS", "ISNULL", "ISOLATION", "JOIN", "KEY", "LANCOMPILER", "LANGUAGE", "LARGE", "LAST",
-      "LATEST", "LEADING", "LEFT", "LESS", "LEVEL", "LIKE", "LIMIT", "LISTEN", "LOAD", "LOCAL", "LOCALTIME",
-      "LOCALTIMESTAMP", "LOCATION", "LOCK", "MATCH", "MAXVALUE", "MERGEOUT", "MINUTE", "MINVALUE", "MOBUF",
-      "MODE", "MONTH", "MOVE", "MOVEOUT", "MULTIALGORITHM_COMP", "MULTIALGORITHM_COMP_SP", "NAMES", "NATIONAL",
-      "NATURAL", "NCHAR", "NEW", "NEXT", "NO", "NOCREATEDB", "NOCREATEUSER", "NODE", "NODES", "NONE", "NOT",
-      "NOTHING", "NOTIFY", "NOTNULL", "NOWAIT", "NULL", "NULLIF", "NUMERIC", "OBJECT", "OF", "OFF", "OFFSET",
-      "OIDS", "OLD", "ON", "ONLY", "OPERATOR", "OPTION", "OR", "ORDER", "OUT", "OUTER", "OVERLAPS", "OVERLAY",
-      "OWNER", "PARTIAL", "PARTITION", "PASSWORD", "PLACING", "POSITION", "PRECISION", "PREPARE", "PRESERVE",
-      "PRIMARY", "PRIOR", "PRIVILEGES", "PROCEDURAL", "PROCEDURE", "PROJECTION", "QUOTE", "READ", "REAL",
-      "RECHECK", "RECORD", "RECOVER", "REFERENCES", "REFRESH", "REINDEX", "REJECTED", "RELATIVE", "RELEASE",
-      "RENAME", "REPEATABLE", "REPLACE", "RESET", "RESTART", "RESTRICT", "RETURNS", "REVOKE", "RIGHT", "RLE",
-      "ROLLBACK", "ROW", "ROWS", "RULE", "SAVEPOINT", "SCHEMA", "SCROLL", "SECOND", "SECURITY", "SEGMENTED",
-      "SELECT", "SEQUENCE", "SERIALIZABLE", "SESSION", "SESSION_USER", "SET", "SETOF", "SHARE", "SHOW",
-      "SIMILAR", "SIMPLE", "SMALLINT", "SOME", "SPLIT", "STABLE", "START", "STATEMENT", "STATISTICS", "STDIN",
-      "STDOUT", "STORAGE", "STRICT", "SUBSTRING", "SYSID", "TABLE", "TABLESPACE", "TEMP", "TEMPLATE",
-      "TEMPORARY", "TERMINATOR", "THAN", "THEN", "TIME", "TIMESTAMP", "TIMESTAMPTZ", "TIMETZ", "TO", "TOAST",
-      "TRAILING", "TRANSACTION", "TREAT", "TRIGGER", "TRIM", "TRUE", "TRUE_P", "TRUNCATE", "TRUSTED", "TYPE",
-      "UNCOMMITTED", "UNENCRYPTED", "UNION", "UNIQUE", "UNKNOWN", "UNLISTEN", "UNSEGMENTED", "UNTIL", "UPDATE",
-      "USAGE", "USER", "USING", "VACUUM", "VALID", "VALIDATOR", "VALINDEX", "VALUES", "VARCHAR", "VARYING",
-      "VERBOSE", "VIEW", "VOLATILE", "WHEN", "WHERE", "WITH", "WITHOUT", "WORK", "WRITE", "YEAR", "ZONE" };
+      "ABORT",
+      "ABSOLUTE",
+      "ACCESS",
+      "ACTION",
+      "ADD",
+      "AFTER",
+      "AGGREGATE",
+      "ALL",
+      "ALSO",
+      "ALTER",
+      "ANALYSE",
+      "ANALYZE",
+      "AND",
+      "ANY",
+      "ARRAY",
+      "AS",
+      "ASC",
+      "ASSERTION",
+      "ASSIGNMENT",
+      "AT",
+      "AUTHORIZATION",
+      "BACKWARD",
+      "BEFORE",
+      "BEGIN",
+      "BETWEEN",
+      "BIGINT",
+      "BINARY",
+      "BIT",
+      "BLOCK_DICT",
+      "BLOCKDICT_COMP",
+      "BOOLEAN",
+      "BOTH",
+      "BY",
+      "CACHE",
+      "CALLED",
+      "CASCADE",
+      "CASE",
+      "CAST",
+      "CATALOG_PATH",
+      "CHAIN",
+      "CHAR",
+      "CHARACTER",
+      "CHARACTERISTICS",
+      "CHECK",
+      "CHECKPOINT",
+      "CLASS",
+      "CLOSE",
+      "CLUSTER",
+      "COALESCE",
+      "COLLATE",
+      "COLUMN",
+      "COMMENT",
+      "COMMIT",
+      "COMMITTED",
+      "COMMONDELTA_COMP",
+      "CONSTRAINT",
+      "CONSTRAINTS",
+      "CONVERSION",
+      "CONVERT",
+      "COPY",
+      "CORRELATION",
+      "CREATE",
+      "CREATEDB",
+      "CREATEUSER",
+      "CROSS",
+      "CSV",
+      "CURRENT_DATABASE",
+      "CURRENT_DATE",
+      "CURRENT_TIME",
+      "CURRENT_TIMESTAMP",
+      "CURRENT_USER",
+      "CURSOR",
+      "CYCLE",
+      "DATA",
+      "DATABASE",
+      "DATAPATH",
+      "DAY",
+      "DEALLOCATE",
+      "DEC",
+      "DECIMAL",
+      "DECLARE",
+      "DEFAULT",
+      "DEFAULTS",
+      "DEFERRABLE",
+      "DEFERRED",
+      "DEFINER",
+      "DELETE",
+      "DELIMITER",
+      "DELIMITERS",
+      "DELTARANGE_COMP",
+      "DELTARANGE_COMP_SP",
+      "DELTAVAL",
+      "DESC",
+      "DETERMINES",
+      "DIRECT",
+      "DISTINCT",
+      "DISTVALINDEX",
+      "DO",
+      "DOMAIN",
+      "DOUBLE",
+      "DROP",
+      "EACH",
+      "ELSE",
+      "ENCODING",
+      "ENCRYPTED",
+      "END",
+      "EPOCH",
+      "ERROR",
+      "ESCAPE",
+      "EXCEPT",
+      "EXCEPTIONS",
+      "EXCLUDING",
+      "EXCLUSIVE",
+      "EXECUTE",
+      "EXISTS",
+      "EXPLAIN",
+      "EXTERNAL",
+      "EXTRACT",
+      "FALSE",
+      "FETCH",
+      "FIRST",
+      "FLOAT",
+      "FOR",
+      "FORCE",
+      "FOREIGN",
+      "FORWARD",
+      "FREEZE",
+      "FROM",
+      "FULL",
+      "FUNCTION",
+      "GLOBAL",
+      "GRANT",
+      "GROUP",
+      "HANDLER",
+      "HAVING",
+      "HOLD",
+      "HOUR",
+      "ILIKE",
+      "IMMEDIATE",
+      "IMMUTABLE",
+      "IMPLICIT",
+      "IN",
+      "IN_P",
+      "INCLUDING",
+      "INCREMENT",
+      "INDEX",
+      "INHERITS",
+      "INITIALLY",
+      "INNER",
+      "INOUT",
+      "INPUT",
+      "INSENSITIVE",
+      "INSERT",
+      "INSTEAD",
+      "INT",
+      "INTEGER",
+      "INTERSECT",
+      "INTERVAL",
+      "INTO",
+      "INVOKER",
+      "IS",
+      "ISNULL",
+      "ISOLATION",
+      "JOIN",
+      "KEY",
+      "LANCOMPILER",
+      "LANGUAGE",
+      "LARGE",
+      "LAST",
+      "LATEST",
+      "LEADING",
+      "LEFT",
+      "LESS",
+      "LEVEL",
+      "LIKE",
+      "LIMIT",
+      "LISTEN",
+      "LOAD",
+      "LOCAL",
+      "LOCALTIME",
+      "LOCALTIMESTAMP",
+      "LOCATION",
+      "LOCK",
+      "MATCH",
+      "MAXVALUE",
+      "MERGEOUT",
+      "MINUTE",
+      "MINVALUE",
+      "MOBUF",
+      "MODE",
+      "MONTH",
+      "MOVE",
+      "MOVEOUT",
+      "MULTIALGORITHM_COMP",
+      "MULTIALGORITHM_COMP_SP",
+      "NAMES",
+      "NATIONAL",
+      "NATURAL",
+      "NCHAR",
+      "NEW",
+      "NEXT",
+      "NO",
+      "NOCREATEDB",
+      "NOCREATEUSER",
+      "NODE",
+      "NODES",
+      "NONE",
+      "NOT",
+      "NOTHING",
+      "NOTIFY",
+      "NOTNULL",
+      "NOWAIT",
+      "NULL",
+      "NULLIF",
+      "NUMERIC",
+      "OBJECT",
+      "OF",
+      "OFF",
+      "OFFSET",
+      "OIDS",
+      "OLD",
+      "ON",
+      "ONLY",
+      "OPERATOR",
+      "OPTION",
+      "OR",
+      "ORDER",
+      "OUT",
+      "OUTER",
+      "OVERLAPS",
+      "OVERLAY",
+      "OWNER",
+      "PARTIAL",
+      "PARTITION",
+      "PASSWORD",
+      "PLACING",
+      "POSITION",
+      "PRECISION",
+      "PREPARE",
+      "PRESERVE",
+      "PRIMARY",
+      "PRIOR",
+      "PRIVILEGES",
+      "PROCEDURAL",
+      "PROCEDURE",
+      "PROJECTION",
+      "QUOTE",
+      "READ",
+      "REAL",
+      "RECHECK",
+      "RECORD",
+      "RECOVER",
+      "REFERENCES",
+      "REFRESH",
+      "REINDEX",
+      "REJECTED",
+      "RELATIVE",
+      "RELEASE",
+      "RENAME",
+      "REPEATABLE",
+      "REPLACE",
+      "RESET",
+      "RESTART",
+      "RESTRICT",
+      "RETURNS",
+      "REVOKE",
+      "RIGHT",
+      "RLE",
+      "ROLLBACK",
+      "ROW",
+      "ROWS",
+      "RULE",
+      "SAVEPOINT",
+      "SCHEMA",
+      "SCROLL",
+      "SECOND",
+      "SECURITY",
+      "SEGMENTED",
+      "SELECT",
+      "SEQUENCE",
+      "SERIALIZABLE",
+      "SESSION",
+      "SESSION_USER",
+      "SET",
+      "SETOF",
+      "SHARE",
+      "SHOW",
+      "SIMILAR",
+      "SIMPLE",
+      "SMALLINT",
+      "SOME",
+      "SPLIT",
+      "STABLE",
+      "START",
+      "STATEMENT",
+      "STATISTICS",
+      "STDIN",
+      "STDOUT",
+      "STORAGE",
+      "STRICT",
+      "SUBSTRING",
+      "SYSID",
+      "TABLE",
+      "TABLESPACE",
+      "TEMP",
+      "TEMPLATE",
+      "TEMPORARY",
+      "TERMINATOR",
+      "THAN",
+      "THEN",
+      "TIME",
+      "TIMESTAMP",
+      "TIMESTAMPTZ",
+      "TIMETZ",
+      "TO",
+      "TOAST",
+      "TRAILING",
+      "TRANSACTION",
+      "TREAT",
+      "TRIGGER",
+      "TRIM",
+      "TRUE",
+      "TRUE_P",
+      "TRUNCATE",
+      "TRUSTED",
+      "TYPE",
+      "UNCOMMITTED",
+      "UNENCRYPTED",
+      "UNION",
+      "UNIQUE",
+      "UNKNOWN",
+      "UNLISTEN",
+      "UNSEGMENTED",
+      "UNTIL",
+      "UPDATE",
+      "USAGE",
+      "USER",
+      "USING",
+      "VACUUM",
+      "VALID",
+      "VALIDATOR",
+      "VALINDEX",
+      "VALUES",
+      "VARCHAR",
+      "VARYING",
+      "VERBOSE",
+      "VIEW",
+      "VOLATILE",
+      "WHEN",
+      "WHERE",
+      "WITH",
+      "WITHOUT",
+      "WORK",
+      "WRITE",
+      "YEAR",
+      "ZONE"
+    };
   }
 
   @Override
-  public String getSqlColumnExists( String columnname, String tableName ) {
-    return super.getSqlColumnExists( columnname, tableName ) + getLimitClause( 1 );
+  public String getSqlColumnExists(String columnname, String tableName) {
+    return super.getSqlColumnExists(columnname, tableName) + getLimitClause(1);
   }
 
   @Override
-  public String getSqlQueryFields( String tableName ) {
-    return super.getSqlQueryFields( tableName ) + getLimitClause( 1 );
+  public String getSqlQueryFields(String tableName) {
+    return super.getSqlQueryFields(tableName) + getLimitClause(1);
   }
 
   @Override
-  public String getSqlTableExists( String tableName ) {
-    return super.getSqlTableExists( tableName ) + getLimitClause( 1 );
+  public String getSqlTableExists(String tableName) {
+    return super.getSqlTableExists(tableName) + getLimitClause(1);
   }
 
   @Override
@@ -266,17 +585,15 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * @return true if the database requires you to cast a parameter to varchar before comparing to null. Only required
-   * for DB2 and Vertica
+   * @return true if the database requires you to cast a parameter to varchar before comparing to
+   *     null. Only required for DB2 and Vertica
    */
   @Override
   public boolean requiresCastToVariousForIsNull() {
     return true;
   }
 
-  /**
-   * @return This indicator separates the normal URL from the options
-   */
+  /** @return This indicator separates the normal URL from the options */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
@@ -287,16 +604,14 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "&";
   }
 
-  /**
-   * @return true if the database supports sequences
-   */
+  /** @return true if the database supports sequences */
   @Override
   public boolean supportsSequences() {
     return true;
   }
 
   @Override
-  public String getSqlSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists(String sequenceName) {
     return "SELECT sequence_name FROM sequences WHERE sequence_name = '" + sequenceName + "'";
   }
 
@@ -312,7 +627,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSqlCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue(String sequenceName) {
     return "SELECT currval('" + sequenceName + "')";
   }
 
@@ -323,13 +638,11 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSqlNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue(String sequenceName) {
     return "SELECT nextval('" + sequenceName + "')";
   }
 
-  /**
-   * @return false as the database does not support timestamp to date conversion.
-   */
+  /** @return false as the database does not support timestamp to date conversion. */
   @Override
   public boolean supportsTimeStampToDateConversion() {
     return false;
@@ -344,12 +657,11 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * @return Handles the special case of Vertica where the display size returned is twice the precision. In that case,
-   * the length is the precision.
+   * @return Handles the special case of Vertica where the display size returned is twice the
+   *     precision. In that case, the length is the precision.
    */
   @Override
   public boolean isDisplaySizeTwiceThePrecision() {
     return true;
   }
-
 }

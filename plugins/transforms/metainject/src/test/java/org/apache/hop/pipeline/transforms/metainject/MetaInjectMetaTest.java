@@ -32,20 +32,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class MetaInjectMetaTest {
 
@@ -112,8 +105,7 @@ public class MetaInjectMetaTest {
 
     MetaInjectMeta injectMetaSpy = spy(metaInjectMeta);
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
-    Map<String, ResourceDefinition> definitions =
-        Collections.emptyMap();
+    Map<String, ResourceDefinition> definitions = Collections.emptyMap();
     doReturn(TEST_FILE_NAME)
         .when(pipelineMeta)
         .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);

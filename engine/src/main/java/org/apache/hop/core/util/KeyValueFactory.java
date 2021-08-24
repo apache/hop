@@ -23,65 +23,41 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @param <T> type of key value.
- */
+/** @param <T> type of key value. */
 public class KeyValueFactory<T> {
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<String> STRING = new KeyValueFactory<>( "" );
+  /** Default instance for ... */
+  public static final KeyValueFactory<String> STRING = new KeyValueFactory<>("");
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Integer> INTEGER = new KeyValueFactory<>( 0 );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Integer> INTEGER = new KeyValueFactory<>(0);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Integer> INTEGER_ONE = new KeyValueFactory<>( 1 );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Integer> INTEGER_ONE = new KeyValueFactory<>(1);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Boolean> BOOLEAN = new KeyValueFactory<>( Boolean.FALSE );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Boolean> BOOLEAN = new KeyValueFactory<>(Boolean.FALSE);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Boolean> BOOLEAN_TRUE = new KeyValueFactory<>( Boolean.TRUE );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Boolean> BOOLEAN_TRUE = new KeyValueFactory<>(Boolean.TRUE);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Float> FLOAT = new KeyValueFactory<>( 0.0f );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Float> FLOAT = new KeyValueFactory<>(0.0f);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Float> FLOAT_ONE = new KeyValueFactory<>( 1.0f );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Float> FLOAT_ONE = new KeyValueFactory<>(1.0f);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Double> DOUBLE = new KeyValueFactory<>( 0.0 );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Double> DOUBLE = new KeyValueFactory<>(0.0);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Double> DOUBLE_ONE = new KeyValueFactory<>( 1.0 );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Double> DOUBLE_ONE = new KeyValueFactory<>(1.0);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Long> LONG = new KeyValueFactory<>( 0L );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Long> LONG = new KeyValueFactory<>(0L);
 
-  /**
-   * Default instance for ...
-   */
-  public static final KeyValueFactory<Long> LONG_ONE = new KeyValueFactory<>( 1L );
+  /** Default instance for ... */
+  public static final KeyValueFactory<Long> LONG_ONE = new KeyValueFactory<>(1L);
 
   private final T defaultValue;
 
@@ -90,13 +66,11 @@ public class KeyValueFactory<T> {
    *
    * @param defaultValue default value to set.
    */
-  public KeyValueFactory( final T defaultValue ) {
+  public KeyValueFactory(final T defaultValue) {
     this.defaultValue = defaultValue;
   }
 
-  /**
-   * @return the defaultValue
-   */
+  /** @return the defaultValue */
   public T getDefaultValue() {
     return this.defaultValue;
   }
@@ -106,8 +80,8 @@ public class KeyValueFactory<T> {
    * @return new key value initialized with default value.
    * @throws IllegalArgumentException if key is blank.
    */
-  public KeyValue<T> create( final String key ) throws IllegalArgumentException {
-    return new KeyValue<>( key, this.defaultValue );
+  public KeyValue<T> create(final String key) throws IllegalArgumentException {
+    return new KeyValue<>(key, this.defaultValue);
   }
 
   /**
@@ -115,10 +89,10 @@ public class KeyValueFactory<T> {
    * @return new instances.
    * @throws IllegalArgumentException if one key is blank.
    */
-  public List<KeyValue<T>> createAll( final String... keys ) throws IllegalArgumentException {
+  public List<KeyValue<T>> createAll(final String... keys) throws IllegalArgumentException {
     final List<KeyValue<T>> instances = new ArrayList<>();
-    for ( String key : keys ) {
-      instances.add( create( key ) );
+    for (String key : keys) {
+      instances.add(create(key));
     }
     return instances;
   }
@@ -130,9 +104,8 @@ public class KeyValueFactory<T> {
    */
   @Override
   public String toString() {
-    final ToStringBuilder builder = new ToStringBuilder( this, ToStringStyle.SHORT_PREFIX_STYLE );
-    builder.append( "defaultValue", this.defaultValue );
+    final ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    builder.append("defaultValue", this.defaultValue);
     return builder.toString();
   }
-
 }

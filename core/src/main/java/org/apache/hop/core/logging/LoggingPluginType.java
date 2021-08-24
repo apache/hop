@@ -29,81 +29,81 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( ILoggingPlugin.class )
-@PluginAnnotationType( LoggingPlugin.class )
+@PluginMainClassType(ILoggingPlugin.class)
+@PluginAnnotationType(LoggingPlugin.class)
 public class LoggingPluginType extends BasePluginType<LoggingPlugin> {
 
   private static LoggingPluginType loggingPluginType;
 
   private LoggingPluginType() {
-    super( LoggingPlugin.class, "LOGGING", "Logging Plugin" );
+    super(LoggingPlugin.class, "LOGGING", "Logging Plugin");
   }
 
   public static LoggingPluginType getInstance() {
-    if ( loggingPluginType == null ) {
+    if (loggingPluginType == null) {
       loggingPluginType = new LoggingPluginType();
     }
     return loggingPluginType;
   }
 
   @Override
-  protected String extractCategory( LoggingPlugin annotation ) {
+  protected String extractCategory(LoggingPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( LoggingPlugin annotation ) {
+  protected String extractDesc(LoggingPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractID( LoggingPlugin annotation ) {
+  protected String extractID(LoggingPlugin annotation) {
     String id = annotation.id();
     return id;
   }
 
   @Override
-  protected String extractName( LoggingPlugin annotation ) {
+  protected String extractName(LoggingPlugin annotation) {
     String name = annotation.name();
-    return Utils.isEmpty( name ) ? extractID( annotation ) : name;
+    return Utils.isEmpty(name) ? extractID(annotation) : name;
   }
 
   @Override
-  protected String extractImageFile( LoggingPlugin annotation ) {
+  protected String extractImageFile(LoggingPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( LoggingPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(LoggingPlugin annotation) {
     return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, LoggingPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, LoggingPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( LoggingPlugin annotation ) {
+  protected String extractDocumentationUrl(LoggingPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( LoggingPlugin annotation ) {
+  protected String extractCasesUrl(LoggingPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( LoggingPlugin annotation ) {
+  protected String extractForumUrl(LoggingPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( LoggingPlugin annotation ) {
+  protected String extractClassLoaderGroup(LoggingPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 
   @Override
-  protected String extractSuggestion( LoggingPlugin annotation ) {
+  protected String extractSuggestion(LoggingPlugin annotation) {
     return null;
   }
 }

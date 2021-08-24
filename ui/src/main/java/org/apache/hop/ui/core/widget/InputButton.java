@@ -26,16 +26,16 @@ import org.eclipse.swt.widgets.Composite;
 public class InputButton extends Composite {
   private Button button;
 
-  public InputButton( Composite composite, int width ) {
-    super( composite, SWT.NONE );
-    WidgetUtils.setFormLayout( this, 0 );
+  public InputButton(Composite composite, int width) {
+    super(composite, SWT.NONE);
+    WidgetUtils.setFormLayout(this, 0);
 
-    button = new Button( this, SWT.PUSH );
-    button.setLayoutData( new FormDataBuilder().right().bottom().width( width ).result() );
+    button = new Button(this, SWT.PUSH);
+    button.setLayoutData(new FormDataBuilder().right().bottom().width(width).result());
   }
 
-  public void setText( String text ) {
-    button.setText( text );
+  public void setText(String text) {
+    button.setText(text);
   }
 
   public Button getButton() {

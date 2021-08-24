@@ -40,5 +40,4 @@ public class CubeOutputData extends BaseTransformData implements ITransformData 
     super();
     oneFileOpened = false;
   }
-
 }

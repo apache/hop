@@ -32,36 +32,39 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 
 @ExtensionPoint(
-  id = "EditTransformDebugLevelExtensionPoint",
-  extensionPointId = "PipelineGraphMouseUp",
-  description = "Edit the custom transform debug level with a single click"
-)
-public class EditTransformDebugLevelExtensionPoint implements IExtensionPoint<HopGuiPipelineGraphExtension> {
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiPipelineGraphExtension ext ) throws HopException {
+    id = "EditTransformDebugLevelExtensionPoint",
+    extensionPointId = "PipelineGraphMouseUp",
+    description = "Edit the custom transform debug level with a single click")
+public class EditTransformDebugLevelExtensionPoint
+    implements IExtensionPoint<HopGuiPipelineGraphExtension> {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiPipelineGraphExtension ext) throws HopException {
     try {
-      if ( ext.getAreaOwner() == null || ext.getAreaOwner().getOwner() == null ) {
+      if (ext.getAreaOwner() == null || ext.getAreaOwner().getOwner() == null) {
         return;
       }
-      if ( !( ext.getAreaOwner().getOwner() instanceof TransformDebugLevel ) ) {
+      if (!(ext.getAreaOwner().getOwner() instanceof TransformDebugLevel)) {
         return;
       }
       TransformDebugLevel debugLevel = (TransformDebugLevel) ext.getAreaOwner().getOwner();
       PipelineMeta pipelineMeta = ext.getPipelineGraph().getPipelineMeta();
       TransformMeta transformMeta = (TransformMeta) ext.getAreaOwner().getParent();
-      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( variables, transformMeta );
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-      TransformDebugLevelDialog dialog = new TransformDebugLevelDialog( HopGui.getInstance().getShell(), debugLevel, inputRowMeta );
-      if ( dialog.open() ) {
+      TransformDebugLevelDialog dialog =
+          new TransformDebugLevelDialog(HopGui.getInstance().getShell(), debugLevel, inputRowMeta);
+      if (dialog.open()) {
         DebugLevelUtil.storeTransformDebugLevel(
-          pipelineMeta.getAttributesMap().get( Defaults.DEBUG_GROUP ),
-          transformMeta.getName(),
-          debugLevel
-        );
+            pipelineMeta.getAttributesMap().get(Defaults.DEBUG_GROUP),
+            transformMeta.getName(),
+            debugLevel);
 
         ext.getPipelineGraph().redraw();
       }
-    } catch(Exception e) {
-      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing transform debugging level", e );
+    } catch (Exception e) {
+      new ErrorDialog(
+          HopGui.getInstance().getShell(), "Error", "Error editing transform debugging level", e);
     }
   }
 }

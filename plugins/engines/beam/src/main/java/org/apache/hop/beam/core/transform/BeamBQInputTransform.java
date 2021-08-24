@@ -49,16 +49,24 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
   private List<String> xpPluginClasses;
 
   // Log and count errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BeamBQInputTransform.class );
-  private static final Counter numErrors = Metrics.counter( "main", "BeamBQInputError" );
+  private static final Logger LOG = LoggerFactory.getLogger(BeamBQInputTransform.class);
+  private static final Counter numErrors = Metrics.counter("main", "BeamBQInputError");
 
   private transient IRowMeta rowMeta;
 
-  public BeamBQInputTransform() {
-  }
+  public BeamBQInputTransform() {}
 
-  public BeamBQInputTransform( @Nullable String name, String transformName, String projectId, String datasetId, String tableId, String query, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( name );
+  public BeamBQInputTransform(
+      @Nullable String name,
+      String transformName,
+      String projectId,
+      String datasetId,
+      String tableId,
+      String query,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
+    super(name);
     this.transformName = transformName;
     this.projectId = projectId;
     this.datasetId = datasetId;
@@ -69,7 +77,8 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     this.xpPluginClasses = xpPluginClasses;
   }
 
-  @Override public PCollection<HopRow> expand( PBegin input ) {
+  @Override
+  public PCollection<HopRow> expand(PBegin input) {
     try {
       // Only initialize once on this node/vm
       //
@@ -77,39 +86,35 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
 
       // Function to convert from Avro to Hop rows
       //
-      BQSchemaAndRecordToHopFn toHopFn = new BQSchemaAndRecordToHopFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses );
+      BQSchemaAndRecordToHopFn toHopFn =
+          new BQSchemaAndRecordToHopFn(
+              transformName, rowMetaJson, transformPluginClasses, xpPluginClasses);
 
       TableReference tableReference = new TableReference();
-      if (StringUtils.isNotEmpty( projectId )) {
-        tableReference.setProjectId( projectId );
+      if (StringUtils.isNotEmpty(projectId)) {
+        tableReference.setProjectId(projectId);
       }
-      tableReference.setDatasetId( datasetId );
-      tableReference.setTableId( tableId );
+      tableReference.setDatasetId(datasetId);
+      tableReference.setTableId(tableId);
 
       BigQueryIO.TypedRead<HopRow> bqTypedRead;
 
-      if (StringUtils.isEmpty( query )) {
-        bqTypedRead = BigQueryIO
-          .read( toHopFn )
-          .from( tableReference )
-        ;
+      if (StringUtils.isEmpty(query)) {
+        bqTypedRead = BigQueryIO.read(toHopFn).from(tableReference);
       } else {
-        bqTypedRead = BigQueryIO
-          .read( toHopFn )
-          .fromQuery( query )
-        ;
+        bqTypedRead = BigQueryIO.read(toHopFn).fromQuery(query);
       }
 
       // Apply the function
       //
-      PCollection<HopRow> output = input.apply( bqTypedRead );
+      PCollection<HopRow> output = input.apply(bqTypedRead);
 
       return output;
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in beam input transform", e );
-      throw new RuntimeException( "Error in beam input transform", e );
+      LOG.error("Error in beam input transform", e);
+      throw new RuntimeException("Error in beam input transform", e);
     }
   }
 }

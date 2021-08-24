@@ -21,45 +21,35 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 
 /**
- * RowAdapter is an adapter class for receiving row events. The methods in this class are empty. This class exists as
- * convenience for creating row listener objects that may not need to implement all the methods of the IRowListener
- * interface
+ * RowAdapter is an adapter class for receiving row events. The methods in this class are empty.
+ * This class exists as convenience for creating row listener objects that may not need to implement
+ * all the methods of the IRowListener interface
  *
  * @see IRowListener
  */
 public class RowAdapter implements IRowListener {
 
-  /**
-   * Instantiates a new row adapter.
-   */
-  public RowAdapter() {
-  }
+  /** Instantiates a new row adapter. */
+  public RowAdapter() {}
 
   /**
    * Empty method implementing the IRowListener.errorRowWrittenEvent interface method
    *
-   * @see IRowListener#errorRowWrittenEvent(IRowMeta,
-   * java.lang.Object[])
+   * @see IRowListener#errorRowWrittenEvent(IRowMeta, java.lang.Object[])
    */
-  public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-  }
+  public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
 
   /**
    * Empty method implementing the IRowListener.rowReadEvent interface method
    *
-   * @see IRowListener#rowReadEvent(IRowMeta,
-   * java.lang.Object[])
+   * @see IRowListener#rowReadEvent(IRowMeta, java.lang.Object[])
    */
-  public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-  }
+  public void rowReadEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
 
   /**
    * Empty method implementing the IRowListener.rowWrittenEvent interface method
    *
-   * @see IRowListener#rowWrittenEvent(IRowMeta,
-   * java.lang.Object[])
+   * @see IRowListener#rowWrittenEvent(IRowMeta, java.lang.Object[])
    */
-  public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-  }
-
+  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
 }

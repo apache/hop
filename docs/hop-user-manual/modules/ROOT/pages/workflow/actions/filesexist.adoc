@@ -25,10 +25,11 @@ Use the Checks if files exists action to verify that specified files exist.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|Workflow action name|The name of the workflow action.
+This name has to be unique in a single workflow.
 |File/folder name|The file or folder.
 |Add|Adds the file or folder to the Files/Folders table.
 |File...|Browse the filesystem for a file.

@@ -25,11 +25,12 @@ The De-serialize from file transform, formerly known as Cube Input, reads rows o
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform; this name has to be unique in a single pipeline.
 |Filename|The name of the Hop cube file to be generated.
 |Limit|Allows you to limit the number of rows written to
-|Size|the cube file. A value of zero (0) indicates no size limit (optional). 
+|Size|the cube file.
+A value of zero (0) indicates no size limit (optional).
 |===

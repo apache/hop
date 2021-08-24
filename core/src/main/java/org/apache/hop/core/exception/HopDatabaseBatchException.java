@@ -32,9 +32,7 @@ public class HopDatabaseBatchException extends HopDatabaseException {
 
   private List<Exception> exceptionsList;
 
-  /**
-   * Constructs a new throwable with null as its detail message.
-   */
+  /** Constructs a new throwable with null as its detail message. */
   public HopDatabaseBatchException() {
     super();
   }
@@ -42,49 +40,47 @@ public class HopDatabaseBatchException extends HopDatabaseException {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the
+   *     getMessage() method.
    */
-  public HopDatabaseBatchException( String message ) {
-    super( message );
+  public HopDatabaseBatchException(String message) {
+    super(message);
   }
 
   /**
-   * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null : cause.toString())
-   * (which typically contains the class and detail message of cause).
+   * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null
+   * : cause.toString()) (which typically contains the class and detail message of cause).
    *
-   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *              indicates that the cause is nonexistent or unknown.)
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null
+   *     value is permitted, and indicates that the cause is nonexistent or unknown.)
    */
-  public HopDatabaseBatchException( Throwable cause ) {
-    super( cause );
+  public HopDatabaseBatchException(Throwable cause) {
+    super(cause);
   }
 
   /**
    * Constructs a new throwable with the specified detail message and cause.
    *
-   * @param message the detail message (which is saved for later retrieval by the getMessage() method).
-   * @param cause   the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *                indicates that the cause is nonexistent or unknown.)
+   * @param message the detail message (which is saved for later retrieval by the getMessage()
+   *     method).
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null
+   *     value is permitted, and indicates that the cause is nonexistent or unknown.)
    */
-  public HopDatabaseBatchException( String message, Throwable cause ) {
-    super( message, cause );
+  public HopDatabaseBatchException(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  /**
-   * @return Returns the updateCounts.
-   */
+  /** @return Returns the updateCounts. */
   public int[] getUpdateCounts() {
     return updateCounts;
   }
 
-  /**
-   * @param updateCounts The updateCounts to set.
-   */
-  public void setUpdateCounts( int[] updateCounts ) {
+  /** @param updateCounts The updateCounts to set. */
+  public void setUpdateCounts(int[] updateCounts) {
     this.updateCounts = updateCounts;
   }
 
-  public void setExceptionsList( List<Exception> exceptionsList ) {
+  public void setExceptionsList(List<Exception> exceptionsList) {
     this.exceptionsList = exceptionsList;
   }
 

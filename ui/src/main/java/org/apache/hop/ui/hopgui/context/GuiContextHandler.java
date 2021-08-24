@@ -26,7 +26,7 @@ public class GuiContextHandler implements IGuiContextHandler {
   private String contextId;
   private List<GuiAction> supportedActions;
 
-  public GuiContextHandler( String contextId, List<GuiAction> supportedActions ) {
+  public GuiContextHandler(String contextId, List<GuiAction> supportedActions) {
     this.contextId = contextId;
     this.supportedActions = supportedActions;
   }
@@ -36,14 +36,13 @@ public class GuiContextHandler implements IGuiContextHandler {
    *
    * @return value of contextId
    */
-  @Override public String getContextId() {
+  @Override
+  public String getContextId() {
     return contextId;
   }
 
-  /**
-   * @param contextId The contextId to set
-   */
-  public void setContextId( String contextId ) {
+  /** @param contextId The contextId to set */
+  public void setContextId(String contextId) {
     this.contextId = contextId;
   }
 
@@ -52,14 +51,13 @@ public class GuiContextHandler implements IGuiContextHandler {
    *
    * @return value of supportedActions
    */
-  @Override public List<GuiAction> getSupportedActions() {
+  @Override
+  public List<GuiAction> getSupportedActions() {
     return supportedActions;
   }
 
-  /**
-   * @param supportedActions The supportedActions to set
-   */
-  public void setSupportedActions( List<GuiAction> supportedActions ) {
+  /** @param supportedActions The supportedActions to set */
+  public void setSupportedActions(List<GuiAction> supportedActions) {
     this.supportedActions = supportedActions;
   }
 }

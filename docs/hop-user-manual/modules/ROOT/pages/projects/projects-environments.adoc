@@ -32,11 +32,10 @@ image:hop-gui/environment/project-add.svg[Add a new project]
 
 This button opens the following dialogue:
 
-image:hop-gui/environment/create-project-dialogue.png[Create a project, width="60%"]
-
+image:hop-gui/environment/create-project-dialogue.png[Create a project,width="60%"]
 
 .Project Properties
-[id="tab-proj-props", cols="20%,45%,5%,5%,25%", options="header"]
+[id="tab-proj-props",cols="20%,45%,5%,5%,25%",options="header"]
 |===
 |Property|Description|Variables Supported|Mandatory|Default
 |Name|The project name|Yes|No|
@@ -62,10 +61,10 @@ image:hop-gui/environment/environment-add.svg[Environment]
 
 This button opens the following dialogue:
 
-image:hop-gui/environment/create-environment-dialogue.png[Create an environment, width="45%"]
+image:hop-gui/environment/create-environment-dialogue.png[Create an environment,width="45%"]
 
 .Environment Properties
-[id="tab-env-props", cols="20%,45%,5%,5%,25%", options="header"]
+[id="tab-env-props",cols="20%,45%,5%,5%,25%",options="header"]
 |===
 |Property|Description|Variables Supported|Mandatory|Default
 |Name|The environment name|No|No|The last created project
@@ -90,10 +89,10 @@ To switch between projects the projects list can be used from the main Hop Gui t
 
 image::hop-gui/environment/switch-project-list.png[Switch project]
 
-After switching to a project the environments list will be updated to the environments which belong to this project. All open files will be restored, including their zoom level and other UI settings.
+After switching to a project the environments list will be updated to the environments which belong to this project.
+All open files will be restored, including their zoom level and other UI settings.
 
 image::hop-gui/environment/switch-environment-list.png[Switch environment]
-
 
 == Edit and delete projects
 

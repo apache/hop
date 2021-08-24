@@ -60,7 +60,6 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
   private Charset clientEncoding = Charset.defaultCharset();
   private PGCopyOutputStream pgCopyOut;
 
-
   public PGBulkLoader(
       TransformMeta transformMeta,
       PGBulkLoaderMeta meta,

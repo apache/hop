@@ -23,5 +23,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 public interface IPipelineMetaFactory {
-  PipelineMeta create( Node pipelineNode, IHopMetadataProvider metadataProvider ) throws HopXmlException, HopMissingPluginsException;
+  PipelineMeta create(Node pipelineNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException, HopMissingPluginsException;
 }

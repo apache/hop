@@ -76,8 +76,8 @@ public abstract class WidgetUtils {
 
           try {
             IRowMeta rmi =
-                pipelineMeta.getPrevTransformFields( variables,
-                    transformMeta.getParentTransformMeta().getName());
+                pipelineMeta.getPrevTransformFields(
+                    variables, transformMeta.getParentTransformMeta().getName());
             List ls = rmi.getValueMetaList();
             for (Object l : ls) {
               ValueMetaBase vmb = (ValueMetaBase) l;

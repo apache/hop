@@ -31,7 +31,7 @@ import java.util.List;
     name = "Pipeline Probe",
     description = "This allows you to stream output rows of a transform to another pipeline",
     image = "probe.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/pipeline-probe.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/pipeline-probe.html")
 public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
@@ -48,8 +48,12 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     dataProbeLocations = new ArrayList<>();
   }
 
-  public PipelineProbe( String name, boolean enabled, String pipelineFilename, List<DataProbeLocation> dataProbeLocations ) {
-    super( name );
+  public PipelineProbe(
+      String name,
+      boolean enabled,
+      String pipelineFilename,
+      List<DataProbeLocation> dataProbeLocations) {
+    super(name);
     this.enabled = enabled;
     this.pipelineFilename = pipelineFilename;
     this.dataProbeLocations = dataProbeLocations;
@@ -64,10 +68,8 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /**
-   * @param enabled The enabled to set
-   */
-  public void setEnabled( boolean enabled ) {
+  /** @param enabled The enabled to set */
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
@@ -80,10 +82,8 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     return pipelineFilename;
   }
 
-  /**
-   * @param pipelineFilename The pipelineFilename to set
-   */
-  public void setPipelineFilename( String pipelineFilename ) {
+  /** @param pipelineFilename The pipelineFilename to set */
+  public void setPipelineFilename(String pipelineFilename) {
     this.pipelineFilename = pipelineFilename;
   }
 
@@ -96,10 +96,8 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     return dataProbeLocations;
   }
 
-  /**
-   * @param dataProbeLocations The dataProbeLocations to set
-   */
-  public void setDataProbeLocations( List<DataProbeLocation> dataProbeLocations ) {
+  /** @param dataProbeLocations The dataProbeLocations to set */
+  public void setDataProbeLocations(List<DataProbeLocation> dataProbeLocations) {
     this.dataProbeLocations = dataProbeLocations;
   }
 }

@@ -23,13 +23,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -51,79 +45,101 @@ public class FieldSplitterMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "splitfield", "delimiter", "enclosure", "name", "id", "idrem", "type", "format",
-        "group", "decimal", "currency", "length", "precision", "nullif", "ifnull", "trimtype" );
+        Arrays.asList(
+            "splitfield",
+            "delimiter",
+            "enclosure",
+            "name",
+            "id",
+            "idrem",
+            "type",
+            "format",
+            "group",
+            "decimal",
+            "currency",
+            "length",
+            "precision",
+            "nullif",
+            "ifnull",
+            "trimtype");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "splitfield", "getSplitField" );
-    getterMap.put( "delimiter", "getDelimiter" );
-    getterMap.put( "enclosure", "getEnclosure" );
-    getterMap.put( "name", "getFieldName" );
-    getterMap.put( "id", "getFieldID" );
-    getterMap.put( "idrem", "getFieldRemoveID" );
-    getterMap.put( "type", "getFieldType" );
-    getterMap.put( "format", "getFieldFormat" );
-    getterMap.put( "group", "getFieldGroup" );
-    getterMap.put( "decimal", "getFieldDecimal" );
-    getterMap.put( "currency", "getFieldCurrency" );
-    getterMap.put( "length", "getFieldLength" );
-    getterMap.put( "precision", "getFieldPrecision" );
-    getterMap.put( "nullif", "getFieldNullIf" );
-    getterMap.put( "ifnull", "getFieldIfNull" );
-    getterMap.put( "trimtype", "getFieldTrimType" );
+    getterMap.put("splitfield", "getSplitField");
+    getterMap.put("delimiter", "getDelimiter");
+    getterMap.put("enclosure", "getEnclosure");
+    getterMap.put("name", "getFieldName");
+    getterMap.put("id", "getFieldID");
+    getterMap.put("idrem", "getFieldRemoveID");
+    getterMap.put("type", "getFieldType");
+    getterMap.put("format", "getFieldFormat");
+    getterMap.put("group", "getFieldGroup");
+    getterMap.put("decimal", "getFieldDecimal");
+    getterMap.put("currency", "getFieldCurrency");
+    getterMap.put("length", "getFieldLength");
+    getterMap.put("precision", "getFieldPrecision");
+    getterMap.put("nullif", "getFieldNullIf");
+    getterMap.put("ifnull", "getFieldIfNull");
+    getterMap.put("trimtype", "getFieldTrimType");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "splitfield", "setSplitField" );
-    setterMap.put( "delimiter", "setDelimiter" );
-    setterMap.put( "enclosure", "setEnclosure" );
-    setterMap.put( "name", "setFieldName" );
-    setterMap.put( "id", "setFieldID" );
-    setterMap.put( "idrem", "setFieldRemoveID" );
-    setterMap.put( "type", "setFieldType" );
-    setterMap.put( "format", "setFieldFormat" );
-    setterMap.put( "group", "setFieldGroup" );
-    setterMap.put( "decimal", "setFieldDecimal" );
-    setterMap.put( "currency", "setFieldCurrency" );
-    setterMap.put( "length", "setFieldLength" );
-    setterMap.put( "precision", "setFieldPrecision" );
-    setterMap.put( "nullif", "setFieldNullIf" );
-    setterMap.put( "ifnull", "setFieldIfNull" );
-    setterMap.put( "trimtype", "setFieldTrimType" );
+    setterMap.put("splitfield", "setSplitField");
+    setterMap.put("delimiter", "setDelimiter");
+    setterMap.put("enclosure", "setEnclosure");
+    setterMap.put("name", "setFieldName");
+    setterMap.put("id", "setFieldID");
+    setterMap.put("idrem", "setFieldRemoveID");
+    setterMap.put("type", "setFieldType");
+    setterMap.put("format", "setFieldFormat");
+    setterMap.put("group", "setFieldGroup");
+    setterMap.put("decimal", "setFieldDecimal");
+    setterMap.put("currency", "setFieldCurrency");
+    setterMap.put("length", "setFieldLength");
+    setterMap.put("precision", "setFieldPrecision");
+    setterMap.put("nullif", "setFieldNullIf");
+    setterMap.put("ifnull", "setFieldIfNull");
+    setterMap.put("trimtype", "setFieldTrimType");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
-    fieldLoadSaveValidatorAttributeMap.put( "name",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "id",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "idrem",
-      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "type",
-      new PrimitiveIntArrayLoadSaveValidator(
-        new IntLoadSaveValidator( ValueMetaFactory.getAllValueMetaNames().length ), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "format",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "group",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "decimal",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "currency",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "length",
-      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "precision",
-      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "nullif",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "ifnull",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "trimtype",
-      new PrimitiveIntArrayLoadSaveValidator(
-        new IntLoadSaveValidator( ValueMetaBase.getTrimTypeCodes().length ), 5 ) );
+    fieldLoadSaveValidatorAttributeMap.put(
+        "name", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "id", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "idrem", new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "type",
+        new PrimitiveIntArrayLoadSaveValidator(
+            new IntLoadSaveValidator(ValueMetaFactory.getAllValueMetaNames().length), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "format", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "group", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "decimal", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "currency", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "length", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "precision", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "nullif", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "ifnull", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "trimtype",
+        new PrimitiveIntArrayLoadSaveValidator(
+            new IntLoadSaveValidator(ValueMetaBase.getTrimTypeCodes().length), 5));
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( FieldSplitterMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(
+            FieldSplitterMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
 
     loadSaveTester.testSerialization();
   }
@@ -131,14 +147,14 @@ public class FieldSplitterMetaTest {
   @Test
   public void postAllocateChange() throws HopException {
     FieldSplitterMeta meta = new FieldSplitterMeta();
-    meta.allocate( 0 );
+    meta.allocate(0);
 
-    meta.setDelimiter( ":" );
-    meta.setEnclosure( "" );
-    meta.setSplitField( "split" );
+    meta.setDelimiter(":");
+    meta.setEnclosure("");
+    meta.setSplitField("split");
 
     // set properties after allocate (simulate metadata injection)
-    meta.setFieldName( new String[] { "c1", "c2" } );
+    meta.setFieldName(new String[] {"c1", "c2"});
 
     meta.getXml();
   }
@@ -146,54 +162,78 @@ public class FieldSplitterMetaTest {
   @Test
   public void testPDI16559() throws Exception {
     FieldSplitterMeta fieldSplitter = new FieldSplitterMeta();
-    fieldSplitter.setFieldName( new String[] { "field1", "field2", "field3", "field4", "field5", "field6", "field7", "field8", "field9", "field10", "field11", "field12" } );
-    fieldSplitter.setFieldID( new String[] { "fieldID1", "fieldID2", "fieldID3", "fieldID4", "fieldID5", "fieldID6", "fieldID7", "fieldID8", "fieldID9", "fieldID10", "fieldID11" } );
-    fieldSplitter.setFieldRemoveID( new boolean[] { true, false, false, false, false, false, true, false, true } );
-    fieldSplitter.setFieldFormat( new String[] { "asdf", "asdf", "qwer", "qwer", "QErasdf", "zxvv", "fasdf", "qwerqwr" } );
-    fieldSplitter.setFieldGroup( new String[] { "groupa", "groupb", "groupa", "groupb", "groupa", "groupb", "groupa", "groupb" } );
-    fieldSplitter.setFieldDecimal( new String[] { "asdf", "qwer", "zxcvb", "erty", "asfaf", "fhdfhg" } );
-    fieldSplitter.setFieldCurrency( new String[] { "$", "$", "$", "$", "$", "$" } );
-    fieldSplitter.setFieldLength( new int[] { 12, 6, 15, 14, 23, 177, 13, 21 } );
-    fieldSplitter.setFieldPrecision( new int[] { 7, 7, 7, 7, 12, 16, 5, 5, 5 } );
-    fieldSplitter.setFieldNullIf( new String[] { "hdfgh", "sdfgsdg", "ZZfZDf", "dfhfh", "235gwst", "qreqwre" } );
-    fieldSplitter.setFieldIfNull( new String[] { "asdfsaf", "qwreqwr", "afxxvzxvc", "qwreasgf", "zxcgdfg" } );
+    fieldSplitter.setFieldName(
+        new String[] {
+          "field1", "field2", "field3", "field4", "field5", "field6", "field7", "field8", "field9",
+          "field10", "field11", "field12"
+        });
+    fieldSplitter.setFieldID(
+        new String[] {
+          "fieldID1",
+          "fieldID2",
+          "fieldID3",
+          "fieldID4",
+          "fieldID5",
+          "fieldID6",
+          "fieldID7",
+          "fieldID8",
+          "fieldID9",
+          "fieldID10",
+          "fieldID11"
+        });
+    fieldSplitter.setFieldRemoveID(
+        new boolean[] {true, false, false, false, false, false, true, false, true});
+    fieldSplitter.setFieldFormat(
+        new String[] {"asdf", "asdf", "qwer", "qwer", "QErasdf", "zxvv", "fasdf", "qwerqwr"});
+    fieldSplitter.setFieldGroup(
+        new String[] {
+          "groupa", "groupb", "groupa", "groupb", "groupa", "groupb", "groupa", "groupb"
+        });
+    fieldSplitter.setFieldDecimal(
+        new String[] {"asdf", "qwer", "zxcvb", "erty", "asfaf", "fhdfhg"});
+    fieldSplitter.setFieldCurrency(new String[] {"$", "$", "$", "$", "$", "$"});
+    fieldSplitter.setFieldLength(new int[] {12, 6, 15, 14, 23, 177, 13, 21});
+    fieldSplitter.setFieldPrecision(new int[] {7, 7, 7, 7, 12, 16, 5, 5, 5});
+    fieldSplitter.setFieldNullIf(
+        new String[] {"hdfgh", "sdfgsdg", "ZZfZDf", "dfhfh", "235gwst", "qreqwre"});
+    fieldSplitter.setFieldIfNull(
+        new String[] {"asdfsaf", "qwreqwr", "afxxvzxvc", "qwreasgf", "zxcgdfg"});
 
-    fieldSplitter.setFieldTrimType( new int[] { 1, 0, 2 } );
-    fieldSplitter.setFieldType( new int[] { 1, 1, 0, 3 } );
+    fieldSplitter.setFieldTrimType(new int[] {1, 0, 2});
+    fieldSplitter.setFieldType(new int[] {1, 1, 0, 3});
 
     try {
       String badXml = fieldSplitter.getXml();
-      Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
-    } catch ( Exception expected ) {
+      Assert.fail(
+          "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
+    } catch (Exception expected) {
       // Do Nothing
     }
     fieldSplitter.afterInjectionSynchronization();
-    //run without a exception
+    // run without a exception
     String ktrXml = fieldSplitter.getXml();
 
     int targetSz = fieldSplitter.getFieldName().length;
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldID().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldRemoveID().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldFormat().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldGroup().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldDecimal().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldCurrency().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldLength().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldPrecision().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldNullIf().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldIfNull().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldType().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldTrimType().length );
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldID().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldRemoveID().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldFormat().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldGroup().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldDecimal().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldCurrency().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldLength().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldPrecision().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldNullIf().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldIfNull().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldType().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldTrimType().length);
 
     // Check for null arrays being handled
-    fieldSplitter.setFieldType( null ); // null int array
-    fieldSplitter.setFieldRemoveID( null ); // null boolean array
-    fieldSplitter.setFieldID( null ); // null string array
+    fieldSplitter.setFieldType(null); // null int array
+    fieldSplitter.setFieldRemoveID(null); // null boolean array
+    fieldSplitter.setFieldID(null); // null string array
     fieldSplitter.afterInjectionSynchronization();
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldType().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldID().length );
-    Assert.assertEquals( targetSz, fieldSplitter.getFieldRemoveID().length );
-
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldType().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldID().length);
+    Assert.assertEquals(targetSz, fieldSplitter.getFieldRemoveID().length);
   }
-
 }

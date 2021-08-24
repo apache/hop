@@ -17,28 +17,24 @@
 
 package org.apache.hop.beam.transform;
 
-import org.junit.Test;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.junit.Test;
 
 public class MergeJoinPipelineTest extends PipelineTestBase {
 
   @Test
   public void testMergeJoinPipeline() throws Exception {
 
-    PipelineMeta pipelineMeta = BeamPipelineMetaUtil.generateMergeJoinPipelineMeta(
-      "inputs-merge-join-output",
-      "INPUT",
-      "OUTPUT",
-      metadataProvider
-    );
+    PipelineMeta pipelineMeta =
+        BeamPipelineMetaUtil.generateMergeJoinPipelineMeta(
+            "inputs-merge-join-output", "INPUT", "OUTPUT", metadataProvider);
 
     try {
-      createRunPipeline( variables, pipelineMeta );
-    } catch(Exception e) {
+      createRunPipeline(variables, pipelineMeta);
+    } catch (Exception e) {
       e.printStackTrace();
       throw e;
     }
   }
-
 }

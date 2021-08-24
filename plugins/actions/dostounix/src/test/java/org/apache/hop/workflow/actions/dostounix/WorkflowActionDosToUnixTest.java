@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.dostounix;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionDosToUnixTest extends WorkflowActionLoadSaveTestSupport<ActionDosToUnix> {
+public class WorkflowActionDosToUnixTest
+    extends WorkflowActionLoadSaveTestSupport<ActionDosToUnix> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,25 +35,22 @@ public class WorkflowActionDosToUnixTest extends WorkflowActionLoadSaveTestSuppo
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "nr_errors_less_than",
-      "success_condition",
-      "resultfilenames" );
+    return Arrays.asList("nr_errors_less_than", "success_condition", "resultfilenames");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "nr_errors_less_than", "getNrErrorsLessThan",
-      "success_condition", "getSuccessCondition",
-      "resultfilenames", "getResultFilenames" );
+        "nr_errors_less_than", "getNrErrorsLessThan",
+        "success_condition", "getSuccessCondition",
+        "resultfilenames", "getResultFilenames");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "nr_errors_less_than", "setNrErrorsLessThan",
-      "success_condition", "setSuccessCondition",
-      "resultfilenames", "setResultFilenames" );
+        "nr_errors_less_than", "setNrErrorsLessThan",
+        "success_condition", "setSuccessCondition",
+        "resultfilenames", "setResultFilenames");
   }
 }

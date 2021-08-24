@@ -31,31 +31,35 @@ public class VariableButtonListenerFactory {
   private static final Class<?> PKG = VariableButtonListenerFactory.class; // For Translator
 
   // Listen to the Variable... button
-  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final TextVar destination,
-                                                            final IVariables variables ) {
-    return getSelectionAdapter( composite, destination, null, null, variables );
+  public static final SelectionAdapter getSelectionAdapter(
+      final Composite composite, final TextVar destination, final IVariables variables) {
+    return getSelectionAdapter(composite, destination, null, null, variables);
   }
 
   // Listen to the Variable... button
-  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final TextVar destination,
-                                                            final IGetCaretPosition getCaretPositionInterface, final IInsertText insertTextInterface,
-                                                            final IVariables variables ) {
+  public static final SelectionAdapter getSelectionAdapter(
+      final Composite composite,
+      final TextVar destination,
+      final IGetCaretPosition getCaretPositionInterface,
+      final IInsertText insertTextInterface,
+      final IVariables variables) {
     return new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        // Before focus is lost, we get the position of where the selected variable needs to be inserted.
+      public void widgetSelected(SelectionEvent e) {
+        // Before focus is lost, we get the position of where the selected variable needs to be
+        // inserted.
         int position = 0;
-        if ( getCaretPositionInterface != null ) {
+        if (getCaretPositionInterface != null) {
           position = getCaretPositionInterface.getCaretPosition();
         }
 
-        String variableName = getVariableName( composite.getShell(), variables );
-        if ( variableName != null ) {
+        String variableName = getVariableName(composite.getShell(), variables);
+        if (variableName != null) {
           String var = "${" + variableName + "}";
-          if ( insertTextInterface == null ) {
-            destination.getTextWidget().insert( var );
+          if (insertTextInterface == null) {
+            destination.getTextWidget().insert(var);
             e.doit = false;
           } else {
-            insertTextInterface.insertText( var, position );
+            insertTextInterface.insertText(var, position);
           }
         }
       }
@@ -63,28 +67,31 @@ public class VariableButtonListenerFactory {
   }
 
   // Listen to the Variable... button
-  public static final String getVariableName( Shell shell, IVariables variables ) {
+  public static final String getVariableName(Shell shell, IVariables variables) {
     String[] keys = variables.getVariableNames();
-    Arrays.sort( keys );
+    Arrays.sort(keys);
 
     int size = keys.length;
-    String[] key = new String[ size ];
-    String[] val = new String[ size ];
-    String[] str = new String[ size ];
+    String[] key = new String[size];
+    String[] val = new String[size];
+    String[] str = new String[size];
 
-    for ( int i = 0; i < keys.length; i++ ) {
-      key[ i ] = keys[ i ];
-      val[ i ] = variables.getVariable( key[ i ] );
-      str[ i ] = key[ i ] + "  [" + val[ i ] + "]";
+    for (int i = 0; i < keys.length; i++) {
+      key[i] = keys[i];
+      val[i] = variables.getVariable(key[i]);
+      str[i] = key[i] + "  [" + val[i] + "]";
     }
 
-    EnterSelectionDialog esd = new EnterSelectionDialog( shell, str,
-      BaseMessages.getString( PKG, "System.Dialog.SelectEnvironmentVar.Title" ),
-      BaseMessages.getString( PKG, "System.Dialog.SelectEnvironmentVar.Message" ) );
+    EnterSelectionDialog esd =
+        new EnterSelectionDialog(
+            shell,
+            str,
+            BaseMessages.getString(PKG, "System.Dialog.SelectEnvironmentVar.Title"),
+            BaseMessages.getString(PKG, "System.Dialog.SelectEnvironmentVar.Message"));
     esd.clearModal();
-    if ( esd.open() != null ) {
+    if (esd.open() != null) {
       int nr = esd.getSelectionNr();
-      String var = key[ nr ];
+      String var = key[nr];
 
       return var;
     } else {

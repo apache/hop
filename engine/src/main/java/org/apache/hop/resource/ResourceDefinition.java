@@ -27,51 +27,39 @@ public class ResourceDefinition {
    * @param filename
    * @param content
    */
-  public ResourceDefinition( String filename, String content ) {
+  public ResourceDefinition(String filename, String content) {
     super();
     this.filename = filename;
     this.content = content;
   }
 
-  /**
-   * @return the filename
-   */
+  /** @return the filename */
   public String getFilename() {
     return filename;
   }
 
-  /**
-   * @param filename the filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename the filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /**
-   * @return the content
-   */
+  /** @return the content */
   public String getContent() {
     return content;
   }
 
-  /**
-   * @param content the content to set
-   */
-  public void setContent( String content ) {
+  /** @param content the content to set */
+  public void setContent(String content) {
     this.content = content;
   }
 
-  /**
-   * @return the origin of the resource as entered by the user. (optional)
-   */
+  /** @return the origin of the resource as entered by the user. (optional) */
   public String getOrigin() {
     return origin;
   }
 
-  /**
-   * @param origin the origin of the resource as entered by the user. (optional)
-   */
-  public void setOrigin( String origin ) {
+  /** @param origin the origin of the resource as entered by the user. (optional) */
+  public void setOrigin(String origin) {
     this.origin = origin;
   }
 }

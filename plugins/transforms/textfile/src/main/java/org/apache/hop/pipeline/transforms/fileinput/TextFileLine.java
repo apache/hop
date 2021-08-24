@@ -19,9 +19,7 @@ package org.apache.hop.pipeline.transforms.fileinput;
 
 import org.apache.commons.vfs2.FileObject;
 
-/**
- * @deprecated replaced by implementation in the ...transforms.fileinput.text package
- */
+/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
 @Deprecated
 public class TextFileLine {
   public String line;
@@ -30,7 +28,7 @@ public class TextFileLine {
 
   FileObject file;
 
-  public TextFileLine( String line, long lineNumber, FileObject file ) {
+  public TextFileLine(String line, long lineNumber, FileObject file) {
     super();
     this.line = line;
     this.lineNumber = lineNumber;

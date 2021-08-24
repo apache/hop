@@ -25,22 +25,28 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class SingletonUtil {
-  public static final List<String> getValuesList( String guiPluginId, String singletonClassName, String methodName) throws HopException {
+  public static final List<String> getValuesList(
+      String guiPluginId, String singletonClassName, String methodName) throws HopException {
     try {
       PluginRegistry registry = PluginRegistry.getInstance();
-      IPlugin guiPlugin = registry.getPlugin( GuiPluginType.class, guiPluginId );
-      ClassLoader classLoader = registry.getClassLoader( guiPlugin );
+      IPlugin guiPlugin = registry.getPlugin(GuiPluginType.class, guiPluginId);
+      ClassLoader classLoader = registry.getClassLoader(guiPlugin);
 
-      Class<?> singletonClass = classLoader.loadClass( singletonClassName );
-      Method getInstanceMethod = singletonClass.getDeclaredMethod("getInstance", new Class[] { });
-      Object singleton = getInstanceMethod.invoke( null, new Object[] {} );
+      Class<?> singletonClass = classLoader.loadClass(singletonClassName);
+      Method getInstanceMethod = singletonClass.getDeclaredMethod("getInstance", new Class[] {});
+      Object singleton = getInstanceMethod.invoke(null, new Object[] {});
 
-      Method method = singletonClass.getMethod( methodName );
-      List<String> values = (List<String>) method.invoke( singleton, new Object[] {} );
+      Method method = singletonClass.getMethod(methodName);
+      List<String> values = (List<String>) method.invoke(singleton, new Object[] {});
 
       return values;
-    } catch ( Exception e ) {
-      throw new HopException("Unable to get list of values from class "+singletonClassName+" with method "+methodName, e);
+    } catch (Exception e) {
+      throw new HopException(
+          "Unable to get list of values from class "
+              + singletonClassName
+              + " with method "
+              + methodName,
+          e);
     }
   }
 }

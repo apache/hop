@@ -25,7 +25,7 @@ This transforms allows you to verify the existence of a specific column in a dat
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; This name has to be unique in a single pipeline
@@ -35,5 +35,5 @@ This transforms allows you to verify the existence of a specific column in a dat
 |Tablename in field?|Enable to read the name of the table in an input field
 |Tablename field|Specify the fieldns containing parameters and the parameter type
 |Columnname field|The name of the column field in the input stream
-|Result fieldname|The name of the resulting boolean flag field 
+|Result fieldname|The name of the resulting boolean flag field
 |===

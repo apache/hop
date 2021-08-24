@@ -33,7 +33,7 @@ With the String Operations transform, you can perform the following string opera
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -52,10 +52,12 @@ With the String Operations transform, you can perform the following string opera
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
 
 Values for Metadata Injection
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |===
 |Field|Values
 |In stream fields|list of source fields

@@ -25,11 +25,11 @@ The Write to log acction writes a specific string to the Hop logging system.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
 |Log level|The logging level to use
 |Log subject|The subject to use in the logging line(s)
-|Log message|The log message to write to the log 
+|Log message|The log message to write to the log
 |===

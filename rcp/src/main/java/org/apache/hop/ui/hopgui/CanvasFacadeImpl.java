@@ -23,8 +23,7 @@ import org.eclipse.swt.widgets.Canvas;
 public class CanvasFacadeImpl extends CanvasFacade {
 
   @Override
-  void setDataInternal( Canvas canvas, float magnification, AbstractMeta meta, Class type ) {
+  void setDataInternal(Canvas canvas, float magnification, AbstractMeta meta, Class type) {
     // do nothing
   }
-
 }

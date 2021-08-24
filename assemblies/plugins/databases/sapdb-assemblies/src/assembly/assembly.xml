@@ -34,7 +34,7 @@
             <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
             <outputDirectory>lib</outputDirectory>
             <filtered>true</filtered>
-        </file>             
+        </file>
     </files>
     <fileSets>
         <fileSet>
@@ -51,13 +51,13 @@
                 <include>org.apache.hop:hop-databases-sapdb:jar</include>
             </includes>
         </dependencySet>
-<!--         <dependencySet> -->
-<!--             <includes> -->
-<!--                 <include>com.sap:sapdbc:jar</include> -->
-<!--             </includes> -->
-<!--             <outputDirectory>lib</outputDirectory> -->
-<!--             <useTransitiveDependencies>false</useTransitiveDependencies> -->
-<!--             <useProjectArtifact>false</useProjectArtifact> -->
-<!--         </dependencySet>         -->
+        <!--         <dependencySet> -->
+        <!--             <includes> -->
+        <!--                 <include>com.sap:sapdbc:jar</include> -->
+        <!--             </includes> -->
+        <!--             <outputDirectory>lib</outputDirectory> -->
+        <!--             <useTransitiveDependencies>false</useTransitiveDependencies> -->
+        <!--             <useProjectArtifact>false</useProjectArtifact> -->
+        <!--         </dependencySet>         -->
     </dependencySets>
 </assembly>

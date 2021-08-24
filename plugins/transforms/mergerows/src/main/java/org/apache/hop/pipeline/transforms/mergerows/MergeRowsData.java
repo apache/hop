@@ -39,5 +39,4 @@ public class MergeRowsData extends BaseTransformData implements ITransformData {
   public MergeRowsData() {
     super();
   }
-
 }

@@ -23,7 +23,7 @@ public class PipelineDebugMetaWrapper {
   private final Pipeline pipeline;
   private final PipelineDebugMeta pipelineDebugMeta;
 
-  public PipelineDebugMetaWrapper( Pipeline pipeline, PipelineDebugMeta pipelineDebugMeta ) {
+  public PipelineDebugMetaWrapper(Pipeline pipeline, PipelineDebugMeta pipelineDebugMeta) {
     super();
     this.pipeline = pipeline;
     this.pipelineDebugMeta = pipelineDebugMeta;

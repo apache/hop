@@ -24,22 +24,13 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class ExcelInputMetaTest {
   LoadSaveTester loadSaveTester;
@@ -51,115 +42,146 @@ public class ExcelInputMetaTest {
     HopEnvironment.init();
 
     meta = new ExcelInputMeta();
-    meta.setFileName( new String[] { "1", "2", "3" } );
-    meta.setSheetName( new String[] { "1", "2", "3", "4" } );
-    meta.setField( new ExcelInputField[] {
-      new ExcelInputField( "1", 1, 1 ),
-      new ExcelInputField( "2", 2, 2 ) } );
+    meta.setFileName(new String[] {"1", "2", "3"});
+    meta.setSheetName(new String[] {"1", "2", "3", "4"});
+    meta.setField(
+        new ExcelInputField[] {new ExcelInputField("1", 1, 1), new ExcelInputField("2", 2, 2)});
     meta.normilizeAllocation();
   }
 
   @Test
   public void testSerialization() throws HopException {
     List<String> attributes =
-      Arrays.asList( "fileName", "fileMask", "excludeFileMask", "fileRequired", "includeSubFolders", "field",
-        "sheetName", "startRow", "startColumn", "spreadSheetType", "fileField", "sheetField", "sheetRowNumberField",
-        "rowNumberField", "shortFileFieldName", "extensionFieldName", "pathFieldName", "sizeFieldName",
-        "hiddenFieldName", "lastModificationTimeFieldName", "uriNameFieldName", "rootUriNameFieldName" );
+        Arrays.asList(
+            "fileName",
+            "fileMask",
+            "excludeFileMask",
+            "fileRequired",
+            "includeSubFolders",
+            "field",
+            "sheetName",
+            "startRow",
+            "startColumn",
+            "spreadSheetType",
+            "fileField",
+            "sheetField",
+            "sheetRowNumberField",
+            "rowNumberField",
+            "shortFileFieldName",
+            "extensionFieldName",
+            "pathFieldName",
+            "sizeFieldName",
+            "hiddenFieldName",
+            "lastModificationTimeFieldName",
+            "uriNameFieldName",
+            "rootUriNameFieldName");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "excludeFileMask", "getExcludeFileMask" );
-        put( "shortFileFieldName", "getShortFileNameField" );
-        put( "extensionFieldName", "getExtensionField" );
-        put( "pathFieldName", "getPathField" );
-        put( "sizeFieldName", "getSizeField" );
-        put( "hiddenFieldName", "isHiddenField" );
-        put( "lastModificationTimeFieldName", "getLastModificationDateField" );
-        put( "uriNameFieldName", "getUriField" );
-        put( "rootUriNameFieldName", "getRootUriField" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "shortFileFieldName", "setShortFileNameField" );
-        put( "extensionFieldName", "setExtensionField" );
-        put( "pathFieldName", "setPathField" );
-        put( "sizeFieldName", "setSizeField" );
-        put( "hiddenFieldName", "setIsHiddenField" );
-        put( "lastModificationTimeFieldName", "setLastModificationDateField" );
-        put( "uriNameFieldName", "setUriField" );
-        put( "rootUriNameFieldName", "setRootUriField" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("excludeFileMask", "getExcludeFileMask");
+            put("shortFileFieldName", "getShortFileNameField");
+            put("extensionFieldName", "getExtensionField");
+            put("pathFieldName", "getPathField");
+            put("sizeFieldName", "getSizeField");
+            put("hiddenFieldName", "isHiddenField");
+            put("lastModificationTimeFieldName", "getLastModificationDateField");
+            put("uriNameFieldName", "getUriField");
+            put("rootUriNameFieldName", "getRootUriField");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("shortFileFieldName", "setShortFileNameField");
+            put("extensionFieldName", "setExtensionField");
+            put("pathFieldName", "setPathField");
+            put("sizeFieldName", "setSizeField");
+            put("hiddenFieldName", "setIsHiddenField");
+            put("lastModificationTimeFieldName", "setLastModificationDateField");
+            put("uriNameFieldName", "setUriField");
+            put("rootUriNameFieldName", "setRootUriField");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "sheetName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fileRequired", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "field",
-      new ArrayLoadSaveValidator<>( new ExcelInputFieldLoadSaveValidator(), 5 ) );
-    attrValidatorMap.put( "spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator() );
+    attrValidatorMap.put("fileName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("sheetName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("fileMask", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("excludeFileMask", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("fileRequired", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("includeSubFolders", stringArrayLoadSaveValidator);
+    attrValidatorMap.put(
+        "field", new ArrayLoadSaveValidator<>(new ExcelInputFieldLoadSaveValidator(), 5));
+    attrValidatorMap.put("spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator());
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator(), 5 ) );
+    typeValidatorMap.put(
+        int[].class.getCanonicalName(),
+        new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(), 5));
 
     loadSaveTester =
-      new LoadSaveTester( ExcelInputMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            ExcelInputMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap);
 
     loadSaveTester.testSerialization();
   }
 
-  public class ExcelInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<ExcelInputField> {
+  public class ExcelInputFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<ExcelInputField> {
     final Random rand = new Random();
 
     @Override
     public ExcelInputField getTestObject() {
       ExcelInputField rtn = new ExcelInputField();
-      rtn.setCurrencySymbol( UUID.randomUUID().toString() );
-      rtn.setDecimalSymbol( UUID.randomUUID().toString() );
-      rtn.setFormat( UUID.randomUUID().toString() );
-      rtn.setGroupSymbol( UUID.randomUUID().toString() );
-      rtn.setName( UUID.randomUUID().toString() );
-      rtn.setTrimType( rand.nextInt( 4 ) );
-      rtn.setPrecision( rand.nextInt( 9 ) );
-      rtn.setRepeated( rand.nextBoolean() );
-      rtn.setLength( rand.nextInt( 50 ) );
-      rtn.setType( rand.nextInt( 5 ) + 1 );
+      rtn.setCurrencySymbol(UUID.randomUUID().toString());
+      rtn.setDecimalSymbol(UUID.randomUUID().toString());
+      rtn.setFormat(UUID.randomUUID().toString());
+      rtn.setGroupSymbol(UUID.randomUUID().toString());
+      rtn.setName(UUID.randomUUID().toString());
+      rtn.setTrimType(rand.nextInt(4));
+      rtn.setPrecision(rand.nextInt(9));
+      rtn.setRepeated(rand.nextBoolean());
+      rtn.setLength(rand.nextInt(50));
+      rtn.setType(rand.nextInt(5) + 1);
       return rtn;
     }
 
     @Override
-    public boolean validateTestObject( ExcelInputField testObject, Object actual ) {
-      if ( !( actual instanceof ExcelInputField ) ) {
+    public boolean validateTestObject(ExcelInputField testObject, Object actual) {
+      if (!(actual instanceof ExcelInputField)) {
         return false;
       }
       ExcelInputField another = (ExcelInputField) actual;
       return new EqualsBuilder()
-        .append( testObject.getName(), another.getName() )
-        .append( testObject.getType(), another.getType() )
-        .append( testObject.getLength(), another.getLength() )
-        .append( testObject.getFormat(), another.getFormat() )
-        .append( testObject.getTrimType(), another.getTrimType() )
-        .append( testObject.getPrecision(), another.getPrecision() )
-        .append( testObject.getCurrencySymbol(), another.getCurrencySymbol() )
-        .append( testObject.getDecimalSymbol(), another.getDecimalSymbol() )
-        .append( testObject.getGroupSymbol(), another.getGroupSymbol() )
-        .append( testObject.isRepeated(), another.isRepeated() )
-        .isEquals();
+          .append(testObject.getName(), another.getName())
+          .append(testObject.getType(), another.getType())
+          .append(testObject.getLength(), another.getLength())
+          .append(testObject.getFormat(), another.getFormat())
+          .append(testObject.getTrimType(), another.getTrimType())
+          .append(testObject.getPrecision(), another.getPrecision())
+          .append(testObject.getCurrencySymbol(), another.getCurrencySymbol())
+          .append(testObject.getDecimalSymbol(), another.getDecimalSymbol())
+          .append(testObject.getGroupSymbol(), another.getGroupSymbol())
+          .append(testObject.isRepeated(), another.isRepeated())
+          .isEquals();
     }
   }
 
-  public class SpreadSheetTypeFieldLoadSaveValidator implements IFieldLoadSaveValidator<SpreadSheetType> {
-    @Override public SpreadSheetType getTestObject() {
+  public class SpreadSheetTypeFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<SpreadSheetType> {
+    @Override
+    public SpreadSheetType getTestObject() {
       return SpreadSheetType.POI;
     }
 
-    @Override public boolean validateTestObject( SpreadSheetType testObject, Object actual ) {
+    @Override
+    public boolean validateTestObject(SpreadSheetType testObject, Object actual) {
       return true;
     }
   }
@@ -167,265 +189,398 @@ public class ExcelInputMetaTest {
   @Test
   public void testRepoRoundTripWithNullAttr() throws HopException {
     List<String> attributes =
-      Arrays.asList( "fileName", "fileMask", "excludeFileMask", "fileRequired", "includeSubFolders", "field",
-        "sheetName", "startRow", "startColumn", "spreadSheetType", "fileField", "sheetField", "sheetRowNumberField",
-        "rowNumberField", "shortFileFieldName", "extensionFieldName", "pathFieldName", "sizeFieldName",
-        "hiddenFieldName", "lastModificationTimeFieldName", "uriNameFieldName", "rootUriNameFieldName" );
+        Arrays.asList(
+            "fileName",
+            "fileMask",
+            "excludeFileMask",
+            "fileRequired",
+            "includeSubFolders",
+            "field",
+            "sheetName",
+            "startRow",
+            "startColumn",
+            "spreadSheetType",
+            "fileField",
+            "sheetField",
+            "sheetRowNumberField",
+            "rowNumberField",
+            "shortFileFieldName",
+            "extensionFieldName",
+            "pathFieldName",
+            "sizeFieldName",
+            "hiddenFieldName",
+            "lastModificationTimeFieldName",
+            "uriNameFieldName",
+            "rootUriNameFieldName");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "excludeFileMask", "getExcludeFileMask" );
-        put( "shortFileFieldName", "getShortFileNameField" );
-        put( "extensionFieldName", "getExtensionField" );
-        put( "pathFieldName", "getPathField" );
-        put( "sizeFieldName", "getSizeField" );
-        put( "hiddenFieldName", "isHiddenField" );
-        put( "lastModificationTimeFieldName", "getLastModificationDateField" );
-        put( "uriNameFieldName", "getUriField" );
-        put( "rootUriNameFieldName", "getRootUriField" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "shortFileFieldName", "setShortFileNameField" );
-        put( "extensionFieldName", "setExtensionField" );
-        put( "pathFieldName", "setPathField" );
-        put( "sizeFieldName", "setSizeField" );
-        put( "hiddenFieldName", "setIsHiddenField" );
-        put( "lastModificationTimeFieldName", "setLastModificationDateField" );
-        put( "uriNameFieldName", "setUriField" );
-        put( "rootUriNameFieldName", "setRootUriField" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("excludeFileMask", "getExcludeFileMask");
+            put("shortFileFieldName", "getShortFileNameField");
+            put("extensionFieldName", "getExtensionField");
+            put("pathFieldName", "getPathField");
+            put("sizeFieldName", "getSizeField");
+            put("hiddenFieldName", "isHiddenField");
+            put("lastModificationTimeFieldName", "getLastModificationDateField");
+            put("uriNameFieldName", "getUriField");
+            put("rootUriNameFieldName", "getRootUriField");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("shortFileFieldName", "setShortFileNameField");
+            put("extensionFieldName", "setExtensionField");
+            put("pathFieldName", "setPathField");
+            put("sizeFieldName", "setSizeField");
+            put("hiddenFieldName", "setIsHiddenField");
+            put("lastModificationTimeFieldName", "setLastModificationDateField");
+            put("uriNameFieldName", "setUriField");
+            put("rootUriNameFieldName", "setRootUriField");
+          }
+        };
 
-    IFieldLoadSaveValidator<String[]> nullStringArrayLoadSaveValidator = new NullStringArrayLoadSaveValidator();
+    IFieldLoadSaveValidator<String[]> nullStringArrayLoadSaveValidator =
+        new NullStringArrayLoadSaveValidator();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 1 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 1);
 
     NullNameExcelInputArrayFieldLoadSaveValidator nullNameExcelInputArrayFieldLoadSaveValidator =
-      new NullNameExcelInputArrayFieldLoadSaveValidator();
+        new NullNameExcelInputArrayFieldLoadSaveValidator();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fileName", nullStringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fileRequired", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "sheetName", nullStringArrayLoadSaveValidator );
-    attrValidatorMap.put( "field", nullNameExcelInputArrayFieldLoadSaveValidator );
-    attrValidatorMap.put( "spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator() );
+    attrValidatorMap.put("fileName", nullStringArrayLoadSaveValidator);
+    attrValidatorMap.put("fileMask", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("excludeFileMask", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("fileRequired", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("includeSubFolders", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("sheetName", nullStringArrayLoadSaveValidator);
+    attrValidatorMap.put("field", nullNameExcelInputArrayFieldLoadSaveValidator);
+    attrValidatorMap.put("spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator());
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator(), 1 ) );
+    typeValidatorMap.put(
+        int[].class.getCanonicalName(),
+        new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(), 1));
 
-    loadSaveTester = new LoadSaveTester( ExcelInputMeta.class, attributes, getterMap,
-      setterMap, attrValidatorMap, typeValidatorMap );
-
+    loadSaveTester =
+        new LoadSaveTester(
+            ExcelInputMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap);
   }
 
   public class NullStringArrayLoadSaveValidator implements IFieldLoadSaveValidator<String[]> {
-    @Override public String[] getTestObject() {
-      return new String[] { null };
+    @Override
+    public String[] getTestObject() {
+      return new String[] {null};
     }
 
-    @Override public boolean validateTestObject( String[] original, Object actualObject ) {
-      String[] actual = actualObject instanceof String[] ? ( (String[]) actualObject ) : null;
-      if ( actual == null || actual.length != 1 || original.length != 1 || original[ 0 ] != null ) {
+    @Override
+    public boolean validateTestObject(String[] original, Object actualObject) {
+      String[] actual = actualObject instanceof String[] ? ((String[]) actualObject) : null;
+      if (actual == null || actual.length != 1 || original.length != 1 || original[0] != null) {
         return false;
       }
-      return StringUtils.EMPTY.equals( actual[ 0 ] );
+      return StringUtils.EMPTY.equals(actual[0]);
     }
   }
 
-  public class NullNameExcelInputArrayFieldLoadSaveValidator implements IFieldLoadSaveValidator<ExcelInputField[]> {
-    @Override public ExcelInputField[] getTestObject() {
+  public class NullNameExcelInputArrayFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<ExcelInputField[]> {
+    @Override
+    public ExcelInputField[] getTestObject() {
       ExcelInputField rtn = new ExcelInputField();
-      rtn.setName( null );
-      return new ExcelInputField[] { rtn };
+      rtn.setName(null);
+      return new ExcelInputField[] {rtn};
     }
 
-    @Override public boolean validateTestObject( ExcelInputField[] original, Object actualObject ) {
+    @Override
+    public boolean validateTestObject(ExcelInputField[] original, Object actualObject) {
       ExcelInputField[] actual =
-        actualObject instanceof ExcelInputField[] ? ( (ExcelInputField[]) actualObject ) : null;
-      if ( actual == null || actual.length != 1 || original.length != 1 || original[ 0 ].getName() != null ) {
+          actualObject instanceof ExcelInputField[] ? ((ExcelInputField[]) actualObject) : null;
+      if (actual == null
+          || actual.length != 1
+          || original.length != 1
+          || original[0].getName() != null) {
         return false;
       }
-      return StringUtils.EMPTY.equals( actual[ 0 ].getName() );
+      return StringUtils.EMPTY.equals(actual[0].getName());
     }
   }
 
   @Test
   public void testNormilizeAllocation() throws HopException {
-    Assert.assertEquals( 3, meta.getFileName().length );
-    Assert.assertEquals( 3, meta.getFileMask().length );
-    Assert.assertEquals( 3, meta.getExcludeFileMask().length );
-    Assert.assertEquals( 3, meta.getFileRequired().length );
-    Assert.assertEquals( 3, meta.getIncludeSubFolders().length );
+    Assert.assertEquals(3, meta.getFileName().length);
+    Assert.assertEquals(3, meta.getFileMask().length);
+    Assert.assertEquals(3, meta.getExcludeFileMask().length);
+    Assert.assertEquals(3, meta.getFileRequired().length);
+    Assert.assertEquals(3, meta.getIncludeSubFolders().length);
 
-    Assert.assertEquals( 4, meta.getSheetName().length );
-    Assert.assertEquals( 4, meta.getStartRow().length );
-    Assert.assertEquals( 4, meta.getStartColumn().length );
+    Assert.assertEquals(4, meta.getSheetName().length);
+    Assert.assertEquals(4, meta.getStartRow().length);
+    Assert.assertEquals(4, meta.getStartColumn().length);
 
-    Assert.assertArrayEquals( new String[] { "1", "2", "3" }, meta.getFileName() );
-    Assert.assertArrayEquals( new String[] { "1", "2", "3", "4" }, meta.getSheetName() );
+    Assert.assertArrayEquals(new String[] {"1", "2", "3"}, meta.getFileName());
+    Assert.assertArrayEquals(new String[] {"1", "2", "3", "4"}, meta.getSheetName());
 
-    for ( String str : meta.getFileMask() ) {
-      Assert.assertEquals( null, str );
+    for (String str : meta.getFileMask()) {
+      Assert.assertEquals(null, str);
     }
-    for ( String str : meta.getExcludeFileMask() ) {
-      Assert.assertEquals( null, str );
+    for (String str : meta.getExcludeFileMask()) {
+      Assert.assertEquals(null, str);
     }
-    for ( String str : meta.getFileRequired() ) {
-      Assert.assertEquals( null, str );
+    for (String str : meta.getFileRequired()) {
+      Assert.assertEquals(null, str);
     }
-    for ( String str : meta.getIncludeSubFolders() ) {
-      Assert.assertEquals( null, str );
+    for (String str : meta.getIncludeSubFolders()) {
+      Assert.assertEquals(null, str);
     }
-    for ( int itr : meta.getStartRow() ) {
-      Assert.assertEquals( 0, itr );
+    for (int itr : meta.getStartRow()) {
+      Assert.assertEquals(0, itr);
     }
-    for ( int itr : meta.getStartColumn() ) {
-      Assert.assertEquals( 0, itr );
+    for (int itr : meta.getStartColumn()) {
+      Assert.assertEquals(0, itr);
     }
   }
 
   @Test
   public void testGetXml() throws HopException {
     Assert.assertEquals(
-      "    <header>N</header>" + SystemUtils.LINE_SEPARATOR
-        + "    <noempty>N</noempty>" + SystemUtils.LINE_SEPARATOR
-        + "    <stoponempty>N</stoponempty>" + SystemUtils.LINE_SEPARATOR
-        + "    <filefield/>" + SystemUtils.LINE_SEPARATOR
-        + "    <sheetfield/>" + SystemUtils.LINE_SEPARATOR
-        + "    <sheetrownumfield/>" + SystemUtils.LINE_SEPARATOR
-        + "    <rownumfield/>" + SystemUtils.LINE_SEPARATOR
-        + "    <sheetfield/>" + SystemUtils.LINE_SEPARATOR
-        + "    <filefield/>" + SystemUtils.LINE_SEPARATOR
-        + "    <limit>0</limit>" + SystemUtils.LINE_SEPARATOR
-        + "    <encoding/>" + SystemUtils.LINE_SEPARATOR
-        + "    <add_to_result_filenames>N</add_to_result_filenames>" + SystemUtils.LINE_SEPARATOR
-        + "    <accept_filenames>N</accept_filenames>" + SystemUtils.LINE_SEPARATOR
-        + "    <accept_field/>" + SystemUtils.LINE_SEPARATOR
-        + "    <accept_transform_name/>" + SystemUtils.LINE_SEPARATOR
-        + "    <file>" + SystemUtils.LINE_SEPARATOR
-        + "      <name>1</name>" + SystemUtils.LINE_SEPARATOR
-        + "      <filemask/>" + SystemUtils.LINE_SEPARATOR
-        + "      <exclude_filemask/>" + SystemUtils.LINE_SEPARATOR
-        + "      <file_required/>" + SystemUtils.LINE_SEPARATOR
-        + "      <include_subfolders/>" + SystemUtils.LINE_SEPARATOR
-        + "      <name>2</name>" + SystemUtils.LINE_SEPARATOR
-        + "      <filemask/>" + SystemUtils.LINE_SEPARATOR
-        + "      <exclude_filemask/>" + SystemUtils.LINE_SEPARATOR
-        + "      <file_required/>" + SystemUtils.LINE_SEPARATOR
-        + "      <include_subfolders/>" + SystemUtils.LINE_SEPARATOR
-        + "      <name>3</name>" + SystemUtils.LINE_SEPARATOR
-        + "      <filemask/>" + SystemUtils.LINE_SEPARATOR
-        + "      <exclude_filemask/>" + SystemUtils.LINE_SEPARATOR
-        + "      <file_required/>" + SystemUtils.LINE_SEPARATOR
-        + "      <include_subfolders/>" + SystemUtils.LINE_SEPARATOR
-        + "    </file>" + SystemUtils.LINE_SEPARATOR
-        + "    <fields>" + SystemUtils.LINE_SEPARATOR
-        + "      <field>" + SystemUtils.LINE_SEPARATOR
-        + "        <name>1</name>" + SystemUtils.LINE_SEPARATOR
-        + "        <type>String</type>" + SystemUtils.LINE_SEPARATOR
-        + "        <length>1</length>" + SystemUtils.LINE_SEPARATOR
-        + "        <precision>-1</precision>" + SystemUtils.LINE_SEPARATOR
-        + "        <trim_type>none</trim_type>" + SystemUtils.LINE_SEPARATOR
-        + "        <repeat>N</repeat>" + SystemUtils.LINE_SEPARATOR
-        + "        <format/>" + SystemUtils.LINE_SEPARATOR
-        + "        <currency/>" + SystemUtils.LINE_SEPARATOR
-        + "        <decimal/>" + SystemUtils.LINE_SEPARATOR
-        + "        <group/>" + SystemUtils.LINE_SEPARATOR
-        + "      </field>" + SystemUtils.LINE_SEPARATOR
-        + "      <field>" + SystemUtils.LINE_SEPARATOR
-        + "        <name>2</name>" + SystemUtils.LINE_SEPARATOR
-        + "        <type>String</type>" + SystemUtils.LINE_SEPARATOR
-        + "        <length>2</length>" + SystemUtils.LINE_SEPARATOR
-        + "        <precision>-1</precision>" + SystemUtils.LINE_SEPARATOR
-        + "        <trim_type>none</trim_type>" + SystemUtils.LINE_SEPARATOR
-        + "        <repeat>N</repeat>" + SystemUtils.LINE_SEPARATOR
-        + "        <format/>" + SystemUtils.LINE_SEPARATOR
-        + "        <currency/>" + SystemUtils.LINE_SEPARATOR
-        + "        <decimal/>" + SystemUtils.LINE_SEPARATOR
-        + "        <group/>" + SystemUtils.LINE_SEPARATOR
-        + "      </field>" + SystemUtils.LINE_SEPARATOR
-        + "    </fields>" + SystemUtils.LINE_SEPARATOR
-        + "    <sheets>" + SystemUtils.LINE_SEPARATOR
-        + "      <sheet>" + SystemUtils.LINE_SEPARATOR
-        + "        <name>1</name>" + SystemUtils.LINE_SEPARATOR
-        + "        <startrow>0</startrow>" + SystemUtils.LINE_SEPARATOR
-        + "        <startcol>0</startcol>" + SystemUtils.LINE_SEPARATOR
-        + "        </sheet>" + SystemUtils.LINE_SEPARATOR
-        + "      <sheet>" + SystemUtils.LINE_SEPARATOR
-        + "        <name>2</name>" + SystemUtils.LINE_SEPARATOR
-        + "        <startrow>0</startrow>" + SystemUtils.LINE_SEPARATOR
-        + "        <startcol>0</startcol>" + SystemUtils.LINE_SEPARATOR
-        + "        </sheet>" + SystemUtils.LINE_SEPARATOR
-        + "      <sheet>" + SystemUtils.LINE_SEPARATOR
-        + "        <name>3</name>" + SystemUtils.LINE_SEPARATOR
-        + "        <startrow>0</startrow>" + SystemUtils.LINE_SEPARATOR
-        + "        <startcol>0</startcol>" + SystemUtils.LINE_SEPARATOR
-        + "        </sheet>" + SystemUtils.LINE_SEPARATOR
-        + "      <sheet>" + SystemUtils.LINE_SEPARATOR
-        + "        <name>4</name>" + SystemUtils.LINE_SEPARATOR
-        + "        <startrow>0</startrow>" + SystemUtils.LINE_SEPARATOR
-        + "        <startcol>0</startcol>" + SystemUtils.LINE_SEPARATOR
-        + "        </sheet>" + SystemUtils.LINE_SEPARATOR
-        + "    </sheets>" + SystemUtils.LINE_SEPARATOR
-        + "    <strict_types>N</strict_types>" + SystemUtils.LINE_SEPARATOR
-        + "    <error_ignored>N</error_ignored>" + SystemUtils.LINE_SEPARATOR
-        + "    <error_line_skipped>N</error_line_skipped>" + SystemUtils.LINE_SEPARATOR
-        + "    <bad_line_files_destination_directory/>" + SystemUtils.LINE_SEPARATOR
-        + "    <bad_line_files_extension/>" + SystemUtils.LINE_SEPARATOR
-        + "    <error_line_files_destination_directory/>" + SystemUtils.LINE_SEPARATOR
-        + "    <error_line_files_extension/>" + SystemUtils.LINE_SEPARATOR
-        + "    <line_number_files_destination_directory/>" + SystemUtils.LINE_SEPARATOR
-        + "    <line_number_files_extension/>" + SystemUtils.LINE_SEPARATOR
-        + "    <shortFileFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <pathFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <hiddenFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <lastModificationTimeFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <uriNameFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <rootUriNameFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <extensionFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <sizeFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <spreadsheet_type/>" + SystemUtils.LINE_SEPARATOR, meta.getXml() );
+        "    <header>N</header>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <noempty>N</noempty>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <stoponempty>N</stoponempty>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <filefield/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <sheetfield/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <sheetrownumfield/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <rownumfield/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <sheetfield/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <filefield/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <limit>0</limit>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <encoding/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <add_to_result_filenames>N</add_to_result_filenames>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <accept_filenames>N</accept_filenames>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <accept_field/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <accept_transform_name/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <file>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <name>1</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <filemask/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <exclude_filemask/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <file_required/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <include_subfolders/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <name>2</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <filemask/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <exclude_filemask/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <file_required/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <include_subfolders/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <name>3</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <filemask/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <exclude_filemask/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <file_required/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <include_subfolders/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    </file>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <fields>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <field>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <name>1</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <type>String</type>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <length>1</length>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <precision>-1</precision>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <trim_type>none</trim_type>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <repeat>N</repeat>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <format/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <currency/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <decimal/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <group/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      </field>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <field>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <name>2</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <type>String</type>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <length>2</length>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <precision>-1</precision>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <trim_type>none</trim_type>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <repeat>N</repeat>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <format/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <currency/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <decimal/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <group/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      </field>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    </fields>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <sheets>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <name>1</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startrow>0</startrow>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startcol>0</startcol>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        </sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <name>2</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startrow>0</startrow>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startcol>0</startcol>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        </sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <name>3</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startrow>0</startrow>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startcol>0</startcol>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        </sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "      <sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <name>4</name>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startrow>0</startrow>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        <startcol>0</startcol>"
+            + SystemUtils.LINE_SEPARATOR
+            + "        </sheet>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    </sheets>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <strict_types>N</strict_types>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <error_ignored>N</error_ignored>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <error_line_skipped>N</error_line_skipped>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <bad_line_files_destination_directory/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <bad_line_files_extension/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <error_line_files_destination_directory/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <error_line_files_extension/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <line_number_files_destination_directory/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <line_number_files_extension/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <shortFileFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <pathFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <hiddenFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <lastModificationTimeFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <uriNameFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <rootUriNameFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <extensionFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <sizeFieldName/>"
+            + SystemUtils.LINE_SEPARATOR
+            + "    <spreadsheet_type/>"
+            + SystemUtils.LINE_SEPARATOR,
+        meta.getXml());
   }
 
   @Test
   public void testClone() throws HopException {
     ExcelInputMeta clone = (ExcelInputMeta) meta.clone();
-    Assert.assertEquals( meta.getXml(), clone.getXml() );
+    Assert.assertEquals(meta.getXml(), clone.getXml());
   }
   // Note - removed cloneTest as it's now covered by the load/save tester.
-
 
   @Test
   public void testPDI16559() throws Exception {
     ExcelInputMeta excelInput = new ExcelInputMeta();
-    excelInput.setFileName( new String[] { "file1", "file2", "file3", "file4", "file5" } );
-    excelInput.setFileMask( new String[] { "mask1", "mask2", "mask3", "mask4" } );
-    excelInput.setExcludeFileMask( new String[] { "excludeMask1", "excludeMask2", "excludeMask3" } );
-    excelInput.setIncludeSubFolders( new String[] { "yes", "no" } );
-    excelInput.setSheetName( new String[] { "sheet1", "sheet2", "sheet3" } );
-    excelInput.setStartRow( new int[] { 0, 15 } );
-    excelInput.setStartColumn( new int[] { 9 } );
+    excelInput.setFileName(new String[] {"file1", "file2", "file3", "file4", "file5"});
+    excelInput.setFileMask(new String[] {"mask1", "mask2", "mask3", "mask4"});
+    excelInput.setExcludeFileMask(new String[] {"excludeMask1", "excludeMask2", "excludeMask3"});
+    excelInput.setIncludeSubFolders(new String[] {"yes", "no"});
+    excelInput.setSheetName(new String[] {"sheet1", "sheet2", "sheet3"});
+    excelInput.setStartRow(new int[] {0, 15});
+    excelInput.setStartColumn(new int[] {9});
 
     excelInput.afterInjectionSynchronization();
-    //run without a exception
+    // run without a exception
     String ktrXml = excelInput.getXml();
 
     int targetLen = excelInput.getFileName().length;
-    Assert.assertEquals( targetLen, excelInput.getFileMask().length );
-    Assert.assertEquals( targetLen, excelInput.getExcludeFileMask().length );
-    Assert.assertEquals( targetLen, excelInput.getFileRequired().length );
-    Assert.assertEquals( targetLen, excelInput.getIncludeSubFolders().length );
+    Assert.assertEquals(targetLen, excelInput.getFileMask().length);
+    Assert.assertEquals(targetLen, excelInput.getExcludeFileMask().length);
+    Assert.assertEquals(targetLen, excelInput.getFileRequired().length);
+    Assert.assertEquals(targetLen, excelInput.getIncludeSubFolders().length);
 
     targetLen = excelInput.getSheetName().length;
-    Assert.assertEquals( targetLen, excelInput.getStartRow().length );
-    Assert.assertEquals( targetLen, excelInput.getStartColumn().length );
-
+    Assert.assertEquals(targetLen, excelInput.getStartRow().length);
+    Assert.assertEquals(targetLen, excelInput.getStartColumn().length);
   }
 }

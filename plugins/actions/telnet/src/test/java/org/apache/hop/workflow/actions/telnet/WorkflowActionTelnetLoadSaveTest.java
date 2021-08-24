@@ -17,15 +17,16 @@
 
 package org.apache.hop.workflow.actions.telnet;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionTelnetLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionTelnet> {
+public class WorkflowActionTelnetLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionTelnet> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -35,22 +36,22 @@ public class WorkflowActionTelnetLoadSaveTest extends WorkflowActionLoadSaveTest
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( "hostname", "port", "timeout" );
+    return Arrays.asList("hostname", "port", "timeout");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "hostname", "getHostname",
-      "port", "getPort",
-      "timeout", "getTimeOut" );
+        "hostname", "getHostname",
+        "port", "getPort",
+        "timeout", "getTimeOut");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "hostname", "setHostname",
-      "port", "setPort",
-      "timeout", "setTimeOut" );
+        "hostname", "setHostname",
+        "port", "setPort",
+        "timeout", "setTimeOut");
   }
 }

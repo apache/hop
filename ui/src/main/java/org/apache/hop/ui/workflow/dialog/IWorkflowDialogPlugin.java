@@ -19,13 +19,12 @@ package org.apache.hop.ui.workflow.dialog;
 
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 public interface IWorkflowDialogPlugin {
-  void addTab( WorkflowMeta workflowMeta, Shell shell, CTabFolder tabFolder );
+  void addTab(WorkflowMeta workflowMeta, Shell shell, CTabFolder tabFolder);
 
-  void getData( WorkflowMeta workflowMeta );
+  void getData(WorkflowMeta workflowMeta);
 
-  void ok( WorkflowMeta workflowMeta );
+  void ok(WorkflowMeta workflowMeta);
 }

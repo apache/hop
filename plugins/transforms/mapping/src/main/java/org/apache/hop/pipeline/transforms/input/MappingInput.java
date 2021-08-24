@@ -30,15 +30,19 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class MappingInput
-  extends BaseTransform<MappingInputMeta, MappingInputData>
-  implements ITransform<MappingInputMeta, MappingInputData> {
+public class MappingInput extends BaseTransform<MappingInputMeta, MappingInputData>
+    implements ITransform<MappingInputMeta, MappingInputData> {
 
   private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
-  public MappingInput( TransformMeta transformMeta, MappingInputMeta meta, MappingInputData data, int copyNr, PipelineMeta pipelineMeta,
-                       Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public MappingInput(
+      TransformMeta transformMeta,
+      MappingInputMeta meta,
+      MappingInputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   // ProcessRow is not doing anything
@@ -49,12 +53,12 @@ public class MappingInput
   public boolean processRow() throws HopException {
 
     Object[] row = getRow();
-    if ( row == null ) {
+    if (row == null) {
       setOutputDone();
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
 
       // The Input RowMetadata is not the same as the output row meta-data.
@@ -71,10 +75,10 @@ public class MappingInput
       // Fill the output row meta with the processed fields
       // This calculates renames and everything
       //
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     }
 
-    putRow( data.outputRowMeta, row );
+    putRow(data.outputRowMeta, row);
 
     return true;
   }
@@ -82,6 +86,4 @@ public class MappingInput
   public boolean init() {
     return super.init();
   }
-
-
 }

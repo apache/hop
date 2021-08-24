@@ -20,20 +20,18 @@ import org.apache.hop.core.row.value.ValueMetaConversionException;
 
 import java.text.SimpleDateFormat;
 
-/**
- * Created by tkafalas on 12/4/2017.
- */
+/** Created by tkafalas on 12/4/2017. */
 public interface IValueMetaConverter {
   /**
    * @param sourceValueMetaType The source ValueMeta Type defined in the IValueMeta
    * @param targetValueMetaType The target ValueMeta Type defined in the IValueMeta
-   * @param value               the source value to be converted
-   * @return An object representing the value converted to targetMetaType.  This value is suitable to use for
+   * @param value the source value to be converted
+   * @return An object representing the value converted to targetMetaType. This value is suitable to
+   *     use for
    */
-  public Object convertFromSourceToTargetDataType( int sourceValueMetaType, int targetValueMetaType, Object value )
-    throws ValueMetaConversionException;
+  public Object convertFromSourceToTargetDataType(
+      int sourceValueMetaType, int targetValueMetaType, Object value)
+      throws ValueMetaConversionException;
 
-  public void setDatePattern( SimpleDateFormat datePattern );
-
-
+  public void setDatePattern(SimpleDateFormat datePattern);
 }

@@ -25,9 +25,7 @@ import java.util.prefs.Preferences;
 
 public class StringPluginProperty extends KeyValue<String> implements IPluginProperty {
 
-  /**
-   * Serial version UID.
-   */
+  /** Serial version UID. */
   private static final long serialVersionUID = -2990345692552430357L;
 
   /**
@@ -36,43 +34,33 @@ public class StringPluginProperty extends KeyValue<String> implements IPluginPro
    * @param key key to set.
    * @throws IllegalArgumentException if key is invalid.
    */
-  public StringPluginProperty( final String key ) throws IllegalArgumentException {
-    super( key, DEFAULT_STRING_VALUE );
+  public StringPluginProperty(final String key) throws IllegalArgumentException {
+    super(key, DEFAULT_STRING_VALUE);
   }
 
-  /**
-   *
-   */
+  /** */
   public boolean evaluate() {
-    return StringUtils.isNotBlank( this.getValue() );
+    return StringUtils.isNotBlank(this.getValue());
   }
 
-  /**
-   *
-   */
-  public void appendXml( final StringBuilder builder ) {
-    builder.append( XmlHandler.addTagValue( this.getKey(), this.getValue() ) );
+  /** */
+  public void appendXml(final StringBuilder builder) {
+    builder.append(XmlHandler.addTagValue(this.getKey(), this.getValue()));
   }
 
-  /**
-   *
-   */
-  public void loadXml( final Node node ) {
-    final String value = XmlHandler.getTagValue( node, this.getKey() );
-    this.setValue( value );
+  /** */
+  public void loadXml(final Node node) {
+    final String value = XmlHandler.getTagValue(node, this.getKey());
+    this.setValue(value);
   }
 
-  /**
-   *
-   */
-  public void saveToPreferences( final Preferences node ) {
-    node.put( this.getKey(), this.getValue() );
+  /** */
+  public void saveToPreferences(final Preferences node) {
+    node.put(this.getKey(), this.getValue());
   }
 
-  /**
-   *
-   */
-  public void readFromPreferences( final Preferences node ) {
-    this.setValue( node.get( this.getKey(), this.getValue() ) );
+  /** */
+  public void readFromPreferences(final Preferences node) {
+    this.setValue(node.get(this.getKey(), this.getValue()));
   }
 }

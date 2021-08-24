@@ -17,16 +17,9 @@
 
 package org.apache.hop.www;
 
-import org.w3c.dom.Document;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-
 public class StatusServletUtils {
 
   public static final String RESOURCES_PATH = "/content/common-ui/resources/themes";
   public static final String STATIC_PATH = "/static";
   public static final String HOP_ROOT = "/hop";
-
 }

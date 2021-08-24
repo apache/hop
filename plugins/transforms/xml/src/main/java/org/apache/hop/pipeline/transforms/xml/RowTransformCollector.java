@@ -24,11 +24,10 @@ import org.apache.hop.pipeline.transform.IRowListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * Helper class for testcases. You can add an instance of this class to a transform to read all of the Rows the transform read or
- * wrote.
- * 
+ * Helper class for testcases. You can add an instance of this class to a transform to read all of
+ * the Rows the transform read or wrote.
+ *
  * @author Sven Boden
  */
 public class RowTransformCollector implements IRowListener {
@@ -42,21 +41,19 @@ public class RowTransformCollector implements IRowListener {
     rowsError = new ArrayList<>();
   }
 
-  public void rowReadEvent( IRowMeta rowMeta, Object[] row ) {
-    rowsRead.add( new RowMetaAndData( rowMeta, row ) );
+  public void rowReadEvent(IRowMeta rowMeta, Object[] row) {
+    rowsRead.add(new RowMetaAndData(rowMeta, row));
   }
 
-  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row ) {
-    rowsWritten.add( new RowMetaAndData( rowMeta, row ) );
+  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+    rowsWritten.add(new RowMetaAndData(rowMeta, row));
   }
 
-  public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
-    rowsError.add( new RowMetaAndData( rowMeta, row ) );
+  public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+    rowsError.add(new RowMetaAndData(rowMeta, row));
   }
 
-  /**
-   * Clear the rows read and rows written.
-   */
+  /** Clear the rows read and rows written. */
   public void clear() {
     rowsRead.clear();
     rowsWritten.clear();

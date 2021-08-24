@@ -137,7 +137,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta
         try {
           IValueMeta v =
               ValueMetaFactory.createValueMeta(
-                      !Utils.isEmpty(returnValue.getNewName()) ? returnValue.getNewName() : returnValue.getTableField(),
+                  !Utils.isEmpty(returnValue.getNewName())
+                      ? returnValue.getNewName()
+                      : returnValue.getTableField(),
                   ValueMetaFactory.getIdForValueMeta(returnValue.getDefaultType()));
           v.setOrigin(name);
           row.addValueMeta(v);
@@ -151,7 +153,10 @@ public class DatabaseLookupMeta extends BaseTransformMeta
         IValueMeta v = info[0].searchValueMeta(returnValue.getTableField());
         if (v != null) {
           IValueMeta copy = v.clone(); // avoid renaming other value meta
-          copy.setName(!Utils.isEmpty(returnValue.getNewName()) ? returnValue.getNewName() : returnValue.getTableField());
+          copy.setName(
+              !Utils.isEmpty(returnValue.getNewName())
+                  ? returnValue.getNewName()
+                  : returnValue.getTableField());
           copy.setOrigin(name);
           row.addValueMeta(copy);
         }

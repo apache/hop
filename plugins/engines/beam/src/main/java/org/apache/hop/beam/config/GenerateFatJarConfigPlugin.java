@@ -31,41 +31,47 @@ import picocli.CommandLine;
 import java.util.List;
 
 @ConfigPlugin(
-  id = "GenerateFatJarConfigPlugin",
-  description = "Allows you to create a fat jar using the current Hop software installation"
-)
+    id = "GenerateFatJarConfigPlugin",
+    description = "Allows you to create a fat jar using the current Hop software installation")
 public class GenerateFatJarConfigPlugin implements IConfigOptions {
 
-  @CommandLine.Option( names = { "-fj", "--generate-fat-jar" }, description = "Specify the filename of the fat jar to generate from your current software installation" )
+  @CommandLine.Option(
+      names = {"-fj", "--generate-fat-jar"},
+      description =
+          "Specify the filename of the fat jar to generate from your current software installation")
   private String fatJarFilename;
 
-  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
+  @Override
+  public boolean handleOption(
+      ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
+      throws HopException {
     try {
       boolean changed = false;
-      if ( StringUtils.isNotEmpty( fatJarFilename ) ) {
-        createFatJar( log, variables );
+      if (StringUtils.isNotEmpty(fatJarFilename)) {
+        createFatJar(log, variables);
         changed = true;
       }
       return changed;
-    } catch ( Exception e ) {
-      throw new HopException( "Error handling environment configuration options", e );
+    } catch (Exception e) {
+      throw new HopException("Error handling environment configuration options", e);
     }
-
   }
 
-  private void createFatJar( ILogChannel log, IVariables variables ) throws HopException {
-    String realFatJarFilename = variables.resolve( fatJarFilename );
-    log.logBasic( "Generating a Hop fat jar file in : " + realFatJarFilename);
+  private void createFatJar(ILogChannel log, IVariables variables) throws HopException {
+    String realFatJarFilename = variables.resolve(fatJarFilename);
+    log.logBasic("Generating a Hop fat jar file in : " + realFatJarFilename);
 
     List<String> installedJarFilenames = HopBeamGuiPlugin.findInstalledJarFilenames();
-    log.logBasic( "Found " + installedJarFilenames.size()+" jar files to combine into one fat jar file.");
+    log.logBasic(
+        "Found " + installedJarFilenames.size() + " jar files to combine into one fat jar file.");
 
-    FatJarBuilder fatJarBuilder = new FatJarBuilder( variables, realFatJarFilename, installedJarFilenames );
-    fatJarBuilder.setExtraTransformPluginClasses( null );
-    fatJarBuilder.setExtraXpPluginClasses( null );
+    FatJarBuilder fatJarBuilder =
+        new FatJarBuilder(variables, realFatJarFilename, installedJarFilenames);
+    fatJarBuilder.setExtraTransformPluginClasses(null);
+    fatJarBuilder.setExtraXpPluginClasses(null);
     fatJarBuilder.buildTargetJar();
 
-    log.logBasic( "Created fat jar." );
+    log.logBasic("Created fat jar.");
   }
 
   /**
@@ -77,10 +83,8 @@ public class GenerateFatJarConfigPlugin implements IConfigOptions {
     return fatJarFilename;
   }
 
-  /**
-   * @param fatJarFilename The fatJarFilename to set
-   */
-  public void setFatJarFilename( String fatJarFilename ) {
+  /** @param fatJarFilename The fatJarFilename to set */
+  public void setFatJarFilename(String fatJarFilename) {
     this.fatJarFilename = fatJarFilename;
   }
 }

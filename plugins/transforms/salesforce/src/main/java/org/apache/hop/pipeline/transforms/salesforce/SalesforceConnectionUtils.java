@@ -26,22 +26,20 @@ public class SalesforceConnectionUtils {
 
   private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
-  public static final String TARGET_DEFAULT_URL = "https://login.salesforce.com/services/Soap/u/50.0";
+  public static final String TARGET_DEFAULT_URL =
+      "https://login.salesforce.com/services/Soap/u/50.0";
 
   public static final String DEFAULT_TIMEOUT = "60000";
 
-  /**
-   * The records filter description
-   */
+  /** The records filter description */
   public static final String[] recordsFilterDesc = {
-    BaseMessages.getString( PKG, "SalesforceInputMeta.recordsFilter.All" ),
-    BaseMessages.getString( PKG, "SalesforceInputMeta.recordsFilter.Updated" ),
-    BaseMessages.getString( PKG, "SalesforceInputMeta.recordsFilter.Deleted" ) };
+    BaseMessages.getString(PKG, "SalesforceInputMeta.recordsFilter.All"),
+    BaseMessages.getString(PKG, "SalesforceInputMeta.recordsFilter.Updated"),
+    BaseMessages.getString(PKG, "SalesforceInputMeta.recordsFilter.Deleted")
+  };
 
-  /**
-   * The records filter type codes
-   */
-  public static final String[] recordsFilterCode = { "all", "updated", "deleted" };
+  /** The records filter type codes */
+  public static final String[] recordsFilterCode = {"all", "updated", "deleted"};
 
   public static final int RECORDS_FILTER_ALL = 0;
 
@@ -49,45 +47,44 @@ public class SalesforceConnectionUtils {
 
   public static final int RECORDS_FILTER_DELETED = 2;
 
-  public static String getRecordsFilterDesc( int i ) {
-    if ( i < 0 || i >= recordsFilterDesc.length ) {
+  public static String getRecordsFilterDesc(int i) {
+    if (i < 0 || i >= recordsFilterDesc.length) {
       return recordsFilterDesc[0];
     }
     return recordsFilterDesc[i];
   }
 
-  public static int getRecordsFilterByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getRecordsFilterByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < recordsFilterDesc.length; i++ ) {
-      if ( recordsFilterDesc[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < recordsFilterDesc.length; i++) {
+      if (recordsFilterDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     // If this fails, try to match using the code.
-    return getRecordsFilterByCode( tt );
+    return getRecordsFilterByCode(tt);
   }
 
-  public static int getRecordsFilterByCode( String tt ) {
-    if ( tt == null ) {
+  public static int getRecordsFilterByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < recordsFilterCode.length; i++ ) {
-      if ( recordsFilterCode[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < recordsFilterCode.length; i++) {
+      if (recordsFilterCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static String getRecordsFilterCode( int i ) {
-    if ( i < 0 || i >= recordsFilterCode.length ) {
+  public static String getRecordsFilterCode(int i) {
+    if (i < 0 || i >= recordsFilterCode.length) {
       return recordsFilterCode[0];
     }
     return recordsFilterCode[i];
   }
-
 }

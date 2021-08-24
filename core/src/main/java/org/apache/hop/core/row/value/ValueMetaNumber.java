@@ -20,29 +20,24 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
-@ValueMetaPlugin(
-  id = "1",
-  name = "Number",
-  description = "Number",
-  image = "images/number.svg"
-)
+@ValueMetaPlugin(id = "1", name = "Number", description = "Number", image = "images/number.svg")
 public class ValueMetaNumber extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaNumber() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaNumber( String name ) {
-    super( name, IValueMeta.TYPE_NUMBER );
+  public ValueMetaNumber(String name) {
+    super(name, IValueMeta.TYPE_NUMBER);
   }
 
-  public ValueMetaNumber( String name, int length, int precision ) {
-    super( name, IValueMeta.TYPE_NUMBER, length, precision );
+  public ValueMetaNumber(String name, int length, int precision) {
+    super(name, IValueMeta.TYPE_NUMBER, length, precision);
   }
 
   @Override
-  public Object getNativeDataType( Object object ) throws HopValueException {
-    return getNumber( object );
+  public Object getNativeDataType(Object object) throws HopValueException {
+    return getNumber(object);
   }
 
   @Override

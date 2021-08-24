@@ -18,8 +18,8 @@
 package org.apache.hop.workflow.actions.sql;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
@@ -32,15 +32,15 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
 import java.io.BufferedInputStream;
@@ -55,15 +55,13 @@ import java.util.List;
  * @author Matt
  * @since 05-11-2003
  */
-
 @Action(
-  id = "SQL",
-  name = "i18n::ActionSQL.Name",
-  description = "i18n::ActionSQL.Description",
-  image = "sql.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/sql.html"
-)
+    id = "SQL",
+    name = "i18n::ActionSQL.Name",
+    description = "i18n::ActionSQL.Description",
+    image = "sql.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/sql.html")
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSql.class; // For Translator
 
@@ -74,14 +72,14 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
   private String sqlfilename;
   private boolean sendOneStatement = false;
 
-  public ActionSql(String n ) {
-    super( n, "" );
+  public ActionSql(String n) {
+    super(n, "");
     sql = null;
     connection = null;
   }
 
   public ActionSql() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -90,54 +88,60 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
+    StringBuilder retval = new StringBuilder(200);
 
-    retval.append( super.getXml() );
+    retval.append(super.getXml());
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sql", sql ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "useVariableSubstitution", useVariableSubstitution ? "T" : "F" ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sqlfromfile", sqlfromfile ? "T" : "F" ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sqlfilename", sqlfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sendOneStatement", sendOneStatement ? "T" : "F" ) );
+    retval.append("      ").append(XmlHandler.addTagValue("sql", sql));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("useVariableSubstitution", useVariableSubstitution ? "T" : "F"));
+    retval.append("      ").append(XmlHandler.addTagValue("sqlfromfile", sqlfromfile ? "T" : "F"));
+    retval.append("      ").append(XmlHandler.addTagValue("sqlfilename", sqlfilename));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("sendOneStatement", sendOneStatement ? "T" : "F"));
 
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
 
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      sql = XmlHandler.getTagValue( entrynode, "sql" );
-      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
-      String sSubs = XmlHandler.getTagValue( entrynode, "useVariableSubstitution" );
+      super.loadXml(entrynode);
+      sql = XmlHandler.getTagValue(entrynode, "sql");
+      String dbname = XmlHandler.getTagValue(entrynode, "connection");
+      String sSubs = XmlHandler.getTagValue(entrynode, "useVariableSubstitution");
 
-      if ( sSubs != null && sSubs.equalsIgnoreCase( "T" ) ) {
+      if (sSubs != null && sSubs.equalsIgnoreCase("T")) {
         useVariableSubstitution = true;
       }
-      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
+      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
 
-      String ssql = XmlHandler.getTagValue( entrynode, "sqlfromfile" );
-      if ( ssql != null && ssql.equalsIgnoreCase( "T" ) ) {
+      String ssql = XmlHandler.getTagValue(entrynode, "sqlfromfile");
+      if (ssql != null && ssql.equalsIgnoreCase("T")) {
         sqlfromfile = true;
       }
 
-      sqlfilename = XmlHandler.getTagValue( entrynode, "sqlfilename" );
+      sqlfilename = XmlHandler.getTagValue(entrynode, "sqlfilename");
 
-      String sOneStatement = XmlHandler.getTagValue( entrynode, "sendOneStatement" );
-      if ( sOneStatement != null && sOneStatement.equalsIgnoreCase( "T" ) ) {
+      String sOneStatement = XmlHandler.getTagValue(entrynode, "sendOneStatement");
+      if (sOneStatement != null && sOneStatement.equalsIgnoreCase("T")) {
         sendOneStatement = true;
       }
 
-    } catch ( HopException e ) {
-      throw new HopXmlException( "Unable to load action of type 'sql' from XML node", e );
+    } catch (HopException e) {
+      throw new HopXmlException("Unable to load action of type 'sql' from XML node", e);
     }
   }
 
-  public void setSql( String sql ) {
+  public void setSql(String sql) {
     this.sql = sql;
   }
 
@@ -149,7 +153,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return sqlfilename;
   }
 
-  public void setSqlFilename( String sqlfilename ) {
+  public void setSqlFilename(String sqlfilename) {
     this.sqlfilename = sqlfilename;
   }
 
@@ -157,11 +161,11 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return useVariableSubstitution;
   }
 
-  public void setUseVariableSubstitution( boolean subs ) {
+  public void setUseVariableSubstitution(boolean subs) {
     useVariableSubstitution = subs;
   }
 
-  public void setSqlFromFile( boolean sqlfromfilein ) {
+  public void setSqlFromFile(boolean sqlfromfilein) {
     sqlfromfile = sqlfromfilein;
   }
 
@@ -173,11 +177,11 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return sendOneStatement;
   }
 
-  public void setSendOneStatement( boolean sendOneStatementin ) {
+  public void setSendOneStatement(boolean sendOneStatementin) {
     sendOneStatement = sendOneStatementin;
   }
 
-  public void setDatabase( DatabaseMeta database ) {
+  public void setDatabase(DatabaseMeta database) {
     this.connection = database;
   }
 
@@ -185,45 +189,46 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return connection;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
 
-    if ( connection != null ) {
-      Database db = new Database( this, this, connection );
+    if (connection != null) {
+      Database db = new Database(this, this, connection);
       FileObject sqlFile = null;
       try {
         String theSql = null;
         db.connect();
 
-        if ( sqlfromfile ) {
-          if ( sqlfilename == null ) {
-            throw new HopDatabaseException( BaseMessages.getString( PKG, "ActionSQL.NoSQLFileSpecified" ) );
+        if (sqlfromfile) {
+          if (sqlfilename == null) {
+            throw new HopDatabaseException(
+                BaseMessages.getString(PKG, "ActionSQL.NoSQLFileSpecified"));
           }
 
           try {
-            String realfilename = resolve( sqlfilename );
-            sqlFile = HopVfs.getFileObject( realfilename );
-            if ( !sqlFile.exists() ) {
-              logError( BaseMessages.getString( PKG, "ActionSQL.SQLFileNotExist", realfilename ) );
-              throw new HopDatabaseException( BaseMessages.getString(
-                PKG, "ActionSQL.SQLFileNotExist", realfilename ) );
+            String realfilename = resolve(sqlfilename);
+            sqlFile = HopVfs.getFileObject(realfilename);
+            if (!sqlFile.exists()) {
+              logError(BaseMessages.getString(PKG, "ActionSQL.SQLFileNotExist", realfilename));
+              throw new HopDatabaseException(
+                  BaseMessages.getString(PKG, "ActionSQL.SQLFileNotExist", realfilename));
             }
-            if ( isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "ActionSQL.SQLFileExists", realfilename ) );
+            if (isDetailed()) {
+              logDetailed(BaseMessages.getString(PKG, "ActionSQL.SQLFileExists", realfilename));
             }
 
-            InputStream IS = HopVfs.getInputStream( sqlFile );
+            InputStream IS = HopVfs.getInputStream(sqlFile);
             try {
-              InputStreamReader BIS = new InputStreamReader( new BufferedInputStream( IS, 500 ) );
-              StringBuilder lineSB = new StringBuilder( 256 );
-              lineSB.setLength( 0 );
+              InputStreamReader BIS = new InputStreamReader(new BufferedInputStream(IS, 500));
+              StringBuilder lineSB = new StringBuilder(256);
+              lineSB.setLength(0);
 
-              BufferedReader buff = new BufferedReader( BIS );
+              BufferedReader buff = new BufferedReader(BIS);
               String sLine = null;
               theSql = Const.CR;
 
-              while ( ( sLine = buff.readLine() ) != null ) {
-                if ( Utils.isEmpty( sLine ) ) {
+              while ((sLine = buff.readLine()) != null) {
+                if (Utils.isEmpty(sLine)) {
                   theSql = theSql + Const.CR;
                 } else {
                   theSql = theSql + Const.CR + sLine;
@@ -232,55 +237,57 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
             } finally {
               IS.close();
             }
-          } catch ( Exception e ) {
-            throw new HopDatabaseException( BaseMessages.getString( PKG, "ActionSQL.ErrorRunningSQLfromFile" ), e );
+          } catch (Exception e) {
+            throw new HopDatabaseException(
+                BaseMessages.getString(PKG, "ActionSQL.ErrorRunningSQLfromFile"), e);
           }
 
         } else {
           theSql = sql;
         }
-        if ( !Utils.isEmpty( theSql ) ) {
+        if (!Utils.isEmpty(theSql)) {
           // let it run
-          if ( useVariableSubstitution ) {
-            theSql = resolve( theSql );
+          if (useVariableSubstitution) {
+            theSql = resolve(theSql);
           }
-          if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "ActionSQL.Log.SQlStatement", theSql ) );
+          if (isDetailed()) {
+            logDetailed(BaseMessages.getString(PKG, "ActionSQL.Log.SQlStatement", theSql));
           }
-          if ( sendOneStatement ) {
-            db.execStatement( theSql );
+          if (sendOneStatement) {
+            db.execStatement(theSql);
           } else {
-            db.execStatements( theSql );
+            db.execStatements(theSql);
           }
         }
-      } catch ( HopDatabaseException je ) {
-        result.setNrErrors( 1 );
-        logError( BaseMessages.getString( PKG, "ActionSQL.ErrorRunAction", je.getMessage() ) );
+      } catch (HopDatabaseException je) {
+        result.setNrErrors(1);
+        logError(BaseMessages.getString(PKG, "ActionSQL.ErrorRunAction", je.getMessage()));
       } finally {
         db.disconnect();
-        if ( sqlFile != null ) {
+        if (sqlFile != null) {
           try {
             sqlFile.close();
-          } catch ( Exception e ) {
+          } catch (Exception e) {
             // Ignore errors
           }
         }
       }
     } else {
-      result.setNrErrors( 1 );
-      logError( BaseMessages.getString( PKG, "ActionSQL.NoDatabaseConnection" ) );
+      result.setNrErrors(1);
+      logError(BaseMessages.getString(PKG, "ActionSQL.NoDatabaseConnection"));
     }
 
-    if ( result.getNrErrors() == 0 ) {
-      result.setResult( true );
+    if (result.getNrErrors() == 0) {
+      result.setResult(true);
     } else {
-      result.setResult( false );
+      result.setResult(false);
     }
 
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -289,25 +296,36 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
   }
 
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] { connection, };
+    return new DatabaseMeta[] {
+      connection,
+    };
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( connection != null ) {
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );
-      reference.getEntries().add( new ResourceEntry( connection.getDatabaseName(), ResourceType.DATABASENAME ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (connection != null) {
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "SQL", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "SQL",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
-
 }

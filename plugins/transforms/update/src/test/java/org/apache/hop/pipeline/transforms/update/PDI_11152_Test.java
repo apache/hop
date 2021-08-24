@@ -21,8 +21,8 @@ import junit.framework.Assert;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -35,9 +35,7 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Regression test
@@ -49,10 +47,10 @@ public class PDI_11152_Test {
 
   @Before
   public void setUp() {
-    smh = new TransformMockHelper<>( "Update", UpdateMeta.class, UpdateData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.iLogChannel );
-    when( smh.pipeline.isRunning() ).thenReturn( true );
+    smh = new TransformMockHelper<>("Update", UpdateMeta.class, UpdateData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
+    when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
   @After
@@ -63,37 +61,46 @@ public class PDI_11152_Test {
   @Test
   @Ignore
   public void testInputLazyConversion() throws HopException {
-    Database db = mock( Database.class );
+    Database db = mock(Database.class);
     RowMeta returnRowMeta = new RowMeta();
-    doReturn( new Object[] { new Timestamp( System.currentTimeMillis() ) } ).when( db ).getLookup(
-      any( PreparedStatement.class ) );
-    returnRowMeta.addValueMeta( new ValueMetaDate( "TimeStamp" ) );
-    doReturn( returnRowMeta ).when( db ).getReturnRowMeta();
+    doReturn(new Object[] {new Timestamp(System.currentTimeMillis())})
+        .when(db)
+        .getLookup(any(PreparedStatement.class));
+    returnRowMeta.addValueMeta(new ValueMetaDate("TimeStamp"));
+    doReturn(returnRowMeta).when(db).getReturnRowMeta();
 
-    ValueMetaString storageMetadata = new ValueMetaString( "Date" );
-    storageMetadata.setConversionMask( "yyyy-MM-dd" );
+    ValueMetaString storageMetadata = new ValueMetaString("Date");
+    storageMetadata.setConversionMask("yyyy-MM-dd");
 
-    ValueMetaDate valueMeta = new ValueMetaDate( "Date" );
-    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
-    valueMeta.setStorageMetadata( storageMetadata );
+    ValueMetaDate valueMeta = new ValueMetaDate("Date");
+    valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    valueMeta.setStorageMetadata(storageMetadata);
 
     RowMeta inputRowMeta = new RowMeta();
-    inputRowMeta.addValueMeta( valueMeta );
+    inputRowMeta.addValueMeta(valueMeta);
 
     UpdateMeta transformMeta = smh.iTransformMeta;
 
     UpdateData transformData = smh.iTransformData;
     transformData.lookupParameterRowMeta = inputRowMeta;
     transformData.db = db;
-    transformData.keynrs = transformData.valuenrs = new int[] { 0 };
-    transformData.keynrs2 = new int[] { -1 };
-    transformData.updateParameterRowMeta = when( mock( RowMeta.class ).size() ).thenReturn( 2 ).getMock();
+    transformData.keynrs = transformData.valuenrs = new int[] {0};
+    transformData.keynrs2 = new int[] {-1};
+    transformData.updateParameterRowMeta = when(mock(RowMeta.class).size()).thenReturn(2).getMock();
 
-    Update transform = new Update( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
-    transform.setInputRowMeta( inputRowMeta );
-    transform.addRowSetToInputRowSets( smh.getMockInputRowSet( new Object[] { "2013-12-20".getBytes() } ) );
+    Update transform =
+        new Update(
+            smh.transformMeta,
+            smh.iTransformMeta,
+            smh.iTransformData,
+            0,
+            smh.pipelineMeta,
+            smh.pipeline);
+    transform.setInputRowMeta(inputRowMeta);
+    transform.addRowSetToInputRowSets(
+        smh.getMockInputRowSet(new Object[] {"2013-12-20".getBytes()}));
     transform.init();
     transform.first = false;
-    Assert.assertTrue( "Failure during row processing", transform.processRow() );
+    Assert.assertTrue("Failure during row processing", transform.processRow());
   }
 }

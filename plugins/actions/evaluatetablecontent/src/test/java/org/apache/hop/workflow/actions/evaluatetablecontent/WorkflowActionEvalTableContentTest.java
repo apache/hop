@@ -34,20 +34,13 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -71,8 +64,13 @@ public class WorkflowActionEvalTableContentTest {
     }
 
     @Override
-    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoIncrement,
-                                      boolean addFieldName, boolean addCr ) {
+    public String getFieldDefinition(
+        IValueMeta v,
+        String tk,
+        String pk,
+        boolean useAutoIncrement,
+        boolean addFieldName,
+        boolean addCr) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -83,20 +81,31 @@ public class WorkflowActionEvalTableContentTest {
     }
 
     @Override
-    public String getURL( String hostname, String port, String databaseName ) throws HopDatabaseException {
+    public String getURL(String hostname, String port, String databaseName)
+        throws HopDatabaseException {
       return "";
     }
 
     @Override
-    public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement,
-                                         String pk, boolean semicolon ) {
+    public String getAddColumnStatement(
+        String tableName,
+        IValueMeta v,
+        String tk,
+        boolean useAutoIncrement,
+        String pk,
+        boolean semicolon) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String getModifyColumnStatement( String tableName, IValueMeta v, String tk,
-                                            boolean useAutoIncrement, String pk, boolean semicolon ) {
+    public String getModifyColumnStatement(
+        String tableName,
+        IValueMeta v,
+        String tk,
+        boolean useAutoIncrement,
+        String pk,
+        boolean semicolon) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -106,7 +115,6 @@ public class WorkflowActionEvalTableContentTest {
       // TODO Auto-generated method stub
       return null;
     }
-
   }
 
   // private static DBMockIface dbi = DBMockIface();
@@ -114,22 +122,23 @@ public class WorkflowActionEvalTableContentTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
-    dbMap.put( IDatabase.class, DBMockIface.class.getName() );
+    dbMap.put(IDatabase.class, DBMockIface.class.getName());
 
     PluginRegistry preg = PluginRegistry.getInstance();
 
-    mockDbPlugin = mock( IPlugin.class );
-    when( mockDbPlugin.matches( anyString() ) ).thenReturn( true );
-    when( mockDbPlugin.isNativePlugin() ).thenReturn( true );
-    when( mockDbPlugin.getMainType() ).thenAnswer( (Answer<Class<?>>) invocation -> IDatabase.class );
+    mockDbPlugin = mock(IPlugin.class);
+    when(mockDbPlugin.matches(anyString())).thenReturn(true);
+    when(mockDbPlugin.isNativePlugin()).thenReturn(true);
+    when(mockDbPlugin.getMainType()).thenAnswer((Answer<Class<?>>) invocation -> IDatabase.class);
 
-    when( mockDbPlugin.getPluginType() ).thenAnswer( (Answer<Class<? extends IPluginType>>) invocation -> DatabasePluginType.class );
+    when(mockDbPlugin.getPluginType())
+        .thenAnswer((Answer<Class<? extends IPluginType>>) invocation -> DatabasePluginType.class);
 
-    when( mockDbPlugin.getIds() ).thenReturn( new String[] { "Oracle", "mock-db-id" } );
-    when( mockDbPlugin.getName() ).thenReturn( "mock-db-name" );
-    when( mockDbPlugin.getClassMap() ).thenReturn( dbMap );
+    when(mockDbPlugin.getIds()).thenReturn(new String[] {"Oracle", "mock-db-id"});
+    when(mockDbPlugin.getName()).thenReturn("mock-db-name");
+    when(mockDbPlugin.getClassMap()).thenReturn(dbMap);
 
-    preg.registerPlugin( DatabasePluginType.class, mockDbPlugin );
+    preg.registerPlugin(DatabasePluginType.class, mockDbPlugin);
   }
 
   @AfterClass
@@ -140,19 +149,19 @@ public class WorkflowActionEvalTableContentTest {
   @Before
   public void setUp() throws Exception {
     MockDriver.registerInstance();
-    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( new WorkflowMeta() );
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionEvalTableContent();
 
-    workflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
-    action.setParentWorkflow( workflow );
+    workflow.getWorkflowMeta().addAction(new ActionMeta(action));
+    action.setParentWorkflow(workflow);
 
-    workflow.setStopped( false );
+    workflow.setStopped(false);
 
     DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setDatabaseType( "mock-db" );
+    dbMeta.setDatabaseType("mock-db");
 
-    action.setDatabase( dbMeta );
-    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" );
+    action.setDatabase(dbMeta);
+    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N");
   }
 
   @After
@@ -162,70 +171,74 @@ public class WorkflowActionEvalTableContentTest {
 
   @Test
   public void testNrErrorsFailureNewBehavior() throws Exception {
-    action.setLimit( "1" );
-    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    action.setTablename( "table" );
+    action.setLimit("1");
+    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
+    action.setTablename("table");
 
-    Result res = action.execute( new Result(), 0 );
+    Result res = action.execute(new Result(), 0);
 
-    assertFalse( "Eval number of rows should fail", res.getResult() );
+    assertFalse("Eval number of rows should fail", res.getResult());
     assertEquals(
-      "No errors should be reported in result object accoding to the new behavior", res.getNrErrors(), 0 );
+        "No errors should be reported in result object accoding to the new behavior",
+        res.getNrErrors(),
+        0);
   }
 
   @Test
   public void testNrErrorsFailureOldBehavior() throws Exception {
-    action.setLimit( "1" );
-    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    action.setTablename( "table" );
+    action.setLimit("1");
+    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
+    action.setTablename("table");
 
-    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
 
-    Result res = action.execute( new Result(), 0 );
+    Result res = action.execute(new Result(), 0);
 
-    assertFalse( "Eval number of rows should fail", res.getResult() );
+    assertFalse("Eval number of rows should fail", res.getResult());
     assertEquals(
-      "An error should be reported in result object accoding to the old behavior", res.getNrErrors(), 1 );
+        "An error should be reported in result object accoding to the old behavior",
+        res.getNrErrors(),
+        1);
   }
 
   @Test
   public void testNrErrorsSuccess() throws Exception {
-    action.setLimit( "5" );
-    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    action.setTablename( "table" );
+    action.setLimit("5");
+    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
+    action.setTablename("table");
 
-    Result res = action.execute( new Result(), 0 );
+    Result res = action.execute(new Result(), 0);
 
-    assertTrue( "Eval number of rows should be suceeded", res.getResult() );
-    assertEquals( "Apparently there should no error", res.getNrErrors(), 0 );
+    assertTrue("Eval number of rows should be suceeded", res.getResult());
+    assertEquals("Apparently there should no error", res.getNrErrors(), 0);
 
     // that should work regardless of old/new behavior flag
-    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
 
-    res = action.execute( new Result(), 0 );
+    res = action.execute(new Result(), 0);
 
-    assertTrue( "Eval number of rows should be suceeded", res.getResult() );
-    assertEquals( "Apparently there should no error", res.getNrErrors(), 0 );
+    assertTrue("Eval number of rows should be suceeded", res.getResult());
+    assertEquals("Apparently there should no error", res.getNrErrors(), 0);
   }
 
   @Test
   public void testNrErrorsNoCustomSql() throws Exception {
-    action.setLimit( "5" );
-    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    action.setUseCustomSql( true );
-    action.setCustomSql( null );
+    action.setLimit("5");
+    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
+    action.setUseCustomSql(true);
+    action.setCustomSql(null);
 
-    Result res = action.execute( new Result(), 0 );
+    Result res = action.execute(new Result(), 0);
 
-    assertFalse( "Eval number of rows should fail", res.getResult() );
-    assertEquals( "Apparently there should be an error", res.getNrErrors(), 1 );
+    assertFalse("Eval number of rows should fail", res.getResult());
+    assertEquals("Apparently there should be an error", res.getNrErrors(), 1);
 
     // that should work regardless of old/new behavior flag
-    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
 
-    res = action.execute( new Result(), 0 );
+    res = action.execute(new Result(), 0);
 
-    assertFalse( "Eval number of rows should fail", res.getResult() );
-    assertEquals( "Apparently there should be an error", res.getNrErrors(), 1 );
+    assertFalse("Eval number of rows should fail", res.getResult());
+    assertEquals("Apparently there should be an error", res.getNrErrors(), 1);
   }
 }

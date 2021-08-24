@@ -22,18 +22,13 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -42,41 +37,42 @@ public class MailValidation {
 
   private static final Class<?> PKG = ActionMailValidator.class; // For Translator
 
-  public static boolean isRegExValid( String emailAdress ) {
-    return GenericValidator.isEmail( emailAdress );
+  public static boolean isRegExValid(String emailAdress) {
+    return GenericValidator.isEmail(emailAdress);
   }
 
   /**
-   * verify if there is a mail server registered to the domain name. and return the email servers count
+   * verify if there is a mail server registered to the domain name. and return the email servers
+   * count
    */
-  public static int mailServersCount( String hostName ) throws NamingException {
+  public static int mailServersCount(String hostName) throws NamingException {
     Hashtable<String, String> env = new Hashtable<>();
-    env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
-    DirContext ictx = new InitialDirContext( env );
-    Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
-    Attribute attr = attrs.get( "MX" );
-    if ( attr == null ) {
-      return ( 0 );
+    env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
+    DirContext ictx = new InitialDirContext(env);
+    Attributes attrs = ictx.getAttributes(hostName, new String[] {"MX"});
+    Attribute attr = attrs.get("MX");
+    if (attr == null) {
+      return (0);
     }
-    return ( attr.size() );
+    return (attr.size());
   }
 
   private static String className() {
-    return BaseMessages.getString( PKG, "MailValidator.ClassName" );
+    return BaseMessages.getString(PKG, "MailValidator.ClassName");
   }
 
-  private static int hear( BufferedReader in ) throws IOException {
+  private static int hear(BufferedReader in) throws IOException {
     String line = null;
     int res = 0;
 
-    while ( ( line = in.readLine() ) != null ) {
-      String pfx = line.substring( 0, 3 );
+    while ((line = in.readLine()) != null) {
+      String pfx = line.substring(0, 3);
       try {
-        res = Integer.parseInt( pfx );
-      } catch ( Exception ex ) {
+        res = Integer.parseInt(pfx);
+      } catch (Exception ex) {
         res = -1;
       }
-      if ( line.charAt( 3 ) != '-' ) {
+      if (line.charAt(3) != '-') {
         break;
       }
     }
@@ -84,27 +80,28 @@ public class MailValidation {
     return res;
   }
 
-  private static void say( BufferedWriter wr, String text ) throws IOException {
-    wr.write( text + "\r\n" );
+  private static void say(BufferedWriter wr, String text) throws IOException {
+    wr.write(text + "\r\n");
     wr.flush();
 
     return;
   }
 
-  private static ArrayList<String> getMX( String hostName ) throws NamingException {
+  private static ArrayList<String> getMX(String hostName) throws NamingException {
     // Perform a DNS lookup for MX records in the domain
     Hashtable<String, String> env = new Hashtable<>();
-    env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
-    DirContext ictx = new InitialDirContext( env );
-    Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
-    Attribute attr = attrs.get( "MX" );
+    env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
+    DirContext ictx = new InitialDirContext(env);
+    Attributes attrs = ictx.getAttributes(hostName, new String[] {"MX"});
+    Attribute attr = attrs.get("MX");
 
     // if we don't have an MX record, try the machine itself
-    if ( ( attr == null ) || ( attr.size() == 0 ) ) {
-      attrs = ictx.getAttributes( hostName, new String[] { "A" } );
-      attr = attrs.get( "A" );
-      if ( attr == null ) {
-        throw new NamingException( BaseMessages.getString( PKG, "MailValidator.NoMatchName", hostName ) );
+    if ((attr == null) || (attr.size() == 0)) {
+      attrs = ictx.getAttributes(hostName, new String[] {"A"});
+      attr = attrs.get("A");
+      if (attr == null) {
+        throw new NamingException(
+            BaseMessages.getString(PKG, "MailValidator.NoMatchName", hostName));
       }
     }
 
@@ -114,74 +111,81 @@ public class MailValidation {
     ArrayList<String> res = new ArrayList<>();
     NamingEnumeration<?> en = attr.getAll();
 
-    while ( en.hasMore() ) {
+    while (en.hasMore()) {
       String x = (String) en.next();
-      String[] f = x.split( " " );
-      if ( f[ 1 ].endsWith( "." ) ) {
-        f[ 1 ] = f[ 1 ].substring( 0, ( f[ 1 ].length() - 1 ) );
+      String[] f = x.split(" ");
+      if (f[1].endsWith(".")) {
+        f[1] = f[1].substring(0, (f[1].length() - 1));
       }
-      res.add( f[ 1 ] );
+      res.add(f[1]);
     }
     return res;
   }
 
   /**
    * Validate an email address This code is from : http://www.rgagnon.com/javadetails/java-0452.html
-   *
    */
-
-  public static MailValidationResult isAddressValid( ILogChannel log, String address,
-                                                     String senderAddress, String defaultSMTPServer, int timeout, boolean deepCheck ) {
+  public static MailValidationResult isAddressValid(
+      ILogChannel log,
+      String address,
+      String senderAddress,
+      String defaultSMTPServer,
+      int timeout,
+      boolean deepCheck) {
 
     MailValidationResult result = new MailValidationResult();
 
-    if ( !isRegExValid( address ) ) {
-      result.setErrorMessage( BaseMessages.getString( PKG, "MailValidator.MalformedAddress", address ) );
+    if (!isRegExValid(address)) {
+      result.setErrorMessage(
+          BaseMessages.getString(PKG, "MailValidator.MalformedAddress", address));
       return result;
     }
 
     // Find the separator for the domain name
-    int pos = address.indexOf( '@' );
+    int pos = address.indexOf('@');
 
     // If the address does not contain an '@', it's not valid
-    if ( pos == -1 ) {
+    if (pos == -1) {
       return result;
     }
 
-    if ( !deepCheck ) {
-      result.setValide( true );
+    if (!deepCheck) {
+      result.setValide(true);
       return result;
     }
 
     // Isolate the domain/machine name and get a list of mail exchangers
-    String domain = address.substring( ++pos );
+    String domain = address.substring(++pos);
 
     // Maybe user want to switch to a default SMTP server?
     // In that case, we will ignore the domain
     // extracted from email address
 
     ArrayList<String> mxList = new ArrayList<>();
-    if ( Utils.isEmpty( defaultSMTPServer ) ) {
+    if (Utils.isEmpty(defaultSMTPServer)) {
       try {
-        mxList = getMX( domain );
+        mxList = getMX(domain);
 
         // Just because we can send mail to the domain, doesn't mean that the
         // address is valid, but if we can't, it's a sure sign that it isn't
-        if ( mxList == null || mxList.size() == 0 ) {
-          result.setErrorMessage( BaseMessages.getString( PKG, "MailValidator.NoMachinesInDomain", domain ) );
+        if (mxList == null || mxList.size() == 0) {
+          result.setErrorMessage(
+              BaseMessages.getString(PKG, "MailValidator.NoMachinesInDomain", domain));
           return result;
         }
-      } catch ( Exception ex ) {
-        result.setErrorMessage( BaseMessages.getString( PKG, "MailValidator.ErrorGettingMachinesInDomain", ex
-          .getMessage() ) );
+      } catch (Exception ex) {
+        result.setErrorMessage(
+            BaseMessages.getString(
+                PKG, "MailValidator.ErrorGettingMachinesInDomain", ex.getMessage()));
         return result;
       }
     } else {
-      mxList.add( defaultSMTPServer );
+      mxList.add(defaultSMTPServer);
     }
 
-    if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "MailValidator.ExchangersFound", "" + mxList.size() ) );
+    if (log.isDebug()) {
+      log.logDebug(
+          BaseMessages.getString(PKG, "MailValidator.ExchangersFound", "" + mxList.size()));
     }
 
     // Now, do the SMTP validation, try each mail exchanger until we get
@@ -189,128 +193,136 @@ public class MailValidation {
     // a message [store and forwarder for example] and another [like
     // the actual mail server] to reject it. This is why we REALLY ought
     // to take the preference into account.
-    for ( int mx = 0; mx < mxList.size(); mx++ ) {
+    for (int mx = 0; mx < mxList.size(); mx++) {
       boolean valid = false;
       BufferedReader rdr = null;
       BufferedWriter wtr = null;
       Socket skt = null;
       try {
-        String exhanger = mxList.get( mx );
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.TryingExchanger", exhanger ) );
+        String exhanger = mxList.get(mx);
+        if (log.isDebug()) {
+          log.logDebug(
+              className(), BaseMessages.getString(PKG, "MailValidator.TryingExchanger", exhanger));
         }
 
         int res;
 
-        skt = new Socket( exhanger, 25 );
+        skt = new Socket(exhanger, 25);
         // set timeout (milliseconds)
-        if ( timeout > 0 ) {
-          skt.setSoTimeout( timeout );
+        if (timeout > 0) {
+          skt.setSoTimeout(timeout);
         }
 
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString(
-            PKG, "MailValidator.ConnectingTo", exhanger, "25", skt.isConnected() + "" ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              className(),
+              BaseMessages.getString(
+                  PKG, "MailValidator.ConnectingTo", exhanger, "25", skt.isConnected() + ""));
         }
 
-        rdr = new BufferedReader( new InputStreamReader( skt.getInputStream() ) );
-        wtr = new BufferedWriter( new OutputStreamWriter( skt.getOutputStream() ) );
+        rdr = new BufferedReader(new InputStreamReader(skt.getInputStream()));
+        wtr = new BufferedWriter(new OutputStreamWriter(skt.getOutputStream()));
 
-        res = hear( rdr );
-        if ( res != 220 ) {
-          throw new Exception( BaseMessages.getString( PKG, "MailValidator.InvalidHeader" ) );
+        res = hear(rdr);
+        if (res != 220) {
+          throw new Exception(BaseMessages.getString(PKG, "MailValidator.InvalidHeader"));
         }
 
         // say HELLO it's me
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.SayHello", domain ) );
+        if (log.isDebug()) {
+          log.logDebug(className(), BaseMessages.getString(PKG, "MailValidator.SayHello", domain));
         }
-        say( wtr, "EHLO " + domain );
-        res = hear( rdr );
-        if ( res != 250 ) {
-          throw new Exception( "Not ESMTP" );
+        say(wtr, "EHLO " + domain);
+        res = hear(rdr);
+        if (res != 250) {
+          throw new Exception("Not ESMTP");
         }
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.ServerReplied", "" + res ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              className(), BaseMessages.getString(PKG, "MailValidator.ServerReplied", "" + res));
         }
 
         // validate the sender address
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.CheckSender", senderAddress ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              className(), BaseMessages.getString(PKG, "MailValidator.CheckSender", senderAddress));
         }
-        say( wtr, "MAIL FROM: <" + senderAddress + ">" );
-        res = hear( rdr );
-        if ( res != 250 ) {
-          throw new Exception( BaseMessages.getString( PKG, "MailValidator.SenderRejected" ) );
+        say(wtr, "MAIL FROM: <" + senderAddress + ">");
+        res = hear(rdr);
+        if (res != 250) {
+          throw new Exception(BaseMessages.getString(PKG, "MailValidator.SenderRejected"));
         }
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.SenderAccepted", "" + res ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              className(), BaseMessages.getString(PKG, "MailValidator.SenderAccepted", "" + res));
         }
 
         // Validate receiver
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.CheckReceiver", address ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              className(), BaseMessages.getString(PKG, "MailValidator.CheckReceiver", address));
         }
-        say( wtr, "RCPT TO: <" + address + ">" );
-        res = hear( rdr );
+        say(wtr, "RCPT TO: <" + address + ">");
+        res = hear(rdr);
 
         // be polite
-        say( wtr, "RSET" );
-        hear( rdr );
-        say( wtr, "QUIT" );
-        hear( rdr );
-        if ( res != 250 ) {
-          throw new Exception( BaseMessages.getString( PKG, "MailValidator.AddressNotValid", address ) );
+        say(wtr, "RSET");
+        hear(rdr);
+        say(wtr, "QUIT");
+        hear(rdr);
+        if (res != 250) {
+          throw new Exception(
+              BaseMessages.getString(PKG, "MailValidator.AddressNotValid", address));
         }
 
-        if ( log.isDebug() ) {
-          log.logDebug( className(), BaseMessages.getString( PKG, "MailValidator.ReceiverAccepted", address, ""
-            + res ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              className(),
+              BaseMessages.getString(PKG, "MailValidator.ReceiverAccepted", address, "" + res));
         }
         valid = true;
 
-      } catch ( Exception ex ) {
+      } catch (Exception ex) {
         // Do nothing but try next host
-        result.setValide( false );
-        result.setErrorMessage( ex.getMessage() );
+        result.setValide(false);
+        result.setErrorMessage(ex.getMessage());
       } finally {
-        if ( rdr != null ) {
+        if (rdr != null) {
           try {
             rdr.close();
-          } catch ( Exception e ) {
+          } catch (Exception e) {
             // ignore this
           }
         }
-        if ( wtr != null ) {
+        if (wtr != null) {
           try {
             wtr.close();
-          } catch ( Exception e ) {
+          } catch (Exception e) {
             // ignore this
           }
         }
-        if ( skt != null ) {
+        if (skt != null) {
           try {
             skt.close();
-          } catch ( Exception e ) {
+          } catch (Exception e) {
             // ignore this
           }
         }
 
-        if ( valid ) {
-          result.setValide( true );
-          result.setErrorMessage( null );
-          if ( log.isDebug() ) {
-            log.logDebug( className(), "=============================================" );
+        if (valid) {
+          result.setValide(true);
+          result.setErrorMessage(null);
+          if (log.isDebug()) {
+            log.logDebug(className(), "=============================================");
           }
           return result;
         }
       }
     }
-    if ( log.isDebug() ) {
-      log.logDebug( className(), "=============================================" );
+    if (log.isDebug()) {
+      log.logDebug(className(), "=============================================");
     }
 
     return result;
   }
-
 }

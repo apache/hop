@@ -19,12 +19,7 @@ package org.apache.hop.ui.core;
 
 import org.apache.hop.ui.core.dialog.EnterPrintDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
@@ -44,9 +39,9 @@ public class PrintSpool {
 
   public PrintSpool() {
     printerdata = Printer.getDefaultPrinterData();
-    if ( printerdata != null ) {
+    if (printerdata != null) {
       // Fail silently instead of crashing.
-      printer = new Printer( printerdata );
+      printer = new Printer(printerdata);
     }
   }
 
@@ -56,21 +51,21 @@ public class PrintSpool {
 
   // Ask which printer to use...
 
-  public Printer getPrinter( Shell sh ) {
-    PrintDialog pd = new PrintDialog( sh );
+  public Printer getPrinter(Shell sh) {
+    PrintDialog pd = new PrintDialog(sh);
     printerdata = pd.open();
-    if ( printerdata != null ) {
-      if ( printer != null ) {
+    if (printerdata != null) {
+      if (printer != null) {
         printer.dispose();
       }
-      printer = new Printer( printerdata );
+      printer = new Printer(printerdata);
     }
 
     return printer;
   }
 
   public void dispose() {
-    if ( printer != null ) {
+    if (printer != null) {
       printer.dispose();
     }
   }
@@ -80,12 +75,12 @@ public class PrintSpool {
   }
 
   public PaletteData getPaletteData() {
-    switch ( getDepth() ) {
+    switch (getDepth()) {
       case 1:
-        palette = new PaletteData( new RGB[] { new RGB( 0, 0, 0 ), new RGB( 255, 255, 255 ) } );
+        palette = new PaletteData(new RGB[] {new RGB(0, 0, 0), new RGB(255, 255, 255)});
         break;
       default:
-        palette = new PaletteData( 0, 0, 0 );
+        palette = new PaletteData(0, 0, 0);
         palette.isDirect = true;
         break;
     }
@@ -93,10 +88,10 @@ public class PrintSpool {
     return palette;
   }
 
-  public void printImage( Shell sh, Image img ) {
-    if ( printerdata != null ) {
+  public void printImage(Shell sh, Image img) {
+    if (printerdata != null) {
       Rectangle imgbounds = img.getBounds();
-      Point max = new Point( imgbounds.width, imgbounds.height );
+      Point max = new Point(imgbounds.width, imgbounds.height);
 
       // What's the printers DPI?
       Point dpi_printer = printer.getDPI();
@@ -117,9 +112,20 @@ public class PrintSpool {
       double margin_bottom = 0.40;
 
       EnterPrintDialog epd =
-        new EnterPrintDialog(
-          sh, 1, 1, 100, factorx, factory, page, margin_left, margin_right, marginTop, margin_bottom, img );
-      if ( epd.open() == SWT.OK ) {
+          new EnterPrintDialog(
+              sh,
+              1,
+              1,
+              100,
+              factorx,
+              factory,
+              page,
+              margin_left,
+              margin_right,
+              marginTop,
+              margin_bottom,
+              img);
+      if (epd.open() == SWT.OK) {
         double page_left = epd.leftMargin * dpi_printer.x;
         double page_right = epd.rightMargin * dpi_printer.x;
         double pageTop = epd.topMargin * dpi_printer.y;
@@ -133,45 +139,74 @@ public class PrintSpool {
         double actual_sizey = size_on_papery * epd.scale / 100;
 
         // Create new print workflow.
-        printer.startJob( "HopGui : print workflow" );
+        printer.startJob("HopGui : print workflow");
 
         // How much of the image do we print on each page: all or just a page worth of pixels?
 
-        for ( int c = 0; c < epd.nrcols; c++ ) {
+        for (int c = 0; c < epd.nrcols; c++) {
           double leftToPrintX = actual_sizex - page_sizex * c;
           double printx =
-            ( leftToPrintX > page_sizex ) ? page_sizex : ( leftToPrintX >= 0 ? leftToPrintX : 0 );
+              (leftToPrintX > page_sizex) ? page_sizex : (leftToPrintX >= 0 ? leftToPrintX : 0);
 
-          for ( int r = 0; r < epd.nrrows; r++ ) {
+          for (int r = 0; r < epd.nrrows; r++) {
             double leftToPrintY = actual_sizey - page_sizey * r;
             double printy =
-              ( leftToPrintY > page_sizey ) ? page_sizey : ( leftToPrintY >= 0 ? leftToPrintY : 0 );
+                (leftToPrintY > page_sizey) ? page_sizey : (leftToPrintY >= 0 ? leftToPrintY : 0);
 
-            int startx = (int) ( actual_sizex - leftToPrintX );
-            int starty = (int) ( actual_sizey - leftToPrintY );
+            int startx = (int) (actual_sizex - leftToPrintX);
+            int starty = (int) (actual_sizey - leftToPrintY);
 
-            int fromx = (int) ( startx / ( factorx * epd.scale / 100 ) );
-            int fromy = (int) ( starty / ( factory * epd.scale / 100 ) );
-            int imx = (int) ( max.x * printx / actual_sizex ) - 1;
-            int imy = (int) ( max.y * printy / actual_sizey ) - 1;
+            int fromx = (int) (startx / (factorx * epd.scale / 100));
+            int fromy = (int) (starty / (factory * epd.scale / 100));
+            int imx = (int) (max.x * printx / actual_sizex) - 1;
+            int imy = (int) (max.y * printy / actual_sizey) - 1;
 
             printer.startPage();
-            GC gc_printer = new GC( printer );
+            GC gc_printer = new GC(printer);
 
             gc_printer.drawImage(
-              img, fromx, fromy, imx, imy, (int) page_left, (int) pageTop, (int) printx, (int) printy );
+                img,
+                fromx,
+                fromy,
+                imx,
+                imy,
+                (int) page_left,
+                (int) pageTop,
+                (int) printx,
+                (int) printy);
 
             // ShowImageDialog sid = new ShowImageDialog(sh, props, img);
             // sid.open();
 
-            System.out.println( "img dept = " + img.getImageData().depth );
-            System.out.println( "prn dept = " + printer.getDepth() );
-            System.out.println( "img size = ("
-              + img.getBounds().x + "," + img.getBounds().y + ") : (" + img.getBounds().width + ","
-              + img.getBounds().height + ")" );
-            System.out.println( "fromx="
-              + fromx + ", fromy=" + fromy + ", imx=" + imx + ", imy=" + imy + ", page_left=" + (int) page_left
-              + ", page_top=" + (int) pageTop + ", printx=" + (int) printx + ", printy=" + (int) printy );
+            System.out.println("img dept = " + img.getImageData().depth);
+            System.out.println("prn dept = " + printer.getDepth());
+            System.out.println(
+                "img size = ("
+                    + img.getBounds().x
+                    + ","
+                    + img.getBounds().y
+                    + ") : ("
+                    + img.getBounds().width
+                    + ","
+                    + img.getBounds().height
+                    + ")");
+            System.out.println(
+                "fromx="
+                    + fromx
+                    + ", fromy="
+                    + fromy
+                    + ", imx="
+                    + imx
+                    + ", imy="
+                    + imy
+                    + ", page_left="
+                    + (int) page_left
+                    + ", page_top="
+                    + (int) pageTop
+                    + ", printx="
+                    + (int) printx
+                    + ", printy="
+                    + (int) printy);
 
             printer.endPage();
             gc_printer.dispose();
@@ -184,5 +219,4 @@ public class PrintSpool {
       img.dispose();
     }
   }
-
 }

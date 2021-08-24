@@ -31,7 +31,7 @@ import org.apache.hop.vfs.s3.s3common.S3HopProperty;
 public class S3FileSystem extends S3CommonFileSystem {
 
   private static final Class<?> PKG = S3FileSystem.class; // For Translator
-  
+
   private static final ILogChannel consoleLog =
       new LogChannel(BaseMessages.getString(PKG, "TITLE.S3File"));
 

@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -24,8 +26,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.core.IProgressMonitor;
-import org.apache.hop.core.IRunnableWithProgress;
 
 import java.lang.reflect.InvocationTargetException;
 

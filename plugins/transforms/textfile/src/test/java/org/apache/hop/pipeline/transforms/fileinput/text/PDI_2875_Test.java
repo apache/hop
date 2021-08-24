@@ -29,11 +29,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /***
  * @author Pavel Sakun
@@ -48,10 +44,10 @@ public class PDI_2875_Test {
   public static void setUp() throws Exception {
     HopEnvironment.init();
     smh =
-      new TransformMockHelper<>( "CsvInputTest", TextFileInputMeta.class, TextFileInputData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( smh.iLogChannel );
-    when( smh.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("CsvInputTest", TextFileInputMeta.class, TextFileInputData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
+    when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
   @AfterClass
@@ -61,10 +57,10 @@ public class PDI_2875_Test {
 
   private TextFileInputMeta getMeta() {
     TextFileInputMeta meta = new TextFileInputMeta();
-    meta.allocateFiles( 2 );
-    meta.setFileName( new String[] { "file1.txt", "file2.txt" } );
-    meta.inputFiles.includeSubFolders = new String[] { "n", "n" };
-    meta.setFilter( new TextFileFilter[ 0 ] );
+    meta.allocateFiles(2);
+    meta.setFileName(new String[] {"file1.txt", "file2.txt"});
+    meta.inputFiles.includeSubFolders = new String[] {"n", "n"};
+    meta.setFilter(new TextFileFilter[0]);
     meta.content.fileFormat = "unix";
     meta.content.fileType = "CSV";
     meta.errorHandling.lineNumberFilesDestinationDirectory = EXPRESSION;
@@ -76,12 +72,13 @@ public class PDI_2875_Test {
 
   @Test
   public void testVariableSubstitution() {
-    doReturn( new Date() ).when( smh.pipeline ).getExecutionStartDate();
+    doReturn(new Date()).when(smh.pipeline).getExecutionStartDate();
     TextFileInputData data = new TextFileInputData();
     TextFileInputMeta meta = getMeta();
-    TextFileInput transform = spy( new TextFileInput( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline ) );
-    transform.setVariable( VAR_NAME, "value" );
+    TextFileInput transform =
+        spy(new TextFileInput(smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline));
+    transform.setVariable(VAR_NAME, "value");
     transform.init();
-    verify( transform, times( 2 ) ).resolve( EXPRESSION );
+    verify(transform, times(2)).resolve(EXPRESSION);
   }
 }

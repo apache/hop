@@ -19,12 +19,7 @@ package org.apache.hop.core.compress;
 
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,42 +39,40 @@ public class CompressionOutputStreamTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    PluginRegistry.addPluginType( CompressionPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(CompressionPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream in = new ByteArrayOutputStream();
-    outStream = new DummyCompressionOS( in, provider );
+    outStream = new DummyCompressionOS(in, provider);
   }
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testCtor() {
-    assertNotNull( outStream );
+    assertNotNull(outStream);
   }
 
   @Test
   public void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
-    assertEquals( provider.getName(), PROVIDER_NAME );
+    assertEquals(provider.getName(), PROVIDER_NAME);
   }
 
   @Test
   public void testClose() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new DummyCompressionOS( out, provider );
+    outStream = new DummyCompressionOS(out, provider);
     outStream.close();
   }
 
@@ -87,21 +80,21 @@ public class CompressionOutputStreamTest {
   public void testWrite() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new DummyCompressionOS( out, provider );
-    outStream.write( "Test".getBytes() );
+    outStream = new DummyCompressionOS(out, provider);
+    outStream.write("Test".getBytes());
   }
 
   @Test
   public void testAddEntry() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new DummyCompressionOS( out, provider );
-    outStream.addEntry( null, null );
+    outStream = new DummyCompressionOS(out, provider);
+    outStream.addEntry(null, null);
   }
 
   private static class DummyCompressionOS extends CompressionOutputStream {
-    public DummyCompressionOS( OutputStream out, ICompressionProvider provider ) {
-      super( out, provider );
+    public DummyCompressionOS(OutputStream out, ICompressionProvider provider) {
+      super(out, provider);
     }
   }
 }

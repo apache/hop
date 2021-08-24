@@ -30,10 +30,7 @@ import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class WebServiceTest {
 
@@ -50,14 +47,20 @@ public class WebServiceTest {
   @Before
   public void setUpBefore() {
     mockHelper =
-      new TransformMockHelper<>( "WebService", WebServiceMeta.class, WebServiceData.class );
-    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.iLogChannel );
-    when( mockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("WebService", WebServiceMeta.class, WebServiceData.class);
+    when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(mockHelper.iLogChannel);
+    when(mockHelper.pipeline.isRunning()).thenReturn(true);
 
     webServiceTransform =
-      spy( new WebService( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta,
-        mockHelper.pipeline ) );
+        spy(
+            new WebService(
+                mockHelper.transformMeta,
+                mockHelper.iTransformMeta,
+                mockHelper.iTransformData,
+                0,
+                mockHelper.pipelineMeta,
+                mockHelper.pipeline));
   }
 
   @After
@@ -65,18 +68,17 @@ public class WebServiceTest {
     mockHelper.cleanUp();
   }
 
-  @Test( expected = URISyntaxException.class )
+  @Test(expected = URISyntaxException.class)
   public void newHttpMethodWithInvalidUrl() throws URISyntaxException {
-    webServiceTransform.getHttpMethod( NOT_VALID_URL );
+    webServiceTransform.getHttpMethod(NOT_VALID_URL);
   }
 
   @Test
   public void getLocationFrom() {
-    HttpPost postMethod = mock( HttpPost.class );
-    Header locationHeader = new BasicHeader( LOCATION_HEADER, TEST_URL );
-    doReturn( locationHeader ).when( postMethod ).getFirstHeader( LOCATION_HEADER );
+    HttpPost postMethod = mock(HttpPost.class);
+    Header locationHeader = new BasicHeader(LOCATION_HEADER, TEST_URL);
+    doReturn(locationHeader).when(postMethod).getFirstHeader(LOCATION_HEADER);
 
-    assertEquals( TEST_URL, WebService.getLocationFrom( postMethod ) );
+    assertEquals(TEST_URL, WebService.getLocationFrom(postMethod));
   }
-
 }

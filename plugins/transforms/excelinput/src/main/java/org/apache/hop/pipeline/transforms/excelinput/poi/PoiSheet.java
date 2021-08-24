@@ -26,7 +26,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 public class PoiSheet implements IKSheet {
   private Sheet sheet;
 
-  public PoiSheet( Sheet sheet ) {
+  public PoiSheet(Sheet sheet) {
     this.sheet = sheet;
   }
 
@@ -34,25 +34,25 @@ public class PoiSheet implements IKSheet {
     return sheet.getSheetName();
   }
 
-  public IKCell[] getRow( int rownr ) {
-    if ( rownr < sheet.getFirstRowNum() ) {
+  public IKCell[] getRow(int rownr) {
+    if (rownr < sheet.getFirstRowNum()) {
       return new IKCell[] {};
-    } else if ( rownr > sheet.getLastRowNum() ) {
-      throw new ArrayIndexOutOfBoundsException( "Read beyond last row: " + rownr );
+    } else if (rownr > sheet.getLastRowNum()) {
+      throw new ArrayIndexOutOfBoundsException("Read beyond last row: " + rownr);
     }
-    Row row = sheet.getRow( rownr );
-    if ( row == null ) { // read an empty row
+    Row row = sheet.getRow(rownr);
+    if (row == null) { // read an empty row
       return new IKCell[] {};
     }
     int cols = row.getLastCellNum();
-    if ( cols < 0 ) { // this happens if a row has no cells, POI returns -1 then
+    if (cols < 0) { // this happens if a row has no cells, POI returns -1 then
       return new IKCell[] {};
     }
-    PoiCell[] xlsCells = new PoiCell[ cols ];
-    for ( int i = 0; i < cols; i++ ) {
-      Cell cell = row.getCell( i );
-      if ( cell != null ) {
-        xlsCells[ i ] = new PoiCell( cell );
+    PoiCell[] xlsCells = new PoiCell[cols];
+    for (int i = 0; i < cols; i++) {
+      Cell cell = row.getCell(i);
+      if (cell != null) {
+        xlsCells[i] = new PoiCell(cell);
       }
     }
     return xlsCells;
@@ -62,15 +62,15 @@ public class PoiSheet implements IKSheet {
     return sheet.getLastRowNum() + 1;
   }
 
-  public IKCell getCell( int colnr, int rownr ) {
-    Row row = sheet.getRow( rownr );
-    if ( row == null ) {
+  public IKCell getCell(int colnr, int rownr) {
+    Row row = sheet.getRow(rownr);
+    if (row == null) {
       return null;
     }
-    Cell cell = row.getCell( colnr );
-    if ( cell == null ) {
+    Cell cell = row.getCell(colnr);
+    if (cell == null) {
       return null;
     }
-    return new PoiCell( cell );
+    return new PoiCell(cell);
   }
 }

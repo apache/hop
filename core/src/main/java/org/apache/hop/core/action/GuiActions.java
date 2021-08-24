@@ -18,7 +18,9 @@
 package org.apache.hop.core.action;
 
 public enum GuiActions {
-  NEW, EDIT, DELETE,
+  NEW,
+  EDIT,
+  DELETE,
   ;
 
   public String id() {

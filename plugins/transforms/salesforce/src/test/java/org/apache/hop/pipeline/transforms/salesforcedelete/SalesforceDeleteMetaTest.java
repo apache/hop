@@ -44,62 +44,53 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SalesforceDeleteMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
-    PluginRegistry.init( true );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init(true);
     String passwordEncoderPluginID =
-      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   @Test
   public void testErrorHandling() {
     SalesforceTransformMeta meta = new SalesforceDeleteMeta();
-    assertTrue( meta.supportsErrorHandling() );
+    assertTrue(meta.supportsErrorHandling());
   }
 
   @Test
   public void testDefaults() {
     SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
     meta.setDefault();
-    assertNotNull( meta.getModule() );
-    assertNull( meta.getDeleteField() );
-    assertEquals( "10", meta.getBatchSize() );
-    assertFalse( meta.isRollbackAllChangesOnError() );
+    assertNotNull(meta.getModule());
+    assertNull(meta.getDeleteField());
+    assertEquals("10", meta.getBatchSize());
+    assertFalse(meta.isRollbackAllChangesOnError());
   }
-
 
   @Test
   public void testGetFields() throws HopTransformException {
     SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
     meta.setDefault();
     IRowMeta r = new RowMeta();
-    meta.getFields( r, "thisTransform", null, null, new Variables(), null);
-    assertEquals( 0, r.size() );
+    meta.getFields(r, "thisTransform", null, null, new Variables(), null);
+    assertEquals(0, r.size());
 
     r.clear();
-    r.addValueMeta( new ValueMetaString( "testString" ) );
-    meta.getFields( r, "thisTransform", null, null, new Variables(), null );
-    assertEquals( 1, r.size() );
-    assertEquals( IValueMeta.TYPE_STRING, r.getValueMeta( 0 ).getType() );
-    assertEquals( "testString", r.getValueMeta( 0 ).getName() );
+    r.addValueMeta(new ValueMetaString("testString"));
+    meta.getFields(r, "thisTransform", null, null, new Variables(), null);
+    assertEquals(1, r.size());
+    assertEquals(IValueMeta.TYPE_STRING, r.getValueMeta(0).getType());
+    assertEquals("testString", r.getValueMeta(0).getName());
   }
 
   @Test
@@ -107,49 +98,54 @@ public class SalesforceDeleteMetaTest {
     SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
     meta.setDefault();
     List<ICheckResult> remarks = new ArrayList<>();
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     boolean hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertTrue( hasError );
+    assertFalse(remarks.isEmpty());
+    assertTrue(hasError);
 
     remarks.clear();
     meta.setDefault();
-    meta.setUsername( "user" );
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.setUsername("user");
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertFalse( hasError );
+    assertFalse(remarks.isEmpty());
+    assertFalse(hasError);
   }
 
   @Test
   public void testLoadSave() throws HopException {
     List<String> attributes = new ArrayList<>();
-    attributes.addAll( SalesforceMetaTest.getDefaultAttributes() );
-    attributes.addAll( Arrays.asList( "deleteField", "batchSize", "rollbackAllChangesOnError" ) );
+    attributes.addAll(SalesforceMetaTest.getDefaultAttributes());
+    attributes.addAll(Arrays.asList("deleteField", "batchSize", "rollbackAllChangesOnError"));
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<>();
-    fieldLoadSaveValidators.put( "updateLookup",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
-    fieldLoadSaveValidators.put( "updateStream",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
-    fieldLoadSaveValidators.put( "useExternalId",
-      new ArrayLoadSaveValidator<>( new BooleanLoadSaveValidator(), 50 ) );
+    fieldLoadSaveValidators.put(
+        "updateLookup", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 50));
+    fieldLoadSaveValidators.put(
+        "updateStream", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 50));
+    fieldLoadSaveValidators.put(
+        "useExternalId", new ArrayLoadSaveValidator<>(new BooleanLoadSaveValidator(), 50));
 
     TransformLoadSaveTester<SalesforceDeleteMeta> transformLoadSaveTester =
-      new TransformLoadSaveTester( SalesforceDeleteMeta.class, attributes, attributes, getterMap, setterMap,
-        fieldLoadSaveValidators, new HashMap<>()
-      );
+        new TransformLoadSaveTester(
+            SalesforceDeleteMeta.class,
+            attributes,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidators,
+            new HashMap<>());
 
     transformLoadSaveTester.testXmlRoundTrip();
   }
@@ -157,13 +153,13 @@ public class SalesforceDeleteMetaTest {
   @Test
   public void testBatchSize() {
     SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
-    meta.setBatchSize( "20" );
-    assertEquals( "20", meta.getBatchSize() );
-    assertEquals( 20, meta.getBatchSizeInt() );
+    meta.setBatchSize("20");
+    assertEquals("20", meta.getBatchSize());
+    assertEquals(20, meta.getBatchSizeInt());
 
     // Pass invalid batch size, should get default value of 10
-    meta.setBatchSize( "unknown" );
-    assertEquals( "unknown", meta.getBatchSize() );
-    assertEquals( 10, meta.getBatchSizeInt() );
+    meta.setBatchSize("unknown");
+    assertEquals("unknown", meta.getBatchSize());
+    assertEquals(10, meta.getBatchSizeInt());
   }
 }

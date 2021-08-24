@@ -30,9 +30,7 @@ public class SetVariableData extends BaseTransformData implements ITransformData
 
   public IRowMeta outputMeta;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public SetVariableData() {
     super();
   }

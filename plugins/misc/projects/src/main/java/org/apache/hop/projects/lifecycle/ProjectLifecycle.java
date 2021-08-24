@@ -34,25 +34,28 @@ public class ProjectLifecycle {
     this.configurationFiles = new ArrayList<>();
   }
 
-  public ProjectLifecycle( String name, List<String> lifecycleEnvironments, List<String> configurationFiles ) {
+  public ProjectLifecycle(
+      String name, List<String> lifecycleEnvironments, List<String> configurationFiles) {
     this.name = name;
     this.lifecycleEnvironments = lifecycleEnvironments;
     this.configurationFiles = configurationFiles;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     ProjectLifecycle that = (ProjectLifecycle) o;
-    return Objects.equals( name, that.name );
+    return Objects.equals(name, that.name);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name );
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
 
   /**
@@ -64,10 +67,8 @@ public class ProjectLifecycle {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -80,10 +81,8 @@ public class ProjectLifecycle {
     return lifecycleEnvironments;
   }
 
-  /**
-   * @param lifecycleEnvironments The lifecycleEnvironments to set
-   */
-  public void setLifecycleEnvironments( List<String> lifecycleEnvironments ) {
+  /** @param lifecycleEnvironments The lifecycleEnvironments to set */
+  public void setLifecycleEnvironments(List<String> lifecycleEnvironments) {
     this.lifecycleEnvironments = lifecycleEnvironments;
   }
 
@@ -96,10 +95,8 @@ public class ProjectLifecycle {
     return configurationFiles;
   }
 
-  /**
-   * @param configurationFiles The configurationFiles to set
-   */
-  public void setConfigurationFiles( List<String> configurationFiles ) {
+  /** @param configurationFiles The configurationFiles to set */
+  public void setConfigurationFiles(List<String> configurationFiles) {
     this.configurationFiles = configurationFiles;
   }
 }

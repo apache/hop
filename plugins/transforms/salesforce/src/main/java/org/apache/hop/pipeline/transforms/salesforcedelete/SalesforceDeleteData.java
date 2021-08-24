@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforcedelete;
 
+import com.sforce.soap.partner.DeleteResult;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
-
-import com.sforce.soap.partner.DeleteResult;
 
 /*
  * @author Samatar

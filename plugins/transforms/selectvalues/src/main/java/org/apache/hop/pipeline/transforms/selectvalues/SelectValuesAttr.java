@@ -26,8 +26,7 @@ import org.apache.hop.core.row.IValueMeta;
  * @author matt
  */
 public enum SelectValuesAttr implements IHopAttribute {
-
-  FOO( "fields", "CsvInputDialog.Fields.Label", null, IValueMeta.TYPE_NONE, null );
+  FOO("fields", "CsvInputDialog.Fields.Label", null, IValueMeta.TYPE_NONE, null);
 
   /*
    * FIELDS("fields", "CsvInputDialog.Fields.Label", null, IValueMeta.TYPE_NONE, null), FIELD("field",
@@ -78,8 +77,13 @@ public enum SelectValuesAttr implements IHopAttribute {
    * @param tooltip
    * @param type
    */
-  private SelectValuesAttr( String xmlCode, String repCode, String description, String tooltip, int type,
-                            SelectValuesAttr parent ) {
+  private SelectValuesAttr(
+      String xmlCode,
+      String repCode,
+      String description,
+      String tooltip,
+      int type,
+      SelectValuesAttr parent) {
     this.xmlCode = xmlCode;
     this.repCode = repCode;
     this.description = description;
@@ -94,17 +98,18 @@ public enum SelectValuesAttr implements IHopAttribute {
    * @param tooltip
    * @param type
    */
-  private SelectValuesAttr( String code, String description, String tooltip, int type, SelectValuesAttr parent ) {
-    this( code, code, description, tooltip, type, parent );
+  private SelectValuesAttr(
+      String code, String description, String tooltip, int type, SelectValuesAttr parent) {
+    this(code, code, description, tooltip, type, parent);
   }
 
   /**
    * @param xmlCode The XML Code to search for
    * @return the attribute that corresponds to the XML code or null if nothing was found.
    */
-  public static SelectValuesAttr findByKey( String key ) {
-    for ( SelectValuesAttr attr : values() ) {
-      if ( attr.getKey().equals( key ) ) {
+  public static SelectValuesAttr findByKey(String key) {
+    for (SelectValuesAttr attr : values()) {
+      if (attr.getKey().equals(key)) {
         return attr;
       }
     }
@@ -115,37 +120,27 @@ public enum SelectValuesAttr implements IHopAttribute {
     return repCode;
   }
 
-  /**
-   * @return the xmlCode
-   */
+  /** @return the xmlCode */
   public String getXmlCode() {
     return xmlCode;
   }
 
-  /**
-   * @return the repCode
-   */
+  /** @return the repCode */
   public String getRepCode() {
     return repCode;
   }
 
-  /**
-   * @return the description
-   */
+  /** @return the description */
   public String getDescription() {
     return description;
   }
 
-  /**
-   * @return the tooltip
-   */
+  /** @return the tooltip */
   public String getTooltip() {
     return tooltip;
   }
 
-  /**
-   * @return the type
-   */
+  /** @return the type */
   public int getType() {
     return type;
   }

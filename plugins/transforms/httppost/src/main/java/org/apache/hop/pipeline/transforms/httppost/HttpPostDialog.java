@@ -910,7 +910,8 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
         if (input.getLookupfield().get(0).getArgumentField().get(i).getParameter() != null) {
           item.setText(2, input.getLookupfield().get(0).getArgumentField().get(i).getParameter());
         }
-        item.setText(3, (input.getLookupfield().get(0).getArgumentField().get(i).isHeader()) ? YES : NO);
+        item.setText(
+            3, (input.getLookupfield().get(0).getArgumentField().get(i).isHeader()) ? YES : NO);
       }
     }
     if (input.getLookupfield().get(0).getQueryField() != null) {
@@ -1032,7 +1033,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
             wResponseTime.getText(),
             wResponseHeader.getText());
 
-    List<HttpPostResultField> listHttpPostResultField= new ArrayList<>();
+    List<HttpPostResultField> listHttpPostResultField = new ArrayList<>();
     listHttpPostResultField.add(httpPostResultField);
     input.setHttpPostResultField(listHttpPostResultField);
 

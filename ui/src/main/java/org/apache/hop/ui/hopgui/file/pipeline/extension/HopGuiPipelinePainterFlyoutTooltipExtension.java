@@ -32,7 +32,8 @@ public class HopGuiPipelinePainterFlyoutTooltipExtension {
   public static final String DET_INSPECT = "DET_INSPECT";
   public static final String DET_LABEL = "DET_LABEL";
 
-  public HopGuiPipelinePainterFlyoutTooltipExtension( AreaOwner areaOwner, HopGuiPipelineGraph pipelineGraph, Point point ) {
+  public HopGuiPipelinePainterFlyoutTooltipExtension(
+      AreaOwner areaOwner, HopGuiPipelineGraph pipelineGraph, Point point) {
     super();
     this.areaOwner = areaOwner;
     this.pipelineGraph = pipelineGraph;

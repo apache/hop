@@ -38,45 +38,48 @@ public class ExecSqlMetaInjectionTest extends BaseMetadataInjectionTest<ExecSqlM
 
   @Before
   public void setup() throws Exception {
-    setup( new ExecSqlMeta() );
+    setup(new ExecSqlMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SQL", () -> meta.getSql() );
-    check( "EXECUTE_FOR_EACH_ROW", () -> meta.isExecutedEachInputRow() );
-    check( "UPDATE_STATS_FIELD", () -> meta.getUpdateField() );
-    check( "INSERT_STATS_FIELD", () -> meta.getInsertField() );
-    check( "DELETE_STATS_FIELD", () -> meta.getDeleteField() );
-    check( "READ_STATS_FIELD", () -> meta.getReadField() );
-    check( "EXECUTE_AS_SINGLE_STATEMENT", () -> meta.isSingleStatement() );
-    check( "REPLACE_VARIABLES", () -> meta.isReplaceVariables() );
-    check( "QUOTE_STRINGS", () -> meta.isQuoteString() );
-    check( "BIND_PARAMETERS", () -> meta.isParams() );
-    check( "PARAMETER_NAME", () -> meta.getArguments()[ 0 ] );
+    check("SQL", () -> meta.getSql());
+    check("EXECUTE_FOR_EACH_ROW", () -> meta.isExecutedEachInputRow());
+    check("UPDATE_STATS_FIELD", () -> meta.getUpdateField());
+    check("INSERT_STATS_FIELD", () -> meta.getInsertField());
+    check("DELETE_STATS_FIELD", () -> meta.getDeleteField());
+    check("READ_STATS_FIELD", () -> meta.getReadField());
+    check("EXECUTE_AS_SINGLE_STATEMENT", () -> meta.isSingleStatement());
+    check("REPLACE_VARIABLES", () -> meta.isReplaceVariables());
+    check("QUOTE_STRINGS", () -> meta.isQuoteString());
+    check("BIND_PARAMETERS", () -> meta.isParams());
+    check("PARAMETER_NAME", () -> meta.getArguments()[0]);
 
     // skip connection name testing, so we can provide our own custom handling
-    skipPropertyTest( "CONNECTIONNAME" );
+    skipPropertyTest("CONNECTIONNAME");
 
     // mock the database connections
     final DatabaseMeta db1 = new DatabaseMeta();
-    db1.setName( "my connection 1" );
+    db1.setName("my connection 1");
     final DatabaseMeta db2 = new DatabaseMeta();
-    db2.setName( "my connection 2" );
+    db2.setName("my connection 2");
     final DatabaseMeta db3 = new DatabaseMeta();
-    db3.setName( "my connection 3" );
-    final List<DatabaseMeta> mockDbs = Arrays.asList( new DatabaseMeta[] { db1, db2, db3 } );
+    db3.setName("my connection 3");
+    final List<DatabaseMeta> mockDbs = Arrays.asList(new DatabaseMeta[] {db1, db2, db3});
 
-    final TransformMeta parentTransformMeta = Mockito.mock( TransformMeta.class );
-    final PipelineMeta parentPipelineMeta = Mockito.mock( PipelineMeta.class );
+    final TransformMeta parentTransformMeta = Mockito.mock(TransformMeta.class);
+    final PipelineMeta parentPipelineMeta = Mockito.mock(PipelineMeta.class);
 
-    Mockito.doReturn( mockDbs ).when( parentPipelineMeta ).getDatabases();
-    Mockito.doReturn( parentPipelineMeta ).when( parentTransformMeta ).getParentPipelineMeta();
-    meta.setParentTransformMeta( parentTransformMeta );
+    Mockito.doReturn(mockDbs).when(parentPipelineMeta).getDatabases();
+    Mockito.doReturn(parentPipelineMeta).when(parentTransformMeta).getParentPipelineMeta();
+    meta.setParentTransformMeta(parentTransformMeta);
 
-    injector.setProperty( meta, "CONNECTIONNAME", setValue( new ValueMetaString( "my connection 2" ),
-      "my connection 2" ), "my connection 2" );
+    injector.setProperty(
+        meta,
+        "CONNECTIONNAME",
+        setValue(new ValueMetaString("my connection 2"), "my connection 2"),
+        "my connection 2");
     // verify we get back the correct connection
-    assertEquals( db2, meta.getDatabaseMeta() );
+    assertEquals(db2, meta.getDatabaseMeta());
   }
 }

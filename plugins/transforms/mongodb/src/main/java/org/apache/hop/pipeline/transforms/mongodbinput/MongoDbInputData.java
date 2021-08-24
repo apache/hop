@@ -51,6 +51,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
 
   /** cursor for a standard query */
   public MongoCursorWrapper cursor;
+
   public MongoDbConnection connection;
 
   /** results of an aggregation pipeline */
@@ -152,17 +153,17 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * @throws HopException
    */
   public void init() throws HopException {
-    if ( userFields != null) {
+    if (userFields != null) {
 
       // set up array expansion/unwinding (if necessary)
-      expansionHandler = checkFieldPaths( userFields, outputRowMeta);
+      expansionHandler = checkFieldPaths(userFields, outputRowMeta);
 
-      for (MongoField f : userFields ) {
+      for (MongoField f : userFields) {
         int outputIndex = outputRowMeta.indexOfValue(f.fieldName);
         f.init(outputIndex);
       }
 
-      if ( expansionHandler != null) {
+      if (expansionHandler != null) {
         expansionHandler.init();
       }
     }
@@ -177,11 +178,12 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * @return populated Hop row(s)
    * @throws HopException if a problem occurs
    */
-  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables variables) throws HopException {
+  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables variables)
+      throws HopException {
 
     Object[][] result = null;
 
-    if ( expansionHandler != null) {
+    if (expansionHandler != null) {
       expansionHandler.reset(variables);
 
       if (mongoObj instanceof BasicDBObject) {
@@ -196,7 +198,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     // get the normal (non expansion-related fields)
     Object[] normalData = RowDataUtil.allocateRowData(outputRowMeta.size());
     Object value;
-    for (MongoField f : userFields ) {
+    for (MongoField f : userFields) {
       value = null;
       f.reset(variables);
 
@@ -210,12 +212,12 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     }
 
     // copy normal fields over to each expansion row (if necessary)
-    if ( expansionHandler == null) {
+    if (expansionHandler == null) {
       result[0] = normalData;
     } else {
       for (int i = 0; i < result.length; i++) {
         Object[] row = result[i];
-        for (MongoField f : userFields ) {
+        for (MongoField f : userFields) {
           row[f.outputIndex] = normalData[f.outputIndex];
         }
       }

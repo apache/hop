@@ -34,11 +34,7 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.FileExistsValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
+import org.apache.hop.workflow.action.validator.*;
 import org.w3c.dom.Node;
 
 import java.io.IOException;

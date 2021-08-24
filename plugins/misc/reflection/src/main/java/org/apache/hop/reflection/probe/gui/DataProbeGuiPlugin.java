@@ -119,7 +119,7 @@ public class DataProbeGuiPlugin {
           // We're going to change the current metadata and flag it as changed...
           //
           pipelineProbe = new PipelineProbe();
-          editor.getWidgetsContent( pipelineProbe );
+          editor.getWidgetsContent(pipelineProbe);
 
           // Add the location
           //
@@ -138,8 +138,7 @@ public class DataProbeGuiPlugin {
           //
           perspective.activate();
 
-          perspective.setActiveEditor( editor );
-
+          perspective.setActiveEditor(editor);
 
           return;
         } else {

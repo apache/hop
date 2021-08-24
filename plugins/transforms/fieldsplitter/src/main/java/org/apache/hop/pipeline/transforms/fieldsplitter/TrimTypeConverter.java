@@ -21,12 +21,10 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.value.ValueMetaString;
 
-/**
- * Converter for trim types.
- */
+/** Converter for trim types. */
 public class TrimTypeConverter extends InjectionTypeConverter {
   @Override
-  public int string2intPrimitive( String v ) throws HopValueException {
-    return ValueMetaString.getTrimTypeByCode( v );
+  public int string2intPrimitive(String v) throws HopValueException {
+    return ValueMetaString.getTrimTypeByCode(v);
   }
 }

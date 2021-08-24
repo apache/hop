@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.LongNode;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
@@ -30,9 +29,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.util.Date;
 
 @ValueMetaPlugin(id = "11", name = "JSON", description = "JSON object", image = "json.svg")
 public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
@@ -110,7 +106,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
           case STORAGE_TYPE_BINARY_STRING:
             return convertStringToJson((String) convertBinaryStringToNativeType((byte[]) object));
           case STORAGE_TYPE_INDEXED:
-            return convertStringToJson((String) index[ (Integer) object ]);
+            return convertStringToJson((String) index[(Integer) object]);
           default:
             throw new HopValueException(
                 toString() + " : Unknown storage type " + storageType + " specified.");
@@ -119,19 +115,19 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
         Double number;
         switch (storageType) {
           case STORAGE_TYPE_NORMAL:
-            number = (Double)object;
+            number = (Double) object;
             break;
           case STORAGE_TYPE_BINARY_STRING:
-            number = convertStringToNumber( convertBinaryStringToString( (byte[]) object ) );
+            number = convertStringToNumber(convertBinaryStringToString((byte[]) object));
             break;
           case STORAGE_TYPE_INDEXED:
-            number = (Double)index[ (Integer) object ];
+            number = (Double) index[(Integer) object];
             break;
           default:
             throw new HopValueException(
                 toString() + " : Unknown storage type " + storageType + " specified.");
         }
-        return new DoubleNode( number );
+        return new DoubleNode(number);
 
       case TYPE_INTEGER:
         Long integer;
@@ -143,13 +139,13 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             integer = (Long) convertBinaryStringToNativeType((byte[]) object);
             break;
           case STORAGE_TYPE_INDEXED:
-            integer = (Long) index[ (Integer) object ];
+            integer = (Long) index[(Integer) object];
             break;
           default:
             throw new HopValueException(
                 toString() + " : Unknown storage type " + storageType + " specified.");
         }
-        return new LongNode( integer );
+        return new LongNode(integer);
 
       case TYPE_BIGNUMBER:
         BigDecimal bigDecimal;
@@ -161,13 +157,13 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             bigDecimal = (BigDecimal) convertBinaryStringToNativeType((byte[]) object);
             break;
           case STORAGE_TYPE_INDEXED:
-            bigDecimal = (BigDecimal) index[ (Integer) object ];
+            bigDecimal = (BigDecimal) index[(Integer) object];
             break;
           default:
             throw new HopValueException(
                 toString() + " : Unknown storage type " + storageType + " specified.");
         }
-        return new DecimalNode( bigDecimal );
+        return new DecimalNode(bigDecimal);
 
       case TYPE_BOOLEAN:
         boolean bool;
@@ -179,27 +175,26 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
             bool = (Boolean) convertBinaryStringToNativeType((byte[]) object);
             break;
           case STORAGE_TYPE_INDEXED:
-            bool = (Boolean) index[ (Integer) object ];
+            bool = (Boolean) index[(Integer) object];
             break;
           default:
             throw new HopValueException(
-              toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + " : Unknown storage type " + storageType + " specified.");
         }
-        return BooleanNode.valueOf( bool );
+        return BooleanNode.valueOf(bool);
 
       case TYPE_DATE:
         throw new HopValueException(
-          toString() + " : I don't know how to convert a date to a JSON object.");
+            toString() + " : I don't know how to convert a date to a JSON object.");
       case TYPE_TIMESTAMP:
         throw new HopValueException(
-          toString() + " : I don't know how to convert a timestamp to a JSON object.");
+            toString() + " : I don't know how to convert a timestamp to a JSON object.");
       case TYPE_BINARY:
         throw new HopValueException(
             toString() + " : I don't know how to convert a binary value to JSON object.");
       case TYPE_SERIALIZABLE:
         throw new HopValueException(
-            toString()
-                + " : I don't know how to convert a serializable value to JSON object.");
+            toString() + " : I don't know how to convert a serializable value to JSON object.");
 
       default:
         throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
@@ -208,7 +203,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
 
   @Override
   public String getString(Object object) throws HopValueException {
-    return convertJsonToString( getJson(object));
+    return convertJsonToString(getJson(object));
   }
 
   @Override
@@ -224,8 +219,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
         return convertStringToBinaryString(getString(object));
       case STORAGE_TYPE_BINARY_STRING:
         return convertStringToBinaryString(
-            getString(
-                convertStringToJson(convertBinaryStringToString((byte[]) object))));
+            getString(convertStringToJson(convertBinaryStringToString((byte[]) object))));
       case STORAGE_TYPE_INDEXED:
         return convertStringToBinaryString(
             convertJsonToString((JsonNode) index[((Integer) object)]));
@@ -378,8 +372,8 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
     }
 
     try {
-      String jsonString = convertJsonToString( jsonNode );
-      return convertStringToJson( jsonString );
+      String jsonString = convertJsonToString(jsonNode);
+      return convertStringToJson(jsonString);
     } catch (Exception e) {
       throw new HopValueException("Unable to clone JSON value", e);
     }

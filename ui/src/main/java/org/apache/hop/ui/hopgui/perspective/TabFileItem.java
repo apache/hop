@@ -31,25 +31,27 @@ public class TabFileItem {
     uuid = UUID.randomUUID().toString();
   }
 
-  public TabFileItem( String filename, CTabItem tabItem ) {
+  public TabFileItem(String filename, CTabItem tabItem) {
     this();
     this.filename = filename;
     this.tabItem = tabItem;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     TabFileItem that = (TabFileItem) o;
-    return uuid.equals( that.uuid );
+    return uuid.equals(that.uuid);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( uuid );
+  @Override
+  public int hashCode() {
+    return Objects.hash(uuid);
   }
 
   /**
@@ -61,10 +63,8 @@ public class TabFileItem {
     return uuid;
   }
 
-  /**
-   * @param uuid The uuid to set
-   */
-  public void setUuid( String uuid ) {
+  /** @param uuid The uuid to set */
+  public void setUuid(String uuid) {
     this.uuid = uuid;
   }
 
@@ -77,10 +77,8 @@ public class TabFileItem {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -93,10 +91,8 @@ public class TabFileItem {
     return tabItem;
   }
 
-  /**
-   * @param tabItem The tabItem to set
-   */
-  public void setTabItem( CTabItem tabItem ) {
+  /** @param tabItem The tabItem to set */
+  public void setTabItem(CTabItem tabItem) {
     this.tabItem = tabItem;
   }
 }

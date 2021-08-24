@@ -18,5 +18,5 @@
 package org.apache.hop.core.logging;
 
 public interface IHopLoggingEventListener {
-  void eventAdded( HopLoggingEvent event );
+  void eventAdded(HopLoggingEvent event);
 }

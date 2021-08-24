@@ -18,45 +18,45 @@
   -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-  version="2.4">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
 
-  <context-param>
-    <param-name>org.eclipse.rap.applicationConfiguration</param-name>
-    <param-value>org.apache.hop.ui.hopgui.HopWeb</param-value>
-  </context-param>
+    <context-param>
+        <param-name>org.eclipse.rap.applicationConfiguration</param-name>
+        <param-value>org.apache.hop.ui.hopgui.HopWeb</param-value>
+    </context-param>
 
-  <listener>
-    <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
-  </listener>
+    <listener>
+        <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
+    </listener>
 
-  <servlet>
-    <servlet-name>HopGui</servlet-name>
-    <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
-  </servlet>
+    <servlet>
+        <servlet-name>HopGui</servlet-name>
+        <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>HopGui</servlet-name>
-    <url-pattern>/ui</url-pattern>
-  </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HopGui</servlet-name>
+        <url-pattern>/ui</url-pattern>
+    </servlet-mapping>
 
-  <servlet>
-    <servlet-name>welcome</servlet-name>
-    <jsp-file>/docs/English/welcome/index.html</jsp-file>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>welcome</servlet-name>
-    <url-pattern>/docs/English/welcome/index.html</url-pattern>
-  </servlet-mapping>
+    <servlet>
+        <servlet-name>welcome</servlet-name>
+        <jsp-file>/docs/English/welcome/index.html</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>welcome</servlet-name>
+        <url-pattern>/docs/English/welcome/index.html</url-pattern>
+    </servlet-mapping>
 
-  <servlet>
-    <servlet-name>Server</servlet-name>
-    <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Server</servlet-name>
-    <url-pattern>/hop/*</url-pattern>
-  </servlet-mapping>
+    <servlet>
+        <servlet-name>Server</servlet-name>
+        <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Server</servlet-name>
+        <url-pattern>/hop/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>

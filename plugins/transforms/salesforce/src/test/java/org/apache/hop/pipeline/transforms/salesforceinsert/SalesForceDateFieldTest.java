@@ -32,12 +32,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -62,18 +57,20 @@ public class SalesForceDateFieldTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
-        Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   @Before
   public void init() {
-    smh = new TransformMockHelper<>( "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        smh.iLogChannel );
+    smh =
+        new TransformMockHelper<>(
+            "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
   }
 
   @After
@@ -85,46 +82,51 @@ public class SalesForceDateFieldTest {
   public void testDateInsert() throws Exception {
 
     SalesforceInsertMeta meta = smh.iTransformMeta;
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getTargetUrl();
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getUsername();
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getPassword();
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getModule();
-    doReturn( 2 ).when( meta ).getBatchSizeInt();
-    doReturn( new String[] { "Date" } ).when( meta ).getUpdateLookup();
-    doReturn( new Boolean[] {false}  ).when( meta ).getUseExternalId();
+    doReturn(UUID.randomUUID().toString()).when(meta).getTargetUrl();
+    doReturn(UUID.randomUUID().toString()).when(meta).getUsername();
+    doReturn(UUID.randomUUID().toString()).when(meta).getPassword();
+    doReturn(UUID.randomUUID().toString()).when(meta).getModule();
+    doReturn(2).when(meta).getBatchSizeInt();
+    doReturn(new String[] {"Date"}).when(meta).getUpdateLookup();
+    doReturn(new Boolean[] {false}).when(meta).getUseExternalId();
 
     SalesforceInsertData data = smh.iTransformData;
     data.nrFields = 1;
-    data.fieldnrs = new int[] { 0 };
-    data.sfBuffer = new SObject[]{ null };
-    data.outputBuffer = new Object[][]{ null };
+    data.fieldnrs = new int[] {0};
+    data.sfBuffer = new SObject[] {null};
+    data.outputBuffer = new Object[][] {null};
 
-    SalesforceInsert transform = new SalesforceInsert( smh.transformMeta,
-      smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    SalesforceInsert transform =
+        new SalesforceInsert(
+            smh.transformMeta,
+            smh.iTransformMeta,
+            smh.iTransformData,
+            0,
+            smh.pipelineMeta,
+            smh.pipeline);
 
     transform.init();
 
     RowMeta rowMeta = new RowMeta();
-    IValueMeta valueMeta = new ValueMetaDate( "date" );
-    valueMeta.setDateFormatTimeZone( TimeZone.getTimeZone( "Europe/Minsk" ) );
-    rowMeta.addValueMeta( valueMeta );
+    IValueMeta valueMeta = new ValueMetaDate("date");
+    valueMeta.setDateFormatTimeZone(TimeZone.getTimeZone("Europe/Minsk"));
+    rowMeta.addValueMeta(valueMeta);
     smh.iTransformData.inputRowMeta = rowMeta;
 
-    Calendar minskTime = Calendar.getInstance( valueMeta.getDateFormatTimeZone() );
+    Calendar minskTime = Calendar.getInstance(valueMeta.getDateFormatTimeZone());
     minskTime.clear();
-    minskTime.set( 2013, Calendar.OCTOBER, 16 );
+    minskTime.set(2013, Calendar.OCTOBER, 16);
 
-    Object[] args = new Object[] { minskTime.getTime() };
+    Object[] args = new Object[] {minskTime.getTime()};
 
-    Method m = SalesforceInsert.class.getDeclaredMethod( "writeToSalesForce", Object[].class );
-    m.setAccessible( true );
-    m.invoke( transform, new Object[] { args } );
+    Method m = SalesforceInsert.class.getDeclaredMethod("writeToSalesForce", Object[].class);
+    m.setAccessible(true);
+    m.invoke(transform, new Object[] {args});
 
-    DateFormat utc = new SimpleDateFormat( "yyyy-MM-dd" );
-    utc.setTimeZone( TimeZone.getTimeZone( "UTC" ) );
+    DateFormat utc = new SimpleDateFormat("yyyy-MM-dd");
+    utc.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-    XmlObject xmlObject = SalesforceConnection.getChildren( data.sfBuffer[ 0 ] )[ 0 ];
-    Assert.assertEquals( "2013-10-16",
-      utc.format( ( (Calendar) xmlObject.getValue() ).getTime() ) );
+    XmlObject xmlObject = SalesforceConnection.getChildren(data.sfBuffer[0])[0];
+    Assert.assertEquals("2013-10-16", utc.format(((Calendar) xmlObject.getValue()).getTime()));
   }
 }

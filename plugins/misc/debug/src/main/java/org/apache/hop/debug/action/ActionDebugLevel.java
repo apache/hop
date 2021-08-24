@@ -17,7 +17,6 @@
 
 package org.apache.hop.debug.action;
 
-
 import org.apache.hop.core.logging.LogLevel;
 
 public class ActionDebugLevel implements Cloneable {
@@ -36,35 +35,43 @@ public class ActionDebugLevel implements Cloneable {
     loggingResultFiles = false;
   }
 
-  public ActionDebugLevel( LogLevel logLevel ) {
+  public ActionDebugLevel(LogLevel logLevel) {
     this();
     this.logLevel = logLevel;
   }
 
-  public ActionDebugLevel( LogLevel logLevel, boolean loggingResult, boolean loggingVariables, boolean loggingResultRows, boolean loggingResultFiles ) {
-    this( logLevel );
+  public ActionDebugLevel(
+      LogLevel logLevel,
+      boolean loggingResult,
+      boolean loggingVariables,
+      boolean loggingResultRows,
+      boolean loggingResultFiles) {
+    this(logLevel);
     this.loggingResult = loggingResult;
     this.loggingVariables = loggingVariables;
     this.loggingResultRows = loggingResultRows;
     this.loggingResultFiles = loggingResultFiles;
   }
 
-  @Override public ActionDebugLevel clone() {
-    return new ActionDebugLevel( logLevel, loggingResult, loggingVariables, loggingResultRows, loggingResultFiles );
+  @Override
+  public ActionDebugLevel clone() {
+    return new ActionDebugLevel(
+        logLevel, loggingResult, loggingVariables, loggingResultRows, loggingResultFiles);
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     String s = logLevel.toString();
-    if ( loggingResult ) {
+    if (loggingResult) {
       s += ", logging result";
     }
-    if ( loggingVariables ) {
+    if (loggingVariables) {
       s += ", logging variables";
     }
-    if ( loggingResultRows ) {
+    if (loggingResultRows) {
       s += ", logging result rows";
     }
-    if ( loggingResultFiles ) {
+    if (loggingResultFiles) {
       s += ", logging result files";
     }
     return s;
@@ -79,10 +86,8 @@ public class ActionDebugLevel implements Cloneable {
     return logLevel;
   }
 
-  /**
-   * @param logLevel The logLevel to set
-   */
-  public void setLogLevel( LogLevel logLevel ) {
+  /** @param logLevel The logLevel to set */
+  public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
 
@@ -95,10 +100,8 @@ public class ActionDebugLevel implements Cloneable {
     return loggingResult;
   }
 
-  /**
-   * @param loggingResult The loggingResult to set
-   */
-  public void setLoggingResult( boolean loggingResult ) {
+  /** @param loggingResult The loggingResult to set */
+  public void setLoggingResult(boolean loggingResult) {
     this.loggingResult = loggingResult;
   }
 
@@ -111,10 +114,8 @@ public class ActionDebugLevel implements Cloneable {
     return loggingVariables;
   }
 
-  /**
-   * @param loggingVariables The loggingVariables to set
-   */
-  public void setLoggingVariables( boolean loggingVariables ) {
+  /** @param loggingVariables The loggingVariables to set */
+  public void setLoggingVariables(boolean loggingVariables) {
     this.loggingVariables = loggingVariables;
   }
 
@@ -127,10 +128,8 @@ public class ActionDebugLevel implements Cloneable {
     return loggingResultRows;
   }
 
-  /**
-   * @param loggingResultRows The loggingResultRows to set
-   */
-  public void setLoggingResultRows( boolean loggingResultRows ) {
+  /** @param loggingResultRows The loggingResultRows to set */
+  public void setLoggingResultRows(boolean loggingResultRows) {
     this.loggingResultRows = loggingResultRows;
   }
 
@@ -143,10 +142,8 @@ public class ActionDebugLevel implements Cloneable {
     return loggingResultFiles;
   }
 
-  /**
-   * @param loggingResultFiles The loggingResultFiles to set
-   */
-  public void setLoggingResultFiles( boolean loggingResultFiles ) {
+  /** @param loggingResultFiles The loggingResultFiles to set */
+  public void setLoggingResultFiles(boolean loggingResultFiles) {
     this.loggingResultFiles = loggingResultFiles;
   }
 }

@@ -32,5 +32,4 @@ public class ReturnIndicator {
     CardType = null;
     UnValidMsg = null;
   }
-
 }

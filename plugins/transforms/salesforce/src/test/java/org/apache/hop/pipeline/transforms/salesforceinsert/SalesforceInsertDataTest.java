@@ -27,14 +27,14 @@ public class SalesforceInsertDataTest {
   @Test
   public void testConstructor() {
     SalesforceInsertData data = new SalesforceInsertData();
-    assertNull( data.inputRowMeta );
-    assertNull( data.outputRowMeta );
-    assertEquals( 0, data.nrFields );
-    assertNull( data.fieldnrs );
-    assertNull( data.saveResult );
-    assertNull( data.sfBuffer );
-    assertNull( data.outputBuffer );
-    assertEquals( 0, data.iBufferPos );
-    assertNull( data.realSalesforceFieldName );
+    assertNull(data.inputRowMeta);
+    assertNull(data.outputRowMeta);
+    assertEquals(0, data.nrFields);
+    assertNull(data.fieldnrs);
+    assertNull(data.saveResult);
+    assertNull(data.sfBuffer);
+    assertNull(data.outputBuffer);
+    assertEquals(0, data.iBufferPos);
+    assertNull(data.realSalesforceFieldName);
   }
 }

@@ -18,11 +18,7 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.Metrics;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.util.Date;
@@ -35,70 +31,79 @@ public class RunThread implements Runnable {
   private ITransform transform;
   private ILogChannel log;
 
-  public RunThread( TransformMetaDataCombi combi ) {
+  public RunThread(TransformMetaDataCombi combi) {
     this.transform = combi.transform;
 
-    // Sanity check just in case the provided meta or data wasn't used during the creation of the transform
+    // Sanity check just in case the provided meta or data wasn't used during the creation of the
+    // transform
     //
-    this.transform.setMeta( combi.meta );
-    this.transform.setData( combi.data );
+    this.transform.setMeta(combi.meta);
+    this.transform.setData(combi.data);
 
     this.log = transform.getLogChannel();
   }
 
   public void run() {
     try {
-      transform.setRunning( true );
-      transform.setExecutionStartDate( new Date() );
-      transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_EXECUTION_START );
+      transform.setRunning(true);
+      transform.setExecutionStartDate(new Date());
+      transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_EXECUTION_START);
 
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( "System.Log.StartingToRun" ) );
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString("System.Log.StartingToRun"));
       }
 
       // Wait
-      while ( transform.processRow() ) {
-        if ( transform.isStopped() ) {
+      while (transform.processRow()) {
+        if (transform.isStopped()) {
           break;
         }
       }
-    } catch ( Throwable t ) {
+    } catch (Throwable t) {
       try {
         // check for OOME
-        if ( t instanceof OutOfMemoryError ) {
-          // Handle this different with as less overhead as possible to get an error message in the log.
+        if (t instanceof OutOfMemoryError) {
+          // Handle this different with as less overhead as possible to get an error message in the
+          // log.
           // Otherwise it crashes likely with another OOME in Me$$ages.getString() and does not log
           // nor call the setErrors() and stopAll() below.
-          log.logError( "UnexpectedError: ", t );
+          log.logError("UnexpectedError: ", t);
         } else {
           t.printStackTrace();
-          log.logError( BaseMessages.getString( "System.Log.UnexpectedError" ), t );
+          log.logError(BaseMessages.getString("System.Log.UnexpectedError"), t);
         }
 
         String logChannelId = log.getLogChannelId();
-        ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+        ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject(logChannelId);
         String parentLogChannelId = loggingObject.getParent().getLogChannelId();
-        List<String> logChannelChildren = LoggingRegistry.getInstance().getLogChannelChildren( parentLogChannelId );
-        int childIndex = Const.indexOfString( log.getLogChannelId(), logChannelChildren );
-        if ( log.isDebug() ) {
-          log.logDebug( "child index = " + childIndex + ", logging object : " + loggingObject.toString() + " parent=" + parentLogChannelId );
+        List<String> logChannelChildren =
+            LoggingRegistry.getInstance().getLogChannelChildren(parentLogChannelId);
+        int childIndex = Const.indexOfString(log.getLogChannelId(), logChannelChildren);
+        if (log.isDebug()) {
+          log.logDebug(
+              "child index = "
+                  + childIndex
+                  + ", logging object : "
+                  + loggingObject.toString()
+                  + " parent="
+                  + parentLogChannelId);
         }
-        HopLogStore.getAppender().getBuffer( "2bcc6b3f-c660-4a8b-8b17-89e8cbd5b29b", false );
+        HopLogStore.getAppender().getBuffer("2bcc6b3f-c660-4a8b-8b17-89e8cbd5b29b", false);
         // baseTransform.logError(Const.getStackTracker(t));
-      } catch ( OutOfMemoryError e ) {
+      } catch (OutOfMemoryError e) {
         e.printStackTrace();
       } finally {
-        transform.setErrors( 1 );
+        transform.setErrors(1);
         transform.stopAll();
       }
     } finally {
       transform.dispose();
-      transform.setExecutionEndDate( new Date() );
+      transform.setExecutionEndDate(new Date());
       // If the transform was stopped it never flagged the last row
-      if (transform.getLastRowWrittenDate()==null) {
-        transform.setLastRowWrittenDate( transform.getExecutionEndDate() );
+      if (transform.getLastRowWrittenDate() == null) {
+        transform.setLastRowWrittenDate(transform.getExecutionEndDate());
       }
-      transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_EXECUTION_STOP );
+      transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_EXECUTION_STOP);
       try {
         long li = transform.getLinesInput();
         long lo = transform.getLinesOutput();
@@ -107,20 +112,35 @@ public class RunThread implements Runnable {
         long lu = transform.getLinesUpdated();
         long lj = transform.getLinesRejected();
         long e = transform.getErrors();
-        if ( li > 0 || lo > 0 || lr > 0 || lw > 0 || lu > 0 || lj > 0 || e > 0 ) {
-          log.logBasic( BaseMessages.getString( PKG, "BaseTransform.Log.SummaryInfo", String.valueOf( li ),
-            String.valueOf( lo ), String.valueOf( lr ), String.valueOf( lw ),
-            String.valueOf( lu ), String.valueOf( e + lj ) ) );
+        if (li > 0 || lo > 0 || lr > 0 || lw > 0 || lu > 0 || lj > 0 || e > 0) {
+          log.logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "BaseTransform.Log.SummaryInfo",
+                  String.valueOf(li),
+                  String.valueOf(lo),
+                  String.valueOf(lr),
+                  String.valueOf(lw),
+                  String.valueOf(lu),
+                  String.valueOf(e + lj)));
         } else {
-          log.logDetailed( BaseMessages.getString( PKG, "BaseTransform.Log.SummaryInfo", String.valueOf( li ),
-            String.valueOf( lo ), String.valueOf( lr ), String.valueOf( lw ),
-            String.valueOf( lu ), String.valueOf( e + lj ) ) );
+          log.logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "BaseTransform.Log.SummaryInfo",
+                  String.valueOf(li),
+                  String.valueOf(lo),
+                  String.valueOf(lr),
+                  String.valueOf(lw),
+                  String.valueOf(lu),
+                  String.valueOf(e + lj)));
         }
-      } catch ( Throwable t ) {
+      } catch (Throwable t) {
         //
-        // it's likely an OOME, so we don't want to introduce overhead by using BaseMessages.getString(), see above
+        // it's likely an OOME, so we don't want to introduce overhead by using
+        // BaseMessages.getString(), see above
         //
-        log.logError( "UnexpectedError: " + Const.getStackTracker( t ) );
+        log.logError("UnexpectedError: " + Const.getStackTracker(t));
       } finally {
         transform.markStop();
       }

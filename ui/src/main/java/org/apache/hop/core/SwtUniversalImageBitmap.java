@@ -26,7 +26,7 @@ public class SwtUniversalImageBitmap extends SwtUniversalImage {
   private final Image bitmap;
   private final double zoomFactor;
 
-  public SwtUniversalImageBitmap( Image bitmap, double zoomFactor ) {
+  public SwtUniversalImageBitmap(Image bitmap, double zoomFactor) {
     this.bitmap = bitmap;
     this.zoomFactor = zoomFactor;
   }
@@ -34,36 +34,36 @@ public class SwtUniversalImageBitmap extends SwtUniversalImage {
   @Override
   public synchronized void dispose() {
     super.dispose();
-    if ( !bitmap.isDisposed() ) {
+    if (!bitmap.isDisposed()) {
       bitmap.dispose();
     }
   }
 
   @Override
-  protected Image renderSimple( Device device ) {
+  protected Image renderSimple(Device device) {
     return bitmap;
   }
 
   @Override
-  protected Image renderSimple( Device device, int width, int height ) {
-    return renderRotated( device, width, height, 0d );
+  protected Image renderSimple(Device device, int width, int height) {
+    return renderRotated(device, width, height, 0d);
   }
 
   @Override
-  protected Image renderRotated( Device device, int width, int height, double angleRadians ) {
-    Image result = new Image( device, width * 2, height * 2 );
+  protected Image renderRotated(Device device, int width, int height, double angleRadians) {
+    Image result = new Image(device, width * 2, height * 2);
 
-    GC gc = new GC( result );
+    GC gc = new GC(result);
 
     int bw = bitmap.getBounds().width;
     int bh = bitmap.getBounds().height;
-    Transform affineTransform = new Transform( device );
-    affineTransform.translate( width, height );
-    affineTransform.rotate( (float) Math.toDegrees( angleRadians ) );
-    affineTransform.scale( (float) zoomFactor * width / bw, (float) zoomFactor * height / bh );
-    gc.setTransform( affineTransform );
+    Transform affineTransform = new Transform(device);
+    affineTransform.translate(width, height);
+    affineTransform.rotate((float) Math.toDegrees(angleRadians));
+    affineTransform.scale((float) zoomFactor * width / bw, (float) zoomFactor * height / bh);
+    gc.setTransform(affineTransform);
 
-    gc.drawImage( bitmap, 0, 0, bw, bh, -bw / 2, -bh / 2, bw, bh );
+    gc.drawImage(bitmap, 0, 0, bw, bh, -bw / 2, -bh / 2, bw, bh);
 
     gc.dispose();
 

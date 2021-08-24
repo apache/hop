@@ -18,5 +18,5 @@
 package org.apache.test.util;
 
 public interface IObjectValidator<T> {
-  void validate( T expected, Object actual );
+  void validate(T expected, Object actual);
 }

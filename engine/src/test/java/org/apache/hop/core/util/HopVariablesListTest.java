@@ -26,13 +26,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-/**
- * Created by Yury_Bakhmutski on 11/4/2015.
- */
+/** Created by Yury_Bakhmutski on 11/4/2015. */
 public class HopVariablesListTest {
 
   @Test
@@ -40,13 +36,16 @@ public class HopVariablesListTest {
     HopVariablesList variablesList = HopVariablesList.getInstance();
     variablesList.init();
 
-    DescribedVariable describedVariable = variablesList.findEnvironmentVariable( Const.HOP_PASSWORD_ENCODER_PLUGIN );
-    assertNotNull( describedVariable );
+    DescribedVariable describedVariable =
+        variablesList.findEnvironmentVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
+    assertNotNull(describedVariable);
 
-    boolean actual = Boolean.valueOf( describedVariable.getValue() );
-    assertEquals( false, actual );
+    boolean actual = Boolean.valueOf(describedVariable.getValue());
+    assertEquals(false, actual);
 
-    assertEquals( "Specifies the password encoder plugin to use by ID (Hop is the default).", describedVariable.getDescription() );
+    assertEquals(
+        "Specifies the password encoder plugin to use by ID (Hop is the default).",
+        describedVariable.getDescription());
   }
 
   @Test
@@ -54,14 +53,14 @@ public class HopVariablesListTest {
     HopVariablesList.init();
     RandomAccessFile fos = null;
     try {
-      File file = new File( Const.HOP_VARIABLES_FILE );
-      if ( file.exists() ) {
-        fos = new RandomAccessFile( file, "rw" );
+      File file = new File(Const.HOP_VARIABLES_FILE);
+      if (file.exists()) {
+        fos = new RandomAccessFile(file, "rw");
       }
-    } catch ( FileNotFoundException | SecurityException e ) {
-      fail( "the file with properties should be unallocated" );
+    } catch (FileNotFoundException | SecurityException e) {
+      fail("the file with properties should be unallocated");
     } finally {
-      if ( fos != null ) {
+      if (fos != null) {
         fos.close();
       }
     }
