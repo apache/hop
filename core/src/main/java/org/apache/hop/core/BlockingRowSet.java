@@ -73,9 +73,7 @@ public class BlockingRowSet extends BaseRowSet implements Comparable<IRowSet>, I
     try {
 
       return queArray.offer( rowData, time, tu );
-    } catch ( InterruptedException e ) {
-      return false;
-    } catch ( NullPointerException e ) {
+    } catch ( InterruptedException | NullPointerException e ) {
       return false;
     }
 
