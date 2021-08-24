@@ -31,12 +31,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 
 import java.util.List;
 
-/**
- * Action type to abort a workflow.
- *
- * @author Samatar
- * @since 12-02-2007
- */
+/** Action type to abort a workflow. */
 @Action(
     id = "ABORT",
     name = "i18n::ActionAbort.Name",
@@ -47,7 +42,8 @@ import java.util.List;
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAbort.class; // For Translator
 
-  @HopMetadataProperty private String messageAbort;
+  @HopMetadataProperty(key = "message")
+  private String messageAbort;
 
   public ActionAbort(String name, String description) {
     super(name, description);
@@ -63,6 +59,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
     this.messageAbort = other.messageAbort;
   }
 
+  @Override
   public Object clone() {
     return new ActionAbort(this);
   }
