@@ -30,9 +30,11 @@ under the License.
 
 The 2 main things that define a project are its name and its home folder.
 Projects and environments as such are defined in the central Hop configuration file `hop-config.json`.
-By default this file lives in the `config/` folder of your Hop client distribution.  You can change that folder by setting the `HOP_CONFIG_FOLDER` environment variable on your system.
+By default this file lives in the `config/` folder of your Hop client distribution.
+You can change that folder by setting the `HOP_CONFIG_FOLDER` environment variable on your system.
 
-In `hop-config.json`, you'll find a `"projectsConfig"` section. By default it contains the following:
+In `hop-config.json`, you'll find a `"projectsConfig"` section.
+By default it contains the following:
 
 [source,json]
 ----
@@ -83,7 +85,8 @@ Let's take a look at it:
 
 ==== Variables
 
-You can define variables on a project level as well.  This makes it handy to reference things like input and output folders which are not sensitive to being checked into version control.
+You can define variables on a project level as well.
+This makes it handy to reference things like input and output folders which are not sensitive to being checked into version control.
 
 ==== Parent projects
 
@@ -91,7 +94,9 @@ As you can see from the project configuration file (`parentProjectName`), a proj
 
 === Environment configuration
 
-Hop enviroments and their home folders are stored in the hop configuration file 'hop-config.json'. That file lives by default in the *config* folder of the Hop installation. System property `HOP_CONFIG_FOLDER` can also be used to point to a different folder
+Hop enviroments and their home folders are stored in the hop configuration file 'hop-config.json'.
+That file lives by default in the *config* folder of the Hop installation.
+System property `HOP_CONFIG_FOLDER` can also be used to point to a different folder
 
 [source,json]
 {
@@ -108,7 +113,6 @@ Hop enviroments and their home folders are stored in the hop configuration file 
    "Project 2 - PRD" : "/projects/two/prd/",
   }
 }
-
 
 == Command Line Project Configuration
 

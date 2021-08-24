@@ -20,8 +20,8 @@ package org.apache.hop.www;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,11 +40,9 @@ import java.io.StringWriter;
 import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith( PowerMockRunner.class )
+@RunWith(PowerMockRunner.class)
 public class RemovePipelineServletTest {
   private PipelineMap mockPipelineMap;
 
@@ -52,57 +50,61 @@ public class RemovePipelineServletTest {
 
   @Before
   public void setup() {
-    mockPipelineMap = mock( PipelineMap.class );
-    removePipelineServlet = new RemovePipelineServlet( mockPipelineMap );
+    mockPipelineMap = mock(PipelineMap.class);
+    removePipelineServlet = new RemovePipelineServlet(mockPipelineMap);
   }
 
   @Test
-  @PrepareForTest( { Encode.class } )
-  public void testRemovePipelineServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
+  @PrepareForTest({Encode.class})
+  public void testRemovePipelineServletEscapesHtmlWhenPipelineNotFound()
+      throws ServletException, IOException {
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
 
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy( Encode.class );
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( RemovePipelineServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
+    PowerMockito.spy(Encode.class);
+    when(mockHttpServletRequest.getContextPath()).thenReturn(RemovePipelineServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
 
-    removePipelineServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H1", out.toString() ) ) );
+    removePipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic( atLeastOnce() );
-    Encode.forHtml( anyString() );
+    PowerMockito.verifyStatic(atLeastOnce());
+    Encode.forHtml(anyString());
   }
 
   @Test
-  @PrepareForTest( { Encode.class } )
-  public void testRemovePipelineServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
+  @PrepareForTest({Encode.class})
+  public void testRemovePipelineServletEscapesHtmlWhenPipelineFound()
+      throws ServletException, IOException {
     HopLogStore.init();
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    Pipeline mockPipeline = mock( Pipeline.class );
-    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    ILogChannel mockChannelInterface = mock( ILogChannel.class );
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
+    Pipeline mockPipeline = mock(Pipeline.class);
+    PipelineMeta mockPipelineMeta = mock(PipelineMeta.class);
+    ILogChannel mockChannelInterface = mock(ILogChannel.class);
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy( Encode.class );
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( RemovePipelineServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockPipelineMap.getPipeline( any( HopServerObjectEntry.class ) ) ).thenReturn( mockPipeline );
-    when( mockPipeline.getLogChannel() ).thenReturn( mockChannelInterface );
-    when( mockPipeline.getLogChannelId() ).thenReturn( "test" );
-    when( mockPipeline.getPipelineMeta() ).thenReturn( mockPipelineMeta );
-    when( mockPipelineMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
+    PowerMockito.spy(Encode.class);
+    when(mockHttpServletRequest.getContextPath()).thenReturn(RemovePipelineServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
+    when(mockPipelineMap.getPipeline(any(HopServerObjectEntry.class))).thenReturn(mockPipeline);
+    when(mockPipeline.getLogChannel()).thenReturn(mockChannelInterface);
+    when(mockPipeline.getLogChannelId()).thenReturn("test");
+    when(mockPipeline.getPipelineMeta()).thenReturn(mockPipelineMeta);
+    when(mockPipelineMeta.getMaximum()).thenReturn(new Point(10, 10));
 
-    removePipelineServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H3", out.toString() ) ) );
+    removePipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H3", out.toString())));
 
-    PowerMockito.verifyStatic( atLeastOnce() );
-    Encode.forHtml( anyString() );
+    PowerMockito.verifyStatic(atLeastOnce());
+    Encode.forHtml(anyString());
   }
 }

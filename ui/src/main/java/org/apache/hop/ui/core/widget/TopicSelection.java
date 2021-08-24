@@ -18,7 +18,6 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
@@ -55,8 +54,8 @@ public class TopicSelection extends Composite {
   private TextVar wTopicText;
   private ComboVar wTopicField;
 
-  private TopicSelection( final Builder builder ) {
-    super( builder.composite, builder.style );
+  private TopicSelection(final Builder builder) {
+    super(builder.composite, builder.style);
     this.props = builder.props;
     this.variables = builder.variables;
     this.transformMeta = builder.transformMeta;
@@ -73,99 +72,101 @@ public class TopicSelection extends Composite {
 
   private void layoutUI() {
     FormLayout topicSelectionLayout = new FormLayout();
-    this.setLayout( topicSelectionLayout );
+    this.setLayout(topicSelectionLayout);
 
-    wTopicGroup = new Group( this, SWT.SHADOW_ETCHED_IN );
-    props.setLook( wTopicGroup );
-    wTopicGroup.setText( topicGroupLabel );
+    wTopicGroup = new Group(this, SWT.SHADOW_ETCHED_IN);
+    props.setLook(wTopicGroup);
+    wTopicGroup.setText(topicGroupLabel);
 
     FormLayout topicGroupLayout = new FormLayout();
     topicGroupLayout.marginHeight = 15;
     topicGroupLayout.marginWidth = 15;
-    wTopicGroup.setLayout( topicGroupLayout );
+    wTopicGroup.setLayout(topicGroupLayout);
 
     FormData fdTopicGroup = new FormData();
-    fdTopicGroup.left = new FormAttachment( 0, 0 );
-    fdTopicGroup.top = new FormAttachment( 0, 10 );
-    fdTopicGroup.right = new FormAttachment( 100, 0 );
-    fdTopicGroup.bottom = new FormAttachment( 100, 0 );
-    wTopicGroup.setLayoutData( fdTopicGroup );
+    fdTopicGroup.left = new FormAttachment(0, 0);
+    fdTopicGroup.top = new FormAttachment(0, 10);
+    fdTopicGroup.right = new FormAttachment(100, 0);
+    fdTopicGroup.bottom = new FormAttachment(100, 0);
+    wTopicGroup.setLayoutData(fdTopicGroup);
 
-    wTopicFromText = new Button( wTopicGroup, SWT.RADIO );
-    wTopicFromField = new Button( wTopicGroup, SWT.RADIO );
-    props.setLook( wTopicFromText );
-    props.setLook( wTopicFromField );
+    wTopicFromText = new Button(wTopicGroup, SWT.RADIO);
+    wTopicFromField = new Button(wTopicGroup, SWT.RADIO);
+    props.setLook(wTopicFromText);
+    props.setLook(wTopicFromField);
 
-    SelectionAdapter selectionListener = new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        super.widgetSelected( selectionEvent );
-        setTopicWidgetVisibility( wTopicFromField );
-      }
-    };
+    SelectionAdapter selectionListener =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent selectionEvent) {
+            super.widgetSelected(selectionEvent);
+            setTopicWidgetVisibility(wTopicFromField);
+          }
+        };
 
-    wTopicFromField.addSelectionListener( selectionListener );
-    wTopicFromText.addSelectionListener( selectionListener );
+    wTopicFromField.addSelectionListener(selectionListener);
+    wTopicFromText.addSelectionListener(selectionListener);
 
-    wTopicFromField.setSelection( topicInField );
-    wTopicFromText.setSelection( !topicInField );
+    wTopicFromField.setSelection(topicInField);
+    wTopicFromText.setSelection(!topicInField);
 
-    wTopicFromText.setText( textTopicRadioLabel );
-    wTopicFromField.setText( fieldTopicRadioLabel );
+    wTopicFromText.setText(textTopicRadioLabel);
+    wTopicFromField.setText(fieldTopicRadioLabel);
 
     FormData specifyTopicLayout = new FormData();
-    specifyTopicLayout.left = new FormAttachment( 0, 0 );
-    specifyTopicLayout.top = new FormAttachment( 0, 0 );
-    wTopicFromText.setLayoutData( specifyTopicLayout );
+    specifyTopicLayout.left = new FormAttachment(0, 0);
+    specifyTopicLayout.top = new FormAttachment(0, 0);
+    wTopicFromText.setLayoutData(specifyTopicLayout);
 
     FormData fdTopicComesFromField = new FormData();
-    fdTopicComesFromField.left = new FormAttachment( 0, 0 );
-    fdTopicComesFromField.top = new FormAttachment( wTopicFromText, 5 );
+    fdTopicComesFromField.left = new FormAttachment(0, 0);
+    fdTopicComesFromField.top = new FormAttachment(wTopicFromText, 5);
 
-    wTopicFromField.setLayoutData( fdTopicComesFromField );
-    wTopicFromField.addSelectionListener( selectionListener );
-    wTopicFromText.addSelectionListener( selectionListener );
+    wTopicFromField.setLayoutData(fdTopicComesFromField);
+    wTopicFromField.addSelectionListener(selectionListener);
+    wTopicFromText.addSelectionListener(selectionListener);
 
-    Label separator = new Label( wTopicGroup, SWT.SEPARATOR | SWT.VERTICAL );
+    Label separator = new Label(wTopicGroup, SWT.SEPARATOR | SWT.VERTICAL);
     FormData fdSeparator = new FormData();
-    fdSeparator.top = new FormAttachment( 0, 0 );
-    fdSeparator.left = new FormAttachment( wTopicFromField, 15 );
-    fdSeparator.bottom = new FormAttachment( 100, 0 );
-    separator.setLayoutData( fdSeparator );
+    fdSeparator.top = new FormAttachment(0, 0);
+    fdSeparator.left = new FormAttachment(wTopicFromField, 15);
+    fdSeparator.bottom = new FormAttachment(100, 0);
+    separator.setLayoutData(fdSeparator);
 
     FormData fdTopicEntry = new FormData();
-    fdTopicEntry.top = new FormAttachment( 0, 0 );
-    fdTopicEntry.left = new FormAttachment( separator, 15 );
-    fdTopicEntry.right = new FormAttachment( 100, 0 );
+    fdTopicEntry.top = new FormAttachment(0, 0);
+    fdTopicEntry.left = new FormAttachment(separator, 15);
+    fdTopicEntry.right = new FormAttachment(100, 0);
 
-    wlTopic = new Label( wTopicGroup, SWT.LEFT );
-    wlTopic.setLayoutData( fdTopicEntry );
-    props.setLook( wlTopic );
+    wlTopic = new Label(wTopicGroup, SWT.LEFT);
+    wlTopic.setLayoutData(fdTopicEntry);
+    props.setLook(wlTopic);
 
     FormData formData = new FormData();
-    formData.top = new FormAttachment( wlTopic, 5 );
-    formData.left = new FormAttachment( separator, 15 );
-    formData.right = new FormAttachment( 100, 0 );
+    formData.top = new FormAttachment(wlTopic, 5);
+    formData.left = new FormAttachment(separator, 15);
+    formData.right = new FormAttachment(100, 0);
 
-    wTopicText = new TextVar( variables, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTopicField = createFieldDropDown( wTopicGroup, props, variables, transformMeta, formData );
-    wTopicText.setLayoutData( formData );
-    wTopicField.setLayoutData( formData );
+    wTopicText = new TextVar(variables, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTopicField = createFieldDropDown(wTopicGroup, props, variables, transformMeta, formData);
+    wTopicText.setLayoutData(formData);
+    wTopicField.setLayoutData(formData);
 
-    setTopicWidgetVisibility( wTopicFromField );
+    setTopicWidgetVisibility(wTopicFromField);
 
-    wTopicText.addModifyListener( lsMod );
-    wTopicField.addModifyListener( lsMod );
+    wTopicText.addModifyListener(lsMod);
+    wTopicField.addModifyListener(lsMod);
   }
 
-  private void setTopicWidgetVisibility( Button topicComesFromField ) {
-    transformMeta.setChanged( transformMeta.hasChanged() || topicInField != topicComesFromField.getSelection() );
-    wTopicField.setVisible( topicComesFromField.getSelection() );
-    wTopicText.setVisible( !topicComesFromField.getSelection() );
-    if ( topicComesFromField.getSelection() ) {
-      wlTopic.setText( fieldTopicLabel );
+  private void setTopicWidgetVisibility(Button topicComesFromField) {
+    transformMeta.setChanged(
+        transformMeta.hasChanged() || topicInField != topicComesFromField.getSelection());
+    wTopicField.setVisible(topicComesFromField.getSelection());
+    wTopicText.setVisible(!topicComesFromField.getSelection());
+    if (topicComesFromField.getSelection()) {
+      wlTopic.setText(fieldTopicLabel);
     } else {
-      wlTopic.setText( textTopicLabel );
+      wlTopic.setText(textTopicLabel);
     }
   }
 
@@ -177,43 +178,41 @@ public class TopicSelection extends Composite {
     return wTopicField.getText();
   }
 
-  public void setTopicFieldText( String selectedTopicFieldText ) {
-    this.wTopicField.setText( selectedTopicFieldText );
+  public void setTopicFieldText(String selectedTopicFieldText) {
+    this.wTopicField.setText(selectedTopicFieldText);
   }
 
-  public void setTopicText( String topicText ) {
-    wTopicText.setText( topicText );
+  public void setTopicText(String topicText) {
+    wTopicText.setText(topicText);
   }
 
-  public void setTopicInField( boolean topicInField ) {
-    wTopicFromField.setSelection( topicInField );
-    wTopicFromText.setSelection( !topicInField );
+  public void setTopicInField(boolean topicInField) {
+    wTopicFromField.setSelection(topicInField);
+    wTopicFromText.setSelection(!topicInField);
 
-    setTopicWidgetVisibility( wTopicFromField );
+    setTopicWidgetVisibility(wTopicFromField);
   }
 
   public boolean isTopicInField() {
     return wTopicFromField.getSelection();
   }
 
-  public void setEnabled( boolean enabled ) {
-    wTopicGroup.setEnabled( enabled );
+  public void setEnabled(boolean enabled) {
+    wTopicGroup.setEnabled(enabled);
 
-    wTopicFromField.setEnabled( enabled );
-    wTopicFromText.setEnabled( enabled );
+    wTopicFromField.setEnabled(enabled);
+    wTopicFromText.setEnabled(enabled);
 
-    wlTopic.setEnabled( enabled );
+    wlTopic.setEnabled(enabled);
 
-    wTopicText.setEnabled( enabled );
-    wTopicText.setEditable( enabled );
+    wTopicText.setEnabled(enabled);
+    wTopicText.setEditable(enabled);
 
-    wTopicField.setEnabled( enabled );
-    wTopicField.setEditable( enabled );
+    wTopicField.setEnabled(enabled);
+    wTopicField.setEditable(enabled);
   }
 
-  /**
-   * Builder class for TopicSelection
-   */
+  /** Builder class for TopicSelection */
   public static final class Builder {
     private Composite composite;
     private int style;
@@ -228,68 +227,68 @@ public class TopicSelection extends Composite {
     private String textTopicRadioLabel;
     private String fieldTopicRadioLabel;
 
-    public Builder setComposite( Composite composite ) {
+    public Builder setComposite(Composite composite) {
       this.composite = composite;
       return this;
     }
 
-    public Builder setStyle( int style ) {
+    public Builder setStyle(int style) {
       this.style = style;
       return this;
     }
 
-    public Builder setProps( PropsUi props ) {
+    public Builder setProps(PropsUi props) {
       this.props = props;
       return this;
     }
 
-    public Builder setVariables( IVariables variables ) {
+    public Builder setVariables(IVariables variables) {
       this.variables = variables;
       return this;
     }
 
-    public Builder setTransformMeta( BaseTransformMeta transformMeta ) {
+    public Builder setTransformMeta(BaseTransformMeta transformMeta) {
       this.transformMeta = transformMeta;
       return this;
     }
 
-    public Builder setLsMod( ModifyListener lsMod ) {
+    public Builder setLsMod(ModifyListener lsMod) {
       this.lsMod = lsMod;
       return this;
     }
 
-    public Builder setTopicInField( boolean topicInField ) {
+    public Builder setTopicInField(boolean topicInField) {
       this.topicInField = topicInField;
       return this;
     }
 
-    public Builder setTopicGroupLabel( String topicGroupLabel ) {
+    public Builder setTopicGroupLabel(String topicGroupLabel) {
       this.topicGroupLabel = topicGroupLabel;
       return this;
     }
 
-    public Builder setFieldTopicLabel( String fieldTopicLabel ) {
+    public Builder setFieldTopicLabel(String fieldTopicLabel) {
       this.fieldTopicLabel = fieldTopicLabel;
       return this;
     }
 
-    public Builder setTextTopicLabel( String textTopicLabel ) {
+    public Builder setTextTopicLabel(String textTopicLabel) {
       this.textTopicLabel = textTopicLabel;
       return this;
     }
 
-    public Builder setTextTopicRadioLabel( String textTopicRadioLabel ) {
+    public Builder setTextTopicRadioLabel(String textTopicRadioLabel) {
       this.textTopicRadioLabel = textTopicRadioLabel;
       return this;
     }
 
-    public Builder setFieldTopicRadioLabel( String fieldTopicRadioLabel ) {
+    public Builder setFieldTopicRadioLabel(String fieldTopicRadioLabel) {
       this.fieldTopicRadioLabel = fieldTopicRadioLabel;
       return this;
     }
 
     public TopicSelection build() {
-      return new TopicSelection( this );
+      return new TopicSelection(this);
     }
   }
 }

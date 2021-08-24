@@ -34,20 +34,22 @@ If you're on Windows (tough luck), run `hop-run.bat`, on Mac and Linux, run `hop
 
 You'll see the option listed in a similar output to the one below:
 
-image::hop-run/hop-run-options.png[Hop Run - Options, align="left"]
+image::hop-run/hop-run-options.png[Hop Run - Options,align="left"]
 
 The available options are listed in more detail in the table below:
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Short|Extended|Description
-|e|environment|The name of the environment to use. Check the xref:projects/projects-environments.adoc[documentation on environments] for more details.
+|e|environment|The name of the environment to use.
+Check the xref:projects/projects-environments.adoc[documentation on environments] for more details.
 |f|file|The filename of the workflow or pipeline to run
 |h|help|Displays this help message and quits.
 |l|level|The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
 |o|printoptions|Print the used options
 |p|parameters|A comma separated list of PARAMETER=VALUE pairs
-|r|runconfig|The name of the Run Configuration to use. Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[documentation on run configurations] for more details.
+|r|runconfig|The name of the Run Configuration to use.
+Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[documentation on run configurations] for more details.
 |s|system-properties|A comma separated list of KEY=VALUE pairs
 |===
 

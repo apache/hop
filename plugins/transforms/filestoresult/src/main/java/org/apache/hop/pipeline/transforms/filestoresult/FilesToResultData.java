@@ -41,5 +41,4 @@ public class FilesToResultData extends BaseTransformData implements ITransformDa
 
     filenames = new ArrayList<>();
   }
-
 }

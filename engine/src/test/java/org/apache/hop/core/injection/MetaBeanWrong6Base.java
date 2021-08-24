@@ -18,6 +18,6 @@
 package org.apache.hop.core.injection;
 
 public class MetaBeanWrong6Base {
-  @Injection( name = "TWO", group = "TWO" )
+  @Injection(name = "TWO", group = "TWO")
   private String two;
 }

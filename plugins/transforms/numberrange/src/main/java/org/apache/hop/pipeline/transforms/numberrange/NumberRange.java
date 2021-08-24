@@ -23,82 +23,84 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Business logic for the NumberRange
- *
- */
-public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData> implements ITransform<NumberRangeMeta, NumberRangeData> {
+/** Business logic for the NumberRange */
+public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
+    implements ITransform<NumberRangeMeta, NumberRangeData> {
   private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
 
   private NumberRangeSet numberRange;
 
-  public NumberRange( TransformMeta transformMeta, NumberRangeMeta meta, NumberRangeData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public NumberRange(
+      TransformMeta transformMeta,
+      NumberRangeMeta meta,
+      NumberRangeData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  /**
-   * Column number where the input value is stored
-   */
-
+  /** Column number where the input value is stored */
   public boolean processRow() throws HopException {
     Object[] row = getRow();
-    if ( row == null ) {
+    if (row == null) {
       setOutputDone();
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
 
-      numberRange = new NumberRangeSet( meta.getRules(), meta.getFallBackValue() );
+      numberRange = new NumberRangeSet(meta.getRules(), meta.getFallBackValue());
       data.outputRowMeta = getInputRowMeta().clone();
       // Prepare output fields
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Find column numbers
-      data.inputColumnNr = data.outputRowMeta.indexOfValue( meta.getInputField() );
+      data.inputColumnNr = data.outputRowMeta.indexOfValue(meta.getInputField());
 
       // Check if a field was not available
-      if ( data.inputColumnNr < 0 ) {
-        logError( "Field for input could not be found: " + meta.getInputField() );
+      if (data.inputColumnNr < 0) {
+        logError("Field for input could not be found: " + meta.getInputField());
         return false;
       }
     }
     try {
       // get field value
-      Double value = getInputRowMeta().getNumber( row, data.inputColumnNr );
+      Double value = getInputRowMeta().getNumber(row, data.inputColumnNr);
 
       // return range
-      String ranges = numberRange.evaluate( value );
+      String ranges = numberRange.evaluate(value);
       // add value to output
-      row = RowDataUtil.addRowData( row, getInputRowMeta().size(), new Object[] { ranges } );
-      putRow( data.outputRowMeta, row );
-      if ( checkFeedback( getLinesRead() ) ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "NumberRange.Log.LineNumber" ) + getLinesRead() );
+      row = RowDataUtil.addRowData(row, getInputRowMeta().size(), new Object[] {ranges});
+      putRow(data.outputRowMeta, row);
+      if (checkFeedback(getLinesRead())) {
+        if (log.isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "NumberRange.Log.LineNumber") + getLinesRead());
         }
       }
-    } catch ( HopException e ) {
+    } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;
 
-      if ( getTransformMeta().isDoingErrorHandling() ) {
+      if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError( BaseMessages.getString( PKG, "NumberRange.Log.ErrorInTransformRunning" ) + e.getMessage() );
-        setErrors( 1 );
+        logError(
+            BaseMessages.getString(PKG, "NumberRange.Log.ErrorInTransformRunning")
+                + e.getMessage());
+        setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if ( sendToErrorRow ) {
+      if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError( getInputRowMeta(), row, 1, errorMessage, null, "NumberRange001" );
+        putError(getInputRowMeta(), row, 1, errorMessage, null, "NumberRange001");
       }
     }
 
@@ -112,5 +114,4 @@ public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
   public void dispose() {
     super.dispose();
   }
-
 }

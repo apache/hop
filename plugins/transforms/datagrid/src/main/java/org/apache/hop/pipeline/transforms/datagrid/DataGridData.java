@@ -35,5 +35,4 @@ public class DataGridData extends BaseTransformData implements ITransformData {
   public DataGridData() {
     super();
   }
-
 }

@@ -28,22 +28,23 @@ public class SourceTransformField {
    * @param transformName
    * @param field
    */
-  public SourceTransformField(String transformName, String field ) {
+  public SourceTransformField(String transformName, String field) {
     this.transformName = transformName;
     this.field = field;
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( !( obj instanceof SourceTransformField) ) {
+  public boolean equals(Object obj) {
+    if (!(obj instanceof SourceTransformField)) {
       return false;
     }
-    if ( obj == this ) {
+    if (obj == this) {
       return true;
     }
 
     SourceTransformField source = (SourceTransformField) obj;
-    return transformName.equalsIgnoreCase( source.getTransformName() ) && field.equals( source.getField() );
+    return transformName.equalsIgnoreCase(source.getTransformName())
+        && field.equals(source.getField());
   }
 
   @Override
@@ -52,34 +53,23 @@ public class SourceTransformField {
     return Objects.hash(transformName, field);
   }
 
-  /**
-   * @return the transform name
-   */
+  /** @return the transform name */
   public String getTransformName() {
     return transformName;
   }
 
-  /**
-   * @param transformName
-   *          the transform name to set
-   */
-  public void setTransformName(String transformName ) {
+  /** @param transformName the transform name to set */
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
-  /**
-   * @return the field
-   */
+  /** @return the field */
   public String getField() {
     return field;
   }
 
-  /**
-   * @param field
-   *          the field to set
-   */
-  public void setField( String field ) {
+  /** @param field the field to set */
+  public void setField(String field) {
     this.field = field;
   }
-
 }

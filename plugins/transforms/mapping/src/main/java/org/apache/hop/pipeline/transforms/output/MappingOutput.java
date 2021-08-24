@@ -31,20 +31,24 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class MappingOutput
-  extends BaseTransform<MappingOutputMeta, MappingOutputData>
-  implements ITransform<MappingOutputMeta, MappingOutputData> {
+public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData>
+    implements ITransform<MappingOutputMeta, MappingOutputData> {
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
-  public MappingOutput( TransformMeta transformMeta, MappingOutputMeta meta, MappingOutputData data, int copyNr, PipelineMeta pipelineMeta,
-                        Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public MappingOutput(
+      TransformMeta transformMeta,
+      MappingOutputMeta meta,
+      MappingOutputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
-    if ( r == null ) {
+    if (r == null) {
       // No more input to be expected... Tell the next transforms.
       //
       setOutputDone();
@@ -54,13 +58,12 @@ public class MappingOutput
     // Copy row to possible alternate rowset(s).
     // Rowsets where added for all the possible targets in the setter for data.targetTransforms...
     //
-    putRow( getInputRowMeta(), r );
+    putRow(getInputRowMeta(), r);
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "MappingOutput.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      logBasic(BaseMessages.getString(PKG, "MappingOutput.Log.LineNumber") + getLinesRead());
     }
 
     return true;
   }
-
 }

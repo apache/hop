@@ -25,7 +25,8 @@ public class HopGuiDirectorySelectedExtension {
   public IVariables variables;
   public String folderName;
 
-  public HopGuiDirectorySelectedExtension( IDirectoryDialog directoryDialog, IVariables variables, String folderName ) {
+  public HopGuiDirectorySelectedExtension(
+      IDirectoryDialog directoryDialog, IVariables variables, String folderName) {
     this.directoryDialog = directoryDialog;
     this.variables = variables;
     this.folderName = folderName;
@@ -40,10 +41,8 @@ public class HopGuiDirectorySelectedExtension {
     return directoryDialog;
   }
 
-  /**
-   * @param directoryDialog The directoryDialog to set
-   */
-  public void setDirectoryDialog( IDirectoryDialog directoryDialog ) {
+  /** @param directoryDialog The directoryDialog to set */
+  public void setDirectoryDialog(IDirectoryDialog directoryDialog) {
     this.directoryDialog = directoryDialog;
   }
 
@@ -56,10 +55,8 @@ public class HopGuiDirectorySelectedExtension {
     return variables;
   }
 
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables( IVariables variables ) {
+  /** @param variables The variables to set */
+  public void setVariables(IVariables variables) {
     this.variables = variables;
   }
 
@@ -72,10 +69,8 @@ public class HopGuiDirectorySelectedExtension {
     return folderName;
   }
 
-  /**
-   * @param folderName The folderName to set
-   */
-  public void setFolderName( String folderName ) {
+  /** @param folderName The folderName to set */
+  public void setFolderName(String folderName) {
     this.folderName = folderName;
   }
 }

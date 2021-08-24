@@ -57,13 +57,13 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
         metadataProvider.getSerializer(WorkflowLog.class);
     List<WorkflowLog> workflowLogs = serializer.loadAll();
 
-    for ( WorkflowLog workflowLog : workflowLogs) {
+    for (WorkflowLog workflowLog : workflowLogs) {
       handleWorkflowLog(log, workflowLog, workflow, variables);
     }
   }
 
   private void handleWorkflowLog(
-    final ILogChannel log,
+      final ILogChannel log,
       final WorkflowLog workflowLog,
       final IWorkflowEngine<WorkflowMeta> workflow,
       final IVariables variables)
@@ -72,14 +72,14 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
 
       // See if we need to do anything at all...
       //
-      if (!workflowLog.isEnabled() ) {
+      if (!workflowLog.isEnabled()) {
         return;
       }
 
       // If we log parent (root) workflows only we don't want a parent
       //
       if (workflowLog.isLoggingParentsOnly()) {
-        if (workflow.getParentPipeline()!=null || workflow.getParentWorkflow()!=null) {
+        if (workflow.getParentPipeline() != null || workflow.getParentWorkflow() != null) {
           return;
         }
       }
@@ -89,9 +89,12 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
       final String loggingPipelineFilename = variables.resolve(workflowLog.getPipelineFilename());
 
       // See if the file exists...
-      FileObject loggingFileObject = HopVfs.getFileObject( loggingPipelineFilename );
+      FileObject loggingFileObject = HopVfs.getFileObject(loggingPipelineFilename);
       if (!loggingFileObject.exists()) {
-        log.logBasic( "WARNING: The Workflow Log pipeline file '"+loggingPipelineFilename+"' couldn't be found to execute." );
+        log.logBasic(
+            "WARNING: The Workflow Log pipeline file '"
+                + loggingPipelineFilename
+                + "' couldn't be found to execute.");
         return;
       }
 
@@ -104,7 +107,8 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
       if (workflowLog.isExecutingAtEnd()) {
         workflow.addWorkflowFinishedListener(
             engine -> {
-              executeLoggingPipeline(workflowLog, "end", loggingPipelineFilename, workflow, variables);
+              executeLoggingPipeline(
+                  workflowLog, "end", loggingPipelineFilename, workflow, variables);
               timer.cancel();
             });
       }
@@ -118,7 +122,8 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
                 @Override
                 public void run() {
                   try {
-                    executeLoggingPipeline(workflowLog, "interval", loggingPipelineFilename, workflow, variables);
+                    executeLoggingPipeline(
+                        workflowLog, "interval", loggingPipelineFilename, workflow, variables);
                   } catch (Exception e) {
                     throw new RuntimeException(
                         "Unable to do interval logging for Workflow Log object '"
@@ -144,7 +149,11 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
   }
 
   private synchronized void executeLoggingPipeline(
-    WorkflowLog pipelineLog, String loggingPhase, String loggingPipelineFilename, IWorkflowEngine<WorkflowMeta> workflow, IVariables variables)
+      WorkflowLog pipelineLog,
+      String loggingPhase,
+      String loggingPipelineFilename,
+      IWorkflowEngine<WorkflowMeta> workflow,
+      IVariables variables)
       throws HopException {
 
     PipelineMeta loggingPipelineMeta =
@@ -153,15 +162,14 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
     // Create a local pipeline engine...
     //
     LocalPipelineEngine loggingPipeline =
-        new LocalPipelineEngine(
-            loggingPipelineMeta, variables, workflow);
+        new LocalPipelineEngine(loggingPipelineMeta, variables, workflow);
 
     // Flag it as a logging pipeline so we don't log ourselves...
     //
-    loggingPipeline.getExtensionDataMap().put( PipelineStartLoggingXp.PIPELINE_LOGGING_FLAG, "Y");
+    loggingPipeline.getExtensionDataMap().put(PipelineStartLoggingXp.PIPELINE_LOGGING_FLAG, "Y");
 
     // Only log errors
-    loggingPipeline.setLogLevel( LogLevel.ERROR );
+    loggingPipeline.setLogLevel(LogLevel.ERROR);
     loggingPipeline.prepareExecution();
 
     // Grab the WorkflowLogging transforms and inject the pipeline information...
@@ -171,7 +179,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
         WorkflowLogging workflowLogging = (WorkflowLogging) combi.transform;
 
         workflowLogging.setLoggingWorkflow(workflow);
-        workflowLogging.setLoggingPhase( loggingPhase );
+        workflowLogging.setLoggingPhase(loggingPhase);
       }
     }
 

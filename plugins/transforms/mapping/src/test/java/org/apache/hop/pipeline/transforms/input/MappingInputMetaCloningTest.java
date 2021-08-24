@@ -25,11 +25,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.NonZeroIntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,9 +37,7 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class MappingInputMetaCloningTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -52,65 +46,77 @@ public class MappingInputMetaCloningTest {
   @Test
   public void clonesCorrectly() throws Exception {
     MappingInputMeta meta = new MappingInputMeta();
-    meta.setFieldName( new String[] { "f1", "f2" } );
-    meta.setFieldType( new int[] { IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING } );
-    meta.setFieldLength( new int[] { 1, 2 } );
-    meta.setFieldPrecision( new int[] { 3, 4 } );
+    meta.setFieldName(new String[] {"f1", "f2"});
+    meta.setFieldType(new int[] {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_STRING});
+    meta.setFieldLength(new int[] {1, 2});
+    meta.setFieldPrecision(new int[] {3, 4});
     meta.setChanged();
 
     Object clone = meta.clone();
-    if ( !EqualsBuilder.reflectionEquals( meta, clone ) ) {
-      String template = ""
-        + "clone() is expected to handle all values.\n"
-        + "\tOriginal object:\n"
-        + "%s\n"
-        + "\tCloned object:\n"
-        + "%s";
-      fail( String.format( template, ToStringBuilder.reflectionToString( meta ),
-        ToStringBuilder.reflectionToString( clone ) ) );
+    if (!EqualsBuilder.reflectionEquals(meta, clone)) {
+      String template =
+          ""
+              + "clone() is expected to handle all values.\n"
+              + "\tOriginal object:\n"
+              + "%s\n"
+              + "\tCloned object:\n"
+              + "%s";
+      fail(
+          String.format(
+              template,
+              ToStringBuilder.reflectionToString(meta),
+              ToStringBuilder.reflectionToString(clone)));
     }
   }
 
   @Before
   public void setUp() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "fieldName", "fieldType", "fieldLength",
-        "fieldPrecision" );
+        Arrays.asList("fieldName", "fieldType", "fieldLength", "fieldPrecision");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "fieldName", "getFieldName" );
-        put( "fieldType", "getFieldType" );
-        put( "fieldLength", "getFieldLength" );
-        put( "fieldPrecision", "getFieldPrecision" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("fieldName", "getFieldName");
+            put("fieldType", "getFieldType");
+            put("fieldLength", "getFieldLength");
+            put("fieldPrecision", "getFieldPrecision");
+          }
+        };
 
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "fieldName", "setFieldName" );
-        put( "fieldType", "setFieldType" );
-        put( "fieldLength", "setFieldLength" );
-        put( "fieldPrecision", "setFieldPrecision" );
-      }
-    };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator = new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("fieldName", "setFieldName");
+            put("fieldType", "setFieldType");
+            put("fieldLength", "setFieldLength");
+            put("fieldPrecision", "setFieldPrecision");
+          }
+        };
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
+    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    typeValidatorMap.put( int[].class.getCanonicalName(),
-      new PrimitiveIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator( 6 ), 5 ) );
+    typeValidatorMap.put(
+        int[].class.getCanonicalName(),
+        new PrimitiveIntArrayLoadSaveValidator(new NonZeroIntLoadSaveValidator(6), 5));
 
-    loadSaveTester = new LoadSaveTester<>( MappingInputMeta.class, attributes, getterMap,
-      setterMap, attrValidatorMap, typeValidatorMap );
+    loadSaveTester =
+        new LoadSaveTester<>(
+            MappingInputMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap);
   }
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }

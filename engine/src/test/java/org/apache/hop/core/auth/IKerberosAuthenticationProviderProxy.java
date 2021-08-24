@@ -21,27 +21,27 @@ public interface IKerberosAuthenticationProviderProxy {
 
   String getPrincipal();
 
-  void setPrincipal( String principal );
+  void setPrincipal(String principal);
 
   boolean isUseExternalCredentials();
 
-  void setUseExternalCredentials( boolean useExternalCredentials );
+  void setUseExternalCredentials(boolean useExternalCredentials);
 
   String getPassword();
 
-  void setPassword( String password );
+  void setPassword(String password);
 
   boolean isUseKeytab();
 
-  void setUseKeytab( boolean useKeytab );
+  void setUseKeytab(boolean useKeytab);
 
   String getKeytabLocation();
 
-  void setKeytabLocation( String keytabLocation );
+  void setKeytabLocation(String keytabLocation);
 
   String getDisplayName();
 
   String getId();
 
-  void setId( String id );
+  void setId(String id);
 }

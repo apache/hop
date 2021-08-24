@@ -53,7 +53,6 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
 
   private static final String DEFAULT_SCALE_TIME = "seconds";
 
-
   private static final String[] SCALE_TIME_CODE = {"milliseconds", "seconds", "minutes", "hours"};
 
   public DelayMeta() {
@@ -80,7 +79,6 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
   public void setTimeout(String timeout) {
     this.timeout = timeout;
   }
-
 
   public void setScaleTimeCode(int scaleTimeIndex) {
     switch (scaleTimeIndex) {
@@ -135,7 +133,7 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    //Not needed for this Transform
+    // Not needed for this Transform
   }
 
   @Override

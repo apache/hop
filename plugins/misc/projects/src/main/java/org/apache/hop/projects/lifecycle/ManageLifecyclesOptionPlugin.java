@@ -43,159 +43,163 @@ TODO: Re-enable when we have usage for it
 public class ManageLifecyclesOptionPlugin implements IConfigOptions {
 
   @CommandLine.Option(
-    names = { "-lc", "--lifecycle-create" },
-    description = "Create a new project lifecycle. You need so specify a name and one or more lifecycle environments and configuration files."
-  )
+      names = {"-lc", "--lifecycle-create"},
+      description =
+          "Create a new project lifecycle. You need so specify a name and one or more lifecycle environments and configuration files.")
   private boolean createLifecycle;
 
   @CommandLine.Option(
-    names = { "-l", "--lifecycle" },
-    description = "The name of the lifecycle to manage"
-  )
+      names = {"-l", "--lifecycle"},
+      description = "The name of the lifecycle to manage")
   private String lifecycleName;
 
   @CommandLine.Option(
-    names = { "-le", "--lifecycle-environments" },
-    description = "The names of the lifecycle environments, comma separated",
-    split = ","
-  )
+      names = {"-le", "--lifecycle-environments"},
+      description = "The names of the lifecycle environments, comma separated",
+      split = ",")
   private String[] lifecycleEnvironments;
 
   @CommandLine.Option(
-    names = { "-cf", "--config-files" },
-    description = "The file names of the lifecycle configuration files, comma separated",
-    split = ","
-  )
+      names = {"-cf", "--config-files"},
+      description = "The file names of the lifecycle configuration files, comma separated",
+      split = ",")
   private String[] configFilenames;
 
-  @CommandLine.Option( names = { "-lm", "--lifecycle-modify" }, description = "Modify a lifecycle" )
+  @CommandLine.Option(
+      names = {"-lm", "--lifecycle-modify"},
+      description = "Modify a lifecycle")
   private boolean modifyLifecycle;
 
-  @CommandLine.Option( names = { "-ld", "--lifecycle-delete" }, description = "Delete a lifecycle" )
+  @CommandLine.Option(
+      names = {"-ld", "--lifecycle-delete"},
+      description = "Delete a lifecycle")
   private boolean deleteLifecycle;
 
-  @CommandLine.Option( names = { "-ll", "-lifecycles-list" }, description = "List the defined lifecycles" )
+  @CommandLine.Option(
+      names = {"-ll", "-lifecycles-list"},
+      description = "List the defined lifecycles")
   private boolean listLifecycles;
 
-
-  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
+  @Override
+  public boolean handleOption(
+      ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
+      throws HopException {
     try {
       boolean changed = false;
-      if ( createLifecycle ) {
-        createLifecycle( log );
+      if (createLifecycle) {
+        createLifecycle(log);
         changed = true;
-      } else if ( modifyLifecycle ) {
-        modifyLifecycle( log );
+      } else if (modifyLifecycle) {
+        modifyLifecycle(log);
         changed = true;
-      } else if ( deleteLifecycle ) {
-        deleteLifecycle( log );
+      } else if (deleteLifecycle) {
+        deleteLifecycle(log);
         changed = true;
-      } else if ( listLifecycles ) {
-        listLifecycles( log );
+      } else if (listLifecycles) {
+        listLifecycles(log);
         changed = true;
       }
       return changed;
-    } catch ( Exception e ) {
-      throw new HopException( "Error handling lifecycle configuration options", e );
+    } catch (Exception e) {
+      throw new HopException("Error handling lifecycle configuration options", e);
     }
-
   }
 
-  private void listLifecycles( ILogChannel log ) throws HopException {
+  private void listLifecycles(ILogChannel log) throws HopException {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
-    log.logBasic( "Project lifecycles:" );
+    log.logBasic("Project lifecycles:");
     List<String> names = config.listLifecycleNames();
-    for ( String name : names ) {
-      ProjectLifecycle lifecycle = config.findLifecycle( name );
+    for (String name : names) {
+      ProjectLifecycle lifecycle = config.findLifecycle(name);
       logLifecycleDetails(log, lifecycle);
     }
   }
 
-  private void logLifecycleDetails( ILogChannel log, ProjectLifecycle lifecycle ) {
-    log.logBasic( "  Name : " + lifecycle.getName() );
-    log.logBasic( "    Project lifecycle environments:" );
+  private void logLifecycleDetails(ILogChannel log, ProjectLifecycle lifecycle) {
+    log.logBasic("  Name : " + lifecycle.getName());
+    log.logBasic("    Project lifecycle environments:");
     for (String environmentName : lifecycle.getLifecycleEnvironments()) {
-      log.logBasic( "      " +environmentName );
+      log.logBasic("      " + environmentName);
     }
-    log.logBasic( "    Configuration files:" );
+    log.logBasic("    Configuration files:");
     for (String configurationFile : lifecycle.getConfigurationFiles()) {
-      log.logBasic( "      " +configurationFile );
+      log.logBasic("      " + configurationFile);
     }
   }
 
-  private void deleteLifecycle( ILogChannel log  ) throws Exception {
+  private void deleteLifecycle(ILogChannel log) throws Exception {
     validateLifecycleNameSpecified();
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     validateLifecycleNameSpecified();
-    ProjectLifecycle lifecycle = config.findLifecycle( lifecycleName );
-    if (lifecycle==null ) {
-      throw new HopException( "Project lifecycle '" + lifecycleName + "' doesn't exists, it can't be deleted" );
+    ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
+    if (lifecycle == null) {
+      throw new HopException(
+          "Project lifecycle '" + lifecycleName + "' doesn't exists, it can't be deleted");
     }
 
-    config.removeLifecycle( lifecycleName );
+    config.removeLifecycle(lifecycleName);
 
     HopConfig.getInstance().saveToFile();
-    log.logBasic( "Project lifecycle '" + lifecycleName + "' was delete." );
+    log.logBasic("Project lifecycle '" + lifecycleName + "' was delete.");
   }
 
-  private void modifyLifecycle( ILogChannel log ) throws Exception {
+  private void modifyLifecycle(ILogChannel log) throws Exception {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     validateLifecycleNameSpecified();
-    ProjectLifecycle lifecycle = config.findLifecycle( lifecycleName );
-    if (lifecycle==null ) {
-      throw new HopException( "Project lifecycle '" + lifecycleName + "' doesn't exists, it can't be modified" );
+    ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
+    if (lifecycle == null) {
+      throw new HopException(
+          "Project lifecycle '" + lifecycleName + "' doesn't exists, it can't be modified");
     }
 
-    if (lifecycleEnvironments!=null) {
+    if (lifecycleEnvironments != null) {
       lifecycle.getLifecycleEnvironments().clear();
-      lifecycle.getLifecycleEnvironments().addAll( Arrays.asList(lifecycleEnvironments) );
+      lifecycle.getLifecycleEnvironments().addAll(Arrays.asList(lifecycleEnvironments));
     }
-    if (configFilenames!=null) {
+    if (configFilenames != null) {
       lifecycle.getConfigurationFiles().clear();
-      lifecycle.getConfigurationFiles().addAll( Arrays.asList(configFilenames) );
+      lifecycle.getConfigurationFiles().addAll(Arrays.asList(configFilenames));
     }
 
-    config.addLifecycle( lifecycle );
+    config.addLifecycle(lifecycle);
     HopConfig.getInstance().saveToFile();
-    log.logBasic( "Project lifecycle '" + lifecycleName + "' was modified." );
-    log.logBasic( "Details after changes:" );
-    logLifecycleDetails( log, lifecycle );
+    log.logBasic("Project lifecycle '" + lifecycleName + "' was modified.");
+    log.logBasic("Details after changes:");
+    logLifecycleDetails(log, lifecycle);
   }
 
-
-  private void createLifecycle( ILogChannel log ) throws Exception {
+  private void createLifecycle(ILogChannel log) throws Exception {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     validateLifecycleNameSpecified();
 
-    log.logBasic( "Creating project lifecycle '" + lifecycleName + "'" );
-    ProjectLifecycle lifecycle = config.findLifecycle( lifecycleName );
-    if ( lifecycle!=null ) {
-      throw new HopException( "Project lifecycle '" + lifecycleName + "' already exists." );
+    log.logBasic("Creating project lifecycle '" + lifecycleName + "'");
+    ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
+    if (lifecycle != null) {
+      throw new HopException("Project lifecycle '" + lifecycleName + "' already exists.");
     }
 
     lifecycle = new ProjectLifecycle();
-    lifecycle.setName( lifecycleName );
-    if (lifecycleEnvironments!=null) {
-      lifecycle.getLifecycleEnvironments().addAll( Arrays.asList( lifecycleEnvironments ) );
+    lifecycle.setName(lifecycleName);
+    if (lifecycleEnvironments != null) {
+      lifecycle.getLifecycleEnvironments().addAll(Arrays.asList(lifecycleEnvironments));
     }
-    if (configFilenames!=null) {
-      lifecycle.getConfigurationFiles().addAll( Arrays.asList(configFilenames) );
+    if (configFilenames != null) {
+      lifecycle.getConfigurationFiles().addAll(Arrays.asList(configFilenames));
     }
 
-    config.addLifecycle( lifecycle );
+    config.addLifecycle(lifecycle);
     HopConfig.getInstance().saveToFile();
-    log.logBasic( "Project lifecycle '" + lifecycleName + "' was created." );
-    log.logBasic( "Details after creation:" );
-    logLifecycleDetails( log, lifecycle );
+    log.logBasic("Project lifecycle '" + lifecycleName + "' was created.");
+    log.logBasic("Details after creation:");
+    logLifecycleDetails(log, lifecycle);
   }
 
   private void validateLifecycleNameSpecified() throws Exception {
-    if ( StringUtil.isEmpty( lifecycleName ) ) {
-      throw new HopException( "Please specify the name of the lifecycle" );
+    if (StringUtil.isEmpty(lifecycleName)) {
+      throw new HopException("Please specify the name of the lifecycle");
     }
   }
 }
-

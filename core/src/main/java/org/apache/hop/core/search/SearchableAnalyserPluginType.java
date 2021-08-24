@@ -23,84 +23,83 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-@PluginMainClassType( ISearchableAnalyser.class )
-@PluginAnnotationType( SearchableAnalyserPlugin.class )
+@PluginMainClassType(ISearchableAnalyser.class)
+@PluginAnnotationType(SearchableAnalyserPlugin.class)
 public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnalyserPlugin> {
 
   private static SearchableAnalyserPluginType pluginType;
 
   private SearchableAnalyserPluginType() {
-    super( SearchableAnalyserPlugin.class, "SEARCH_ANALYSER", "SearchAnalyser" );
+    super(SearchableAnalyserPlugin.class, "SEARCH_ANALYSER", "SearchAnalyser");
   }
 
   public static SearchableAnalyserPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new SearchableAnalyserPluginType();
     }
     return pluginType;
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( SearchableAnalyserPlugin annotation ) {
+  protected String extractCategory(SearchableAnalyserPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractID( SearchableAnalyserPlugin annotation ) {
+  protected String extractID(SearchableAnalyserPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( SearchableAnalyserPlugin annotation ) {
+  protected String extractName(SearchableAnalyserPlugin annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractDesc( SearchableAnalyserPlugin annotation ) {
+  protected String extractDesc(SearchableAnalyserPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractImageFile( SearchableAnalyserPlugin annotation ) {
+  protected String extractImageFile(SearchableAnalyserPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( SearchableAnalyserPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(SearchableAnalyserPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, SearchableAnalyserPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, SearchableAnalyserPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( SearchableAnalyserPlugin annotation ) {
+  protected String extractDocumentationUrl(SearchableAnalyserPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( SearchableAnalyserPlugin annotation ) {
+  protected String extractCasesUrl(SearchableAnalyserPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( SearchableAnalyserPlugin annotation ) {
+  protected String extractForumUrl(SearchableAnalyserPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( SearchableAnalyserPlugin annotation ) {
+  protected String extractSuggestion(SearchableAnalyserPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( SearchableAnalyserPlugin annotation ) {
+  protected String extractClassLoaderGroup(SearchableAnalyserPlugin annotation) {
     return null;
   }
 }
-

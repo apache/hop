@@ -21,15 +21,9 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.text.DateFormatSymbols;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.zip.ZipOutputStream;
-
 import javax.xml.stream.XMLStreamWriter;
-
+import java.text.*;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Matt
@@ -70,9 +64,7 @@ public class XmlOutputData extends BaseTransformData implements ITransformData {
 
   public boolean OpenedNewFile;
 
-  /**
-   *
-   */
+  /** */
   public XmlOutputData() {
     super();
 
@@ -90,7 +82,5 @@ public class XmlOutputData extends BaseTransformData implements ITransformData {
     defaultDateFormatSymbols = new DateFormatSymbols();
 
     OpenedNewFile = false;
-
   }
-
 }

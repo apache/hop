@@ -20,5 +20,4 @@ package org.apache.hop.ui.core.widget;
 public interface ITextVarButtonRenderCallback {
 
   boolean shouldRenderButton();
-
 }

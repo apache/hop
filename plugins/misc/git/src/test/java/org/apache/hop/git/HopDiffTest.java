@@ -33,14 +33,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import static org.apache.hop.git.HopDiff.ADDED;
-import static org.apache.hop.git.HopDiff.ATTR_GIT;
-import static org.apache.hop.git.HopDiff.ATTR_STATUS;
-import static org.apache.hop.git.HopDiff.CHANGED;
-import static org.apache.hop.git.HopDiff.REMOVED;
-import static org.apache.hop.git.HopDiff.UNCHANGED;
-import static org.apache.hop.git.HopDiff.compareActions;
-import static org.apache.hop.git.HopDiff.compareTransforms;
+import static org.apache.hop.git.HopDiff.*;
 import static org.junit.Assert.assertEquals;
 
 public class HopDiffTest {
@@ -49,46 +42,48 @@ public class HopDiffTest {
 
   @Before
   public void setUp() throws HopException {
-    HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.OTHER );
+    HopClientEnvironment.getInstance().setClient(HopClientEnvironment.ClientType.OTHER);
     HopEnvironment.init();
     metadataProvider = new MemoryMetadataProvider();
   }
 
   @Test
   public void diffPipelineTest() throws Exception {
-    File file = new File( "src/test/resources/r1.hpl" );
-    InputStream xmlStream = new FileInputStream( file );
-    PipelineMeta pipelineMeta = new PipelineMeta( xmlStream, metadataProvider, true, Variables.getADefaultVariableSpace() );
-    //pipelineMeta.sortTransforms();
+    File file = new File("src/test/resources/r1.hpl");
+    InputStream xmlStream = new FileInputStream(file);
+    PipelineMeta pipelineMeta =
+        new PipelineMeta(xmlStream, metadataProvider, true, Variables.getADefaultVariableSpace());
+    // pipelineMeta.sortTransforms();
 
-    File file2 = new File( "src/test/resources/r2.hpl" );
-    InputStream xmlStream2 = new FileInputStream( file2 );
-    PipelineMeta pipelineMeta2 = new PipelineMeta( xmlStream2, metadataProvider, true, Variables.getADefaultVariableSpace() );
-    //pipelineMeta2.sortTransforms();
+    File file2 = new File("src/test/resources/r2.hpl");
+    InputStream xmlStream2 = new FileInputStream(file2);
+    PipelineMeta pipelineMeta2 =
+        new PipelineMeta(xmlStream2, metadataProvider, true, Variables.getADefaultVariableSpace());
+    // pipelineMeta2.sortTransforms();
 
-    pipelineMeta = compareTransforms( pipelineMeta, pipelineMeta2, true );
-    pipelineMeta2 = compareTransforms( pipelineMeta2, pipelineMeta, false );
-    assertEquals( UNCHANGED, pipelineMeta.getTransform( 0 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
-    assertEquals( CHANGED, pipelineMeta.getTransform( 1 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
-    assertEquals( REMOVED, pipelineMeta.getTransform( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
-    assertEquals( ADDED, pipelineMeta2.getTransform( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
+    pipelineMeta = compareTransforms(pipelineMeta, pipelineMeta2, true);
+    pipelineMeta2 = compareTransforms(pipelineMeta2, pipelineMeta, false);
+    assertEquals(UNCHANGED, pipelineMeta.getTransform(0).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(CHANGED, pipelineMeta.getTransform(1).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(REMOVED, pipelineMeta.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(ADDED, pipelineMeta2.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
   }
 
   @Test
   public void diffWorkflowTest() throws Exception {
-    File file = new File( "src/test/resources/r1.hwf" );
-    InputStream xmlStream = new FileInputStream( file );
-    WorkflowMeta jobMeta = new WorkflowMeta( xmlStream, metadataProvider, new Variables());
+    File file = new File("src/test/resources/r1.hwf");
+    InputStream xmlStream = new FileInputStream(file);
+    WorkflowMeta jobMeta = new WorkflowMeta(xmlStream, metadataProvider, new Variables());
 
-    File file2 = new File( "src/test/resources/r2.hwf" );
-    InputStream xmlStream2 = new FileInputStream( file2 );
-    WorkflowMeta jobMeta2 = new WorkflowMeta( xmlStream2, metadataProvider, new Variables());
+    File file2 = new File("src/test/resources/r2.hwf");
+    InputStream xmlStream2 = new FileInputStream(file2);
+    WorkflowMeta jobMeta2 = new WorkflowMeta(xmlStream2, metadataProvider, new Variables());
 
-    jobMeta = compareActions( jobMeta, jobMeta2, true );
-    jobMeta2 = compareActions( jobMeta2, jobMeta, false );
-    assertEquals( CHANGED, jobMeta.getAction( 0 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
-    assertEquals( UNCHANGED, jobMeta.getAction( 1 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
-    assertEquals( REMOVED, jobMeta.getAction( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
-    assertEquals( ADDED, jobMeta2.getAction( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
+    jobMeta = compareActions(jobMeta, jobMeta2, true);
+    jobMeta2 = compareActions(jobMeta2, jobMeta, false);
+    assertEquals(CHANGED, jobMeta.getAction(0).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(UNCHANGED, jobMeta.getAction(1).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(REMOVED, jobMeta.getAction(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(ADDED, jobMeta2.getAction(2).getAttribute(ATTR_GIT, ATTR_STATUS));
   }
 }

@@ -28,28 +28,27 @@ public class UnnamedFieldsMappingTest {
 
   @Before
   public void before() {
-    fieldsMapping = new UnnamedFieldsMapping( 2 );
+    fieldsMapping = new UnnamedFieldsMapping(2);
   }
 
   @Test
   public void fieldMetaIndex() {
-    assertEquals( 1, fieldsMapping.fieldMetaIndex( 1 ) );
+    assertEquals(1, fieldsMapping.fieldMetaIndex(1));
   }
 
   @Test
   public void fieldMetaIndexWithUnexistingField() {
-    assertEquals( IFieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex( 2 ) );
+    assertEquals(IFieldsMapping.FIELD_DOES_NOT_EXIST, fieldsMapping.fieldMetaIndex(2));
   }
 
   @Test
   public void size() {
-    assertEquals( 2, fieldsMapping.size() );
+    assertEquals(2, fieldsMapping.size());
   }
 
   @Test
   public void mapping() {
-    UnnamedFieldsMapping mapping = UnnamedFieldsMapping.mapping( 2 );
-    assertEquals( 1, mapping.fieldMetaIndex( 1 ) );
+    UnnamedFieldsMapping mapping = UnnamedFieldsMapping.mapping(2);
+    assertEquals(1, mapping.fieldMetaIndex(1));
   }
-
 }

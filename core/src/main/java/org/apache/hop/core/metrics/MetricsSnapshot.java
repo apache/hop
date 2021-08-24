@@ -18,8 +18,8 @@
 package org.apache.hop.core.metrics;
 
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.IMetrics;
+import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.StringUtil;
 
 import java.util.Date;
@@ -37,11 +37,13 @@ public class MetricsSnapshot implements IMetricsSnapshot {
    * Create a new metrics snapshot
    *
    * @param type
-   * @param metric       the metric to use (ex. Connect to database)
-   * @param subject      the name of the metric subject (ex. the name of the database we're connecting to)
+   * @param metric the metric to use (ex. Connect to database)
+   * @param subject the name of the metric subject (ex. the name of the database we're connecting
+   *     to)
    * @param logChannelId
    */
-  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, String subject, String logChannelId ) {
+  public MetricsSnapshot(
+      MetricsSnapshotType type, IMetrics metric, String subject, String logChannelId) {
     this.date = new Date();
     this.type = type;
     this.metric = metric;
@@ -56,48 +58,49 @@ public class MetricsSnapshot implements IMetricsSnapshot {
    * @param description
    * @param logChannelId
    */
-  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, String logChannelId ) {
-    this( type, metric, null, logChannelId );
+  public MetricsSnapshot(MetricsSnapshotType type, IMetrics metric, String logChannelId) {
+    this(type, metric, null, logChannelId);
   }
 
   /**
    * Create a snapshot metric with a value.
    *
-   * @param type         The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
-   * @param metric       The metric to use
-   * @param subject      The subject
-   * @param value        The value
+   * @param type The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
+   * @param metric The metric to use
+   * @param subject The subject
+   * @param value The value
    * @param logChannelId The logging channel to reference.
    */
-  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, String subject, long value,
-                          String logChannelId ) {
-    this( type, metric, subject, logChannelId );
+  public MetricsSnapshot(
+      MetricsSnapshotType type, IMetrics metric, String subject, long value, String logChannelId) {
+    this(type, metric, subject, logChannelId);
     this.value = value;
   }
 
   /**
    * Create a snapshot metric with a value.
    *
-   * @param type         The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
-   * @param description  The description
-   * @param value        The value
+   * @param type The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
+   * @param description The description
+   * @param value The value
    * @param logChannelId The logging channel to reference.
    */
-  public MetricsSnapshot( MetricsSnapshotType type, IMetrics metric, long value, String logChannelId ) {
-    this( type, metric, null, value, logChannelId );
+  public MetricsSnapshot(
+      MetricsSnapshotType type, IMetrics metric, long value, String logChannelId) {
+    this(type, metric, null, value, logChannelId);
   }
 
   @Override
   public String getKey() {
-    if ( subject == null ) {
+    if (subject == null) {
       return metric.getCode();
     } else {
       return metric.getCode() + " / " + subject;
     }
   }
 
-  public static String getKey( IMetrics metric, String subject ) {
-    if ( subject == null ) {
+  public static String getKey(IMetrics metric, String subject) {
+    if (subject == null) {
       return metric.getCode();
     } else {
       return metric.getCode() + " / " + subject;
@@ -106,108 +109,87 @@ public class MetricsSnapshot implements IMetricsSnapshot {
 
   @Override
   public String toString() {
-    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject(logChannelId);
     String subject = null;
-    if ( loggingObject != null ) {
+    if (loggingObject != null) {
       subject = loggingObject.getObjectName() + "(" + loggingObject.getObjectType() + ")";
     } else {
       subject = "-";
     }
 
     return subject
-      + " - " + getKey() + " @ " + StringUtil.getFormattedDateTime( date, true ) + " : " + type.toString();
-
+        + " - "
+        + getKey()
+        + " @ "
+        + StringUtil.getFormattedDateTime(date, true)
+        + " : "
+        + type.toString();
   }
 
-  /**
-   * @return the date
-   */
+  /** @return the date */
   @Override
   public Date getDate() {
     return date;
   }
 
-  /**
-   * @param date the date to set
-   */
+  /** @param date the date to set */
   @Override
-  public void setDate( Date date ) {
+  public void setDate(Date date) {
     this.date = date;
   }
 
-  /**
-   * @return the type
-   */
+  /** @return the type */
   public MetricsSnapshotType getType() {
     return type;
   }
 
-  /**
-   * @param type the type to set
-   */
-  public void setType( MetricsSnapshotType type ) {
+  /** @param type the type to set */
+  public void setType(MetricsSnapshotType type) {
     this.type = type;
   }
 
-  /**
-   * @return the subject
-   */
+  /** @return the subject */
   @Override
   public String getSubject() {
     return subject;
   }
 
-  /**
-   * @param subject the subject to set
-   */
-  public void setSubject( String subject ) {
+  /** @param subject the subject to set */
+  public void setSubject(String subject) {
     this.subject = subject;
   }
 
-  /**
-   * @return the value
-   */
+  /** @return the value */
   @Override
   public Long getValue() {
     return value;
   }
 
-  /**
-   * @param value the value to set
-   */
+  /** @param value the value to set */
   @Override
-  public void setValue( Long value ) {
+  public void setValue(Long value) {
     this.value = value;
   }
 
-  /**
-   * @return the logChannelId
-   */
+  /** @return the logChannelId */
   @Override
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /**
-   * @param logChannelId the logChannelId to set
-   */
-  public void setLogChannelId( String logChannelId ) {
+  /** @param logChannelId the logChannelId to set */
+  public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
 
-  /**
-   * @return the metric
-   */
+  /** @return the metric */
   @Override
   public IMetrics getMetric() {
     return metric;
   }
 
-  /**
-   * @param metric the metric to set
-   */
-  public void setMetric( IMetrics metric ) {
+  /** @param metric the metric to set */
+  public void setMetric(IMetrics metric) {
     this.metric = metric;
   }
-
 }

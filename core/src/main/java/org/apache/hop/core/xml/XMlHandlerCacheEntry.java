@@ -31,57 +31,48 @@ public class XMlHandlerCacheEntry {
 
   /**
    * @param parentNode The parent node
-   * @param tag        The tag
+   * @param tag The tag
    */
-  public XMlHandlerCacheEntry( Node parentNode, String tag ) {
+  public XMlHandlerCacheEntry(Node parentNode, String tag) {
     this.parentNode = parentNode;
     this.tag = tag;
   }
 
-  /**
-   * @return Returns the parentNode.
-   */
+  /** @return Returns the parentNode. */
   public Node getParentNode() {
     return parentNode;
   }
 
-  /**
-   * @param parentNode The parentNode to set.
-   */
-  public void setParentNode( Node parentNode ) {
+  /** @param parentNode The parentNode to set. */
+  public void setParentNode(Node parentNode) {
     this.parentNode = parentNode;
   }
 
-  /**
-   * @return Returns the tag.
-   */
+  /** @return Returns the tag. */
   public String getTag() {
     return tag;
   }
 
-  /**
-   * @param tag The tag to set.
-   */
-  public void setTag( String tag ) {
+  /** @param tag The tag to set. */
+  public void setTag(String tag) {
     this.tag = tag;
   }
 
   @Override
-  public boolean equals( Object object ) {
-    if ( this == object ) {
+  public boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if ( object == null || getClass() != object.getClass() ) {
+    if (object == null || getClass() != object.getClass()) {
       return false;
     }
     XMlHandlerCacheEntry entry = (XMlHandlerCacheEntry) object;
 
-    return parentNode.equals( entry.getParentNode() ) && tag.equals( entry.getTag() );
+    return parentNode.equals(entry.getParentNode()) && tag.equals(entry.getTag());
   }
 
   @Override
   public int hashCode() {
     return parentNode.hashCode() ^ tag.hashCode();
   }
-
 }

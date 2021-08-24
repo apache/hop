@@ -39,7 +39,11 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
   private Point click;
   private GuiActionLambdaBuilder<HopGuiPipelineNoteContext> lambdaBuilder;
 
-  public HopGuiPipelineNoteContext( PipelineMeta pipelineMeta, NotePadMeta notePadMeta, HopGuiPipelineGraph pipelineGraph, Point click ) {
+  public HopGuiPipelineNoteContext(
+      PipelineMeta pipelineMeta,
+      NotePadMeta notePadMeta,
+      HopGuiPipelineGraph pipelineGraph,
+      Point click) {
     this.pipelineMeta = pipelineMeta;
     this.notePadMeta = notePadMeta;
     this.pipelineGraph = pipelineGraph;
@@ -47,31 +51,32 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
 
-  @Override public String getContextId() {
+  @Override
+  public String getContextId() {
     return CONTEXT_ID;
   }
 
   /**
-   * Create a list of supported actions on a pipeline.
-   * We'll add the creation of every possible transform as well as the modification of the pipeline itself.
+   * Create a list of supported actions on a pipeline. We'll add the creation of every possible
+   * transform as well as the modification of the pipeline itself.
    *
    * @return The list of supported actions
    */
-  @Override public List<GuiAction> getSupportedActions() {
+  @Override
+  public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
     // Get the actions from the plugins...
     //
-    List<GuiAction> pluginActions = getPluginActions( true );
-    if ( pluginActions != null ) {
-      for ( GuiAction pluginAction : pluginActions ) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, this, pipelineGraph ) );
+    List<GuiAction> pluginActions = getPluginActions(true);
+    if (pluginActions != null) {
+      for (GuiAction pluginAction : pluginActions) {
+        actions.add(lambdaBuilder.createLambda(pluginAction, this, pipelineGraph));
       }
     }
 
     return actions;
   }
-
 
   /**
    * Gets pipelineMeta
@@ -82,10 +87,8 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
     return pipelineMeta;
   }
 
-  /**
-   * @param pipelineMeta The pipelineMeta to set
-   */
-  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+  /** @param pipelineMeta The pipelineMeta to set */
+  public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
 
@@ -98,10 +101,8 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
     return notePadMeta;
   }
 
-  /**
-   * @param notePadMeta The notePadMeta to set
-   */
-  public void setNotePadMeta( NotePadMeta notePadMeta ) {
+  /** @param notePadMeta The notePadMeta to set */
+  public void setNotePadMeta(NotePadMeta notePadMeta) {
     this.notePadMeta = notePadMeta;
   }
 
@@ -114,10 +115,8 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
     return pipelineGraph;
   }
 
-  /**
-   * @param pipelineGraph The pipelineGraph to set
-   */
-  public void setPipelineGraph( HopGuiPipelineGraph pipelineGraph ) {
+  /** @param pipelineGraph The pipelineGraph to set */
+  public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
 
@@ -130,12 +129,8 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
     return click;
   }
 
-  /**
-   * @param click The click to set
-   */
-  public void setClick( Point click ) {
+  /** @param click The click to set */
+  public void setClick(Point click) {
     this.click = click;
   }
-
-
 }

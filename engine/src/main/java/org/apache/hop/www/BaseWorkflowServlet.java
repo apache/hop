@@ -48,122 +48,146 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private static final long serialVersionUID = 8523062215275251356L;
 
-  protected IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowConfiguration workflowConfiguration ) throws HopException, HopException, ParseException {
-    WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
+  protected IWorkflowEngine<WorkflowMeta> createWorkflow(
+      WorkflowConfiguration workflowConfiguration)
+      throws HopException, HopException, ParseException {
+    WorkflowExecutionConfiguration workflowExecutionConfiguration =
+        workflowConfiguration.getWorkflowExecutionConfiguration();
 
     IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
 
     WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
-    workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
+    workflowMeta.setLogLevel(workflowExecutionConfiguration.getLogLevel());
 
     String serverObjectId = UUID.randomUUID().toString();
 
-    SimpleLoggingObject servletLoggingObject = getServletLogging( serverObjectId, workflowExecutionConfiguration.getLogLevel() );
+    SimpleLoggingObject servletLoggingObject =
+        getServletLogging(serverObjectId, workflowExecutionConfiguration.getLogLevel());
 
     // Create the workflow and store in the list...
     //
     String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+    final IWorkflowEngine<WorkflowMeta> workflow =
+        WorkflowEngineFactory.createWorkflowEngine(
+            variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject);
 
     // Setting variables
-    workflow.initializeFrom( null );
-    workflow.getWorkflowMeta().setMetadataProvider( metadataProvider );
-    workflow.getWorkflowMeta().setInternalHopVariables( workflow );
-    workflow.setVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
+    workflow.initializeFrom(null);
+    workflow.getWorkflowMeta().setMetadataProvider(metadataProvider);
+    workflow.getWorkflowMeta().setInternalHopVariables(workflow);
+    workflow.setVariables(
+        workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap());
 
-    copyWorkflowParameters( workflow, workflowExecutionConfiguration.getParametersMap() );
+    copyWorkflowParameters(workflow, workflowExecutionConfiguration.getParametersMap());
 
     // Check if there is a starting point specified.
     String startActionName = workflowExecutionConfiguration.getStartActionName();
-    if ( startActionName != null && !startActionName.isEmpty() ) {
-      ActionMeta startActionMeta = workflowMeta.findAction( startActionName );
-      workflow.setStartActionMeta( startActionMeta );
+    if (startActionName != null && !startActionName.isEmpty()) {
+      ActionMeta startActionMeta = workflowMeta.findAction(startActionName);
+      workflow.setStartActionMeta(startActionMeta);
     }
 
-    getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
+    getWorkflowMap()
+        .addWorkflow(workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration);
 
     return workflow;
   }
 
-  protected IPipelineEngine<PipelineMeta> createPipeline( PipelineConfiguration pipelineConfiguration ) throws HopException, HopException, ParseException {
+  protected IPipelineEngine<PipelineMeta> createPipeline(
+      PipelineConfiguration pipelineConfiguration)
+      throws HopException, HopException, ParseException {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
-    PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
-    pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
+    PipelineExecutionConfiguration pipelineExecutionConfiguration =
+        pipelineConfiguration.getPipelineExecutionConfiguration();
+    pipelineMeta.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
 
     IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
 
     String serverObjectId = UUID.randomUUID().toString();
-    SimpleLoggingObject servletLoggingObject = getServletLogging( serverObjectId, pipelineExecutionConfiguration.getLogLevel() );
+    SimpleLoggingObject servletLoggingObject =
+        getServletLogging(serverObjectId, pipelineExecutionConfiguration.getLogLevel());
 
     // Create the pipeline and store in the list...
     //
-    String runConfigurationName = pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
-    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( variables, runConfigurationName, metadataProvider, pipelineMeta );
-    pipeline.setParent( servletLoggingObject );
-    pipeline.setMetadataProvider( metadataProvider );
+    String runConfigurationName =
+        pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
+    final IPipelineEngine<PipelineMeta> pipeline =
+        PipelineEngineFactory.createPipelineEngine(
+            variables, runConfigurationName, metadataProvider, pipelineMeta);
+    pipeline.setParent(servletLoggingObject);
+    pipeline.setMetadataProvider(metadataProvider);
 
     // Also copy the parameters over...
-    copyParameters( pipeline, pipelineExecutionConfiguration.getParametersMap() );
+    copyParameters(pipeline, pipelineExecutionConfiguration.getParametersMap());
 
-    if ( pipelineExecutionConfiguration.isSetLogfile() ) {
+    if (pipelineExecutionConfiguration.isSetLogfile()) {
       String realLogFilename = pipelineExecutionConfiguration.getLogFileName();
       try {
-        FileUtil.createParentFolder( AddPipelineServlet.class, realLogFilename, pipelineExecutionConfiguration
-          .isCreateParentFolder(), pipeline.getLogChannel() );
+        FileUtil.createParentFolder(
+            AddPipelineServlet.class,
+            realLogFilename,
+            pipelineExecutionConfiguration.isCreateParentFolder(),
+            pipeline.getLogChannel());
         final LogChannelFileWriter logChannelFileWriter =
-          new LogChannelFileWriter( servletLoggingObject.getLogChannelId(),
-            HopVfs.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
+            new LogChannelFileWriter(
+                servletLoggingObject.getLogChannelId(),
+                HopVfs.getFileObject(realLogFilename),
+                pipelineExecutionConfiguration.isSetAppendLogfile());
         logChannelFileWriter.startLogging();
 
-        pipeline.addExecutionFinishedListener( pipelineEngine -> {
-            if ( logChannelFileWriter != null ) {
-              logChannelFileWriter.stopLogging();
-            }
-          });
-      } catch ( HopException e ) {
-        logError( Const.getStackTracker( e ) );
+        pipeline.addExecutionFinishedListener(
+            pipelineEngine -> {
+              if (logChannelFileWriter != null) {
+                logChannelFileWriter.stopLogging();
+              }
+            });
+      } catch (HopException e) {
+        logError(Const.getStackTracker(e));
       }
-
     }
 
-    pipeline.setContainerId( serverObjectId );
-    getPipelineMap().addPipeline( pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );
+    pipeline.setContainerId(serverObjectId);
+    getPipelineMap()
+        .addPipeline(pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration);
 
     return pipeline;
   }
 
-  private void copyParameters( final INamedParameters namedParameters, final Map<String, String> params ) throws UnknownParamException {
-    for ( String parameterName : params.keySet() ) {
-      String thisValue = params.get( parameterName );
-      if ( !StringUtils.isBlank( thisValue ) ) {
-        namedParameters.setParameterValue( parameterName, thisValue );
+  private void copyParameters(
+      final INamedParameters namedParameters, final Map<String, String> params)
+      throws UnknownParamException {
+    for (String parameterName : params.keySet()) {
+      String thisValue = params.get(parameterName);
+      if (!StringUtils.isBlank(thisValue)) {
+        namedParameters.setParameterValue(parameterName, thisValue);
       }
     }
   }
 
-  private void copyWorkflowParameters( IWorkflowEngine<WorkflowMeta> workflow, Map<String, String> params ) throws UnknownParamException {
+  private void copyWorkflowParameters(
+      IWorkflowEngine<WorkflowMeta> workflow, Map<String, String> params)
+      throws UnknownParamException {
     WorkflowMeta workflowMeta = workflow.getWorkflowMeta();
     // Also copy the parameters over...
-    workflow.copyParametersFromDefinitions( workflowMeta );
+    workflow.copyParametersFromDefinitions(workflowMeta);
     workflow.clearParameterValues();
     String[] parameterNames = workflow.listParameters();
-    for ( String parameterName : parameterNames ) {
+    for (String parameterName : parameterNames) {
       // Grab the parameter value set in the action
-      String thisValue = params.get( parameterName );
-      if ( !StringUtils.isBlank( thisValue ) ) {
+      String thisValue = params.get(parameterName);
+      if (!StringUtils.isBlank(thisValue)) {
         // Set the value as specified by the user in the action
-        workflow.setParameterValue( parameterName, thisValue );
+        workflow.setParameterValue(parameterName, thisValue);
       }
     }
     workflow.activateParameters(workflow);
   }
 
-  private SimpleLoggingObject getServletLogging( final String serverObjectId, final LogLevel level ) {
+  private SimpleLoggingObject getServletLogging(final String serverObjectId, final LogLevel level) {
     SimpleLoggingObject servletLoggingObject =
-      new SimpleLoggingObject( getContextPath(), LoggingObjectType.HOP_SERVER, null );
-    servletLoggingObject.setContainerObjectId( serverObjectId );
-    servletLoggingObject.setLogLevel( level );
+        new SimpleLoggingObject(getContextPath(), LoggingObjectType.HOP_SERVER, null);
+    servletLoggingObject.setContainerObjectId(serverObjectId);
+    servletLoggingObject.setLogLevel(level);
     return servletLoggingObject;
   }
-
 }

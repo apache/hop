@@ -40,15 +40,20 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
-  private static final Logger LOG = LoggerFactory.getLogger( PublishMessagesFn.class );
-  private final Counter numErrors = Metrics.counter( "main", "BeamPublishTransformErrors" );
+  private static final Logger LOG = LoggerFactory.getLogger(PublishMessagesFn.class);
+  private final Counter numErrors = Metrics.counter("main", "BeamPublishTransformErrors");
 
   private IRowMeta rowMeta;
   private transient Counter initCounter;
   private transient Counter readCounter;
   private transient Counter outputCounter;
 
-  public PublishMessagesFn( String transformName, int fieldIndex, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public PublishMessagesFn(
+      String transformName,
+      int fieldIndex,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.transformName = transformName;
     this.fieldIndex = fieldIndex;
     this.rowMetaJson = rowMetaJson;
@@ -59,41 +64,41 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
-      outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, transformName );
+      readCounter = Metrics.counter(Pipeline.METRIC_NAME_READ, transformName);
+      outputCounter = Metrics.counter(Pipeline.METRIC_NAME_OUTPUT, transformName);
 
       // Initialize Hop Beam
       //
-      BeamHop.init( transformPluginClasses, xpPluginClasses );
-      rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
-      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
-    } catch ( Exception e ) {
+      Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in setup of pub/sub publish messages function", e );
-      throw new RuntimeException( "Error in setup of pub/sub publish messages function", e );
+      LOG.error("Error in setup of pub/sub publish messages function", e);
+      throw new RuntimeException("Error in setup of pub/sub publish messages function", e);
     }
   }
 
   @ProcessElement
-  public void processElement( ProcessContext processContext ) {
+  public void processElement(ProcessContext processContext) {
 
     try {
       HopRow hopRow = processContext.element();
       readCounter.inc();
       try {
-        byte[] bytes = rowMeta.getBinary( hopRow.getRow(), fieldIndex );
-        PubsubMessage message = new PubsubMessage( bytes, new HashMap<>() );
-        processContext.output( message );
+        byte[] bytes = rowMeta.getBinary(hopRow.getRow(), fieldIndex);
+        PubsubMessage message = new PubsubMessage(bytes, new HashMap<>());
+        processContext.output(message);
         outputCounter.inc();
-      } catch ( Exception e ) {
-        throw new RuntimeException( "Unable to pass message", e );
+      } catch (Exception e) {
+        throw new RuntimeException("Unable to pass message", e);
       }
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in pub/sub publish messages function", e );
-      throw new RuntimeException( "Error in pub/sub publish messages function", e );
+      LOG.error("Error in pub/sub publish messages function", e);
+      throw new RuntimeException("Error in pub/sub publish messages function", e);
     }
   }
 }

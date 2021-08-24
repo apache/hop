@@ -58,30 +58,30 @@ public class EngineComponent implements IEngineComponent {
   private Date lastRowWrittenDate;
   private Date executionEndDate;
 
-  public EngineComponent() {
-  }
+  public EngineComponent() {}
 
-  public EngineComponent( String name, int copyNr ) {
+  public EngineComponent(String name, int copyNr) {
     this();
     this.name = name;
     this.copyNr = copyNr;
     this.logChannel = LogChannel.GENERAL;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     EngineComponent that = (EngineComponent) o;
-    return copyNr == that.copyNr &&
-      Objects.equals( name, that.name );
+    return copyNr == that.copyNr && Objects.equals(name, that.name);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name, copyNr );
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, copyNr);
   }
 
   /**
@@ -89,14 +89,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of name
    */
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -105,14 +104,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of copyNr
    */
-  @Override public int getCopyNr() {
+  @Override
+  public int getCopyNr() {
     return copyNr;
   }
 
-  /**
-   * @param copyNr The copyNr to set
-   */
-  public void setCopyNr( int copyNr ) {
+  /** @param copyNr The copyNr to set */
+  public void setCopyNr(int copyNr) {
     this.copyNr = copyNr;
   }
 
@@ -121,14 +119,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of logChannel
    */
-  @Override public ILogChannel getLogChannel() {
+  @Override
+  public ILogChannel getLogChannel() {
     return logChannel;
   }
 
-  /**
-   * @param logChannel The logChannel to set
-   */
-  public void setLogChannel( ILogChannel logChannel ) {
+  /** @param logChannel The logChannel to set */
+  public void setLogChannel(ILogChannel logChannel) {
     this.logChannel = logChannel;
   }
 
@@ -137,14 +134,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of logChannelId
    */
-  @Override public String getLogChannelId() {
+  @Override
+  public String getLogChannelId() {
     return logChannelId;
   }
 
-  /**
-   * @param logChannelId The logChannelId to set
-   */
-  public void setLogChannelId( String logChannelId ) {
+  /** @param logChannelId The logChannelId to set */
+  public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
 
@@ -153,14 +149,14 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of logLevel
    */
-  @Override public LogLevel getLogLevel() {
+  @Override
+  public LogLevel getLogLevel() {
     return logLevel;
   }
 
-  /**
-   * @param logLevel The logLevel to set
-   */
-  @Override public void setLogLevel( LogLevel logLevel ) {
+  /** @param logLevel The logLevel to set */
+  @Override
+  public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
 
@@ -169,14 +165,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of logText
    */
-  @Override public String getLogText() {
+  @Override
+  public String getLogText() {
     return logText;
   }
 
-  /**
-   * @param logText The logText to set
-   */
-  public void setLogText( String logText ) {
+  /** @param logText The logText to set */
+  public void setLogText(String logText) {
     this.logText = logText;
   }
 
@@ -185,14 +180,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of running
    */
-  @Override public boolean isRunning() {
+  @Override
+  public boolean isRunning() {
     return running;
   }
 
-  /**
-   * @param running The running to set
-   */
-  public void setRunning( boolean running ) {
+  /** @param running The running to set */
+  public void setRunning(boolean running) {
     this.running = running;
   }
 
@@ -201,14 +195,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of selected
    */
-  @Override public boolean isSelected() {
+  @Override
+  public boolean isSelected() {
     return selected;
   }
 
-  /**
-   * @param selected The selected to set
-   */
-  public void setSelected( boolean selected ) {
+  /** @param selected The selected to set */
+  public void setSelected(boolean selected) {
     this.selected = selected;
   }
 
@@ -217,22 +210,25 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of errors
    */
-  @Override public long getErrors() {
+  @Override
+  public long getErrors() {
     return errors;
   }
 
-  @Override public void addRowListener( IRowListener rowListener ) {
-    throw new RuntimeException( "Adding a row listener to this transform is not possible as it's not part of a running engine" );
+  @Override
+  public void addRowListener(IRowListener rowListener) {
+    throw new RuntimeException(
+        "Adding a row listener to this transform is not possible as it's not part of a running engine");
   }
 
-  @Override public void removeRowListener( IRowListener rowListener ) {
-    throw new RuntimeException( "Removing a row listener to this transform is not possible as it's not part of a running engine" );
+  @Override
+  public void removeRowListener(IRowListener rowListener) {
+    throw new RuntimeException(
+        "Removing a row listener to this transform is not possible as it's not part of a running engine");
   }
 
-  /**
-   * @param errors The errors to set
-   */
-  public void setErrors( long errors ) {
+  /** @param errors The errors to set */
+  public void setErrors(long errors) {
     this.errors = errors;
   }
 
@@ -241,14 +237,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of linesRead
    */
-  @Override public long getLinesRead() {
+  @Override
+  public long getLinesRead() {
     return linesRead;
   }
 
-  /**
-   * @param linesRead The linesRead to set
-   */
-  public void setLinesRead( long linesRead ) {
+  /** @param linesRead The linesRead to set */
+  public void setLinesRead(long linesRead) {
     this.linesRead = linesRead;
   }
 
@@ -257,14 +252,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of linesWritten
    */
-  @Override public long getLinesWritten() {
+  @Override
+  public long getLinesWritten() {
     return linesWritten;
   }
 
-  /**
-   * @param linesWritten The linesWritten to set
-   */
-  public void setLinesWritten( long linesWritten ) {
+  /** @param linesWritten The linesWritten to set */
+  public void setLinesWritten(long linesWritten) {
     this.linesWritten = linesWritten;
   }
 
@@ -273,14 +267,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of linesInput
    */
-  @Override public long getLinesInput() {
+  @Override
+  public long getLinesInput() {
     return linesInput;
   }
 
-  /**
-   * @param linesInput The linesInput to set
-   */
-  public void setLinesInput( long linesInput ) {
+  /** @param linesInput The linesInput to set */
+  public void setLinesInput(long linesInput) {
     this.linesInput = linesInput;
   }
 
@@ -289,14 +282,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of linesOutput
    */
-  @Override public long getLinesOutput() {
+  @Override
+  public long getLinesOutput() {
     return linesOutput;
   }
 
-  /**
-   * @param linesOutput The linesOutput to set
-   */
-  public void setLinesOutput( long linesOutput ) {
+  /** @param linesOutput The linesOutput to set */
+  public void setLinesOutput(long linesOutput) {
     this.linesOutput = linesOutput;
   }
 
@@ -305,14 +297,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of linesRejected
    */
-  @Override public long getLinesRejected() {
+  @Override
+  public long getLinesRejected() {
     return linesRejected;
   }
 
-  /**
-   * @param linesRejected The linesRejected to set
-   */
-  public void setLinesRejected( long linesRejected ) {
+  /** @param linesRejected The linesRejected to set */
+  public void setLinesRejected(long linesRejected) {
     this.linesRejected = linesRejected;
   }
 
@@ -321,14 +312,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of linesUpdated
    */
-  @Override public long getLinesUpdated() {
+  @Override
+  public long getLinesUpdated() {
     return linesUpdated;
   }
 
-  /**
-   * @param linesUpdated The linesUpdated to set
-   */
-  public void setLinesUpdated( long linesUpdated ) {
+  /** @param linesUpdated The linesUpdated to set */
+  public void setLinesUpdated(long linesUpdated) {
     this.linesUpdated = linesUpdated;
   }
 
@@ -337,24 +327,23 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of statusDescription
    */
-  @Override public String getStatusDescription() {
+  @Override
+  public String getStatusDescription() {
     return status == null ? null : status.getDescription();
   }
-
 
   /**
    * Gets executionDuration
    *
    * @return value of executionDuration
    */
-  @Override public long getExecutionDuration() {
+  @Override
+  public long getExecutionDuration() {
     return executionDuration;
   }
 
-  /**
-   * @param executionDuration The executionDuration to set
-   */
-  public void setExecutionDuration( long executionDuration ) {
+  /** @param executionDuration The executionDuration to set */
+  public void setExecutionDuration(long executionDuration) {
     this.executionDuration = executionDuration;
   }
 
@@ -363,14 +352,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of inputBufferSize
    */
-  @Override public long getInputBufferSize() {
+  @Override
+  public long getInputBufferSize() {
     return inputBufferSize;
   }
 
-  /**
-   * @param inputBufferSize The inputBufferSize to set
-   */
-  public void setInputBufferSize( long inputBufferSize ) {
+  /** @param inputBufferSize The inputBufferSize to set */
+  public void setInputBufferSize(long inputBufferSize) {
     this.inputBufferSize = inputBufferSize;
   }
 
@@ -379,14 +367,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of outputBufferSize
    */
-  @Override public long getOutputBufferSize() {
+  @Override
+  public long getOutputBufferSize() {
     return outputBufferSize;
   }
 
-  /**
-   * @param outputBufferSize The outputBufferSize to set
-   */
-  public void setOutputBufferSize( long outputBufferSize ) {
+  /** @param outputBufferSize The outputBufferSize to set */
+  public void setOutputBufferSize(long outputBufferSize) {
     this.outputBufferSize = outputBufferSize;
   }
 
@@ -395,14 +382,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of stopped
    */
-  @Override public boolean isStopped() {
+  @Override
+  public boolean isStopped() {
     return stopped;
   }
 
-  /**
-   * @param stopped The stopped to set
-   */
-  public void setStopped( boolean stopped ) {
+  /** @param stopped The stopped to set */
+  public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
 
@@ -411,14 +397,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of paused
    */
-  @Override public boolean isPaused() {
+  @Override
+  public boolean isPaused() {
     return paused;
   }
 
-  /**
-   * @param paused The paused to set
-   */
-  public void setPaused( boolean paused ) {
+  /** @param paused The paused to set */
+  public void setPaused(boolean paused) {
     this.paused = paused;
   }
 
@@ -427,14 +412,13 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of status
    */
-  @Override public ComponentExecutionStatus getStatus() {
+  @Override
+  public ComponentExecutionStatus getStatus() {
     return status;
   }
 
-  /**
-   * @param status The status to set
-   */
-  public void setStatus( ComponentExecutionStatus status ) {
+  /** @param status The status to set */
+  public void setStatus(ComponentExecutionStatus status) {
     this.status = status;
   }
 
@@ -443,14 +427,14 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of initStartDate
    */
-  @Override public Date getInitStartDate() {
+  @Override
+  public Date getInitStartDate() {
     return initStartDate;
   }
 
-  /**
-   * @param initStartDate The initStartDate to set
-   */
-  @Override public void setInitStartDate( Date initStartDate ) {
+  /** @param initStartDate The initStartDate to set */
+  @Override
+  public void setInitStartDate(Date initStartDate) {
     this.initStartDate = initStartDate;
   }
 
@@ -459,14 +443,14 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of executionStartDate
    */
-  @Override public Date getExecutionStartDate() {
+  @Override
+  public Date getExecutionStartDate() {
     return executionStartDate;
   }
 
-  /**
-   * @param executionStartDate The executionStartDate to set
-   */
-  @Override public void setExecutionStartDate( Date executionStartDate ) {
+  /** @param executionStartDate The executionStartDate to set */
+  @Override
+  public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
 
@@ -475,14 +459,14 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of firstRowReadDate
    */
-  @Override public Date getFirstRowReadDate() {
+  @Override
+  public Date getFirstRowReadDate() {
     return firstRowReadDate;
   }
 
-  /**
-   * @param firstRowReadDate The firstRowReadDate to set
-   */
-  @Override public void setFirstRowReadDate( Date firstRowReadDate ) {
+  /** @param firstRowReadDate The firstRowReadDate to set */
+  @Override
+  public void setFirstRowReadDate(Date firstRowReadDate) {
     this.firstRowReadDate = firstRowReadDate;
   }
 
@@ -491,14 +475,14 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of lastRowWrittenDate
    */
-  @Override public Date getLastRowWrittenDate() {
+  @Override
+  public Date getLastRowWrittenDate() {
     return lastRowWrittenDate;
   }
 
-  /**
-   * @param lastRowWrittenDate The lastRowWrittenDate to set
-   */
-  @Override public void setLastRowWrittenDate( Date lastRowWrittenDate ) {
+  /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  @Override
+  public void setLastRowWrittenDate(Date lastRowWrittenDate) {
     this.lastRowWrittenDate = lastRowWrittenDate;
   }
 
@@ -507,74 +491,50 @@ public class EngineComponent implements IEngineComponent {
    *
    * @return value of executionEndDate
    */
-  @Override public Date getExecutionEndDate() {
+  @Override
+  public Date getExecutionEndDate() {
     return executionEndDate;
   }
 
-  /**
-   * @param executionEndDate The executionEndDate to set
-   */
-  @Override public void setExecutionEndDate( Date executionEndDate ) {
+  /** @param executionEndDate The executionEndDate to set */
+  @Override
+  public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
 
   public enum ComponentExecutionStatus {
 
+    /** The status empty. */
+    STATUS_EMPTY(BaseMessages.getString(PKG, "BaseTransform.status.Empty")),
 
-    /**
-     * The status empty.
-     */
-    STATUS_EMPTY( BaseMessages.getString( PKG, "BaseTransform.status.Empty" ) ),
+    /** The status init. */
+    STATUS_INIT(BaseMessages.getString(PKG, "BaseTransform.status.Init")),
 
-    /**
-     * The status init.
-     */
-    STATUS_INIT( BaseMessages.getString( PKG, "BaseTransform.status.Init" ) ),
+    /** The status running. */
+    STATUS_RUNNING(BaseMessages.getString(PKG, "BaseTransform.status.Running")),
 
-    /**
-     * The status running.
-     */
-    STATUS_RUNNING( BaseMessages.getString( PKG, "BaseTransform.status.Running" ) ),
+    /** The status idle. */
+    STATUS_IDLE(BaseMessages.getString(PKG, "BaseTransform.status.Idle")),
 
-    /**
-     * The status idle.
-     */
-    STATUS_IDLE( BaseMessages.getString( PKG, "BaseTransform.status.Idle" ) ),
+    /** The status finished. */
+    STATUS_FINISHED(BaseMessages.getString(PKG, "BaseTransform.status.Finished")),
 
-    /**
-     * The status finished.
-     */
-    STATUS_FINISHED( BaseMessages.getString( PKG, "BaseTransform.status.Finished" ) ),
+    /** The status stopped. */
+    STATUS_STOPPED(BaseMessages.getString(PKG, "BaseTransform.status.Stopped")),
 
-    /**
-     * The status stopped.
-     */
-    STATUS_STOPPED( BaseMessages.getString( PKG, "BaseTransform.status.Stopped" ) ),
+    /** The status disposed. */
+    STATUS_DISPOSED(BaseMessages.getString(PKG, "BaseTransform.status.Disposed")),
 
-    /**
-     * The status disposed.
-     */
-    STATUS_DISPOSED( BaseMessages.getString( PKG, "BaseTransform.status.Disposed" ) ),
+    /** The status halted. */
+    STATUS_HALTED(BaseMessages.getString(PKG, "BaseTransform.status.Halted")),
 
-    /**
-     * The status halted.
-     */
-    STATUS_HALTED( BaseMessages.getString( PKG, "BaseTransform.status.Halted" ) ),
+    /** The status paused. */
+    STATUS_PAUSED(BaseMessages.getString(PKG, "BaseTransform.status.Paused")),
 
-    /**
-     * The status paused.
-     */
-    STATUS_PAUSED( BaseMessages.getString( PKG, "BaseTransform.status.Paused" ) ),
+    /** The status halting. */
+    STATUS_HALTING(BaseMessages.getString(PKG, "BaseTransform.status.Halting"));
 
-    /**
-     * The status halting.
-     */
-    STATUS_HALTING( BaseMessages.getString( PKG, "BaseTransform.status.Halting" ) );
-
-
-    /**
-     * The description.
-     */
+    /** The description. */
     private String description;
 
     /**
@@ -582,7 +542,7 @@ public class EngineComponent implements IEngineComponent {
      *
      * @param description the description
      */
-    private ComponentExecutionStatus( String description ) {
+    private ComponentExecutionStatus(String description) {
       this.description = description;
     }
 
@@ -595,8 +555,6 @@ public class EngineComponent implements IEngineComponent {
       return description;
     }
 
-
-
     /*
      * (non-Javadoc)
      *
@@ -607,9 +565,9 @@ public class EngineComponent implements IEngineComponent {
       return description;
     }
 
-    public static ComponentExecutionStatus getStatusFromDescription( String description ) {
-      for ( ComponentExecutionStatus status : values() ) {
-        if ( status.description.equalsIgnoreCase( description ) ) {
+    public static ComponentExecutionStatus getStatusFromDescription(String description) {
+      for (ComponentExecutionStatus status : values()) {
+        if (status.description.equalsIgnoreCase(description)) {
           return status;
         }
       }

@@ -34,7 +34,6 @@ public class RowBuffer {
 
   public static final String XML_TAG = "row-buffer";
 
-
   private IRowMeta rowMeta;
   private List<Object[]> buffer;
 
@@ -47,36 +46,34 @@ public class RowBuffer {
    * @param rowMeta
    * @param buffer
    */
-  public RowBuffer( IRowMeta rowMeta, List<Object[]> buffer ) {
+  public RowBuffer(IRowMeta rowMeta, List<Object[]> buffer) {
     this.rowMeta = rowMeta;
     this.buffer = buffer;
   }
 
-  /**
-   * @param rowMeta
-   */
-  public RowBuffer( IRowMeta rowMeta ) {
-    this( rowMeta, new ArrayList<>() );
+  /** @param rowMeta */
+  public RowBuffer(IRowMeta rowMeta) {
+    this(rowMeta, new ArrayList<>());
   }
 
   public String getXml() throws IOException {
-    String xml = XmlHandler.openTag( XML_TAG );
+    String xml = XmlHandler.openTag(XML_TAG);
     xml += rowMeta.getMetaXml();
-    for ( Object[] row : buffer ) {
-      xml += rowMeta.getDataXml( row );
+    for (Object[] row : buffer) {
+      xml += rowMeta.getDataXml(row);
     }
-    xml += XmlHandler.closeTag( XML_TAG );
+    xml += XmlHandler.closeTag(XML_TAG);
 
     return xml;
   }
 
-  public RowBuffer( Node node ) throws HopException {
+  public RowBuffer(Node node) throws HopException {
     this();
-    Node rowMetaNode = XmlHandler.getSubNode( node, RowMeta.XML_META_TAG );
-    rowMeta = new RowMeta( rowMetaNode );
-    List<Node> dataNodes = XmlHandler.getNodes( node, RowMeta.XML_DATA_TAG );
-    for ( Node dataNode : dataNodes ) {
-      buffer.add( rowMeta.getRow( dataNode ) );
+    Node rowMetaNode = XmlHandler.getSubNode(node, RowMeta.XML_META_TAG);
+    rowMeta = new RowMeta(rowMetaNode);
+    List<Node> dataNodes = XmlHandler.getNodes(node, RowMeta.XML_DATA_TAG);
+    for (Node dataNode : dataNodes) {
+      buffer.add(rowMeta.getRow(dataNode));
     }
   }
 
@@ -85,50 +82,42 @@ public class RowBuffer {
   }
 
   public boolean isEmpty() {
-    return  buffer.isEmpty();
+    return buffer.isEmpty();
   }
 
-  public void addRow( Object[] row ) {
-    buffer.add( row );
+  public void addRow(Object[] row) {
+    buffer.add(row);
   }
 
   public void addRow(int index, Object[] row) {
-    buffer.add( index, row );
+    buffer.add(index, row);
   }
 
   public Object[] removeRow(int index) {
-    return buffer.remove( index );
+    return buffer.remove(index);
   }
 
-  public void setRow( int index, Object[] row ) {
-    buffer.set( index, row );
+  public void setRow(int index, Object[] row) {
+    buffer.set(index, row);
   }
 
-  /**
-   * @return the rowMeta
-   */
+  /** @return the rowMeta */
   public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
-  /**
-   * @param rowMeta the rowMeta to set
-   */
-  public void setRowMeta( IRowMeta rowMeta ) {
+  /** @param rowMeta the rowMeta to set */
+  public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }
 
-  /**
-   * @return the buffer
-   */
+  /** @return the buffer */
   public List<Object[]> getBuffer() {
     return buffer;
   }
 
-  /**
-   * @param buffer the buffer to set
-   */
-  public void setBuffer( List<Object[]> buffer ) {
+  /** @param buffer the buffer to set */
+  public void setBuffer(List<Object[]> buffer) {
     this.buffer = buffer;
   }
 }

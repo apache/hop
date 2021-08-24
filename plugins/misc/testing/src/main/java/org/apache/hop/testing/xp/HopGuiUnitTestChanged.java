@@ -24,12 +24,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 
-/**
- * Used for create/update/delete of unit test metadata objects
- */
+/** Used for create/update/delete of unit test metadata objects */
 public class HopGuiUnitTestChanged implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
+  @Override
+  public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
+      throws HopException {
     // We only respond to pipeline unit test changes
     //
     if (!(object instanceof PipelineUnitTest)) {

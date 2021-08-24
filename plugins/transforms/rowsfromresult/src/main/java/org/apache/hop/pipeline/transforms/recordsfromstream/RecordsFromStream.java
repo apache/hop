@@ -23,10 +23,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResult;
 
 public class RecordsFromStream extends RowsFromResult {
-  public RecordsFromStream( final TransformMeta transformMeta,
-                            final RecordsFromStreamMeta meta ,
-                            final RecordsFromStreamData data, final int copyNr,
-                            final PipelineMeta pipelineMeta, final Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public RecordsFromStream(
+      final TransformMeta transformMeta,
+      final RecordsFromStreamMeta meta,
+      final RecordsFromStreamData data,
+      final int copyNr,
+      final PipelineMeta pipelineMeta,
+      final Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 }

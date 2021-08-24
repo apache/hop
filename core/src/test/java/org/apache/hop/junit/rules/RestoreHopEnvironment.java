@@ -53,11 +53,10 @@ public class RestoreHopEnvironment extends ExternalResource {
   private Path tmpHopHome;
 
   /**
-   * Creates a {@code RestoreHopEnvironment} rule that restores all system properties and resets any Hop related
-   * environment instances.
+   * Creates a {@code RestoreHopEnvironment} rule that restores all system properties and resets any
+   * Hop related environment instances.
    */
-  public RestoreHopEnvironment() {
-  }
+  public RestoreHopEnvironment() {}
 
   void defaultInit() throws Throwable {
     // make sure static class initializers are correctly initialized
@@ -67,13 +66,13 @@ public class RestoreHopEnvironment extends ExternalResource {
 
     // initialize some classes, this will fail if some tests init this classes before any Hop init()
     // the best thing to do is to invoke this ClassRule in every test
-    Class.forName( Database.class.getName() );
-    Class.forName( Timestamp.class.getName() );
-    Class.forName( ValueMetaBase.class.getName() );
-    Class.forName( SimpleTimestampFormat.class.getName() );
-    Class.forName( SimpleDateFormat.class.getName() );
-    Class.forName( XmlHandler.class.getName() );
-    Class.forName( LogChannel.class.getName() );
+    Class.forName(Database.class.getName());
+    Class.forName(Timestamp.class.getName());
+    Class.forName(ValueMetaBase.class.getName());
+    Class.forName(SimpleTimestampFormat.class.getName());
+    Class.forName(SimpleDateFormat.class.getName());
+    Class.forName(XmlHandler.class.getName());
+    Class.forName(LogChannel.class.getName());
     DatabaseMeta.init();
     ExtensionPointMap.getInstance().reInitialize();
     HopVfs.reset(); // reinit
@@ -84,10 +83,10 @@ public class RestoreHopEnvironment extends ExternalResource {
     PluginRegistry.getInstance().reset();
     MetricsRegistry.getInstance().reset();
     ExtensionPointMap.getInstance().reset();
-    if ( HopLogStore.isInitialized() ) {
+    if (HopLogStore.isInitialized()) {
       HopLogStore.getInstance().reset();
     }
-    HopLogStore.setLogChannelFactory( new LogChannelFactory() );
+    HopLogStore.setLogChannelFactory(new LogChannelFactory());
     HopVfs.reset();
     XmlHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();
@@ -95,51 +94,52 @@ public class RestoreHopEnvironment extends ExternalResource {
     //    LoggingRegistry.getInstance().reset();
   }
 
-  @Override protected void before() throws Throwable {
+  @Override
+  protected void before() throws Throwable {
     originalProperties = System.getProperties();
-    System.setProperties( copyOf( originalProperties ) );
+    System.setProperties(copyOf(originalProperties));
 
     originalLocale = Locale.getDefault();
-    originalFormatLocale = Locale.getDefault( Locale.Category.FORMAT );
+    originalFormatLocale = Locale.getDefault(Locale.Category.FORMAT);
     originalTimezone = TimeZone.getDefault();
-    TimeZone.setDefault( TimeZone.getTimeZone( "UTC" ) );
-    Locale.setDefault( Locale.US );
-    Locale.setDefault( Locale.Category.FORMAT, Locale.US );
-    LanguageChoice.getInstance().setDefaultLocale( Locale.US );
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale.setDefault(Locale.US);
+    Locale.setDefault(Locale.Category.FORMAT, Locale.US);
+    LanguageChoice.getInstance().setDefaultLocale(Locale.US);
 
-    tmpHopHome = Files.createTempDirectory( Long.toString( System.nanoTime() ) );
-    System.setProperty( "file.encoding", "UTF-8" );
-    System.setProperty( "user.timezone", "UTC" );
-    System.setProperty( "HOP_HOME", tmpHopHome.toString() );
-    System.setProperty( Const.HOP_DISABLE_CONSOLE_LOGGING, "Y" );
-    System.clearProperty( Const.VFS_USER_DIR_IS_ROOT );
-    System.clearProperty( Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION );
-    System.clearProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE );
-    System.clearProperty( Const.HOP_DEFAULT_INTEGER_FORMAT );
-    System.clearProperty( Const.HOP_DEFAULT_NUMBER_FORMAT );
-    System.clearProperty( Const.HOP_DEFAULT_BIGNUMBER_FORMAT );
-    System.clearProperty( Const.HOP_DEFAULT_DATE_FORMAT );
-    System.clearProperty( Const.HOP_DEFAULT_TIMESTAMP_FORMAT );
-    System.clearProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL );
+    tmpHopHome = Files.createTempDirectory(Long.toString(System.nanoTime()));
+    System.setProperty("file.encoding", "UTF-8");
+    System.setProperty("user.timezone", "UTC");
+    System.setProperty("HOP_HOME", tmpHopHome.toString());
+    System.setProperty(Const.HOP_DISABLE_CONSOLE_LOGGING, "Y");
+    System.clearProperty(Const.VFS_USER_DIR_IS_ROOT);
+    System.clearProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION);
+    System.clearProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE);
+    System.clearProperty(Const.HOP_DEFAULT_INTEGER_FORMAT);
+    System.clearProperty(Const.HOP_DEFAULT_NUMBER_FORMAT);
+    System.clearProperty(Const.HOP_DEFAULT_BIGNUMBER_FORMAT);
+    System.clearProperty(Const.HOP_DEFAULT_DATE_FORMAT);
+    System.clearProperty(Const.HOP_DEFAULT_TIMESTAMP_FORMAT);
+    System.clearProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL);
 
     defaultInit();
   }
 
-  private Properties copyOf( Properties originalProperties ) {
+  private Properties copyOf(Properties originalProperties) {
     Properties copy = new Properties();
-    copy.putAll( originalProperties );
+    copy.putAll(originalProperties);
     return copy;
   }
 
-  @Override protected void after() {
+  @Override
+  protected void after() {
     cleanUp();
 
-    System.setProperties( originalProperties );
-    Locale.setDefault( originalLocale );
-    Locale.setDefault( Locale.Category.FORMAT, originalFormatLocale );
-    LanguageChoice.getInstance().setDefaultLocale( originalLocale );
-    TimeZone.setDefault( originalTimezone );
-    FileUtils.deleteQuietly( tmpHopHome.toFile() );
+    System.setProperties(originalProperties);
+    Locale.setDefault(originalLocale);
+    Locale.setDefault(Locale.Category.FORMAT, originalFormatLocale);
+    LanguageChoice.getInstance().setDefaultLocale(originalLocale);
+    TimeZone.setDefault(originalTimezone);
+    FileUtils.deleteQuietly(tmpHopHome.toFile());
   }
-
 }

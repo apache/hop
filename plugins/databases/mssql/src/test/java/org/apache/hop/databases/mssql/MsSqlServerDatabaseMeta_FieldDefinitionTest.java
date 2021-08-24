@@ -39,151 +39,125 @@ public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
   private static final String STRING_VARCHAR = "VARCHAR";
   private static final String STRING_TEXT = "TEXT";
 
-
   @Before
   public void init() {
     dbMeta = new MsSqlServerDatabaseMeta();
   }
 
-
   @Test
   public void numberType_ZeroLength_ZeroPrecision() {
     IValueMeta valueMeta =
-      new MetaInterfaceBuilder( IValueMeta.TYPE_NUMBER )
-        .length( 0 )
-        .precision( 0 )
-        .build();
+        new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(0).precision(0).build();
 
-    assertEquals( STRING_INT, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
+    assertEquals(STRING_INT, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   @Test
   public void numberType_LessThanNineLength_ZeroPrecision() {
     IValueMeta valueMeta =
-      new MetaInterfaceBuilder( IValueMeta.TYPE_NUMBER )
-        .length( 5 )
-        .precision( 0 )
-        .build();
+        new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(5).precision(0).build();
 
-    assertEquals( STRING_INT, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
+    assertEquals(STRING_INT, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
-
 
   @Test
   public void numberType_MoreThanNineLessThanEighteenLength_ZeroPrecision() {
     IValueMeta valueMeta =
-      new MetaInterfaceBuilder( IValueMeta.TYPE_NUMBER )
-        .length( 17 )
-        .precision( 0 )
-        .build();
+        new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(17).precision(0).build();
 
-    assertEquals( STRING_BIGINT, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
+    assertEquals(
+        STRING_BIGINT, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   @Test
   public void numberType_MoreThanEighteenLength_ZeroPrecision() {
     IValueMeta valueMeta =
-      new MetaInterfaceBuilder( IValueMeta.TYPE_NUMBER )
-        .length( 19 )
-        .precision( 0 )
-        .build();
+        new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(19).precision(0).build();
 
     final String expected =
-      STRING_DECIMAL + "(" + valueMeta.getLength() + "," + valueMeta.getPrecision() + ")";
+        STRING_DECIMAL + "(" + valueMeta.getLength() + "," + valueMeta.getPrecision() + ")";
 
-    assertEquals( expected, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
+    assertEquals(expected, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   @Test
   public void numberType_NonZeroLength_NonZeroPrecision() {
     IValueMeta valueMeta =
-      new MetaInterfaceBuilder( IValueMeta.TYPE_NUMBER )
-        .length( 5 )
-        .precision( 5 )
-        .build();
+        new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(5).precision(5).build();
 
-    final String expected = STRING_DECIMAL + "(" + valueMeta.getLength() + "," + valueMeta.getPrecision() + ")";
+    final String expected =
+        STRING_DECIMAL + "(" + valueMeta.getLength() + "," + valueMeta.getPrecision() + ")";
 
-    assertEquals( expected, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
+    assertEquals(expected, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   @Test
   public void numberType_ZeroLength_NonZeroPrecision() {
-    IValueMeta valueMeta = new MetaInterfaceBuilder( IValueMeta.TYPE_NUMBER )
-      .length( 0 )
-      .precision( 5 )
-      .build();
+    IValueMeta valueMeta =
+        new MetaInterfaceBuilder(IValueMeta.TYPE_NUMBER).length(0).precision(5).build();
 
-    final String definition = dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false );
+    final String definition = dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false);
 
     // There is actually returned FLOAT(53), where 53 is hardcoded string,
     // but we don't wanna tie to it, so checking type only.
-    assertTrue( definition.contains( STRING_FLOAT ) );
+    assertTrue(definition.contains(STRING_FLOAT));
   }
 
   @Test
   public void stringType_ZeroLength() {
-    IValueMeta valueMeta = new MetaInterfaceBuilder( IValueMeta.TYPE_STRING )
-      .length( 0 )
-      .build();
+    IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(0).build();
 
-    final String definition = dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false );
+    final String definition = dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false);
 
     // There is actually returned VARCHAR(100), where 100 is hardcoded string,
     // but we don't wanna tie to it, so checking type only.
-    assertTrue( definition.contains( STRING_VARCHAR ) );
+    assertTrue(definition.contains(STRING_VARCHAR));
   }
 
   @Test
   public void stringType_NonZeroLength() {
-    IValueMeta valueMeta = new MetaInterfaceBuilder( IValueMeta.TYPE_STRING )
-      .length( 50 )
-      .build();
+    IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(50).build();
 
     final String expected = STRING_VARCHAR + "(" + valueMeta.getLength() + ")";
 
-    assertEquals( expected, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
-
+    assertEquals(expected, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   @Test
   public void stringType_TenThousandLength() {
-    IValueMeta valueMeta = new MetaInterfaceBuilder( IValueMeta.TYPE_STRING )
-      .length( 10_000 )
-      .build();
+    IValueMeta valueMeta = new MetaInterfaceBuilder(IValueMeta.TYPE_STRING).length(10_000).build();
 
-
-    assertEquals( STRING_TEXT, dbMeta.getFieldDefinition( valueMeta, null, null, false, false, false ) );
-
+    assertEquals(
+        STRING_TEXT, dbMeta.getFieldDefinition(valueMeta, null, null, false, false, false));
   }
 
   private static class MetaInterfaceBuilder {
     private final IValueMeta meta;
 
-    public MetaInterfaceBuilder( Integer type ) {
-      this( type, DEFAULT_TABLE_NAME );
+    public MetaInterfaceBuilder(Integer type) {
+      this(type, DEFAULT_TABLE_NAME);
     }
 
-    public MetaInterfaceBuilder( Integer type, String name ) {
-      switch ( type ) {
+    public MetaInterfaceBuilder(Integer type, String name) {
+      switch (type) {
         case IValueMeta.TYPE_NUMBER:
-          meta = new ValueMetaNumber( name );
+          meta = new ValueMetaNumber(name);
           break;
         case IValueMeta.TYPE_STRING:
-          meta = new ValueMetaString( name );
+          meta = new ValueMetaString(name);
           break;
         default:
-          meta = new ValueMetaNone( name );
+          meta = new ValueMetaNone(name);
       }
     }
 
-    public MetaInterfaceBuilder length( int length ) {
-      meta.setLength( length );
+    public MetaInterfaceBuilder length(int length) {
+      meta.setLength(length);
       return this;
     }
 
-    public MetaInterfaceBuilder precision( int precision ) {
-      meta.setPrecision( precision );
+    public MetaInterfaceBuilder precision(int precision) {
+      meta.setPrecision(precision);
       return this;
     }
 

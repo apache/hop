@@ -33,17 +33,18 @@ public class FlattenerMetaTest {
 
   @Test
   public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList( "field_name", "target" );
+    List<String> attributes = Arrays.asList("field_name", "target");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "field_name", "getFieldName" );
-    getterMap.put( "target", "getTargetField" );
+    getterMap.put("field_name", "getFieldName");
+    getterMap.put("target", "getTargetField");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "field_name", "setFieldName" );
-    setterMap.put( "target", "setTargetField" );
+    setterMap.put("field_name", "setFieldName");
+    setterMap.put("target", "setTargetField");
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( FlattenerMeta.class, attributes, getterMap, setterMap );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(FlattenerMeta.class, attributes, getterMap, setterMap);
 
     loadSaveTester.testSerialization();
   }

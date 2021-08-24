@@ -253,10 +253,12 @@ public class HttpPostMeta extends BaseTransformMeta
     }
     if (!Utils.isEmpty(httpPostResultField.get(0).getResponseTimeFieldName())) {
       IValueMeta v =
-          new ValueMetaInteger(variables.resolve(httpPostResultField.get(0).getResponseTimeFieldName()));
+          new ValueMetaInteger(
+              variables.resolve(httpPostResultField.get(0).getResponseTimeFieldName()));
       inputRowMeta.addValueMeta(v);
     }
-    String headerFieldName = variables.resolve(httpPostResultField.get(0).getResponseHeaderFieldName());
+    String headerFieldName =
+        variables.resolve(httpPostResultField.get(0).getResponseHeaderFieldName());
     if (!Utils.isEmpty(headerFieldName)) {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);

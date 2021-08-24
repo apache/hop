@@ -30,8 +30,10 @@ Here are the important options to fill in to get the transform to work:
 
 * Event Hubs namespace: the name of your Event Hubs namespace
 * Event Hubs instance name: the name of the Event Hub, the instance itself.
-* SAS Policy key name: the name of the policy in the "Shared Access Policies" section of the Event Hubs Namespace in the Azure dashboard. This needs to be a policy with the "Send" claim enabled.
+* SAS Policy key name: the name of the policy in the "Shared Access Policies" section of the Event Hubs Namespace in the Azure dashboard.
+This needs to be a policy with the "Send" claim enabled.
 * SAS Key connection string: You can use the value in the policy labeled "Connection string–primary key"
 * Batch size: the number of messages (events) to send in one batch with each call to Azure.
-* Message field: the field containing the message to use as the events. Please note you can use a transform like JSON Output or "Java Script" to assemble the message.
+* Message field: the field containing the message to use as the events.
+Please note you can use a transform like JSON Output or "Java Script" to assemble the message.
 

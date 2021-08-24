@@ -26,9 +26,10 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @HopMetadata(
     key = "workflow-log",
     name = "Workflow Log",
-    description = "This metadata object type allows you to log activity of a workflow with a pipeline",
+    description =
+        "This metadata object type allows you to log activity of a workflow with a pipeline",
     image = "workflow-log.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/workflow-log.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/workflow-log.html")
 public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
@@ -48,12 +49,20 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     executingAtEnd = true;
   }
 
-  public WorkflowLog( String name) {
+  public WorkflowLog(String name) {
     super(name);
   }
 
-  public WorkflowLog( String name, boolean enabled, boolean loggingParentsOnly, String pipelineFilename, boolean executingAtStart, boolean executingPeriodically, String intervalInSeconds, boolean executingAtEnd ) {
-    super( name );
+  public WorkflowLog(
+      String name,
+      boolean enabled,
+      boolean loggingParentsOnly,
+      String pipelineFilename,
+      boolean executingAtStart,
+      boolean executingPeriodically,
+      String intervalInSeconds,
+      boolean executingAtEnd) {
+    super(name);
     this.enabled = enabled;
     this.loggingParentsOnly = loggingParentsOnly;
     this.pipelineFilename = pipelineFilename;
@@ -72,10 +81,8 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /**
-   * @param enabled The enabled to set
-   */
-  public void setEnabled( boolean enabled ) {
+  /** @param enabled The enabled to set */
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
@@ -88,10 +95,8 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return loggingParentsOnly;
   }
 
-  /**
-   * @param loggingParentsOnly The loggingParentsOnly to set
-   */
-  public void setLoggingParentsOnly( boolean loggingParentsOnly ) {
+  /** @param loggingParentsOnly The loggingParentsOnly to set */
+  public void setLoggingParentsOnly(boolean loggingParentsOnly) {
     this.loggingParentsOnly = loggingParentsOnly;
   }
 
@@ -164,6 +169,4 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
   public void setExecutingAtEnd(boolean executingAtEnd) {
     this.executingAtEnd = executingAtEnd;
   }
-
-
 }

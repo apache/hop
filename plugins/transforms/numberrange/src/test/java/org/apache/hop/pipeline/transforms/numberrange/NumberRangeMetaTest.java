@@ -25,55 +25,53 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class NumberRangeMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "inputField", "outputField", "fallBackValue", "rules" );
+    List<String> attributes = Arrays.asList("inputField", "outputField", "fallBackValue", "rules");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "inputField", "getInputField" );
-    getterMap.put( "outputField", "getOutputField" );
-    getterMap.put( "fallBackValue", "getFallBackValue" );
-    getterMap.put( "rules", "getRules" );
+    getterMap.put("inputField", "getInputField");
+    getterMap.put("outputField", "getOutputField");
+    getterMap.put("fallBackValue", "getFallBackValue");
+    getterMap.put("rules", "getRules");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "inputField", "setInputField" );
-    setterMap.put( "outputField", "setOutputField" );
-    setterMap.put( "fallBackValue", "setFallBackValue" );
-    setterMap.put( "rules", "setRules" );
+    setterMap.put("inputField", "setInputField");
+    setterMap.put("outputField", "setOutputField");
+    setterMap.put("fallBackValue", "setFallBackValue");
+    setterMap.put("rules", "setRules");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
-    fieldLoadSaveValidatorAttributeMap.put( "rules",
-      new ListLoadSaveValidator<>( new NumberRangeRuleFieldLoadSaveValidator(), 25 ) );
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
+    fieldLoadSaveValidatorAttributeMap.put(
+        "rules", new ListLoadSaveValidator<>(new NumberRangeRuleFieldLoadSaveValidator(), 25));
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester(
-      NumberRangeMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(
+            NumberRangeMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
     loadSaveTester.testSerialization();
   }
 
-  public class NumberRangeRuleFieldLoadSaveValidator implements IFieldLoadSaveValidator<NumberRangeRule> {
+  public class NumberRangeRuleFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<NumberRangeRule> {
     @Override
     public NumberRangeRule getTestObject() {
       return new NumberRangeRule(
-        new Random().nextDouble(),
-        new Random().nextDouble(),
-        UUID.randomUUID().toString() );
+          new Random().nextDouble(), new Random().nextDouble(), UUID.randomUUID().toString());
     }
 
     @Override
-    public boolean validateTestObject( NumberRangeRule testObject, Object actual ) {
-      return testObject.equals( actual );
+    public boolean validateTestObject(NumberRangeRule testObject, Object actual) {
+      return testObject.equals(actual);
     }
   }
 }

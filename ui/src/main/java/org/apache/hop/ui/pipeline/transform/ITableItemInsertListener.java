@@ -21,5 +21,5 @@ import org.apache.hop.core.row.IValueMeta;
 import org.eclipse.swt.widgets.TableItem;
 
 public interface ITableItemInsertListener {
-  boolean tableItemInserted( TableItem tableItem, IValueMeta v );
+  boolean tableItemInserted(TableItem tableItem, IValueMeta v);
 }

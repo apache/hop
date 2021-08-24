@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith( PowerMockRunner.class )
+@RunWith(PowerMockRunner.class)
 public class GlobalMessagesTest {
   /*
    * Reading properties file without native2ascii. (use UTF8 characters) #620
@@ -42,40 +42,39 @@ public class GlobalMessagesTest {
     final String pkgName = "org.apache.hop/i18n/messages/test_ascii_messages";
     final String msgKey = "System.Dialog.SelectEnvironmentVar.Title";
 
-    res = GlobalMessages.getBundle( Locale.JAPAN, pkgName );
-    assertEquals( "環境変数の選択", res.getString( msgKey ) );
+    res = GlobalMessages.getBundle(Locale.JAPAN, pkgName);
+    assertEquals("環境変数の選択", res.getString(msgKey));
 
-    res = GlobalMessages.getBundle( Locale.CHINA, pkgName );
-    assertEquals( "选择一个环境变量", res.getString( msgKey ) );
+    res = GlobalMessages.getBundle(Locale.CHINA, pkgName);
+    assertEquals("选择一个环境变量", res.getString(msgKey));
 
-    res = GlobalMessages.getBundle( Locale.US, pkgName );
-    assertEquals( "Select an Environment Variable", res.getString( msgKey ) );
+    res = GlobalMessages.getBundle(Locale.US, pkgName);
+    assertEquals("Select an Environment Variable", res.getString(msgKey));
 
     // make sure the selected language is used correctly
-    LanguageChoice.getInstance().setDefaultLocale( Locale.FRENCH ); // "fr" - fall back to en_US
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Select an Environment Variable", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.FRENCH); // "fr" - fall back to en_US
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Select an Environment Variable", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.FRANCE ); // "fr", "FR" - fall back to en_US
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Select an Environment Variable", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.FRANCE); // "fr", "FR" - fall back to en_US
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Select an Environment Variable", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.JAPANESE ); // "jp"
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "環境変数の選択 (jp)", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.JAPANESE); // "jp"
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("環境変数の選択 (jp)", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.JAPAN ); // "jp", "JP"
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "環境変数の選択", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.JAPAN); // "jp", "JP"
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("環境変数の選択", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.CHINESE ); // "zh" - fall back on english
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Select an Environment Variable", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.CHINESE); // "zh" - fall back on english
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Select an Environment Variable", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.CHINA ); // "zh", "CN"
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "选择一个环境变量", res.getString( msgKey ) );
-
+    LanguageChoice.getInstance().setDefaultLocale(Locale.CHINA); // "zh", "CN"
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("选择一个环境变量", res.getString(msgKey));
   }
 
   /*
@@ -86,36 +85,37 @@ public class GlobalMessagesTest {
     final String pkgName = "org.apache.hop/i18n/messages/test_utf8_messages";
     final String msgKey = "System.Dialog.SelectEnvironmentVar.Title";
 
-    res = GlobalMessages.getBundle( Locale.JAPAN, pkgName );
-    assertEquals( "環境変数の選択", res.getString( msgKey ) );
+    res = GlobalMessages.getBundle(Locale.JAPAN, pkgName);
+    assertEquals("環境変数の選択", res.getString(msgKey));
 
-    res = GlobalMessages.getBundle( Locale.CHINA, pkgName );
-    assertEquals( "选择一个环境变量", res.getString( msgKey ) );
+    res = GlobalMessages.getBundle(Locale.CHINA, pkgName);
+    assertEquals("选择一个环境变量", res.getString(msgKey));
 
     // make sure the selected language is used correctly
-    LanguageChoice.getInstance().setDefaultLocale( Locale.FRENCH ); // "fr" - fall back to default
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Select an Environment Variable (default)", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.FRENCH); // "fr" - fall back to default
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Select an Environment Variable (default)", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.FRANCE ); // "fr", "FR" - fall back to default
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Select an Environment Variable (default)", res.getString( msgKey ) );
+    LanguageChoice.getInstance()
+        .setDefaultLocale(Locale.FRANCE); // "fr", "FR" - fall back to default
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Select an Environment Variable (default)", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.JAPANESE ); // "jp" - fall back to default
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Select an Environment Variable (default)", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.JAPANESE); // "jp" - fall back to default
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Select an Environment Variable (default)", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.JAPAN ); // "jp", "JP"
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "環境変数の選択", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.JAPAN); // "jp", "JP"
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("環境変数の選択", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.GERMANY ); // "de", "DE" - fall back on de
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Wählen Sie eine Umgebungsvariable aus", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.GERMANY); // "de", "DE" - fall back on de
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Wählen Sie eine Umgebungsvariable aus", res.getString(msgKey));
 
-    LanguageChoice.getInstance().setDefaultLocale( Locale.GERMAN ); // "de"
-    res = GlobalMessages.getBundle( pkgName );
-    assertEquals( "Wählen Sie eine Umgebungsvariable aus", res.getString( msgKey ) );
+    LanguageChoice.getInstance().setDefaultLocale(Locale.GERMAN); // "de"
+    res = GlobalMessages.getBundle(pkgName);
+    assertEquals("Wählen Sie eine Umgebungsvariable aus", res.getString(msgKey));
   }
 
   /*
@@ -124,6 +124,6 @@ public class GlobalMessagesTest {
   @Test
   public void testUnmatchedString() {
     String messageId = UUID.randomUUID().toString();
-    assertEquals( "!" + messageId + "!", GlobalMessages.getInstance().getString( messageId ) );
+    assertEquals("!" + messageId + "!", GlobalMessages.getInstance().getString(messageId));
   }
 }

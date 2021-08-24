@@ -45,47 +45,54 @@ public class GetStatusServletTest {
 
   @Before
   public void setup() {
-    mockPipelineMap = mock( PipelineMap.class );
-    mockWorkflowMap = mock( WorkflowMap.class );
-    getStatusServlet = new GetStatusServlet( mockPipelineMap, mockWorkflowMap );
+    mockPipelineMap = mock(PipelineMap.class);
+    mockWorkflowMap = mock(WorkflowMap.class);
+    getStatusServlet = new GetStatusServlet(mockPipelineMap, mockWorkflowMap);
   }
 
   @Test
-  public void testGetStatusServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
+  public void testGetStatusServletEscapesHtmlWhenPipelineNotFound()
+      throws ServletException, IOException {
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
 
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( GetStatusServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
+    when(mockHttpServletRequest.getContextPath()).thenReturn(GetStatusServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
 
-    getStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "TITLE", out.toString() ) ) ); // title will more reliably be plain text
+    getStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(
+        ServletTestUtils.hasBadText(
+            ServletTestUtils.getInsideOfTag(
+                "TITLE", out.toString()))); // title will more reliably be plain text
   }
 
   @Test
-  public void testGetStatusServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
+  public void testGetStatusServletEscapesHtmlWhenPipelineFound()
+      throws ServletException, IOException {
     HopLogStore.init();
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    Pipeline mockPipeline = mock( Pipeline.class );
-    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    ILogChannel mockChannelInterface = mock( ILogChannel.class );
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
+    Pipeline mockPipeline = mock(Pipeline.class);
+    PipelineMeta mockPipelineMeta = mock(PipelineMeta.class);
+    ILogChannel mockChannelInterface = mock(ILogChannel.class);
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( GetStatusServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockPipelineMap.getPipeline( any( HopServerObjectEntry.class ) ) ).thenReturn( mockPipeline );
-    when( mockPipeline.getLogChannel() ).thenReturn( mockChannelInterface );
-    when( mockPipeline.getPipelineMeta() ).thenReturn( mockPipelineMeta );
-    when( mockPipelineMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
+    when(mockHttpServletRequest.getContextPath()).thenReturn(GetStatusServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
+    when(mockPipelineMap.getPipeline(any(HopServerObjectEntry.class))).thenReturn(mockPipeline);
+    when(mockPipeline.getLogChannel()).thenReturn(mockChannelInterface);
+    when(mockPipeline.getPipelineMeta()).thenReturn(mockPipelineMeta);
+    when(mockPipelineMeta.getMaximum()).thenReturn(new Point(10, 10));
 
-    getStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( out.toString().contains( ServletTestUtils.BAD_STRING_TO_TEST ) );
+    getStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(out.toString().contains(ServletTestUtils.BAD_STRING_TO_TEST));
   }
 }

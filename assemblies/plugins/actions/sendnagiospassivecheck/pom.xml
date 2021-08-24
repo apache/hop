@@ -34,9 +34,9 @@
     <name>Hop Assemblies Plugins Actions Send Nagios passive check</name>
     <description></description>
 
-    	<properties>
-		<jsendnsca.version>2.1</jsendnsca.version>
-	</properties>
+    <properties>
+        <jsendnsca.version>2.1</jsendnsca.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -44,17 +44,17 @@
             <artifactId>hop-action-sendnagiospassivecheck</artifactId>
             <version>${project.version}</version>
         </dependency>
-		<dependency>
-			<groupId>com.googlecode.jsendnsca</groupId>
-			<artifactId>jsendnsca</artifactId>
-			<version>${jsendnsca.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>        
+        <dependency>
+            <groupId>com.googlecode.jsendnsca</groupId>
+            <artifactId>jsendnsca</artifactId>
+            <version>${jsendnsca.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <repositories>

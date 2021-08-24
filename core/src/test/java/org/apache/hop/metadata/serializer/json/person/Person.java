@@ -24,38 +24,24 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.serializer.json.occupation.Occupation;
 import org.apache.hop.metadata.serializer.json.person.interest.IInterest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-@HopMetadata(
-  key="person",
-  name="A Person",
-  description = "Description of the Person object"
-)
+@HopMetadata(key = "person", name = "A Person", description = "Description of the Person object")
 public class Person extends HopMetadataBase implements IHopMetadata {
 
-  @HopMetadataProperty
-  private String age;
+  @HopMetadataProperty private String age;
 
-  @HopMetadataProperty
-  private Address address;
+  @HopMetadataProperty private Address address;
 
-  @HopMetadataProperty
-  private IInterest mainInterest;
+  @HopMetadataProperty private IInterest mainInterest;
 
-  @HopMetadataProperty
-  private IInterest sideInterest;
+  @HopMetadataProperty private IInterest sideInterest;
 
-  @HopMetadataProperty
-  private List<IInterest> interests;
+  @HopMetadataProperty private List<IInterest> interests;
 
-  @HopMetadataProperty
-  private Map<String,String> attributes;
+  @HopMetadataProperty private Map<String, String> attributes;
 
-  @HopMetadataProperty( storeWithName = true)
+  @HopMetadataProperty(storeWithName = true)
   private Occupation occupation;
 
   public Person() {
@@ -63,7 +49,14 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     attributes = new HashMap<>();
   }
 
-  public Person( String name, String age, Address address, IInterest mainInterest, List<IInterest> interests, Map<String, String> attributes, Occupation occupation ) {
+  public Person(
+      String name,
+      String age,
+      Address address,
+      IInterest mainInterest,
+      List<IInterest> interests,
+      Map<String, String> attributes,
+      Occupation occupation) {
     this.name = name;
     this.age = age;
     this.address = address;
@@ -73,26 +66,29 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     this.occupation = occupation;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     Person person = (Person) o;
-    return Objects.equals( name, person.name ) &&
-      Objects.equals( age, person.age ) &&
-      Objects.equals( address, person.address ) &&
-      Objects.equals( mainInterest, person.mainInterest ) &&
-      Objects.equals( sideInterest, person.sideInterest ) &&
-      Objects.equals( interests, person.interests ) &&
-      Objects.equals( attributes, person.attributes ) &&
-      Objects.equals( occupation, person.occupation );
+    return Objects.equals(name, person.name)
+        && Objects.equals(age, person.age)
+        && Objects.equals(address, person.address)
+        && Objects.equals(mainInterest, person.mainInterest)
+        && Objects.equals(sideInterest, person.sideInterest)
+        && Objects.equals(interests, person.interests)
+        && Objects.equals(attributes, person.attributes)
+        && Objects.equals(occupation, person.occupation);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name, age, address, mainInterest, sideInterest, interests, attributes, occupation );
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        name, age, address, mainInterest, sideInterest, interests, attributes, occupation);
   }
 
   /**
@@ -104,10 +100,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return age;
   }
 
-  /**
-   * @param age The age to set
-   */
-  public void setAge( String age ) {
+  /** @param age The age to set */
+  public void setAge(String age) {
     this.age = age;
   }
 
@@ -120,10 +114,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return address;
   }
 
-  /**
-   * @param address The address to set
-   */
-  public void setAddress( Address address ) {
+  /** @param address The address to set */
+  public void setAddress(Address address) {
     this.address = address;
   }
 
@@ -136,10 +128,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return mainInterest;
   }
 
-  /**
-   * @param mainInterest The mainInterest to set
-   */
-  public void setMainInterest( IInterest mainInterest ) {
+  /** @param mainInterest The mainInterest to set */
+  public void setMainInterest(IInterest mainInterest) {
     this.mainInterest = mainInterest;
   }
 
@@ -152,10 +142,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return sideInterest;
   }
 
-  /**
-   * @param sideInterest The sideInterest to set
-   */
-  public void setSideInterest( IInterest sideInterest ) {
+  /** @param sideInterest The sideInterest to set */
+  public void setSideInterest(IInterest sideInterest) {
     this.sideInterest = sideInterest;
   }
 
@@ -168,10 +156,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return interests;
   }
 
-  /**
-   * @param interests The interests to set
-   */
-  public void setInterests( List<IInterest> interests ) {
+  /** @param interests The interests to set */
+  public void setInterests(List<IInterest> interests) {
     this.interests = interests;
   }
 
@@ -184,10 +170,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return attributes;
   }
 
-  /**
-   * @param attributes The attributes to set
-   */
-  public void setAttributes( Map<String, String> attributes ) {
+  /** @param attributes The attributes to set */
+  public void setAttributes(Map<String, String> attributes) {
     this.attributes = attributes;
   }
 
@@ -200,10 +184,8 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return occupation;
   }
 
-  /**
-   * @param occupation The occupation to set
-   */
-  public void setOccupation( Occupation occupation ) {
+  /** @param occupation The occupation to set */
+  public void setOccupation(Occupation occupation) {
     this.occupation = occupation;
   }
 }

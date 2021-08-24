@@ -25,10 +25,9 @@ public class NVPair {
   private String name;
   private String value;
 
-  public NVPair() {
-  }
+  public NVPair() {}
 
-  public NVPair( String name, String value ) {
+  public NVPair(String name, String value) {
     this.name = name;
     this.value = value;
   }
@@ -37,7 +36,7 @@ public class NVPair {
     return name;
   }
 
-  public void setName( String name ) {
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -45,8 +44,7 @@ public class NVPair {
     return value;
   }
 
-  public void setValue( String value ) {
+  public void setValue(String value) {
     this.value = value;
   }
-
 }

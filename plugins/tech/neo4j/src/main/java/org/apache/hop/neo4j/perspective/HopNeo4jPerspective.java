@@ -86,17 +86,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
@@ -104,11 +94,8 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @HopPerspectivePlugin(
     id = "HopNeo4jPerspective",
@@ -239,7 +226,8 @@ public class HopNeo4jPerspective implements IHopPerspective {
 
     Label wlUsedConnection = new Label(composite, SWT.LEFT);
     props.setLook(wlUsedConnection);
-    wlUsedConnection.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Neo4J.Logging.Path.Label"));
+    wlUsedConnection.setText(
+        BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Neo4J.Logging.Path.Label"));
     FormData fdlLoggingConnection = new FormData();
     fdlLoggingConnection.left = new FormAttachment(0, 0);
     fdlLoggingConnection.top = new FormAttachment(lastControl, margin);
@@ -247,7 +235,8 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wUsedConnection = new Text(composite, SWT.SINGLE | SWT.BORDER);
     wUsedConnection.setEditable(false);
     props.setLook(wUsedConnection);
-    wUsedConnection.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Neo4J.Logging.Path.Label"));
+    wUsedConnection.setText(
+        BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Neo4J.Logging.Path.Label"));
     wUsedConnection.setFont(GuiResource.getInstance().getFontBold());
     FormData fdLoggingConnection = new FormData();
     fdLoggingConnection.left = new FormAttachment(wlUsedConnection, margin);
@@ -260,7 +249,8 @@ public class HopNeo4jPerspective implements IHopPerspective {
     //
     Label wlExecutions = new Label(composite, SWT.LEFT);
     props.setLook(wlExecutions);
-    wlExecutions.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.PipelineActionName.Label"));
+    wlExecutions.setText(
+        BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.PipelineActionName.Label"));
     FormData fdlExecutions = new FormData();
     fdlExecutions.left = new FormAttachment(0, 0);
     fdlExecutions.top = new FormAttachment(lastControl, margin);
@@ -341,28 +331,61 @@ public class HopNeo4jPerspective implements IHopPerspective {
     // A table with the execution history results...
     //
     ColumnInfo[] resultsColumns = {
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.ID.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Name.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Type.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Read.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Written.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Input.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Output.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Rejected.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Errors.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Date.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-      new ColumnInfo(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Duration.Name")
-              , ColumnInfo.COLUMN_TYPE_TEXT, false, true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.ID.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Name.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Type.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Read.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Written.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Input.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Output.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Rejected.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Errors.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Date.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Column.Duration.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
     };
 
     wResults =
@@ -502,9 +525,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorAnalyze.Dialog.Header")
-              , BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorAnalyze.Dialog.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorAnalyze.Dialog.Header"),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorAnalyze.Dialog.Message"),
+          e);
     }
   }
 
@@ -740,9 +765,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
       String type = tableItem.getText(3);
       openItem(connection, id, name, type);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(),
-              BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorOpeningPipeline.Dialog.Header")
-              , "Neo4jPerspectiveDialog.ErrorOpeningPipeline.Dialog.Message", e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorOpeningPipeline.Dialog.Header"),
+          "Neo4jPerspectiveDialog.ErrorOpeningPipeline.Dialog.Message",
+          e);
     }
   }
 
@@ -879,9 +906,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
         wExecutions.setText(Const.NVL(searchName, ""));
       }
     } catch (Throwable e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorSearching.Dialog.Header")
-              , BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorSearching.Dialog.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorSearching.Dialog.Header"),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ErrorSearching.Dialog.Message"),
+          e);
     }
   }
 
@@ -907,9 +936,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
       openItem(connection, id, name, type);
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningItem.Dialog.Header")
-              , BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningItem.Dialog.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningItem.Dialog.Header"),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningItem.Dialog.Message"),
+          e);
     }
   }
 
@@ -1001,9 +1032,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
       transformMeta.setSelected(true);
       graph.editTransform(pipelineMeta, transformMeta);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG,"Neo4jPerspectiveDialog.OpeningTransform.Dialog.Header")
-              , BaseMessages.getString(PKG,"Neo4jPerspectiveDialog.OpeningTransform.Dialog.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningTransform.Dialog.Header"),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningTransform.Dialog.Message"),
+          e);
     }
   }
 
@@ -1068,9 +1101,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell()
-              , BaseMessages.getString(PKG,"Neo4jPerspectiveDialog.OpeningAction.Dialog.Header")
-              , BaseMessages.getString(PKG,"Neo4jPerspectiveDialog.OpeningAction.Dialog.Message"), e);
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningAction.Dialog.Header"),
+          BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningAction.Dialog.Message"),
+          e);
     }
   }
 
@@ -1107,9 +1142,12 @@ public class HopNeo4jPerspective implements IHopPerspective {
       try {
         hopGui.fileDelegate.fileOpen(filename);
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getShell()
-                , BaseMessages.getString(PKG,"Neo4jPerspectiveDialog.OpeningFile.Dialog.Header")
-                , BaseMessages.getString(PKG,"Neo4jPerspectiveDialog.OpeningFile.Dialog.Message", filename), e);
+        new ErrorDialog(
+            hopGui.getShell(),
+            BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OpeningFile.Dialog.Header"),
+            BaseMessages.getString(
+                PKG, "Neo4jPerspectiveDialog.OpeningFile.Dialog.Message", filename),
+            e);
       }
     }
   }

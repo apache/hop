@@ -45,7 +45,7 @@ import java.util.List;
 public class ValidatePipelineUnitTestExtensionPoint
     implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
-  public final static Class<?> PKG = ValidatePipelineUnitTestExtensionPoint.class; //i18n
+  public static final Class<?> PKG = ValidatePipelineUnitTestExtensionPoint.class; // i18n
 
   @Override
   public void callExtensionPoint(
@@ -145,8 +145,8 @@ public class ValidatePipelineUnitTestExtensionPoint
               dialog.setProposingToGetMoreRows(false);
               dialog.setProposingToStop(false);
               dialog.setTitleMessage(
-                      BaseMessages.getString(PKG, "UnitTestsResult.Dialog.Header"),
-                      BaseMessages.getString(PKG, "UnitTestsResult.Dialog.Message"));
+                  BaseMessages.getString(PKG, "UnitTestsResult.Dialog.Header"),
+                  BaseMessages.getString(PKG, "UnitTestsResult.Dialog.Message"));
               dialog.open();
             });
   }

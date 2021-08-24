@@ -25,7 +25,7 @@ public class GuiCallbackMethod {
   private Class<?> singletonClass;
   private Method callbackMethod;
 
-  public GuiCallbackMethod( String callbackId, Class<?> singletonClass, Method callbackMethod ) {
+  public GuiCallbackMethod(String callbackId, Class<?> singletonClass, Method callbackMethod) {
     this.callbackId = callbackId;
     this.singletonClass = singletonClass;
     this.callbackMethod = callbackMethod;
@@ -33,11 +33,18 @@ public class GuiCallbackMethod {
 
   public void execute() {
     try {
-      Method getInstanceMethod = singletonClass.getMethod("getInstance" );
-      Object singleton = getInstanceMethod.invoke( null );
-      callbackMethod.invoke( singleton );
-    } catch(Exception e) {
-      throw new RuntimeException("Error calling callback method with ID "+callbackId+" in class "+singletonClass.getName()+" with method "+ callbackMethod.getName(), e);
+      Method getInstanceMethod = singletonClass.getMethod("getInstance");
+      Object singleton = getInstanceMethod.invoke(null);
+      callbackMethod.invoke(singleton);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Error calling callback method with ID "
+              + callbackId
+              + " in class "
+              + singletonClass.getName()
+              + " with method "
+              + callbackMethod.getName(),
+          e);
     }
   }
 
@@ -50,10 +57,8 @@ public class GuiCallbackMethod {
     return callbackId;
   }
 
-  /**
-   * @param callbackId The callbackId to set
-   */
-  public void setCallbackId( String callbackId ) {
+  /** @param callbackId The callbackId to set */
+  public void setCallbackId(String callbackId) {
     this.callbackId = callbackId;
   }
 
@@ -66,10 +71,8 @@ public class GuiCallbackMethod {
     return singletonClass;
   }
 
-  /**
-   * @param singletonClass The singletonClass to set
-   */
-  public void setSingletonClass( Class<?> singletonClass ) {
+  /** @param singletonClass The singletonClass to set */
+  public void setSingletonClass(Class<?> singletonClass) {
     this.singletonClass = singletonClass;
   }
 
@@ -82,10 +85,8 @@ public class GuiCallbackMethod {
     return callbackMethod;
   }
 
-  /**
-   * @param callbackMethod The callbackMethod to set
-   */
-  public void setCallbackMethod( Method callbackMethod ) {
+  /** @param callbackMethod The callbackMethod to set */
+  public void setCallbackMethod(Method callbackMethod) {
     this.callbackMethod = callbackMethod;
   }
 }

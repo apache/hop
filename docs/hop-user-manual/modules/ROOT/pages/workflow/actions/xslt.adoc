@@ -27,11 +27,15 @@ The original document is not changed; rather, a new document is created based on
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
-|Get filenames from previous result|When this option is checked, the XML File name, XSL File name and Output File name are read from the previous result set. When multilpe rows exists, it will loop. At this time XML File name is the first field in the result set, XSL File name the second fields and Output File name the third field.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Get filenames from previous result|When this option is checked, the XML File name, XSL File name and Output File name are read from the previous result set.
+When multilpe rows exists, it will loop.
+At this time XML File name is the first field in the result set, XSL File name the second fields and Output File name the third field.
 |XML File name|The full name of the source XML file
 |XSL File name|The full name of the XSL file
 |Output File name|The full name of the created document (result of XSL transformation)
@@ -44,5 +48,5 @@ Options :
 * Do nothing : nothing will be done
 * Fail : the workflow will fail
 
-|Result file name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions. 
+|Result file name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions.
 |===

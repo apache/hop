@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   viewBox="0 0 24 24"
-   height="24"
-   width="24"
-   version="1.1">
-  <rect
-     ry="1.6092727"
-     transform="matrix(0.99999058,-0.00433972,-0.00283246,0.99999599,0,0)"
-     y="5.8901091"
-     x="1.9974606"
-     height="3.2185454"
-     width="20.000172"
-     style="fill:#0e3a5a;fill-opacity:1;stroke-width:4.90556;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke" />
-  <rect
-     style="fill:#0e3a5a;fill-opacity:1;stroke-width:4.90556;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
-     width="20.000172"
-     height="3.2185454"
-     x="2.022779"
-     y="14.828208"
-     transform="matrix(0.99999058,-0.00433972,-0.00283246,0.99999599,0,0)"
-     ry="1.6092727" />
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        height="24"
+        width="24"
+        version="1.1">
+    <rect
+            ry="1.6092727"
+            transform="matrix(0.99999058,-0.00433972,-0.00283246,0.99999599,0,0)"
+            y="5.8901091"
+            x="1.9974606"
+            height="3.2185454"
+            width="20.000172"
+            style="fill:#0e3a5a;fill-opacity:1;stroke-width:4.90556;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"/>
+    <rect
+            style="fill:#0e3a5a;fill-opacity:1;stroke-width:4.90556;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers fill stroke"
+            width="20.000172"
+            height="3.2185454"
+            x="2.022779"
+            y="14.828208"
+            transform="matrix(0.99999058,-0.00433972,-0.00283246,0.99999599,0,0)"
+            ry="1.6092727"/>
 </svg>

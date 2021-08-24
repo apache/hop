@@ -86,7 +86,6 @@ public class BundlesStore {
   }
 
   /**
-   * 
    * @param bundleRootFolder
    * @param messagesFilePath
    */
@@ -197,11 +196,12 @@ public class BundlesStore {
     }
   }
 
-  public void addTranslation( String sourceFolder, String packageName, String locale, String key, String value ) {
-    Map<String, BundleFile> languageBundleFileMap = packageLanguageBundleMap.get( packageName );
-    if ( languageBundleFileMap == null ) {
+  public void addTranslation(
+      String sourceFolder, String packageName, String locale, String key, String value) {
+    Map<String, BundleFile> languageBundleFileMap = packageLanguageBundleMap.get(packageName);
+    if (languageBundleFileMap == null) {
       languageBundleFileMap = new HashMap<>();
-      packageLanguageBundleMap.put( packageName, languageBundleFileMap );
+      packageLanguageBundleMap.put(packageName, languageBundleFileMap);
     }
 
     BundleFile bundleFile = languageBundleFileMap.get(locale);
@@ -212,13 +212,20 @@ public class BundlesStore {
       // sourceFolder would be /path/plugins/databases/firebird/src/main/java
       // We need to come up with /path/plugins/databases/firebird/src/main/resources
 
-      String bundleFileName = sourceFolder
+      String bundleFileName =
+          sourceFolder
               // Use File.separator to build a path that is system agnostic
-          .replace("java", "resources" + File.separator )
-          // append package folders
-          .concat(packageName.replace( ".", File.separator ))
-          // append messages folder and localized file
-          .concat(File.separator + "messages" + File.separator + "messages_" + locale + ".properties");
+              .replace("java", "resources" + File.separator)
+              // append package folders
+              .concat(packageName.replace(".", File.separator))
+              // append messages folder and localized file
+              .concat(
+                  File.separator
+                      + "messages"
+                      + File.separator
+                      + "messages_"
+                      + locale
+                      + ".properties");
 
       // TODO finish/test calculating filename
       bundleFile = new BundleFile(bundleFileName, packageName, locale, new HashMap<>());

@@ -24,7 +24,7 @@ under the License.
 
 == Concepts
 
-[width=90%", cols="6,2,2", options="header"]
+[width=90%",cols="6,2,2",options="header"]
 |===
 |Terminology|Kettle|Hop
 |Parallel scalable data pipeline|Transformation|Pipeline
@@ -41,7 +41,7 @@ under the License.
 
 == Configuration
 
-[width="90%", cols="2,3,3", options="header"]
+[width="90%",cols="2,3,3",options="header"]
 |===
 |Configuration|Kettle|Hop
 |System variables|{openvar}KETTLE_HOME{closevar}/.kettle/kettle.properties|{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json or ./config/hop-config.json
@@ -55,7 +55,7 @@ under the License.
 
 == Engines
 
-[width="90%", cols="70%,15%,15%", options="header"]
+[width="90%",cols="70%,15%,15%",options="header"]
 |===
 |Engine|Kettle|Hop
 |Unit Testing|Plugin|Yes
@@ -66,7 +66,7 @@ under the License.
 
 == Features
 
-[width="90%", cols="70%,15%,15%", options="header"]
+[width="90%",cols="70%,15%,15%",options="header"]
 |===
 |Feature|Kettle|Hop
 |Projects and Lifecycle Configuration |No|Yes

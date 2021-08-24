@@ -20,13 +20,12 @@ package org.apache.hop.pipeline.transforms.csvinput;
 public class SingleByteCrLfMatcher implements ICrLfMatcher {
 
   @Override
-  public boolean isReturn( byte[] source, int location ) {
-    return source[ location ] == '\n';
+  public boolean isReturn(byte[] source, int location) {
+    return source[location] == '\n';
   }
 
   @Override
-  public boolean isLineFeed( byte[] source, int location ) {
-    return source[ location ] == '\r';
+  public boolean isLineFeed(byte[] source, int location) {
+    return source[location] == '\r';
   }
-
 }

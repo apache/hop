@@ -20,14 +20,10 @@ package org.apache.hop.testing.util;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
-import org.apache.hop.testing.UnitTestResult;
-
-import java.util.List;
 
 public interface IExceptionEvaluator {
 
-  void evaluateTestException( PipelineUnitTest test, PipelineMeta pipelineMeta, Exception e ) throws HopException;
-
+  void evaluateTestException(PipelineUnitTest test, PipelineMeta pipelineMeta, Exception e)
+      throws HopException;
 }

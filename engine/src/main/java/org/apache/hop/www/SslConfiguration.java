@@ -25,9 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
-/**
- * @author Tatsiana_Kasiankova
- */
+/** @author Tatsiana_Kasiankova */
 public class SslConfiguration {
   private static final Class<?> PKG = SslConfiguration.class; // For Translator
 
@@ -45,116 +43,107 @@ public class SslConfiguration {
 
   private static final String NULL = "null";
 
-  @HopMetadataProperty
-  private String keyStoreType = "JKS";
+  @HopMetadataProperty private String keyStoreType = "JKS";
 
-  @HopMetadataProperty
-  private String keyStore;
+  @HopMetadataProperty private String keyStore;
 
-  @HopMetadataProperty( password = true )
+  @HopMetadataProperty(password = true)
   private String keyStorePassword;
 
-  @HopMetadataProperty( password = true )
+  @HopMetadataProperty(password = true)
   private String keyPassword;
 
-  public SslConfiguration() {
-  }
+  public SslConfiguration() {}
 
-  public SslConfiguration( Node sslConfigNode ) {
+  public SslConfiguration(Node sslConfigNode) {
     super();
-    setKeyStore( XmlHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE ) );
-    setKeyStorePassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( sslConfigNode,
-      XML_TAG_KEY_STORE_PASSWORD ) ) );
-    setKeyPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( sslConfigNode,
-      XML_TAG_KEY_PASSWORD ) ) );
-    setKeyStoreType( XmlHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE_TYPE ) );
+    setKeyStore(XmlHandler.getTagValue(sslConfigNode, XML_TAG_KEY_STORE));
+    setKeyStorePassword(
+        Encr.decryptPasswordOptionallyEncrypted(
+            XmlHandler.getTagValue(sslConfigNode, XML_TAG_KEY_STORE_PASSWORD)));
+    setKeyPassword(
+        Encr.decryptPasswordOptionallyEncrypted(
+            XmlHandler.getTagValue(sslConfigNode, XML_TAG_KEY_PASSWORD)));
+    setKeyStoreType(XmlHandler.getTagValue(sslConfigNode, XML_TAG_KEY_STORE_TYPE));
   }
 
-  /**
-   * @return the keyStoreType
-   */
+  /** @return the keyStoreType */
   public String getKeyStoreType() {
     return keyStoreType;
   }
 
-  /**
-   * @param keyStoreType the keyStoreType to set
-   */
-  public void setKeyStoreType( String keyStoreType ) {
-    if ( keyStoreType != null ) {
+  /** @param keyStoreType the keyStoreType to set */
+  public void setKeyStoreType(String keyStoreType) {
+    if (keyStoreType != null) {
       this.keyStoreType = keyStoreType;
     }
   }
 
-  /**
-   * @return the keyStorePath
-   */
+  /** @return the keyStorePath */
   public String getKeyStore() {
     return keyStore;
   }
 
-  /**
-   * @param keyStore the keyStore to set
-   */
-  public void setKeyStore( String keyStore ) {
-    Validate.notNull( keyStore, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE,
-      NULL ) );
-    Validate.notEmpty( keyStore, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE,
-      EMPTY ) );
+  /** @param keyStore the keyStore to set */
+  public void setKeyStore(String keyStore) {
+    Validate.notNull(
+        keyStore,
+        BaseMessages.getString(
+            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE, NULL));
+    Validate.notEmpty(
+        keyStore,
+        BaseMessages.getString(
+            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE, EMPTY));
     this.keyStore = keyStore;
   }
 
-  /**
-   * @return the keyStorePassword
-   */
+  /** @return the keyStorePassword */
   public String getKeyStorePassword() {
     return keyStorePassword;
   }
 
-  /**
-   * @param keyStorePassword the keyStorePassword to set
-   */
-  public void setKeyStorePassword( String keyStorePassword ) {
-    Validate.notNull( keyStorePassword, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter",
-      XML_TAG_KEY_STORE_PASSWORD, NULL ) );
-    Validate.notEmpty( keyStorePassword, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter",
-      XML_TAG_KEY_STORE_PASSWORD, EMPTY ) );
+  /** @param keyStorePassword the keyStorePassword to set */
+  public void setKeyStorePassword(String keyStorePassword) {
+    Validate.notNull(
+        keyStorePassword,
+        BaseMessages.getString(
+            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE_PASSWORD, NULL));
+    Validate.notEmpty(
+        keyStorePassword,
+        BaseMessages.getString(
+            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE_PASSWORD, EMPTY));
     this.keyStorePassword = keyStorePassword;
   }
 
-  /**
-   * @return the keyPassword
-   */
+  /** @return the keyPassword */
   public String getKeyPassword() {
-    return ( this.keyPassword != null ) ? this.keyPassword : getKeyStorePassword();
+    return (this.keyPassword != null) ? this.keyPassword : getKeyStorePassword();
   }
 
-  /**
-   * @param keyPassword the keyPassword to set
-   */
-  public void setKeyPassword( String keyPassword ) {
+  /** @param keyPassword the keyPassword to set */
+  public void setKeyPassword(String keyPassword) {
     this.keyPassword = keyPassword;
   }
 
   public String getXml() {
     StringBuilder xml = new StringBuilder();
-    xml.append( "        " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
-    addXmlValue( xml, XML_TAG_KEY_STORE, keyStore );
-    addXmlValue( xml, XML_TAG_KEY_STORE_PASSWORD, encrypt( keyStorePassword ) );
-    addXmlValue( xml, XML_TAG_KEY_PASSWORD, encrypt( keyPassword ) );
-    xml.append( "        " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append("        ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+    addXmlValue(xml, XML_TAG_KEY_STORE, keyStore);
+    addXmlValue(xml, XML_TAG_KEY_STORE_PASSWORD, encrypt(keyStorePassword));
+    addXmlValue(xml, XML_TAG_KEY_PASSWORD, encrypt(keyPassword));
+    xml.append("        ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
     return xml.toString();
   }
 
-  private static void addXmlValue( StringBuilder xml, String key, String value ) {
-    if ( !StringUtils.isBlank( value ) ) {
-      xml.append( "          " ).append( XmlHandler.addTagValue( key, value, false ) );
+  private static void addXmlValue(StringBuilder xml, String key, String value) {
+    if (!StringUtils.isBlank(value)) {
+      xml.append("          ").append(XmlHandler.addTagValue(key, value, false));
     }
   }
 
-  private static String encrypt( String value ) {
-    if ( !StringUtils.isBlank( value ) ) {
-      return Encr.encryptPasswordIfNotUsingVariables( value );
+  private static String encrypt(String value) {
+    if (!StringUtils.isBlank(value)) {
+      return Encr.encryptPasswordIfNotUsingVariables(value);
     }
     return null;
   }

@@ -37,32 +37,36 @@ public class UniqueRowsByHashSetMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "store_values", "reject_duplicate_row", "error_description", "name" );
+        Arrays.asList("store_values", "reject_duplicate_row", "error_description", "name");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "store_values", "getStoreValues" );
-    getterMap.put( "reject_duplicate_row", "isRejectDuplicateRow" );
-    getterMap.put( "error_description", "getErrorDescription" );
-    getterMap.put( "name", "getCompareFields" );
+    getterMap.put("store_values", "getStoreValues");
+    getterMap.put("reject_duplicate_row", "isRejectDuplicateRow");
+    getterMap.put("error_description", "getErrorDescription");
+    getterMap.put("name", "getCompareFields");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "store_values", "setStoreValues" );
-    setterMap.put( "reject_duplicate_row", "setRejectDuplicateRow" );
-    setterMap.put( "error_description", "setErrorDescription" );
-    setterMap.put( "name", "setCompareFields" );
+    setterMap.put("store_values", "setStoreValues");
+    setterMap.put("reject_duplicate_row", "setRejectDuplicateRow");
+    setterMap.put("error_description", "setErrorDescription");
+    setterMap.put("name", "setCompareFields");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
-    //Arrays need to be consistent length
+    // Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
 
-    fieldLoadSaveValidatorAttributeMap.put( "name", stringArrayLoadSaveValidator );
+    fieldLoadSaveValidatorAttributeMap.put("name", stringArrayLoadSaveValidator);
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( UniqueRowsByHashSetMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+        new LoadSaveTester(
+            UniqueRowsByHashSetMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
 
     loadSaveTester.testSerialization();
   }

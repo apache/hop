@@ -31,14 +31,13 @@ public class PipelineStatus {
   private String status;
   private List<TransformStatus> transformStatuses = new ArrayList<>();
 
-  public PipelineStatus() {
-  }
+  public PipelineStatus() {}
 
   public String getId() {
     return id;
   }
 
-  public void setId( String id ) {
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -46,7 +45,7 @@ public class PipelineStatus {
     return name;
   }
 
-  public void setName( String name ) {
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -54,7 +53,7 @@ public class PipelineStatus {
     return status;
   }
 
-  public void setStatus( String status ) {
+  public void setStatus(String status) {
     this.status = status;
   }
 
@@ -62,12 +61,11 @@ public class PipelineStatus {
     return transformStatuses;
   }
 
-  public void setTransformStatuses( List<TransformStatus> transformStatuses ) {
+  public void setTransformStatuses(List<TransformStatus> transformStatuses) {
     this.transformStatuses = transformStatuses;
   }
 
-  public void addTransformStatus( TransformStatus status ) {
-    transformStatuses.add( status );
+  public void addTransformStatus(TransformStatus status) {
+    transformStatuses.add(status);
   }
-
 }

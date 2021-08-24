@@ -33,13 +33,7 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class WorkflowEntryDeleteFilesTest {
   private final String PATH_TO_FILE = "path/to/file";
@@ -50,67 +44,66 @@ public class WorkflowEntryDeleteFilesTest {
   @Before
   public void setUp() throws Exception {
     action = new ActionDeleteFiles();
-    IWorkflowEngine<WorkflowMeta> parentWorkflow = mock( Workflow.class );
-    doReturn( false ).when( parentWorkflow ).isStopped();
+    IWorkflowEngine<WorkflowMeta> parentWorkflow = mock(Workflow.class);
+    doReturn(false).when(parentWorkflow).isStopped();
 
-    action.setParentWorkflow( parentWorkflow );
-    WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    action.setParentWorkflowMeta( mockWorkflowMeta );
-    action = spy( action );
-    doReturn( true ).when( action ).processFile( anyString(), anyString(), eq( parentWorkflow ) );
+    action.setParentWorkflow(parentWorkflow);
+    WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
+    action.setParentWorkflowMeta(mockWorkflowMeta);
+    action = spy(action);
+    doReturn(true).when(action).processFile(anyString(), anyString(), eq(parentWorkflow));
   }
 
   @Test
   public void filesWithNoPath_AreNotProcessed_ArgsOfCurrentJob() throws Exception {
-    action.setArguments( new String[] { Const.EMPTY_STRING, STRING_SPACES_ONLY } );
-    action.setFilemasks( new String[] { null, null } );
-    action.setArgFromPrevious( false );
+    action.setArguments(new String[] {Const.EMPTY_STRING, STRING_SPACES_ONLY});
+    action.setFilemasks(new String[] {null, null});
+    action.setArgFromPrevious(false);
 
-    action.execute( new Result(), 0 );
-    verify( action, never() ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute(new Result(), 0);
+    verify(action, never()).processFile(anyString(), anyString(), any(Workflow.class));
   }
-
 
   @Test
   public void filesWithPath_AreProcessed_ArgsOfCurrentJob() throws Exception {
-    String[] args = new String[] { PATH_TO_FILE };
-    action.setArguments( args );
-    action.setFilemasks( new String[] { null, null } );
-    action.setArgFromPrevious( false );
+    String[] args = new String[] {PATH_TO_FILE};
+    action.setArguments(args);
+    action.setFilemasks(new String[] {null, null});
+    action.setArgFromPrevious(false);
 
-    action.execute( new Result(), 0 );
-    verify( action, times( args.length ) ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute(new Result(), 0);
+    verify(action, times(args.length)).processFile(anyString(), anyString(), any(Workflow.class));
   }
-
 
   @Test
   public void filesWithNoPath_AreNotProcessed_ArgsOfPreviousMeta() throws Exception {
-    action.setArgFromPrevious( true );
+    action.setArgFromPrevious(true);
 
     Result prevMetaResult = new Result();
     List<RowMetaAndData> metaAndDataList = new ArrayList<>();
 
-    metaAndDataList.add( constructRowMetaAndData( Const.EMPTY_STRING, null ) );
-    metaAndDataList.add( constructRowMetaAndData( STRING_SPACES_ONLY, null ) );
+    metaAndDataList.add(constructRowMetaAndData(Const.EMPTY_STRING, null));
+    metaAndDataList.add(constructRowMetaAndData(STRING_SPACES_ONLY, null));
 
-    prevMetaResult.setRows( metaAndDataList );
+    prevMetaResult.setRows(metaAndDataList);
 
-    action.execute( prevMetaResult, 0 );
-    verify( action, never() ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute(prevMetaResult, 0);
+    verify(action, never()).processFile(anyString(), anyString(), any(Workflow.class));
   }
 
   @Test
   public void filesPath_AreProcessed_ArgsOfPreviousMeta() throws Exception {
-    action.setArgFromPrevious( true );
+    action.setArgFromPrevious(true);
 
     Result prevMetaResult = new Result();
     List<RowMetaAndData> metaAndDataList = new ArrayList<>();
 
-    metaAndDataList.add( constructRowMetaAndData( PATH_TO_FILE, null ) );
-    prevMetaResult.setRows( metaAndDataList );
+    metaAndDataList.add(constructRowMetaAndData(PATH_TO_FILE, null));
+    prevMetaResult.setRows(metaAndDataList);
 
-    action.execute( prevMetaResult, 0 );
-    verify( action, times( metaAndDataList.size() ) ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute(prevMetaResult, 0);
+    verify(action, times(metaAndDataList.size()))
+        .processFile(anyString(), anyString(), any(Workflow.class));
   }
 
   @Test
@@ -118,16 +111,17 @@ public class WorkflowEntryDeleteFilesTest {
     final String pathToFileBlankValue = "pathToFileBlankValue";
     final String pathToFileValidValue = "pathToFileValidValue";
 
-    action.setVariable( pathToFileBlankValue, Const.EMPTY_STRING );
-    action.setVariable( pathToFileValidValue, PATH_TO_FILE );
+    action.setVariable(pathToFileBlankValue, Const.EMPTY_STRING);
+    action.setVariable(pathToFileValidValue, PATH_TO_FILE);
 
-    action.setArguments( new String[] { asVariable( pathToFileBlankValue ), asVariable( pathToFileValidValue ) } );
-    action.setFilemasks( new String[] { null, null } );
-    action.setArgFromPrevious( false );
+    action.setArguments(
+        new String[] {asVariable(pathToFileBlankValue), asVariable(pathToFileValidValue)});
+    action.setFilemasks(new String[] {null, null});
+    action.setArgFromPrevious(false);
 
-    action.execute( new Result(), 0 );
+    action.execute(new Result(), 0);
 
-    verify( action ).processFile( eq( PATH_TO_FILE ), anyString(), any( Workflow.class ) );
+    verify(action).processFile(eq(PATH_TO_FILE), anyString(), any(Workflow.class));
   }
 
   @Test
@@ -135,26 +129,26 @@ public class WorkflowEntryDeleteFilesTest {
     final String fileExtensionTxt = ".txt";
     final String fileExtensionXml = ".xml";
 
-    String[] args = new String[] { PATH_TO_FILE, PATH_TO_FILE };
-    action.setArguments( args );
-    action.setFilemasks( new String[] { fileExtensionTxt, fileExtensionXml } );
-    action.setArgFromPrevious( false );
+    String[] args = new String[] {PATH_TO_FILE, PATH_TO_FILE};
+    action.setArguments(args);
+    action.setFilemasks(new String[] {fileExtensionTxt, fileExtensionXml});
+    action.setArgFromPrevious(false);
 
-    action.execute( new Result(), 0 );
+    action.execute(new Result(), 0);
 
-    verify( action ).processFile( eq( PATH_TO_FILE ), eq( fileExtensionTxt ), any( Workflow.class ) );
-    verify( action ).processFile( eq( PATH_TO_FILE ), eq( fileExtensionXml ), any( Workflow.class ) );
+    verify(action).processFile(eq(PATH_TO_FILE), eq(fileExtensionTxt), any(Workflow.class));
+    verify(action).processFile(eq(PATH_TO_FILE), eq(fileExtensionXml), any(Workflow.class));
   }
 
-  private RowMetaAndData constructRowMetaAndData( Object... data ) {
+  private RowMetaAndData constructRowMetaAndData(Object... data) {
     RowMeta meta = new RowMeta();
-    meta.addValueMeta( new ValueMetaString( "filePath" ) );
-    meta.addValueMeta( new ValueMetaString( "wildcard" ) );
+    meta.addValueMeta(new ValueMetaString("filePath"));
+    meta.addValueMeta(new ValueMetaString("wildcard"));
 
-    return new RowMetaAndData( meta, data );
+    return new RowMetaAndData(meta, data);
   }
 
-  private String asVariable( String variable ) {
+  private String asVariable(String variable) {
     return "${" + variable + "}";
   }
 }

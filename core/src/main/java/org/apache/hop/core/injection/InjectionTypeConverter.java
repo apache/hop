@@ -21,137 +21,137 @@ import org.apache.hop.core.exception.HopValueException;
 
 /**
  * Base class converter for metadata injection.
- * <p>
- * Developer can extend it for own converter implementation.
+ *
+ * <p>Developer can extend it for own converter implementation.
  *
  * @author Alexander Buloichik
  */
 public class InjectionTypeConverter {
-  public String string2string( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public String string2string(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public int string2intPrimitive( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public int string2intPrimitive(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Integer string2integer( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Integer string2integer(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public long string2longPrimitive( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public long string2longPrimitive(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Long string2long( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Long string2long(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public boolean string2booleanPrimitive( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public boolean string2booleanPrimitive(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Boolean string2boolean( String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Boolean string2boolean(String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Enum<?> string2enum( Class<?> enumClass, String v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Enum<?> string2enum(Class<?> enumClass, String v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public String boolean2string( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public String boolean2string(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public int boolean2intPrimitive( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public int boolean2intPrimitive(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Integer boolean2integer( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Integer boolean2integer(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public long boolean2longPrimitive( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public long boolean2longPrimitive(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Long boolean2long( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Long boolean2long(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public boolean boolean2booleanPrimitive( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public boolean boolean2booleanPrimitive(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Boolean boolean2boolean( Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Boolean boolean2boolean(Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Enum<?> boolean2enum( Class<?> enumClass, Boolean v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Enum<?> boolean2enum(Class<?> enumClass, Boolean v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public String integer2string( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public String integer2string(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public int integer2intPrimitive( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public int integer2intPrimitive(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Integer integer2integer( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Integer integer2integer(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public long integer2longPrimitive( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public long integer2longPrimitive(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Long integer2long( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Long integer2long(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public boolean integer2booleanPrimitive( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public boolean integer2booleanPrimitive(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Boolean integer2boolean( Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Boolean integer2boolean(Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Enum<?> integer2enum( Class<?> enumClass, Long v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Enum<?> integer2enum(Class<?> enumClass, Long v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public String number2string( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public String number2string(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public int number2intPrimitive( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public int number2intPrimitive(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Integer number2integer( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Integer number2integer(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public long number2longPrimitive( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public long number2longPrimitive(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Long number2long( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Long number2long(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public boolean number2booleanPrimitive( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public boolean number2booleanPrimitive(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Boolean number2boolean( Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Boolean number2boolean(Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 
-  public Enum<?> number2enum( Class<?> enumClass, Double v ) throws HopValueException {
-    throw new RuntimeException( "Conversion not supported" );
+  public Enum<?> number2enum(Class<?> enumClass, Double v) throws HopValueException {
+    throw new RuntimeException("Conversion not supported");
   }
 }

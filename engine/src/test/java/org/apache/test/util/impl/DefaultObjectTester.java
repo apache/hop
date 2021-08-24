@@ -27,7 +27,7 @@ public class DefaultObjectTester<T> implements IObjectTester<T> {
   private final IObjectProvider<T> provider;
   private final IObjectValidator<T> validator;
 
-  public DefaultObjectTester( IObjectProvider<T> provider, IObjectValidator<T> validator ) {
+  public DefaultObjectTester(IObjectProvider<T> provider, IObjectValidator<T> validator) {
     this.provider = provider;
     this.validator = validator;
   }
@@ -38,7 +38,7 @@ public class DefaultObjectTester<T> implements IObjectTester<T> {
   }
 
   @Override
-  public void validate( T expected, Object actual ) {
-    validator.validate( expected, actual );
+  public void validate(T expected, Object actual) {
+    validator.validate(expected, actual);
   }
 }

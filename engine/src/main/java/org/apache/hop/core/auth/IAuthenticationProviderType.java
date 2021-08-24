@@ -20,7 +20,8 @@ package org.apache.hop.core.auth;
 import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
 /**
- * The IAuthenticationProvider interface specifies the operations needed to interact with an authentication method.
+ * The IAuthenticationProvider interface specifies the operations needed to interact with an
+ * authentication method.
  */
 public interface IAuthenticationProviderType {
   String getDisplayName();

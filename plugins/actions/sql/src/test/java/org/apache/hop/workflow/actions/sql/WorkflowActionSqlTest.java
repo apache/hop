@@ -17,8 +17,8 @@
 
 package org.apache.hop.workflow.actions.sql;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -36,34 +36,33 @@ public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<Act
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-      "sql",
-      "useVariableSubstitution",
-      "sqlfromfile",
-      "sqlfilename",
-      "sendOneStatement",
-      "database" );
+        "sql",
+        "useVariableSubstitution",
+        "sqlfromfile",
+        "sqlfilename",
+        "sendOneStatement",
+        "database");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "sql", "getSql",
-      "useVariableSubstitution", "getUseVariableSubstitution",
-      "sqlfromfile", "getSqlFromFile",
-      "sqlfilename", "getSqlFilename",
-      "sendOneStatement", "isSendOneStatement",
-      "database", "getDatabase" );
+        "sql", "getSql",
+        "useVariableSubstitution", "getUseVariableSubstitution",
+        "sqlfromfile", "getSqlFromFile",
+        "sqlfilename", "getSqlFilename",
+        "sendOneStatement", "isSendOneStatement",
+        "database", "getDatabase");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "sql", "setSql",
-      "useVariableSubstitution", "setUseVariableSubstitution",
-      "sqlfromfile", "setSqlFromFile",
-      "sqlfilename", "setSqlFilename",
-      "sendOneStatement", "setSendOneStatement",
-      "database", "setDatabase" );
+        "sql", "setSql",
+        "useVariableSubstitution", "setUseVariableSubstitution",
+        "sqlfromfile", "setSqlFromFile",
+        "sqlfilename", "setSqlFilename",
+        "sendOneStatement", "setSendOneStatement",
+        "database", "setDatabase");
   }
-
 }

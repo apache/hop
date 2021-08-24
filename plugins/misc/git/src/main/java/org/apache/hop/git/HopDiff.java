@@ -89,8 +89,7 @@ public class HopDiff {
               String hopName = getPipelineHopName(hop);
               Optional<PipelineHopMeta> hop2 =
                   pipelineMeta2.getPipelineHops().stream()
-                      .filter(
-                          otherHop -> hopName.equals(getPipelineHopName(otherHop)))
+                      .filter(otherHop -> hopName.equals(getPipelineHopName(otherHop)))
                       .findFirst();
               String status = null;
               if (hop2.isPresent()) {
@@ -171,8 +170,7 @@ public class HopDiff {
               String hopName = getWorkflowHopName(hop);
               Optional<WorkflowHopMeta> hop2 =
                   workflowMeta2.getWorkflowHops().stream()
-                      .filter(
-                          otherHop -> hopName.equals(getWorkflowHopName(otherHop)))
+                      .filter(otherHop -> hopName.equals(getWorkflowHopName(otherHop)))
                       .findFirst();
               String status = null;
               if (hop2.isPresent()) {

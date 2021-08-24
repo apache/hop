@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.datagrid;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.ArrayList;
@@ -27,56 +26,53 @@ import java.util.List;
 
 public class DataGridDataMeta implements Cloneable {
 
-    @HopMetadataProperty(
-            key = "item")
-    private List<String> datalines;
+  @HopMetadataProperty(key = "item")
+  private List<String> datalines;
 
-    @HopMetadataProperty(
-            injectionKeyDescription = "DataGrid.Injection.DataLine")
-    private String injectionDatalines;
+  @HopMetadataProperty(injectionKeyDescription = "DataGrid.Injection.DataLine")
+  private String injectionDatalines;
 
-    @HopMetadataProperty(
-            injectionKeyDescription = "DataGrid.Injection.Splitter")
-    private String splitter;
+  @HopMetadataProperty(injectionKeyDescription = "DataGrid.Injection.Splitter")
+  private String splitter;
 
-    public DataGridDataMeta() {
-        datalines = new ArrayList<>();
-    }
+  public DataGridDataMeta() {
+    datalines = new ArrayList<>();
+  }
 
-    public DataGridDataMeta(List<String> datalines) {
-        this.datalines = datalines;
-    }
+  public DataGridDataMeta(List<String> datalines) {
+    this.datalines = datalines;
+  }
 
-    public DataGridDataMeta(DataGridDataMeta m){
-        this.datalines = m.datalines;
-    }
+  public DataGridDataMeta(DataGridDataMeta m) {
+    this.datalines = m.datalines;
+  }
 
-    public DataGridDataMeta clone(){
-        return new DataGridDataMeta(this);
-    }
+  public DataGridDataMeta clone() {
+    return new DataGridDataMeta(this);
+  }
 
-    public List<String> getDatalines() {
-        return datalines;
-    }
+  public List<String> getDatalines() {
+    return datalines;
+  }
 
-    public void setDatalines(List<String> datalines) {
-        this.datalines = datalines;
-    }
+  public void setDatalines(List<String> datalines) {
+    this.datalines = datalines;
+  }
 
-    public String getInjectionDatalines() {
-        return injectionDatalines;
-    }
+  public String getInjectionDatalines() {
+    return injectionDatalines;
+  }
 
-    public void setInjectionDatalines(String injectionDatalines) {
-        this.injectionDatalines = injectionDatalines;
-        this.datalines = Arrays.asList(injectionDatalines.split(Const.NVL(splitter,",")));
-    }
+  public void setInjectionDatalines(String injectionDatalines) {
+    this.injectionDatalines = injectionDatalines;
+    this.datalines = Arrays.asList(injectionDatalines.split(Const.NVL(splitter, ",")));
+  }
 
-    public String getSplitter() {
-        return splitter;
-    }
+  public String getSplitter() {
+    return splitter;
+  }
 
-    public void setSplitter(String splitter) {
-        this.splitter = splitter;
-    }
+  public void setSplitter(String splitter) {
+    this.splitter = splitter;
+  }
 }

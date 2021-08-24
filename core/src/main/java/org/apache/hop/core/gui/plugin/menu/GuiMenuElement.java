@@ -17,23 +17,17 @@
 
 package org.apache.hop.core.gui.plugin.menu;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( { ElementType.FIELD, ElementType.METHOD } )
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface GuiMenuElement {
 
-  /**
-   * @return The root to which this menu item belongs. For example see HopGui.ID_MAIN_MENU
-   */
+  /** @return The root to which this menu item belongs. For example see HopGui.ID_MAIN_MENU */
   String root();
 
   /**
@@ -64,8 +58,6 @@ public @interface GuiMenuElement {
    */
   String toolTip() default "";
 
-
-
   /**
    * The image filename of the GUI Element, usually an SVG icon.
    *
@@ -81,23 +73,25 @@ public @interface GuiMenuElement {
   String parentId() default "";
 
   /**
-   * If we want to reference a menu element in another class than the GuiPlugin.
-   * For example, a plugin wants to add a menu item in the HopGui menu.
-   * In that case we would reference HopGui.class.getName() here.
+   * If we want to reference a menu element in another class than the GuiPlugin. For example, a
+   * plugin wants to add a menu item in the HopGui menu. In that case we would reference
+   * HopGui.class.getName() here.
+   *
    * @return The parent class name or an empty String if nothing was specified.
    */
   String parentClass() default "";
 
   /**
-   * Set this flag to true if you want to ignore the field as a GUI Element.
-   * You can use this to override a GUI element from a base class.
+   * Set this flag to true if you want to ignore the field as a GUI Element. You can use this to
+   * override a GUI element from a base class.
    *
    * @return True if you want this element to be ignored
    */
   boolean ignored() default false;
 
   /**
-   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or variables.
+   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or
+   * variables.
    *
    * @return True if you want a separator before this element
    */

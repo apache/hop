@@ -17,14 +17,7 @@
 
 package org.apache.hop.mongo.wrapper.field;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import org.apache.hop.core.exception.HopException;
+import com.mongodb.*;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
@@ -47,22 +40,14 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MongodbInputDiscoverFieldsImplTest {
@@ -96,8 +81,6 @@ public class MongodbInputDiscoverFieldsImplTest {
     PluginRegistry.init();
     discoverFields = mock(MongodbInputDiscoverFieldsImpl.class);
   }
-
-
 
   private void setupPerform() throws MongoDbException {
     when(clientWrapper.perform(any(String.class), any(MongoDBAction.class)))

@@ -23,18 +23,19 @@ import org.apache.hop.core.logging.ILogChannel;
 public interface ILogExceptionBehaviour {
 
   /**
-   * When exception during logging is raised, depending on item settings we will throw exception up, or just put a log
-   * record on this event.
-   * <p>
-   * Different behaviors are created in backward compatibility with existing code.
+   * When exception during logging is raised, depending on item settings we will throw exception up,
+   * or just put a log record on this event.
+   *
+   * <p>Different behaviors are created in backward compatibility with existing code.
    *
    * @param packageClass
    * @param key
    * @param parameters
    */
-  void registerException( ILogChannel log, Class<?> packageClass, String key, String... parameters ) throws HopDatabaseException;
+  void registerException(ILogChannel log, Class<?> packageClass, String key, String... parameters)
+      throws HopDatabaseException;
 
-  void registerException( ILogChannel log, Exception e, Class<?> packageClass, String key,
-                          String... parameters ) throws HopDatabaseException;
-
+  void registerException(
+      ILogChannel log, Exception e, Class<?> packageClass, String key, String... parameters)
+      throws HopDatabaseException;
 }

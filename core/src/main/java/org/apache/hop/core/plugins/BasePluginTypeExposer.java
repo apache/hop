@@ -20,65 +20,64 @@ package org.apache.hop.core.plugins;
 import java.lang.annotation.Annotation;
 
 /**
- * This Class serves only one purpose, defeat the package protection modifiers on the BasePluginType. We normally would
- * simply move classes needing access to the same package, split between jars. However, in OSGI, split packages are
- * not encouraged and not possible unless the packages are being supplied by bundles with special notation denoting the
- * package split. Hop is currently imported into OSGI as part of the System Bundle [0], which we cannot modify in
- * such a way.
- * <p>
- * Unless you're running within OSGI, you should never use this class.
- * <p>
- * Created by nbaker on 2/11/15.
+ * This Class serves only one purpose, defeat the package protection modifiers on the
+ * BasePluginType. We normally would simply move classes needing access to the same package, split
+ * between jars. However, in OSGI, split packages are not encouraged and not possible unless the
+ * packages are being supplied by bundles with special notation denoting the package split. Hop is
+ * currently imported into OSGI as part of the System Bundle [0], which we cannot modify in such a
+ * way.
+ *
+ * <p>Unless you're running within OSGI, you should never use this class.
+ *
+ * <p>Created by nbaker on 2/11/15.
  */
 public class BasePluginTypeExposer {
   private BasePluginType pluginType;
   private Object target;
   private final String packageName;
 
-  public BasePluginTypeExposer( BasePluginType pluginType, Object target ) {
+  public BasePluginTypeExposer(BasePluginType pluginType, Object target) {
     this.target = target;
     this.pluginType = pluginType;
     this.packageName = target.getClass().getPackage().getName();
   }
 
-  public String extractID( Annotation annotation ) {
-    return pluginType.extractID( annotation );
+  public String extractID(Annotation annotation) {
+    return pluginType.extractID(annotation);
   }
 
-  public String extractName( Annotation annotation ) {
-    String name = pluginType.extractName( annotation );
-    return BasePluginType.getTranslation( name, packageName, target.getClass() );
-
+  public String extractName(Annotation annotation) {
+    String name = pluginType.extractName(annotation);
+    return BasePluginType.getTranslation(name, packageName, target.getClass());
   }
 
-  public String extractDesc( Annotation annotation ) {
-    String desc = pluginType.extractDesc( annotation );
-    return BasePluginType.getTranslation( desc, packageName, target.getClass() );
+  public String extractDesc(Annotation annotation) {
+    String desc = pluginType.extractDesc(annotation);
+    return BasePluginType.getTranslation(desc, packageName, target.getClass());
   }
 
-  public String extractCategory( Annotation annotation ) {
-    String category = pluginType.extractCategory( annotation );
-    return BasePluginType.getTranslation( category, packageName, target.getClass() );
+  public String extractCategory(Annotation annotation) {
+    String category = pluginType.extractCategory(annotation);
+    return BasePluginType.getTranslation(category, packageName, target.getClass());
   }
 
-  public String extractImageFile( Annotation annotation ) {
-    return pluginType.extractImageFile( annotation );
+  public String extractImageFile(Annotation annotation) {
+    return pluginType.extractImageFile(annotation);
   }
 
-  public boolean extractSeparateClassLoader( Annotation annotation ) {
-    return pluginType.extractSeparateClassLoader( annotation );
+  public boolean extractSeparateClassLoader(Annotation annotation) {
+    return pluginType.extractSeparateClassLoader(annotation);
   }
 
-  public String extractDocumentationUrl( Annotation annotation ) {
-    return pluginType.extractDocumentationUrl( annotation );
+  public String extractDocumentationUrl(Annotation annotation) {
+    return pluginType.extractDocumentationUrl(annotation);
   }
 
-  public String extractCasesUrl( Annotation annotation ) {
-    return pluginType.extractCasesUrl( annotation );
+  public String extractCasesUrl(Annotation annotation) {
+    return pluginType.extractCasesUrl(annotation);
   }
 
-  public String extractForumUrl( Annotation annotation ) {
-    return pluginType.extractForumUrl( annotation );
+  public String extractForumUrl(Annotation annotation) {
+    return pluginType.extractForumUrl(annotation);
   }
-
 }

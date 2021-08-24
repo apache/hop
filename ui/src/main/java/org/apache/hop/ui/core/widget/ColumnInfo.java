@@ -75,7 +75,7 @@ public class ColumnInfo {
    * @param columnName The column name
    * @param columnType The column type (see: COLUMN_TYPE_...)
    */
-  public ColumnInfo( String columnName, int columnType ) {
+  public ColumnInfo(String columnName, int columnType) {
     this.name = columnName;
     this.type = columnType;
     comboValues = null;
@@ -84,26 +84,26 @@ public class ColumnInfo {
     alignment = SWT.LEFT;
     readonly = false;
     hidingNegativeValues = false;
-    valueMeta = new ValueMetaString( columnName );
+    valueMeta = new ValueMetaString(columnName);
   }
 
   /**
-   * Creates a column info class for use with the TableView class. The type of column info to be created is :
-   * COLUMN_TYPE_CCOMBO
+   * Creates a column info class for use with the TableView class. The type of column info to be
+   * created is : COLUMN_TYPE_CCOMBO
    *
    * @param columnName The column name
    * @param columnType The column type (see: COLUMN_TYPE_...)
-   * @param comboValues   The choices in the comboValues box
+   * @param comboValues The choices in the comboValues box
    */
-  public ColumnInfo( String columnName, int columnType, String...comboValues ) {
-    this( columnName, columnType );
+  public ColumnInfo(String columnName, int columnType, String... comboValues) {
+    this(columnName, columnType);
     this.comboValues = comboValues;
     numeric = false;
     tooltip = null;
     alignment = SWT.LEFT;
     readonly = false;
     hidingNegativeValues = false;
-    valueMeta = new ValueMetaString( columnName );
+    valueMeta = new ValueMetaString(columnName);
   }
 
   /**
@@ -111,35 +111,36 @@ public class ColumnInfo {
    *
    * @param columnName The column name
    * @param columnType The column type (see: COLUMN_TYPE_...)
-   * @param numeric true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *                IValueMeta.TYPE_INTEGER is the default.
+   * @param numeric true if the column type is numeric. Use setValueType() to specify the type of
+   *     numeric: IValueMeta.TYPE_INTEGER is the default.
    */
-  public ColumnInfo( String columnName, int columnType, boolean numeric ) {
-    this( columnName, columnType );
+  public ColumnInfo(String columnName, int columnType, boolean numeric) {
+    this(columnName, columnType);
     this.comboValues = null;
     this.numeric = numeric;
     this.tooltip = null;
     this.alignment = SWT.LEFT;
     this.readonly = false;
     this.hidingNegativeValues = false;
-    if ( numeric ) {
-      valueMeta = new ValueMetaInteger( columnName );
+    if (numeric) {
+      valueMeta = new ValueMetaInteger(columnName);
     } else {
-      valueMeta = new ValueMetaString( columnName );
+      valueMeta = new ValueMetaString(columnName);
     }
   }
 
   /**
-   * Creates a column info class for use with the TableView class. The type of column info to be created is :
-   * COLUMN_TYPE_CCOMBO
+   * Creates a column info class for use with the TableView class. The type of column info to be
+   * created is : COLUMN_TYPE_CCOMBO
    *
    * @param colname The column name
    * @param coltype The column type (see: COLUMN_TYPE_...)
-   * @param combo   The choices in the combo box
-   * @param ro      true if the column is read-only (you can't type in the combo box, you CAN make a choice)
+   * @param combo The choices in the combo box
+   * @param ro true if the column is read-only (you can't type in the combo box, you CAN make a
+   *     choice)
    */
-  public ColumnInfo( String colname, int coltype, String[] combo, boolean ro ) {
-    this( colname, coltype, combo );
+  public ColumnInfo(String colname, int coltype, String[] combo, boolean ro) {
+    this(colname, coltype, combo);
     readonly = ro;
   }
 
@@ -148,12 +149,12 @@ public class ColumnInfo {
    *
    * @param colname The column name
    * @param coltype The column type (see: COLUMN_TYPE_...)
-   * @param num     true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *                IValueMeta.TYPE_INTEGER is the default.
-   * @param ro      true if the column is read-only.
+   * @param num true if the column type is numeric. Use setValueType() to specify the type of
+   *     numeric: IValueMeta.TYPE_INTEGER is the default.
+   * @param ro true if the column is read-only.
    */
-  public ColumnInfo( String colname, int coltype, boolean num, boolean ro ) {
-    this( colname, coltype, num );
+  public ColumnInfo(String colname, int coltype, boolean num, boolean ro) {
+    this(colname, coltype, num);
     readonly = ro;
   }
 
@@ -162,27 +163,28 @@ public class ColumnInfo {
    *
    * @param colname The column name
    * @param coltype The column type (see: COLUMN_TYPE_...)
-   * @param num     true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *                IValueMeta.TYPE_INTEGER is the default.
-   * @param ro      true if the column is read-only.
-   * @param width   The column width
+   * @param num true if the column type is numeric. Use setValueType() to specify the type of
+   *     numeric: IValueMeta.TYPE_INTEGER is the default.
+   * @param ro true if the column is read-only.
+   * @param width The column width
    */
-  public ColumnInfo( String colname, int coltype, boolean num, boolean ro, int width ) {
-    this( colname, coltype, num );
+  public ColumnInfo(String colname, int coltype, boolean num, boolean ro, int width) {
+    this(colname, coltype, num);
     readonly = ro;
     this.width = width;
   }
 
   /**
-   * Creates a column info class for use with the TableView class. The type of column info to be created is :
-   * COLUMN_TYPE_FORMAT
+   * Creates a column info class for use with the TableView class. The type of column info to be
+   * created is : COLUMN_TYPE_FORMAT
    *
-   * @param colname         The column name
-   * @param coltype         The column type (see: COLUMN_TYPE_...)
-   * @param fieldTypeColumn The column that contains the field type (for use when filtering the format combo dropdown)
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param fieldTypeColumn The column that contains the field type (for use when filtering the
+   *     format combo dropdown)
    */
-  public ColumnInfo( String colname, int coltype, int fieldTypeColumn ) {
-    this( colname, coltype );
+  public ColumnInfo(String colname, int coltype, int fieldTypeColumn) {
+    this(colname, coltype);
     this.fieldTypeColumn = fieldTypeColumn;
   }
 
@@ -191,27 +193,27 @@ public class ColumnInfo {
     return name;
   }
 
-  public void setToolTip( String tip ) {
+  public void setToolTip(String tip) {
     tooltip = tip;
   }
 
-  public void setReadOnly( boolean ro ) {
+  public void setReadOnly(boolean ro) {
     readonly = ro;
   }
 
-  public void setAlignment( int allign ) {
+  public void setAlignment(int allign) {
     alignment = allign;
   }
 
-  public void setComboValues( String[] cv ) {
+  public void setComboValues(String[] cv) {
     comboValues = cv;
   }
 
-  public void setComboValueSupplier( Supplier<String[]> comboValueSupplier ) {
+  public void setComboValueSupplier(Supplier<String[]> comboValueSupplier) {
     this.comboValueSupplier = comboValueSupplier;
   }
 
-  public void setButtonText( String bt ) {
+  public void setButtonText(String bt) {
     buttonText = bt;
   }
 
@@ -228,17 +230,13 @@ public class ColumnInfo {
     return retval;
   }
 
-  /**
-   * @return the numeric
-   */
+  /** @return the numeric */
   public boolean isNumeric() {
     return numeric;
   }
 
-  /**
-   * @param numeric the numeric to set
-   */
-  public void setNumeric( boolean numeric ) {
+  /** @param numeric the numeric to set */
+  public void setNumeric(boolean numeric) {
     this.numeric = numeric;
   }
 
@@ -258,7 +256,7 @@ public class ColumnInfo {
     return buttonText;
   }
 
-  public void setSelectionAdapter( SelectionListener sb ) {
+  public void setSelectionAdapter(SelectionListener sb) {
     selButton = sb;
   }
 
@@ -278,45 +276,33 @@ public class ColumnInfo {
     return hidingNegativeValues;
   }
 
-  /**
-   * @return the valueMeta
-   */
+  /** @return the valueMeta */
   public IValueMeta getValueMeta() {
     return valueMeta;
   }
 
-  /**
-   * @param valueMeta the valueMeta to set
-   */
-  public void setValueMeta( IValueMeta valueMeta ) {
+  /** @param valueMeta the valueMeta to set */
+  public void setValueMeta(IValueMeta valueMeta) {
     this.valueMeta = valueMeta;
   }
 
-  /**
-   * @return the usingVariables
-   */
+  /** @return the usingVariables */
   public boolean isUsingVariables() {
     return usingVariables;
   }
 
-  /**
-   * @param usingVariables the usingVariables to set
-   */
-  public void setUsingVariables( boolean usingVariables ) {
+  /** @param usingVariables the usingVariables to set */
+  public void setUsingVariables(boolean usingVariables) {
     this.usingVariables = usingVariables;
   }
 
-  /**
-   * @return the password
-   */
+  /** @return the password */
   public boolean isPasswordField() {
     return passwordField;
   }
 
-  /**
-   * @param password the password to set
-   */
-  public void setPasswordField( boolean password ) {
+  /** @param password the password to set */
+  public void setPasswordField(boolean password) {
     this.passwordField = password;
   }
 
@@ -324,35 +310,28 @@ public class ColumnInfo {
     return fieldTypeColumn;
   }
 
-  public void setFieldTypeColumn( int fieldTypeColumn ) {
+  public void setFieldTypeColumn(int fieldTypeColumn) {
     this.fieldTypeColumn = fieldTypeColumn;
   }
 
-  /**
-   * @return the comboValuesSelectionListener
-   */
+  /** @return the comboValuesSelectionListener */
   public IComboValuesSelectionListener getComboValuesSelectionListener() {
     return comboValuesSelectionListener;
   }
 
-  /**
-   * @param comboValuesSelectionListener the comboValuesSelectionListener to set
-   */
-  public void setComboValuesSelectionListener( IComboValuesSelectionListener comboValuesSelectionListener ) {
+  /** @param comboValuesSelectionListener the comboValuesSelectionListener to set */
+  public void setComboValuesSelectionListener(
+      IComboValuesSelectionListener comboValuesSelectionListener) {
     this.comboValuesSelectionListener = comboValuesSelectionListener;
   }
 
-  /**
-   * @return the disabledListener
-   */
+  /** @return the disabledListener */
   public IFieldDisabledListener getDisabledListener() {
     return disabledListener;
   }
 
-  /**
-   * @param disabledListener the disabledListener to set
-   */
-  public void setDisabledListener( IFieldDisabledListener disabledListener ) {
+  /** @param disabledListener the disabledListener to set */
+  public void setDisabledListener(IFieldDisabledListener disabledListener) {
     this.disabledListener = disabledListener;
   }
 
@@ -360,35 +339,30 @@ public class ColumnInfo {
     return textVarButtonSelectionListener;
   }
 
-  public void setTextVarButtonSelectionListener( SelectionListener textVarButtonSelectionListener ) {
+  public void setTextVarButtonSelectionListener(SelectionListener textVarButtonSelectionListener) {
     this.textVarButtonSelectionListener = textVarButtonSelectionListener;
   }
 
-  public void setRenderTextVarButtonCallback( ITextVarButtonRenderCallback callback ) {
+  public void setRenderTextVarButtonCallback(ITextVarButtonRenderCallback callback) {
     this.renderTextVarButtonCallback = callback;
   }
 
   public boolean shouldRenderTextVarButton() {
-    return this.renderTextVarButtonCallback == null || this.renderTextVarButtonCallback.shouldRenderButton();
+    return this.renderTextVarButtonCallback == null
+        || this.renderTextVarButtonCallback.shouldRenderButton();
   }
 
   public int getWidth() {
     return this.width;
   }
 
-  /**
-   * @return if should be resized to accommodate contents
-   */
+  /** @return if should be resized to accommodate contents */
   public boolean isAutoResize() {
     return autoResize;
   }
 
-  /**
-   * If should be resized to accommodate contents. Default is <code>true</code>.
-   */
-  public void setAutoResize( boolean resize ) {
+  /** If should be resized to accommodate contents. Default is <code>true</code>. */
+  public void setAutoResize(boolean resize) {
     this.autoResize = resize;
   }
-
-
 }

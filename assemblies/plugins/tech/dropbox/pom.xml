@@ -20,38 +20,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-tech</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-tech</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-tech-dropbox</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Technology Dropbox</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-tech-dropbox</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Hop Assemblies Plugins Technology Dropbox</name>
-  <description></description>
+    <properties>
+        <dropbox.version>4.0.0</dropbox.version>
+    </properties>
 
-  <properties>
-    <dropbox.version>4.0.0</dropbox.version> 
-  </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-tech-dropbox</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-plugins-tech-dropbox</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
+        <!-- Dropbox SDK -->
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <version>${dropbox.version}</version>
+        </dependency>
 
-    <!-- Dropbox SDK -->
-   <dependency>
-      <groupId>com.dropbox.core</groupId>
-      <artifactId>dropbox-core-sdk</artifactId>
-      <version>${dropbox.version}</version>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 
 </project>

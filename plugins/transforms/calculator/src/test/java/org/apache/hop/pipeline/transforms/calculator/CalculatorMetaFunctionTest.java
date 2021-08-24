@@ -17,15 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CalculatorMetaFunctionTest {
 
@@ -62,13 +57,20 @@ public class CalculatorMetaFunctionTest {
             false);
     String xml = XmlMetadataUtil.serializeObjectToXml(function);
     assertEquals(
-        "<calc_type>COPY_FIELD</calc_type>" + System.lineSeparator()
-            + "<field_a>A</field_a>"  + System.lineSeparator()
-            + "<field_name>copyA</field_name>"  + System.lineSeparator()
-            + "<remove>N</remove>"  + System.lineSeparator()
-            + "<value_length>100</value_length>"  + System.lineSeparator()
-            + "<value_precision>-1</value_precision>"  + System.lineSeparator()
-            + "<value_type>String</value_type>"  + System.lineSeparator(),
+        "<calc_type>COPY_FIELD</calc_type>"
+            + System.lineSeparator()
+            + "<field_a>A</field_a>"
+            + System.lineSeparator()
+            + "<field_name>copyA</field_name>"
+            + System.lineSeparator()
+            + "<remove>N</remove>"
+            + System.lineSeparator()
+            + "<value_length>100</value_length>"
+            + System.lineSeparator()
+            + "<value_precision>-1</value_precision>"
+            + System.lineSeparator()
+            + "<value_type>String</value_type>"
+            + System.lineSeparator(),
         xml);
   }
 }

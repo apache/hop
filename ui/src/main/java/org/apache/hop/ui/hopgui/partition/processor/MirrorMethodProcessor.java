@@ -22,17 +22,16 @@ import org.apache.hop.ui.hopgui.file.pipeline.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * @author Evgeniy_Lyakhov@epam.com
- */
+/** @author Evgeniy_Lyakhov@epam.com */
 public class MirrorMethodProcessor extends AbstractMethodProcessor {
 
   @Override
-  public void schemaSelection( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection )
-    throws HopPluginException {
+  public void schemaSelection(
+      PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection)
+      throws HopPluginException {
     String schema =
-      super.askForSchema( settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex() );
-    super.processForKnownSchema( schema, settings );
+        super.askForSchema(
+            settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex());
+    super.processForKnownSchema(schema, settings);
   }
-
 }

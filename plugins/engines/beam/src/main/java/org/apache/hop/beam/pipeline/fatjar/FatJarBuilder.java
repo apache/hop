@@ -17,23 +17,6 @@
 
 package org.apache.hop.beam.pipeline.fatjar;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
@@ -43,6 +26,13 @@ import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.variables.IVariables;
 import org.jboss.jandex.IndexWriter;
 import org.jboss.jandex.Indexer;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class FatJarBuilder {
 
@@ -60,7 +50,7 @@ public class FatJarBuilder {
     extraXpPluginClasses = null;
   }
 
-  public FatJarBuilder( IVariables variables, String targetJarFile, List<String> jarFiles ) {
+  public FatJarBuilder(IVariables variables, String targetJarFile, List<String> jarFiles) {
     this();
     this.variables = variables;
     this.targetJarFile = targetJarFile;
@@ -77,22 +67,23 @@ public class FatJarBuilder {
 
     JarCache cache = JarCache.getInstance();
     Indexer indexer = new Indexer();
-    
-    try {
-      byte[] buffer = new byte[ 1024 ];
-      ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream( realTargetJarFile ) );
 
-      for ( String jarFile : jarFiles ) {
-	
-	// Index only already indexed jar
-	boolean jarIndexed = false;	
- 	if ( cache.getIndex(new File(jarFile))!=null ) { 	   
- 	    jarIndexed = true;
- 	}
-	
-        ZipInputStream zipInputStream = new ZipInputStream( new FileInputStream( jarFile ) );        
+    try {
+      byte[] buffer = new byte[1024];
+      ZipOutputStream zipOutputStream =
+          new ZipOutputStream(new FileOutputStream(realTargetJarFile));
+
+      for (String jarFile : jarFiles) {
+
+        // Index only already indexed jar
+        boolean jarIndexed = false;
+        if (cache.getIndex(new File(jarFile)) != null) {
+          jarIndexed = true;
+        }
+
+        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(jarFile));
         ZipEntry zipEntry = zipInputStream.getNextEntry();
-        while ( zipEntry != null ) {
+        while (zipEntry != null) {
 
           boolean skip = false;
           boolean merge = false;
@@ -100,129 +91,128 @@ public class FatJarBuilder {
 
           String entryName = zipEntry.getName();
 
-          if ( zipEntry.isDirectory() ) {
-              skip = true;
-          }
-          if ( entryName.contains( "META-INF/INDEX.LIST" ) ) {
+          if (zipEntry.isDirectory()) {
             skip = true;
           }
-          else if ( entryName.contains( "META-INF/MANIFEST.MF" ) ) {
+          if (entryName.contains("META-INF/INDEX.LIST")) {
             skip = true;
-          }
-          else if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".SF" ) ) {
+          } else if (entryName.contains("META-INF/MANIFEST.MF")) {
             skip = true;
-          }
-          else if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".DSA" ) ) {
+          } else if (entryName.startsWith("META-INF") && entryName.endsWith(".SF")) {
             skip = true;
-          }
-          else if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".RSA" ) ) {
+          } else if (entryName.startsWith("META-INF") && entryName.endsWith(".DSA")) {
             skip = true;
-          }
-          else if ( entryName.startsWith( "META-INF/services/" ) ) {
+          } else if (entryName.startsWith("META-INF") && entryName.endsWith(".RSA")) {
+            skip = true;
+          } else if (entryName.startsWith("META-INF/services/")) {
             merge = true;
             skip = true;
-          }          
+          }
           // Skip because we rebuild a new one from cache
-          else if ( entryName.endsWith( "META-INF/jandex.idx" ) ) {
+          else if (entryName.endsWith("META-INF/jandex.idx")) {
             skip = true;
-          }        
-          else if (jarIndexed && entryName.endsWith(".class")) {
+          } else if (jarIndexed && entryName.endsWith(".class")) {
             index = true;
           }
-          
-          if ( !skip ) {
+
+          if (!skip) {
             try {
-              zipOutputStream.putNextEntry( new ZipEntry( zipEntry.getName() ) );
-            } catch ( ZipException ze ) {
+              zipOutputStream.putNextEntry(new ZipEntry(zipEntry.getName()));
+            } catch (ZipException ze) {
               // Duplicate entry!
               //
               skip = true;
             }
           }
 
-          if ( merge ) {
-            String fileContent = IOUtils.toString( zipInputStream, "UTF-8" );
-            String previousContent = fileContentMap.get( entryName );
-            if ( previousContent == null ) {
-              fileContentMap.put( entryName, fileContent );
+          if (merge) {
+            String fileContent = IOUtils.toString(zipInputStream, "UTF-8");
+            String previousContent = fileContentMap.get(entryName);
+            if (previousContent == null) {
+              fileContentMap.put(entryName, fileContent);
             } else {
-              fileContentMap.put( entryName, previousContent + Const.CR + fileContent );
+              fileContentMap.put(entryName, previousContent + Const.CR + fileContent);
             }
-          } 
-          else if ( !skip ) {
+          } else if (!skip) {
             int len;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            while ( ( len = zipInputStream.read( buffer ) ) > 0 ) {
-              zipOutputStream.write( buffer, 0, len );
+            while ((len = zipInputStream.read(buffer)) > 0) {
+              zipOutputStream.write(buffer, 0, len);
               if (index) {
-        	  baos.write(buffer, 0, len);
+                baos.write(buffer, 0, len);
               }
             }
 
             if (index) {
-                indexer.index(new ByteArrayInputStream(baos.toByteArray()));
+              indexer.index(new ByteArrayInputStream(baos.toByteArray()));
             }
           }
 
           zipInputStream.closeEntry();
 
-          if ( !skip ) {
+          if (!skip) {
             zipOutputStream.closeEntry();
           }
 
           zipEntry = zipInputStream.getNextEntry();
-
         }
-                
+
         zipInputStream.close();
       }
 
       // Add the META-INF/services files...
       //
-      for ( String entryName : fileContentMap.keySet() ) {
+      for (String entryName : fileContentMap.keySet()) {
         // System.out.println( "Entry merged: " + entryName );
-        String fileContent = fileContentMap.get( entryName );
-        zipOutputStream.putNextEntry( new ZipEntry( entryName ) );
-        zipOutputStream.write( fileContent.getBytes( "UTF-8" ) );
+        String fileContent = fileContentMap.get(entryName);
+        zipOutputStream.putNextEntry(new ZipEntry(entryName));
+        zipOutputStream.write(fileContent.getBytes("UTF-8"));
         zipOutputStream.closeEntry();
       }
 
       // Add META-INF/jandex.idx file
       //
-      zipOutputStream.putNextEntry( new ZipEntry( JarCache.ANNOTATION_INDEX_LOCATION ) );
-      IndexWriter indexWriter = new IndexWriter(zipOutputStream); 
-      indexWriter.write(indexer.complete());      
+      zipOutputStream.putNextEntry(new ZipEntry(JarCache.ANNOTATION_INDEX_LOCATION));
+      IndexWriter indexWriter = new IndexWriter(zipOutputStream);
+      indexWriter.write(indexer.complete());
       zipOutputStream.closeEntry();
-  
+
       // Close FatJar
       zipOutputStream.close();
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to build far jar file '" + realTargetJarFile + "'", e );
+    } catch (Exception e) {
+      throw new HopException("Unable to build far jar file '" + realTargetJarFile + "'", e);
     } finally {
       fileContentMap.clear();
     }
-
   }
 
-  public static String findPluginClasses( String pluginClassName, String pluginsToInclude ) throws HopException {
+  public static String findPluginClasses(String pluginClassName, String pluginsToInclude)
+      throws HopException {
     String plugins = pluginsToInclude;
 
-    if ( StringUtils.isEmpty( plugins ) ) {
+    if (StringUtils.isEmpty(plugins)) {
       plugins = "hop-beam";
     } else {
       plugins += ",hop-beam";
     }
 
     Set<String> classes = new HashSet<>();
-    String[] pluginFolders = plugins.split( "," );
-    for ( String pluginFolder : pluginFolders ) {
+    String[] pluginFolders = plugins.split(",");
+    for (String pluginFolder : pluginFolders) {
       try {
-        List<String> transformClasses = HopPipelineMetaToBeamPipelineConverter.findAnnotatedClasses( pluginFolder, pluginClassName );
-        for ( String transformClass : transformClasses ) {
-          classes.add( transformClass );
+        List<String> transformClasses =
+            HopPipelineMetaToBeamPipelineConverter.findAnnotatedClasses(
+                pluginFolder, pluginClassName);
+        for (String transformClass : transformClasses) {
+          classes.add(transformClass);
         }
-      } catch ( Exception e ) {
-        throw new HopException( "Error find plugin classes of annotation type '" + pluginClassName + "' in folder '" + pluginFolder, e );
+      } catch (Exception e) {
+        throw new HopException(
+            "Error find plugin classes of annotation type '"
+                + pluginClassName
+                + "' in folder '"
+                + pluginFolder,
+            e);
       }
     }
 
@@ -230,20 +220,19 @@ public class FatJarBuilder {
     // Let's sort by name and add them in the dialog comma separated...
     //
     List<String> classesList = new ArrayList<>();
-    classesList.addAll( classes );
-    Collections.sort( classesList );
+    classesList.addAll(classes);
+    Collections.sort(classesList);
 
     StringBuffer all = new StringBuffer();
-    for ( String pluginClass : classesList ) {
-      if ( all.length() > 0 ) {
-        all.append( "," );
+    for (String pluginClass : classesList) {
+      if (all.length() > 0) {
+        all.append(",");
       }
-      all.append( pluginClass );
+      all.append(pluginClass);
     }
 
     return all.toString();
   }
-
 
   /**
    * Gets targetJarFile
@@ -254,10 +243,8 @@ public class FatJarBuilder {
     return targetJarFile;
   }
 
-  /**
-   * @param targetJarFile The targetJarFile to set
-   */
-  public void setTargetJarFile( String targetJarFile ) {
+  /** @param targetJarFile The targetJarFile to set */
+  public void setTargetJarFile(String targetJarFile) {
     this.targetJarFile = targetJarFile;
   }
 
@@ -270,10 +257,8 @@ public class FatJarBuilder {
     return jarFiles;
   }
 
-  /**
-   * @param jarFiles The jarFiles to set
-   */
-  public void setJarFiles( List<String> jarFiles ) {
+  /** @param jarFiles The jarFiles to set */
+  public void setJarFiles(List<String> jarFiles) {
     this.jarFiles = jarFiles;
   }
 
@@ -286,10 +271,8 @@ public class FatJarBuilder {
     return extraTransformPluginClasses;
   }
 
-  /**
-   * @param extraTransformPluginClasses The extraTransformPluginClasses to set
-   */
-  public void setExtraTransformPluginClasses( String extraTransformPluginClasses ) {
+  /** @param extraTransformPluginClasses The extraTransformPluginClasses to set */
+  public void setExtraTransformPluginClasses(String extraTransformPluginClasses) {
     this.extraTransformPluginClasses = extraTransformPluginClasses;
   }
 
@@ -302,10 +285,8 @@ public class FatJarBuilder {
     return extraXpPluginClasses;
   }
 
-  /**
-   * @param extraXpPluginClasses The extraXpPluginClasses to set
-   */
-  public void setExtraXpPluginClasses( String extraXpPluginClasses ) {
+  /** @param extraXpPluginClasses The extraXpPluginClasses to set */
+  public void setExtraXpPluginClasses(String extraXpPluginClasses) {
     this.extraXpPluginClasses = extraXpPluginClasses;
   }
 
@@ -318,10 +299,8 @@ public class FatJarBuilder {
     return fileContentMap;
   }
 
-  /**
-   * @param fileContentMap The fileContentMap to set
-   */
-  public void setFileContentMap( Map<String, String> fileContentMap ) {
+  /** @param fileContentMap The fileContentMap to set */
+  public void setFileContentMap(Map<String, String> fileContentMap) {
     this.fileContentMap = fileContentMap;
   }
 }

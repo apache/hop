@@ -22,29 +22,30 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.Objects;
 
 public class DataSetField {
-  @HopMetadataProperty( key = "field_name" )
+  @HopMetadataProperty(key = "field_name")
   private String fieldName;
 
-  @HopMetadataProperty( key = "field_type" )
+  @HopMetadataProperty(key = "field_type")
   private int type;
 
-  @HopMetadataProperty( key = "field_length" )
+  @HopMetadataProperty(key = "field_length")
   private int length;
 
-  @HopMetadataProperty( key = "field_precision" )
+  @HopMetadataProperty(key = "field_precision")
   private int precision;
 
-  @HopMetadataProperty( key = "field_comment" )
+  @HopMetadataProperty(key = "field_comment")
   private String comment;
 
-  @HopMetadataProperty( key = "field_format" )
+  @HopMetadataProperty(key = "field_format")
   private String format;
 
   public DataSetField() {
     // Empty constructor for MetaStoreFactory.
   }
 
-  public DataSetField( String fieldName, int type, int length, int precision, String comment, String format ) {
+  public DataSetField(
+      String fieldName, int type, int length, int precision, String comment, String format) {
     super();
     this.fieldName = fieldName;
     this.type = type;
@@ -54,19 +55,21 @@ public class DataSetField {
     this.format = format;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     DataSetField that = (DataSetField) o;
-    return Objects.equals( fieldName, that.fieldName );
+    return Objects.equals(fieldName, that.fieldName);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( fieldName );
+  @Override
+  public int hashCode() {
+    return Objects.hash(fieldName);
   }
 
   /**
@@ -78,10 +81,8 @@ public class DataSetField {
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName The fieldName to set */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
@@ -94,10 +95,8 @@ public class DataSetField {
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( int type ) {
+  /** @param type The type to set */
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -110,10 +109,8 @@ public class DataSetField {
     return length;
   }
 
-  /**
-   * @param length The length to set
-   */
-  public void setLength( int length ) {
+  /** @param length The length to set */
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -126,10 +123,8 @@ public class DataSetField {
     return precision;
   }
 
-  /**
-   * @param precision The precision to set
-   */
-  public void setPrecision( int precision ) {
+  /** @param precision The precision to set */
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -142,10 +137,8 @@ public class DataSetField {
     return comment;
   }
 
-  /**
-   * @param comment The comment to set
-   */
-  public void setComment( String comment ) {
+  /** @param comment The comment to set */
+  public void setComment(String comment) {
     this.comment = comment;
   }
 
@@ -158,10 +151,8 @@ public class DataSetField {
     return format;
   }
 
-  /**
-   * @param format The format to set
-   */
-  public void setFormat( String format ) {
+  /** @param format The format to set */
+  public void setFormat(String format) {
     this.format = format;
   }
 }

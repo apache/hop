@@ -18,14 +18,8 @@
 package org.apache.hop.mongo;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.ReadPreference;
-import com.mongodb.Tag;
-import com.mongodb.TagSet;
-import com.mongodb.TaggableReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.util.JSONParseException;
-import org.apache.hop.i18n.BaseMessages;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
@@ -33,16 +27,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class MongoPropToOptionTest {
   @Mock private MongoUtilLogger log;
@@ -58,7 +44,6 @@ public class MongoPropToOptionTest {
       "{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"a\" },"
           + "{ \"disk\": \"ssd\", \"use\": \"reporting\", \"rack\": \"d\" },"
           + "{ \"disk\": \"ssd\", \"use\": \"reporting\", \"mem\": \"r\"}";
-
 
   @Test
   public void testGetTagSets() throws MongoDbException {

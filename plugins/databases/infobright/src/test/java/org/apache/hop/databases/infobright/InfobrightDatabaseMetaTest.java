@@ -18,18 +18,14 @@
 package org.apache.hop.databases.infobright;
 
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -37,30 +33,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class InfobrightDatabaseMetaTest {
 
   @Before
   public void setup() throws HopException {
     HopClientEnvironment.init();
-    DatabasePluginType.getInstance().registerClassPathPlugin( InfobrightDatabaseMeta.class );
+    DatabasePluginType.getInstance().registerClassPathPlugin(InfobrightDatabaseMeta.class);
   }
 
   @Test
   public void mysqlTestOverrides() throws Exception {
     InfobrightDatabaseMeta idm = new InfobrightDatabaseMeta();
-    idm.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    assertEquals( 5029, idm.getDefaultDatabasePort() );
+    idm.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    assertEquals(5029, idm.getDefaultDatabasePort());
   }
 
   @Test
   public void testAddOptionsInfobright() {
-    DatabaseMeta databaseMeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
+    DatabaseMeta databaseMeta =
+        new DatabaseMeta("", "Infobright", "JDBC", null, "stub:stub", null, null, null);
     Map<String, String> options = databaseMeta.getExtraOptions();
-    if ( !options.keySet().contains( "INFOBRIGHT.characterEncoding" ) ) {
+    if (!options.keySet().contains("INFOBRIGHT.characterEncoding")) {
       fail();
     }
   }
@@ -68,24 +63,28 @@ public class InfobrightDatabaseMetaTest {
   @Test
   public void testAttributesVariable() throws HopDatabaseException {
     IVariables variables = new Variables();
-    DatabaseMeta databaseMeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
-    variables.setVariable( "someVar", "someValue" );
-    databaseMeta.setAttributes( new HashMap<>() );
-    Map<String,String> props = databaseMeta.getAttributes();
-    props.put( "EXTRA_OPTION_Infobright.additional_param", "${someVar}" );
+    DatabaseMeta databaseMeta =
+        new DatabaseMeta("", "Infobright", "JDBC", null, "stub:stub", null, null, null);
+    variables.setVariable("someVar", "someValue");
+    databaseMeta.setAttributes(new HashMap<>());
+    Map<String, String> props = databaseMeta.getAttributes();
+    props.put("EXTRA_OPTION_Infobright.additional_param", "${someVar}");
     databaseMeta.getURL(variables);
-    assertTrue( databaseMeta.getURL(variables).contains( "someValue" ) );
+    assertTrue(databaseMeta.getURL(variables).contains("someValue"));
   }
 
   @Test
   public void testfindDatabase() throws HopDatabaseException {
     List<DatabaseMeta> databases = new ArrayList<>();
-    databases.add( new DatabaseMeta( "  1", "Infobright", "JDBC", null, "stub:stub", null, null, null ) );
-    databases.add( new DatabaseMeta( "  1  ", "Infobright", "JDBC", null, "stub:stub", null, null, null ) );
-    databases.add( new DatabaseMeta( "1  ", "Infobright", "JDBC", null, "stub:stub", null, null, null ) );
-    Assert.assertNotNull( DatabaseMeta.findDatabase( databases, "1" ) );
-    Assert.assertNotNull( DatabaseMeta.findDatabase( databases, "1 " ) );
-    Assert.assertNotNull( DatabaseMeta.findDatabase( databases, " 1" ) );
-    Assert.assertNotNull( DatabaseMeta.findDatabase( databases, " 1 " ) );
+    databases.add(
+        new DatabaseMeta("  1", "Infobright", "JDBC", null, "stub:stub", null, null, null));
+    databases.add(
+        new DatabaseMeta("  1  ", "Infobright", "JDBC", null, "stub:stub", null, null, null));
+    databases.add(
+        new DatabaseMeta("1  ", "Infobright", "JDBC", null, "stub:stub", null, null, null));
+    Assert.assertNotNull(DatabaseMeta.findDatabase(databases, "1"));
+    Assert.assertNotNull(DatabaseMeta.findDatabase(databases, "1 "));
+    Assert.assertNotNull(DatabaseMeta.findDatabase(databases, " 1"));
+    Assert.assertNotNull(DatabaseMeta.findDatabase(databases, " 1 "));
   }
 }

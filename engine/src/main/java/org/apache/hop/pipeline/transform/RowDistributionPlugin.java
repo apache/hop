@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation signals to the plugin system that the class is a row distribution plugin.
@@ -29,8 +25,8 @@ import java.lang.annotation.Target;
  * @author matt
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface RowDistributionPlugin {
   String code();
 

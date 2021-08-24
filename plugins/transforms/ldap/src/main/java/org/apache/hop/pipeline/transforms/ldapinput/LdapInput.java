@@ -16,9 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import java.util.HashSet;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -33,6 +30,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
+import java.util.HashSet;
 
 /**
  * Read LDAP Host, convert them to rows and writes these to one or more output streams.
@@ -285,7 +286,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
       // no need to convert, just return the value as it
       try {
         return attr.get();
-      } catch ( ClassCastException e) {
+      } catch (ClassCastException e) {
         return attr.get().toString().getBytes();
       }
     }
@@ -366,8 +367,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
 
     if (meta.isUseAuthentication()) {
       String username = resolve(meta.getUserName());
-      String password =
-          Encr.decryptPasswordOptionallyEncrypted( resolve(meta.getPassword()));
+      String password = Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getPassword()));
       data.connection.connect(username, password);
     } else {
       data.connection.connect();
@@ -379,7 +379,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     }
     // Set the page size?
     if (meta.isPaging()) {
-      data.connection.setPagingSize(Const.toInt( resolve(meta.getPageSize()), -1));
+      data.connection.setPagingSize(Const.toInt(resolve(meta.getPageSize()), -1));
     }
   }
 

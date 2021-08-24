@@ -28,8 +28,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "Web Service",
     description = "Allows you to run a pipeline to generate output for a servlet on Hop Server",
     image = "ui/images/server.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/web-service.html"
-)
+    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/web-service.html")
 public class WebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
@@ -39,11 +38,17 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private String contentType;
   @HopMetadataProperty private boolean listingStatus;
 
-  public WebService() {
-  }
+  public WebService() {}
 
-  public WebService( String name, boolean enabled, String filename, String transformName, String fieldName, String contentType, boolean listingStatus ) {
-    super( name );
+  public WebService(
+      String name,
+      boolean enabled,
+      String filename,
+      String transformName,
+      String fieldName,
+      String contentType,
+      boolean listingStatus) {
+    super(name);
     this.enabled = enabled;
     this.filename = filename;
     this.transformName = transformName;
@@ -61,10 +66,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /**
-   * @param enabled The enabled to set
-   */
-  public void setEnabled( boolean enabled ) {
+  /** @param enabled The enabled to set */
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
@@ -77,10 +80,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -93,10 +94,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return transformName;
   }
 
-  /**
-   * @param transformName The transformName to set
-   */
-  public void setTransformName( String transformName ) {
+  /** @param transformName The transformName to set */
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -109,10 +108,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName The fieldName to set */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
@@ -125,10 +122,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return contentType;
   }
 
-  /**
-   * @param contentType The contentType to set
-   */
-  public void setContentType( String contentType ) {
+  /** @param contentType The contentType to set */
+  public void setContentType(String contentType) {
     this.contentType = contentType;
   }
 
@@ -141,10 +136,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return listingStatus;
   }
 
-  /**
-   * @param listingStatus The listingStatus to set
-   */
-  public void setListingStatus( boolean listingStatus ) {
+  /** @param listingStatus The listingStatus to set */
+  public void setListingStatus(boolean listingStatus) {
     this.listingStatus = listingStatus;
   }
 }

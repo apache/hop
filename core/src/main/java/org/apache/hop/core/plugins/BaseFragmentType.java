@@ -24,41 +24,49 @@ import java.util.Map;
 
 public abstract class BaseFragmentType<T extends Annotation> extends BasePluginType<T> {
 
-  BaseFragmentType( Class<T> pluginType, String id, String name, Class<? extends IPluginType> typeToTrack ) {
-    super( pluginType, id, name );
-    initListeners( this.getClass(), typeToTrack );
+  BaseFragmentType(
+      Class<T> pluginType, String id, String name, Class<? extends IPluginType> typeToTrack) {
+    super(pluginType, id, name);
+    initListeners(this.getClass(), typeToTrack);
   }
 
-  protected void initListeners( Class<? extends IPluginType> aClass, Class<? extends IPluginType> typeToTrack ) {
+  protected void initListeners(
+      Class<? extends IPluginType> aClass, Class<? extends IPluginType> typeToTrack) {
     // keep track of new fragments
-    registry.addPluginListener( aClass, new FragmentTypeListener( registry, typeToTrack ) {
-      /**
-       * Keep track of new Fragments, keep note of the method signature's order
-       * @param fragment The plugin fragment to merge
-       * @param plugin The plugin to be merged
-       */
-      @Override
-      void mergePlugin( IPlugin fragment, IPlugin plugin ) {
-        if ( plugin != null ) {
-          plugin.merge( fragment );
-        }
-      }
-    } );
+    registry.addPluginListener(
+        aClass,
+        new FragmentTypeListener(registry, typeToTrack) {
+          /**
+           * Keep track of new Fragments, keep note of the method signature's order
+           *
+           * @param fragment The plugin fragment to merge
+           * @param plugin The plugin to be merged
+           */
+          @Override
+          void mergePlugin(IPlugin fragment, IPlugin plugin) {
+            if (plugin != null) {
+              plugin.merge(fragment);
+            }
+          }
+        });
 
     // start listening to interested parties
-    registry.addPluginListener( typeToTrack, new FragmentTypeListener( registry, aClass ) {
-      /**
-       * Keep track of new Fragments, keep note of the method signature's order
-       * @param plugin The plugin to be merged
-       * @param fragment The plugin fragment to merge
-       */
-      @Override
-      void mergePlugin( IPlugin plugin, IPlugin fragment ) {
-        if ( plugin != null ) {
-          plugin.merge( fragment );
-        }
-      }
-    } );
+    registry.addPluginListener(
+        typeToTrack,
+        new FragmentTypeListener(registry, aClass) {
+          /**
+           * Keep track of new Fragments, keep note of the method signature's order
+           *
+           * @param plugin The plugin to be merged
+           * @param fragment The plugin fragment to merge
+           */
+          @Override
+          void mergePlugin(IPlugin plugin, IPlugin fragment) {
+            if (plugin != null) {
+              plugin.merge(fragment);
+            }
+          }
+        });
   }
 
   @Override
@@ -66,59 +74,58 @@ public abstract class BaseFragmentType<T extends Annotation> extends BasePluginT
     return true;
   }
 
-  @Override protected URLClassLoader createUrlClassLoader( URL jarFileUrl, ClassLoader classLoader ) {
-    return new HopURLClassLoader( new URL[] { jarFileUrl }, classLoader );
+  @Override
+  protected URLClassLoader createUrlClassLoader(URL jarFileUrl, ClassLoader classLoader) {
+    return new HopURLClassLoader(new URL[] {jarFileUrl}, classLoader);
   }
 
   @Override
-  protected String extractName( T annotation ) {
+  protected String extractName(T annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( T annotation ) {
+  protected String extractDesc(T annotation) {
     return null;
   }
 
   @Override
-  protected String extractCategory( T annotation ) {
+  protected String extractCategory(T annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( T annotation ) {
+  protected boolean extractSeparateClassLoader(T annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, T annotation ) {
-  }
+  protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {}
 
   protected abstract class FragmentTypeListener implements IPluginTypeListener {
     private final PluginRegistry registry;
     private final Class<? extends IPluginType> typeToTrack;
 
-    FragmentTypeListener( PluginRegistry registry, Class<? extends IPluginType> typeToTrack ) {
+    FragmentTypeListener(PluginRegistry registry, Class<? extends IPluginType> typeToTrack) {
       this.registry = registry;
       this.typeToTrack = typeToTrack;
     }
 
-    abstract void mergePlugin( IPlugin left, IPlugin right );
+    abstract void mergePlugin(IPlugin left, IPlugin right);
 
     @Override
-    public void pluginAdded( Object serviceObject ) {
+    public void pluginAdded(Object serviceObject) {
       IPlugin left = (IPlugin) serviceObject;
-      IPlugin right = registry.findPluginWithId( typeToTrack, left.getIds()[ 0 ] );
-      mergePlugin( left, right );
+      IPlugin right = registry.findPluginWithId(typeToTrack, left.getIds()[0]);
+      mergePlugin(left, right);
     }
 
     @Override
-    public void pluginRemoved( Object serviceObject ) {
-    }
+    public void pluginRemoved(Object serviceObject) {}
 
     @Override
-    public void pluginChanged( Object serviceObject ) {
-      pluginAdded( serviceObject );
+    public void pluginChanged(Object serviceObject) {
+      pluginAdded(serviceObject);
     }
   }
 }

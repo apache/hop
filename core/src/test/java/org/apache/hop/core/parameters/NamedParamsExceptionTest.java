@@ -16,7 +16,6 @@
  */
 package org.apache.hop.core.parameters;
 
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,9 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by mburgess on 10/13/15.
- */
+/** Created by mburgess on 10/13/15. */
 public class NamedParamsExceptionTest {
 
   NamedParamsException exception;
@@ -34,24 +31,24 @@ public class NamedParamsExceptionTest {
   @Test
   public void testConstructors() {
     exception = new NamedParamsException();
-    assertNotNull( exception );
-    assertMessage( "null", exception );
+    assertNotNull(exception);
+    assertMessage("null", exception);
 
-    exception = new NamedParamsException( "message" );
-    assertMessage( "message", exception );
+    exception = new NamedParamsException("message");
+    assertMessage("message", exception);
 
-    Throwable t = mock( Throwable.class );
-    when( t.getStackTrace() ).thenReturn( new StackTraceElement[ 0 ] );
-    exception = new NamedParamsException( t );
-    assertEquals( t, exception.getCause() );
+    Throwable t = mock(Throwable.class);
+    when(t.getStackTrace()).thenReturn(new StackTraceElement[0]);
+    exception = new NamedParamsException(t);
+    assertEquals(t, exception.getCause());
 
-    exception = new NamedParamsException( "message", t );
-    assertMessage( "message", exception );
-    assertEquals( t, exception.getCause() );
+    exception = new NamedParamsException("message", t);
+    assertMessage("message", exception);
+    assertEquals(t, exception.getCause());
   }
 
-  static void assertMessage( String expected, NamedParamsException exception ) {
+  static void assertMessage(String expected, NamedParamsException exception) {
     String surrounded = System.lineSeparator() + expected + System.lineSeparator();
-    assertEquals( surrounded, exception.getMessage() );
+    assertEquals(surrounded, exception.getMessage());
   }
 }

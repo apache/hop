@@ -20,8 +20,8 @@ package org.apache.hop.workflow.actions.getpop;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
@@ -32,6 +32,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -39,10 +43,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
 import javax.mail.Flags.Flag;
@@ -59,15 +59,13 @@ import java.util.regex.Pattern;
  * @author Samatar
  * @since 01-03-2007
  */
-
 @Action(
-  id = "GET_POP",
-  name = "i18n::ActionGetPOP.Name",
-  description = "i18n::ActionGetPOP.Description",
-  image = "GetPOP.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/getpop.html"
-)
+    id = "GET_POP",
+    name = "i18n::ActionGetPOP.Name",
+    description = "i18n::ActionGetPOP.Description",
+    image = "GetPOP.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/getpop.html")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
@@ -119,7 +117,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private boolean createmovetofolder;
   private boolean createlocalfolder;
 
-  private static final String DEFAULT_FILE_NAME_PATTERN = "name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail";
+  private static final String DEFAULT_FILE_NAME_PATTERN =
+      "name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail";
 
   public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
   private static final String FILENAME_ID_PATTERN = "#IdFile#";
@@ -128,8 +127,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
   private Pattern attachementPattern;
 
-  public ActionGetPOP( String n ) {
-    super( n, "" );
+  public ActionGetPOP(String n) {
+    super(n, "");
     servername = null;
     username = null;
     password = null;
@@ -172,7 +171,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionGetPOP() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -181,137 +180,174 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 550 );
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", servername ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "username", username ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "usessl", usessl ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sslport", sslport ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "outputdirectory", outputdirectory ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filenamepattern", filenamepattern ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "retrievemails", retrievemails ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "firstmails", firstmails ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "delete", delete ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "savemessage", savemessage ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "saveattachment", saveattachment ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "usedifferentfolderforattachment", usedifferentfolderforattachment ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "attachmentfolder", attachmentfolder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "attachmentwildcard", attachmentwildcard ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "valueimaplist", MailConnectionMeta.getValueImapListCode( valueimaplist ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "imapfirstmails", imapfirstmails ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "imapfolder", imapfolder ) );
-    // search term
-    retval.append( "      " ).append( XmlHandler.addTagValue( "sendersearch", senderSearch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermsendersearch", notTermSenderSearch ) );
-
-    retval.append( "      " ).append( XmlHandler.addTagValue( "receipientsearch", receipientSearch ) );
+    StringBuilder retval = new StringBuilder(550);
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("servername", servername));
+    retval.append("      ").append(XmlHandler.addTagValue("username", username));
     retval
-      .append( "      " ).append( XmlHandler.addTagValue( "nottermreceipientsearch", notTermReceipientSearch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "subjectsearch", subjectSearch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermsubjectsearch", notTermSubjectSearch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "bodysearch", bodySearch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermbodysearch", notTermBodySearch ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "conditionreceiveddate", MailConnectionMeta
-        .getConditionDateCode( conditionReceivedDate ) ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "nottermreceiveddatesearch", notTermReceivedDateSearch ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "receiveddate1", receivedDate1 ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "receiveddate2", receivedDate2 ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "actiontype", MailConnectionMeta.getActionTypeCode( actiontype ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "movetoimapfolder", moveToIMAPFolder ) );
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
+    retval.append("      ").append(XmlHandler.addTagValue("usessl", usessl));
+    retval.append("      ").append(XmlHandler.addTagValue("sslport", sslport));
+    retval.append("      ").append(XmlHandler.addTagValue("outputdirectory", outputdirectory));
+    retval.append("      ").append(XmlHandler.addTagValue("filenamepattern", filenamepattern));
+    retval.append("      ").append(XmlHandler.addTagValue("retrievemails", retrievemails));
+    retval.append("      ").append(XmlHandler.addTagValue("firstmails", firstmails));
+    retval.append("      ").append(XmlHandler.addTagValue("delete", delete));
+    retval.append("      ").append(XmlHandler.addTagValue("savemessage", savemessage));
+    retval.append("      ").append(XmlHandler.addTagValue("saveattachment", saveattachment));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "usedifferentfolderforattachment", usedifferentfolderforattachment));
+    retval.append("      ").append(XmlHandler.addTagValue("protocol", protocol));
+    retval.append("      ").append(XmlHandler.addTagValue("attachmentfolder", attachmentfolder));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("attachmentwildcard", attachmentwildcard));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "valueimaplist", MailConnectionMeta.getValueImapListCode(valueimaplist)));
+    retval.append("      ").append(XmlHandler.addTagValue("imapfirstmails", imapfirstmails));
+    retval.append("      ").append(XmlHandler.addTagValue("imapfolder", imapfolder));
+    // search term
+    retval.append("      ").append(XmlHandler.addTagValue("sendersearch", senderSearch));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("nottermsendersearch", notTermSenderSearch));
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "createmovetofolder", createmovetofolder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "createlocalfolder", createlocalfolder ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "aftergetimap", MailConnectionMeta.getAfterGetIMAPCode( aftergetimap ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "includesubfolders", includesubfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "useproxy", useproxy ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyusername", proxyusername ) );
+    retval.append("      ").append(XmlHandler.addTagValue("receipientsearch", receipientSearch));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("nottermreceipientsearch", notTermReceipientSearch));
+    retval.append("      ").append(XmlHandler.addTagValue("subjectsearch", subjectSearch));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("nottermsubjectsearch", notTermSubjectSearch));
+    retval.append("      ").append(XmlHandler.addTagValue("bodysearch", bodySearch));
+    retval.append("      ").append(XmlHandler.addTagValue("nottermbodysearch", notTermBodySearch));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "conditionreceiveddate",
+                MailConnectionMeta.getConditionDateCode(conditionReceivedDate)));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("nottermreceiveddatesearch", notTermReceivedDateSearch));
+    retval.append("      ").append(XmlHandler.addTagValue("receiveddate1", receivedDate1));
+    retval.append("      ").append(XmlHandler.addTagValue("receiveddate2", receivedDate2));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("actiontype", MailConnectionMeta.getActionTypeCode(actiontype)));
+    retval.append("      ").append(XmlHandler.addTagValue("movetoimapfolder", moveToIMAPFolder));
+
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("createmovetofolder", createmovetofolder));
+    retval.append("      ").append(XmlHandler.addTagValue("createlocalfolder", createlocalfolder));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue(
+                "aftergetimap", MailConnectionMeta.getAfterGetIMAPCode(aftergetimap)));
+    retval.append("      ").append(XmlHandler.addTagValue("includesubfolders", includesubfolders));
+    retval.append("      ").append(XmlHandler.addTagValue("useproxy", useproxy));
+    retval.append("      ").append(XmlHandler.addTagValue("proxyusername", proxyusername));
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      servername = XmlHandler.getTagValue( entrynode, "servername" );
-      username = XmlHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
-      usessl = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "usessl" ) );
-      sslport = XmlHandler.getTagValue( entrynode, "sslport" );
-      outputdirectory = XmlHandler.getTagValue( entrynode, "outputdirectory" );
-      filenamepattern = XmlHandler.getTagValue( entrynode, "filenamepattern" );
-      if ( Utils.isEmpty( filenamepattern ) ) {
+      super.loadXml(entrynode);
+      servername = XmlHandler.getTagValue(entrynode, "servername");
+      username = XmlHandler.getTagValue(entrynode, "username");
+      password =
+          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+      usessl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usessl"));
+      sslport = XmlHandler.getTagValue(entrynode, "sslport");
+      outputdirectory = XmlHandler.getTagValue(entrynode, "outputdirectory");
+      filenamepattern = XmlHandler.getTagValue(entrynode, "filenamepattern");
+      if (Utils.isEmpty(filenamepattern)) {
         filenamepattern = DEFAULT_FILE_NAME_PATTERN;
       }
-      retrievemails = Const.toInt( XmlHandler.getTagValue( entrynode, "retrievemails" ), -1 );
-      firstmails = XmlHandler.getTagValue( entrynode, "firstmails" );
-      delete = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "delete" ) );
+      retrievemails = Const.toInt(XmlHandler.getTagValue(entrynode, "retrievemails"), -1);
+      firstmails = XmlHandler.getTagValue(entrynode, "firstmails");
+      delete = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "delete"));
 
       protocol =
-        Const.NVL( XmlHandler.getTagValue( entrynode, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
+          Const.NVL(
+              XmlHandler.getTagValue(entrynode, "protocol"),
+              MailConnectionMeta.PROTOCOL_STRING_POP3);
 
-      String sm = XmlHandler.getTagValue( entrynode, "savemessage" );
-      if ( Utils.isEmpty( sm ) ) {
+      String sm = XmlHandler.getTagValue(entrynode, "savemessage");
+      if (Utils.isEmpty(sm)) {
         savemessage = true;
       } else {
-        savemessage = "Y".equalsIgnoreCase( sm );
+        savemessage = "Y".equalsIgnoreCase(sm);
       }
 
-      String sa = XmlHandler.getTagValue( entrynode, "saveattachment" );
-      if ( Utils.isEmpty( sa ) ) {
+      String sa = XmlHandler.getTagValue(entrynode, "saveattachment");
+      if (Utils.isEmpty(sa)) {
         saveattachment = true;
       } else {
-        saveattachment = "Y".equalsIgnoreCase( sa );
+        saveattachment = "Y".equalsIgnoreCase(sa);
       }
 
       usedifferentfolderforattachment =
-        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "usedifferentfolderforattachment" ) );
-      attachmentfolder = XmlHandler.getTagValue( entrynode, "attachmentfolder" );
-      attachmentwildcard = XmlHandler.getTagValue( entrynode, "attachmentwildcard" );
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getTagValue(entrynode, "usedifferentfolderforattachment"));
+      attachmentfolder = XmlHandler.getTagValue(entrynode, "attachmentfolder");
+      attachmentwildcard = XmlHandler.getTagValue(entrynode, "attachmentwildcard");
       valueimaplist =
-        MailConnectionMeta.getValueImapListByCode( Const.NVL( XmlHandler
-          .getTagValue( entrynode, "valueimaplist" ), "" ) );
-      imapfirstmails = XmlHandler.getTagValue( entrynode, "imapfirstmails" );
-      imapfolder = XmlHandler.getTagValue( entrynode, "imapfolder" );
+          MailConnectionMeta.getValueImapListByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "valueimaplist"), ""));
+      imapfirstmails = XmlHandler.getTagValue(entrynode, "imapfirstmails");
+      imapfolder = XmlHandler.getTagValue(entrynode, "imapfolder");
       // search term
-      senderSearch = XmlHandler.getTagValue( entrynode, "sendersearch" );
-      notTermSenderSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermsendersearch" ) );
-      receipientSearch = XmlHandler.getTagValue( entrynode, "receipientsearch" );
+      senderSearch = XmlHandler.getTagValue(entrynode, "sendersearch");
+      notTermSenderSearch =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "nottermsendersearch"));
+      receipientSearch = XmlHandler.getTagValue(entrynode, "receipientsearch");
       notTermReceipientSearch =
-        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermreceipientsearch" ) );
-      subjectSearch = XmlHandler.getTagValue( entrynode, "subjectsearch" );
-      notTermSubjectSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermsubjectsearch" ) );
-      bodySearch = XmlHandler.getTagValue( entrynode, "bodysearch" );
-      notTermBodySearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermbodysearch" ) );
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "nottermreceipientsearch"));
+      subjectSearch = XmlHandler.getTagValue(entrynode, "subjectsearch");
+      notTermSubjectSearch =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "nottermsubjectsearch"));
+      bodySearch = XmlHandler.getTagValue(entrynode, "bodysearch");
+      notTermBodySearch =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "nottermbodysearch"));
       conditionReceivedDate =
-        MailConnectionMeta.getConditionByCode( Const.NVL( XmlHandler.getTagValue(
-          entrynode, "conditionreceiveddate" ), "" ) );
+          MailConnectionMeta.getConditionByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "conditionreceiveddate"), ""));
       notTermReceivedDateSearch =
-        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermreceiveddatesearch" ) );
-      receivedDate1 = XmlHandler.getTagValue( entrynode, "receivedDate1" );
-      receivedDate2 = XmlHandler.getTagValue( entrynode, "receivedDate2" );
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "nottermreceiveddatesearch"));
+      receivedDate1 = XmlHandler.getTagValue(entrynode, "receivedDate1");
+      receivedDate2 = XmlHandler.getTagValue(entrynode, "receivedDate2");
       actiontype =
-        MailConnectionMeta.getActionTypeByCode( Const
-          .NVL( XmlHandler.getTagValue( entrynode, "actiontype" ), "" ) );
-      moveToIMAPFolder = XmlHandler.getTagValue( entrynode, "movetoimapfolder" );
-      createmovetofolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createmovetofolder" ) );
-      createlocalfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createlocalfolder" ) );
+          MailConnectionMeta.getActionTypeByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "actiontype"), ""));
+      moveToIMAPFolder = XmlHandler.getTagValue(entrynode, "movetoimapfolder");
+      createmovetofolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createmovetofolder"));
+      createlocalfolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createlocalfolder"));
       aftergetimap =
-        MailConnectionMeta.getAfterGetIMAPByCode( Const.NVL(
-          XmlHandler.getTagValue( entrynode, "aftergetimap" ), "" ) );
-      includesubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "includesubfolders" ) );
-      useproxy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "useproxy" ) );
-      proxyusername = XmlHandler.getTagValue( entrynode, "proxyusername" );
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( "Unable to load action of type 'get pop' from XML node", xe );
+          MailConnectionMeta.getAfterGetIMAPByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "aftergetimap"), ""));
+      includesubfolders =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "includesubfolders"));
+      useproxy = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "useproxy"));
+      proxyusername = XmlHandler.getTagValue(entrynode, "proxyusername");
+    } catch (HopXmlException xe) {
+      throw new HopXmlException("Unable to load action of type 'get pop' from XML node", xe);
     }
   }
 
@@ -319,7 +355,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return valueimaplist;
   }
 
-  public void setValueImapList( int value ) {
+  public void setValueImapList(int value) {
     this.valueimaplist = value;
   }
 
@@ -328,14 +364,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealPort() {
-    return resolve( getPort() );
+    return resolve(getPort());
   }
 
-  public void setPort( String sslport ) {
+  public void setPort(String sslport) {
     this.sslport = sslport;
   }
 
-  public void setFirstMails( String firstmails ) {
+  public void setFirstMails(String firstmails) {
     this.firstmails = firstmails;
   }
 
@@ -347,11 +383,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return includesubfolders;
   }
 
-  public void setIncludeSubFolders( boolean includesubfolders ) {
+  public void setIncludeSubFolders(boolean includesubfolders) {
     this.includesubfolders = includesubfolders;
   }
 
-  public void setFirstIMAPMails( String firstmails ) {
+  public void setFirstIMAPMails(String firstmails) {
     this.imapfirstmails = firstmails;
   }
 
@@ -359,7 +395,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return imapfirstmails;
   }
 
-  public void setSenderSearchTerm( String senderSearch ) {
+  public void setSenderSearchTerm(String senderSearch) {
     this.senderSearch = senderSearch;
   }
 
@@ -367,7 +403,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.senderSearch;
   }
 
-  public void setNotTermSenderSearch( boolean notTermSenderSearch ) {
+  public void setNotTermSenderSearch(boolean notTermSenderSearch) {
     this.notTermSenderSearch = notTermSenderSearch;
   }
 
@@ -375,11 +411,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.notTermSenderSearch;
   }
 
-  public void setNotTermSubjectSearch( boolean notTermSubjectSearch ) {
+  public void setNotTermSubjectSearch(boolean notTermSubjectSearch) {
     this.notTermSubjectSearch = notTermSubjectSearch;
   }
 
-  public void setNotTermBodySearch( boolean notTermBodySearch ) {
+  public void setNotTermBodySearch(boolean notTermBodySearch) {
     this.notTermBodySearch = notTermBodySearch;
   }
 
@@ -391,7 +427,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.notTermBodySearch;
   }
 
-  public void setNotTermReceivedDateSearch( boolean notTermReceivedDateSearch ) {
+  public void setNotTermReceivedDateSearch(boolean notTermReceivedDateSearch) {
     this.notTermReceivedDateSearch = notTermReceivedDateSearch;
   }
 
@@ -399,7 +435,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.notTermReceivedDateSearch;
   }
 
-  public void setNotTermReceipientSearch( boolean notTermReceipientSearch ) {
+  public void setNotTermReceipientSearch(boolean notTermReceipientSearch) {
     this.notTermReceipientSearch = notTermReceipientSearch;
   }
 
@@ -407,7 +443,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.notTermReceipientSearch;
   }
 
-  public void setCreateMoveToFolder( boolean createfolder ) {
+  public void setCreateMoveToFolder(boolean createfolder) {
     this.createmovetofolder = createfolder;
   }
 
@@ -415,7 +451,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.createmovetofolder;
   }
 
-  public void setReceipientSearch( String receipientSearch ) {
+  public void setReceipientSearch(String receipientSearch) {
     this.receipientSearch = receipientSearch;
   }
 
@@ -423,7 +459,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.receipientSearch;
   }
 
-  public void setSubjectSearch( String subjectSearch ) {
+  public void setSubjectSearch(String subjectSearch) {
     this.subjectSearch = subjectSearch;
   }
 
@@ -431,7 +467,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.subjectSearch;
   }
 
-  public void setBodySearch( String bodySearch ) {
+  public void setBodySearch(String bodySearch) {
     this.bodySearch = bodySearch;
   }
 
@@ -443,7 +479,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.receivedDate1;
   }
 
-  public void setReceivedDate1( String inputDate ) {
+  public void setReceivedDate1(String inputDate) {
     this.receivedDate1 = inputDate;
   }
 
@@ -451,11 +487,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.receivedDate2;
   }
 
-  public void setReceivedDate2( String inputDate ) {
+  public void setReceivedDate2(String inputDate) {
     this.receivedDate2 = inputDate;
   }
 
-  public void setMoveToIMAPFolder( String folderName ) {
+  public void setMoveToIMAPFolder(String folderName) {
     this.moveToIMAPFolder = folderName;
   }
 
@@ -463,7 +499,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.moveToIMAPFolder;
   }
 
-  public void setCreateLocalFolder( boolean createfolder ) {
+  public void setCreateLocalFolder(boolean createfolder) {
     this.createlocalfolder = createfolder;
   }
 
@@ -471,7 +507,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.createlocalfolder;
   }
 
-  public void setConditionOnReceivedDate( int conditionReceivedDate ) {
+  public void setConditionOnReceivedDate(int conditionReceivedDate) {
     this.conditionReceivedDate = conditionReceivedDate;
   }
 
@@ -479,7 +515,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.conditionReceivedDate;
   }
 
-  public void setActionType( int actiontype ) {
+  public void setActionType(int actiontype) {
     this.actiontype = actiontype;
   }
 
@@ -487,7 +523,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.actiontype;
   }
 
-  public void setAfterGetIMAP( int afterget ) {
+  public void setAfterGetIMAP(int afterget) {
     this.aftergetimap = afterget;
   }
 
@@ -496,10 +532,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealFirstMails() {
-    return resolve( getFirstMails() );
+    return resolve(getFirstMails());
   }
 
-  public void setServerName( String servername ) {
+  public void setServerName(String servername) {
     this.servername = servername;
   }
 
@@ -507,7 +543,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return servername;
   }
 
-  public void setUserName( String username ) {
+  public void setUserName(String username) {
     this.username = username;
   }
 
@@ -515,21 +551,23 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return username;
   }
 
-  public void setOutputDirectory( String outputdirectory ) {
+  public void setOutputDirectory(String outputdirectory) {
     this.outputdirectory = outputdirectory;
   }
 
-  public void setFilenamePattern( String filenamepattern ) {
+  public void setFilenamePattern(String filenamepattern) {
     this.filenamepattern = filenamepattern;
   }
 
   /**
-   * <li>0 = retrieve all <li>2 = retrieve unread
+   *
+   * <li>0 = retrieve all
+   * <li>2 = retrieve unread
    *
    * @param nr
    * @see {@link #setValueImapList(int)}
    */
-  public void setRetrievemails( int nr ) {
+  public void setRetrievemails(int nr) {
     retrievemails = nr;
   }
 
@@ -546,43 +584,40 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealOutputDirectory() {
-    return resolve( getOutputDirectory() );
+    return resolve(getOutputDirectory());
   }
 
   public String getRealFilenamePattern() {
-    return resolve( getFilenamePattern() );
+    return resolve(getFilenamePattern());
   }
 
   public String getRealUsername() {
-    return resolve( getUserName() );
+    return resolve(getUserName());
   }
 
   public String getRealServername() {
-    return resolve( getServerName() );
+    return resolve(getServerName());
   }
 
   public String getRealProxyUsername() {
-    return resolve( geProxyUsername() );
+    return resolve(geProxyUsername());
   }
 
   public String geProxyUsername() {
     return this.proxyusername;
   }
 
-  /**
-   * @return Returns the password.
-   */
+  /** @return Returns the password. */
   public String getPassword() {
     return password;
   }
 
   /**
    * @param password string for resolving
-   * @return Returns resolved decrypted password or null
-   * in case of param returns null.
+   * @return Returns resolved decrypted password or null in case of param returns null.
    */
-  public String getRealPassword( String password ) {
-    return Utils.resolvePassword( getVariables(), password );
+  public String getRealPassword(String password) {
+    return Utils.resolvePassword(getVariables(), password);
   }
 
   public String getAttachmentFolder() {
@@ -590,23 +625,19 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealAttachmentFolder() {
-    return resolve( getAttachmentFolder() );
+    return resolve(getAttachmentFolder());
   }
 
-  public void setAttachmentFolder( String folderName ) {
+  public void setAttachmentFolder(String folderName) {
     this.attachmentfolder = folderName;
   }
 
-  /**
-   * @param delete The delete to set.
-   */
-  public void setDelete( boolean delete ) {
+  /** @param delete The delete to set. */
+  public void setDelete(boolean delete) {
     this.delete = delete;
   }
 
-  /**
-   * @return Returns the delete.
-   */
+  /** @return Returns the delete. */
   public boolean getDelete() {
     return delete;
   }
@@ -615,7 +646,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return protocol;
   }
 
-  public void setProtocol( String protocol ) {
+  public void setProtocol(String protocol) {
     this.protocol = protocol;
   }
 
@@ -623,11 +654,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return imapfolder;
   }
 
-  public void setIMAPFolder( String folder ) {
+  public void setIMAPFolder(String folder) {
     this.imapfolder = folder;
   }
 
-  public void setAttachmentWildcard( String wildcard ) {
+  public void setAttachmentWildcard(String wildcard) {
     attachmentwildcard = wildcard;
   }
 
@@ -635,28 +666,22 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return attachmentwildcard;
   }
 
-  /**
-   * @param usessl The usessl to set.
-   */
-  public void setUseSSL( boolean usessl ) {
+  /** @param usessl The usessl to set. */
+  public void setUseSSL(boolean usessl) {
     this.usessl = usessl;
   }
 
-  /**
-   * @return Returns the usessl.
-   */
+  /** @return Returns the usessl. */
   public boolean isUseSSL() {
     return this.usessl;
   }
 
-  /**
-   * @return Returns the useproxy.
-   */
+  /** @return Returns the useproxy. */
   public boolean isUseProxy() {
     return this.useproxy;
   }
 
-  public void setUseProxy( boolean useprox ) {
+  public void setUseProxy(boolean useprox) {
     this.useproxy = useprox;
   }
 
@@ -664,7 +689,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return saveattachment;
   }
 
-  public void setProxyUsername( String username ) {
+  public void setProxyUsername(String username) {
     this.proxyusername = username;
   }
 
@@ -672,7 +697,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.proxyusername;
   }
 
-  public void setSaveAttachment( boolean saveattachment ) {
+  public void setSaveAttachment(boolean saveattachment) {
     this.saveattachment = saveattachment;
   }
 
@@ -680,11 +705,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return savemessage;
   }
 
-  public void setSaveMessage( boolean savemessage ) {
+  public void setSaveMessage(boolean savemessage) {
     this.savemessage = savemessage;
   }
 
-  public void setDifferentFolderForAttachment( boolean usedifferentfolder ) {
+  public void setDifferentFolderForAttachment(boolean usedifferentfolder) {
     this.usedifferentfolderforattachment = usedifferentfolder;
   }
 
@@ -692,74 +717,76 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.usedifferentfolderforattachment;
   }
 
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword( String password ) {
+  /** @param password The password to set. */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  public Result execute( Result previousResult, int nr ) throws HopException {
+  public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
-    result.setResult( false );
+    result.setResult(false);
 
-    //FileObject fileObject = null;
+    // FileObject fileObject = null;
     MailConnection mailConn = null;
     Date beginDate = null;
     Date endDate = null;
 
-    SimpleDateFormat df = new SimpleDateFormat( DATE_PATTERN );
+    SimpleDateFormat df = new SimpleDateFormat(DATE_PATTERN);
 
     try {
 
-      boolean usePOP3 = getProtocol().equals( MailConnectionMeta.PROTOCOL_STRING_POP3 );
+      boolean usePOP3 = getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_POP3);
       boolean moveafter = false;
       int nbrmailtoretrieve =
-        usePOP3 ? ( getRetrievemails() == 2 ? Const.toInt( getFirstMails(), 0 ) : 0 ) : Const.toInt(
-          getFirstIMAPMails(), 0 );
+          usePOP3
+              ? (getRetrievemails() == 2 ? Const.toInt(getFirstMails(), 0) : 0)
+              : Const.toInt(getFirstIMAPMails(), 0);
 
-      String realOutputFolder = createOutputDirectory( ActionGetPOP.FOLDER_OUTPUT );
-      String targetAttachmentFolder = createOutputDirectory( ActionGetPOP.FOLDER_ATTACHMENTS );
+      String realOutputFolder = createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT);
+      String targetAttachmentFolder = createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
 
       // Check destination folder
-      String realMoveToIMAPFolder = resolve( getMoveToIMAPFolder() );
-      if ( getProtocol().equals( MailConnectionMeta.PROTOCOL_STRING_IMAP )
-        && ( getActionType() == MailConnectionMeta.ACTION_TYPE_MOVE )
-        || ( getActionType() == MailConnectionMeta.ACTION_TYPE_GET
-        && getAfterGetIMAP() == MailConnectionMeta.AFTER_GET_IMAP_MOVE ) ) {
-        if ( Utils.isEmpty( realMoveToIMAPFolder ) ) {
-          throw new HopException( BaseMessages
-            .getString( PKG, "ActionGetMailsFromPOP.Error.MoveToIMAPFolderEmpty" ) );
+      String realMoveToIMAPFolder = resolve(getMoveToIMAPFolder());
+      if (getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_IMAP)
+              && (getActionType() == MailConnectionMeta.ACTION_TYPE_MOVE)
+          || (getActionType() == MailConnectionMeta.ACTION_TYPE_GET
+              && getAfterGetIMAP() == MailConnectionMeta.AFTER_GET_IMAP_MOVE)) {
+        if (Utils.isEmpty(realMoveToIMAPFolder)) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.MoveToIMAPFolderEmpty"));
         }
         moveafter = true;
       }
 
       // check search terms
       // Received Date
-      switch ( getConditionOnReceivedDate() ) {
+      switch (getConditionOnReceivedDate()) {
         case MailConnectionMeta.CONDITION_DATE_EQUAL:
         case MailConnectionMeta.CONDITION_DATE_GREATER:
         case MailConnectionMeta.CONDITION_DATE_SMALLER:
-          String realBeginDate = resolve( getReceivedDate1() );
-          if ( Utils.isEmpty( realBeginDate ) ) {
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty" ) );
+          String realBeginDate = resolve(getReceivedDate1());
+          if (Utils.isEmpty(realBeginDate)) {
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty"));
           }
-          beginDate = df.parse( realBeginDate );
+          beginDate = df.parse(realBeginDate);
           break;
         case MailConnectionMeta.CONDITION_DATE_BETWEEN:
-          realBeginDate = resolve( getReceivedDate1() );
-          if ( Utils.isEmpty( realBeginDate ) ) {
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
+          realBeginDate = resolve(getReceivedDate1());
+          if (Utils.isEmpty(realBeginDate)) {
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
           }
-          beginDate = df.parse( realBeginDate );
-          String realEndDate = resolve( getReceivedDate2() );
-          if ( Utils.isEmpty( realEndDate ) ) {
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
+          beginDate = df.parse(realBeginDate);
+          String realEndDate = resolve(getReceivedDate2());
+          if (Utils.isEmpty(realEndDate)) {
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty"));
           }
-          endDate = df.parse( realEndDate );
+          endDate = df.parse(realEndDate);
           break;
         default:
           break;
@@ -767,75 +794,83 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
       String realserver = getRealServername();
       String realusername = getRealUsername();
-      String realpassword = getRealPassword( getPassword() );
+      String realpassword = getRealPassword(getPassword());
       String realFilenamePattern = getRealFilenamePattern();
-      int realport = Const.toInt( resolve( sslport ), -1 );
-      String realIMAPFolder = resolve( getIMAPFolder() );
+      int realport = Const.toInt(resolve(sslport), -1);
+      String realIMAPFolder = resolve(getIMAPFolder());
       String realProxyUsername = getRealProxyUsername();
 
       initVariables();
       // create a mail connection object
       mailConn =
-        new MailConnection(
-          log, MailConnectionMeta.getProtocolFromString( getProtocol(), MailConnectionMeta.PROTOCOL_IMAP ),
-          realserver, realport, realusername, realpassword, isUseSSL(), isUseProxy(), realProxyUsername );
+          new MailConnection(
+              log,
+              MailConnectionMeta.getProtocolFromString(
+                  getProtocol(), MailConnectionMeta.PROTOCOL_IMAP),
+              realserver,
+              realport,
+              realusername,
+              realpassword,
+              isUseSSL(),
+              isUseProxy(),
+              realProxyUsername);
       // connect
       mailConn.connect();
 
-      if ( moveafter ) {
+      if (moveafter) {
         // Set destination folder
         // Check if folder exists
-        mailConn.setDestinationFolder( realMoveToIMAPFolder, isCreateMoveToFolder() );
+        mailConn.setDestinationFolder(realMoveToIMAPFolder, isCreateMoveToFolder());
       }
 
       // apply search term?
-      String realSearchSender = resolve( getSenderSearchTerm() );
-      if ( !Utils.isEmpty( realSearchSender ) ) {
+      String realSearchSender = resolve(getSenderSearchTerm());
+      if (!Utils.isEmpty(realSearchSender)) {
         // apply FROM
-        mailConn.setSenderTerm( realSearchSender, isNotTermSenderSearch() );
+        mailConn.setSenderTerm(realSearchSender, isNotTermSenderSearch());
       }
-      String realSearchReceipient = resolve( getReceipientSearch() );
-      if ( !Utils.isEmpty( realSearchReceipient ) ) {
+      String realSearchReceipient = resolve(getReceipientSearch());
+      if (!Utils.isEmpty(realSearchReceipient)) {
         // apply TO
-        mailConn.setReceipientTerm( realSearchReceipient );
+        mailConn.setReceipientTerm(realSearchReceipient);
       }
-      String realSearchSubject = resolve( getSubjectSearch() );
-      if ( !Utils.isEmpty( realSearchSubject ) ) {
+      String realSearchSubject = resolve(getSubjectSearch());
+      if (!Utils.isEmpty(realSearchSubject)) {
         // apply Subject
-        mailConn.setSubjectTerm( realSearchSubject, isNotTermSubjectSearch() );
+        mailConn.setSubjectTerm(realSearchSubject, isNotTermSubjectSearch());
       }
-      String realSearchBody = resolve( getBodySearch() );
-      if ( !Utils.isEmpty( realSearchBody ) ) {
+      String realSearchBody = resolve(getBodySearch());
+      if (!Utils.isEmpty(realSearchBody)) {
         // apply body
-        mailConn.setBodyTerm( realSearchBody, isNotTermBodySearch() );
+        mailConn.setBodyTerm(realSearchBody, isNotTermBodySearch());
       }
       // Received Date
-      switch ( getConditionOnReceivedDate() ) {
+      switch (getConditionOnReceivedDate()) {
         case MailConnectionMeta.CONDITION_DATE_EQUAL:
-          mailConn.setReceivedDateTermEQ( beginDate );
+          mailConn.setReceivedDateTermEQ(beginDate);
           break;
         case MailConnectionMeta.CONDITION_DATE_GREATER:
-          mailConn.setReceivedDateTermGT( beginDate );
+          mailConn.setReceivedDateTermGT(beginDate);
           break;
         case MailConnectionMeta.CONDITION_DATE_SMALLER:
-          mailConn.setReceivedDateTermLT( beginDate );
+          mailConn.setReceivedDateTermLT(beginDate);
           break;
         case MailConnectionMeta.CONDITION_DATE_BETWEEN:
-          mailConn.setReceivedDateTermBetween( beginDate, endDate );
+          mailConn.setReceivedDateTermBetween(beginDate, endDate);
           break;
         default:
           break;
       }
       // set FlagTerm?
-      if ( usePOP3 ) {
+      if (usePOP3) {
         // retrieve messages
-        if ( getRetrievemails() == 1 ) {
+        if (getRetrievemails() == 1) {
           // New messages
           // POP doesn't support the concept of "new" messages!
           mailConn.setFlagTermUnread();
         }
       } else {
-        switch ( getValueImapList() ) {
+        switch (getValueImapList()) {
           case MailConnectionMeta.VALUE_IMAP_LIST_NEW:
             mailConn.setFlagTermNew();
             break;
@@ -866,383 +901,489 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       }
       // open folder and retrieve messages
       fetchOneFolder(
-        mailConn, usePOP3, realIMAPFolder, realOutputFolder, targetAttachmentFolder, realMoveToIMAPFolder,
-        realFilenamePattern, nbrmailtoretrieve, df );
+          mailConn,
+          usePOP3,
+          realIMAPFolder,
+          realOutputFolder,
+          targetAttachmentFolder,
+          realMoveToIMAPFolder,
+          realFilenamePattern,
+          nbrmailtoretrieve,
+          df);
 
-      if ( isIncludeSubFolders() ) {
+      if (isIncludeSubFolders()) {
         // Fetch also sub folders?
-        if ( isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "ActionGetPOP.FetchingSubFolders" ) );
+        if (isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "ActionGetPOP.FetchingSubFolders"));
         }
         String[] subfolders = mailConn.returnAllFolders();
-        if ( subfolders.length == 0 ) {
-          if ( isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "ActionGetPOP.NoSubFolders" ) );
+        if (subfolders.length == 0) {
+          if (isDebug()) {
+            logDebug(BaseMessages.getString(PKG, "ActionGetPOP.NoSubFolders"));
           }
         } else {
-          for ( int i = 0; i < subfolders.length; i++ ) {
+          for (int i = 0; i < subfolders.length; i++) {
             fetchOneFolder(
-              mailConn, usePOP3, subfolders[ i ], realOutputFolder, targetAttachmentFolder, realMoveToIMAPFolder,
-              realFilenamePattern, nbrmailtoretrieve, df );
+                mailConn,
+                usePOP3,
+                subfolders[i],
+                realOutputFolder,
+                targetAttachmentFolder,
+                realMoveToIMAPFolder,
+                realFilenamePattern,
+                nbrmailtoretrieve,
+                df);
           }
         }
       }
 
-      result.setResult( true );
-      result.setNrFilesRetrieved( mailConn.getSavedAttachedFilesCounter() );
-      result.setNrLinesWritten( mailConn.getSavedMessagesCounter() );
-      result.setNrLinesDeleted( mailConn.getDeletedMessagesCounter() );
-      result.setNrLinesUpdated( mailConn.getMovedMessagesCounter() );
+      result.setResult(true);
+      result.setNrFilesRetrieved(mailConn.getSavedAttachedFilesCounter());
+      result.setNrLinesWritten(mailConn.getSavedMessagesCounter());
+      result.setNrLinesDeleted(mailConn.getDeletedMessagesCounter());
+      result.setNrLinesUpdated(mailConn.getMovedMessagesCounter());
 
-      if ( isDetailed() ) {
-        logDetailed( "=======================================" );
-        logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.SavedMessages", ""
-          + mailConn.getSavedMessagesCounter() ) );
-        logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.DeletedMessages", ""
-          + mailConn.getDeletedMessagesCounter() ) );
-        logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.MovedMessages", ""
-          + mailConn.getMovedMessagesCounter() ) );
-        if ( getActionType() == MailConnectionMeta.ACTION_TYPE_GET && isSaveAttachment() ) {
-          logDetailed( BaseMessages.getString( PKG, "ActionGetPOP.Log.Info.AttachedMessagesSuccess", ""
-            + mailConn.getSavedAttachedFilesCounter() ) );
+      if (isDetailed()) {
+        logDetailed("=======================================");
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetPOP.Log.Info.SavedMessages",
+                "" + mailConn.getSavedMessagesCounter()));
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetPOP.Log.Info.DeletedMessages",
+                "" + mailConn.getDeletedMessagesCounter()));
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetPOP.Log.Info.MovedMessages",
+                "" + mailConn.getMovedMessagesCounter()));
+        if (getActionType() == MailConnectionMeta.ACTION_TYPE_GET && isSaveAttachment()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionGetPOP.Log.Info.AttachedMessagesSuccess",
+                  "" + mailConn.getSavedAttachedFilesCounter()));
         }
-        logDetailed( "=======================================" );
+        logDetailed("=======================================");
       }
-    } catch ( Exception e ) {
-      result.setNrErrors( 1 );
-      logError( "Unexpected error: " + e.getMessage() );
-      logError( Const.getStackTracker( e ) );
+    } catch (Exception e) {
+      result.setNrErrors(1);
+      logError("Unexpected error: " + e.getMessage());
+      logError(Const.getStackTracker(e));
     } finally {
       try {
-        if ( mailConn != null ) {
+        if (mailConn != null) {
           mailConn.disconnect();
           mailConn = null;
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
 
     return result;
   }
 
-  void fetchOneFolder( MailConnection mailConn, boolean usePOP3, String realIMAPFolder,
-                       String realOutputFolder, String targetAttachmentFolder, String realMoveToIMAPFolder,
-                       String realFilenamePattern, int nbrmailtoretrieve, SimpleDateFormat df ) throws HopException {
+  void fetchOneFolder(
+      MailConnection mailConn,
+      boolean usePOP3,
+      String realIMAPFolder,
+      String realOutputFolder,
+      String targetAttachmentFolder,
+      String realMoveToIMAPFolder,
+      String realFilenamePattern,
+      int nbrmailtoretrieve,
+      SimpleDateFormat df)
+      throws HopException {
     try {
       // if it is not pop3 and we have non-default imap folder...
-      if ( !usePOP3 && !Utils.isEmpty( realIMAPFolder ) ) {
-        mailConn.openFolder( realIMAPFolder, true );
+      if (!usePOP3 && !Utils.isEmpty(realIMAPFolder)) {
+        mailConn.openFolder(realIMAPFolder, true);
       } else {
-        mailConn.openFolder( true );
+        mailConn.openFolder(true);
       }
 
       mailConn.retrieveMessages();
 
       int messagesCount = mailConn.getMessagesCount();
 
-      if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.TotalMessagesFolder.Label", ""
-          + messagesCount, Const.NVL( mailConn.getFolderName(), MailConnectionMeta.INBOX_FOLDER ) ) );
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetMailsFromPOP.TotalMessagesFolder.Label",
+                "" + messagesCount,
+                Const.NVL(mailConn.getFolderName(), MailConnectionMeta.INBOX_FOLDER)));
       }
 
       messagesCount =
-        nbrmailtoretrieve > 0
-          ? ( nbrmailtoretrieve > messagesCount ? messagesCount : nbrmailtoretrieve ) : messagesCount;
+          nbrmailtoretrieve > 0
+              ? (nbrmailtoretrieve > messagesCount ? messagesCount : nbrmailtoretrieve)
+              : messagesCount;
 
-      if ( messagesCount > 0 ) {
-        switch ( getActionType() ) {
+      if (messagesCount > 0) {
+        switch (getActionType()) {
           case MailConnectionMeta.ACTION_TYPE_DELETE:
-            if ( nbrmailtoretrieve > 0 ) {
+            if (nbrmailtoretrieve > 0) {
               // We need to fetch all messages in order to retrieve
               // only the first nbrmailtoretrieve ...
-              for ( int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++ ) {
+              for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
                 // Get next message
                 mailConn.fetchNext();
                 // Delete this message
                 mailConn.deleteMessage();
-                if ( isDebug() ) {
-                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + i ) );
+                if (isDebug()) {
+                  logDebug(
+                      BaseMessages.getString(PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + i));
                 }
               }
             } else {
               // Delete messages
-              mailConn.deleteMessages( true );
-              if ( isDebug() ) {
-                logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessagesDeleted", "" + messagesCount ) );
+              mailConn.deleteMessages(true);
+              if (isDebug()) {
+                logDebug(
+                    BaseMessages.getString(
+                        PKG, "ActionGetMailsFromPOP.MessagesDeleted", "" + messagesCount));
               }
             }
             break;
           case MailConnectionMeta.ACTION_TYPE_MOVE:
-            if ( nbrmailtoretrieve > 0 ) {
+            if (nbrmailtoretrieve > 0) {
               // We need to fetch all messages in order to retrieve
               // only the first nbrmailtoretrieve ...
-              for ( int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++ ) {
+              for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
                 // Get next message
                 mailConn.fetchNext();
                 // Move this message
                 mailConn.moveMessage();
-                if ( isDebug() ) {
-                  logDebug( BaseMessages.getString(
-                    PKG, "ActionGetMailsFromPOP.MessageMoved", "" + i, realMoveToIMAPFolder ) );
+                if (isDebug()) {
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG, "ActionGetMailsFromPOP.MessageMoved", "" + i, realMoveToIMAPFolder));
                 }
               }
             } else {
               // Move all messages
               mailConn.moveMessages();
-              if ( isDebug() ) {
-                logDebug( BaseMessages.getString(
-                  PKG, "ActionGetMailsFromPOP.MessagesMoved", "" + messagesCount, realMoveToIMAPFolder ) );
+              if (isDebug()) {
+                logDebug(
+                    BaseMessages.getString(
+                        PKG,
+                        "ActionGetMailsFromPOP.MessagesMoved",
+                        "" + messagesCount,
+                        realMoveToIMAPFolder));
               }
             }
             break;
           default:
             // Get messages and save it in a local file
             // also save attached files if needed
-            for ( int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++ ) {
+            for (int i = 0; i < messagesCount && !parentWorkflow.isStopped(); i++) {
               // Get next message
               mailConn.fetchNext();
               int messagenumber = mailConn.getMessage().getMessageNumber();
-              boolean okPOP3 = usePOP3 ? true : false; // (mailConn.getMessagesCounter()<nbrmailtoretrieve &&
+              boolean okPOP3 =
+                  usePOP3 ? true : false; // (mailConn.getMessagesCounter()<nbrmailtoretrieve &&
               // retrievemails==2)||(retrievemails!=2):false;
               boolean okIMAP = !usePOP3;
 
-              if ( okPOP3 || okIMAP ) {
+              if (okPOP3 || okIMAP) {
                 // display some infos on the current message
                 //
-                if ( isDebug() && mailConn.getMessage() != null ) {
-                  logDebug( "--------------------------------------------------" );
-                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageNumber.Label", ""
-                    + messagenumber ) );
-                  if ( mailConn.getMessage().getReceivedDate() != null ) {
-                    logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.ReceivedDate.Label", df
-                      .format( mailConn.getMessage().getReceivedDate() ) ) );
+                if (isDebug() && mailConn.getMessage() != null) {
+                  logDebug("--------------------------------------------------");
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG, "ActionGetMailsFromPOP.MessageNumber.Label", "" + messagenumber));
+                  if (mailConn.getMessage().getReceivedDate() != null) {
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.ReceivedDate.Label",
+                            df.format(mailConn.getMessage().getReceivedDate())));
                   }
-                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.ContentType.Label", mailConn
-                    .getMessage().getContentType() ) );
-                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.EmailFrom.Label", Const.NVL( mailConn
-                    .getMessage().getFrom()[ 0 ].toString(), "" ) ) );
-                  logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.EmailSubject.Label", Const.NVL(
-                    mailConn.getMessage().getSubject(), "" ) ) );
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG,
+                          "ActionGetMailsFromPOP.ContentType.Label",
+                          mailConn.getMessage().getContentType()));
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG,
+                          "ActionGetMailsFromPOP.EmailFrom.Label",
+                          Const.NVL(mailConn.getMessage().getFrom()[0].toString(), "")));
+                  logDebug(
+                      BaseMessages.getString(
+                          PKG,
+                          "ActionGetMailsFromPOP.EmailSubject.Label",
+                          Const.NVL(mailConn.getMessage().getSubject(), "")));
                 }
-                if ( isSaveMessage() ) {
+                if (isSaveMessage()) {
                   // get local message filename
-                  String localfilenameMessage = replaceTokens( realFilenamePattern, i );
+                  String localfilenameMessage = replaceTokens(realFilenamePattern, i);
 
-                  if ( isDebug() ) {
-                    logDebug( BaseMessages.getString(
-                      PKG, "ActionGetMailsFromPOP.LocalFilename.Label", localfilenameMessage ) );
+                  if (isDebug()) {
+                    logDebug(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.LocalFilename.Label",
+                            localfilenameMessage));
                   }
 
                   // save message content in the file
-                  mailConn.saveMessageContentToFile( localfilenameMessage, realOutputFolder );
+                  mailConn.saveMessageContentToFile(localfilenameMessage, realOutputFolder);
                   // explicitly set message as read
-                  mailConn.getMessage().setFlag( Flag.SEEN, true );
+                  mailConn.getMessage().setFlag(Flag.SEEN, true);
 
-                  if ( isDetailed() ) {
-                    logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageSaved.Label", ""
-                      + messagenumber, localfilenameMessage, realOutputFolder ) );
+                  if (isDetailed()) {
+                    logDetailed(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionGetMailsFromPOP.MessageSaved.Label",
+                            "" + messagenumber,
+                            localfilenameMessage,
+                            realOutputFolder));
                   }
                 }
 
                 // Do we need to save attached file?
-                if ( isSaveAttachment() ) {
-                  mailConn.saveAttachedFiles( targetAttachmentFolder, attachementPattern );
+                if (isSaveAttachment()) {
+                  mailConn.saveAttachedFiles(targetAttachmentFolder, attachementPattern);
                 }
                 // We successfully retrieved message
                 // do we need to make another action (delete, move)?
-                if ( usePOP3 ) {
-                  if ( getDelete() ) {
+                if (usePOP3) {
+                  if (getDelete()) {
                     mailConn.deleteMessage();
-                    if ( isDebug() ) {
-                      logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageDeleted", ""
-                        + messagenumber ) );
+                    if (isDebug()) {
+                      logDebug(
+                          BaseMessages.getString(
+                              PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + messagenumber));
                     }
                   }
                 } else {
-                  switch ( getAfterGetIMAP() ) {
+                  switch (getAfterGetIMAP()) {
                     case MailConnectionMeta.AFTER_GET_IMAP_DELETE:
                       // Delete messages
                       mailConn.deleteMessage();
-                      if ( isDebug() ) {
-                        logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageDeleted", ""
-                          + messagenumber ) );
+                      if (isDebug()) {
+                        logDebug(
+                            BaseMessages.getString(
+                                PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + messagenumber));
                       }
                       break;
                     case MailConnectionMeta.AFTER_GET_IMAP_MOVE:
                       // Move messages
                       mailConn.moveMessage();
-                      if ( isDebug() ) {
-                        logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.MessageMoved", ""
-                          + messagenumber, realMoveToIMAPFolder ) );
+                      if (isDebug()) {
+                        logDebug(
+                            BaseMessages.getString(
+                                PKG,
+                                "ActionGetMailsFromPOP.MessageMoved",
+                                "" + messagenumber,
+                                realMoveToIMAPFolder));
                       }
                       break;
                     default:
                   }
                 }
-
               }
             }
             break;
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
-  private String replaceTokens( String aString, int idfile ) {
+  private String replaceTokens(String aString, int idfile) {
     String localfilenameMessage = aString;
-    localfilenameMessage = localfilenameMessage.replaceAll( FILENAME_ID_PATTERN, "" + ( idfile + 1 ) );
+    localfilenameMessage = localfilenameMessage.replaceAll(FILENAME_ID_PATTERN, "" + (idfile + 1));
     localfilenameMessage =
-      substituteDate( localfilenameMessage, FILENAME_SYS_DATE_OPEN, FILENAME_SYS_DATE_CLOSE, new Date() );
+        substituteDate(
+            localfilenameMessage, FILENAME_SYS_DATE_OPEN, FILENAME_SYS_DATE_CLOSE, new Date());
     return localfilenameMessage;
-
   }
 
-  private String substituteDate( String aString, String open, String close, Date datetime ) {
-    if ( aString == null ) {
+  private String substituteDate(String aString, String open, String close, Date datetime) {
+    if (aString == null) {
       return null;
     }
     StringBuilder buffer = new StringBuilder();
     String rest = aString;
 
     // search for closing string
-    int i = rest.indexOf( open );
-    while ( i > -1 ) {
-      int j = rest.indexOf( close, i + open.length() );
+    int i = rest.indexOf(open);
+    while (i > -1) {
+      int j = rest.indexOf(close, i + open.length());
       // search for closing string
-      if ( j > -1 ) {
-        String varName = rest.substring( i + open.length(), j );
-        DateFormat dateFormat = new SimpleDateFormat( varName );
-        Object Value = dateFormat.format( datetime );
+      if (j > -1) {
+        String varName = rest.substring(i + open.length(), j);
+        DateFormat dateFormat = new SimpleDateFormat(varName);
+        Object Value = dateFormat.format(datetime);
 
-        buffer.append( rest.substring( 0, i ) );
-        buffer.append( Value );
-        rest = rest.substring( j + close.length() );
+        buffer.append(rest.substring(0, i));
+        buffer.append(Value);
+        rest = rest.substring(j + close.length());
       } else {
         // no closing tag found; end the search
-        buffer.append( rest );
+        buffer.append(rest);
         rest = "";
       }
       // keep searching
-      i = rest.indexOf( close );
+      i = rest.indexOf(close);
     }
-    buffer.append( rest );
+    buffer.append(rest);
     return buffer.toString();
   }
 
   private void initVariables() {
     // Attachment wildcard
     attachementPattern = null;
-    String realAttachmentWildcard = resolve( getAttachmentWildcard() );
-    if ( !Utils.isEmpty( realAttachmentWildcard ) ) {
-      attachementPattern = Pattern.compile( realAttachmentWildcard );
+    String realAttachmentWildcard = resolve(getAttachmentWildcard());
+    if (!Utils.isEmpty(realAttachmentWildcard)) {
+      attachementPattern = Pattern.compile(realAttachmentWildcard);
     }
   }
 
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "serverName", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "userName", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    ActionValidatorUtils.andValidator().validate( this, "password", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "serverName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "userName",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "password",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
     ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace( ctx, getVariables() );
-    AndValidator.putValidators( ctx, ActionValidatorUtils.notBlankValidator(),
-      ActionValidatorUtils.fileExistsValidator() );
-    ActionValidatorUtils.andValidator().validate( this, "outputDirectory", remarks, ctx );
+    AbstractFileValidator.putVariableSpace(ctx, getVariables());
+    AndValidator.putValidators(
+        ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator());
+    ActionValidatorUtils.andValidator().validate(this, "outputDirectory", remarks, ctx);
 
-    ActionValidatorUtils.andValidator().validate( this, "SSLPort", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.integerValidator() ) );
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "SSLPort",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( !Utils.isEmpty( servername ) ) {
-      String realServername = resolve( servername );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (!Utils.isEmpty(servername)) {
+      String realServername = resolve(servername);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realServername, ResourceType.SERVER));
+      references.add(reference);
     }
     return references;
   }
 
-  String createOutputDirectory( int folderType ) throws HopException, FileSystemException, IllegalArgumentException {
-    if ( ( folderType != ActionGetPOP.FOLDER_OUTPUT ) && ( folderType != ActionGetPOP.FOLDER_ATTACHMENTS ) ) {
-      throw new IllegalArgumentException( "Invalid folderType argument" );
+  String createOutputDirectory(int folderType)
+      throws HopException, FileSystemException, IllegalArgumentException {
+    if ((folderType != ActionGetPOP.FOLDER_OUTPUT)
+        && (folderType != ActionGetPOP.FOLDER_ATTACHMENTS)) {
+      throw new IllegalArgumentException("Invalid folderType argument");
     }
     String folderName = "";
-    switch ( folderType ) {
+    switch (folderType) {
       case ActionGetPOP.FOLDER_OUTPUT:
         folderName = getRealOutputDirectory();
         break;
       case ActionGetPOP.FOLDER_ATTACHMENTS:
-        if ( isSaveAttachment() && isDifferentFolderForAttachment() ) {
+        if (isSaveAttachment() && isDifferentFolderForAttachment()) {
           folderName = getRealAttachmentFolder();
         } else {
           folderName = getRealOutputDirectory();
         }
         break;
     }
-    if ( Utils.isEmpty( folderName ) ) {
-      switch ( folderType ) {
+    if (Utils.isEmpty(folderName)) {
+      switch (folderType) {
         case ActionGetPOP.FOLDER_OUTPUT:
-          throw new HopException( BaseMessages
-            .getString( PKG, "ActionGetMailsFromPOP.Error.OutputFolderEmpty" ) );
+          throw new HopException(
+              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.OutputFolderEmpty"));
         case ActionGetPOP.FOLDER_ATTACHMENTS:
-          throw new HopException( BaseMessages
-            .getString( PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderEmpty" ) );
+          throw new HopException(
+              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderEmpty"));
       }
     }
-    FileObject folder = HopVfs.getFileObject( folderName );
-    if ( folder.exists() ) {
-      if ( folder.getType() != FileType.FOLDER ) {
-        switch ( folderType ) {
+    FileObject folder = HopVfs.getFileObject(folderName);
+    if (folder.exists()) {
+      if (folder.getType() != FileType.FOLDER) {
+        switch (folderType) {
           case ActionGetPOP.FOLDER_OUTPUT:
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.NotAFolderNot", folderName ) );
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.NotAFolderNot", folderName));
           case ActionGetPOP.FOLDER_ATTACHMENTS:
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderNotAFolder", folderName ) );
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderNotAFolder", folderName));
         }
       }
-      if ( isDebug() ) {
-        switch ( folderType ) {
+      if (isDebug()) {
+        switch (folderType) {
           case ActionGetPOP.FOLDER_OUTPUT:
-            logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Log.OutputFolderExists", folderName ) );
+            logDebug(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Log.OutputFolderExists", folderName));
             break;
           case ActionGetPOP.FOLDER_ATTACHMENTS:
-            logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Log.AttachmentFolderExists", folderName ) );
+            logDebug(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Log.AttachmentFolderExists", folderName));
             break;
         }
       }
     } else {
-      if ( isCreateLocalFolder() ) {
+      if (isCreateLocalFolder()) {
         folder.createFolder();
       } else {
-        switch ( folderType ) {
+        switch (folderType) {
           case ActionGetPOP.FOLDER_OUTPUT:
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.OutputFolderNotExist", folderName ) );
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.OutputFolderNotExist", folderName));
           case ActionGetPOP.FOLDER_ATTACHMENTS:
-            throw new HopException( BaseMessages.getString(
-              PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderNotExist", folderName ) );
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ActionGetMailsFromPOP.Error.AttachmentFolderNotExist", folderName));
         }
       }
     }
 
-    String returnValue = HopVfs.getFilename( folder );
+    String returnValue = HopVfs.getFilename(folder);
     try {
       folder.close();
-    } catch ( IOException ignore ) {
-      //Ignore error, as the folder was created successfully
+    } catch (IOException ignore) {
+      // Ignore error, as the folder was created successfully
     }
     return returnValue;
   }

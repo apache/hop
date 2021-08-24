@@ -22,9 +22,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -35,7 +35,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * This is a base class for creating guard tests, that check a transform cannot be executed in the single-threaded mode
+ * This is a base class for creating guard tests, that check a transform cannot be executed in the
+ * single-threaded mode
  *
  * @author Andrey Khayrutdinov
  */
@@ -49,24 +50,24 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends ITransformMeta
 
   protected abstract Meta createMeta();
 
-  @Test( expected = HopException.class )
+  @Test(expected = HopException.class)
   public void failsWhenGivenNonSingleThreadTransforms() throws Exception {
     Meta metaInterface = createMeta();
 
     PluginRegistry plugReg = PluginRegistry.getInstance();
-    String id = plugReg.getPluginId( TransformPluginType.class, metaInterface );
-    assertNotNull( "pluginId", id );
+    String id = plugReg.getPluginId(TransformPluginType.class, metaInterface);
+    assertNotNull("pluginId", id);
 
-    TransformMeta transformMeta = new TransformMeta( id, "transformMetrics", metaInterface );
+    TransformMeta transformMeta = new TransformMeta(id, "transformMetrics", metaInterface);
 
     PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setName( "failsWhenGivenNonSingleThreadTransforms" );
-    pipelineMeta.addTransform( transformMeta );
+    pipelineMeta.setName("failsWhenGivenNonSingleThreadTransforms");
+    pipelineMeta.addTransform(transformMeta);
 
-    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
     pipeline.prepareExecution();
 
-    SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor( pipeline );
+    SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(pipeline);
     executor.init();
   }
 }

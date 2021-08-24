@@ -14,4 +14,5 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-A Hop links Actions in a Workflow or Transforms in a Pipeline. In Workflows, Hops operate based on the exit status of previous Actions, Hops in Pipelines pass data between Transforms.
+A Hop links Actions in a Workflow or Transforms in a Pipeline.
+In Workflows, Hops operate based on the exit status of previous Actions, Hops in Pipelines pass data between Transforms.

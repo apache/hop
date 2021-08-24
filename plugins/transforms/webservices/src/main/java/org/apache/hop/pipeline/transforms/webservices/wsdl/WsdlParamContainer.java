@@ -22,7 +22,7 @@ public interface WsdlParamContainer {
 
   String[] getParamNames();
 
-  String getParamType( String paramName );
+  String getParamType(String paramName);
 
   String getItemName();
 

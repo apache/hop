@@ -27,10 +27,12 @@ This workflow action can be used to decrypt files.
 
 === General Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |GPG location|The signature file path.
 |Include subfolders|Whether or not to include subfolders.
 |Copy previous results to args|
@@ -43,7 +45,7 @@ This workflow action can be used to decrypt files.
 
 === Destination File Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Create destination folder|Whether or not to create the destination folder.
@@ -79,10 +81,9 @@ This workflow action can be used to decrypt files.
 * Fail
 |===
 
-
 === Destination File Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Success condition a|Which condition to validate for a successful run

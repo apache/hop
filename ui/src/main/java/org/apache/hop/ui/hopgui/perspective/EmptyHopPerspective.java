@@ -20,8 +20,8 @@ package org.apache.hop.ui.hopgui.perspective;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -38,67 +38,78 @@ public class EmptyHopPerspective implements IHopPerspective {
     emptyHandler = new EmptyHopFileTypeHandler();
   }
 
-  @Override public String getId() {
+  @Override
+  public String getId() {
     return "empty";
   }
 
-  @Override public IHopFileTypeHandler getActiveFileTypeHandler() {
+  @Override
+  public IHopFileTypeHandler getActiveFileTypeHandler() {
     return emptyHandler;
   }
 
-  @Override public void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler ) {
-  }
+  @Override
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
 
-  @Override public List<IHopFileType> getSupportedHopFileTypes() {
+  @Override
+  public List<IHopFileType> getSupportedHopFileTypes() {
     return Collections.emptyList();
   }
 
-  @Override public void activate() {
-  }
-  
-  @Override public void perspectiveActivated() {
-  }
-  
-  @Override public void navigateToPreviousFile() {
-  }
+  @Override
+  public void activate() {}
 
-  @Override public void navigateToNextFile() {
-  }
+  @Override
+  public void perspectiveActivated() {}
 
-  @Override public boolean hasNavigationPreviousFile() {
+  @Override
+  public void navigateToPreviousFile() {}
+
+  @Override
+  public void navigateToNextFile() {}
+
+  @Override
+  public boolean hasNavigationPreviousFile() {
     return false;
   }
 
-  @Override public boolean hasNavigationNextFile() {
+  @Override
+  public boolean hasNavigationNextFile() {
     return false;
   }
 
-  @Override public boolean isActive() {
+  @Override
+  public boolean isActive() {
     return false;
   }
 
-  @Override public void initialize( HopGui hopGui, Composite parent ) {
-  }
+  @Override
+  public void initialize(HopGui hopGui, Composite parent) {}
 
-  @Override public Control getControl() {
+  @Override
+  public Control getControl() {
     return null;
   }
 
-  @Override public boolean remove( IHopFileTypeHandler typeHandler ) {
+  @Override
+  public boolean remove(IHopFileTypeHandler typeHandler) {
     return true;
   }
 
-  @Override public List<TabItemHandler> getItems() {
+  @Override
+  public List<TabItemHandler> getItems() {
     return null;
   }
 
-  @Override public List<IGuiContextHandler> getContextHandlers() {
+  @Override
+  public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
   }
 
-  @Override public List<ISearchable> getSearchables() {
+  @Override
+  public List<ISearchable> getSearchables() {
     List<ISearchable> searchables = new ArrayList<>();
     return searchables;
-  } 
+  }
 }

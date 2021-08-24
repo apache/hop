@@ -58,7 +58,8 @@ import java.util.Map;
     name = "i18n::SQLFileOutput.Name",
     description = "i18n::SQLFileOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sqlfileoutput.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/sqlfileoutput.html")
 public class SQLFileOutputMeta extends BaseTransformMeta
     implements ITransformMeta<SQLFileOutput, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
@@ -472,7 +473,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -718,7 +719,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 
@@ -758,7 +759,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     String realSchemaName = variables.resolve(schemaName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 

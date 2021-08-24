@@ -20,5 +20,5 @@ package org.apache.hop.ui.core.widget;
 import org.eclipse.swt.widgets.TreeItem;
 
 public interface IDoubleClick {
-  void action( TreeItem treeItem );
+  void action(TreeItem treeItem);
 }

@@ -37,5 +37,4 @@ public class WebServiceData extends BaseTransformData implements ITransformData 
   public WebServiceData() {
     argumentRows = new ArrayList<>();
   }
-
 }

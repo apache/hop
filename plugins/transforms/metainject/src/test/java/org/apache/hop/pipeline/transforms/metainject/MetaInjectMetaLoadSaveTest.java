@@ -16,8 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.metainject;
 
-import java.util.*;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -27,12 +25,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.apache.hop.pipeline.transforms.loadsave.validator.MapLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.*;
+
 public class MetaInjectMetaLoadSaveTest {
-  @ClassRule
-  public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   LoadSaveTester loadSaveTester;
   Class<MetaInjectMeta> testMetaClass = MetaInjectMeta.class;
@@ -40,30 +38,39 @@ public class MetaInjectMetaLoadSaveTest {
   @Before
   public void setUpLoadSave() throws Exception {
     List<String> attributes =
-            Arrays.asList( "fileName", "sourceTransformName", "targetFile",
-                    "noExecution", "streamSourceTransformName", "streamTargetTransformName",
-                    "sourceOutputFields" );
+        Arrays.asList(
+            "fileName",
+            "sourceTransformName",
+            "targetFile",
+            "noExecution",
+            "streamSourceTransformName",
+            "streamTargetTransformName",
+            "sourceOutputFields");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "sourceOutputFields",
-      new ListLoadSaveValidator<>( new MetaInjectOutputFieldLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put(
+        "sourceOutputFields",
+        new ListLoadSaveValidator<>(new MetaInjectOutputFieldLoadSaveValidator(), 5));
     //
     // Note - these seem to be runtime-built and not persisted.
-        attrValidatorMap.put( "metaInjectMapping",
-          new ListLoadSaveValidator<>( new MetaInjectMappingLoadSaveValidator(), 5 ) );
-        attrValidatorMap.put( "targetSourceMapping",
-          new MapLoadSaveValidator<>(
+    attrValidatorMap.put(
+        "metaInjectMapping",
+        new ListLoadSaveValidator<>(new MetaInjectMappingLoadSaveValidator(), 5));
+    attrValidatorMap.put(
+        "targetSourceMapping",
+        new MapLoadSaveValidator<>(
             new TargetTransformAttributeLoadSaveValidator(),
             new SourceTransformFieldLoadSaveValidator(),
-            5 ) );
+            5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
-    loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap,
-                attrValidatorMap, typeValidatorMap );
+    loadSaveTester =
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -71,100 +78,109 @@ public class MetaInjectMetaLoadSaveTest {
     loadSaveTester.testSerialization();
   }
 
-  public class MetaInjectOutputFieldLoadSaveValidator implements IFieldLoadSaveValidator<MetaInjectOutputField> {
+  public class MetaInjectOutputFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<MetaInjectOutputField> {
     final Random rand = new Random();
+
     @Override
     public MetaInjectOutputField getTestObject() {
       MetaInjectOutputField rtn = new MetaInjectOutputField();
-      rtn.setName( UUID.randomUUID().toString() );
-      rtn.setLength( rand.nextInt( 100 ) );
-      rtn.setPrecision( rand.nextInt( 9 ) );
-      rtn.setType( rand.nextInt( 7 ) );
+      rtn.setName(UUID.randomUUID().toString());
+      rtn.setLength(rand.nextInt(100));
+      rtn.setPrecision(rand.nextInt(9));
+      rtn.setType(rand.nextInt(7));
       return rtn;
     }
 
     @Override
-    public boolean validateTestObject( MetaInjectOutputField testObject, Object actual ) {
-      if ( !( actual instanceof MetaInjectOutputField ) ) {
+    public boolean validateTestObject(MetaInjectOutputField testObject, Object actual) {
+      if (!(actual instanceof MetaInjectOutputField)) {
         return false;
       }
       MetaInjectOutputField another = (MetaInjectOutputField) actual;
       return new EqualsBuilder()
-        .append( testObject.getLength(), another.getLength() )
-        .append( testObject.getPrecision(), another.getPrecision() )
-        .append( testObject.getName(), another.getName() )
-        .append( testObject.getType(), another.getType() )
-        .isEquals();
+          .append(testObject.getLength(), another.getLength())
+          .append(testObject.getPrecision(), another.getPrecision())
+          .append(testObject.getName(), another.getName())
+          .append(testObject.getType(), another.getType())
+          .isEquals();
     }
   }
 
-  //MetaInjectMappingLoadSaveValidator
-  public class MetaInjectMappingLoadSaveValidator implements IFieldLoadSaveValidator<MetaInjectMapping> {
+  // MetaInjectMappingLoadSaveValidator
+  public class MetaInjectMappingLoadSaveValidator
+      implements IFieldLoadSaveValidator<MetaInjectMapping> {
     final Random rand = new Random();
+
     @Override
     public MetaInjectMapping getTestObject() {
       MetaInjectMapping rtn = new MetaInjectMapping();
-      rtn.setSourceField( UUID.randomUUID().toString() );
-      rtn.setSourceTransform( UUID.randomUUID().toString() );
-      rtn.setTargetField( UUID.randomUUID().toString() );
-      rtn.setTargetTransform( UUID.randomUUID().toString() );
+      rtn.setSourceField(UUID.randomUUID().toString());
+      rtn.setSourceTransform(UUID.randomUUID().toString());
+      rtn.setTargetField(UUID.randomUUID().toString());
+      rtn.setTargetTransform(UUID.randomUUID().toString());
       return rtn;
     }
 
     @Override
-    public boolean validateTestObject( MetaInjectMapping testObject, Object actual ) {
-      if ( !( actual instanceof MetaInjectMapping ) ) {
+    public boolean validateTestObject(MetaInjectMapping testObject, Object actual) {
+      if (!(actual instanceof MetaInjectMapping)) {
         return false;
       }
       MetaInjectMapping another = (MetaInjectMapping) actual;
       return new EqualsBuilder()
-        .append( testObject.getSourceField(), another.getSourceField() )
-        .append( testObject.getSourceTransform(), another.getSourceTransform() )
-        .append( testObject.getTargetField(), another.getTargetField() )
-        .append( testObject.getTargetTransform(), another.getTargetTransform() )
-        .isEquals();
+          .append(testObject.getSourceField(), another.getSourceField())
+          .append(testObject.getSourceTransform(), another.getSourceTransform())
+          .append(testObject.getTargetField(), another.getTargetField())
+          .append(testObject.getTargetTransform(), another.getTargetTransform())
+          .isEquals();
     }
   }
   // TargetTransformAttributeLoadSaveValidator
-  public class TargetTransformAttributeLoadSaveValidator implements IFieldLoadSaveValidator<TargetTransformAttribute> {
+  public class TargetTransformAttributeLoadSaveValidator
+      implements IFieldLoadSaveValidator<TargetTransformAttribute> {
     final Random rand = new Random();
+
     @Override
     public TargetTransformAttribute getTestObject() {
-      return  new TargetTransformAttribute( UUID.randomUUID().toString(), UUID.randomUUID().toString(), rand.nextBoolean() );
+      return new TargetTransformAttribute(
+          UUID.randomUUID().toString(), UUID.randomUUID().toString(), rand.nextBoolean());
     }
 
     @Override
-    public boolean validateTestObject(TargetTransformAttribute testObject, Object actual ) {
-      if ( !( actual instanceof TargetTransformAttribute) ) {
+    public boolean validateTestObject(TargetTransformAttribute testObject, Object actual) {
+      if (!(actual instanceof TargetTransformAttribute)) {
         return false;
       }
       TargetTransformAttribute another = (TargetTransformAttribute) actual;
       return new EqualsBuilder()
-          .append( testObject.getTransformName(), another.getTransformName() )
-          .append( testObject.getAttributeKey(), another.getAttributeKey() )
-          .append( testObject.isDetail(), another.isDetail() )
-      .isEquals();
+          .append(testObject.getTransformName(), another.getTransformName())
+          .append(testObject.getAttributeKey(), another.getAttributeKey())
+          .append(testObject.isDetail(), another.isDetail())
+          .isEquals();
     }
   }
 
   // SourceTransformFieldLoadSaveValidator
-  public class SourceTransformFieldLoadSaveValidator implements IFieldLoadSaveValidator<SourceTransformField> {
+  public class SourceTransformFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<SourceTransformField> {
     final Random rand = new Random();
+
     @Override
     public SourceTransformField getTestObject() {
-      return  new SourceTransformField( UUID.randomUUID().toString(), UUID.randomUUID().toString() );
+      return new SourceTransformField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Override
-    public boolean validateTestObject(SourceTransformField testObject, Object actual ) {
-      if ( !( actual instanceof SourceTransformField) ) {
+    public boolean validateTestObject(SourceTransformField testObject, Object actual) {
+      if (!(actual instanceof SourceTransformField)) {
         return false;
       }
       SourceTransformField another = (SourceTransformField) actual;
       return new EqualsBuilder()
-          .append( testObject.getTransformName(), another.getTransformName() )
-          .append( testObject.getField(), another.getField() )
-      .isEquals();
+          .append(testObject.getTransformName(), another.getTransformName())
+          .append(testObject.getField(), another.getField())
+          .isEquals();
     }
   }
 }

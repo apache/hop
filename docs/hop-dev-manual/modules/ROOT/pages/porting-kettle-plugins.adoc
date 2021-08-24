@@ -35,15 +35,16 @@ For example: *RowMetaInterface -> IRowMeta*
 
 === Transformations
 
-Transformations are now called Pipelines.  This means that the corresponding classes have changed.
+Transformations are now called Pipelines.
+This means that the corresponding classes have changed.
 
 For example:
-- TransMeta is now called *PipelineMeta*
-- Trans is now called *Pipeline*
+- TransMeta is now called *PipelineMeta* - Trans is now called *Pipeline*
 
 === Steps
 
-Steps are now called Transforms.  For example:
+Steps are now called Transforms.
+For example:
 
 - StepMeta is now called *TransformMeta*
 - StepMetaInterface is now called *ITransformMeta*
@@ -51,7 +52,6 @@ Steps are now called Transforms.  For example:
 - StepDataInterface is now called *ITransformData*
 
 ...and so on
-
 === Transform Generics
 
 ITransform no longer expects you to pass ITransformMeta and ITransformData classes in the following methods:
@@ -90,14 +90,14 @@ Any references to Repository, including parameters and the saveRep() and loadRep
 
 == VariableSpace
 
-VariableSpace was renamed to IVariables
-The API has also been cleaned up and simplified.  For example, ```environmentSubstitute()``` is now called ```resolve()```
-Please note that metadata objects (TransMeta, JobMeta, DatabaseMeta, ...) no longer implement ```VariableSpace``` (or ```IVariables```).
+VariableSpace was renamed to IVariables The API has also been cleaned up and simplified.
+For example, ```environmentSubstitute()``` is now called ```resolve()``` Please note that metadata objects (TransMeta, JobMeta, DatabaseMeta, ...) no longer implement ```VariableSpace``` (or ```IVariables```).
 Only runtime objects like Pipeline, Workflow, ITransform and so on have a state in Hop.
 
 == Extension point plugins
 
-If you're porting classes implementing an Extension Point plugin by implementing ExtensionPointInterface please note that you'll receive an extra parameter which is IVariables.  It aims to contain the variables of the parent object in the XP context.
+If you're porting classes implementing an Extension Point plugin by implementing ExtensionPointInterface please note that you'll receive an extra parameter which is IVariables.
+It aims to contain the variables of the parent object in the XP context.
 Obviously the interface name changed to IExtensionPoint.
 You can also use generics to specify the expected class of the receiving subject.
 
@@ -108,15 +108,17 @@ These objects are no longer stored in a Pipeline or a Workflow, they are now ful
 - List<DatabaseMeta> databases
 - List<SlaveServer> slaveServers
 
-
 == MetaStore -> HopMetadata
 
-The MetaStore code is unfortunately LGPL licensed and for that reason removed from the project. It was replaced by the general ```IHopMetadataProvider``` instead of the ```IMetaStore``` references.
-At any given time you can ask the current ```*IHopMetadataProvider*``` to give you a serializer for a metadata class.  This ```*IHopMetadataSerializer*``` can then be used to CRUD objects as well as list and so on.
+The MetaStore code is unfortunately LGPL licensed and for that reason removed from the project.
+It was replaced by the general ```IHopMetadataProvider``` instead of the ```IMetaStore``` references.
+At any given time you can ask the current ```*IHopMetadataProvider*``` to give you a serializer for a metadata class.
+This ```*IHopMetadataSerializer*``` can then be used to CRUD objects as well as list and so on.
 
 For more information on how to implement Hop Metadata plugins, see: Metadata Plugins.
 
-MetaStore elements can now be managed in a standard way.  In your transform dialogs you can use the widget:
+MetaStore elements can now be managed in a standard way.
+In your transform dialogs you can use the widget:
 
 *MetaSelectionLine<T extends IHopMetadata>*
 

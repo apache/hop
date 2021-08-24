@@ -22,9 +22,7 @@ import org.apache.hop.core.gui.plugin.BaseGuiElements;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-/**
- * This represents a list of GUI Menu elements under a certain heading or ID
- */
+/** This represents a list of GUI Menu elements under a certain heading or ID */
 public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuItem> {
 
   private String root;
@@ -52,11 +50,13 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
   private String listenerClassName;
   private String listenerMethod;
 
-  public GuiMenuItem() {
-  }
+  public GuiMenuItem() {}
 
-
-  public GuiMenuItem( GuiMenuElement guiElement, Method guiPluginMethod, String guiPluginClassName, ClassLoader classLoader ) {
+  public GuiMenuItem(
+      GuiMenuElement guiElement,
+      Method guiPluginMethod,
+      String guiPluginClassName,
+      ClassLoader classLoader) {
     this();
 
     this.root = guiElement.root();
@@ -69,34 +69,44 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     this.listenerMethod = guiPluginMethod.getName();
     this.listenerClassName = guiPluginClassName; // Ask the classloader for the class
     this.singleTon = true; // Always a singleton for now
-    this.label = getTranslation(guiElement.label(), guiPluginMethod.getDeclaringClass().getPackage().getName(), guiPluginMethod.getDeclaringClass() );
-    this.toolTip = getTranslation(guiElement.toolTip(), guiPluginMethod.getDeclaringClass().getPackage().getName(), guiPluginMethod.getDeclaringClass() );
+    this.label =
+        getTranslation(
+            guiElement.label(),
+            guiPluginMethod.getDeclaringClass().getPackage().getName(),
+            guiPluginMethod.getDeclaringClass());
+    this.toolTip =
+        getTranslation(
+            guiElement.toolTip(),
+            guiPluginMethod.getDeclaringClass().getPackage().getName(),
+            guiPluginMethod.getDeclaringClass());
     this.classLoader = classLoader;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     GuiMenuItem that = (GuiMenuItem) o;
-    return id.equals( that.id );
+    return id.equals(that.id);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( id );
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 
-  @Override public int compareTo( GuiMenuItem o ) {
-    return id.compareTo( o.id );
+  @Override
+  public int compareTo(GuiMenuItem o) {
+    return id.compareTo(o.id);
   }
 
-  @Override public String toString() {
-    return "GuiMenuItem{" +
-      "id='" + id + '\'' +
-      '}';
+  @Override
+  public String toString() {
+    return "GuiMenuItem{" + "id='" + id + '\'' + '}';
   }
 
   /**
@@ -108,10 +118,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return root;
   }
 
-  /**
-   * @param root The root to set
-   */
-  public void setRoot( String root ) {
+  /** @param root The root to set */
+  public void setRoot(String root) {
     this.root = root;
   }
 
@@ -124,10 +132,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return id;
   }
 
-  /**
-   * @param id The id to set
-   */
-  public void setId( String id ) {
+  /** @param id The id to set */
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -140,10 +146,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return parentId;
   }
 
-  /**
-   * @param parentId The parentId to set
-   */
-  public void setParentId( String parentId ) {
+  /** @param parentId The parentId to set */
+  public void setParentId(String parentId) {
     this.parentId = parentId;
   }
 
@@ -156,10 +160,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return label;
   }
 
-  /**
-   * @param label The label to set
-   */
-  public void setLabel( String label ) {
+  /** @param label The label to set */
+  public void setLabel(String label) {
     this.label = label;
   }
 
@@ -172,10 +174,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return toolTip;
   }
 
-  /**
-   * @param toolTip The toolTip to set
-   */
-  public void setToolTip( String toolTip ) {
+  /** @param toolTip The toolTip to set */
+  public void setToolTip(String toolTip) {
     this.toolTip = toolTip;
   }
 
@@ -188,10 +188,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( GuiMenuElementType type ) {
+  /** @param type The type to set */
+  public void setType(GuiMenuElementType type) {
     this.type = type;
   }
 
@@ -204,10 +202,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return image;
   }
 
-  /**
-   * @param image The image to set
-   */
-  public void setImage( String image ) {
+  /** @param image The image to set */
+  public void setImage(String image) {
     this.image = image;
   }
 
@@ -220,10 +216,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return disabledImage;
   }
 
-  /**
-   * @param disabledImage The disabledImage to set
-   */
-  public void setDisabledImage( String disabledImage ) {
+  /** @param disabledImage The disabledImage to set */
+  public void setDisabledImage(String disabledImage) {
     this.disabledImage = disabledImage;
   }
 
@@ -236,10 +230,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return ignored;
   }
 
-  /**
-   * @param ignored The ignored to set
-   */
-  public void setIgnored( boolean ignored ) {
+  /** @param ignored The ignored to set */
+  public void setIgnored(boolean ignored) {
     this.ignored = ignored;
   }
 
@@ -252,10 +244,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return addingSeparator;
   }
 
-  /**
-   * @param addingSeparator The addingSeparator to set
-   */
-  public void setAddingSeparator( boolean addingSeparator ) {
+  /** @param addingSeparator The addingSeparator to set */
+  public void setAddingSeparator(boolean addingSeparator) {
     this.addingSeparator = addingSeparator;
   }
 
@@ -268,10 +258,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return classLoader;
   }
 
-  /**
-   * @param classLoader The classLoader to set
-   */
-  public void setClassLoader( ClassLoader classLoader ) {
+  /** @param classLoader The classLoader to set */
+  public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 
@@ -284,10 +272,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return singleTon;
   }
 
-  /**
-   * @param singleTon The singleTon to set
-   */
-  public void setSingleTon( boolean singleTon ) {
+  /** @param singleTon The singleTon to set */
+  public void setSingleTon(boolean singleTon) {
     this.singleTon = singleTon;
   }
 
@@ -300,10 +286,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return listenerClassName;
   }
 
-  /**
-   * @param listenerClassName The listenerClassName to set
-   */
-  public void setListenerClassName( String listenerClassName ) {
+  /** @param listenerClassName The listenerClassName to set */
+  public void setListenerClassName(String listenerClassName) {
     this.listenerClassName = listenerClassName;
   }
 
@@ -316,10 +300,8 @@ public class GuiMenuItem extends BaseGuiElements implements Comparable<GuiMenuIt
     return listenerMethod;
   }
 
-  /**
-   * @param listenerMethod The listenerMethod to set
-   */
-  public void setListenerMethod( String listenerMethod ) {
+  /** @param listenerMethod The listenerMethod to set */
+  public void setListenerMethod(String listenerMethod) {
     this.listenerMethod = listenerMethod;
   }
 }

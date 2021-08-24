@@ -26,16 +26,17 @@ import java.util.zip.GZIPInputStream;
 
 public class GzipCompressionInputStream extends CompressionInputStream {
 
-  public GzipCompressionInputStream( InputStream in, ICompressionProvider provider ) throws IOException {
-    super( getDelegate( in ), provider );
+  public GzipCompressionInputStream(InputStream in, ICompressionProvider provider)
+      throws IOException {
+    super(getDelegate(in), provider);
   }
 
-  protected static GZIPInputStream getDelegate( InputStream in ) throws IOException {
+  protected static GZIPInputStream getDelegate(InputStream in) throws IOException {
     GZIPInputStream delegate = null;
-    if ( in instanceof GZIPInputStream ) {
+    if (in instanceof GZIPInputStream) {
       delegate = (GZIPInputStream) in;
     } else {
-      delegate = new GZIPInputStream( in );
+      delegate = new GZIPInputStream(in);
     }
     return delegate;
   }
@@ -51,5 +52,4 @@ public class GzipCompressionInputStream extends CompressionInputStream {
     GZIPInputStream gis = (GZIPInputStream) delegate;
     return gis.read();
   }
-
 }

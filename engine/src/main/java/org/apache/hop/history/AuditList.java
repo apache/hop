@@ -25,27 +25,27 @@ import java.util.List;
  */
 public class AuditList {
 
-    private List<String> names;
+  private List<String> names;
 
-    public AuditList() {
-        names = new ArrayList<>();
-    }
+  public AuditList() {
+    names = new ArrayList<>();
+  }
 
-    public AuditList(List<String> names) {
-        this.names = names;
-    }
+  public AuditList(List<String> names) {
+    this.names = names;
+  }
 
-    /**
-     * Gets names
-     *
-     * @return value of names
-     */
-    public List<String> getNames() {
-        return names;
-    }
+  /**
+   * Gets names
+   *
+   * @return value of names
+   */
+  public List<String> getNames() {
+    return names;
+  }
 
-    /** @param names The names to set */
-    public void setNames(List<String> names) {
-        this.names = names;
-    }
+  /** @param names The names to set */
+  public void setNames(List<String> names) {
+    this.names = names;
+  }
 }

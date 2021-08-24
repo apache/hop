@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   version="1.1"
-   width="24"
-   height="24"
-   viewBox="0 0 24 24"
-   >
-  <circle
-     r="10"
-     cy="12"
-     cx="12"
-     style="fill:#ea102a;fill-opacity:1;stroke:none;stroke-width:2.465;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
-  <g
-     transform="matrix(0.89285713,0,0,0.89285713,1.3290818,1.5280613)"
-     >
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.593223;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       width="3.1845231"
-       height="8.6455154"
-       x="10.479167"
-       y="4.976191" />
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.68788;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       width="3.333333"
-       height="2.8767211"
-       x="10.404762"
-       y="16.02804" />
-  </g>
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.1"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+>
+    <circle
+            r="10"
+            cy="12"
+            cx="12"
+            style="fill:#ea102a;fill-opacity:1;stroke:none;stroke-width:2.465;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"/>
+    <g
+            transform="matrix(0.89285713,0,0,0.89285713,1.3290818,1.5280613)"
+    >
+        <rect
+                style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.593223;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+                width="3.1845231"
+                height="8.6455154"
+                x="10.479167"
+                y="4.976191"/>
+        <rect
+                style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.68788;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                width="3.333333"
+                height="2.8767211"
+                x="10.404762"
+                y="16.02804"/>
+    </g>
 </svg>

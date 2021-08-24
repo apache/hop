@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is synchronized to allow
- * concurrent use of multiple Threads.
- * <p>
- * This class also monitors the idle state of a IRowSet
+ * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is
+ * synchronized to allow concurrent use of multiple Threads.
+ *
+ * <p>This class also monitors the idle state of a IRowSet
  *
  * @author Matt
  * @since 23-12-2010
@@ -43,12 +43,12 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
    *
    * @param maxSize
    */
-  public BlockingListeningRowSet( int maxSize ) {
+  public BlockingListeningRowSet(int maxSize) {
     super();
 
     // create an empty queue
-    queArray = new ArrayBlockingQueue<>( maxSize, false );
-    blocking = new AtomicBoolean( false );
+    queArray = new ArrayBlockingQueue<>(maxSize, false);
+    blocking = new AtomicBoolean(false);
   }
 
   /*
@@ -57,8 +57,8 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
    * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.IRowMeta, java.lang.Object[])
    */
   @Override
-  public boolean putRow( IRowMeta rowMeta, Object[] rowData ) {
-    return putRowWait( rowMeta, rowData, 100, TimeUnit.NANOSECONDS );
+  public boolean putRow(IRowMeta rowMeta, Object[] rowData) {
+    return putRowWait(rowMeta, rowData, 100, TimeUnit.NANOSECONDS);
   }
 
   /*
@@ -68,21 +68,20 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
    * long, java.util.concurrent.TimeUnit)
    */
   @Override
-  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
+  public boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu) {
     this.rowMeta = rowMeta;
     try {
-      blocking.set( true );
-      boolean b = queArray.offer( rowData, time, tu );
-      blocking.set( false );
+      blocking.set(true);
+      boolean b = queArray.offer(rowData, time, tu);
+      blocking.set(false);
       return b;
-    } catch ( InterruptedException e ) {
-      blocking.set( false );
+    } catch (InterruptedException e) {
+      blocking.set(false);
       return false;
-    } catch ( NullPointerException e ) {
-      blocking.set( false );
+    } catch (NullPointerException e) {
+      blocking.set(false);
       return false;
     }
-
   }
 
   // default getRow with wait time = 100ms
@@ -94,9 +93,9 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
    */
   @Override
   public Object[] getRow() {
-    blocking.set( true );
-    Object[] row = getRowWait( 100, TimeUnit.NANOSECONDS );
-    blocking.set( false );
+    blocking.set(true);
+    Object[] row = getRowWait(100, TimeUnit.NANOSECONDS);
+    blocking.set(false);
     return row;
   }
 
@@ -108,9 +107,9 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
   @Override
   public Object[] getRowImmediate() {
 
-    blocking.set( true );
+    blocking.set(true);
     Object[] row = queArray.poll();
-    blocking.set( false );
+    blocking.set(false);
     return row;
   }
 
@@ -120,15 +119,15 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
    * @see org.apache.hop.core.RowSetInterface#getRowWait(long, java.util.concurrent.TimeUnit)
    */
   @Override
-  public Object[] getRowWait( long timeout, TimeUnit tu ) {
+  public Object[] getRowWait(long timeout, TimeUnit tu) {
 
     try {
-      blocking.set( true );
-      Object[] row = queArray.poll( timeout, tu );
-      blocking.set( false );
+      blocking.set(true);
+      Object[] row = queArray.poll(timeout, tu);
+      blocking.set(false);
       return row;
-    } catch ( InterruptedException e ) {
-      blocking.set( false );
+    } catch (InterruptedException e) {
+      blocking.set(false);
       return null;
     }
   }
@@ -138,9 +137,7 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
     return queArray.size();
   }
 
-  /**
-   * @return true if this row set is blocking.
-   */
+  /** @return true if this row set is blocking. */
   @Override
   public boolean isBlocking() {
     return blocking.get();
@@ -149,7 +146,6 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
   @Override
   public void clear() {
     queArray.clear();
-    done.set( false );
+    done.set(false);
   }
-
 }

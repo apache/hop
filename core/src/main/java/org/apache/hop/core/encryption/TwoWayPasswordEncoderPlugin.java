@@ -17,25 +17,21 @@
 
 package org.apache.hop.core.encryption;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * Classes annotated with "TwoWayPasswordEncoderPlugin" are automatically recognized and registered as a new data type in the form
- * of a ITwoWayPasswordEncoder class.
+ * Classes annotated with "TwoWayPasswordEncoderPlugin" are automatically recognized and registered
+ * as a new data type in the form of a ITwoWayPasswordEncoder class.
  *
  * @author matt
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface TwoWayPasswordEncoderPlugin {
   /**
-   * @return The ID of the password encoder plugin. You can specify more than one ID in a comma separated format: id1,id2,id3 for
-   * deprecation purposes.
+   * @return The ID of the password encoder plugin. You can specify more than one ID in a comma
+   *     separated format: id1,id2,id3 for deprecation purposes.
    */
   String id();
 
@@ -43,9 +39,7 @@ public @interface TwoWayPasswordEncoderPlugin {
 
   String description() default "";
 
-  /**
-   * @return True if a separate class loader is needed every time this class is instantiated
-   */
+  /** @return True if a separate class loader is needed every time this class is instantiated */
   boolean isSeparateClassLoaderNeeded() default false;
 
   String documentationUrl() default "";

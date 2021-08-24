@@ -22,14 +22,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,37 +41,42 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
 
     List<String> attributesList = new ArrayList<>();
-    Map<String, String> getterMap =
-            new HashMap<String, String>();
-    Map<String, String> setterMap =
-            new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<String, String>();
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-        attrValidatorMap.put(
-            "fields", new ListLoadSaveValidator<>(new StringCutFieldInputFieldLoadSaveValidator(), 5));
+    attrValidatorMap.put(
+        "fields", new ListLoadSaveValidator<>(new StringCutFieldInputFieldLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributesList, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributesList,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof StringCutMeta ) {
-      ((StringCutMeta) someMeta ).getFields().clear();
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof StringCutMeta) {
+      ((StringCutMeta) someMeta).getFields().clear();
       ((StringCutMeta) someMeta)
-              .getFields()
-              .addAll(
-                      Arrays.asList(
-                              new StringCutField("InField1", "OutField1", "1", "10"),
-                              new StringCutField("InField2", "OutField2", "2", "20"),
-                              new StringCutField("InField3", "OutField3", "1", "10"),
-                              new StringCutField("InField4", "OutField4", "1", "10"),
-                              new StringCutField("InField5", "OutField5", "1", "10")));
+          .getFields()
+          .addAll(
+              Arrays.asList(
+                  new StringCutField("InField1", "OutField1", "1", "10"),
+                  new StringCutField("InField2", "OutField2", "2", "20"),
+                  new StringCutField("InField3", "OutField3", "1", "10"),
+                  new StringCutField("InField4", "OutField4", "1", "10"),
+                  new StringCutField("InField5", "OutField5", "1", "10")));
     }
   }
 
@@ -83,9 +85,8 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
     loadSaveTester.testSerialization();
   }
 
-
   public class StringCutFieldInputFieldLoadSaveValidator
-          implements IFieldLoadSaveValidator<StringCutField> {
+      implements IFieldLoadSaveValidator<StringCutField> {
     final Random rand = new Random();
 
     @Override
@@ -93,11 +94,7 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
       String[] types = ValueMetaFactory.getAllValueMetaNames();
 
       StringCutField field =
-              new StringCutField(
-                      UUID.randomUUID().toString(),
-                      UUID.randomUUID().toString(),
-                      "1",
-                      "5");
+          new StringCutField(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "1", "5");
 
       return field;
     }
@@ -109,12 +106,11 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
       }
       StringCutField another = (StringCutField) actual;
       return new EqualsBuilder()
-              .append(testObject.getFieldInStream(), another.getFieldInStream())
-              .append(testObject.getFieldOutStream(), another.getFieldOutStream())
-              .append(testObject.getCutFrom(), another.getCutFrom())
-              .append(testObject.getCutTo(), another.getCutTo())
-              .isEquals();
+          .append(testObject.getFieldInStream(), another.getFieldInStream())
+          .append(testObject.getFieldOutStream(), another.getFieldOutStream())
+          .append(testObject.getCutFrom(), another.getCutFrom())
+          .append(testObject.getCutTo(), another.getCutTo())
+          .isEquals();
     }
   }
-
 }

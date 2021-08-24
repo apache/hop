@@ -55,5 +55,4 @@ public class GetTableNamesData extends BaseTransformData implements ITransformDa
     readrow = null;
     indexOfSchemaField = -1;
   }
-
 }

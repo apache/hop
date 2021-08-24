@@ -27,19 +27,16 @@ public interface IJsonReader {
 
   /**
    * Store and compile fields.
-   * 
+   *
    * @param fields
    * @throws HopException
    */
-  void setFields( JsonInputField[] fields ) throws HopException;
+  void setFields(JsonInputField[] fields) throws HopException;
 
   boolean isIgnoreMissingPath();
 
-  void setIgnoreMissingPath( boolean value );
+  void setIgnoreMissingPath(boolean value);
 
-  /**
-   * parse compiled fields into a rowset
-   */
-  public IRowSet parse( InputStream in ) throws HopException;
-
+  /** parse compiled fields into a rowset */
+  public IRowSet parse(InputStream in) throws HopException;
 }

@@ -17,20 +17,17 @@
 
 package org.apache.hop.workflow.actions.truncatetables;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-public class WorkflowActionTruncateTablesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionTruncateTables> {
+public class WorkflowActionTruncateTablesLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionTruncateTables> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -40,16 +37,17 @@ public class WorkflowActionTruncateTablesLoadSaveTest extends WorkflowActionLoad
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "database", "argFromPrevious", "tableNames", "schemaNames" } );
+    return Arrays.asList(new String[] {"database", "argFromPrevious", "tableNames", "schemaNames"});
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    int entries = new Random().nextInt( 20 ) + 1;
-    validators.put( "tableNames", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
-    validators.put( "schemaNames", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
+    int entries = new Random().nextInt(20) + 1;
+    validators.put(
+        "tableNames", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
+    validators.put(
+        "schemaNames", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
     return validators;
   }
-
 }

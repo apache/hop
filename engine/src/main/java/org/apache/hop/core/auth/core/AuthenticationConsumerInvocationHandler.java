@@ -23,29 +23,32 @@ import java.lang.reflect.Method;
 public class AuthenticationConsumerInvocationHandler implements InvocationHandler {
   private final Object target;
 
-  public AuthenticationConsumerInvocationHandler( Object target ) {
+  public AuthenticationConsumerInvocationHandler(Object target) {
     this.target = target;
   }
 
   @Override
-  public Object invoke( Object proxy, Method method, Object[] args ) throws Throwable {
-    return target.getClass().getMethod( method.getName(), method.getParameterTypes() ).invoke( target, args );
+  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    return target
+        .getClass()
+        .getMethod(method.getName(), method.getParameterTypes())
+        .invoke(target, args);
   }
 
-  public static boolean isCompatible( Class<?> proxyInterface, Object targetObject ) {
-    for ( Method method : proxyInterface.getMethods() ) {
+  public static boolean isCompatible(Class<?> proxyInterface, Object targetObject) {
+    for (Method method : proxyInterface.getMethods()) {
       try {
-        targetObject.getClass().getMethod( method.getName(), method.getParameterTypes() );
-      } catch ( Exception e ) {
+        targetObject.getClass().getMethod(method.getName(), method.getParameterTypes());
+      } catch (Exception e) {
         return false;
       }
     }
-    for ( Method method : targetObject.getClass().getMethods() ) {
+    for (Method method : targetObject.getClass().getMethods()) {
       // We don't care about proxying Object methods
-      if ( method.getDeclaringClass() != Object.class ) {
+      if (method.getDeclaringClass() != Object.class) {
         try {
-          proxyInterface.getMethod( method.getName(), method.getParameterTypes() );
-        } catch ( Exception e ) {
+          proxyInterface.getMethod(method.getName(), method.getParameterTypes());
+        } catch (Exception e) {
           return false;
         }
       }

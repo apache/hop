@@ -20,7 +20,8 @@ under the License.
 
 The Hop File Dialog is a versatile tool you'll use often while working in Hop Gui.
 
-This dialog offers a lot more than basically selecting and saving files. Among other things, it enables you to work with VFS file sytems directly, provides file/folder information, lets you bookmark files and folders.
+This dialog offers a lot more than basically selecting and saving files.
+Among other things, it enables you to work with VFS file sytems directly, provides file/folder information, lets you bookmark files and folders.
 
 The list below walks you through the options that are at your disposal in the Hop File Dialog.
 
@@ -37,8 +38,13 @@ image:hop-gui/file-dialog.png[width="65%"]
 .. image:icons/navigate-back.svg[width="25px"]Navigate to the previous path from your history
 .. image:icons/navigate-forward.svg[width="25px"]Navigate to the next path from your history
 .. image:icons/refresh.svg[width="25px"]Refresh
-. **File path**. Displays the current file path. The file path can be used to directly enter (copy/paste) your desired path. This not only works with local files, you can also use all supported xref:vfs.adoc[VFS file systems].
-. **File extensions**. This list is populated from plugins, so there may be differences in the file types you have available. By default, this list includes:
+. **File path**.
+Displays the current file path.
+The file path can be used to directly enter (copy/paste) your desired path.
+This not only works with local files, you can also use all supported xref:vfs.adoc[VFS file systems].
+. **File extensions**.
+This list is populated from plugins, so there may be differences in the file types you have available.
+By default, this list includes:
 .. Workflows
 .. Pipelines
 .. CSV files
@@ -49,7 +55,8 @@ image:hop-gui/file-dialog.png[width="65%"]
 .. SVG files
 .. TXT files
 .. XML files
-. **Bookmarks**: Bookmark your favorite files and folders for easy and fast access. Tools -> Options contains an option to specify whether you want or don't want global bookmarks in the file dialog (global by defaul).
+. **Bookmarks**: Bookmark your favorite files and folders for easy and fast access.
+Tools -> Options contains an option to specify whether you want or don't want global bookmarks in the file dialog (global by defaul).
 .. image:icons/bookmark-add.svg[width="25px"]Add the selected file or folder as a bookmark
 .. image:icons/delete.svg[width="25px"]Remove the selected bookmark
 . **File/folder browser**: Browse your current file system, create folders and toggle hidden files and folders.

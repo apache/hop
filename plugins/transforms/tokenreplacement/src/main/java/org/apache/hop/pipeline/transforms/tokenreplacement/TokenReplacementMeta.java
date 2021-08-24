@@ -464,7 +464,8 @@ public class TokenReplacementMeta extends BaseTransformMeta
           "Y"
               .equalsIgnoreCase(
                   Const.NVL(
-                      XmlHandler.getTagValue(transformNode, INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME ),
+                      XmlHandler.getTagValue(
+                          transformNode, INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME),
                       ""));
       includePartNrInOutputFileName =
           "Y"
@@ -572,7 +573,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     retval.append(
         "    "
             + XmlHandler.addTagValue(
-          INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME, includeTransformNrInOutputFileName));
+                INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME, includeTransformNrInOutputFileName));
     retval.append(
         "    "
             + XmlHandler.addTagValue(
@@ -807,9 +808,9 @@ public class TokenReplacementMeta extends BaseTransformMeta
   }
 
   public static final String getOutputFileFormatDescription(String code) {
-    int index = Const.indexOfString( code, formatMapperLineTerminator);
-    if (index<0) {
-      index=3;
+    int index = Const.indexOfString(code, formatMapperLineTerminator);
+    if (index < 0) {
+      index = 3;
     }
     return formatMapperLineTerminatorDescriptions[index];
   }

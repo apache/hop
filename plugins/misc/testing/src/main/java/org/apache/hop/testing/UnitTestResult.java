@@ -17,9 +17,9 @@
 
 package org.apache.hop.testing;
 
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,7 +41,13 @@ public class UnitTestResult {
     super();
   }
 
-  public UnitTestResult( String pipelineName, String unitTestName, String dataSetName, String transformName, boolean error, String comment ) {
+  public UnitTestResult(
+      String pipelineName,
+      String unitTestName,
+      String dataSetName,
+      String transformName,
+      boolean error,
+      String comment) {
     super();
     this.pipelineName = pipelineName;
     this.unitTestName = unitTestName;
@@ -55,7 +61,7 @@ public class UnitTestResult {
     return pipelineName;
   }
 
-  public void setPipelineName( String pipelineName ) {
+  public void setPipelineName(String pipelineName) {
     this.pipelineName = pipelineName;
   }
 
@@ -63,7 +69,7 @@ public class UnitTestResult {
     return unitTestName;
   }
 
-  public void setUnitTestName( String unitTestName ) {
+  public void setUnitTestName(String unitTestName) {
     this.unitTestName = unitTestName;
   }
 
@@ -71,7 +77,7 @@ public class UnitTestResult {
     return dataSetName;
   }
 
-  public void setDataSetName( String dataSetName ) {
+  public void setDataSetName(String dataSetName) {
     this.dataSetName = dataSetName;
   }
 
@@ -79,7 +85,7 @@ public class UnitTestResult {
     return transformName;
   }
 
-  public void setTransformName( String transformName ) {
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -87,7 +93,7 @@ public class UnitTestResult {
     return error;
   }
 
-  public void setError( boolean error ) {
+  public void setError(boolean error) {
     this.error = error;
   }
 
@@ -95,38 +101,43 @@ public class UnitTestResult {
     return comment;
   }
 
-  public void setComment( String comment ) {
+  public void setComment(String comment) {
     this.comment = comment;
   }
 
   public static final IRowMeta getRowMeta() {
     IRowMeta rowMeta = new RowMeta();
 
-    rowMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "UnitTestResult.FieldName.PipelineName" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "UnitTestResult.FieldName.UnitTestName" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "UnitTestResult.FieldName.DataSetName" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "UnitTestResult.FieldName.TransformName" ) ) );
-    rowMeta.addValueMeta( new ValueMetaBoolean( BaseMessages.getString( PKG, "UnitTestResult.FieldName.Error" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "UnitTestResult.FieldName.Comment" ) ) );
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "UnitTestResult.FieldName.PipelineName")));
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "UnitTestResult.FieldName.UnitTestName")));
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "UnitTestResult.FieldName.DataSetName")));
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "UnitTestResult.FieldName.TransformName")));
+    rowMeta.addValueMeta(
+        new ValueMetaBoolean(BaseMessages.getString(PKG, "UnitTestResult.FieldName.Error")));
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "UnitTestResult.FieldName.Comment")));
 
     return rowMeta;
   }
 
-  public static final List<Object[]> getRowData( List<UnitTestResult> results ) {
+  public static final List<Object[]> getRowData(List<UnitTestResult> results) {
     List<Object[]> rows = new ArrayList<>();
     IRowMeta rowMeta = getRowMeta();
-    for ( UnitTestResult result : results ) {
+    for (UnitTestResult result : results) {
       int index = 0;
-      Object[] row = RowDataUtil.allocateRowData( rowMeta.size() );
-      row[ index++ ] = result.getPipelineName();
-      row[ index++ ] = result.getUnitTestName();
-      row[ index++ ] = result.getDataSetName();
-      row[ index++ ] = result.getTransformName();
-      row[ index++ ] = result.isError();
-      row[ index++ ] = result.getComment();
-      rows.add( row );
+      Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+      row[index++] = result.getPipelineName();
+      row[index++] = result.getUnitTestName();
+      row[index++] = result.getDataSetName();
+      row[index++] = result.getTransformName();
+      row[index++] = result.isError();
+      row[index++] = result.getComment();
+      rows.add(row);
     }
     return rows;
   }
-
 }

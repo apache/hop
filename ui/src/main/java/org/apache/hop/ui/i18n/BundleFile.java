@@ -38,98 +38,114 @@ public class BundleFile extends ChangedFlag {
   private String locale;
   private Map<String, String> contents;
 
-  public BundleFile( String filename, String packageName, String locale, Map<String, String> contents ) {
+  public BundleFile(
+      String filename, String packageName, String locale, Map<String, String> contents) {
     this.filename = filename;
     this.packageName = packageName;
     this.locale = locale;
     this.contents = contents;
   }
 
-  public BundleFile( String filename, String packageName, String locale ) throws IOException {
-    this( filename, packageName, locale, new HashMap<>() );
-    Properties properties = new Properties();    
-    properties.load( new FileInputStream( filename ) );
-    for ( String key : properties.stringPropertyNames() ) {
-      contents.put( key, properties.getProperty( key ) );
+  public BundleFile(String filename, String packageName, String locale) throws IOException {
+    this(filename, packageName, locale, new HashMap<>());
+    Properties properties = new Properties();
+    properties.load(new FileInputStream(filename));
+    for (String key : properties.stringPropertyNames()) {
+      contents.put(key, properties.getProperty(key));
     }
   }
 
-  public String get( String key ) {
-    return contents.get( key );
+  public String get(String key) {
+    return contents.get(key);
   }
 
-  public void put( String key, String value ) {
-    contents.put( key, value );
+  public void put(String key, String value) {
+    contents.put(key, value);
     setChanged();
   }
 
-  public void remove( String key ) {
-    contents.remove( key );
+  public void remove(String key) {
+    contents.remove(key);
     setChanged();
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     BundleFile that = (BundleFile) o;
-    return filename.equals( that.filename );
+    return filename.equals(that.filename);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( filename );
+  @Override
+  public int hashCode() {
+    return Objects.hash(filename);
   }
 
-  /**
-   * Write the contents to file
-   */
+  /** Write the contents to file */
   public void write() throws HopException {
     try {
-      File file = new File( filename );
-      if ( !file.exists() ) {
+      File file = new File(filename);
+      if (!file.exists()) {
         File parent = file.getParentFile();
-        if ( !parent.exists() ) {          
+        if (!parent.exists()) {
           // create the messages folder
-          parent.mkdirs(); 
+          parent.mkdirs();
         }
       }
-      
+
       // Use SortedProperties to automatically sort on key
-      Properties properties = new SortedProperties();         
-      for ( String key : contents.keySet() ) {
-        properties.put( key, contents.get( key ) );
+      Properties properties = new SortedProperties();
+      for (String key : contents.keySet()) {
+        properties.put(key, contents.get(key));
       }
 
-      String licenseText = "\n"
-        + " Licensed to the Apache Software Foundation (ASF) under one or more\n"
-        + " contributor license agreements.  See the NOTICE file distributed with\n"
-        + " this work for additional information regarding copyright ownership.\n"
-        + " The ASF licenses this file to You under the Apache License, Version 2.0\n"
-        + " (the \"License\"); you may not use this file except in compliance with\n"
-        + " the License.  You may obtain a copy of the License at\n"
-        + "\n"
-        + "       http://www.apache.org/licenses/LICENSE-2.0\n"
-        + "\n"
-        + " Unless required by applicable law or agreed to in writing, software\n"
-        + " distributed under the License is distributed on an \"AS IS\" BASIS,\n"
-        + " WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
-        + " See the License for the specific language governing permissions and\n"
-        + " limitations under the License.\n"
-        + "\n";
+      String licenseText =
+          "\n"
+              + " Licensed to the Apache Software Foundation (ASF) under one or more\n"
+              + " contributor license agreements.  See the NOTICE file distributed with\n"
+              + " this work for additional information regarding copyright ownership.\n"
+              + " The ASF licenses this file to You under the Apache License, Version 2.0\n"
+              + " (the \"License\"); you may not use this file except in compliance with\n"
+              + " the License.  You may obtain a copy of the License at\n"
+              + "\n"
+              + "       http://www.apache.org/licenses/LICENSE-2.0\n"
+              + "\n"
+              + " Unless required by applicable law or agreed to in writing, software\n"
+              + " distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+              + " WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
+              + " See the License for the specific language governing permissions and\n"
+              + " limitations under the License.\n"
+              + "\n";
 
-      String comment = "File generated by Hop Translator for package '" + packageName + "' in locale '" + locale + "'" + Const.CR + Const.CR;
-      
-      FileOutputStream fileOutputStream = new FileOutputStream( file );
-      properties.store( fileOutputStream, licenseText+comment );
+      String comment =
+          "File generated by Hop Translator for package '"
+              + packageName
+              + "' in locale '"
+              + locale
+              + "'"
+              + Const.CR
+              + Const.CR;
+
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
+      properties.store(fileOutputStream, licenseText + comment);
       fileOutputStream.close();
-      setChanged( false );
-    } catch ( IOException e ) {
-      throw new HopException( "Unable to save bundle (package: '"+packageName+"', locale: '"+locale+"' to file '"+filename+"'", e );
+      setChanged(false);
+    } catch (IOException e) {
+      throw new HopException(
+          "Unable to save bundle (package: '"
+              + packageName
+              + "', locale: '"
+              + locale
+              + "' to file '"
+              + filename
+              + "'",
+          e);
     }
-
   }
 
   /**
@@ -141,10 +157,8 @@ public class BundleFile extends ChangedFlag {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -157,10 +171,8 @@ public class BundleFile extends ChangedFlag {
     return packageName;
   }
 
-  /**
-   * @param packageName The packageName to set
-   */
-  public void setPackageName( String packageName ) {
+  /** @param packageName The packageName to set */
+  public void setPackageName(String packageName) {
     this.packageName = packageName;
   }
 
@@ -173,10 +185,8 @@ public class BundleFile extends ChangedFlag {
     return locale;
   }
 
-  /**
-   * @param locale The locale to set
-   */
-  public void setLocale( String locale ) {
+  /** @param locale The locale to set */
+  public void setLocale(String locale) {
     this.locale = locale;
   }
 
@@ -189,10 +199,8 @@ public class BundleFile extends ChangedFlag {
     return contents;
   }
 
-  /**
-   * @param contents The contents to set
-   */
-  public void setContents( Map<String, String> contents ) {
+  /** @param contents The contents to set */
+  public void setContents(Map<String, String> contents) {
     this.contents = contents;
   }
 }

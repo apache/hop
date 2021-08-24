@@ -27,15 +27,15 @@ public class JoinRowsMetaInjectionTest extends BaseMetadataInjectionTest<JoinRow
 
   @Before
   public void setup() throws Exception {
-    setup( new JoinRowsMeta() );
+    setup(new JoinRowsMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "TEMP_DIR", () -> meta.getDirectory() );
-    check( "TEMP_FILE_PREFIX", () -> meta.getPrefix() );
-    check( "MAX_CACHE_SIZE", () -> meta.getCacheSize() );
-    check( "MAIN_TRANSFORM", () -> meta.getMainTransformName() );
-    skipPropertyTest( "CONDITION" );
+    check("TEMP_DIR", () -> meta.getDirectory());
+    check("TEMP_FILE_PREFIX", () -> meta.getPrefix());
+    check("MAX_CACHE_SIZE", () -> meta.getCacheSize());
+    check("MAIN_TRANSFORM", () -> meta.getMainTransformName());
+    skipPropertyTest("CONDITION");
   }
 }

@@ -20,53 +20,53 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-tech</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-tech</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Technology Azure</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Hop Assemblies Plugins Technology Azure</name>
-  <description></description>
+    <properties>
+        <azure-storage.version>8.6.6</azure-storage.version>
+        <azure-eventhubs.version>3.2.2</azure-eventhubs.version>
+    </properties>
 
-  <properties>
-    <azure-storage.version>8.6.6</azure-storage.version>
-    <azure-eventhubs.version>3.2.2</azure-eventhubs.version>
-  </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-tech-azure</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-plugins-tech-azure</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
+        <!-- Azure VFS -->
 
-    <!-- Azure VFS -->
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-storage</artifactId>
+            <version>${azure-storage.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.microsoft.azure</groupId>
-      <artifactId>azure-storage</artifactId>
-      <version>${azure-storage.version}</version>
-    </dependency>
+        <!-- Azure Event Hubs -->
 
-    <!-- Azure Event Hubs -->
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-eventhubs</artifactId>
+            <version>${azure-eventhubs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-eventhubs-eph</artifactId>
+            <version>${azure-eventhubs.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.microsoft.azure</groupId>
-      <artifactId>azure-eventhubs</artifactId>
-      <version>${azure-eventhubs.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.microsoft.azure</groupId>
-      <artifactId>azure-eventhubs-eph</artifactId>
-      <version>${azure-eventhubs.version}</version>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 
 </project>

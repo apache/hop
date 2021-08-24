@@ -34,41 +34,48 @@ import java.util.List;
  */
 public class FileDoesNotExistValidator extends AbstractFileValidator {
 
-  private static final String KEY_FAIL_IF_EXISTS = "org.apache.hop.workflow.actions.createfile.failIfExists";
+  private static final String KEY_FAIL_IF_EXISTS =
+      "org.apache.hop.workflow.actions.createfile.failIfExists";
 
   public static final FileDoesNotExistValidator INSTANCE = new FileDoesNotExistValidator();
 
   static final String VALIDATOR_NAME = "fileDoesNotExist";
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
 
-    String filename = ValidatorUtils.getValueAsString( source, propertyName );
-    IVariables variables = getVariableSpace( source, propertyName, remarks, context );
-    boolean failIfExists = getFailIfExists( source, propertyName, remarks, context );
+    String filename = ValidatorUtils.getValueAsString(source, propertyName);
+    IVariables variables = getVariableSpace(source, propertyName, remarks, context);
+    boolean failIfExists = getFailIfExists(source, propertyName, remarks, context);
 
-    if ( null == variables ) {
+    if (null == variables) {
       return false;
     }
 
-    String realFileName = variables.resolve( filename );
+    String realFileName = variables.resolve(filename);
     FileObject fileObject = null;
     try {
-      fileObject = HopVfs.getFileObject( realFileName );
+      fileObject = HopVfs.getFileObject(realFileName);
 
-      if ( fileObject.exists() && failIfExists ) {
+      if (fileObject.exists() && failIfExists) {
         ActionValidatorUtils.addFailureRemark(
-          source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(
-            context, VALIDATOR_NAME ) );
+            source,
+            propertyName,
+            VALIDATOR_NAME,
+            remarks,
+            ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
         return false;
       }
       try {
         fileObject.close(); // Just being paranoid
-      } catch ( IOException ignored ) {
+      } catch (IOException ignored) {
         // Ignore close errors
       }
-    } catch ( Exception e ) {
-      ActionValidatorUtils.addExceptionRemark( source, propertyName, VALIDATOR_NAME, remarks, e );
+    } catch (Exception e) {
+      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
       return false;
     }
     return true;
@@ -78,16 +85,19 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
     return VALIDATOR_NAME;
   }
 
-  public static ValidatorContext putFailIfExists( boolean failIfExists ) {
+  public static ValidatorContext putFailIfExists(boolean failIfExists) {
     ValidatorContext context = new ValidatorContext();
-    context.put( KEY_FAIL_IF_EXISTS, failIfExists );
+    context.put(KEY_FAIL_IF_EXISTS, failIfExists);
     return context;
   }
 
-  protected boolean getFailIfExists( ICheckResultSource source, String propertyName,
-                                     List<ICheckResult> remarks, ValidatorContext context ) {
-    Object obj = context.get( KEY_FAIL_IF_EXISTS );
-    if ( obj instanceof Boolean ) {
+  protected boolean getFailIfExists(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
+    Object obj = context.get(KEY_FAIL_IF_EXISTS);
+    if (obj instanceof Boolean) {
       return (Boolean) obj;
     } else {
       // default is false
@@ -95,8 +105,7 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
     }
   }
 
-  public static void putFailIfExists( ValidatorContext context, boolean failIfExists ) {
-    context.put( KEY_FAIL_IF_EXISTS, failIfExists );
+  public static void putFailIfExists(ValidatorContext context, boolean failIfExists) {
+    context.put(KEY_FAIL_IF_EXISTS, failIfExists);
   }
-
 }

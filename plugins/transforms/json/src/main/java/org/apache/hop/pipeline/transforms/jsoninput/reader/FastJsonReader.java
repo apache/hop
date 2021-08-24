@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.ParseContext;
-import com.jayway.jsonpath.ReadContext;
+import com.jayway.jsonpath.*;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -59,32 +55,34 @@ public class FastJsonReader implements IJsonReader {
   private JsonPath[] paths = null;
   private ILogChannel log;
 
-  private static final Option[] DEFAULT_OPTIONS =
-    { Option.SUPPRESS_EXCEPTIONS, Option.ALWAYS_RETURN_LIST, Option.DEFAULT_PATH_LEAF_TO_NULL };
+  private static final Option[] DEFAULT_OPTIONS = {
+    Option.SUPPRESS_EXCEPTIONS, Option.ALWAYS_RETURN_LIST, Option.DEFAULT_PATH_LEAF_TO_NULL
+  };
 
-  protected FastJsonReader( ILogChannel log ) throws HopException {
+  protected FastJsonReader(ILogChannel log) throws HopException {
     this.ignoreMissingPath = false;
     this.defaultPathLeafToNull = true;
-    this.jsonConfiguration = Configuration.defaultConfiguration().addOptions( DEFAULT_OPTIONS );
+    this.jsonConfiguration = Configuration.defaultConfiguration().addOptions(DEFAULT_OPTIONS);
     this.log = log;
   }
 
-  public FastJsonReader( JsonInputField[] fields, ILogChannel log ) throws HopException {
-    this( log );
-    setFields( fields );
+  public FastJsonReader(JsonInputField[] fields, ILogChannel log) throws HopException {
+    this(log);
+    setFields(fields);
   }
 
-  public FastJsonReader( JsonInputField[] fields, boolean defaultPathLeafToNull, ILogChannel log )
+  public FastJsonReader(JsonInputField[] fields, boolean defaultPathLeafToNull, ILogChannel log)
       throws HopException {
-    this( fields, log );
-    setDefaultPathLeafToNull( defaultPathLeafToNull );
+    this(fields, log);
+    setDefaultPathLeafToNull(defaultPathLeafToNull);
   }
 
-  private void setDefaultPathLeafToNull( boolean value ) {
-    if ( value != this.defaultPathLeafToNull ) {
+  private void setDefaultPathLeafToNull(boolean value) {
+    if (value != this.defaultPathLeafToNull) {
       this.defaultPathLeafToNull = value;
-      if ( !this.defaultPathLeafToNull ) {
-        this.jsonConfiguration = deleteOptionFromConfiguration( this.jsonConfiguration, Option.DEFAULT_PATH_LEAF_TO_NULL );
+      if (!this.defaultPathLeafToNull) {
+        this.jsonConfiguration =
+            deleteOptionFromConfiguration(this.jsonConfiguration, Option.DEFAULT_PATH_LEAF_TO_NULL);
       }
     }
   }
@@ -93,54 +91,58 @@ public class FastJsonReader implements IJsonReader {
     return defaultPathLeafToNull;
   }
 
-  private Configuration deleteOptionFromConfiguration( Configuration config, Option option ) {
+  private Configuration deleteOptionFromConfiguration(Configuration config, Option option) {
     Configuration currentConf = config;
-    if ( currentConf != null ) {
-      EnumSet<Option> currentOptions = EnumSet.noneOf( Option.class );
-      currentOptions.addAll( currentConf.getOptions() );
-      if ( currentOptions.remove( option ) ) {
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "JsonReader.Debug.Configuration.Option.Delete", option ) );
+    if (currentConf != null) {
+      EnumSet<Option> currentOptions = EnumSet.noneOf(Option.class);
+      currentOptions.addAll(currentConf.getOptions());
+      if (currentOptions.remove(option)) {
+        if (log.isDebug()) {
+          log.logDebug(
+              BaseMessages.getString(PKG, "JsonReader.Debug.Configuration.Option.Delete", option));
         }
-        currentConf = Configuration.defaultConfiguration().addOptions( currentOptions.toArray( new Option[currentOptions.size()] ) );
+        currentConf =
+            Configuration.defaultConfiguration()
+                .addOptions(currentOptions.toArray(new Option[currentOptions.size()]));
       }
     }
-    if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "JsonReader.Debug.Configuration.Options", currentConf.getOptions() ) );
+    if (log.isDebug()) {
+      log.logDebug(
+          BaseMessages.getString(
+              PKG, "JsonReader.Debug.Configuration.Options", currentConf.getOptions()));
     }
     return currentConf;
   }
-
 
   Configuration getJsonConfiguration() {
     return jsonConfiguration;
   }
 
-  public void setIgnoreMissingPath( boolean value ) {
+  public void setIgnoreMissingPath(boolean value) {
     this.ignoreMissingPath = value;
   }
 
   private ParseContext getParseContext() {
-    return JsonPath.using( jsonConfiguration );
+    return JsonPath.using(jsonConfiguration);
   }
 
   private ReadContext getReadContext() {
     return jsonReadContext;
   }
 
-  private static JsonPath[] compilePaths( JsonInputField[] fields ) {
-    JsonPath[] paths = new JsonPath[ fields.length ];
+  private static JsonPath[] compilePaths(JsonInputField[] fields) {
+    JsonPath[] paths = new JsonPath[fields.length];
     int i = 0;
-    for ( JsonInputField field : fields ) {
-      paths[ i++ ] = JsonPath.compile( field.getPath() );
+    for (JsonInputField field : fields) {
+      paths[i++] = JsonPath.compile(field.getPath());
     }
     return paths;
   }
 
-  protected void readInput( InputStream is ) throws HopException {
-    jsonReadContext = getParseContext().parse( is, JSON_CHARSET );
-    if ( jsonReadContext == null ) {
-      throw new HopException( BaseMessages.getString( PKG, "JsonReader.Error.ReadUrl.Null" ) );
+  protected void readInput(InputStream is) throws HopException {
+    jsonReadContext = getParseContext().parse(is, JSON_CHARSET);
+    if (jsonReadContext == null) {
+      throw new HopException(BaseMessages.getString(PKG, "JsonReader.Error.ReadUrl.Null"));
     }
   }
 
@@ -149,28 +151,28 @@ public class FastJsonReader implements IJsonReader {
   }
 
   @Override
-  public void setFields( JsonInputField[] fields ) throws HopException {
+  public void setFields(JsonInputField[] fields) throws HopException {
     this.fields = fields;
-    this.paths = compilePaths( fields );
+    this.paths = compilePaths(fields);
   }
 
   @Override
-  public IRowSet parse( InputStream in ) throws HopException {
-    readInput( in );
+  public IRowSet parse(InputStream in) throws HopException {
+    readInput(in);
     List<List<?>> results = evalCombinedResult();
-    int len = results.isEmpty() ? 0 : results.get( 0 ).size();
-    if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "JsonInput.Log.NrRecords", len ) );
+    int len = results.isEmpty() ? 0 : results.get(0).size();
+    if (log.isDetailed()) {
+      log.logDetailed(BaseMessages.getString(PKG, "JsonInput.Log.NrRecords", len));
     }
-    if ( len == 0 ) {
+    if (len == 0) {
       return getEmptyResponse();
     }
-    return new TransposedRowSet( results );
+    return new TransposedRowSet(results);
   }
 
   private IRowSet getEmptyResponse() {
     IRowSet nullInputResponse = new SingleRowRowSet();
-    nullInputResponse.putRow( null, new Object[ fields.length ] );
+    nullInputResponse.putRow(null, new Object[fields.length]);
     nullInputResponse.setDone();
     return nullInputResponse;
   }
@@ -179,15 +181,13 @@ public class FastJsonReader implements IJsonReader {
     private List<List<?>> results;
     private final int rowCount;
     private int rowNbr;
-    /**
-     * if should skip null-only rows; size won't be exact if set
-     */
+    /** if should skip null-only rows; size won't be exact if set */
     private boolean cullNulls = true;
 
-    public TransposedRowSet( List<List<?>> results ) {
+    public TransposedRowSet(List<List<?>> results) {
       super();
       this.results = results;
-      this.rowCount = results.isEmpty() ? 0 : results.get( 0 ).size();
+      this.rowCount = results.isEmpty() ? 0 : results.get(0).size();
     }
 
     @Override
@@ -195,22 +195,22 @@ public class FastJsonReader implements IJsonReader {
       boolean allNulls = cullNulls && rowCount > 1;
       Object[] rowData = null;
       do {
-        if ( rowNbr >= rowCount ) {
+        if (rowNbr >= rowCount) {
           results.clear();
           return null;
         }
         rowData = new Object[results.size()];
-        for ( int col = 0; col < results.size(); col++ ) {
-          if ( results.get( col ).size() == 0 ) {
+        for (int col = 0; col < results.size(); col++) {
+          if (results.get(col).size() == 0) {
             rowData[col] = null;
             continue;
           }
-          Object val = results.get( col ).get( rowNbr );
+          Object val = results.get(col).get(rowNbr);
           rowData[col] = val;
           allNulls &= val == null;
         }
         rowNbr++;
-      } while ( allNulls );
+      } while (allNulls);
       return rowData;
     }
 
@@ -234,18 +234,25 @@ public class FastJsonReader implements IJsonReader {
   private List<List<?>> evalCombinedResult() throws JsonInputException {
     int lastSize = -1;
     String prevPath = null;
-    List<List<?>> results = new ArrayList<>( paths.length );
+    List<List<?>> results = new ArrayList<>(paths.length);
     int i = 0;
-    for ( JsonPath path : paths ) {
-      List<Object> result = getReadContext().read( path );
-      if ( result.size() != lastSize && lastSize > 0 & result.size() != 0 ) {
-        throw new JsonInputException( BaseMessages.getString(
-            PKG, "JsonInput.Error.BadStructure", result.size(), fields[i].getPath(), prevPath, lastSize ) );
+    for (JsonPath path : paths) {
+      List<Object> result = getReadContext().read(path);
+      if (result.size() != lastSize && lastSize > 0 & result.size() != 0) {
+        throw new JsonInputException(
+            BaseMessages.getString(
+                PKG,
+                "JsonInput.Error.BadStructure",
+                result.size(),
+                fields[i].getPath(),
+                prevPath,
+                lastSize));
       }
-      if ( !isIgnoreMissingPath() && ( isAllNull( result ) || result.size() == 0 ) ) {
-        throw new JsonInputException( BaseMessages.getString( PKG, "JsonReader.Error.CanNotFindPath", fields[i].getPath() ) );
+      if (!isIgnoreMissingPath() && (isAllNull(result) || result.size() == 0)) {
+        throw new JsonInputException(
+            BaseMessages.getString(PKG, "JsonReader.Error.CanNotFindPath", fields[i].getPath()));
       }
-      results.add( result );
+      results.add(result);
       lastSize = result.size();
       prevPath = fields[i].getPath();
       i++;
@@ -253,13 +260,12 @@ public class FastJsonReader implements IJsonReader {
     return results;
   }
 
-  public static boolean isAllNull( Iterable<?> list ) {
-    for ( Object obj : list ) {
-      if ( obj != null ) {
+  public static boolean isAllNull(Iterable<?> list) {
+    for (Object obj : list) {
+      if (obj != null) {
         return false;
       }
     }
     return true;
   }
-
 }

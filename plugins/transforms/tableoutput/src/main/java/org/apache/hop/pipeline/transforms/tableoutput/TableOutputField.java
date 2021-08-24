@@ -25,7 +25,7 @@ public class TableOutputField {
 
   public TableOutputField() {}
 
-  public TableOutputField( String fieldDatabase, String fieldStream) {
+  public TableOutputField(String fieldDatabase, String fieldStream) {
     this.fieldDatabase = fieldDatabase;
     this.fieldStream = fieldStream;
   }

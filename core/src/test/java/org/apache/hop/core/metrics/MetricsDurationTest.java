@@ -31,22 +31,22 @@ public class MetricsDurationTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
-  @SuppressWarnings( "deprecation" )
+  @SuppressWarnings("deprecation")
   public void test() {
-    Date startDate = new Date( ( 2016 - 1900 ), Calendar.JANUARY, 10 );
-    Long duration = Long.valueOf( 4L );
+    Date startDate = new Date((2016 - 1900), Calendar.JANUARY, 10);
+    Long duration = Long.valueOf(4L);
     MetricsDuration metric =
-      new MetricsDuration( startDate, "theDesc", "theSubj", "theLogChannel", duration );
+        new MetricsDuration(startDate, "theDesc", "theSubj", "theLogChannel", duration);
 
-    assertEquals( "theDesc", metric.getDescription() );
-    assertEquals( "theSubj", metric.getSubject() );
-    assertEquals( "theLogChannel", metric.getLogChannelId() );
-    assertEquals( startDate, metric.getDate() );
-    assertEquals( duration, metric.getDuration() );
+    assertEquals("theDesc", metric.getDescription());
+    assertEquals("theSubj", metric.getSubject());
+    assertEquals("theLogChannel", metric.getLogChannelId());
+    assertEquals(startDate, metric.getDate());
+    assertEquals(duration, metric.getDuration());
 
-    assertEquals( Long.valueOf( 1L ), metric.getCount() );
+    assertEquals(Long.valueOf(1L), metric.getCount());
     metric.incrementCount();
-    assertEquals( Long.valueOf( 2L ), metric.getCount() );
-    assertEquals( new Date( startDate.getTime() + duration ), metric.getEndDate() );
+    assertEquals(Long.valueOf(2L), metric.getCount());
+    assertEquals(new Date(startDate.getTime() + duration), metric.getEndDate());
   }
 }

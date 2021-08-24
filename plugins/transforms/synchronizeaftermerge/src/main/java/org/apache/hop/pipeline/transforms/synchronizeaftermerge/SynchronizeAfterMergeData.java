@@ -25,11 +25,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Performs an insert/update/delete depending on the value of a field.
@@ -49,17 +45,16 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
 
   // List<String> updateColumns = new ArrayList<>();
   /**
-   * Mapping between the SQL and the actual prepared statement. Normally this is only one, but in case we have more then
-   * one, it's convenient to have this.
+   * Mapping between the SQL and the actual prepared statement. Normally this is only one, but in
+   * case we have more then one, it's convenient to have this.
    */
   public Map<String, PreparedStatement> preparedStatements;
+
   public String realTableName;
   public String realSchemaName;
   public String realSchemaTable;
 
-  /**
-   * Use batch mode or not?
-   */
+  /** Use batch mode or not? */
   public boolean batchMode;
 
   PreparedStatement insertStatement;
@@ -96,9 +91,7 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
 
   public List<Object[]> batchBuffer;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public SynchronizeAfterMergeData() {
     super();
     insertStatement = null;
@@ -122,6 +115,5 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
     commitCounterMap = new HashMap<>();
     batchBuffer = new ArrayList<>();
     releaseSavepoint = true;
-
   }
 }

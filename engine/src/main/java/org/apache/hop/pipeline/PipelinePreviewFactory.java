@@ -19,39 +19,42 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class PipelinePreviewFactory {
-  public static final PipelineMeta generatePreviewPipeline( IHopMetadataProvider metadataProvider, ITransformMeta oneMeta,
-                                                            String oneTransformName ) {
+  public static final PipelineMeta generatePreviewPipeline(
+      IHopMetadataProvider metadataProvider, ITransformMeta oneMeta, String oneTransformName) {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     PipelineMeta previewMeta = new PipelineMeta();
 
     // Pass the MetaStore to look up shared metadata at runtime
     //
-    previewMeta.setMetadataProvider( metadataProvider );
+    previewMeta.setMetadataProvider(metadataProvider);
 
     // The following operation resets the internal variables!
     //
-    previewMeta.setName( "Preview pipeline for " + oneTransformName );
+    previewMeta.setName("Preview pipeline for " + oneTransformName);
 
     // At it to the first transform.
-    TransformMeta one = new TransformMeta( registry.getPluginId( TransformPluginType.class, oneMeta ), oneTransformName, oneMeta );
-    one.setLocation( 50, 50 );
-    previewMeta.addTransform( one );
+    TransformMeta one =
+        new TransformMeta(
+            registry.getPluginId(TransformPluginType.class, oneMeta), oneTransformName, oneMeta);
+    one.setLocation(50, 50);
+    previewMeta.addTransform(one);
 
     DummyMeta twoMeta = new DummyMeta();
-    TransformMeta two = new TransformMeta( registry.getPluginId( TransformPluginType.class, twoMeta ), "dummy", twoMeta );
-    two.setLocation( 250, 50 );
-    previewMeta.addTransform( two );
+    TransformMeta two =
+        new TransformMeta(
+            registry.getPluginId(TransformPluginType.class, twoMeta), "dummy", twoMeta);
+    two.setLocation(250, 50);
+    previewMeta.addTransform(two);
 
-    PipelineHopMeta hop = new PipelineHopMeta( one, two );
-    previewMeta.addPipelineHop( hop );
+    PipelineHopMeta hop = new PipelineHopMeta(one, two);
+    previewMeta.addPipelineHop(hop);
 
     return previewMeta;
   }

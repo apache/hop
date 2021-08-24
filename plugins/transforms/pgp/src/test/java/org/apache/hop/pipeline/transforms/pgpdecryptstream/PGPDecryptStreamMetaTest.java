@@ -40,9 +40,15 @@ public class PGPDecryptStreamMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "gPGLocation", "passphrase", "passphraseFieldName", "passphraseFieldName", "streamField", "resultFieldName" );
+        Arrays.asList(
+            "gPGLocation",
+            "passphrase",
+            "passphraseFieldName",
+            "passphraseFieldName",
+            "streamField",
+            "resultFieldName");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
@@ -51,7 +57,8 @@ public class PGPDecryptStreamMetaTest {
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test

@@ -18,17 +18,13 @@
 package org.apache.hop.workflow.actions.eval;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class WorkflowActionEvalLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionEval> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,13 +36,13 @@ public class WorkflowActionEvalLoadSaveTest extends WorkflowActionLoadSaveTestSu
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "script" } );
+    return Arrays.asList(new String[] {"script"});
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put( "script", new MultiLineStringFieldLoadSaveValidator() );
+    validators.put("script", new MultiLineStringFieldLoadSaveValidator());
     return validators;
   }
 
@@ -56,15 +52,14 @@ public class WorkflowActionEvalLoadSaveTest extends WorkflowActionLoadSaveTestSu
     public String getTestObject() {
       String lineTerminator = Const.isWindows() ? "\n" : Const.CR;
       StringBuilder text = new StringBuilder();
-      int lines = new Random().nextInt( 10 ) + 1;
-      for ( int i = 0; i < lines; i++ ) {
-        text.append( super.getTestObject() );
-        if ( i + 1 < lines ) {
-          text.append( lineTerminator );
+      int lines = new Random().nextInt(10) + 1;
+      for (int i = 0; i < lines; i++) {
+        text.append(super.getTestObject());
+        if (i + 1 < lines) {
+          text.append(lineTerminator);
         }
       }
       return text.toString();
     }
-
   }
 }

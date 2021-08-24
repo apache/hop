@@ -28,11 +28,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * WsdlTypes provides utilities for getting information about the &lt;types&gt; section of the WSDL.
@@ -53,14 +49,14 @@ public final class WsdlTypes implements Serializable {
    *
    * @param wsdlDefinition The WSDL definition.
    */
-  @SuppressWarnings( "unchecked" )
-  protected WsdlTypes( Definition wsdlDefinition ) {
+  @SuppressWarnings("unchecked")
+  protected WsdlTypes(Definition wsdlDefinition) {
 
     Types = wsdlDefinition.getTypes();
     _targetNamespace = wsdlDefinition.getTargetNamespace();
     _prefixMappings = wsdlDefinition.getNamespaces();
-    _elementFormQualifiedNamespaces = new HashSet<>( getElementFormQualifiedNamespaces() );
-    NamedComplexTypes = new WsdlComplexTypes( this );
+    _elementFormQualifiedNamespaces = new HashSet<>(getElementFormQualifiedNamespaces());
+    NamedComplexTypes = new WsdlComplexTypes(this);
   }
 
   /**
@@ -68,31 +64,32 @@ public final class WsdlTypes implements Serializable {
    *
    * @param elementName Name of element to find.
    * @return The element node.
-   * @throws HopTransformException If schema or element in schema can't be found for the given element name
+   * @throws HopTransformException If schema or element in schema can't be found for the given
+   *     element name
    */
-  protected Element findNamedElement( QName elementName ) throws HopTransformException {
+  protected Element findNamedElement(QName elementName) throws HopTransformException {
 
     Element namedElement = null;
-    Schema s = getSchema( elementName.getNamespaceURI() );
-    if ( s == null ) {
-      throw new HopTransformException( BaseMessages
-        .getString( PKG, "Wsdl.Error.MissingSchemaException", elementName ) );
+    Schema s = getSchema(elementName.getNamespaceURI());
+    if (s == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "Wsdl.Error.MissingSchemaException", elementName));
     }
 
     Element schemaRoot = s.getElement();
-    List<Element> elements = DomUtils.getChildElementsByName( schemaRoot, WsdlUtils.ELEMENT_NAME );
+    List<Element> elements = DomUtils.getChildElementsByName(schemaRoot, WsdlUtils.ELEMENT_NAME);
 
-    for ( Element e : elements ) {
-      String schemaElementName = e.getAttribute( WsdlUtils.NAME_ATTR );
-      if ( elementName.getLocalPart().equals( schemaElementName ) ) {
+    for (Element e : elements) {
+      String schemaElementName = e.getAttribute(WsdlUtils.NAME_ATTR);
+      if (elementName.getLocalPart().equals(schemaElementName)) {
         namedElement = e;
         break;
       }
     }
 
-    if ( namedElement == null ) {
-      throw new HopTransformException( BaseMessages.getString(
-        PKG, "Wsdl.Error.ElementMissingException", elementName ) );
+    if (namedElement == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "Wsdl.Error.ElementMissingException", elementName));
     }
     return namedElement;
   }
@@ -103,10 +100,10 @@ public final class WsdlTypes implements Serializable {
    * @param typeName Name of the type to find.
    * @return null if type not found.
    */
-  protected Element findNamedType( QName typeName ) {
+  protected Element findNamedType(QName typeName) {
 
-    Schema s = getSchema( typeName.getNamespaceURI() );
-    if ( s == null ) {
+    Schema s = getSchema(typeName.getNamespaceURI());
+    if (s == null) {
       return null;
     }
 
@@ -114,13 +111,13 @@ public final class WsdlTypes implements Serializable {
 
     // get all simple and complex types defined at the top-level.
     //
-    List<Element> types = DomUtils.getChildElementsByName( schemaRoot, WsdlUtils.COMPLEX_TYPE_NAME );
-    types.addAll( DomUtils.getChildElementsByName( schemaRoot, WsdlUtils.SIMPLE_TYPE_NAME ) );
+    List<Element> types = DomUtils.getChildElementsByName(schemaRoot, WsdlUtils.COMPLEX_TYPE_NAME);
+    types.addAll(DomUtils.getChildElementsByName(schemaRoot, WsdlUtils.SIMPLE_TYPE_NAME));
 
     Element namedType = null;
-    for ( Element t : types ) {
-      String schemaTypeName = t.getAttribute( WsdlUtils.NAME_ATTR );
-      if ( typeName.getLocalPart().equals( schemaTypeName ) ) {
+    for (Element t : types) {
+      String schemaTypeName = t.getAttribute(WsdlUtils.NAME_ATTR);
+      if (typeName.getLocalPart().equals(schemaTypeName)) {
         namedType = t;
         break;
       }
@@ -147,20 +144,20 @@ public final class WsdlTypes implements Serializable {
   }
 
   /**
-   * Get the type qname for the type parameter. Resolve namespace references if present, if a namespace prefix is not
-   * found the WSDL's target namespace will be used.
+   * Get the type qname for the type parameter. Resolve namespace references if present, if a
+   * namespace prefix is not found the WSDL's target namespace will be used.
    *
    * @param type Name of type.
    * @return A QName for the type name.
    */
-  protected QName getTypeQName( String type ) {
+  protected QName getTypeQName(String type) {
 
-    if ( type.indexOf( ':' ) > -1 ) {
-      String prefix = type.substring( 0, type.indexOf( ':' ) );
-      type = type.substring( type.indexOf( ':' ) + 1 );
-      return new QName( _prefixMappings.get( prefix ), type );
+    if (type.indexOf(':') > -1) {
+      String prefix = type.substring(0, type.indexOf(':'));
+      type = type.substring(type.indexOf(':') + 1);
+      return new QName(_prefixMappings.get(prefix), type);
     } else {
-      return new QName( _targetNamespace, type );
+      return new QName(_targetNamespace, type);
     }
   }
 
@@ -170,10 +167,11 @@ public final class WsdlTypes implements Serializable {
    * @return A list of javax.wsdl.extension.schema.Schema elements.
    */
   protected List<ExtensibilityElement> getSchemas() {
-    if ( Types == null ) {
+    if (Types == null) {
       return Collections.emptyList();
     }
-    return WsdlUtils.findExtensibilityElements( (ElementExtensible) Types, WsdlUtils.SCHEMA_ELEMENT_NAME );
+    return WsdlUtils.findExtensibilityElements(
+        (ElementExtensible) Types, WsdlUtils.SCHEMA_ELEMENT_NAME);
   }
 
   /**
@@ -182,27 +180,28 @@ public final class WsdlTypes implements Serializable {
    * @param namespaceURI Namespace URI string.
    * @return true If element form is qualified.
    */
-  public boolean isElementFormQualified( String namespaceURI ) {
-    return _elementFormQualifiedNamespaces.contains( namespaceURI );
+  public boolean isElementFormQualified(String namespaceURI) {
+    return _elementFormQualifiedNamespaces.contains(namespaceURI);
   }
 
   /**
    * Build a list of schema target name spaces which are element form qualified.
    *
-   * @return All target name spaces for schemas defined in the WSDL which are element form qualified.
+   * @return All target name spaces for schemas defined in the WSDL which are element form
+   *     qualified.
    */
   private List<String> getElementFormQualifiedNamespaces() {
 
     List<String> namespaces = new ArrayList<>();
     List<ExtensibilityElement> schemas = getSchemas();
 
-    for ( ExtensibilityElement schema : schemas ) {
-      Element schemaElement = ( (Schema) schema ).getElement();
+    for (ExtensibilityElement schema : schemas) {
+      Element schemaElement = ((Schema) schema).getElement();
 
-      if ( schemaElement.hasAttribute( WsdlUtils.ELEMENT_FORM_DEFAULT_ATTR ) ) {
-        String v = schemaElement.getAttribute( WsdlUtils.ELEMENT_FORM_DEFAULT_ATTR );
-        if ( WsdlUtils.ELEMENT_FORM_QUALIFIED.equalsIgnoreCase( v ) ) {
-          namespaces.add( schemaElement.getAttribute( WsdlUtils.TARGET_NAMESPACE_ATTR ) );
+      if (schemaElement.hasAttribute(WsdlUtils.ELEMENT_FORM_DEFAULT_ATTR)) {
+        String v = schemaElement.getAttribute(WsdlUtils.ELEMENT_FORM_DEFAULT_ATTR);
+        if (WsdlUtils.ELEMENT_FORM_QUALIFIED.equalsIgnoreCase(v)) {
+          namespaces.add(schemaElement.getAttribute(WsdlUtils.TARGET_NAMESPACE_ATTR));
         }
       }
     }
@@ -215,18 +214,19 @@ public final class WsdlTypes implements Serializable {
    * @param targetNamespace target namespace of the schema to get.
    * @return null if not found.
    */
-  private Schema getSchema( String targetNamespace ) {
+  private Schema getSchema(String targetNamespace) {
 
-    if ( Types == null ) {
+    if (Types == null) {
       return null;
     }
 
-    List<ExtensibilityElement> schemas = WsdlUtils.findExtensibilityElements( (ElementExtensible) Types, "schema" );
+    List<ExtensibilityElement> schemas =
+        WsdlUtils.findExtensibilityElements((ElementExtensible) Types, "schema");
 
-    for ( ExtensibilityElement e : schemas ) {
-      Element schemaRoot = ( (Schema) e ).getElement();
-      String tns = schemaRoot.getAttribute( "targetNamespace" );
-      if ( targetNamespace.equals( tns ) ) {
+    for (ExtensibilityElement e : schemas) {
+      Element schemaRoot = ((Schema) e).getElement();
+      String tns = schemaRoot.getAttribute("targetNamespace");
+      if (targetNamespace.equals(tns)) {
         return (Schema) e;
       }
     }

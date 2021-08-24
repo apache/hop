@@ -17,34 +17,29 @@
 
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.injection.Injection;
 
-/**
- * Describes a single field in a text file
- *
- */
+/** Describes a single field in a text file */
 public class TokenReplacementField implements Cloneable {
-  @Injection(name="TOKEN_FIELDNAME")
+  @Injection(name = "TOKEN_FIELDNAME")
   private String name;
 
-    @Injection(name="TOKEN_NAME")
-    private String tokenName;
+  @Injection(name = "TOKEN_NAME")
+  private String tokenName;
 
- public TokenReplacementField( String name, String tokenName ) {
+  public TokenReplacementField(String name, String tokenName) {
     this.name = name;
     this.tokenName = tokenName;
   }
 
-  public TokenReplacementField() {
-  }
-  
-  public boolean equals( Object obj ) {
-    if( obj instanceof TokenReplacementField ) {
+  public TokenReplacementField() {}
+
+  public boolean equals(Object obj) {
+    if (obj instanceof TokenReplacementField) {
       TokenReplacementField field = (TokenReplacementField) obj;
 
-      return name.equals( field.getName() ) && tokenName.equals( field.tokenName );
+      return name.equals(field.getName()) && tokenName.equals(field.tokenName);
     }
     return false;
   }
@@ -52,13 +47,14 @@ public class TokenReplacementField implements Cloneable {
   public Object clone() {
     try {
       return super.clone();
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
 
   /**
    * Get the stream field name.
+   *
    * @return name
    */
   public String getName() {
@@ -67,32 +63,32 @@ public class TokenReplacementField implements Cloneable {
 
   /**
    * Set the stream field name.
+   *
    * @param fieldname the name of the field
    */
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
   /**
-   * Get the name of the token
-   * If the token name is null returns the stream field name
+   * Get the name of the token If the token name is null returns the stream field name
+   *
    * @return tokenName
    */
   public String getTokenName() {
-	  return Const.NVL( tokenName, name );
+    return Const.NVL(tokenName, name);
   }
 
   /**
    * Set the name of the token
+   *
    * @param tokenName the name of the token
    */
-  public void setTokenName( String tokenName ) {
-	  this.tokenName = tokenName;
+  public void setTokenName(String tokenName) {
+    this.tokenName = tokenName;
   }
 
   public String toString() {
     return name;
   }
-
-
 }

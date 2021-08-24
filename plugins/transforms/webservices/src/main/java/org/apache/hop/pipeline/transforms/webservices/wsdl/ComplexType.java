@@ -26,15 +26,16 @@ import java.util.Iterator;
 import java.util.List;
 
 /*
- This looks a little scary, but isn't so bad.  Pretty much all that needs to be done here is to
- parse a NAMED complex type in the wsdl's types section.  We really only care about the <element>'s
- contained within the complex type.  The semantics don't matter (choice, sequence, etc).  The end result
- should be a ComplexType object which contains only elements.  This type will be used during client
- type registration.
- */
+This looks a little scary, but isn't so bad.  Pretty much all that needs to be done here is to
+parse a NAMED complex type in the wsdl's types section.  We really only care about the <element>'s
+contained within the complex type.  The semantics don't matter (choice, sequence, etc).  The end result
+should be a ComplexType object which contains only elements.  This type will be used during client
+type registration.
+*/
 
 /**
- * A ComplexType contians a map of the elementName -> elementXmlType of all the elements in a named complex type.
+ * A ComplexType contians a map of the elementName -> elementXmlType of all the elements in a named
+ * complex type.
  */
 public final class ComplexType implements java.io.Serializable {
 
@@ -47,29 +48,29 @@ public final class ComplexType implements java.io.Serializable {
   /**
    * Create a new complex type for the specified element.
    *
-   * @param type      DOM element of the complex type.
+   * @param type DOM element of the complex type.
    * @param wsdlTypes Namespace resolver instance.
    */
-  ComplexType( Element type, WsdlTypes wsdlTypes ) {
+  ComplexType(Element type, WsdlTypes wsdlTypes) {
 
-    Name = type.getAttribute( "name" );
+    Name = type.getAttribute("name");
     _wsdlTypes = wsdlTypes;
 
     // annotation?, (simpleContent | complexContent
     // | ((group | all | choice | sequence)?, (attribute | attributeGroup)*, anyAttribute?))
     Element child;
-    if ( ( child = DomUtils.getChildElementByName( type, "simpleContent" ) ) != null ) {
-      processSimpleContent( child );
-    } else if ( ( child = DomUtils.getChildElementByName( type, "complexContent" ) ) != null ) {
-      processComplexContent( child );
-    } else if ( ( child = DomUtils.getChildElementByName( type, "group" ) ) != null ) {
-      processGroup( child );
-    } else if ( ( child = DomUtils.getChildElementByName( type, "all" ) ) != null ) {
-      processAll( child );
-    } else if ( ( child = DomUtils.getChildElementByName( type, "choice" ) ) != null ) {
-      processChoice( child );
-    } else if ( ( child = DomUtils.getChildElementByName( type, "sequence" ) ) != null ) {
-      processSequence( child );
+    if ((child = DomUtils.getChildElementByName(type, "simpleContent")) != null) {
+      processSimpleContent(child);
+    } else if ((child = DomUtils.getChildElementByName(type, "complexContent")) != null) {
+      processComplexContent(child);
+    } else if ((child = DomUtils.getChildElementByName(type, "group")) != null) {
+      processGroup(child);
+    } else if ((child = DomUtils.getChildElementByName(type, "all")) != null) {
+      processAll(child);
+    } else if ((child = DomUtils.getChildElementByName(type, "choice")) != null) {
+      processChoice(child);
+    } else if ((child = DomUtils.getChildElementByName(type, "sequence")) != null) {
+      processSequence(child);
     }
 
     // release the resolver, we don't need it after the parse is complete
@@ -91,8 +92,8 @@ public final class ComplexType implements java.io.Serializable {
    * @param elementName Name of element contained within complex type.
    * @return Xmltype of the element or null if element can not be found in the complex type.
    */
-  public QName getElementType( String elementName ) {
-    return _elements.get( elementName.toLowerCase() );
+  public QName getElementType(String elementName) {
+    return _elements.get(elementName.toLowerCase());
   }
 
   /**
@@ -111,11 +112,11 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param all
    */
-  private void processAll( Element all ) {
+  private void processAll(Element all) {
     // annotation?, element*
-    List<Element> elements = DomUtils.getChildElementsByName( all, "element" );
-    for ( Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processElement( itr.next() );
+    List<Element> elements = DomUtils.getChildElementsByName(all, "element");
+    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
+      processElement(itr.next());
     }
   }
 
@@ -124,7 +125,7 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param any
    */
-  private void processAny( Element any ) {
+  private void processAny(Element any) {
     // annotation?
     // *** noop ***
   }
@@ -149,10 +150,10 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param choice
    */
-  private void processChoice( Element choice ) {
+  private void processChoice(Element choice) {
     // annotation?, (element | group | choice | sequence | any)*
     // just call process sequence, same elements
-    processSequence( choice );
+    processSequence(choice);
   }
 
   /**
@@ -160,13 +161,13 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param complexContent
    */
-  private void processComplexContent( Element complexContent ) {
+  private void processComplexContent(Element complexContent) {
     // annotation?, (extension | restriction)
     Element child;
-    if ( ( child = DomUtils.getChildElementByName( complexContent, "extension" ) ) != null ) {
-      processComplexExtension( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexContent, "restriction" ) ) != null ) {
-      processComplexRestriction( child );
+    if ((child = DomUtils.getChildElementByName(complexContent, "extension")) != null) {
+      processComplexExtension(child);
+    } else if ((child = DomUtils.getChildElementByName(complexContent, "restriction")) != null) {
+      processComplexRestriction(child);
     }
   }
 
@@ -175,17 +176,18 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param complexExtension
    */
-  private void processComplexExtension( Element complexExtension ) {
-    // annotation?, (group, | all | choice | sequence)?, (attribute | attributeGroup)*, anyAttribute?
+  private void processComplexExtension(Element complexExtension) {
+    // annotation?, (group, | all | choice | sequence)?, (attribute | attributeGroup)*,
+    // anyAttribute?
     Element child;
-    if ( ( child = DomUtils.getChildElementByName( complexExtension, "group" ) ) != null ) {
-      processGroup( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexExtension, "all" ) ) != null ) {
-      processAll( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexExtension, "choice" ) ) != null ) {
-      processChoice( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexExtension, "sequence" ) ) != null ) {
-      processSequence( child );
+    if ((child = DomUtils.getChildElementByName(complexExtension, "group")) != null) {
+      processGroup(child);
+    } else if ((child = DomUtils.getChildElementByName(complexExtension, "all")) != null) {
+      processAll(child);
+    } else if ((child = DomUtils.getChildElementByName(complexExtension, "choice")) != null) {
+      processChoice(child);
+    } else if ((child = DomUtils.getChildElementByName(complexExtension, "sequence")) != null) {
+      processSequence(child);
     }
   }
 
@@ -194,17 +196,17 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param complexRestriction
    */
-  private void processComplexRestriction( Element complexRestriction ) {
+  private void processComplexRestriction(Element complexRestriction) {
     // annotation?, (group | all | choice | sequence)?, (attribute | attributeGroup)*, anyAttribute?
     Element child;
-    if ( ( child = DomUtils.getChildElementByName( complexRestriction, "group" ) ) != null ) {
-      processGroup( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexRestriction, "all" ) ) != null ) {
-      processAll( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexRestriction, "choice" ) ) != null ) {
-      processChoice( child );
-    } else if ( ( child = DomUtils.getChildElementByName( complexRestriction, "sequence" ) ) != null ) {
-      processSequence( child );
+    if ((child = DomUtils.getChildElementByName(complexRestriction, "group")) != null) {
+      processGroup(child);
+    } else if ((child = DomUtils.getChildElementByName(complexRestriction, "all")) != null) {
+      processAll(child);
+    } else if ((child = DomUtils.getChildElementByName(complexRestriction, "choice")) != null) {
+      processChoice(child);
+    } else if ((child = DomUtils.getChildElementByName(complexRestriction, "sequence")) != null) {
+      processSequence(child);
     }
     // else if (DomUtils.getChildElementByName(complexRestriction, "attribute") != null) {
     // List<Element> attributes = DomUtils.getChildElementsByName(complexRestriction, "attribute");
@@ -219,13 +221,13 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param element
    */
-  private void processElement( Element element ) {
+  private void processElement(Element element) {
     // annotation?
-    if ( element.hasAttribute( "name" ) ) {
-      String elementName = element.getAttribute( "name" );
-      String elementType = element.getAttribute( "type" );
-      _elements.put( elementName.toLowerCase(), _wsdlTypes.getTypeQName( elementType ) );
-      _elementNames.add( elementName );
+    if (element.hasAttribute("name")) {
+      String elementName = element.getAttribute("name");
+      String elementType = element.getAttribute("type");
+      _elements.put(elementName.toLowerCase(), _wsdlTypes.getTypeQName(elementType));
+      _elementNames.add(elementName);
     }
   }
 
@@ -234,15 +236,15 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param group
    */
-  private void processGroup( Element group ) {
+  private void processGroup(Element group) {
     // annotation?, (all | choice | sequence)
     Element child;
-    if ( ( child = DomUtils.getChildElementByName( group, "all" ) ) != null ) {
-      processAll( child );
-    } else if ( ( child = DomUtils.getChildElementByName( group, "choice" ) ) != null ) {
-      processChoice( child );
-    } else if ( ( child = DomUtils.getChildElementByName( group, "sequence" ) ) != null ) {
-      processSequence( child );
+    if ((child = DomUtils.getChildElementByName(group, "all")) != null) {
+      processAll(child);
+    } else if ((child = DomUtils.getChildElementByName(group, "choice")) != null) {
+      processChoice(child);
+    } else if ((child = DomUtils.getChildElementByName(group, "sequence")) != null) {
+      processSequence(child);
     }
   }
 
@@ -251,31 +253,31 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param sequence
    */
-  private void processSequence( Element sequence ) {
+  private void processSequence(Element sequence) {
     // annotation?, (element | group | choice | sequence | any)*
-    List<Element> elements = DomUtils.getChildElementsByName( sequence, "element" );
-    for ( Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processElement( itr.next() );
+    List<Element> elements = DomUtils.getChildElementsByName(sequence, "element");
+    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
+      processElement(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName( sequence, "group" );
-    for ( Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processGroup( itr.next() );
+    elements = DomUtils.getChildElementsByName(sequence, "group");
+    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
+      processGroup(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName( sequence, "choice" );
-    for ( Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processChoice( itr.next() );
+    elements = DomUtils.getChildElementsByName(sequence, "choice");
+    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
+      processChoice(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName( sequence, "sequence" );
-    for ( Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processSequence( itr.next() );
+    elements = DomUtils.getChildElementsByName(sequence, "sequence");
+    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
+      processSequence(itr.next());
     }
 
-    elements = DomUtils.getChildElementsByName( sequence, "any" );
-    for ( Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processAny( itr.next() );
+    elements = DomUtils.getChildElementsByName(sequence, "any");
+    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
+      processAny(itr.next());
     }
   }
 
@@ -284,13 +286,13 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param simpleContent
    */
-  private void processSimpleContent( Element simpleContent ) {
+  private void processSimpleContent(Element simpleContent) {
     // annotation?, (extension | restriction)
     Element child;
-    if ( ( child = DomUtils.getChildElementByName( simpleContent, "extension" ) ) != null ) {
-      processSimpleExtension( child );
-    } else if ( ( child = DomUtils.getChildElementByName( simpleContent, "restriction" ) ) != null ) {
-      processSimpleRestriction( child );
+    if ((child = DomUtils.getChildElementByName(simpleContent, "extension")) != null) {
+      processSimpleExtension(child);
+    } else if ((child = DomUtils.getChildElementByName(simpleContent, "restriction")) != null) {
+      processSimpleRestriction(child);
     }
   }
 
@@ -299,7 +301,7 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param any
    */
-  private void processSimpleExtension( Element any ) {
+  private void processSimpleExtension(Element any) {
     // annotation?, (attribute | attributeGroup)*, anyAttribute?
     // *** noop ***
   }
@@ -309,7 +311,7 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @param simpleRestriction
    */
-  private void processSimpleRestriction( Element simpleRestriction ) {
+  private void processSimpleRestriction(Element simpleRestriction) {
     // annotation?, simpleType?, (enumeration | length | maxExclusive | maxInclusive
     // | maxLength | minExclusive | minInclusive | minLength | pattern | fractionDigits
     // | totalDigits | whiteSpace)*, (attribute | attributeGroup)*, anyAttribute?

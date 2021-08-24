@@ -29,8 +29,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
-
-public class ActionMailValidatorTest extends WorkflowActionLoadSaveTestSupport<ActionMailValidator> {
+public class ActionMailValidatorTest
+    extends WorkflowActionLoadSaveTestSupport<ActionMailValidator> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -40,32 +40,27 @@ public class ActionMailValidatorTest extends WorkflowActionLoadSaveTestSupport<A
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "smtpCheck",
-      "timeout",
-      "defaultSMTP",
-      "emailSender",
-      "emailAddress" );
+    return Arrays.asList("smtpCheck", "timeout", "defaultSMTP", "emailSender", "emailAddress");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "smtpCheck", "isSMTPCheck",
-      "timeout", "getTimeOut",
-      "defaultSMTP", "getDefaultSMTP",
-      "emailSender", "geteMailSender",
-      "emailAddress", "getEmailAddress" );
+        "smtpCheck", "isSMTPCheck",
+        "timeout", "getTimeOut",
+        "defaultSMTP", "getDefaultSMTP",
+        "emailSender", "geteMailSender",
+        "emailAddress", "getEmailAddress");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "smtpCheck", "setSMTPCheck",
-      "timeout", "setTimeOut",
-      "defaultSMTP", "setDefaultSMTP",
-      "emailSender", "seteMailSender",
-      "emailAddress", "setEmailAddress" );
+        "smtpCheck", "setSMTPCheck",
+        "timeout", "setTimeOut",
+        "defaultSMTP", "setDefaultSMTP",
+        "emailSender", "seteMailSender",
+        "emailAddress", "setEmailAddress");
   }
 
   @Test
@@ -73,8 +68,7 @@ public class ActionMailValidatorTest extends WorkflowActionLoadSaveTestSupport<A
     HopLogStore.init();
     Result previousResult = new Result();
     ActionMailValidator validator = new ActionMailValidator();
-    Result result = validator.execute( previousResult, 0 );
-    assertNotNull( result );
+    Result result = validator.execute(previousResult, 0);
+    assertNotNull(result);
   }
-
 }

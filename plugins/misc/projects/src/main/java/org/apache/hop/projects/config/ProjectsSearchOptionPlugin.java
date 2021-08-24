@@ -34,18 +34,24 @@ import org.apache.hop.ui.core.gui.HopNamespace;
     category = ConfigPlugin.CATEGORY_SEARCH)
 public class ProjectsSearchOptionPlugin extends ProjectsOptionPlugin implements IConfigOptions {
 
-  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
+  @Override
+  public boolean handleOption(
+      ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
+      throws HopException {
 
     // If a project or environment was set, pass it to HopSearch...
     //
-    if (super.handleOption( log, hasHopMetadataProvider, variables )) {
+    if (super.handleOption(log, hasHopMetadataProvider, variables)) {
 
       String projectName = HopNamespace.getNamespace();
-      if ( StringUtils.isNotEmpty(projectName)) {
-        log.logBasic( "Searching in project : "+projectName );
+      if (StringUtils.isNotEmpty(projectName)) {
+        log.logBasic("Searching in project : " + projectName);
 
-        ProjectsSearchablesLocation projectsSearchablesLocation = new ProjectsSearchablesLocation( projectConfig );
-        ((HopSearch)hasHopMetadataProvider).getSearchablesLocations().add(projectsSearchablesLocation);
+        ProjectsSearchablesLocation projectsSearchablesLocation =
+            new ProjectsSearchablesLocation(projectConfig);
+        ((HopSearch) hasHopMetadataProvider)
+            .getSearchablesLocations()
+            .add(projectsSearchablesLocation);
 
         return true;
       }

@@ -38,13 +38,7 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Editor that allows you to change Pipeline Log metadata
@@ -68,7 +62,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
   private int margin;
 
   public PipelineLogEditor(
-    HopGui hopGui, MetadataManager<PipelineLog> manager, PipelineLog metadata) {
+      HopGui hopGui, MetadataManager<PipelineLog> manager, PipelineLog metadata) {
     super(hopGui, manager, metadata);
   }
 
@@ -136,11 +130,12 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     //
     Label wlLoggingParentsOnly = new Label(parent, SWT.RIGHT);
     props.setLook(wlLoggingParentsOnly);
-    wlLoggingParentsOnly.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.LoggingParentsOnly.Label"));
+    wlLoggingParentsOnly.setText(
+        BaseMessages.getString(PKG, "PipelineLoggingEditor.LoggingParentsOnly.Label"));
     FormData fdlLoggingParentsOnly = new FormData();
     fdlLoggingParentsOnly.left = new FormAttachment(0, 0);
     fdlLoggingParentsOnly.right = new FormAttachment(middle, 0);
-    fdlLoggingParentsOnly.top = new FormAttachment(lastControl, 2*margin);
+    fdlLoggingParentsOnly.top = new FormAttachment(lastControl, 2 * margin);
     wlLoggingParentsOnly.setLayoutData(fdlLoggingParentsOnly);
     wLoggingParentsOnly = new Button(parent, SWT.CHECK | SWT.LEFT);
     props.setLook(wLoggingParentsOnly);
@@ -157,7 +152,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, 0);
-    fdlFilename.top = new FormAttachment(lastControl, 2*margin);
+    fdlFilename.top = new FormAttachment(lastControl, 2 * margin);
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
@@ -177,7 +172,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     props.setLook(wbnFilename);
     wbnFilename.setText(BaseMessages.getString(PKG, "System.Button.New"));
     FormData fdbnFilename = new FormData();
-    fdbnFilename.right = new FormAttachment(wbbFilename,-margin);
+    fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
     fdbnFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbnFilename.setLayoutData(fdbnFilename);
     wbnFilename.addListener(
@@ -194,10 +189,10 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdboFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wboFilename.setLayoutData(fdboFilename);
     wboFilename.addListener(
-      SWT.Selection,
-      e -> {
-        openPipelineFile(parent);
-      });
+        SWT.Selection,
+        e -> {
+          openPipelineFile(parent);
+        });
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wFilename);
@@ -286,15 +281,15 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     lastControl = wlInterval;
 
     setWidgetsContent();
-    
+
     // Add listener to detect change after loading data
     Listener modifyListener = e -> setChanged();
     wName.addListener(SWT.Modify, modifyListener);
-    wEnabled.addListener(SWT.Selection,modifyListener);
+    wEnabled.addListener(SWT.Selection, modifyListener);
     wLoggingParentsOnly.addListener(SWT.Selection, modifyListener);
     wFilename.addListener(SWT.Modify, modifyListener);
     wAtStart.addListener(SWT.Selection, modifyListener);
-    wAtEnd.addListener(SWT.Selection,modifyListener);
+    wAtEnd.addListener(SWT.Selection, modifyListener);
     wPeriodic.addListener(SWT.Selection, modifyListener);
     wInterval.addListener(SWT.Modify, modifyListener);
   }
@@ -312,21 +307,21 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
       // Add a Pipeline Logging transform...
       //
       PipelineLoggingMeta pipelineLoggingMeta = new PipelineLoggingMeta();
-      pipelineLoggingMeta.setLoggingTransforms( true );
+      pipelineLoggingMeta.setLoggingTransforms(true);
       TransformMeta pipelineLogging = new TransformMeta("Pipeline Logging", pipelineLoggingMeta);
-      pipelineLogging.setLocation( 200, 150 );
-      pipelineMeta.addTransform( pipelineLogging );
+      pipelineLogging.setLocation(200, 150);
+      pipelineMeta.addTransform(pipelineLogging);
 
       // Add a dummy
       //
       DummyMeta dummyMeta = new DummyMeta();
       TransformMeta dummy = new TransformMeta("Save logging here", dummyMeta);
-      dummy.setLocation( 500, 150 );
-      pipelineMeta.addTransform( dummy );
+      dummy.setLocation(500, 150);
+      pipelineMeta.addTransform(dummy);
 
       // Add a hop between both transforms...
       //
-      pipelineMeta.addPipelineHop( new PipelineHopMeta(pipelineLogging, dummy) );
+      pipelineMeta.addPipelineHop(new PipelineHopMeta(pipelineLogging, dummy));
 
       // Save it...
       //
@@ -336,14 +331,14 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
               true, // save
               parent.getShell(),
               wFilename,
-            manager.getVariables(),
+              manager.getVariables(),
               type.getFilterExtensions(),
               type.getFilterNames(),
               true);
       if (filename != null) {
         // User specified a pipeline filename
         //
-        String realFilename = manager.getVariables().resolve( filename );
+        String realFilename = manager.getVariables().resolve(filename);
         pipelineMeta.setFilename(realFilename);
         pipelineMeta.clearChanged();
 
@@ -372,8 +367,8 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
    */
   private void openPipelineFile(Composite parent) {
     try {
-      String filename = manager.getVariables().resolve( wFilename.getText() );
-      if ( StringUtils.isNotEmpty( filename ) ) {
+      String filename = manager.getVariables().resolve(wFilename.getText());
+      if (StringUtils.isNotEmpty(filename)) {
         hopGui.fileDelegate.fileOpen(filename);
       }
     } catch (Exception e) {
@@ -386,7 +381,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     BaseDialog.presentFileDialog(
         parent.getShell(),
         wFilename,
-      manager.getVariables(),
+        manager.getVariables(),
         type.getFilterExtensions(),
         type.getFilterNames(),
         true);
@@ -403,8 +398,8 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     PipelineLog pl = getMetadata();
 
     wName.setText(Const.NVL(pl.getName(), ""));
-    wEnabled.setSelection( pl.isEnabled() );
-    wLoggingParentsOnly.setSelection( pl.isLoggingParentsOnly() );
+    wEnabled.setSelection(pl.isEnabled());
+    wLoggingParentsOnly.setSelection(pl.isLoggingParentsOnly());
     wFilename.setText(Const.NVL(pl.getPipelineFilename(), ""));
     wAtStart.setSelection(pl.isExecutingAtStart());
     wAtEnd.setSelection(pl.isExecutingAtEnd());
@@ -413,10 +408,10 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
   }
 
   @Override
-  public void getWidgetsContent( PipelineLog pl) {
+  public void getWidgetsContent(PipelineLog pl) {
     pl.setName(wName.getText());
-    pl.setEnabled( wEnabled.getSelection() );
-    pl.setLoggingParentsOnly( wLoggingParentsOnly.getSelection() );
+    pl.setEnabled(wEnabled.getSelection());
+    pl.setLoggingParentsOnly(wLoggingParentsOnly.getSelection());
     pl.setPipelineFilename(wFilename.getText());
     pl.setExecutingAtStart(wAtStart.getSelection());
     pl.setExecutingAtEnd(wAtEnd.getSelection());

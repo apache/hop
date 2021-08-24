@@ -21,19 +21,21 @@ under the License.
 
 == Description
 
-This transform allows you to peek forward and backwards across rows. Examples of common use cases are:
+This transform allows you to peek forward and backwards across rows.
+Examples of common use cases are:
 
 * Calculate the "time between orders" by ordering rows by order date, and LAGing 1 row back to get previous order time.
 * Calculate the "duration" of a web page view by LEADing 1 row ahead and determining how many seconds the user was on this page.
 
-
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name| The name of this transform as it appears in the pipeline workspace.
-|Group fields table|Specify the fields you want to group. Click Get Fields to add all fields from the input stream(s). The transform will do no additional sorting, so in addition to the grouping identified (for example CUSTOMER_ID) here you must also have the data sorted (for example ORDER_DATE).
+|Group fields table|Specify the fields you want to group.
+Click Get Fields to add all fields from the input stream(s).
+The transform will do no additional sorting, so in addition to the grouping identified (for example CUSTOMER_ID) here you must also have the data sorted (for example ORDER_DATE).
 |Analytic Functions table|Specify the analytic functions to be solved.
 |New Field Name|the name you want this new field to be named on the stream (for example PREV_ORDER_DATE)
 |Subject|The existing field to grab (for example ORDER_DATE)
@@ -43,12 +45,14 @@ a|Set the type of analytic function:
 * Lead - Go forward N rows and get the value of Subject
 
 * Lag - Go backward N rows and get the value of Subject
-|N|The number of rows to offset (backwards or forwards) 
+|N|The number of rows to offset (backwards or forwards)
 |===
 
 ## Group field examples
 
-While it is not mandatory to specify a group, it can be useful for certain cases. If you create a group (made up of one or more fields), then the "lead forward / lag backward" operations are made only within each group. For example, suppose you have this:
+While it is not mandatory to specify a group, it can be useful for certain cases.
+If you create a group (made up of one or more fields), then the "lead forward / lag backward" operations are made only within each group.
+For example, suppose you have this:
 
 ====
 [source,bash]
@@ -66,7 +70,8 @@ bbb , 6
 
 And you want to create a field named Z, with the Y value in the previous row.
 
-If you only care about the Y field, you don't need to group. And you will have the following result:
+If you only care about the Y field, you don't need to group.
+And you will have the following result:
 
 ====
 [source,bash]

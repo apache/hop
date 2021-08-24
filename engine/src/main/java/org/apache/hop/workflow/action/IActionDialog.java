@@ -21,27 +21,33 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /**
  * IActionDialog is the Java interface that implements the settings dialog of a action plugin. The
- * responsibilities of the implementing class are listed below.<br/>
- * <br/>
+ * responsibilities of the implementing class are listed below.<br>
+ * <br>
+ *
  * <ul>
- * <li><a href="#open()">public IAction open()</a></li>
+ *   <li><a href="#open()">public IAction open()</a>
  * </ul>
- * <br/>
- * This method should return only after the dialog has been confirmed or cancelled. The method must conform to the
- * following rules:<br/>
- * <br/>
- * If the dialog is confirmed:<br/>
+ *
+ * <br>
+ * This method should return only after the dialog has been confirmed or cancelled. The method must
+ * conform to the following rules:<br>
+ * <br>
+ * If the dialog is confirmed:<br>
+ *
  * <ul>
- * <li>The IAction object must be updated to reflect the new settings</li>
- * <li>If the user changed any settings, the IAction object's "changed" flag must be set to true</li>
- * <li>open() must return the IAction object</li>
+ *   <li>The IAction object must be updated to reflect the new settings
+ *   <li>If the user changed any settings, the IAction object's "changed" flag must be set to true
+ *   <li>open() must return the IAction object
  * </ul>
- * <br/>
- * If the dialog is cancelled:<br/>
+ *
+ * <br>
+ * If the dialog is cancelled:<br>
+ *
  * <ul>
- * <li>The IAction object must not be changed</li>
- * <li>The IAction object's "changed" flag must be set to the value it had at the time the dialog opened</li>
- * <li>open() must return null</li>
+ *   <li>The IAction object must not be changed
+ *   <li>The IAction object's "changed" flag must be set to the value it had at the time the dialog
+ *       opened
+ *   <li>open() must return null
  * </ul>
  *
  * @author Matt
@@ -61,5 +67,5 @@ public interface IActionDialog {
    *
    * @param metadataProvider
    */
-  void setMetadataProvider( IHopMetadataProvider metadataProvider );
+  void setMetadataProvider(IHopMetadataProvider metadataProvider);
 }

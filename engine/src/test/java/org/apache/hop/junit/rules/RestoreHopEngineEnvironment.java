@@ -21,12 +21,14 @@ import org.apache.hop.core.HopEnvironment;
 
 public class RestoreHopEngineEnvironment extends RestoreHopEnvironment {
 
-  @Override void defaultInit() throws Throwable {
+  @Override
+  void defaultInit() throws Throwable {
     super.defaultInit();
     HopEnvironment.init();
   }
 
-  @Override void cleanUp() {
+  @Override
+  void cleanUp() {
     HopEnvironment.reset();
     super.cleanUp();
   }

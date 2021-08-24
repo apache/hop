@@ -37,7 +37,7 @@ Example for a move (rename) of a file on a FTP server (username/password must be
 
 In this tab you can specify the files and/or folders to move.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -48,26 +48,26 @@ In this tab you can specify the files and/or folders to move.
 * Copy previous results to args : use the result files from the previous workflow action (actions) as files and/or folders to move.
 |Files / Folders |You can specify the list of files or folders with destinations and wildcards in this grid.
 You can add a different source/destination on each line.
-**NOTE**: You can use the "Add" button to add a line to the Files/Folders list 
+**NOTE**: You can use the "Add" button to add a line to the Files/Folders list
 |===
-
 
 === Destination File Tab
 
 In this tab you can specify the destination of the files and/or folders and their new filenames.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Destination file a|
-	
+
 
 * Create destination folder : use this option to create the destination folder
 * Destination is a file
 * Do not keep folder structure : flatten the sub-folder structure if any sub-folders are used
 * Add date to destination filename (yyyyMMdd or 20091231)
 * Add time to destination filename (HHmmss or 235959)
-* Specify date time format : allows you to specify your own date-time format. The default is  yyyyMMdd'_'HHmmss
+* Specify date time format : allows you to specify your own date-time format.
+The default is yyyyMMdd'_'HHmmss
 * Add date before extension
 * If destination file exists: select one of these options:
 ** Do nothing
@@ -82,7 +82,8 @@ In this tab you can specify the destination of the files and/or folders and thei
 * Create folder
 * Add date
 * Add time
-* Specify format : allows you to specify your own date-time format. The default is  yyyyMMdd'_'HHmmss
+* Specify format : allows you to specify your own date-time format.
+The default is yyyyMMdd'_'HHmmss
 * If file exists in destination folder: select one of these options:
 ** Do nothing
 ** Overwrite file
@@ -90,18 +91,17 @@ In this tab you can specify the destination of the files and/or folders and thei
 ** Fail
 |===
 
-
 === Advanced Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Success on a|
-	
+
 
 * Success condition : select one of these option:
 ** Success when all works fine
 ** Success when at least x files moved (specify x in the limit field below)
-** Success when number of errors lesser than  (specify the max number of errors in the limit field below)
-|Result files name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions. 
+** Success when number of errors lesser than (specify the max number of errors in the limit field below)
+|Result files name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions.
 |===

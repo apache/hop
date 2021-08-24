@@ -40,7 +40,7 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-firebird</artifactId>
             <version>${project.version}</version>
-        </dependency>       
+        </dependency>
     </dependencies>
 
 </project>

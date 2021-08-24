@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.folderscompare;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionFoldersCompareTest extends WorkflowActionLoadSaveTestSupport<ActionFoldersCompare> {
+public class WorkflowActionFoldersCompareTest
+    extends WorkflowActionLoadSaveTestSupport<ActionFoldersCompare> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -35,38 +36,36 @@ public class WorkflowActionFoldersCompareTest extends WorkflowActionLoadSaveTest
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-      "filename1",
-      "filename2",
-      "wildcard",
-      "compareonly",
-      "includesubfolders",
-      "comparefilecontent",
-      "comparefilesize" );
+        "filename1",
+        "filename2",
+        "wildcard",
+        "compareonly",
+        "includesubfolders",
+        "comparefilecontent",
+        "comparefilesize");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "filename1", "getFilename1",
-      "filename2", "getFilename2",
-      "wildcard", "getWildcard",
-      "compareonly", "getCompareOnly",
-      "includesubfolders", "isIncludeSubfolders",
-      "comparefilecontent", "isCompareFileContent",
-      "comparefilesize", "isCompareFileSize" );
+        "filename1", "getFilename1",
+        "filename2", "getFilename2",
+        "wildcard", "getWildcard",
+        "compareonly", "getCompareOnly",
+        "includesubfolders", "isIncludeSubfolders",
+        "comparefilecontent", "isCompareFileContent",
+        "comparefilesize", "isCompareFileSize");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "filename1", "setFilename1",
-      "filename2", "setFilename2",
-      "wildcard", "setWildcard",
-      "compareonly", "setCompareOnly",
-      "includesubfolders", "setIncludeSubfolders",
-      "comparefilecontent", "setCompareFileContent",
-      "comparefilesize", "setCompareFileSize" );
+        "filename1", "setFilename1",
+        "filename2", "setFilename2",
+        "wildcard", "setWildcard",
+        "compareonly", "setCompareOnly",
+        "includesubfolders", "setIncludeSubfolders",
+        "comparefilecontent", "setCompareFileContent",
+        "comparefilesize", "setCompareFileSize");
   }
-
-
 }

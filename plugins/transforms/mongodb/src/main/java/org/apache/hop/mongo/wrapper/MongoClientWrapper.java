@@ -36,13 +36,14 @@ public interface MongoClientWrapper {
 
   /**
    * Simply test the connection
+   *
    * @throws MongoDbException In case we can't connect
    */
   void test() throws MongoDbException;
 
-  Set<String> getCollectionsNames( String dB ) throws MongoDbException;
+  Set<String> getCollectionsNames(String dB) throws MongoDbException;
 
-  List<String> getIndexInfo( String dbName, String collection ) throws MongoDbException;
+  List<String> getIndexInfo(String dbName, String collection) throws MongoDbException;
 
   /**
    * Retrieve all database names found in MongoDB as visible by the authenticated user.
@@ -69,7 +70,7 @@ public interface MongoClientWrapper {
    * @return a list of replica set members who's tags satisfy the supplied list of tag sets
    * @throws MongoDbException if a problem occurs
    */
-  List<String> getReplicaSetMembersThatSatisfyTagSets( List<DBObject> tagSets )
+  List<String> getReplicaSetMembersThatSatisfyTagSets(List<DBObject> tagSets)
       throws MongoDbException;
 
   /**
@@ -93,7 +94,7 @@ public interface MongoClientWrapper {
    * @return a MongoCollectionWrapper which wraps the DBCollection object.
    * @throws MongoDbException
    */
-  MongoCollectionWrapper createCollection( String db, String name ) throws MongoDbException;
+  MongoCollectionWrapper createCollection(String db, String name) throws MongoDbException;
 
   /**
    * Gets a collection with a given name. If the collection does not exist, a new collection is
@@ -104,7 +105,7 @@ public interface MongoClientWrapper {
    * @return a MongoCollectionWrapper which wraps the DBCollection object
    * @throws MongoDbException
    */
-  MongoCollectionWrapper getCollection( String db, String name ) throws MongoDbException;
+  MongoCollectionWrapper getCollection(String db, String name) throws MongoDbException;
 
   /**
    * Calls the close() method on the underling MongoClient.
@@ -121,7 +122,7 @@ public interface MongoClientWrapper {
    * @return the result of the action
    * @throws MongoDbException
    */
-  <ReturnType> ReturnType perform( String db, MongoDBAction<ReturnType> action )
+  <ReturnType> ReturnType perform(String db, MongoDBAction<ReturnType> action)
       throws MongoDbException;
 
   /** @return the ReplicaSetStatus for the cluster. */

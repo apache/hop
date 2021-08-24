@@ -22,33 +22,28 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Comparator;
 
-@ValueMetaPlugin(
-  id = "2",
-  name = "String",
-  description = "String",
-  image = "images/string.svg"
-)
+@ValueMetaPlugin(id = "2", name = "String", description = "String", image = "images/string.svg")
 public class ValueMetaString extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaString() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaString( String name ) {
-    super( name, IValueMeta.TYPE_STRING );
+  public ValueMetaString(String name) {
+    super(name, IValueMeta.TYPE_STRING);
   }
 
-  public ValueMetaString( String name, Comparator<Object> comparator ) {
-    super( name, IValueMeta.TYPE_STRING, comparator );
+  public ValueMetaString(String name, Comparator<Object> comparator) {
+    super(name, IValueMeta.TYPE_STRING, comparator);
   }
 
-  public ValueMetaString( String name, int length, int precision ) {
-    super( name, IValueMeta.TYPE_STRING, length, precision );
+  public ValueMetaString(String name, int length, int precision) {
+    super(name, IValueMeta.TYPE_STRING, length, precision);
   }
 
   @Override
-  public Object getNativeDataType( Object object ) throws HopValueException {
-    return getString( object );
+  public Object getNativeDataType(Object object) throws HopValueException {
+    return getString(object);
   }
 
   @Override

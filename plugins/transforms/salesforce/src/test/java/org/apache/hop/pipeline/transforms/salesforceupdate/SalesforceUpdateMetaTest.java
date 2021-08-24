@@ -44,46 +44,40 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SalesforceUpdateMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
-    PluginRegistry.init( true );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init(true);
     String passwordEncoderPluginID =
-      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   @Test
   public void testErrorHandling() {
     SalesforceTransformMeta meta = new SalesforceUpdateMeta();
-    assertTrue( meta.supportsErrorHandling() );
+    assertTrue(meta.supportsErrorHandling());
   }
 
   @Test
   public void testBatchSize() {
     SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
-    meta.setBatchSize( "20" );
-    assertEquals( "20", meta.getBatchSize() );
-    assertEquals( 20, meta.getBatchSizeInt() );
+    meta.setBatchSize("20");
+    assertEquals("20", meta.getBatchSize());
+    assertEquals(20, meta.getBatchSizeInt());
 
     // Pass invalid batch size, should get default value of 10
-    meta.setBatchSize( "unknown" );
-    assertEquals( "unknown", meta.getBatchSize() );
-    assertEquals( 10, meta.getBatchSizeInt() );
+    meta.setBatchSize("unknown");
+    assertEquals("unknown", meta.getBatchSize());
+    assertEquals(10, meta.getBatchSizeInt());
   }
 
   @Test
@@ -91,15 +85,15 @@ public class SalesforceUpdateMetaTest {
     SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
     meta.setDefault();
     IRowMeta r = new RowMeta();
-    meta.getFields( r, "thisTransform", null, null, new Variables(), null );
-    assertEquals( 0, r.size() );
+    meta.getFields(r, "thisTransform", null, null, new Variables(), null);
+    assertEquals(0, r.size());
 
     r.clear();
-    r.addValueMeta( new ValueMetaString( "testString" ) );
-    meta.getFields( r, "thisTransform", null, null, new Variables(), null );
-    assertEquals( 1, r.size() );
-    assertEquals( IValueMeta.TYPE_STRING, r.getValueMeta( 0 ).getType() );
-    assertEquals( "testString", r.getValueMeta( 0 ).getName() );
+    r.addValueMeta(new ValueMetaString("testString"));
+    meta.getFields(r, "thisTransform", null, null, new Variables(), null);
+    assertEquals(1, r.size());
+    assertEquals(IValueMeta.TYPE_STRING, r.getValueMeta(0).getType());
+    assertEquals("testString", r.getValueMeta(0).getName());
   }
 
   @Test
@@ -107,52 +101,63 @@ public class SalesforceUpdateMetaTest {
     SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
     meta.setDefault();
     List<ICheckResult> remarks = new ArrayList<>();
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     boolean hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertTrue( hasError );
+    assertFalse(remarks.isEmpty());
+    assertTrue(hasError);
 
     remarks.clear();
     meta.setDefault();
-    meta.setUsername( "user" );
-    meta.setUpdateLookup( new String[]{ "SalesforceField" } );
-    meta.setUpdateStream( new String[]{ "StreamField" } );
-    meta.setUseExternalId( new Boolean[]{ false } );
-    meta.check( remarks, null, null, null, null, null, null, null, null );
+    meta.setUsername("user");
+    meta.setUpdateLookup(new String[] {"SalesforceField"});
+    meta.setUpdateStream(new String[] {"StreamField"});
+    meta.setUseExternalId(new Boolean[] {false});
+    meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
-    for ( ICheckResult cr : remarks ) {
-      if ( cr.getType() == CheckResult.TYPE_RESULT_ERROR ) {
+    for (ICheckResult cr : remarks) {
+      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
-    assertFalse( remarks.isEmpty() );
-    assertFalse( hasError );
+    assertFalse(remarks.isEmpty());
+    assertFalse(hasError);
   }
 
   @Test
   public void testSalesforceUpdateMeta() throws HopException {
     List<String> attributes = new ArrayList<>();
-    attributes.addAll( SalesforceMetaTest.getDefaultAttributes() );
-    attributes.addAll( Arrays.asList( "batchSize", "updateLookup", "updateStream", "useExternalId",
-      "rollbackAllChangesOnError" ) );
+    attributes.addAll(SalesforceMetaTest.getDefaultAttributes());
+    attributes.addAll(
+        Arrays.asList(
+            "batchSize",
+            "updateLookup",
+            "updateStream",
+            "useExternalId",
+            "rollbackAllChangesOnError"));
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<>();
-    fieldLoadSaveValidators.put( "updateLookup",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
-    fieldLoadSaveValidators.put( "updateStream",
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
-    fieldLoadSaveValidators.put( "useExternalId",
-      new ArrayLoadSaveValidator<>( new BooleanLoadSaveValidator(), 50 ) );
+    fieldLoadSaveValidators.put(
+        "updateLookup", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 50));
+    fieldLoadSaveValidators.put(
+        "updateStream", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 50));
+    fieldLoadSaveValidators.put(
+        "useExternalId", new ArrayLoadSaveValidator<>(new BooleanLoadSaveValidator(), 50));
 
     TransformLoadSaveTester<SalesforceUpdateMeta> transformLoadSaveTester =
-      new TransformLoadSaveTester( SalesforceUpdateMeta.class, attributes, attributes, getterMap, setterMap,
-        fieldLoadSaveValidators, new HashMap<>() );
+        new TransformLoadSaveTester(
+            SalesforceUpdateMeta.class,
+            attributes,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidators,
+            new HashMap<>());
 
     transformLoadSaveTester.testXmlRoundTrip();
   }

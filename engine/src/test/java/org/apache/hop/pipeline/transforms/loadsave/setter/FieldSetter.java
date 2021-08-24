@@ -22,15 +22,15 @@ import java.lang.reflect.Field;
 public class FieldSetter<T> implements ISetter<T> {
   private final Field field;
 
-  public FieldSetter( Field field ) {
+  public FieldSetter(Field field) {
     this.field = field;
   }
 
-  public void set( Object obj, T value ) {
+  public void set(Object obj, T value) {
     try {
-      field.set( obj, value );
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Error getting " + field + " on " + obj, e );
+      field.set(obj, value);
+    } catch (Exception e) {
+      throw new RuntimeException("Error getting " + field + " on " + obj, e);
     }
   }
 }

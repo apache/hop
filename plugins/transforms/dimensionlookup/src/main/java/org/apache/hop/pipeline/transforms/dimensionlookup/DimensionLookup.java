@@ -43,11 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Manages a slowly changing dimension (lookup or update)

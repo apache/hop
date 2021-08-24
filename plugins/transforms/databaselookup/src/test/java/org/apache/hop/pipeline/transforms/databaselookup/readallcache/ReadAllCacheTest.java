@@ -35,9 +35,7 @@ import java.util.StringTokenizer;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class ReadAllCacheTest {
 
   private DatabaseLookupData transformData;
@@ -48,29 +46,27 @@ public class ReadAllCacheTest {
   @Before
   public void setUp() {
     transformData = new DatabaseLookupData();
-    transformData.conditions = new int[ 4 ];
+    transformData.conditions = new int[4];
 
     keysMeta = new RowMeta();
-    keysMeta.addValueMeta( new ValueMetaInteger() );
-    keysMeta.addValueMeta( new ValueMetaString() );
-    keysMeta.addValueMeta( new ValueMetaDate() );
-    keysMeta.addValueMeta( new ValueMetaInteger() );
+    keysMeta.addValueMeta(new ValueMetaInteger());
+    keysMeta.addValueMeta(new ValueMetaString());
+    keysMeta.addValueMeta(new ValueMetaDate());
+    keysMeta.addValueMeta(new ValueMetaInteger());
 
-    keys = new Object[][] {
-      new Object[] { 0L, "0", new Date( 0 ), null },
-      new Object[] { 0L, "0", new Date( 50 ), null },
-      new Object[] { 2L, "2", new Date( 200 ), null },
-      new Object[] { 1L, "1", new Date( 100 ), null },
-      new Object[] { 1L, "1", new Date( 150 ), null }
-    };
+    keys =
+        new Object[][] {
+          new Object[] {0L, "0", new Date(0), null},
+          new Object[] {0L, "0", new Date(50), null},
+          new Object[] {2L, "2", new Date(200), null},
+          new Object[] {1L, "1", new Date(100), null},
+          new Object[] {1L, "1", new Date(150), null}
+        };
 
-    data = new Object[][] {
-      new Object[] { 0 },
-      new Object[] { 1 },
-      new Object[] { 2 },
-      new Object[] { 3 },
-      new Object[] { 4 }
-    };
+    data =
+        new Object[][] {
+          new Object[] {0}, new Object[] {1}, new Object[] {2}, new Object[] {3}, new Object[] {4}
+        };
   }
 
   @After
@@ -81,117 +77,122 @@ public class ReadAllCacheTest {
     data = null;
   }
 
-  @Test( expected = UnsupportedOperationException.class )
+  @Test(expected = UnsupportedOperationException.class)
   public void storeRowInCache_ThrowsException() throws Exception {
-    buildCache( "" ).storeRowInCache( new DatabaseLookupMeta(), keysMeta.clone(), keys[ 0 ], data[ 0 ] );
+    buildCache("").storeRowInCache(new DatabaseLookupMeta(), keysMeta.clone(), keys[0], data[0]);
   }
 
   @Test
   public void hasDbConditionStopsSearching() throws Exception {
     transformData.hasDBCondition = true;
-    assertNull( buildCache( "" ).getRowFromCache( keysMeta.clone(), keys[ 0 ] ) );
+    assertNull(buildCache("").getRowFromCache(keysMeta.clone(), keys[0]));
   }
 
   @Test
   public void lookup_Finds_Only() throws Exception {
-    ReadAllCache cache = buildCache( "=,<,=,IS NULL" );
-    Object[] found = cache.getRowFromCache( keysMeta.clone(), new Object[] { 1L, "2", new Date( 100 ), null } );
-    assertArrayEquals( "(keys[0] == 1) && (keys[1] < '2') && (keys[2] == 100) --> row 3", data[ 3 ], found );
+    ReadAllCache cache = buildCache("=,<,=,IS NULL");
+    Object[] found =
+        cache.getRowFromCache(keysMeta.clone(), new Object[] {1L, "2", new Date(100), null});
+    assertArrayEquals(
+        "(keys[0] == 1) && (keys[1] < '2') && (keys[2] == 100) --> row 3", data[3], found);
   }
 
   @Test
   public void lookup_Finds_FirstMatching() throws Exception {
-    ReadAllCache cache = buildCache( "=,IS NOT NULL,<=,IS NULL" );
-    Object[] found = cache.getRowFromCache( keysMeta.clone(), new Object[] { 1L, null, new Date( 1000000 ), null } );
-    assertArrayEquals( "(keys[0] == 1) && (keys[2] < 1000000) --> row 3", data[ 3 ], found );
+    ReadAllCache cache = buildCache("=,IS NOT NULL,<=,IS NULL");
+    Object[] found =
+        cache.getRowFromCache(keysMeta.clone(), new Object[] {1L, null, new Date(1000000), null});
+    assertArrayEquals("(keys[0] == 1) && (keys[2] < 1000000) --> row 3", data[3], found);
   }
 
   @Test
   public void lookup_Finds_WithBetweenOperator() throws Exception {
     RowMeta meta = keysMeta.clone();
-    meta.setValueMeta( 3, new ValueMetaDate() );
-    meta.addValueMeta( new ValueMetaInteger() );
+    meta.setValueMeta(3, new ValueMetaDate());
+    meta.addValueMeta(new ValueMetaInteger());
 
-    ReadAllCache cache = buildCache( "<>,IS NOT NULL,BETWEEN,IS NULL" );
-    Object[] found = cache.getRowFromCache(
-      meta, new Object[] { -1L, null, new Date( 140 ), new Date( 160 ), null } );
-    assertArrayEquals( "(140 <= keys[2] <= 160) --> row 4", data[ 4 ], found );
+    ReadAllCache cache = buildCache("<>,IS NOT NULL,BETWEEN,IS NULL");
+    Object[] found =
+        cache.getRowFromCache(meta, new Object[] {-1L, null, new Date(140), new Date(160), null});
+    assertArrayEquals("(140 <= keys[2] <= 160) --> row 4", data[4], found);
   }
 
   @Test
   public void lookup_Finds_WithTwoBetweenOperators() throws Exception {
     RowMeta meta = new RowMeta();
-    meta.addValueMeta( new ValueMetaInteger() );
-    meta.addValueMeta( new ValueMetaString() );
-    meta.addValueMeta( new ValueMetaString() );
-    meta.addValueMeta( new ValueMetaDate() );
-    meta.addValueMeta( new ValueMetaDate() );
-    meta.addValueMeta( new ValueMetaInteger() );
+    meta.addValueMeta(new ValueMetaInteger());
+    meta.addValueMeta(new ValueMetaString());
+    meta.addValueMeta(new ValueMetaString());
+    meta.addValueMeta(new ValueMetaDate());
+    meta.addValueMeta(new ValueMetaDate());
+    meta.addValueMeta(new ValueMetaInteger());
 
-    ReadAllCache cache = buildCache( ">,BETWEEN,BETWEEN,IS NULL" );
-    Object[] found = cache.getRowFromCache(
-      meta, new Object[] { -1L, "1", "3", new Date( 0 ), new Date( 1000 ), null } );
-    assertArrayEquals( "('1' <= keys[1] <= '3') && (0 <= keys[2] <= 1000) --> row 2", data[ 2 ], found );
+    ReadAllCache cache = buildCache(">,BETWEEN,BETWEEN,IS NULL");
+    Object[] found =
+        cache.getRowFromCache(
+            meta, new Object[] {-1L, "1", "3", new Date(0), new Date(1000), null});
+    assertArrayEquals(
+        "('1' <= keys[1] <= '3') && (0 <= keys[2] <= 1000) --> row 2", data[2], found);
   }
 
   @Test
   public void lookup_DoesNotFind_FilteredByIndex() throws Exception {
-    ReadAllCache cache = buildCache( "=,IS NOT NULL,>=,IS NOT NULL" );
-    Object[] found = cache.getRowFromCache( keysMeta.clone(), new Object[] { 1L, null, new Date( 0 ), null } );
-    assertNull( "(keys[3] != NULL) --> none", found );
+    ReadAllCache cache = buildCache("=,IS NOT NULL,>=,IS NOT NULL");
+    Object[] found =
+        cache.getRowFromCache(keysMeta.clone(), new Object[] {1L, null, new Date(0), null});
+    assertNull("(keys[3] != NULL) --> none", found);
   }
 
   @Test
   public void lookup_DoesNotFind_WithBetweenOperator() throws Exception {
     RowMeta meta = keysMeta.clone();
-    meta.setValueMeta( 3, new ValueMetaDate() );
-    meta.addValueMeta( new ValueMetaInteger() );
+    meta.setValueMeta(3, new ValueMetaDate());
+    meta.addValueMeta(new ValueMetaInteger());
 
-    ReadAllCache cache = buildCache( "<>,IS NOT NULL,BETWEEN,IS NULL" );
-    Object[] found = cache.getRowFromCache(
-      meta, new Object[] { -1L, null, new Date( 1000 ), new Date( 2000 ), null } );
-    assertNull( "(1000 <= keys[2] <= 2000) --> none", found );
+    ReadAllCache cache = buildCache("<>,IS NOT NULL,BETWEEN,IS NULL");
+    Object[] found =
+        cache.getRowFromCache(meta, new Object[] {-1L, null, new Date(1000), new Date(2000), null});
+    assertNull("(1000 <= keys[2] <= 2000) --> none", found);
   }
 
-  private ReadAllCache buildCache( String conditions ) throws Exception {
-    StringTokenizer tokenizer = new StringTokenizer( conditions, "," );
-    List<String> operators = Arrays.asList( DatabaseLookupMeta.conditionStrings );
+  private ReadAllCache buildCache(String conditions) throws Exception {
+    StringTokenizer tokenizer = new StringTokenizer(conditions, ",");
+    List<String> operators = Arrays.asList(DatabaseLookupMeta.conditionStrings);
     int conditionIndex = 0;
-    while ( tokenizer.hasMoreElements() ) {
+    while (tokenizer.hasMoreElements()) {
       String operator = tokenizer.nextToken();
-      int index = operators.indexOf( operator );
-      if ( index == -1 ) {
-        throw new RuntimeException( conditions + " -- " + operator );
+      int index = operators.indexOf(operator);
+      if (index == -1) {
+        throw new RuntimeException(conditions + " -- " + operator);
       }
-      transformData.conditions[ conditionIndex ] = index;
+      transformData.conditions[conditionIndex] = index;
       conditionIndex++;
     }
 
-    ReadAllCache.Builder builder = new ReadAllCache.Builder( transformData, keys.length );
-    builder.setKeysMeta( keysMeta );
-    for ( int i = 0; i < keys.length; i++ ) {
-      Object[] keyTuple = keys[ i ];
-      Object[] dataTuple = data[ i ];
-      builder.add( keyTuple, dataTuple );
+    ReadAllCache.Builder builder = new ReadAllCache.Builder(transformData, keys.length);
+    builder.setKeysMeta(keysMeta);
+    for (int i = 0; i < keys.length; i++) {
+      Object[] keyTuple = keys[i];
+      Object[] dataTuple = data[i];
+      builder.add(keyTuple, dataTuple);
     }
     return builder.build();
   }
 
-
   @Test
   public void lookup_HandlesAbsenceOfLookupValue() throws Exception {
     transformData = new DatabaseLookupData();
-    transformData.conditions = new int[] { DatabaseLookupMeta.CONDITION_IS_NOT_NULL };
+    transformData.conditions = new int[] {DatabaseLookupMeta.CONDITION_IS_NOT_NULL};
 
-    ReadAllCache.Builder builder = new ReadAllCache.Builder( transformData, 2 );
+    ReadAllCache.Builder builder = new ReadAllCache.Builder(transformData, 2);
     RowMeta keysMeta = new RowMeta();
-    keysMeta.addValueMeta( new ValueMetaInteger() );
-    builder.setKeysMeta( keysMeta );
-    builder.add( new Object[] { null }, new Object[] { "null" } );
-    builder.add( new Object[] { 1L }, new Object[] { "one" } );
+    keysMeta.addValueMeta(new ValueMetaInteger());
+    builder.setKeysMeta(keysMeta);
+    builder.add(new Object[] {null}, new Object[] {"null"});
+    builder.add(new Object[] {1L}, new Object[] {"one"});
     ReadAllCache cache = builder.build();
 
-    Object[] found = cache.getRowFromCache( new RowMeta(), new Object[ 0 ] );
-    assertArrayEquals( "(keys[1] == 1L) --> row 2", new Object[] { "one" }, found );
+    Object[] found = cache.getRowFromCache(new RowMeta(), new Object[0]);
+    assertArrayEquals("(keys[1] == 1L) --> row 2", new Object[] {"one"}, found);
   }
 }

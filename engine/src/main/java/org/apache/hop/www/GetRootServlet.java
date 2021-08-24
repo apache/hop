@@ -31,41 +31,45 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/";
 
-  public GetRootServlet() {
-  }
+  public GetRootServlet() {}
 
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getRequestURI().equals( CONTEXT_PATH ) ) {
-      response.sendError( HttpServletResponse.SC_NOT_FOUND );
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getRequestURI().equals(CONTEXT_PATH)) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "GetRootServlet.RootRequested" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "GetRootServlet.RootRequested"));
     }
 
-    response.setContentType( "text/html;charset=UTF-8" );
-    response.setStatus( HttpServletResponse.SC_OK );
+    response.setContentType("text/html;charset=UTF-8");
+    response.setStatus(HttpServletResponse.SC_OK);
 
     PrintWriter out = response.getWriter();
 
-    out.println( "<HTML>" );
-    out.println( "<HEAD><TITLE>"
-      + BaseMessages.getString( PKG, "GetRootServlet.HopHopServer.Title" ) + "</TITLE>" );
-    out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-    out.println( "</HEAD>" );
-    out.println( "<BODY>" );
-    out.println( "<H2>" + BaseMessages.getString( PKG, "GetRootServlet.HopServerMenu" ) + "</H2>" );
+    out.println("<HTML>");
+    out.println(
+        "<HEAD><TITLE>"
+            + BaseMessages.getString(PKG, "GetRootServlet.HopHopServer.Title")
+            + "</TITLE>");
+    out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+    out.println("</HEAD>");
+    out.println("<BODY>");
+    out.println("<H2>" + BaseMessages.getString(PKG, "GetRootServlet.HopServerMenu") + "</H2>");
 
-    out.println( "<p>" );
-    out.println( "<a href=\""
-      + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-      + BaseMessages.getString( PKG, "GetRootServlet.ShowStatus" ) + "</a><br>" );
+    out.println("<p>");
+    out.println(
+        "<a href=\""
+            + convertContextPath(GetStatusServlet.CONTEXT_PATH)
+            + "\">"
+            + BaseMessages.getString(PKG, "GetRootServlet.ShowStatus")
+            + "</a><br>");
 
-    out.println( "<p>" );
-    out.println( "</BODY>" );
-    out.println( "</HTML>" );
+    out.println("<p>");
+    out.println("</BODY>");
+    out.println("</HTML>");
   }
 
   public String toString() {
@@ -79,5 +83,4 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
   public String getContextPath() {
     return CONTEXT_PATH;
   }
-
 }

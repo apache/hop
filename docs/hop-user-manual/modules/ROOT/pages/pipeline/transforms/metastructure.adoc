@@ -26,7 +26,7 @@ Before producing this output the transform reads and discards (or eats) all inpu
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

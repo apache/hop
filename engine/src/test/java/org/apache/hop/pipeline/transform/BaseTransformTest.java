@@ -17,12 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.commons.validator.Var;
-import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.SingleRowRowSet;
+import org.apache.hop.core.*;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.NonAccessibleFileObject;
@@ -35,7 +30,6 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.BasePartitioner;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -55,22 +49,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyObject;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BaseTransformTest {
@@ -116,8 +98,7 @@ public class BaseTransformTest {
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
     when(mockHelper.pipelineMeta.findNextTransforms(any(TransformMeta.class)))
         .thenReturn(transformMetas);
-    when(mockHelper.transformMeta.isPartitioned())
-      .thenReturn( true );
+    when(mockHelper.transformMeta.isPartitioned()).thenReturn(true);
     when(mockHelper.transformMeta.getTransformPartitioningMeta())
         .thenReturn(transformPartitioningMeta);
 
@@ -160,8 +141,7 @@ public class BaseTransformTest {
             mockHelper.iTransformData,
             0,
             mockHelper.pipelineMeta,
-            pipeline
-        );
+            pipeline);
     baseTransform.setStopped(false);
     baseTransform.setRepartitioning(TransformPartitioningMeta.PARTITIONING_METHOD_SPECIAL);
     baseTransform.setOutputRowSets(outputRowSets);

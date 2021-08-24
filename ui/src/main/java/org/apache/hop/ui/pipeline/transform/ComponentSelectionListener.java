@@ -24,12 +24,12 @@ import org.eclipse.swt.events.SelectionEvent;
 public class ComponentSelectionListener extends SelectionAdapter {
   private BaseTransformMeta input;
 
-  public ComponentSelectionListener( BaseTransformMeta input ) {
+  public ComponentSelectionListener(BaseTransformMeta input) {
     this.input = input;
   }
 
   @Override
-  public void widgetSelected( SelectionEvent arg0 ) {
+  public void widgetSelected(SelectionEvent arg0) {
     input.setChanged();
   }
 }

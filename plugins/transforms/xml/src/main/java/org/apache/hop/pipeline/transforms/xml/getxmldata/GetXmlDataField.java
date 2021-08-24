@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -28,7 +27,7 @@ import org.w3c.dom.Node;
 
 /**
  * Describes an XML field and the position in an XML field.
- * 
+ *
  * @author Samatar, Brahim
  * @since 20-06-2007
  */
@@ -38,10 +37,12 @@ public class GetXmlDataField implements Cloneable {
   public static final int RESULT_TYPE_VALUE_OF = 0;
   public static final int RESULT_TYPE_TYPE_SINGLE_NODE = 1;
 
-  public static final String[] ResultTypeCode = { "valueof", "singlenode" };
+  public static final String[] ResultTypeCode = {"valueof", "singlenode"};
 
-  public static final String[] ResultTypeDesc = { BaseMessages.getString( PKG, "GetXMLDataField.ResultType.ValueOf" ),
-    BaseMessages.getString( PKG, "GetXMLDataField.ResultType.SingleNode" ) };
+  public static final String[] ResultTypeDesc = {
+    BaseMessages.getString(PKG, "GetXMLDataField.ResultType.ValueOf"),
+    BaseMessages.getString(PKG, "GetXMLDataField.ResultType.SingleNode")
+  };
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;
@@ -51,12 +52,14 @@ public class GetXmlDataField implements Cloneable {
   public static final int ELEMENT_TYPE_NODE = 0;
   public static final int ELEMENT_TYPE_ATTRIBUT = 1;
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
-  public static final String[] trimTypeDesc = { BaseMessages.getString( PKG, "GetXMLDataField.TrimType.None" ),
-    BaseMessages.getString( PKG, "GetXMLDataField.TrimType.Left" ),
-    BaseMessages.getString( PKG, "GetXMLDataField.TrimType.Right" ),
-    BaseMessages.getString( PKG, "GetXMLDataField.TrimType.Both" ) };
+  public static final String[] trimTypeDesc = {
+    BaseMessages.getString(PKG, "GetXMLDataField.TrimType.None"),
+    BaseMessages.getString(PKG, "GetXMLDataField.TrimType.Left"),
+    BaseMessages.getString(PKG, "GetXMLDataField.TrimType.Right"),
+    BaseMessages.getString(PKG, "GetXMLDataField.TrimType.Both")
+  };
 
   // //////////////////////////////////////////////////////////////
   //
@@ -71,12 +74,14 @@ public class GetXmlDataField implements Cloneable {
   // TODO Sven Boden
   //
   // //////////////////////////////////////////////////////////////
-  public static final String[] ElementTypeCode = { "node", "attribute" };
+  public static final String[] ElementTypeCode = {"node", "attribute"};
 
-  public static final String[] ElementOldTypeCode = { "node", "attribut" };
+  public static final String[] ElementOldTypeCode = {"node", "attribut"};
 
-  public static final String[] ElementTypeDesc = { BaseMessages.getString( PKG, "GetXMLDataField.ElementType.Node" ),
-    BaseMessages.getString( PKG, "GetXMLDataField.ElementType.Attribute" ) };
+  public static final String[] ElementTypeDesc = {
+    BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Node"),
+    BaseMessages.getString(PKG, "GetXMLDataField.ElementType.Attribute")
+  };
 
   private String name;
   private String xpath;
@@ -94,7 +99,7 @@ public class GetXmlDataField implements Cloneable {
   private String groupSymbol;
   private boolean repeat;
 
-  public GetXmlDataField(String fieldname ) {
+  public GetXmlDataField(String fieldname) {
     this.name = fieldname;
     this.xpath = "";
     this.length = -1;
@@ -111,78 +116,78 @@ public class GetXmlDataField implements Cloneable {
   }
 
   public GetXmlDataField() {
-    this( "" );
+    this("");
   }
 
   public String getXml() {
-    StringBuffer xml = new StringBuffer( 400 );
+    StringBuffer xml = new StringBuffer(400);
 
-    xml.append( "      <field>" ).append( Const.CR );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "name", getName() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "xpath", getXPath() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "element_type", getElementTypeCode() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "result_type", getResultTypeCode() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "format", getFormat() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "currency", getCurrencySymbol() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "decimal", getDecimalSymbol() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "group", getGroupSymbol() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "length", getLength() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "precision", getPrecision() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "repeat", isRepeated() ) );
+    xml.append("      <field>").append(Const.CR);
+    xml.append("        ").append(XmlHandler.addTagValue("name", getName()));
+    xml.append("        ").append(XmlHandler.addTagValue("xpath", getXPath()));
+    xml.append("        ").append(XmlHandler.addTagValue("element_type", getElementTypeCode()));
+    xml.append("        ").append(XmlHandler.addTagValue("result_type", getResultTypeCode()));
+    xml.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
+    xml.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
+    xml.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    xml.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    xml.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    xml.append("        ").append(XmlHandler.addTagValue("length", getLength()));
+    xml.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
+    xml.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
+    xml.append("        ").append(XmlHandler.addTagValue("repeat", isRepeated()));
 
-    xml.append( "      </field>" ).append( Const.CR );
+    xml.append("      </field>").append(Const.CR);
 
     return xml.toString();
   }
 
-  public GetXmlDataField(Node fnode ) throws HopValueException {
-    setName( XmlHandler.getTagValue( fnode, "name" ) );
-    setXPath( XmlHandler.getTagValue( fnode, "xpath" ) );
-    setElementType( getElementTypeByCode( XmlHandler.getTagValue( fnode, "element_type" ) ) );
-    setResultType( getResultTypeByCode( XmlHandler.getTagValue( fnode, "result_type" ) ) );
-    setType( ValueMetaBase.getType( XmlHandler.getTagValue( fnode, "type" ) ) );
-    setFormat( XmlHandler.getTagValue( fnode, "format" ) );
-    setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
-    setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
-    setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
-    setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
-    setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
-    setTrimType( getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
-    setRepeated( !"N".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "repeat" ) ) );
+  public GetXmlDataField(Node fnode) throws HopValueException {
+    setName(XmlHandler.getTagValue(fnode, "name"));
+    setXPath(XmlHandler.getTagValue(fnode, "xpath"));
+    setElementType(getElementTypeByCode(XmlHandler.getTagValue(fnode, "element_type")));
+    setResultType(getResultTypeByCode(XmlHandler.getTagValue(fnode, "result_type")));
+    setType(ValueMetaBase.getType(XmlHandler.getTagValue(fnode, "type")));
+    setFormat(XmlHandler.getTagValue(fnode, "format"));
+    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
+    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
+    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
+    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
+    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
+    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+    setRepeated(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
   }
 
-  public static final int getTrimTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeCode.length; i++) {
+      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getElementTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getElementTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
     // / Code to be removed later on as explained in the top of
     // this file.
     // //////////////////////////////////////////////////////////////
-    for ( int i = 0; i < ElementOldTypeCode.length; i++ ) {
-      if ( ElementOldTypeCode[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ElementOldTypeCode.length; i++) {
+      if (ElementOldTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     // //////////////////////////////////////////////////////////////
 
-    for ( int i = 0; i < ElementTypeCode.length; i++ ) {
-      if ( ElementTypeCode[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ElementTypeCode.length; i++) {
+      if (ElementTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -190,56 +195,56 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
-  public static final int getTrimTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeDesc.length; i++) {
+      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getElementTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getElementTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ElementTypeDesc.length; i++ ) {
-      if ( ElementTypeDesc[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ElementTypeDesc.length; i++) {
+      if (ElementTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
+  public static final String getTrimTypeCode(int i) {
+    if (i < 0 || i >= trimTypeCode.length) {
       return trimTypeCode[0];
     }
     return trimTypeCode[i];
   }
 
-  public static final String getElementTypeCode( int i ) {
+  public static final String getElementTypeCode(int i) {
     // To be changed to the new code once all are converted
-    if ( i < 0 || i >= ElementOldTypeCode.length ) {
+    if (i < 0 || i >= ElementOldTypeCode.length) {
       return ElementOldTypeCode[0];
     }
     return ElementOldTypeCode[i];
   }
 
-  public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
+  public static final String getTrimTypeDesc(int i) {
+    if (i < 0 || i >= trimTypeDesc.length) {
       return trimTypeDesc[0];
     }
     return trimTypeDesc[i];
   }
 
-  public static final String getElementTypeDesc( int i ) {
-    if ( i < 0 || i >= ElementTypeDesc.length ) {
+  public static final String getElementTypeDesc(int i) {
+    if (i < 0 || i >= ElementTypeDesc.length) {
       return ElementTypeDesc[0];
     }
     return ElementTypeDesc[i];
@@ -250,7 +255,7 @@ public class GetXmlDataField implements Cloneable {
       GetXmlDataField retval = (GetXmlDataField) super.clone();
 
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -259,7 +264,7 @@ public class GetXmlDataField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -275,15 +280,15 @@ public class GetXmlDataField implements Cloneable {
     return resolvedXpath;
   }
 
-  public void setXPath( String fieldxpath ) {
+  public void setXPath(String fieldxpath) {
     this.xpath = fieldxpath;
   }
 
-  protected void setResolvedXPath( String resolvedXpath ) {
+  protected void setResolvedXPath(String resolvedXpath) {
     this.resolvedXpath = resolvedXpath;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -292,10 +297,10 @@ public class GetXmlDataField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaBase.getTypeDesc( type );
+    return ValueMetaBase.getTypeDesc(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -303,7 +308,7 @@ public class GetXmlDataField implements Cloneable {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -316,26 +321,26 @@ public class GetXmlDataField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return getTrimTypeCode( trimtype );
+    return getTrimTypeCode(trimtype);
   }
 
   public String getElementTypeCode() {
-    return getElementTypeCode( elementtype );
+    return getElementTypeCode(elementtype);
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc( trimtype );
+    return getTrimTypeDesc(trimtype);
   }
 
   public String getElementTypeDesc() {
-    return getElementTypeDesc( elementtype );
+    return getElementTypeDesc(elementtype);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
-  public void setElementType( int elementType ) {
+  public void setElementType(int elementType) {
     this.elementtype = elementType;
   }
 
@@ -343,7 +348,7 @@ public class GetXmlDataField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String group_symbol ) {
+  public void setGroupSymbol(String group_symbol) {
     this.groupSymbol = group_symbol;
   }
 
@@ -351,7 +356,7 @@ public class GetXmlDataField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
+  public void setDecimalSymbol(String decimal_symbol) {
     this.decimalSymbol = decimal_symbol;
   }
 
@@ -359,7 +364,7 @@ public class GetXmlDataField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
+  public void setCurrencySymbol(String currency_symbol) {
     this.currencySymbol = currency_symbol;
   }
 
@@ -367,7 +372,7 @@ public class GetXmlDataField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -375,7 +380,7 @@ public class GetXmlDataField implements Cloneable {
     return repeat;
   }
 
-  public void setRepeated( boolean repeat ) {
+  public void setRepeated(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -383,13 +388,13 @@ public class GetXmlDataField implements Cloneable {
     repeat = !repeat;
   }
 
-  public static final int getResultTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getResultTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ResultTypeDesc.length; i++ ) {
-      if ( ResultTypeDesc[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ResultTypeDesc.length; i++) {
+      if (ResultTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -397,11 +402,11 @@ public class GetXmlDataField implements Cloneable {
   }
 
   public String getResultTypeDesc() {
-    return getResultTypeDesc( resulttype );
+    return getResultTypeDesc(resulttype);
   }
 
-  public static final String getResultTypeDesc( int i ) {
-    if ( i < 0 || i >= ResultTypeDesc.length ) {
+  public static final String getResultTypeDesc(int i) {
+    if (i < 0 || i >= ResultTypeDesc.length) {
       return ResultTypeDesc[0];
     }
     return ResultTypeDesc[i];
@@ -411,17 +416,17 @@ public class GetXmlDataField implements Cloneable {
     return resulttype;
   }
 
-  public void setResultType( int resulttype ) {
+  public void setResultType(int resulttype) {
     this.resulttype = resulttype;
   }
 
-  public static final int getResultTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getResultTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ResultTypeCode.length; i++ ) {
-      if ( ResultTypeCode[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ResultTypeCode.length; i++) {
+      if (ResultTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -429,14 +434,14 @@ public class GetXmlDataField implements Cloneable {
     return 0;
   }
 
-  public static final String getResultTypeCode( int i ) {
-    if ( i < 0 || i >= ResultTypeCode.length ) {
+  public static final String getResultTypeCode(int i) {
+    if (i < 0 || i >= ResultTypeCode.length) {
       return ResultTypeCode[0];
     }
     return ResultTypeCode[i];
   }
 
   public String getResultTypeCode() {
-    return getResultTypeCode( resulttype );
+    return getResultTypeCode(resulttype);
   }
 }

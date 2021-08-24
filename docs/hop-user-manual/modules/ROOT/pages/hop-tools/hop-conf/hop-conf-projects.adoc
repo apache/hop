@@ -63,6 +63,7 @@ Configuration file '/home/user/projects/hop2-conf.json' was modified.
 ----
 
 If we look at the file ```hop2-conf.json``` we'll see that the variables were added:
+
 [source,json]
 ----
 {
@@ -78,7 +79,8 @@ If we look at the file ```hop2-conf.json``` we'll see that the variables were ad
 }
 ----
 
-Please note that you can add descriptions for the variables as well with the ```--describe-variable``` option.  Please run hop-conf without options to see all the possibilities.
+Please note that you can add descriptions for the variables as well with the ```--describe-variable``` option.
+Please run hop-conf without options to see all the possibilities.
 
 ==== Deleting an environment
 
@@ -92,7 +94,8 @@ Lifecycle environment 'hop2' was deleted from Hop configuration file <path-to-ho
 
 === Projects Plugin configuration
 
-There are various options to configure the behavior of the ```Projects``` plugin itself. In Hop configuration file ```hop-config.json``` we can find the following options:
+There are various options to configure the behavior of the ```Projects``` plugin itself.
+In Hop configuration file ```hop-config.json``` we can find the following options:
 
 [source,json]
 ----
@@ -105,7 +108,6 @@ There are various options to configure the behavior of the ```Projects``` plugin
     "standardProjectsFolder" : "/home/matt/test-stuff/"
 }
 ----
-
 
 |===
 |Option |Description |hop-conf option

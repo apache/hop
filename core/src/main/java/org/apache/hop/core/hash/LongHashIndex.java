@@ -33,24 +33,22 @@ public class LongHashIndex {
    *
    * @param size the initial size of the hash index
    */
-  public LongHashIndex( int size ) {
+  public LongHashIndex(int size) {
 
     // Find a suitable capacity being a factor of 2:
     int factor2Size = 1;
-    while ( factor2Size < size ) {
+    while (factor2Size < size) {
       factor2Size <<= 1; // Multiply by 2
     }
 
-    this.resizeThresHold = (int) ( factor2Size * STANDARD_LOAD_FACTOR );
+    this.resizeThresHold = (int) (factor2Size * STANDARD_LOAD_FACTOR);
 
-    index = new LongHashIndexEntry[ factor2Size ];
+    index = new LongHashIndexEntry[factor2Size];
   }
 
-  /**
-   * Create a new long/long hash index
-   */
+  /** Create a new long/long hash index */
   public LongHashIndex() {
-    this( STANDARD_INDEX_SIZE );
+    this(STANDARD_INDEX_SIZE);
   }
 
   public int getSize() {
@@ -61,14 +59,14 @@ public class LongHashIndex {
     return size == 0;
   }
 
-  public Long get( long key ) throws HopValueException {
-    int hashCode = generateHashCode( key );
+  public Long get(long key) throws HopValueException {
+    int hashCode = generateHashCode(key);
 
-    int indexPointer = indexFor( hashCode, index.length );
-    LongHashIndexEntry check = index[ indexPointer ];
+    int indexPointer = indexFor(hashCode, index.length);
+    LongHashIndexEntry check = index[indexPointer];
 
-    while ( check != null ) {
-      if ( check.hashCode == hashCode && check.equalsKey( key ) ) {
+    while (check != null) {
+      if (check.hashCode == hashCode && check.equalsKey(key)) {
         return check.value;
       }
       check = check.nextEntry;
@@ -76,19 +74,19 @@ public class LongHashIndex {
     return null;
   }
 
-  public void put( long key, Long value ) throws HopValueException {
-    int hashCode = generateHashCode( key );
-    int indexPointer = indexFor( hashCode, index.length );
+  public void put(long key, Long value) throws HopValueException {
+    int hashCode = generateHashCode(key);
+    int indexPointer = indexFor(hashCode, index.length);
 
-    LongHashIndexEntry check = index[ indexPointer ];
+    LongHashIndexEntry check = index[indexPointer];
     LongHashIndexEntry previousCheck = null;
 
-    while ( check != null ) {
+    while (check != null) {
 
       // If there is an identical entry in there, we replace the entry
       // And then we just return...
       //
-      if ( check.hashCode == hashCode && check.equalsKey( key ) ) {
+      if (check.hashCode == hashCode && check.equalsKey(key)) {
         check.value = value;
         return;
       }
@@ -98,10 +96,10 @@ public class LongHashIndex {
 
     // Don't forget to link to the previous check entry if there was any...
     //
-    if ( previousCheck != null ) {
-      previousCheck.nextEntry = new LongHashIndexEntry( hashCode, key, value, null );
+    if (previousCheck != null) {
+      previousCheck.nextEntry = new LongHashIndexEntry(hashCode, key, value, null);
     } else {
-      index[ indexPointer ] = new LongHashIndexEntry( hashCode, key, value, null );
+      index[indexPointer] = new LongHashIndexEntry(hashCode, key, value, null);
     }
 
     // If required, resize the table...
@@ -116,7 +114,7 @@ public class LongHashIndex {
 
     // See if we've reached our resize threshold...
     //
-    if ( size >= resizeThresHold ) {
+    if (size >= resizeThresHold) {
 
       LongHashIndexEntry[] oldIndex = index;
 
@@ -125,28 +123,28 @@ public class LongHashIndex {
       //
       int newSize = 2 * index.length;
 
-      LongHashIndexEntry[] newIndex = new LongHashIndexEntry[ newSize ];
+      LongHashIndexEntry[] newIndex = new LongHashIndexEntry[newSize];
 
       // Loop over the old index and re-distribute the entries
       // We want to make sure that the calculation
       // entry.hashCode & ( size - 1)
       // ends up in the right location after re-sizing...
       //
-      for ( int i = 0; i < oldIndex.length; i++ ) {
-        LongHashIndexEntry entry = oldIndex[ i ];
-        if ( entry != null ) {
-          oldIndex[ i ] = null;
+      for (int i = 0; i < oldIndex.length; i++) {
+        LongHashIndexEntry entry = oldIndex[i];
+        if (entry != null) {
+          oldIndex[i] = null;
 
           // Make sure we follow all the linked entries...
           // This is a bit of extra work, TODO: see how we can avoid it!
           //
           do {
             LongHashIndexEntry next = entry.nextEntry;
-            int indexPointer = indexFor( entry.hashCode, newSize );
-            entry.nextEntry = newIndex[ indexPointer ];
-            newIndex[ indexPointer ] = entry;
+            int indexPointer = indexFor(entry.hashCode, newSize);
+            entry.nextEntry = newIndex[indexPointer];
+            newIndex[indexPointer] = entry;
             entry = next;
-          } while ( entry != null );
+          } while (entry != null);
         }
       }
 
@@ -156,16 +154,16 @@ public class LongHashIndex {
 
       // Also change the resize threshold...
       //
-      resizeThresHold = (int) ( newSize * STANDARD_LOAD_FACTOR );
+      resizeThresHold = (int) (newSize * STANDARD_LOAD_FACTOR);
     }
   }
 
-  public static int generateHashCode( Long key ) throws HopValueException {
+  public static int generateHashCode(Long key) throws HopValueException {
     return key.hashCode();
   }
 
-  public static int indexFor( int hash, int length ) {
-    return hash & ( length - 1 );
+  public static int indexFor(int hash, int length) {
+    return hash & (length - 1);
   }
 
   private static final class LongHashIndexEntry {
@@ -180,14 +178,14 @@ public class LongHashIndex {
      * @param value
      * @param nextEntry
      */
-    public LongHashIndexEntry( int hashCode, Long key, Long value, LongHashIndexEntry nextEntry ) {
+    public LongHashIndexEntry(int hashCode, Long key, Long value, LongHashIndexEntry nextEntry) {
       this.hashCode = hashCode;
       this.key = key;
       this.value = value;
       this.nextEntry = nextEntry;
     }
 
-    public boolean equalsKey( long cmpKey ) {
+    public boolean equalsKey(long cmpKey) {
       return key == cmpKey;
     }
   }

@@ -19,7 +19,6 @@ under the License.
 
 = If Null
 
-
 == Description
 
 The transform "If field value is null" is able to replace nulls by a given value either by:
@@ -30,4 +29,5 @@ The transform "If field value is null" is able to replace nulls by a given value
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

@@ -30,7 +30,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,31 +38,37 @@ import java.util.List;
  * @author Matt
  * @since 2-jun-2003
  */
-public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> implements ITransform<SortedMergeMeta, SortedMergeData> {
+public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
+    implements ITransform<SortedMergeMeta, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
-  public SortedMerge(TransformMeta transformMeta, SortedMergeMeta meta, SortedMergeData data, int copyNr, PipelineMeta pipelineMeta,
-                     Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public SortedMerge(
+      TransformMeta transformMeta,
+      SortedMergeMeta meta,
+      SortedMergeData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   /**
-   * We read from all streams in the partition merge mode For that we need at least one row on all input rowsets... If
-   * we don't have a row, we wait for one.
-   * <p>
-   * TODO: keep the inputRowSets() list sorted and go from there. That should dramatically improve speed as you only
-   * need half as many comparisons.
+   * We read from all streams in the partition merge mode For that we need at least one row on all
+   * input rowsets... If we don't have a row, we wait for one.
+   *
+   * <p>TODO: keep the inputRowSets() list sorted and go from there. That should dramatically
+   * improve speed as you only need half as many comparisons.
    *
    * @return the next row
    */
   private synchronized Object[] getRowSorted() throws HopException {
-    if ( first ) {
+    if (first) {
       first = false;
 
       // Verify that socket connections to all the remote input transforms are opened
       // before we start to read/write ...
       //
-      //openRemoteInputTransformSocketsOnce();
+      // openRemoteInputTransformSocketsOnce();
 
       // Read one row from all rowsets...
       //
@@ -71,21 +76,22 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
       data.rowMeta = null;
 
       // If one of the inputRowSets holds a null row (the input yields
-      // 0 rows), then the null rowSet is removed from the InputRowSet buffer.. (BaseTransform.getRowFrom())
+      // 0 rows), then the null rowSet is removed from the InputRowSet buffer..
+      // (BaseTransform.getRowFrom())
       // which throws this loop off by one (the next set never gets processed).
       // Instead of modifying BaseTransform, I figure reversing the loop here would
       // effect change in less areas. If the reverse loop causes a problem, please
       List<IRowSet> inputRowSets = getInputRowSets();
-      for ( int i = inputRowSets.size() - 1; i >= 0 && !isStopped(); i-- ) {
+      for (int i = inputRowSets.size() - 1; i >= 0 && !isStopped(); i--) {
 
-        IRowSet rowSet = inputRowSets.get( i );
-        Object[] row = getRowFrom( rowSet );
-        if ( row != null ) {
+        IRowSet rowSet = inputRowSets.get(i);
+        Object[] row = getRowFrom(rowSet);
+        if (row != null) {
           // Add this row to the sortedBuffer...
           // Which is not yet sorted, we'll get to that later.
           //
-          data.sortedBuffer.add( new RowSetRow( rowSet, rowSet.getRowMeta(), row ) );
-          if ( data.rowMeta == null ) {
+          data.sortedBuffer.add(new RowSetRow(rowSet, rowSet.getRowMeta(), row));
+          if (data.rowMeta == null) {
             data.rowMeta = rowSet.getRowMeta().clone();
           }
 
@@ -94,64 +100,72 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
           // Better cache the location of the partitioning column
           // First time operation only
           //
-          if ( data.fieldIndices == null ) {
+          if (data.fieldIndices == null) {
             // Get the indexes of the specified sort fields...
-            data.fieldIndices = new int[ meta.getFieldName().length ];
-            for ( int f = 0; f < data.fieldIndices.length; f++ ) {
-              data.fieldIndices[ f ] = data.rowMeta.indexOfValue( meta.getFieldName()[ f ] );
-              if ( data.fieldIndices[ f ] < 0 ) {
-                throw new HopTransformException( "Unable to find fieldname ["
-                  + meta.getFieldName()[ f ] + "] in row : " + data.rowMeta );
+            data.fieldIndices = new int[meta.getFieldName().length];
+            for (int f = 0; f < data.fieldIndices.length; f++) {
+              data.fieldIndices[f] = data.rowMeta.indexOfValue(meta.getFieldName()[f]);
+              if (data.fieldIndices[f] < 0) {
+                throw new HopTransformException(
+                    "Unable to find fieldname ["
+                        + meta.getFieldName()[f]
+                        + "] in row : "
+                        + data.rowMeta);
               }
 
-              data.rowMeta.getValueMeta( data.fieldIndices[ f ] ).setSortedDescending( !meta.getAscending()[ f ] );
+              data.rowMeta
+                  .getValueMeta(data.fieldIndices[f])
+                  .setSortedDescending(!meta.getAscending()[f]);
             }
           }
         }
 
-        data.comparator = ( o1, o2 ) -> {
-          try {
-            return o1.getRowMeta().compare( o1.getRowData(), o2.getRowData(), data.fieldIndices );
-          } catch ( HopValueException e ) {
-            return 0; // TODO see if we should fire off alarms over here... Perhaps throw a RuntimeException.
-          }
-        };
+        data.comparator =
+            (o1, o2) -> {
+              try {
+                return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
+              } catch (HopValueException e) {
+                return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
+                          // RuntimeException.
+              }
+            };
 
         // Now sort the sortedBuffer for the first time.
         //
-        Collections.sort( data.sortedBuffer, data.comparator );
+        Collections.sort(data.sortedBuffer, data.comparator);
       }
     }
 
     // If our sorted buffer is empty, it means we're done...
     //
-    if ( data.sortedBuffer.isEmpty() ) {
+    if (data.sortedBuffer.isEmpty()) {
       return null;
     }
 
     // now that we have all rows sorted, all we need to do is find out what the smallest row is.
     // The smallest row is the first in our case...
     //
-    RowSetRow smallestRow = data.sortedBuffer.get( 0 );
-    data.sortedBuffer.remove( 0 );
+    RowSetRow smallestRow = data.sortedBuffer.get(0);
+    data.sortedBuffer.remove(0);
     Object[] outputRowData = smallestRow.getRowData();
 
     // We read another row from the row set where the smallest row came from.
     // That we we exhaust all row sets.
     //
-    Object[] extraRow = getRowFrom( smallestRow.getRowSet() );
+    Object[] extraRow = getRowFrom(smallestRow.getRowSet());
 
     // Add it to the sorted buffer in the right position...
     //
-    if ( extraRow != null ) {
+    if (extraRow != null) {
       // Add this one to the sortedBuffer
       //
-      RowSetRow add = new RowSetRow( smallestRow.getRowSet(), smallestRow.getRowSet().getRowMeta(), extraRow );
-      int index = Collections.binarySearch( data.sortedBuffer, add, data.comparator );
-      if ( index < 0 ) {
-        data.sortedBuffer.add( -index - 1, add );
+      RowSetRow add =
+          new RowSetRow(smallestRow.getRowSet(), smallestRow.getRowSet().getRowMeta(), extraRow);
+      int index = Collections.binarySearch(data.sortedBuffer, add, data.comparator);
+      if (index < 0) {
+        data.sortedBuffer.add(-index - 1, add);
       } else {
-        data.sortedBuffer.add( index, add );
+        data.sortedBuffer.add(index, add);
       }
     }
 
@@ -160,10 +174,10 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
 
     // optionally perform safe mode checking to prevent problems.
     //
-    if ( getPipeline().isSafeModeEnabled() ) {
+    if (getPipeline().isSafeModeEnabled()) {
       // for checking we need to get data and meta
       //
-      safeModeChecking( smallestRow.getRowMeta() );
+      safeModeChecking(smallestRow.getRowMeta());
     }
 
     return outputRowData;
@@ -172,16 +186,16 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
   public boolean processRow() throws HopException {
 
     Object[] row = getRowSorted(); // get row, sorted
-    if ( row == null ) { // no more input to be expected...
+    if (row == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
     }
 
-    putRow( data.rowMeta, row ); // copy row to possible alternate rowset(s).
+    putRow(data.rowMeta, row); // copy row to possible alternate rowset(s).
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "SortedMerge.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      logBasic(BaseMessages.getString(PKG, "SortedMerge.Log.LineNumber") + getLinesRead());
     }
 
     return true;
@@ -189,7 +203,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
 
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
       // data.rowComparator = new RowComparator();
 
       // Add init code here.
@@ -197,5 +211,4 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     }
     return false;
   }
-
 }

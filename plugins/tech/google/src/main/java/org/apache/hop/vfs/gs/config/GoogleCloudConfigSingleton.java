@@ -32,8 +32,11 @@ public class GoogleCloudConfigSingleton {
   private GoogleCloudConfigSingleton() {
     // Load from the HopConfig store
     //
-    Object configObject = HopConfig.getInstance().getConfigMap().get( GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY );
-    if ( configObject == null ) {
+    Object configObject =
+        HopConfig.getInstance()
+            .getConfigMap()
+            .get(GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY);
+    if (configObject == null) {
       googleCloudConfig = new GoogleCloudConfig();
     } else {
       // The way Jackson stores these simple POJO is with a map per default...
@@ -42,13 +45,20 @@ public class GoogleCloudConfigSingleton {
       //
       try {
         ObjectMapper mapper = new ObjectMapper();
-        googleCloudConfig = mapper.readValue( new Gson().toJson( configObject ), GoogleCloudConfig.class );
-      } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Error reading Google Drive configuration, check property '" + GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY + "' in the Hop config json file", e );
+        googleCloudConfig =
+            mapper.readValue(new Gson().toJson(configObject), GoogleCloudConfig.class);
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError(
+            "Error reading Google Drive configuration, check property '"
+                + GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY
+                + "' in the Hop config json file",
+            e);
         googleCloudConfig = new GoogleCloudConfig();
       }
     }
-    HopConfig.getInstance().getConfigMap().put( GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY, googleCloudConfig );
+    HopConfig.getInstance()
+        .getConfigMap()
+        .put(GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY, googleCloudConfig);
   }
 
   public static GoogleCloudConfigSingleton getInstance() {
@@ -56,15 +66,17 @@ public class GoogleCloudConfigSingleton {
   }
 
   public static GoogleCloudConfig getConfig() {
-    if ( configSingleton == null ) {
+    if (configSingleton == null) {
       configSingleton = new GoogleCloudConfigSingleton();
     }
     return configSingleton.googleCloudConfig;
   }
 
   public static void saveConfig() throws HopException {
-    HopConfig.getInstance().saveOption( GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY, configSingleton.googleCloudConfig );
+    HopConfig.getInstance()
+        .saveOption(
+            GoogleCloudConfig.HOP_CONFIG_GOOGLE_CLOUD_CONFIG_KEY,
+            configSingleton.googleCloudConfig);
     HopConfig.getInstance().saveToFile();
   }
 }
-

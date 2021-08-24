@@ -20,7 +20,6 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -31,11 +30,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MailMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
@@ -45,44 +40,90 @@ public class MailMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "server", "destination", "destinationCc", "destinationBCc", "replyAddress", "replyName", "subject", "includeDate",
-        "includeSubFolders", "zipFilenameDynamic", "isFilenameDynamic", "dynamicFieldname", "dynamicWildcard", "dynamicZipFilenameField",
-        "sourceFileFoldername", "sourceWildcard", "contactPerson", "contactPhone", "comment", "includingFiles", "zipFiles", "zipFilename",
-        "zipLimitSize", "usingAuthentication", "authenticationUser", "authenticationPassword", "onlySendComment", "useHTML",
-        "usingSecureAuthentication", "usePriority", "port", "priority", "importance", "sensitivity", "secureConnectionType", "encoding",
-        "replyToAddresses", "attachContentFromField", "attachContentField", "attachContentFileNameField", "embeddedImages", "contentIds" );
+        Arrays.asList(
+            "server",
+            "destination",
+            "destinationCc",
+            "destinationBCc",
+            "replyAddress",
+            "replyName",
+            "subject",
+            "includeDate",
+            "includeSubFolders",
+            "zipFilenameDynamic",
+            "isFilenameDynamic",
+            "dynamicFieldname",
+            "dynamicWildcard",
+            "dynamicZipFilenameField",
+            "sourceFileFoldername",
+            "sourceWildcard",
+            "contactPerson",
+            "contactPhone",
+            "comment",
+            "includingFiles",
+            "zipFiles",
+            "zipFilename",
+            "zipLimitSize",
+            "usingAuthentication",
+            "authenticationUser",
+            "authenticationPassword",
+            "onlySendComment",
+            "useHTML",
+            "usingSecureAuthentication",
+            "usePriority",
+            "port",
+            "priority",
+            "importance",
+            "sensitivity",
+            "secureConnectionType",
+            "encoding",
+            "replyToAddresses",
+            "attachContentFromField",
+            "attachContentField",
+            "attachContentFileNameField",
+            "embeddedImages",
+            "contentIds");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "isFilenameDynamic", "isDynamicFilename" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "isFilenameDynamic", "setisDynamicFilename" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("isFilenameDynamic", "isDynamicFilename");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("isFilenameDynamic", "setisDynamicFilename");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "embeddedImages", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "contentIds", stringArrayLoadSaveValidator );
+    attrValidatorMap.put("embeddedImages", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("contentIds", stringArrayLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof MailMeta ) {
-      ( (MailMeta) someMeta ).allocate( 5 );
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof MailMeta) {
+      ((MailMeta) someMeta).allocate(5);
     }
   }
 

@@ -39,5 +39,4 @@ public class CubeInputData extends BaseTransformData implements ITransformData {
   public CubeInputData() {
     super();
   }
-
 }

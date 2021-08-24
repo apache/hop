@@ -28,7 +28,8 @@ If all statements executed successfully the result will be true (success).
 
 == Options
 
-* Cassandra Connection: You can specify the name of the connection to use either as a fixed value or as a variable expression. There are buttons to the right of the input field to hel you manage the metadata.
+* Cassandra Connection: You can specify the name of the connection to use either as a fixed value or as a variable expression.
+There are buttons to the right of the input field to hel you manage the metadata.
 * CQL Script: You can enter one or more CQL statements ending with a semi-colon on a new line.
 
 == Example:

@@ -33,127 +33,148 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-@HopServerServlet(id="pausePipeline", name = "Pause or continue a pipeline")
+@HopServerServlet(id = "pausePipeline", name = "Pause or continue a pipeline")
 public class PausePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = PausePipelineServlet.class; // For Translator
 
   private static final long serialVersionUID = -2598233582435767691L;
   public static final String CONTEXT_PATH = "/hop/pausePipeline";
 
-  public PausePipelineServlet() {
+  public PausePipelineServlet() {}
+
+  public PausePipelineServlet(PipelineMap pipelineMap) {
+    super(pipelineMap);
   }
 
-  public PausePipelineServlet( PipelineMap pipelineMap ) {
-    super( pipelineMap );
-  }
-
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "PausePipelineServlet.PauseOfPipelineRequested" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "PausePipelineServlet.PauseOfPipelineRequested"));
     }
 
-    String pipelineName = request.getParameter( "name" );
-    String id = request.getParameter( "id" );
-    boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
+    String pipelineName = request.getParameter("name");
+    String id = request.getParameter("id");
+    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
-    response.setStatus( HttpServletResponse.SC_OK );
+    response.setStatus(HttpServletResponse.SC_OK);
 
-    response.setCharacterEncoding( "UTF-8" );
+    response.setCharacterEncoding("UTF-8");
 
     PrintWriter out = response.getWriter();
     try {
-      if ( useXML ) {
-        response.setContentType( "text/xml" );
-        response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
+      if (useXML) {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding(Const.XML_ENCODING);
+        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
       } else {
 
-        response.setContentType( "text/html;charset=UTF-8" );
-        out.println( "<HTML>" );
-        out.println( "<HEAD>" );
-        out.println( "<TITLE>" + BaseMessages.getString( PKG, "PausePipelineServlet.PausePipeline" ) + "</TITLE>" );
-        out.println( "<META http-equiv=\"Refresh\" content=\"2;url="
-          + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name="
-          + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">" );
-        out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-        out.println( "</HEAD>" );
-        out.println( "<BODY>" );
+        response.setContentType("text/html;charset=UTF-8");
+        out.println("<HTML>");
+        out.println("<HEAD>");
+        out.println(
+            "<TITLE>"
+                + BaseMessages.getString(PKG, "PausePipelineServlet.PausePipeline")
+                + "</TITLE>");
+        out.println(
+            "<META http-equiv=\"Refresh\" content=\"2;url="
+                + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
+                + "?name="
+                + URLEncoder.encode(pipelineName, "UTF-8")
+                + "&id="
+                + URLEncoder.encode(id, "UTF-8")
+                + "\">");
+        out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+        out.println("</HEAD>");
+        out.println("<BODY>");
       }
 
       // ID is optional...
       //
       IPipelineEngine<PipelineMeta> pipeline;
       HopServerObjectEntry entry;
-      if ( Utils.isEmpty( id ) ) {
+      if (Utils.isEmpty(id)) {
         // get the first pipeline that matches...
         //
-        entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
-        if ( entry == null ) {
+        entry = getPipelineMap().getFirstServerObjectEntry(pipelineName);
+        if (entry == null) {
           pipeline = null;
         } else {
           id = entry.getId();
-          pipeline = getPipelineMap().getPipeline( entry );
+          pipeline = getPipelineMap().getPipeline(entry);
         }
       } else {
         // Take the ID into account!
         //
-        entry = new HopServerObjectEntry( pipelineName, id );
-        pipeline = getPipelineMap().getPipeline( entry );
+        entry = new HopServerObjectEntry(pipelineName, id);
+        pipeline = getPipelineMap().getPipeline(entry);
       }
 
-      if ( pipeline != null ) {
+      if (pipeline != null) {
         String message;
-        if ( pipeline.isPaused() ) {
+        if (pipeline.isPaused()) {
           pipeline.resumeExecution();
-          message = BaseMessages.getString( PKG, "PausePipelineServlet.PipelineResumeRequested", pipelineName );
+          message =
+              BaseMessages.getString(
+                  PKG, "PausePipelineServlet.PipelineResumeRequested", pipelineName);
         } else {
           pipeline.pauseExecution();
-          message = BaseMessages.getString( PKG, "PausePipelineServlet.PipelinePauseRequested", pipelineName );
+          message =
+              BaseMessages.getString(
+                  PKG, "PausePipelineServlet.PipelinePauseRequested", pipelineName);
         }
 
-        if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_OK, message ).getXml() );
+        if (useXML) {
+          out.println(new WebResult(WebResult.STRING_OK, message).getXml());
         } else {
-          out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
-          out.println( "<a href=\""
-            + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name="
-            + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">"
-            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToPipelineStatusPage" ) + "</a><p>" );
+          out.println("<H1>" + Encode.forHtml(message) + "</H1>");
+          out.println(
+              "<a href=\""
+                  + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
+                  + "?name="
+                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + "&id="
+                  + URLEncoder.encode(id, "UTF-8")
+                  + "\">"
+                  + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToPipelineStatusPage")
+                  + "</a><p>");
         }
       } else {
-        String message = BaseMessages.getString( PKG, "PausePipelineServlet.CanNotFindPipeline", pipelineName );
+        String message =
+            BaseMessages.getString(PKG, "PausePipelineServlet.CanNotFindPipeline", pipelineName);
 
-        if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_ERROR, message ).getXml() );
+        if (useXML) {
+          out.println(new WebResult(WebResult.STRING_ERROR, message).getXml());
         } else {
-          out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
-          out.println( "<a href=\""
-            + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
-          response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+          out.println("<H1>" + Encode.forHtml(message) + "</H1>");
+          out.println(
+              "<a href=\""
+                  + convertContextPath(GetStatusServlet.CONTEXT_PATH)
+                  + "\">"
+                  + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
+                  + "</a><p>");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
       }
-    } catch ( Exception ex ) {
-      if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ).getXml() );
+    } catch (Exception ex) {
+      if (useXML) {
+        out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)).getXml());
       } else {
-        out.println( "<p>" );
-        out.println( "<pre>" );
-        out.println( Const.getStackTracker( ex ) );
-        out.println( "</pre>" );
-        response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+        out.println("<p>");
+        out.println("<pre>");
+        out.println(Const.getStackTracker(ex));
+        out.println("</pre>");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
 
-    if ( !useXML ) {
-      out.println( "<p>" );
-      out.println( "</BODY>" );
-      out.println( "</HTML>" );
+    if (!useXML) {
+      out.println("<p>");
+      out.println("</BODY>");
+      out.println("</HTML>");
     }
   }
 
@@ -168,5 +189,4 @@ public class PausePipelineServlet extends BaseHttpServlet implements IHopServerP
   public String getContextPath() {
     return CONTEXT_PATH;
   }
-
 }

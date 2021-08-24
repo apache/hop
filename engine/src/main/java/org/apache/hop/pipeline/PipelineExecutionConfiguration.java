@@ -29,13 +29,7 @@ import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class PipelineExecutionConfiguration implements IExecutionConfiguration, IXml {
   public static final String XML_TAG = "pipeline_execution_configuration";

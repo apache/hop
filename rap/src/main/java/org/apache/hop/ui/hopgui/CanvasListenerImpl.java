@@ -17,10 +17,11 @@
 
 package org.apache.hop.ui.hopgui;
 
-import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
+
+import java.io.IOException;
 
 public class CanvasListenerImpl extends ClientListener implements ISingletonProvider {
 

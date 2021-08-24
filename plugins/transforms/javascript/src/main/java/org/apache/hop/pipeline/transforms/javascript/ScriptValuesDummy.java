@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
@@ -29,11 +28,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-// import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.transform.*;
-// import org.apache.hop.pipeline.transform.TransformListener;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import javax.sql.RowSet;
 import java.awt.event.ComponentListener;

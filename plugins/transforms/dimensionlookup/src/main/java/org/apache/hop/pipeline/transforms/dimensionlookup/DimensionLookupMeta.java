@@ -17,19 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -55,11 +47,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Matt
@@ -76,7 +64,8 @@ import java.util.List;
     image = "dimensionlookup.svg",
     name = "i18n::BaseTransform.TypeLongDesc.DimensionUpdate",
     description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/dimensionlookup.html")
 @InjectionSupported(
@@ -1910,13 +1899,14 @@ public class DimensionLookupMeta extends BaseTransformMeta
   }
 
   Database createDatabaseObject(IVariables variables) {
-    return new Database(loggingObject, variables, databaseMeta );
+    return new Database(loggingObject, variables, databaseMeta);
   }
 
   @Override
-  public RowMeta getRowMeta( IVariables variables, final ITransformData transformData ) {
+  public RowMeta getRowMeta(IVariables variables, final ITransformData transformData) {
     try {
-      return (RowMeta) getDatabaseTableFields(createDatabaseObject(variables), schemaName, tableName);
+      return (RowMeta)
+          getDatabaseTableFields(createDatabaseObject(variables), schemaName, tableName);
     } catch (HopDatabaseException e) {
       log.logError("", e);
       return new RowMeta();

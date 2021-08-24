@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.IRowSet;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.file.TextFileInputField;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +31,7 @@ import java.io.File;
 
 import static org.junit.Assert.*;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   private static final String QUOTATION_AND_EXCLAMATION_MARK = "\"!";
   private static final String QUOTATION_MARK = "\"";
@@ -45,7 +43,9 @@ public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
 
   @Before
   public void setUp() throws Exception {
-    transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputEnclosureTest" );
+    transformMockHelper =
+        TransformMockUtil.getTransformMockHelper(
+            CsvInputMeta.class, CsvInputData.class, "CsvInputEnclosureTest");
   }
 
   @After
@@ -55,71 +55,77 @@ public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
 
   @Test
   public void hasEnclosures_HasNewLine() throws Exception {
-    doTest( "\"value1\";\"value2\"\n", QUOTATION_MARK );
+    doTest("\"value1\";\"value2\"\n", QUOTATION_MARK);
   }
 
   @Test
   public void hasEnclosures_HasNotNewLine() throws Exception {
-    doTest( "\"value1\";\"value2\"", QUOTATION_MARK );
+    doTest("\"value1\";\"value2\"", QUOTATION_MARK);
   }
 
   @Test
   public void hasNotEnclosures_HasNewLine() throws Exception {
-    doTest( "value1;value2\n", QUOTATION_MARK );
+    doTest("value1;value2\n", QUOTATION_MARK);
   }
 
   @Test
   public void hasNotEnclosures_HasNotNewLine() throws Exception {
-    doTest( "value1;value2", QUOTATION_MARK );
+    doTest("value1;value2", QUOTATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosureWithoutEnclosureAndEndFile() throws Exception {
-    doTest( "value1;value2", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("value1;value2", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosureWithEnclosureAndWithoutEndFile() throws Exception {
-    doTest( "\"!value1\"!;value2", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("\"!value1\"!;value2", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosurewithEnclosureInBothfield() throws Exception {
-    doTest( "\"!value1\"!;\"!value2\"!", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("\"!value1\"!;\"!value2\"!", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosureWithoutEnclosureAndWithEndfileRN() throws Exception {
-    doTest( "value1;value2\r\n", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("value1;value2\r\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosureWithEnclosureAndWithEndfileRN() throws Exception {
-    doTest( "value1;\"!value2\"!\r\n", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("value1;\"!value2\"!\r\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosureWithoutEnclosureAndWithEndfileN() throws Exception {
-    doTest( "value1;value2\n", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("value1;value2\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
   @Test
   public void hasMultiSymbolsEnclosureWithEnclosureAndWithEndfileN() throws Exception {
-    doTest( "value1;\"!value2\"!\n", QUOTATION_AND_EXCLAMATION_MARK );
+    doTest("value1;\"!value2\"!\n", QUOTATION_AND_EXCLAMATION_MARK);
   }
 
-  public void doTest( String content, String enclosure ) throws Exception {
+  public void doTest(String content, String enclosure) throws Exception {
     IRowSet output = new QueueRowSet();
 
-    File tmp = createTestFile( "utf-8", content );
+    File tmp = createTestFile("utf-8", content);
     try {
-      CsvInputMeta meta = createMeta( tmp, createInputFileFields( "f1", "f2" ), enclosure );
+      CsvInputMeta meta = createMeta(tmp, createInputFileFields("f1", "f2"), enclosure);
       CsvInputData data = new CsvInputData();
-      csvInput = new CsvInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
+      csvInput =
+          new CsvInput(
+              transformMockHelper.transformMeta,
+              meta,
+              data,
+              0,
+              transformMockHelper.pipelineMeta,
+              transformMockHelper.pipeline);
       csvInput.init();
 
-      csvInput.addRowSetToOutputRowSets( output );
+      csvInput.addRowSetToOutputRowSets(output);
 
       try {
         csvInput.processRow();
@@ -131,17 +137,17 @@ public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
     }
 
     Object[] row = output.getRowImmediate();
-    assertNotNull( row );
-    assertEquals( "value1", row[ 0 ] );
-    assertEquals( "value2", row[ 1 ] );
+    assertNotNull(row);
+    assertEquals("value1", row[0]);
+    assertEquals("value2", row[1]);
 
-    assertNull( output.getRowImmediate() );
+    assertNull(output.getRowImmediate());
   }
 
-  private CsvInputMeta createMeta( File file, TextFileInputField[] fields, String enclosure ) {
-    CsvInputMeta meta = createMeta( file, fields );
-    meta.setDelimiter( SEMICOLON );
-    meta.setEnclosure( enclosure );
+  private CsvInputMeta createMeta(File file, TextFileInputField[] fields, String enclosure) {
+    CsvInputMeta meta = createMeta(file, fields);
+    meta.setDelimiter(SEMICOLON);
+    meta.setEnclosure(enclosure);
     return meta;
   }
 }

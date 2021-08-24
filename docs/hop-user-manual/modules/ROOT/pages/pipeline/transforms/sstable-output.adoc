@@ -21,7 +21,7 @@ under the License.
 
 This transform writes to a file system directory as a Cassandra SSTable.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|the name to use for this transform

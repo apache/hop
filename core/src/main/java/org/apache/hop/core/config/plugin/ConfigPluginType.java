@@ -28,82 +28,82 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IConfigOptions.class )
-@PluginAnnotationType( ConfigPlugin.class )
+@PluginMainClassType(IConfigOptions.class)
+@PluginAnnotationType(ConfigPlugin.class)
 public class ConfigPluginType extends BasePluginType<ConfigPlugin> {
   private static ConfigPluginType pluginType;
 
   private ConfigPluginType() {
-    super( ConfigPlugin.class, "CONFIG", "Configuration" );
+    super(ConfigPlugin.class, "CONFIG", "Configuration");
   }
 
   public static ConfigPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new ConfigPluginType();
     }
     return pluginType;
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( ConfigPlugin annotation ) {
+  protected String extractCategory(ConfigPlugin annotation) {
     return annotation.category();
   }
 
   @Override
-  protected String extractDesc( ConfigPlugin annotation ) {
+  protected String extractDesc(ConfigPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( ConfigPlugin annotation ) {
+  protected String extractID(ConfigPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( ConfigPlugin annotation ) {
+  protected String extractName(ConfigPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractImageFile( ConfigPlugin annotation ) {
+  protected String extractImageFile(ConfigPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( ConfigPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(ConfigPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, ConfigPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, ConfigPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( ConfigPlugin annotation ) {
+  protected String extractDocumentationUrl(ConfigPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( ConfigPlugin annotation ) {
+  protected String extractCasesUrl(ConfigPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( ConfigPlugin annotation ) {
+  protected String extractForumUrl(ConfigPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( ConfigPlugin annotation ) {
+  protected String extractSuggestion(ConfigPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( ConfigPlugin annotation ) {
+  protected String extractClassLoaderGroup(ConfigPlugin annotation) {
     return null;
   }
 }

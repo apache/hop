@@ -33,5 +33,6 @@ public interface ITransformStartedListener {
    * @param transformMeta
    * @param transform
    */
-  void transformStarted( IPipelineEngine pipeline, TransformMeta transformMeta, ITransform transform );
+  void transformStarted(
+      IPipelineEngine pipeline, TransformMeta transformMeta, ITransform transform);
 }

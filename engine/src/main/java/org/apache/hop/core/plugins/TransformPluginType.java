@@ -28,83 +28,84 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( ITransformMeta.class )
-@PluginAnnotationType( Transform.class )
+@PluginMainClassType(ITransformMeta.class)
+@PluginAnnotationType(Transform.class)
 public class TransformPluginType extends BasePluginType<Transform> {
 
   private static TransformPluginType transformPluginType;
 
   protected TransformPluginType() {
-    super( Transform.class, "TRANSFORM", "Transform" );
+    super(Transform.class, "TRANSFORM", "Transform");
   }
 
   public static TransformPluginType getInstance() {
-    if ( transformPluginType == null ) {
+    if (transformPluginType == null) {
       transformPluginType = new TransformPluginType();
     }
     return transformPluginType;
   }
 
   @Override
-  protected String extractCategory( Transform annotation ) {
+  protected String extractCategory(Transform annotation) {
     return annotation.categoryDescription();
   }
 
   @Override
-  protected String extractDesc( Transform annotation ) {
+  protected String extractDesc(Transform annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( Transform annotation ) {
+  protected String extractID(Transform annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( Transform annotation ) {
+  protected String extractName(Transform annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( Transform annotation ) {
+  protected String extractImageFile(Transform annotation) {
     return annotation.image();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Transform annotation ) {
+  protected boolean extractSeparateClassLoader(Transform annotation) {
     return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Transform annotation ) {
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, Transform annotation) {}
+
+  @Override
+  protected String extractDocumentationUrl(Transform annotation) {
+    return Const.getDocUrl(annotation.documentationUrl());
   }
 
   @Override
-  protected String extractDocumentationUrl( Transform annotation ) {
-    return Const.getDocUrl( annotation.documentationUrl() );
-  }
-
-  @Override
-  protected String extractCasesUrl( Transform annotation ) {
+  protected String extractCasesUrl(Transform annotation) {
     return annotation.casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( Transform annotation ) {
+  protected String extractForumUrl(Transform annotation) {
     return annotation.forumUrl();
   }
 
   @Override
-  protected String extractClassLoaderGroup( Transform annotation ) {
+  protected String extractClassLoaderGroup(Transform annotation) {
     return annotation.classLoaderGroup();
   }
 
   @Override
-  protected String extractSuggestion( Transform annotation ) {
+  protected String extractSuggestion(Transform annotation) {
     return annotation.suggestion();
   }
 
-  @Override protected String[] extractKeywords( Transform annotation ) {
+  @Override
+  protected String[] extractKeywords(Transform annotation) {
     return annotation.keywords();
   }
 }

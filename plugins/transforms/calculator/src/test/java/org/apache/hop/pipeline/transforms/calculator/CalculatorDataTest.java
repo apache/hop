@@ -25,9 +25,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class CalculatorDataTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -36,8 +34,9 @@ public class CalculatorDataTest {
     HopEnvironment.init();
 
     CalculatorData data = new CalculatorData();
-    IValueMeta valueMeta = data.getValueMetaFor( IValueMeta.TYPE_INTEGER, null );
-    IValueMeta shouldBeTheSame = data.getValueMetaFor( IValueMeta.TYPE_INTEGER, null );
-    assertTrue( "CalculatorData should cache loaded value meta instances", valueMeta == shouldBeTheSame );
+    IValueMeta valueMeta = data.getValueMetaFor(IValueMeta.TYPE_INTEGER, null);
+    IValueMeta shouldBeTheSame = data.getValueMetaFor(IValueMeta.TYPE_INTEGER, null);
+    assertTrue(
+        "CalculatorData should cache loaded value meta instances", valueMeta == shouldBeTheSame);
   }
 }

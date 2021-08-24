@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
-
 import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 
 /*
  * @author Samatar

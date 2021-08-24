@@ -23,37 +23,35 @@ import java.util.Objects;
 
 public class VariableValueDescription {
 
-  @HopMetadataProperty
-  private String name;
+  @HopMetadataProperty private String name;
 
-  @HopMetadataProperty
-  private String value;
+  @HopMetadataProperty private String value;
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  public VariableValueDescription() {
-  }
+  public VariableValueDescription() {}
 
-  public VariableValueDescription( String name, String value, String description ) {
+  public VariableValueDescription(String name, String value, String description) {
     this.name = name;
     this.value = value;
     this.description = description;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     VariableValueDescription that = (VariableValueDescription) o;
-    return Objects.equals( name, that.name );
+    return Objects.equals(name, that.name);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name );
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
 
   /**
@@ -65,10 +63,8 @@ public class VariableValueDescription {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -81,10 +77,8 @@ public class VariableValueDescription {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 
@@ -97,10 +91,8 @@ public class VariableValueDescription {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 }

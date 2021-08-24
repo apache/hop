@@ -28,36 +28,44 @@ import org.apache.hop.core.row.value.ValueMetaString;
  * @since 11-05-2005
  */
 public class TextFileField implements Cloneable {
-  @Injection( name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS")
   private String name;
 
   private int type;
 
-  @Injection( name = "OUTPUT_FORMAT", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_FORMAT", group = "OUTPUT_FIELDS")
   private String format;
 
-  @Injection( name = "OUTPUT_LENGTH", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_LENGTH", group = "OUTPUT_FIELDS")
   private int length = -1;
 
-  @Injection( name = "OUTPUT_PRECISION", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_PRECISION", group = "OUTPUT_FIELDS")
   private int precision = -1;
 
-  @Injection( name = "OUTPUT_CURRENCY", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_CURRENCY", group = "OUTPUT_FIELDS")
   private String currencySymbol;
 
-  @Injection( name = "OUTPUT_DECIMAL", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_DECIMAL", group = "OUTPUT_FIELDS")
   private String decimalSymbol;
 
-  @Injection( name = "OUTPUT_GROUP", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_GROUP", group = "OUTPUT_FIELDS")
   private String groupingSymbol;
 
-  @Injection( name = "OUTPUT_NULL", group = "OUTPUT_FIELDS" )
+  @Injection(name = "OUTPUT_NULL", group = "OUTPUT_FIELDS")
   private String nullString;
 
   private int trimType;
 
-  public TextFileField( String name, int type, String format, int length, int precision, String currencySymbol,
-                        String decimalSymbol, String groupSymbol, String nullString ) {
+  public TextFileField(
+      String name,
+      int type,
+      String format,
+      int length,
+      int precision,
+      String currencySymbol,
+      String decimalSymbol,
+      String groupSymbol,
+      String nullString) {
     this.name = name;
     this.type = type;
     this.format = format;
@@ -69,19 +77,18 @@ public class TextFileField implements Cloneable {
     this.nullString = nullString;
   }
 
-  public TextFileField() {
-  }
+  public TextFileField() {}
 
-  public int compare( Object obj ) {
+  public int compare(Object obj) {
     TextFileField field = (TextFileField) obj;
 
-    return name.compareTo( field.getName() );
+    return name.compareTo(field.getName());
   }
 
-  public boolean equal( Object obj ) {
+  public boolean equal(Object obj) {
     TextFileField field = (TextFileField) obj;
 
-    return name.equals( field.getName() );
+    return name.equals(field.getName());
   }
 
   @Override
@@ -89,7 +96,7 @@ public class TextFileField implements Cloneable {
     try {
       Object retval = super.clone();
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -98,7 +105,7 @@ public class TextFileField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -106,7 +113,7 @@ public class TextFileField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -115,23 +122,23 @@ public class TextFileField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
-  @Injection( name = "OUTPUT_TYPE", group = "OUTPUT_FIELDS" )
-  public void setType( String typeDesc ) {
-    this.type = ValueMetaFactory.getIdForValueMeta( typeDesc );
+  @Injection(name = "OUTPUT_TYPE", group = "OUTPUT_FIELDS")
+  public void setType(String typeDesc) {
+    this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
 
   public String getFormat() {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -139,7 +146,7 @@ public class TextFileField implements Cloneable {
     return groupingSymbol;
   }
 
-  public void setGroupingSymbol( String group_symbol ) {
+  public void setGroupingSymbol(String group_symbol) {
     this.groupingSymbol = group_symbol;
   }
 
@@ -147,7 +154,7 @@ public class TextFileField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
+  public void setDecimalSymbol(String decimal_symbol) {
     this.decimalSymbol = decimal_symbol;
   }
 
@@ -155,7 +162,7 @@ public class TextFileField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
+  public void setCurrencySymbol(String currency_symbol) {
     this.currencySymbol = currency_symbol;
   }
 
@@ -163,7 +170,7 @@ public class TextFileField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -171,7 +178,7 @@ public class TextFileField implements Cloneable {
     return nullString;
   }
 
-  public void setNullString( String nullString ) {
+  public void setNullString(String nullString) {
     this.nullString = nullString;
   }
 
@@ -184,20 +191,20 @@ public class TextFileField implements Cloneable {
     return trimType;
   }
 
-  public void setTrimType( int trimType ) {
+  public void setTrimType(int trimType) {
     this.trimType = trimType;
   }
 
-  @Injection( name = "OUTPUT_TRIM", group = "OUTPUT_FIELDS" )
-  public void setTrimTypeByDesc( String value ) {
-    this.trimType = ValueMetaString.getTrimTypeByDesc( value );
+  @Injection(name = "OUTPUT_TRIM", group = "OUTPUT_FIELDS")
+  public void setTrimTypeByDesc(String value) {
+    this.trimType = ValueMetaString.getTrimTypeByDesc(value);
   }
 
   public String getTrimTypeCode() {
-    return ValueMetaString.getTrimTypeCode( trimType );
+    return ValueMetaString.getTrimTypeCode(trimType);
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaString.getTrimTypeDesc( trimType );
+    return ValueMetaString.getTrimTypeDesc(trimType);
   }
 }

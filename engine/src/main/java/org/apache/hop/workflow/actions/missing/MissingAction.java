@@ -31,24 +31,26 @@ public class MissingAction extends ActionBase implements IAction {
 
   /** Action unique identifier" */
   public static final String ID = "MISSING";
-    
+
   private final String missingPluginId;
 
   public MissingAction() {
-      this(null, null);
+    this(null, null);
   }
-  
-  public MissingAction( String name, String missingPluginId ) {
-    super( name, "" );
-    setPluginId( ID );
+
+  public MissingAction(String name, String missingPluginId) {
+    super(name, "");
+    setPluginId(ID);
     this.missingPluginId = missingPluginId;
   }
 
   @Override
-  public Result execute( Result previousResult, int nr ) throws HopWorkflowException {
-    previousResult.setResult( false );
-    previousResult.setNrErrors( previousResult.getNrErrors() + 1 );
-    getLogChannel().logError( BaseMessages.getString( MissingAction.class, "MissingAction.Log.CannotRunWorkflow" ) );
+  public Result execute(Result previousResult, int nr) throws HopWorkflowException {
+    previousResult.setResult(false);
+    previousResult.setNrErrors(previousResult.getNrErrors() + 1);
+    getLogChannel()
+        .logError(
+            BaseMessages.getString(MissingAction.class, "MissingAction.Log.CannotRunWorkflow"));
     return previousResult;
   }
 
@@ -58,6 +60,5 @@ public class MissingAction extends ActionBase implements IAction {
 
   @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-  }
+      throws HopXmlException {}
 }

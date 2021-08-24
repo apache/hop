@@ -22,7 +22,8 @@ import org.apache.hop.core.exception.HopException;
 public interface ITwoWayPasswordEncoder {
 
   /**
-   * Initialize the password encoder by loading key details from the environment (hop.properties or system settings).
+   * Initialize the password encoder by loading key details from the environment (hop.properties or
+   * system settings).
    *
    * @throws HopException
    */
@@ -34,25 +35,26 @@ public interface ITwoWayPasswordEncoder {
    * @param password The password to encode
    * @return The encoded password string
    */
-  String encode( String password );
+  String encode(String password);
 
   /**
    * Encode a password.
    *
-   * @param password      The password to encode
+   * @param password The password to encode
    * @param includePrefix True if a prefix needs to be encoded
    * @return The encoded password string
    */
-  String encode( String password, boolean includePrefix );
+  String encode(String password, boolean includePrefix);
 
   /**
    * Decode a password.
    *
-   * @param encodedPassword     The encoded password with or without a prefix
-   * @param optionallyEncrypted Set to true if the password is optionally encrypted (indicated by a prefix).
+   * @param encodedPassword The encoded password with or without a prefix
+   * @param optionallyEncrypted Set to true if the password is optionally encrypted (indicated by a
+   *     prefix).
    * @return The decoded password string
    */
-  String decode( String encodedPassword, boolean optionallyEncrypted );
+  String decode(String encodedPassword, boolean optionallyEncrypted);
 
   /**
    * Decode a password which does NOT have a prefix attached.
@@ -60,10 +62,8 @@ public interface ITwoWayPasswordEncoder {
    * @param encodedPassword The encoded password without a prefix
    * @return The decoded password string
    */
-  String decode( String encodedPassword );
+  String decode(String encodedPassword);
 
-  /**
-   * @return The prefixes to the encoded passwords which this password encoder supports.
-   */
+  /** @return The prefixes to the encoded passwords which this password encoder supports. */
   String[] getPrefixes();
 }

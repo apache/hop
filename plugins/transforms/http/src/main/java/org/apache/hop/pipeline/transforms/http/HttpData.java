@@ -44,9 +44,7 @@ public class HttpData extends BaseTransformData implements ITransformData {
   public int realConnectionTimeout;
   public int realcloseIdleConnectionsTime;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public HttpData() {
     super();
     indexOfUrlField = -1;

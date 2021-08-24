@@ -23,14 +23,12 @@ import java.util.Date;
 
 public interface IMetricsSnapshot {
 
-  /**
-   * @return The metric that is being recorded, includes type, code and description
-   */
+  /** @return The metric that is being recorded, includes type, code and description */
   IMetrics getMetric();
 
   Date getDate();
 
-  void setDate( Date date );
+  void setDate(Date date);
 
   String getSubject();
 
@@ -38,7 +36,7 @@ public interface IMetricsSnapshot {
 
   Long getValue();
 
-  void setValue( Long value );
+  void setValue(Long value);
 
   /**
    * Calculate the key for this snapshot, usually a combination of description and subject.

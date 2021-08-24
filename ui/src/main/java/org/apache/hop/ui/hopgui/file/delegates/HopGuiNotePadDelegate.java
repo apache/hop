@@ -36,50 +36,67 @@ public class HopGuiNotePadDelegate {
   private IHopFileTypeHandler handler;
   private PropsUi props;
 
-  public HopGuiNotePadDelegate( HopGui hopGui, IHopFileTypeHandler handler ) {
+  public HopGuiNotePadDelegate(HopGui hopGui, IHopFileTypeHandler handler) {
     this.hopGui = hopGui;
     this.handler = handler;
     this.props = PropsUi.getInstance();
   }
 
-  public void deleteNotes( AbstractMeta meta, List<NotePadMeta> notes ) {
-    if ( notes == null || notes.isEmpty() ) {
+  public void deleteNotes(AbstractMeta meta, List<NotePadMeta> notes) {
+    if (notes == null || notes.isEmpty()) {
       return; // Nothing to do
     }
-    int[] idxs = new int[ notes.size() ];
-    NotePadMeta[] noteCopies = new NotePadMeta[ notes.size() ];
-    for ( int i = 0; i < idxs.length; i++ ) {
-      idxs[ i ] = meta.indexOfNote( notes.get( i ) );
-      noteCopies[ i ] = new NotePadMeta( notes.get( i ) );
+    int[] idxs = new int[notes.size()];
+    NotePadMeta[] noteCopies = new NotePadMeta[notes.size()];
+    for (int i = 0; i < idxs.length; i++) {
+      idxs[i] = meta.indexOfNote(notes.get(i));
+      noteCopies[i] = new NotePadMeta(notes.get(i));
     }
-    for ( int idx : idxs ) {
-      meta.removeNote( idx );
+    for (int idx : idxs) {
+      meta.removeNote(idx);
     }
-    hopGui.undoDelegate.addUndoDelete( meta, noteCopies, idxs );
+    hopGui.undoDelegate.addUndoDelete(meta, noteCopies, idxs);
     handler.updateGui();
   }
 
-  public void deleteNote( AbstractMeta meta, NotePadMeta notePadMeta ) {
-    int idx = meta.indexOfNote( notePadMeta );
-    if ( idx >= 0 ) {
-      meta.removeNote( idx );
-      hopGui.undoDelegate.addUndoDelete( meta, new NotePadMeta[] { (NotePadMeta) notePadMeta.clone() }, new int[] { idx } );
+  public void deleteNote(AbstractMeta meta, NotePadMeta notePadMeta) {
+    int idx = meta.indexOfNote(notePadMeta);
+    if (idx >= 0) {
+      meta.removeNote(idx);
+      hopGui.undoDelegate.addUndoDelete(
+          meta, new NotePadMeta[] {(NotePadMeta) notePadMeta.clone()}, new int[] {idx});
     }
     handler.updateGui();
   }
 
-  public void newNote( IVariables variables, AbstractMeta meta, int x, int y ) {
-    String title = BaseMessages.getString( PKG, "PipelineGraph.Dialog.NoteEditor.Title" );
-    NotePadDialog dd = new NotePadDialog( variables, hopGui.getShell(), title );
+  public void newNote(IVariables variables, AbstractMeta meta, int x, int y) {
+    String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NoteEditor.Title");
+    NotePadDialog dd = new NotePadDialog(variables, hopGui.getShell(), title);
     NotePadMeta n = dd.open();
-    if ( n != null ) {
+    if (n != null) {
       NotePadMeta npi =
-        new NotePadMeta( n.getNote(), x, y, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE, n
-          .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
-          .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
-          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue() );
-      meta.addNote( npi );
-      hopGui.undoDelegate.addUndoNew( meta, new NotePadMeta[] { npi }, new int[] { meta.indexOfNote( npi ) } );
+          new NotePadMeta(
+              n.getNote(),
+              x,
+              y,
+              ConstUi.NOTE_MIN_SIZE,
+              ConstUi.NOTE_MIN_SIZE,
+              n.getFontName(),
+              n.getFontSize(),
+              n.isFontBold(),
+              n.isFontItalic(),
+              n.getFontColorRed(),
+              n.getFontColorGreen(),
+              n.getFontColorBlue(),
+              n.getBackGroundColorRed(),
+              n.getBackGroundColorGreen(),
+              n.getBackGroundColorBlue(),
+              n.getBorderColorRed(),
+              n.getBorderColorGreen(),
+              n.getBorderColorBlue());
+      meta.addNote(npi);
+      hopGui.undoDelegate.addUndoNew(
+          meta, new NotePadMeta[] {npi}, new int[] {meta.indexOfNote(npi)});
       handler.updateGui();
     }
   }

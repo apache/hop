@@ -16,21 +16,24 @@
  */
 package org.apache.hop.workflow.actions.createfolder;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionCreateFolderLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionCreateFolder> {
+public class WorkflowActionCreateFolderLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionCreateFolder> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Override protected Class<ActionCreateFolder> getActionClass() {
+  @Override
+  protected Class<ActionCreateFolder> getActionClass() {
     return ActionCreateFolder.class;
   }
 
-  @Override protected List<String> listCommonAttributes() {
-    return Arrays.asList( "foldername", "failOfFolderExists" );
+  @Override
+  protected List<String> listCommonAttributes() {
+    return Arrays.asList("foldername", "failOfFolderExists");
   }
 }

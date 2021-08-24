@@ -24,16 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@CompressionPlugin(
-  id = "SNAPPY",
-  name = "Snappy",
-  description = "Snappy compression"
-)
+@CompressionPlugin(id = "SNAPPY", name = "Snappy", description = "Snappy compression")
 public class SnappyCompressionProvider implements ICompressionProvider {
 
   @Override
-  public SnappyCompressionInputStream createInputStream( InputStream in ) throws IOException {
-    return new SnappyCompressionInputStream( in, this );
+  public SnappyCompressionInputStream createInputStream(InputStream in) throws IOException {
+    return new SnappyCompressionInputStream(in, this);
   }
 
   @Override
@@ -42,8 +38,8 @@ public class SnappyCompressionProvider implements ICompressionProvider {
   }
 
   @Override
-  public SnappyCompressionOutputStream createOutputStream( OutputStream out ) throws IOException {
-    return new SnappyCompressionOutputStream( out, this );
+  public SnappyCompressionOutputStream createOutputStream(OutputStream out) throws IOException {
+    return new SnappyCompressionOutputStream(out, this);
   }
 
   @Override

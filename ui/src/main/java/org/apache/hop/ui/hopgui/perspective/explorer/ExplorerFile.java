@@ -18,14 +18,10 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer;
 
-import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.listeners.IContentChangedListener;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Composite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +41,12 @@ public class ExplorerFile {
     contentChangedListeners = new ArrayList<>();
   }
 
-  public ExplorerFile( String name, Image tabImage, String filename, IExplorerFileType fileType, IExplorerFileTypeHandler fileTypeHandler ) {
+  public ExplorerFile(
+      String name,
+      Image tabImage,
+      String filename,
+      IExplorerFileType fileType,
+      IExplorerFileTypeHandler fileTypeHandler) {
     this();
     this.name = name;
     this.tabImage = tabImage;
@@ -54,19 +55,21 @@ public class ExplorerFile {
     this.fileTypeHandler = fileTypeHandler;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     ExplorerFile that = (ExplorerFile) o;
-    return Objects.equals( filename, that.filename );
+    return Objects.equals(filename, that.filename);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( filename );
+  @Override
+  public int hashCode() {
+    return Objects.hash(filename);
   }
 
   /**
@@ -78,10 +81,8 @@ public class ExplorerFile {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -94,10 +95,8 @@ public class ExplorerFile {
     return tabImage;
   }
 
-  /**
-   * @param tabImage The tabImage to set
-   */
-  public void setTabImage( Image tabImage ) {
+  /** @param tabImage The tabImage to set */
+  public void setTabImage(Image tabImage) {
     this.tabImage = tabImage;
   }
 
@@ -110,10 +109,8 @@ public class ExplorerFile {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -126,10 +123,8 @@ public class ExplorerFile {
     return fileType;
   }
 
-  /**
-   * @param fileType The fileType to set
-   */
-  public void setFileType( IExplorerFileType fileType ) {
+  /** @param fileType The fileType to set */
+  public void setFileType(IExplorerFileType fileType) {
     this.fileType = fileType;
   }
 
@@ -142,10 +137,8 @@ public class ExplorerFile {
     return fileTypeHandler;
   }
 
-  /**
-   * @param fileTypeHandler The fileTypeHandler to set
-   */
-  public void setFileTypeHandler( IExplorerFileTypeHandler fileTypeHandler ) {
+  /** @param fileTypeHandler The fileTypeHandler to set */
+  public void setFileTypeHandler(IExplorerFileTypeHandler fileTypeHandler) {
     this.fileTypeHandler = fileTypeHandler;
   }
 
@@ -158,9 +151,7 @@ public class ExplorerFile {
     return changed;
   }
 
-  /**
-   * Flag the file as changed
-   */
+  /** Flag the file as changed */
   public void setChanged() {
     if (!changed) {
       this.changed = true;
@@ -190,6 +181,7 @@ public class ExplorerFile {
 
   /**
    * Be informed if content changed.
+   *
    * @param listener
    */
   public void addContentChangedListener(IContentChangedListener listener) {

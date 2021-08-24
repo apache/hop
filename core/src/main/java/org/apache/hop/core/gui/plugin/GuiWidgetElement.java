@@ -17,18 +17,14 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( { ElementType.FIELD, ElementType.METHOD } )
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface GuiWidgetElement {
 
   /**
@@ -73,29 +69,19 @@ public @interface GuiWidgetElement {
    */
   String parentId() default "";
 
-  /**
-   * @return True if the text element you define is a password with an asterisk mask
-   */
+  /** @return True if the text element you define is a password with an asterisk mask */
   boolean password() default false;
 
-  /**
-   * @return true if the widget supports variables
-   */
+  /** @return true if the widget supports variables */
   boolean variables() default true;
 
-  /**
-   * @return The setter method of the property if it's non-standard
-   */
+  /** @return The setter method of the property if it's non-standard */
   String setterMethod() default "";
 
-  /**
-   * @return The getter method of the property if it's non-standard
-   */
+  /** @return The getter method of the property if it's non-standard */
   String getterMethod() default "";
 
-  /**
-   * @return The method which returns a String[] to populate a combo box widget GUI element
-   */
+  /** @return The method which returns a String[] to populate a combo box widget GUI element */
   String comboValuesMethod() default "";
 
   /**
@@ -106,15 +92,16 @@ public @interface GuiWidgetElement {
   String order() default "";
 
   /**
-   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or variables.
+   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or
+   * variables.
    *
    * @return True if you want a separator before this element
    */
   boolean separator() default false;
 
   /**
-   * Set this flag to true if you want to ignore the field as a GUI Element.
-   * You can use this to override a GUI element from a base class.
+   * Set this flag to true if you want to ignore the field as a GUI Element. You can use this to
+   * override a GUI element from a base class.
    *
    * @return True if you want this element to be ignored
    */

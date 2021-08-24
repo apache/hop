@@ -34,7 +34,7 @@ import java.util.List;
 
 public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBaseMeta> {
 
-  public final double theta = Math.toRadians( 11 ); // arrowhead sharpness
+  public final double theta = Math.toRadians(11); // arrowhead sharpness
 
   public static final int MINI_ICON_MARGIN = 5;
   public static final int MINI_ICON_TRIANGLE_BASE = 20;
@@ -79,9 +79,22 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Hop candidate;
 
-  public BasePainter( IGc gc, IVariables variables, Object subject, Point area, IScrollBar hori,
-                      IScrollBar vert, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
-                      int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor, boolean drawingEditIcons ) {
+  public BasePainter(
+      IGc gc,
+      IVariables variables,
+      Object subject,
+      Point area,
+      IScrollBar hori,
+      IScrollBar vert,
+      Rectangle selectionRectangle,
+      List<AreaOwner> areaOwners,
+      int iconSize,
+      int lineWidth,
+      int gridSize,
+      String noteFontName,
+      int noteFontHeight,
+      double zoomFactor,
+      boolean drawingEditIcons) {
     this.gc = gc;
     this.variables = variables;
     this.subject = subject;
@@ -96,7 +109,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     // props = PropsUI.getInstance();
     this.iconSize = iconSize;
-    this.miniIconSize = iconSize/2;
+    this.miniIconSize = iconSize / 2;
     this.lineWidth = lineWidth;
     this.gridSize = gridSize;
 
@@ -104,14 +117,14 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.zoomFactor = zoomFactor;
     this.drawingEditIcons = drawingEditIcons;
 
-    gc.setAntialias( true );
+    gc.setAntialias(true);
 
     this.noteFontName = noteFontName;
     this.noteFontHeight = noteFontHeight;
   }
 
-  public static EImage getStreamIconImage( StreamIcon streamIcon ) {
-    switch ( streamIcon ) {
+  public static EImage getStreamIconImage(StreamIcon streamIcon) {
+    switch (streamIcon) {
       case TRUE:
         return EImage.TRUE;
       case FALSE:
@@ -131,44 +144,48 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     }
   }
 
-  protected void drawNote( NotePadMeta notePadMeta ) {
-    if ( notePadMeta.isSelected() ) {
-      gc.setLineWidth( 2 );
+  protected void drawNote(NotePadMeta notePadMeta) {
+    if (notePadMeta.isSelected()) {
+      gc.setLineWidth(2);
     } else {
-      gc.setLineWidth( 1 );
+      gc.setLineWidth(1);
     }
 
     Point ext;
-    if ( Utils.isEmpty( notePadMeta.getNote() ) ) {
-      ext = new Point( 10, 10 ); // Empty note
+    if (Utils.isEmpty(notePadMeta.getNote())) {
+      ext = new Point(10, 10); // Empty note
     } else {
 
       int fontHeight;
-      if (notePadMeta.getFontSize()>0) {
+      if (notePadMeta.getFontSize() > 0) {
         fontHeight = notePadMeta.getFontSize();
       } else {
         fontHeight = noteFontHeight;
       }
-      gc.setFont( Const.NVL( notePadMeta.getFontName(), noteFontName ), (int)((double)fontHeight/zoomFactor), notePadMeta.isFontBold(), notePadMeta.isFontItalic() );
+      gc.setFont(
+          Const.NVL(notePadMeta.getFontName(), noteFontName),
+          (int) ((double) fontHeight / zoomFactor),
+          notePadMeta.isFontBold(),
+          notePadMeta.isFontItalic());
 
-      ext = gc.textExtent( notePadMeta.getNote() );
+      ext = gc.textExtent(notePadMeta.getNote());
     }
-    Point p = new Point( ext.x, ext.y );
+    Point p = new Point(ext.x, ext.y);
     Point loc = notePadMeta.getLocation();
-    Point note = real2screen( loc.x, loc.y );
+    Point note = real2screen(loc.x, loc.y);
     int margin = Const.NOTE_MARGIN;
     p.x += 2 * margin;
     p.y += 2 * margin;
     int width = notePadMeta.width;
     int height = notePadMeta.height;
-    if ( p.x > width ) {
+    if (p.x > width) {
       width = p.x;
     }
-    if ( p.y > height ) {
+    if (p.y > height) {
       height = p.y;
     }
 
-    Rectangle noteShape = new Rectangle( note.x, note.y, width, height );
+    Rectangle noteShape = new Rectangle(note.x, note.y, width, height);
 
     /*
     int[] noteShape = new int[] {
@@ -183,134 +200,150 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     };
      */
 
-    gc.setBackground( notePadMeta.getBackGroundColorRed(), notePadMeta.getBackGroundColorGreen(), notePadMeta.getBackGroundColorBlue() );
-    gc.setForeground( notePadMeta.getBorderColorRed(), notePadMeta.getBorderColorGreen(), notePadMeta.getBorderColorBlue() );
+    gc.setBackground(
+        notePadMeta.getBackGroundColorRed(),
+        notePadMeta.getBackGroundColorGreen(),
+        notePadMeta.getBackGroundColorBlue());
+    gc.setForeground(
+        notePadMeta.getBorderColorRed(),
+        notePadMeta.getBorderColorGreen(),
+        notePadMeta.getBorderColorBlue());
 
     // Radius is half the font height
     //
-    int radius = (int)Math.round( zoomFactor * notePadMeta.getFontSize()/2 );
+    int radius = (int) Math.round(zoomFactor * notePadMeta.getFontSize() / 2);
 
-    gc.fillRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius );
-    gc.drawRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius );
+    gc.fillRoundRectangle(
+        noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius);
+    gc.drawRoundRectangle(
+        noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius);
 
-    if ( !Utils.isEmpty( notePadMeta.getNote() ) ) {
-      gc.setForeground( notePadMeta.getFontColorRed(), notePadMeta.getFontColorGreen(), notePadMeta.getFontColorBlue() );
-      gc.drawText( notePadMeta.getNote(), note.x + margin, note.y + margin, true );
+    if (!Utils.isEmpty(notePadMeta.getNote())) {
+      gc.setForeground(
+          notePadMeta.getFontColorRed(),
+          notePadMeta.getFontColorGreen(),
+          notePadMeta.getFontColorBlue());
+      gc.drawText(notePadMeta.getNote(), note.x + margin, note.y + margin, true);
     }
 
     notePadMeta.width = width; // Save for the "mouse" later on...
     notePadMeta.height = height;
 
-    if ( notePadMeta.isSelected() ) {
-      gc.setLineWidth( 1 );
+    if (notePadMeta.isSelected()) {
+      gc.setLineWidth(1);
     } else {
-      gc.setLineWidth( 2 );
+      gc.setLineWidth(2);
     }
 
     // Add to the list of areas...
     //
-    areaOwners.add( new AreaOwner( AreaType.NOTE, noteShape.x, noteShape.y, noteShape.width, noteShape.height, offset, subject, notePadMeta ) );
+    areaOwners.add(
+        new AreaOwner(
+            AreaType.NOTE,
+            noteShape.x,
+            noteShape.y,
+            noteShape.width,
+            noteShape.height,
+            offset,
+            subject,
+            notePadMeta));
   }
 
-  protected int translateTo1To1( int value ) {
-    return Math.round( value / magnification );
+  protected int translateTo1To1(int value) {
+    return Math.round(value / magnification);
   }
 
-  protected int translateToCurrentScale( int value ) {
-    return Math.round( value * magnification );
+  protected int translateToCurrentScale(int value) {
+    return Math.round(value * magnification);
   }
 
-  protected Point real2screen( int x, int y ) {
-    Point screen = new Point( x + offset.x, y + offset.y );
+  protected Point real2screen(int x, int y) {
+    Point screen = new Point(x + offset.x, y + offset.y);
 
     return screen;
   }
 
-  protected Point getThumb( Point area, Point pipelineMax ) {
-    Point resizedMax = magnifyPoint( pipelineMax );
+  protected Point getThumb(Point area, Point pipelineMax) {
+    Point resizedMax = magnifyPoint(pipelineMax);
 
-    Point thumb = new Point( 0, 0 );
-    if ( resizedMax.x <= area.x ) {
+    Point thumb = new Point(0, 0);
+    if (resizedMax.x <= area.x) {
       thumb.x = 100;
     } else {
-      thumb.x = (int) Math.floor( 100d * area.x / resizedMax.x );
+      thumb.x = (int) Math.floor(100d * area.x / resizedMax.x);
     }
 
-    if ( resizedMax.y <= area.y ) {
+    if (resizedMax.y <= area.y) {
       thumb.y = 100;
     } else {
-      thumb.y = (int) Math.floor( 100d * area.y / resizedMax.y );
+      thumb.y = (int) Math.floor(100d * area.y / resizedMax.y);
     }
 
     return thumb;
   }
 
-  protected Point magnifyPoint( Point p ) {
-    return new Point( Math.round( p.x * magnification ), Math.round( p.y * magnification ) );
+  protected Point magnifyPoint(Point p) {
+    return new Point(Math.round(p.x * magnification), Math.round(p.y * magnification));
   }
 
-  protected Point getOffset( Point thumb, Point area ) {
-    Point p = new Point( 0, 0 );
+  protected Point getOffset(Point thumb, Point area) {
+    Point p = new Point(0, 0);
 
-    if ( hori == null || vert == null ) {
+    if (hori == null || vert == null) {
       return p;
     }
 
-    Point sel = new Point( hori.getSelection(), vert.getSelection() );
+    Point sel = new Point(hori.getSelection(), vert.getSelection());
 
-    if ( thumb.x == 0 || thumb.y == 0 ) {
+    if (thumb.x == 0 || thumb.y == 0) {
       return p;
     }
 
-    p.x = Math.round( -sel.x * area.x / thumb.x / magnification );
-    p.y = Math.round( -sel.y * area.y / thumb.y / magnification );
+    p.x = Math.round(-sel.x * area.x / thumb.x / magnification);
+    p.y = Math.round(-sel.y * area.y / thumb.y / magnification);
 
     return p;
   }
 
-  protected void drawRect( Rectangle rect ) {
-    if ( rect == null ) {
+  protected void drawRect(Rectangle rect) {
+    if (rect == null) {
       return;
     }
-    gc.setLineStyle( ELineStyle.DASHDOT );
-    gc.setLineWidth( lineWidth );
-    gc.setForeground( EColor.GRAY );
+    gc.setLineStyle(ELineStyle.DASHDOT);
+    gc.setLineWidth(lineWidth);
+    gc.setForeground(EColor.GRAY);
     // SWT on Windows doesn't cater for negative rect.width/height so handle here.
-    Point s = real2screen( rect.x, rect.y );
-    if ( rect.width < 0 ) {
+    Point s = real2screen(rect.x, rect.y);
+    if (rect.width < 0) {
       s.x = s.x + rect.width;
     }
-    if ( rect.height < 0 ) {
+    if (rect.height < 0) {
       s.y = s.y + rect.height;
     }
-    gc.drawRectangle( s.x, s.y, Math.abs( rect.width ), Math.abs( rect.height ) );
-    gc.setLineStyle( ELineStyle.SOLID );
+    gc.drawRectangle(s.x, s.y, Math.abs(rect.width), Math.abs(rect.height));
+    gc.setLineStyle(ELineStyle.SOLID);
   }
 
   protected void drawGrid() {
     Point bounds = gc.getDeviceBounds();
-    for ( int x = 0; x < bounds.x; x += gridSize ) {
-      for ( int y = 0; y < bounds.y; y += gridSize ) {
-        gc.drawPoint( x + ( offset.x % gridSize ), y + ( offset.y % gridSize ) );
+    for (int x = 0; x < bounds.x; x += gridSize) {
+      for (int y = 0; y < bounds.y; y += gridSize) {
+        gc.drawPoint(x + (offset.x % gridSize), y + (offset.y % gridSize));
       }
     }
   }
 
   protected int calcArrowLength() {
-    return 19 + ( lineWidth - 1 ) * 5; // arrowhead length;
+    return 19 + (lineWidth - 1) * 5; // arrowhead length;
   }
 
-  /**
-   * @return the magnification
-   */
+  /** @return the magnification */
   public float getMagnification() {
     return magnification;
   }
 
-  /**
-   * @param magnification the magnification to set
-   */
-  public void setMagnification( float magnification ) {
+  /** @param magnification the magnification to set */
+  public void setMagnification(float magnification) {
     this.magnification = magnification;
   }
 
@@ -318,7 +351,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return area;
   }
 
-  public void setArea( Point area ) {
+  public void setArea(Point area) {
     this.area = area;
   }
 
@@ -326,7 +359,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return hori;
   }
 
-  public void setHori( IScrollBar hori ) {
+  public void setHori(IScrollBar hori) {
     this.hori = hori;
   }
 
@@ -334,7 +367,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return vert;
   }
 
-  public void setVert( IScrollBar vert ) {
+  public void setVert(IScrollBar vert) {
     this.vert = vert;
   }
 
@@ -342,7 +375,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return areaOwners;
   }
 
-  public void setAreaOwners( List<AreaOwner> areaOwners ) {
+  public void setAreaOwners(List<AreaOwner> areaOwners) {
     this.areaOwners = areaOwners;
   }
 
@@ -350,7 +383,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return offset;
   }
 
-  public void setOffset( Point offset ) {
+  public void setOffset(Point offset) {
     this.offset = offset;
   }
 
@@ -358,7 +391,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return iconSize;
   }
 
-  public void setIconSize( int iconSize ) {
+  public void setIconSize(int iconSize) {
     this.iconSize = iconSize;
   }
 
@@ -366,7 +399,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return gridSize;
   }
 
-  public void setGridSize( int gridSize ) {
+  public void setGridSize(int gridSize) {
     this.gridSize = gridSize;
   }
 
@@ -374,7 +407,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return selectionRectangle;
   }
 
-  public void setSelectionRectangle( Rectangle selectionRectangle ) {
+  public void setSelectionRectangle(Rectangle selectionRectangle) {
     this.selectionRectangle = selectionRectangle;
   }
 
@@ -382,7 +415,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return lineWidth;
   }
 
-  public void setLineWidth( int lineWidth ) {
+  public void setLineWidth(int lineWidth) {
     this.lineWidth = lineWidth;
   }
 
@@ -390,7 +423,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return translationX;
   }
 
-  public void setTranslationX( float translationX ) {
+  public void setTranslationX(float translationX) {
     this.translationX = translationX;
   }
 
@@ -398,7 +431,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return translationY;
   }
 
-  public void setTranslationY( float translationY ) {
+  public void setTranslationY(float translationY) {
     this.translationY = translationY;
   }
 
@@ -406,7 +439,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return subject;
   }
 
-  public void setSubject( Object subject ) {
+  public void setSubject(Object subject) {
     this.subject = subject;
   }
 
@@ -414,7 +447,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return gc;
   }
 
-  public void setGc( IGc gc ) {
+  public void setGc(IGc gc) {
     this.gc = gc;
   }
 
@@ -422,7 +455,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return noteFontName;
   }
 
-  public void setNoteFontName( String noteFontName ) {
+  public void setNoteFontName(String noteFontName) {
     this.noteFontName = noteFontName;
   }
 
@@ -430,7 +463,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return noteFontHeight;
   }
 
-  public void setNoteFontHeight( int noteFontHeight ) {
+  public void setNoteFontHeight(int noteFontHeight) {
     this.noteFontHeight = noteFontHeight;
   }
 
@@ -438,17 +471,16 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return theta;
   }
 
-
   public Hop getCandidate() {
     return candidate;
   }
 
-  public void setCandidate( Hop candidate ) {
+  public void setCandidate(Hop candidate) {
     this.candidate = candidate;
   }
 
-  protected int[] getLine( Part fs, Part ts ) {
-    if ( fs == null || ts == null ) {
+  protected int[] getLine(Part fs, Part ts) {
+    if (fs == null || ts == null) {
       return null;
     }
 
@@ -461,19 +493,41 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     int x2 = to.x + iconSize / 2;
     int y2 = to.y + iconSize / 2;
 
-    return new int[] { x1, y1, x2, y2 };
+    return new int[] {x1, y1, x2, y2};
   }
 
-  protected void drawArrow( EImage arrow, int[] line, Hop hop, Object startObject, Object endObject ) throws HopException {
-    Point screenFrom = real2screen( line[ 0 ], line[ 1 ] );
-    Point screenTo = real2screen( line[ 2 ], line[ 3 ] );
+  protected void drawArrow(EImage arrow, int[] line, Hop hop, Object startObject, Object endObject)
+      throws HopException {
+    Point screenFrom = real2screen(line[0], line[1]);
+    Point screenTo = real2screen(line[2], line[3]);
 
-    drawArrow( arrow, screenFrom.x, screenFrom.y, screenTo.x, screenTo.y, theta, calcArrowLength(), -1, hop,
-      startObject, endObject );
+    drawArrow(
+        arrow,
+        screenFrom.x,
+        screenFrom.y,
+        screenTo.x,
+        screenTo.y,
+        theta,
+        calcArrowLength(),
+        -1,
+        hop,
+        startObject,
+        endObject);
   }
 
-  protected abstract void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-                                     Hop jobHop, Object startObject, Object endObject ) throws HopException;
+  protected abstract void drawArrow(
+      EImage arrow,
+      int x1,
+      int y1,
+      int x2,
+      int y2,
+      double theta,
+      int size,
+      double factor,
+      Hop jobHop,
+      Object startObject,
+      Object endObject)
+      throws HopException;
 
   /**
    * Gets zoomFactor
@@ -484,10 +538,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return zoomFactor;
   }
 
-  /**
-   * @param zoomFactor The zoomFactor to set
-   */
-  public void setZoomFactor( double zoomFactor ) {
+  /** @param zoomFactor The zoomFactor to set */
+  public void setZoomFactor(double zoomFactor) {
     this.zoomFactor = zoomFactor;
   }
 
@@ -500,10 +552,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return drawingEditIcons;
   }
 
-  /**
-   * @param drawingEditIcons The drawingEditIcons to set
-   */
-  public void setDrawingEditIcons( boolean drawingEditIcons ) {
+  /** @param drawingEditIcons The drawingEditIcons to set */
+  public void setDrawingEditIcons(boolean drawingEditIcons) {
     this.drawingEditIcons = drawingEditIcons;
   }
 
@@ -516,10 +566,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return miniIconSize;
   }
 
-  /**
-   * @param miniIconSize The miniIconSize to set
-   */
-  public void setMiniIconSize( int miniIconSize ) {
+  /** @param miniIconSize The miniIconSize to set */
+  public void setMiniIconSize(int miniIconSize) {
     this.miniIconSize = miniIconSize;
   }
 }

@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.salesforceupsert;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
-
 import com.sforce.soap.partner.UpsertResult;
 import com.sforce.soap.partner.sobject.SObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 
 import java.util.HashMap;
 import java.util.Map;

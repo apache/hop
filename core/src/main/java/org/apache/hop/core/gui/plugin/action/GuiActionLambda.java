@@ -20,7 +20,8 @@ package org.apache.hop.core.gui.plugin.action;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 
 public class GuiActionLambda implements IGuiActionLambda<Object> {
-  @Override public void executeAction( boolean shiftClicked, boolean controlClicked, Object... objects ) {
+  @Override
+  public void executeAction(boolean shiftClicked, boolean controlClicked, Object... objects) {
     // To be implemented when doing an override.
   }
 }

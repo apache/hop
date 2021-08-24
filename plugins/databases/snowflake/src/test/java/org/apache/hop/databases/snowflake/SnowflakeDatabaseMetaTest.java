@@ -29,66 +29,73 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SnowflakeDatabaseMetaTest {
-	@ClassRule
-	public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-	SnowflakeDatabaseMeta nativeMeta;
+  SnowflakeDatabaseMeta nativeMeta;
 
-	@Before
-	public void setupOnce() throws Exception {
-		nativeMeta = new SnowflakeDatabaseMeta();
-		nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+  @Before
+  public void setupOnce() throws Exception {
+    nativeMeta = new SnowflakeDatabaseMeta();
+    nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
-		HopClientEnvironment.init();
-	}
+    HopClientEnvironment.init();
+  }
 
-	@Test
-	public void testAccessType() throws Exception {
-		int[] aTypes = new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
-		assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
-	}
+  @Test
+  public void testAccessType() throws Exception {
+    int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
+    assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
+  }
 
-	
-	@Test
-	public void testUrl() throws Exception {
-		assertEquals("net.snowflake.client.jdbc.SnowflakeDriver", nativeMeta.getDriverClass());
+  @Test
+  public void testUrl() throws Exception {
+    assertEquals("net.snowflake.client.jdbc.SnowflakeDriver", nativeMeta.getDriverClass());
 
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
-				nativeMeta.getURL("account.snowflakecomputing.com", "1500", "bar"));
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
-				nativeMeta.getURL("account", "1500", "bar"));
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com/?db=bar",
-				nativeMeta.getURL("account", "", "bar"));
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com", nativeMeta.getURL("account", "", ""));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
+        nativeMeta.getURL("account.snowflakecomputing.com", "1500", "bar"));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
+        nativeMeta.getURL("account", "1500", "bar"));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com/?db=bar",
+        nativeMeta.getURL("account", "", "bar"));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com", nativeMeta.getURL("account", "", ""));
 
-		nativeMeta.setWarehouse("wh");
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com:1500/?warehouse=wh&db=bar",
-				nativeMeta.getURL("account.snowflakecomputing.com", "1500", "bar"));
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com:1500/?warehouse=wh&db=bar",
-				nativeMeta.getURL("account", "1500", "bar"));
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com:1500/?warehouse=wh",
-				nativeMeta.getURL("account", "1500", ""));
-		assertEquals("jdbc:snowflake://account.snowflakecomputing.com/?warehouse=wh&db=bar",
-				nativeMeta.getURL("account", "", "bar"));
+    nativeMeta.setWarehouse("wh");
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com:1500/?warehouse=wh&db=bar",
+        nativeMeta.getURL("account.snowflakecomputing.com", "1500", "bar"));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com:1500/?warehouse=wh&db=bar",
+        nativeMeta.getURL("account", "1500", "bar"));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com:1500/?warehouse=wh",
+        nativeMeta.getURL("account", "1500", ""));
+    assertEquals(
+        "jdbc:snowflake://account.snowflakecomputing.com/?warehouse=wh&db=bar",
+        nativeMeta.getURL("account", "", "bar"));
 
-		try {
-			assertEquals("jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
-					nativeMeta.getURL("", "1500", "bar"));
-			fail("Should have thrown IllegalArgumentException");
-		} catch (IllegalArgumentException dummy) {
-			// expected if host is null or empty
-		}
-	}
-	
-	@Test
-	public void testSupport() throws Exception {
-		assertTrue(nativeMeta.supportsSchemas());
-		assertTrue(nativeMeta.supportsViews());
-		assertTrue(nativeMeta.supportsSequences());
-		assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
-		assertTrue(nativeMeta.supportsBooleanDataType());
-		assertFalse(nativeMeta.supportsBitmapIndex());
-		assertFalse(nativeMeta.supportsTransactions());
-		assertFalse(nativeMeta.supportsSynonyms());
-	}
+    try {
+      assertEquals(
+          "jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
+          nativeMeta.getURL("", "1500", "bar"));
+      fail("Should have thrown IllegalArgumentException");
+    } catch (IllegalArgumentException dummy) {
+      // expected if host is null or empty
+    }
+  }
+
+  @Test
+  public void testSupport() throws Exception {
+    assertTrue(nativeMeta.supportsSchemas());
+    assertTrue(nativeMeta.supportsViews());
+    assertTrue(nativeMeta.supportsSequences());
+    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertTrue(nativeMeta.supportsBooleanDataType());
+    assertFalse(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.supportsTransactions());
+    assertFalse(nativeMeta.supportsSynonyms());
+  }
 }

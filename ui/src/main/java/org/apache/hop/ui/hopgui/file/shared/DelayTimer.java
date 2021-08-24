@@ -32,27 +32,26 @@ public class DelayTimer implements Runnable {
   private boolean stopped;
 
   private List<IDelayListener> delayListeners;
-  /**
-   * Default prolonger should not prolong  delay.
-   */
+  /** Default prolonger should not prolong delay. */
   private Callable<Boolean> prolonger = () -> false;
 
   private long start;
 
-  public DelayTimer( int delayInMiliseconds ) {
+  public DelayTimer(int delayInMiliseconds) {
     this.delayInMiliseconds = delayInMiliseconds;
     this.delayListeners = new ArrayList<>();
 
     stopped = false;
   }
 
-  public DelayTimer( int delayInMilliseconds, IDelayListener delayListener ) {
-    this( delayInMilliseconds );
-    addDelayListener( delayListener );
+  public DelayTimer(int delayInMilliseconds, IDelayListener delayListener) {
+    this(delayInMilliseconds);
+    addDelayListener(delayListener);
   }
 
-  public DelayTimer( int delayInMilliseconds, IDelayListener delayListener, Callable<Boolean> prolonger ) {
-    this( delayInMilliseconds, delayListener );
+  public DelayTimer(
+      int delayInMilliseconds, IDelayListener delayListener, Callable<Boolean> prolonger) {
+    this(delayInMilliseconds, delayListener);
     this.prolonger = prolonger;
   }
 
@@ -62,10 +61,10 @@ public class DelayTimer implements Runnable {
 
   public void run() {
     reset();
-    while ( ( delayNotExpired() || needProlong() ) && !stopped ) {
+    while ((delayNotExpired() || needProlong()) && !stopped) {
       try {
-        Thread.sleep( 25 );
-      } catch ( InterruptedException e ) {
+        Thread.sleep(25);
+      } catch (InterruptedException e) {
         // Simply break out of the loop, nothing else
         //
         break;
@@ -73,20 +72,20 @@ public class DelayTimer implements Runnable {
     }
     // Fire the listeners...
     //
-    for ( IDelayListener delayListener : delayListeners ) {
+    for (IDelayListener delayListener : delayListeners) {
       delayListener.expired();
     }
   }
 
   private boolean delayNotExpired() {
-    return ( System.currentTimeMillis() - start ) < delayInMiliseconds;
+    return (System.currentTimeMillis() - start) < delayInMiliseconds;
   }
 
   private boolean needProlong() {
     try {
-      return Boolean.valueOf( prolonger.call() );
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Prolonger call finished with error", e );
+      return Boolean.valueOf(prolonger.call());
+    } catch (Exception e) {
+      throw new RuntimeException("Prolonger call finished with error", e);
     }
   }
 
@@ -94,22 +93,17 @@ public class DelayTimer implements Runnable {
     stopped = true;
   }
 
-  public void addDelayListener( IDelayListener delayListener ) {
-    delayListeners.add( delayListener );
+  public void addDelayListener(IDelayListener delayListener) {
+    delayListeners.add(delayListener);
   }
 
-  /**
-   * @return the delay in milliseconds
-   */
+  /** @return the delay in milliseconds */
   public int getDelayInMilliseconds() {
     return delayInMiliseconds;
   }
 
-  /**
-   * @param delayInMilliseconds the delay in milliseconds to set
-   */
-  public void setDelayInSeconds( int delayInMilliseconds ) {
+  /** @param delayInMilliseconds the delay in milliseconds to set */
+  public void setDelayInSeconds(int delayInMilliseconds) {
     this.delayInMiliseconds = delayInMilliseconds;
   }
-
 }

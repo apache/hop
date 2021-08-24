@@ -26,48 +26,44 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChangedFlag implements IChanged {
 
-  @JsonIgnore
-  private Set<IHopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+  @JsonIgnore private Set<IHopObserver> obs = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  @JsonIgnore
-  private AtomicBoolean changed = new AtomicBoolean();
+  @JsonIgnore private AtomicBoolean changed = new AtomicBoolean();
 
-  public void addObserver( IHopObserver o ) {
-    if ( o == null ) {
+  public void addObserver(IHopObserver o) {
+    if (o == null) {
       throw new NullPointerException();
     }
 
-    validateAdd( o );
+    validateAdd(o);
   }
 
-  private synchronized void validateAdd( IHopObserver o ) {
-    if ( !obs.contains( o ) ) {
-      obs.add( o );
+  private synchronized void validateAdd(IHopObserver o) {
+    if (!obs.contains(o)) {
+      obs.add(o);
     }
   }
 
-  public void deleteObserver( IHopObserver o ) {
-    obs.remove( o );
+  public void deleteObserver(IHopObserver o) {
+    obs.remove(o);
   }
 
-  public void notifyObservers( Object arg ) {
+  public void notifyObservers(Object arg) {
 
     IHopObserver[] lobs;
-    if ( !changed.get() ) {
+    if (!changed.get()) {
       return;
     }
-    lobs = obs.toArray( new IHopObserver[ obs.size() ] );
+    lobs = obs.toArray(new IHopObserver[obs.size()]);
     clearChanged();
-    for ( int i = lobs.length - 1; i >= 0; i-- ) {
-      lobs[ i ].update( this, arg );
+    for (int i = lobs.length - 1; i >= 0; i--) {
+      lobs[i].update(this, arg);
     }
   }
 
-  /**
-   * Sets this as being changed.
-   */
+  /** Sets this as being changed. */
   public void setChanged() {
-    changed.set( true );
+    changed.set(true);
   }
 
   /**
@@ -75,15 +71,13 @@ public class ChangedFlag implements IChanged {
    *
    * @param ch true if you want to mark this as changed, false otherwise
    */
-  public void setChanged( boolean b ) {
-    changed.set( b );
+  public void setChanged(boolean b) {
+    changed.set(b);
   }
 
-  /**
-   * Clears the changed flags.
-   */
+  /** Clears the changed flags. */
   public void clearChanged() {
-    changed.set( false );
+    changed.set(false);
   }
 
   /**
@@ -94,5 +88,4 @@ public class ChangedFlag implements IChanged {
   public boolean hasChanged() {
     return changed.get();
   }
-
 }

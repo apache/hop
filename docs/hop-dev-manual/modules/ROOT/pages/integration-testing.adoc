@@ -23,14 +23,15 @@ The integration tests run as a daily build on Jenkins and can be found https://c
 
 == Adding tests to an existing project
 
-There are two possible scenarios that you can follow, the first is adding a test to one of the existing projects containing tests. The second scenario is creating a new project.
+There are two possible scenarios that you can follow, the first is adding a test to one of the existing projects containing tests.
+The second scenario is creating a new project.
 
 First start by creating a local clone of the Apache Hop repository, instruction to do this can be found xref:setup-dev-environment.adoc[here].
 
 . Open the Hop gui and add one of the integration testing projects to your gui
 +
 In this example we will be opening the `transforms` project and add an extra test in this project.
-When the UI asks to add an environment or lifecycle press no, using this is not supported 
+When the UI asks to add an environment or lifecycle press no, using this is not supported
 +
 image::integration-tests-001.png[]
 
@@ -45,7 +46,8 @@ image::integration-tests-002.png[]
 +
 The workflows themselves can be straightforward, the exit code (success/abort) is used to determine if the workflow has passed or failed.
 +
-note:: You can also make an integration test to test something that must fail. Then you simply link the false hop to a success and the true hop to an abort action.
+note:: You can also make an integration test to test something that must fail.
+Then you simply link the false hop to a success and the true hop to an abort action.
 +
 image::integration-tests-003.png[]
 +
@@ -53,12 +55,13 @@ image::integration-tests-004.png[]
 +
 . create a unit test
 +
-Now you can add your own workflow to the project folder. Make sure you have a Jira ticket you can refer to when creating a pull request.
-
+Now you can add your own workflow to the project folder.
+Make sure you have a Jira ticket you can refer to when creating a pull request.
 
 == Adding a new project
 
-You can also add a new project to the integration test folder. Give the project a meaningful name that explains the subject you will be testing.
+You can also add a new project to the integration test folder.
+Give the project a meaningful name that explains the subject you will be testing.
 
 important:: the project should have a workflow engine named `local`
 
@@ -99,15 +102,17 @@ We generate xml reports that can be used by Jenkins to generate reports. these r
 
 === Testing script
 
-A script is also provided to run the test without using Docker. This script is also used inside the automated test suite but can be used in a stand alone mode.
+A script is also provided to run the test without using Docker.
+This script is also used inside the automated test suite but can be used in a stand alone mode.
 
-This script can be found at following location `incubator-hop/integration-tests/scripts/run-tests.sh`. Be sure to export the needed system variables for the script to find the correct paths to run the tests. You can aslo run a single project by adding the project name to the command `./run-tests.sh projectname`
-
+This script can be found at following location `incubator-hop/integration-tests/scripts/run-tests.sh`.
+Be sure to export the needed system variables for the script to find the correct paths to run the tests.
+You can aslo run a single project by adding the project name to the command `./run-tests.sh projectname`
 
 == Special checks
 
-In some cases you want to check the logs to see if a specific value is present to mark your test as passed or failed. The script used in `main-0001-static-partitioning` can be helpful.
-
+In some cases you want to check the logs to see if a specific value is present to mark your test as passed or failed.
+The script used in `main-0001-static-partitioning` can be helpful.
 
 Code used in JavaScript Action in the workflow:
 

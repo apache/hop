@@ -21,9 +21,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 
 public class LocalPipelineEngineCapabilities extends PipelineEngineCapabilities {
 
-  /**
-   * Locally we can do preview, debug, sniff testing, ...
-   */
+  /** Locally we can do preview, debug, sniff testing, ... */
   public LocalPipelineEngineCapabilities() {
     super(true, true, true, true);
   }

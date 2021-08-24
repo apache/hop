@@ -124,7 +124,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wFileName.addFocusListener(
         new FocusListener() {
           public void focusLost(FocusEvent e) {
-            //Disable focusLost event
+            // Disable focusLost event
           }
 
           public void focusGained(FocusEvent e) {

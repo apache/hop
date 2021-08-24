@@ -21,11 +21,12 @@ under the License.
 
 == Description
 
-The XSL Transformation transform performs XSL Transformations on XML. XSLT is short for link:http://en.wikipedia.org/wiki/XSLT[Extensible Stylesheet Language Transformations].
+The XSL Transformation transform performs XSL Transformations on XML.
+XSLT is short for link:http://en.wikipedia.org/wiki/XSLT[Extensible Stylesheet Language Transformations].
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -33,8 +34,9 @@ The XSL Transformation transform performs XSL Transformations on XML. XSLT is sh
 |Result fields : fieldname|The name of the output fieldname that will contain the XML after the transformations
 |XSL file
 
-* XSL filename defined in a field? : Use this option if your XSLT is defined in a field. 
-    If enabled, you can specify the filename field below.
+* XSL filename defined in a field?
+: Use this option if your XSLT is defined in a field.
+If enabled, you can specify the filename field below.
 * XSL filename : you can specify the XSLT filename here.
 * XSLT Factory : specify the factory to use for the transformations: JAXP or SAXON
 |===

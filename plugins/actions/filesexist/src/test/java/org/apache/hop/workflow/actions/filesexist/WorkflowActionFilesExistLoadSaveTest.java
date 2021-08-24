@@ -17,14 +17,15 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionFilesExistLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionFilesExist> {
+public class WorkflowActionFilesExistLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionFilesExist> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,7 +35,6 @@ public class WorkflowActionFilesExistLoadSaveTest extends WorkflowActionLoadSave
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "filename", "arguments" } );
+    return Arrays.asList(new String[] {"filename", "arguments"});
   }
-
 }

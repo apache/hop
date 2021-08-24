@@ -79,7 +79,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta
   /** Trim all name/value elements & attributes? */
   private boolean
       enableTrim; // trim is also eliminating white spaces, tab, cr, lf at the beginning and end of
-                  // the
+  // the
   // string
 
   // The fields in the output stream
@@ -537,7 +537,9 @@ public class XmlInputStreamMeta extends BaseTransformMeta
         } else {
           cr =
               new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK, "Field name is in previous transform", transformMeta);
+                  ICheckResult.TYPE_RESULT_OK,
+                  "Field name is in previous transform",
+                  transformMeta);
         }
       } catch (HopTransformException e) {
         cr =

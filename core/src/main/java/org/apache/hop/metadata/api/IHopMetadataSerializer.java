@@ -28,9 +28,7 @@ import java.util.List;
  */
 public interface IHopMetadataSerializer<T extends IHopMetadata> {
 
-  /**
-   * @return A description of the serialized metadata (type)
-   */
+  /** @return A description of the serialized metadata (type) */
   String getDescription();
 
   /**
@@ -40,15 +38,16 @@ public interface IHopMetadataSerializer<T extends IHopMetadata> {
    * @return The object with the specified name
    * @throws HopException
    */
-  T load( String objectName ) throws HopException;
+  T load(String objectName) throws HopException;
 
   /**
-   * Save (serialize) the provided object.  If an object with the same name exists, it is updated, otherwise it's created.
+   * Save (serialize) the provided object. If an object with the same name exists, it is updated,
+   * otherwise it's created.
    *
    * @param object
    * @throws HopException
    */
-  void save( T object ) throws HopException;
+  void save(T object) throws HopException;
 
   /**
    * Delete the object with the given name.
@@ -57,7 +56,7 @@ public interface IHopMetadataSerializer<T extends IHopMetadata> {
    * @return The deleted object
    * @throws HopException
    */
-  T delete( String name ) throws HopException;
+  T delete(String name) throws HopException;
 
   /**
    * List all the object names
@@ -74,11 +73,9 @@ public interface IHopMetadataSerializer<T extends IHopMetadata> {
    * @return true if an object with the given name exists.
    * @throws HopException
    */
-  boolean exists( String name ) throws HopException;
+  boolean exists(String name) throws HopException;
 
-  /**
-   * @return The class of the objects which are saved and loaded.
-   */
+  /** @return The class of the objects which are saved and loaded. */
   Class<T> getManagedClass();
 
   /**

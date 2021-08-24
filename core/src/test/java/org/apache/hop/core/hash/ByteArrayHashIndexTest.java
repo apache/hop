@@ -21,38 +21,35 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ByteArrayHashIndexTest {
 
   @Test
   public void testArraySizeConstructor() {
-    ByteArrayHashIndex obj = new ByteArrayHashIndex( new RowMeta(), 1 );
-    assertEquals( 1, obj.getSize() );
+    ByteArrayHashIndex obj = new ByteArrayHashIndex(new RowMeta(), 1);
+    assertEquals(1, obj.getSize());
 
-    obj = new ByteArrayHashIndex( new RowMeta(), 2 );
-    assertEquals( 2, obj.getSize() );
+    obj = new ByteArrayHashIndex(new RowMeta(), 2);
+    assertEquals(2, obj.getSize());
 
-    obj = new ByteArrayHashIndex( new RowMeta(), 3 );
-    assertEquals( 4, obj.getSize() );
+    obj = new ByteArrayHashIndex(new RowMeta(), 3);
+    assertEquals(4, obj.getSize());
 
-    obj = new ByteArrayHashIndex( new RowMeta(), 12 );
-    assertEquals( 16, obj.getSize() );
+    obj = new ByteArrayHashIndex(new RowMeta(), 12);
+    assertEquals(16, obj.getSize());
 
-    obj = new ByteArrayHashIndex( new RowMeta(), 99 );
-    assertEquals( 128, obj.getSize() );
+    obj = new ByteArrayHashIndex(new RowMeta(), 99);
+    assertEquals(128, obj.getSize());
   }
 
   @Test
   public void testGetAndPut() throws HopValueException {
-    ByteArrayHashIndex obj = new ByteArrayHashIndex( new RowMeta(), 10 );
-    assertNull( obj.get( new byte[] { 10 } ) );
+    ByteArrayHashIndex obj = new ByteArrayHashIndex(new RowMeta(), 10);
+    assertNull(obj.get(new byte[] {10}));
 
-    obj.put( new byte[] { 10 }, new byte[] { 53, 12 } );
-    assertNotNull( obj.get( new byte[] { 10 } ) );
-    assertArrayEquals( new byte[] { 53, 12 }, obj.get( new byte[] { 10 } ) );
+    obj.put(new byte[] {10}, new byte[] {53, 12});
+    assertNotNull(obj.get(new byte[] {10}));
+    assertArrayEquals(new byte[] {53, 12}, obj.get(new byte[] {10}));
   }
 }

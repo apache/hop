@@ -21,6 +21,8 @@ under the License.
 
 == Description
 
-The Serialize to file transform, formerly known as Cube File Output, stores rows of data in a binary format in a file. The binary format has an advantage over a text (flat) file because the content does not have to be parsed when read back. The metadata is stored in the file as well.
+The Serialize to file transform, formerly known as Cube File Output, stores rows of data in a binary format in a file.
+The binary format has an advantage over a text (flat) file because the content does not have to be parsed when read back.
+The metadata is stored in the file as well.
 
 The Serialize to file transform supports a write-once access pattern, and does not support appending to existing files.

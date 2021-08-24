@@ -31,118 +31,124 @@ import java.util.Map;
 
 public class MetadataFileTypeHandler implements IHopFileTypeHandler {
 
- private static final IHopFileType fileType = new MetadataFileType();
+  private static final IHopFileType fileType = new MetadataFileType();
 
-  public MetadataFileTypeHandler() {
+  public MetadataFileTypeHandler() {}
 
-  }
-
-  @Override public Object getSubject() {
+  @Override
+  public Object getSubject() {
     return null;
   }
 
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return null;
   }
 
-  @Override public void setName( String name ) {
-  }
+  @Override
+  public void setName(String name) {}
 
-  @Override public IHopFileType getFileType() {
+  @Override
+  public IHopFileType getFileType() {
     return fileType;
   }
 
-  @Override public String getFilename() {
+  @Override
+  public String getFilename() {
     return "meta";
   }
 
-  @Override public void setFilename( String filename ) {
-  }
+  @Override
+  public void setFilename(String filename) {}
 
-  @Override public void save() throws HopException {
-  }
+  @Override
+  public void save() throws HopException {}
 
-  @Override public void saveAs( String filename ) throws HopException {
-  }
+  @Override
+  public void saveAs(String filename) throws HopException {}
 
-  @Override public void start() {
-  }
+  @Override
+  public void start() {}
 
-  @Override public void stop() {
-  }
+  @Override
+  public void stop() {}
 
-  @Override public void pause() {
-  }
+  @Override
+  public void pause() {}
 
-  @Override public void resume() {
-  }
+  @Override
+  public void resume() {}
 
-  @Override public void preview() {
-  }
+  @Override
+  public void preview() {}
 
-  @Override public void debug() {
-  }
+  @Override
+  public void debug() {}
 
-  @Override public void redraw() {
-  }
+  @Override
+  public void redraw() {}
 
-  @Override public void updateGui() {
-  }
+  @Override
+  public void updateGui() {}
 
-  @Override public void selectAll() {
-  }
+  @Override
+  public void selectAll() {}
 
-  @Override public void unselectAll() {
-  }
+  @Override
+  public void unselectAll() {}
 
-  @Override public void copySelectedToClipboard() {
-  }
+  @Override
+  public void copySelectedToClipboard() {}
 
-  @Override public void cutSelectedToClipboard() {
-  }
+  @Override
+  public void cutSelectedToClipboard() {}
 
-  @Override public void deleteSelected() {
-  }
+  @Override
+  public void deleteSelected() {}
 
-  @Override public void pasteFromClipboard() {
-  }
+  @Override
+  public void pasteFromClipboard() {}
 
-  @Override public boolean isCloseable() {
+  @Override
+  public boolean isCloseable() {
     return true;
   }
 
-  @Override public void close() {
+  @Override
+  public void close() {}
 
-  }
-
-  @Override public boolean hasChanged() {
+  @Override
+  public boolean hasChanged() {
     return false;
   }
 
-  @Override public void undo() {
-  }
+  @Override
+  public void undo() {}
 
-  @Override public void redo() {
-  }
+  @Override
+  public void redo() {}
 
-  @Override public Map<String, Object> getStateProperties() {
+  @Override
+  public Map<String, Object> getStateProperties() {
     return Collections.emptyMap();
   }
 
-  @Override public void applyStateProperties( Map<String, Object> stateProperties ) {
-  }
+  @Override
+  public void applyStateProperties(Map<String, Object> stateProperties) {}
 
-  @Override public List<IGuiContextHandler> getContextHandlers() {
+  @Override
+  public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
   }
 
- /**
-  * Metadata doesn't have it's own variables.  It should take it elsewhere.
-  *
-  * @return An empty variables set
-  */
- @Override public IVariables getVariables() {
-  return new Variables();
- }
+  /**
+   * Metadata doesn't have it's own variables. It should take it elsewhere.
+   *
+   * @return An empty variables set
+   */
+  @Override
+  public IVariables getVariables() {
+    return new Variables();
+  }
 }

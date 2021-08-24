@@ -30,7 +30,8 @@ The Cassandra Input transform writes data to a Cassandra table of an Apache Cass
 |Option |Description
 
 |Cassandra connection
-|Here you specify the name of the connection to use either as a fixed value or as a variable expression. There are buttons to the right of the input field to hel you manage the metadata.
+|Here you specify the name of the connection to use either as a fixed value or as a variable expression.
+There are buttons to the right of the input field to hel you manage the metadata.
 
 |Table to write to
 |Specify the name of the table to write to.
@@ -42,19 +43,24 @@ The Cassandra Input transform writes data to a Cassandra table of an Apache Cass
 |The number of rows to update at once in each commit
 
 |Batch insert timeout
-|Specify the number of milliseconds to wait for a batch to completely insert before splitting into smaller sub-batches. You must specify a value lower than Socket timeout or leave empty for no timeout.
+|Specify the number of milliseconds to wait for a batch to completely insert before splitting into smaller sub-batches.
+You must specify a value lower than Socket timeout or leave empty for no timeout.
 
 |Sub batch size
 |Specify the sub-batch size (in number of rows) if the batch must be split because Batch insert timeout is reached.
 
 |Insert unlogged batches
-|Select if you want to use non-atomic batch writing. By default, batches are atomic (if any of the batch succeeds, all of it will succeed). Select this option to remove the atomic restriction.
+|Select if you want to use non-atomic batch writing.
+By default, batches are atomic (if any of the batch succeeds, all of it will succeed).
+Select this option to remove the atomic restriction.
 
 |Time to live (TTL)
-|Specify the amount of time in which to write a column. If the time expires, that column is deleted.
+|Specify the amount of time in which to write a column.
+If the time expires, that column is deleted.
 
 |Incoming field to use as the key
-|Specify which incoming field to use as the key. You can use to specify the key from the names of incoming  transform fields.
+|Specify which incoming field to use as the key.
+You can use to specify the key from the names of incoming transform fields.
 
 |Create table
 |Select to create a named table (column family) if one does not already exist.
@@ -66,10 +72,12 @@ The Cassandra Input transform writes data to a Cassandra table of an Apache Cass
 |Select if you want any existing data to be deleted from the named table before inserting incoming rows.
 
 |Update table metadata
-|Select if you want to update the table metadata with information on incoming fields not already present. If this option is not selected, any unknown incoming fields are ignored unless the Insert fields not in column meta data option is selected.
+|Select if you want to update the table metadata with information on incoming fields not already present.
+If this option is not selected, any unknown incoming fields are ignored unless the Insert fields not in column meta data option is selected.
 
 |Insert fields not in column meta data
-|Select if want to insert the table metadata in any incoming fields not present, with respect to the default table validator. This option has no effect if Update table meta data is selected.
+|Select if want to insert the table metadata in any incoming fields not present, with respect to the default table validator.
+This option has no effect if Update table meta data is selected.
 
 |===
 

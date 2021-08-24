@@ -40,9 +40,7 @@ import java.util.Map;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-/**
- * @author Tatsiana_Kasiankova
- */
+/** @author Tatsiana_Kasiankova */
 public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<MultiMergeJoinMeta> testMetaClass = MultiMergeJoinMeta.class;
@@ -52,34 +50,41 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     multiMergeMeta = new MultiMergeJoinMeta();
-    List<String> attributes =
-      Arrays.asList( "joinType", "keyFields", "inputTransforms" );
+    List<String> attributes = Arrays.asList("joinType", "keyFields", "inputTransforms");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<String>(new StringLoadSaveValidator(), 5);
 
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap =
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
+    attrValidatorMap.put("keyFields", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("inputTransforms", stringArrayLoadSaveValidator);
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    attrValidatorMap.put( "keyFields", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "inputTransforms", stringArrayLoadSaveValidator );
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransform someMeta ) {
-    if ( someMeta instanceof MultiMergeJoinMeta ) {
-      ( (MultiMergeJoinMeta) someMeta ).allocateKeys( 5 );
-      ( (MultiMergeJoinMeta) someMeta ).allocateInputTransforms( 5 );
+  public void modify(ITransform someMeta) {
+    if (someMeta instanceof MultiMergeJoinMeta) {
+      ((MultiMergeJoinMeta) someMeta).allocateKeys(5);
+      ((MultiMergeJoinMeta) someMeta).allocateInputTransforms(5);
     }
   }
 
@@ -90,36 +95,35 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
 
   @Test
   public void testSetGetInputTransforms() {
-    assertNull( multiMergeMeta.getInputTransforms() );
-    String[] inputTransforms = new String[] { "Transform1", "Transform2" };
-    multiMergeMeta.setInputTransforms( inputTransforms );
-    assertArrayEquals( inputTransforms, multiMergeMeta.getInputTransforms() );
+    assertNull(multiMergeMeta.getInputTransforms());
+    String[] inputTransforms = new String[] {"Transform1", "Transform2"};
+    multiMergeMeta.setInputTransforms(inputTransforms);
+    assertArrayEquals(inputTransforms, multiMergeMeta.getInputTransforms());
   }
 
   @Test
   public void testGetXml() {
-    String[] inputTransforms = new String[] { "Transform1", "Transform2" };
-    multiMergeMeta.setInputTransforms( inputTransforms );
-    multiMergeMeta.setKeyFields( new String[] { "Key1", "Key2" } );
+    String[] inputTransforms = new String[] {"Transform1", "Transform2"};
+    multiMergeMeta.setInputTransforms(inputTransforms);
+    multiMergeMeta.setKeyFields(new String[] {"Key1", "Key2"});
     String xml = multiMergeMeta.getXml();
-    Assert.assertTrue( xml.contains( "transform0" ) );
-    Assert.assertTrue( xml.contains( "transform1" ) );
-
+    Assert.assertTrue(xml.contains("transform0"));
+    Assert.assertTrue(xml.contains("transform1"));
   }
 
   @Test
   public void cloneTest() throws Exception {
     MultiMergeJoinMeta meta = new MultiMergeJoinMeta();
-    meta.allocateKeys( 2 );
-    meta.allocateInputTransforms( 3 );
-    meta.setKeyFields( new String[] { "key1", "key2" } );
-    meta.setInputTransforms( new String[] { "transform1", "transform2", "transform3" } );
+    meta.allocateKeys(2);
+    meta.allocateInputTransforms(3);
+    meta.setKeyFields(new String[] {"key1", "key2"});
+    meta.setInputTransforms(new String[] {"transform1", "transform2", "transform3"});
     // scalars should be cloned using super.clone() - makes sure they're calling super.clone()
-    meta.setJoinType( "INNER" );
+    meta.setJoinType("INNER");
     MultiMergeJoinMeta aClone = (MultiMergeJoinMeta) meta.clone();
-    Assert.assertFalse( aClone == meta );
-    Assert.assertTrue( Arrays.equals( meta.getKeyFields(), aClone.getKeyFields() ) );
-    Assert.assertTrue( Arrays.equals( meta.getInputTransforms(), aClone.getInputTransforms() ) );
-    Assert.assertEquals( meta.getJoinType(), aClone.getJoinType() );
+    Assert.assertFalse(aClone == meta);
+    Assert.assertTrue(Arrays.equals(meta.getKeyFields(), aClone.getKeyFields()));
+    Assert.assertTrue(Arrays.equals(meta.getInputTransforms(), aClone.getInputTransforms()));
+    Assert.assertEquals(meta.getJoinType(), aClone.getJoinType());
   }
 }

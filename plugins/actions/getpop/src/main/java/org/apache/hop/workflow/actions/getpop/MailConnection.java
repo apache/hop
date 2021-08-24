@@ -29,33 +29,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
-import javax.mail.Flags;
+import javax.mail.*;
 import javax.mail.Flags.Flag;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.URLName;
 import javax.mail.internet.MimeUtility;
-import javax.mail.search.AndTerm;
-import javax.mail.search.BodyTerm;
-import javax.mail.search.ComparisonTerm;
-import javax.mail.search.FlagTerm;
-import javax.mail.search.FromStringTerm;
-import javax.mail.search.NotTerm;
-import javax.mail.search.ReceivedDateTerm;
-import javax.mail.search.RecipientStringTerm;
-import javax.mail.search.SearchTerm;
-import javax.mail.search.SubjectTerm;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.mail.search.*;
+import java.io.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Properties;
@@ -68,13 +46,10 @@ import java.util.regex.Pattern;
  * @author Samatar
  * @since 01-04-2009
  */
-
 public class MailConnection {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
-  /**
-   * Target mail server.
-   */
+  /** Target mail server. */
   private String server;
 
   private int port;
@@ -84,53 +59,36 @@ public class MailConnection {
   private boolean write;
   private boolean useproxy;
   private String proxyusername;
-  /**
-   * Protocol used. Should be PROTOCOL_POP3 (0) for POP3 and PROTOCOL_IMAP (1) to IMAP
-   */
+  /** Protocol used. Should be PROTOCOL_POP3 (0) for POP3 and PROTOCOL_IMAP (1) to IMAP */
   private int protocol;
 
   private Properties prop;
   private Session session = null;
   private Store store = null;
   private Folder folder = null;
-  /**
-   * Contains the list of retrieved messages
-   */
+  /** Contains the list of retrieved messages */
   private Message[] messages;
-  /**
-   * Contains the current message
-   */
+  /** Contains the current message */
   private Message message;
+
   private SearchTerm searchTerm = null;
 
-  /**
-   * Counts the number of message fetched
-   */
+  /** Counts the number of message fetched */
   private int messagenr;
 
-  /**
-   * Counts the number of message saved in a file
-   */
+  /** Counts the number of message saved in a file */
   private int nrSavedMessages;
 
-  /**
-   * Counts the number of message move to a folder
-   */
+  /** Counts the number of message move to a folder */
   private int nrMovedMessages;
 
-  /**
-   * Counts the number of message deleted
-   */
+  /** Counts the number of message deleted */
   private int nrDeletedMessages;
 
-  /**
-   * Counts the number of attached files saved in a file
-   */
+  /** Counts the number of attached files saved in a file */
   private int nrSavedAttachedFiles;
 
-  /**
-   * IMAP folder if user want to move some messages
-   */
+  /** IMAP folder if user want to move some messages */
   private Folder destinationIMAPFolder = null;
 
   private ILogChannel log;
@@ -138,23 +96,33 @@ public class MailConnection {
   /**
    * Construct a new Database MailConnection
    *
-   * @param protocol      the protocol used : MailConnection.PROTOCOL_POP3 or MailConnection.PROTOCOL_IMAP.
-   * @param server        the target server (ip ou name)
-   * @param port          port number on the server
+   * @param protocol the protocol used : MailConnection.PROTOCOL_POP3 or
+   *     MailConnection.PROTOCOL_IMAP.
+   * @param server the target server (ip ou name)
+   * @param port port number on the server
    * @param password
-   * @param usessl        specify if the connection is established via SSL
-   * @param useproxy      specify if we use proxy authentication
+   * @param usessl specify if the connection is established via SSL
+   * @param useproxy specify if we use proxy authentication
    * @param proxyusername proxy authorised user
    */
-  public MailConnection( ILogChannel log, int protocol, String server, int port, String username,
-                         String password, boolean usessl, boolean useproxy, String proxyusername ) throws HopException {
+  public MailConnection(
+      ILogChannel log,
+      int protocol,
+      String server,
+      int port,
+      String username,
+      String password,
+      boolean usessl,
+      boolean useproxy,
+      String proxyusername)
+      throws HopException {
 
     this.log = log;
 
     // Get system properties
     try {
       this.prop = System.getProperties();
-    } catch ( SecurityException s ) {
+    } catch (SecurityException s) {
       this.prop = new Properties();
     }
 
@@ -174,102 +142,96 @@ public class MailConnection {
 
     try {
 
-      if ( useproxy ) {
+      if (useproxy) {
         // Need here to pass a proxy
         // use SASL authentication
-        this.prop.put( "mail.imap.sasl.enable", "true" );
-        this.prop.put( "mail.imap.sasl.authorizationid", proxyusername );
+        this.prop.put("mail.imap.sasl.enable", "true");
+        this.prop.put("mail.imap.sasl.authorizationid", proxyusername);
       }
 
-      if ( protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
-        this.prop.setProperty( "mail.pop3s.rsetbeforequit", "true" );
-        this.prop.setProperty( "mail.pop3.rsetbeforequit", "true" );
-      } else if ( protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
-        this.prop.setProperty( "mstor.mbox.metadataStrategy", "none" ); // mstor.mbox.metadataStrategy={none|xml|yaml}
-        this.prop.setProperty( "mstor.cache.disabled", "true" ); // prevent diskstore fail
+      if (protocol == MailConnectionMeta.PROTOCOL_POP3) {
+        this.prop.setProperty("mail.pop3s.rsetbeforequit", "true");
+        this.prop.setProperty("mail.pop3.rsetbeforequit", "true");
+      } else if (protocol == MailConnectionMeta.PROTOCOL_MBOX) {
+        this.prop.setProperty(
+            "mstor.mbox.metadataStrategy", "none"); // mstor.mbox.metadataStrategy={none|xml|yaml}
+        this.prop.setProperty("mstor.cache.disabled", "true"); // prevent diskstore fail
       }
 
       String protocolString =
-        ( protocol == MailConnectionMeta.PROTOCOL_POP3 ) ? "pop3" : protocol == MailConnectionMeta.PROTOCOL_MBOX
-          ? "mstor" : "imap";
-      if ( usessl && protocol != MailConnectionMeta.PROTOCOL_MBOX ) {
+          (protocol == MailConnectionMeta.PROTOCOL_POP3)
+              ? "pop3"
+              : protocol == MailConnectionMeta.PROTOCOL_MBOX ? "mstor" : "imap";
+      if (usessl && protocol != MailConnectionMeta.PROTOCOL_MBOX) {
         // Supports IMAP/POP3 connection with SSL, the connection is established via SSL.
-        this.prop
-          .setProperty( "mail." + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory" );
-        this.prop.setProperty( "mail." + protocolString + ".socketFactory.fallback", "false" );
-        this.prop.setProperty( "mail." + protocolString + ".port", "" + port );
-        this.prop.setProperty( "mail." + protocolString + ".socketFactory.port", "" + port );
+        this.prop.setProperty(
+            "mail." + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        this.prop.setProperty("mail." + protocolString + ".socketFactory.fallback", "false");
+        this.prop.setProperty("mail." + protocolString + ".port", "" + port);
+        this.prop.setProperty("mail." + protocolString + ".socketFactory.port", "" + port);
 
         // Create session object
-        this.session = Session.getInstance( this.prop, null );
-        this.session.setDebug( log.isDebug() );
-        if ( this.port == -1 ) {
+        this.session = Session.getInstance(this.prop, null);
+        this.session.setDebug(log.isDebug());
+        if (this.port == -1) {
           this.port =
-            ( ( protocol == MailConnectionMeta.PROTOCOL_POP3 )
-              ? MailConnectionMeta.DEFAULT_SSL_POP3_PORT : MailConnectionMeta.DEFAULT_SSL_IMAP_PORT );
+              ((protocol == MailConnectionMeta.PROTOCOL_POP3)
+                  ? MailConnectionMeta.DEFAULT_SSL_POP3_PORT
+                  : MailConnectionMeta.DEFAULT_SSL_IMAP_PORT);
         }
-        URLName url = new URLName( protocolString, server, port, "", username, password );
+        URLName url = new URLName(protocolString, server, port, "", username, password);
         this.store =
-          ( protocol == MailConnectionMeta.PROTOCOL_POP3 )
-            ? new POP3SSLStore( this.session, url ) : new IMAPSSLStore( this.session, url );
+            (protocol == MailConnectionMeta.PROTOCOL_POP3)
+                ? new POP3SSLStore(this.session, url)
+                : new IMAPSSLStore(this.session, url);
         url = null;
       } else {
-        this.session = Session.getInstance( this.prop, null );
-        this.session.setDebug( log.isDebug() );
-        if ( protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
-          this.store = this.session.getStore( new URLName( protocolString + ":" + server ) );
+        this.session = Session.getInstance(this.prop, null);
+        this.session.setDebug(log.isDebug());
+        if (protocol == MailConnectionMeta.PROTOCOL_MBOX) {
+          this.store = this.session.getStore(new URLName(protocolString + ":" + server));
         } else {
-          this.store = this.session.getStore( protocolString );
+          this.store = this.session.getStore(protocolString);
         }
       }
 
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.NewConnectionDefined" ) );
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString(PKG, "ActionGetMailsFromPOP.NewConnectionDefined"));
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.NewConnection", Const.NVL(
-        this.server, "" ) ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "ActionGetMailsFromPOP.Error.NewConnection", Const.NVL(this.server, "")),
+          e);
     }
   }
 
-  /**
-   * @return Returns the connection status. true if the connection is still opened
-   */
+  /** @return Returns the connection status. true if the connection is still opened */
   public boolean isConnected() {
-    return ( this.store != null && this.store.isConnected() );
+    return (this.store != null && this.store.isConnected());
   }
 
-  /**
-   * @return Returns the use of SSL. true if the connection use SSL
-   */
+  /** @return Returns the use of SSL. true if the connection use SSL */
   public boolean isUseSSL() {
     return this.usessl;
   }
 
-  /**
-   * @return Returns the use of proxy. true if the connection use proxy
-   */
+  /** @return Returns the use of proxy. true if the connection use proxy */
   public boolean isUseProxy() {
     return this.useproxy;
   }
 
-  /**
-   * @return Returns the proxy username.
-   */
+  /** @return Returns the proxy username. */
   public String getProxyUsername() {
     return this.proxyusername;
   }
 
-  /**
-   * @return Returns the store
-   */
+  /** @return Returns the store */
   public Store getStore() {
     return this.store;
   }
 
-  /**
-   * @return Returns the folder
-   */
+  /** @return Returns the folder */
   public Folder getFolder() {
     return this.folder;
   }
@@ -280,30 +242,41 @@ public class MailConnection {
    * @throws HopException if something went wrong.
    */
   public void connect() throws HopException {
-    if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString(
-        PKG, "ActionGetMailsFromPOP.Connecting", this.server, this.username, "" + this.port ) );
+    if (log.isDetailed()) {
+      log.logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionGetMailsFromPOP.Connecting", this.server, this.username, "" + this.port));
     }
     try {
-      if ( this.usessl || this.protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
+      if (this.usessl || this.protocol == MailConnectionMeta.PROTOCOL_MBOX) {
         // Supports IMAP/POP3 connection with SSL,
         // the connection is established via SSL.
         this.store.connect();
       } else {
-        if ( this.port > -1 ) {
-          this.store.connect( this.server, this.port, this.username, this.password );
+        if (this.port > -1) {
+          this.store.connect(this.server, this.port, this.username, this.password);
         } else {
-          this.store.connect( this.server, this.username, this.password );
+          this.store.connect(this.server, this.username, this.password);
         }
       }
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString(
-          PKG, "ActionGetMailsFromPOP.Connected", this.server, this.username, "" + this.port ) );
+      if (log.isDetailed()) {
+        log.logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetMailsFromPOP.Connected",
+                this.server,
+                this.username,
+                "" + this.port));
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       throw new HopException(
-        BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.Connecting", this.server, this.username, Const
-          .NVL( "" + this.port, "" ) ), e );
+          BaseMessages.getString(
+              PKG,
+              "ActionGetMailsFromPOP.Error.Connecting",
+              this.server,
+              this.username,
+              Const.NVL("" + this.port, "")),
+          e);
     }
   }
 
@@ -313,116 +286,137 @@ public class MailConnection {
    * @param write open the folder in write mode
    * @throws HopException if something went wrong.
    */
-  public void openFolder( boolean write ) throws HopException {
-    openFolder( null, true, write );
+  public void openFolder(boolean write) throws HopException {
+    openFolder(null, true, write);
   }
 
   /**
    * Open the folder.
    *
    * @param folderName the name of the folder to open
-   * @param write      open the folder in write mode
+   * @param write open the folder in write mode
    * @throws HopException if something went wrong.
    */
-  public void openFolder( String folderName, boolean write ) throws HopException {
-    openFolder( folderName, false, write );
+  public void openFolder(String folderName, boolean write) throws HopException {
+    openFolder(folderName, false, write);
   }
 
   /**
    * Open the folder.
    *
-   * @param folderName    the name of the folder to open
+   * @param folderName the name of the folder to open
    * @param defaultFolder true to open the default folder (INBOX)
-   * @param write         open the folder in write mode
+   * @param write open the folder in write mode
    * @throws HopException if something went wrong.
    */
-  public void openFolder( String folderName, boolean defaultFolder, boolean write ) throws HopException {
+  public void openFolder(String folderName, boolean defaultFolder, boolean write)
+      throws HopException {
     this.write = write;
     try {
-      if ( getFolder() != null ) {
+      if (getFolder() != null) {
         // A folder is already opened
         // before make sure to close it
-        closeFolder( true );
+        closeFolder(true);
       }
 
-      if ( defaultFolder ) {
-        if ( protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
+      if (defaultFolder) {
+        if (protocol == MailConnectionMeta.PROTOCOL_MBOX) {
           this.folder = this.store.getDefaultFolder();
         } else {
           // get the default folder
-          this.folder = getRecursiveFolder( MailConnectionMeta.INBOX_FOLDER );
+          this.folder = getRecursiveFolder(MailConnectionMeta.INBOX_FOLDER);
         }
 
-        if ( this.folder == null ) {
-          throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.InvalidDefaultFolder.Label" ) );
+        if (this.folder == null) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.InvalidDefaultFolder.Label"));
         }
 
-        if ( ( folder.getType() & Folder.HOLDS_MESSAGES ) == 0 ) {
-          throw new HopException( BaseMessages.getString( PKG, "MailConnection.DefaultFolderCanNotHoldMessage" ) );
+        if ((folder.getType() & Folder.HOLDS_MESSAGES) == 0) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "MailConnection.DefaultFolderCanNotHoldMessage"));
         }
       } else {
         // Open specified Folder (for IMAP/MBOX)
-        if ( this.protocol == MailConnectionMeta.PROTOCOL_IMAP
-          || this.protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
-          this.folder = getRecursiveFolder( folderName );
+        if (this.protocol == MailConnectionMeta.PROTOCOL_IMAP
+            || this.protocol == MailConnectionMeta.PROTOCOL_MBOX) {
+          this.folder = getRecursiveFolder(folderName);
         }
-        if ( this.folder == null || !this.folder.exists() ) {
-          throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.InvalidFolder.Label" ) );
+        if (this.folder == null || !this.folder.exists()) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.InvalidFolder.Label"));
         }
       }
-      if ( this.write ) {
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString(
-            PKG, "MailConnection.OpeningFolderInWriteMode.Label", getFolderName() ) );
+      if (this.write) {
+        if (log.isDebug()) {
+          log.logDebug(
+              BaseMessages.getString(
+                  PKG, "MailConnection.OpeningFolderInWriteMode.Label", getFolderName()));
         }
-        this.folder.open( Folder.READ_WRITE );
+        this.folder.open(Folder.READ_WRITE);
       } else {
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString(
-            PKG, "MailConnection.OpeningFolderInReadMode.Label", getFolderName() ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              BaseMessages.getString(
+                  PKG, "MailConnection.OpeningFolderInReadMode.Label", getFolderName()));
         }
-        this.folder.open( Folder.READ_ONLY );
+        this.folder.open(Folder.READ_ONLY);
       }
 
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Label", getFolderName() ) );
+      if (log.isDetailed()) {
+        log.logDetailed(
+            BaseMessages.getString(
+                PKG, "ActionGetMailsFromPOP.FolderOpened.Label", getFolderName()));
       }
-      if ( log.isDebug() ) {
+      if (log.isDebug()) {
         // display some infos on folder
-        //CHECKSTYLE:LineLength:OFF
-        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Name", getFolderName() ) );
-        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.FullName", this.folder.getFullName() ) );
-        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Url", this.folder.getURLName().toString() ) );
-        log.logDebug( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.FolderOpened.Subscribed", "" + this.folder.isSubscribed() ) );
+        // CHECKSTYLE:LineLength:OFF
+        log.logDebug(
+            BaseMessages.getString(
+                PKG, "ActionGetMailsFromPOP.FolderOpened.Name", getFolderName()));
+        log.logDebug(
+            BaseMessages.getString(
+                PKG, "ActionGetMailsFromPOP.FolderOpened.FullName", this.folder.getFullName()));
+        log.logDebug(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetMailsFromPOP.FolderOpened.Url",
+                this.folder.getURLName().toString()));
+        log.logDebug(
+            BaseMessages.getString(
+                PKG,
+                "ActionGetMailsFromPOP.FolderOpened.Subscribed",
+                "" + this.folder.isSubscribed()));
       }
 
-    } catch ( Exception e ) {
-      throw new HopException( defaultFolder
-        ? BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.OpeningDefaultFolder" )
-        : BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.OpeningFolder", folderName ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          defaultFolder
+              ? BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.OpeningDefaultFolder")
+              : BaseMessages.getString(
+                  PKG, "ActionGetMailsFromPOP.Error.OpeningFolder", folderName),
+          e);
     }
   }
 
-  private Folder getRecursiveFolder( String folderName ) throws MessagingException {
+  private Folder getRecursiveFolder(String folderName) throws MessagingException {
     Folder dfolder;
-    String[] folderparts = folderName.split( "/" );
+    String[] folderparts = folderName.split("/");
     dfolder = this.getStore().getDefaultFolder();
     // Open destination folder
-    for ( int i = 0; i < folderparts.length; i++ ) {
-      dfolder = dfolder.getFolder( folderparts[ i ] );
+    for (int i = 0; i < folderparts.length; i++) {
+      dfolder = dfolder.getFolder(folderparts[i]);
     }
     return dfolder;
   }
 
-  /**
-   * Clear search terms.
-   */
+  /** Clear search terms. */
   public void clearFilters() {
     this.nrSavedMessages = 0;
     this.nrDeletedMessages = 0;
     this.nrMovedMessages = 0;
     this.nrSavedAttachedFiles = 0;
-    if ( this.searchTerm != null ) {
+    if (this.searchTerm != null) {
       this.searchTerm = null;
     }
   }
@@ -433,7 +427,7 @@ public class MailConnection {
    * @throws HopException
    */
   public void disconnect() throws HopException {
-    disconnect( true );
+    disconnect(true);
   }
 
   /**
@@ -442,24 +436,26 @@ public class MailConnection {
    * @param expunge expunge folder
    * @throws HopException
    */
-  public void closeFolder( boolean expunge ) throws HopException {
+  public void closeFolder(boolean expunge) throws HopException {
     try {
-      if ( this.folder != null && this.folder.isOpen() ) {
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "MailConnection.ClosingFolder", getFolderName() ) );
+      if (this.folder != null && this.folder.isOpen()) {
+        if (log.isDebug()) {
+          log.logDebug(
+              BaseMessages.getString(PKG, "MailConnection.ClosingFolder", getFolderName()));
         }
-        this.folder.close( expunge );
+        this.folder.close(expunge);
         this.folder = null;
         this.messages = null;
         this.message = null;
         this.messagenr = -1;
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "MailConnection.FolderClosed", getFolderName() ) );
+        if (log.isDebug()) {
+          log.logDebug(BaseMessages.getString(PKG, "MailConnection.FolderClosed", getFolderName()));
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "ActionGetMailsFromPOP.Error.ClosingFolder", getFolderName() ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.ClosingFolder", getFolderName()),
+          e);
     }
   }
 
@@ -468,9 +464,9 @@ public class MailConnection {
    *
    * @param term search term to add
    */
-  private void addSearchTerm( SearchTerm term ) {
-    if ( this.searchTerm != null ) {
-      this.searchTerm = new AndTerm( this.searchTerm, term );
+  private void addSearchTerm(SearchTerm term) {
+    if (this.searchTerm != null) {
+      this.searchTerm = new AndTerm(this.searchTerm, term);
     } else {
       this.searchTerm = term;
     }
@@ -486,12 +482,12 @@ public class MailConnection {
    * @param subject messages will be filtered on subject
    * @param notTerm negate condition
    */
-  public void setSubjectTerm( String subject, boolean notTerm ) {
-    if ( !Utils.isEmpty( subject ) ) {
-      if ( notTerm ) {
-        addSearchTerm( new NotTerm( new SubjectTerm( subject ) ) );
+  public void setSubjectTerm(String subject, boolean notTerm) {
+    if (!Utils.isEmpty(subject)) {
+      if (notTerm) {
+        addSearchTerm(new NotTerm(new SubjectTerm(subject)));
       } else {
-        addSearchTerm( new SubjectTerm( subject ) );
+        addSearchTerm(new SubjectTerm(subject));
       }
     }
   }
@@ -500,14 +496,14 @@ public class MailConnection {
    * Search all messages with body containing the word bodyfilter
    *
    * @param bodyfilter
-   * @param notTerm    negate condition
+   * @param notTerm negate condition
    */
-  public void setBodyTerm( String bodyfilter, boolean notTerm ) {
-    if ( !Utils.isEmpty( bodyfilter ) ) {
-      if ( notTerm ) {
-        addSearchTerm( new NotTerm( new BodyTerm( bodyfilter ) ) );
+  public void setBodyTerm(String bodyfilter, boolean notTerm) {
+    if (!Utils.isEmpty(bodyfilter)) {
+      if (notTerm) {
+        addSearchTerm(new NotTerm(new BodyTerm(bodyfilter)));
       } else {
-        addSearchTerm( new BodyTerm( bodyfilter ) );
+        addSearchTerm(new BodyTerm(bodyfilter));
       }
     }
   }
@@ -515,15 +511,15 @@ public class MailConnection {
   /**
    * Set filter on message sender.
    *
-   * @param sender  messages will be filtered on sender
+   * @param sender messages will be filtered on sender
    * @param notTerm negate condition
    */
-  public void setSenderTerm( String sender, boolean notTerm ) {
-    if ( !Utils.isEmpty( sender ) ) {
-      if ( notTerm ) {
-        addSearchTerm( new NotTerm( new FromStringTerm( sender ) ) );
+  public void setSenderTerm(String sender, boolean notTerm) {
+    if (!Utils.isEmpty(sender)) {
+      if (notTerm) {
+        addSearchTerm(new NotTerm(new FromStringTerm(sender)));
       } else {
-        addSearchTerm( new FromStringTerm( sender ) );
+        addSearchTerm(new FromStringTerm(sender));
       }
     }
   }
@@ -533,9 +529,9 @@ public class MailConnection {
    *
    * @param receipient messages will be filtered on receipient
    */
-  public void setReceipientTerm( String receipient ) {
-    if ( !Utils.isEmpty( receipient ) ) {
-      addSearchTerm( new RecipientStringTerm( Message.RecipientType.TO, receipient ) );
+  public void setReceipientTerm(String receipient) {
+    if (!Utils.isEmpty(receipient)) {
+      addSearchTerm(new RecipientStringTerm(Message.RecipientType.TO, receipient));
     }
   }
 
@@ -544,11 +540,11 @@ public class MailConnection {
    *
    * @param receiveddate messages will be filtered on receiveddate
    */
-  public void setReceivedDateTermEQ( Date receiveddate ) {
-    if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
-      log.logError( BaseMessages.getString( PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported" ) );
+  public void setReceivedDateTermEQ(Date receiveddate) {
+    if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
+      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
     } else {
-      addSearchTerm( new ReceivedDateTerm( ComparisonTerm.EQ, receiveddate ) );
+      addSearchTerm(new ReceivedDateTerm(ComparisonTerm.EQ, receiveddate));
     }
   }
 
@@ -557,11 +553,11 @@ public class MailConnection {
    *
    * @param futureDate messages will be filtered on futureDate
    */
-  public void setReceivedDateTermLT( Date futureDate ) {
-    if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
-      log.logError( BaseMessages.getString( PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported" ) );
+  public void setReceivedDateTermLT(Date futureDate) {
+    if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
+      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
     } else {
-      addSearchTerm( new ReceivedDateTerm( ComparisonTerm.LT, futureDate ) );
+      addSearchTerm(new ReceivedDateTerm(ComparisonTerm.LT, futureDate));
     }
   }
 
@@ -570,53 +566,55 @@ public class MailConnection {
    *
    * @param pastDate messages will be filtered on pastDate
    */
-  public void setReceivedDateTermGT( Date pastDate ) {
-    if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
-      log.logError( BaseMessages.getString( PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported" ) );
+  public void setReceivedDateTermGT(Date pastDate) {
+    if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
+      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
     } else {
-      addSearchTerm( new ReceivedDateTerm( ComparisonTerm.GT, pastDate ) );
+      addSearchTerm(new ReceivedDateTerm(ComparisonTerm.GT, pastDate));
     }
   }
 
-  public void setReceivedDateTermBetween( Date beginDate, Date endDate ) {
-    if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
-      log.logError( BaseMessages.getString( PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported" ) );
+  public void setReceivedDateTermBetween(Date beginDate, Date endDate) {
+    if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
+      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
     } else {
-      addSearchTerm( new AndTerm( new ReceivedDateTerm( ComparisonTerm.LT, endDate ), new ReceivedDateTerm(
-        ComparisonTerm.GT, beginDate ) ) );
+      addSearchTerm(
+          new AndTerm(
+              new ReceivedDateTerm(ComparisonTerm.LT, endDate),
+              new ReceivedDateTerm(ComparisonTerm.GT, beginDate)));
     }
   }
 
   public void setFlagTermNew() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.RECENT ), true ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.RECENT), true));
   }
 
   public void setFlagTermOld() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.RECENT ), false ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.RECENT), false));
   }
 
   public void setFlagTermRead() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.SEEN ), true ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.SEEN), true));
   }
 
   public void setFlagTermUnread() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.SEEN ), false ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.SEEN), false));
   }
 
   public void setFlagTermFlagged() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.FLAGGED ), true ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.FLAGGED), true));
   }
 
   public void setFlagTermNotFlagged() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.FLAGGED ), false ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.FLAGGED), false));
   }
 
   public void setFlagTermDraft() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.DRAFT ), true ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.DRAFT), true));
   }
 
   public void setFlagTermNotDraft() {
-    addSearchTerm( new FlagTerm( new Flags( Flag.DRAFT ), false ) );
+    addSearchTerm(new FlagTerm(new Flags(Flag.DRAFT), false));
   }
 
   /**
@@ -627,15 +625,15 @@ public class MailConnection {
   public void retrieveMessages() throws HopException {
     try {
       // search term?
-      if ( this.searchTerm != null ) {
-        this.messages = this.folder.search( this.searchTerm );
+      if (this.searchTerm != null) {
+        this.messages = this.folder.search(this.searchTerm);
       } else {
         this.messages = this.folder.getMessages();
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       this.messages = null;
-      throw new HopException( BaseMessages.getString(
-        PKG, "MailConnection.Error.RetrieveMessages", getFolderName() ), e );
+      throw new HopException(
+          BaseMessages.getString(PKG, "MailConnection.Error.RetrieveMessages", getFolderName()), e);
     }
   }
 
@@ -655,53 +653,61 @@ public class MailConnection {
    * @param expunge expunge folder
    * @throws HopException
    */
-  public void disconnect( boolean expunge ) throws HopException {
-    if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "MailConnection.ClosingConnection" ) );
+  public void disconnect(boolean expunge) throws HopException {
+    if (log.isDebug()) {
+      log.logDebug(BaseMessages.getString(PKG, "MailConnection.ClosingConnection"));
     }
     try {
       // close the folder, passing in a true value to expunge the deleted message
-      closeFolder( expunge );
+      closeFolder(expunge);
       clearFilters();
-      if ( this.store != null ) {
+      if (this.store != null) {
         this.store.close();
         this.store = null;
       }
-      if ( this.session != null ) {
+      if (this.session != null) {
         this.session = null;
       }
-      if ( this.destinationIMAPFolder != null ) {
-        this.destinationIMAPFolder.close( expunge );
+      if (this.destinationIMAPFolder != null) {
+        this.destinationIMAPFolder.close(expunge);
       }
 
-      if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "MailConnection.ConnectionClosed" ) );
+      if (log.isDebug()) {
+        log.logDebug(BaseMessages.getString(PKG, "MailConnection.ConnectionClosed"));
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.Error.ClosingConnection" ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionGetMailsFromPOP.Error.ClosingConnection"), e);
     }
   }
 
   /**
    * Export message content to a filename.
    *
-   * @param filename   the target filename
+   * @param filename the target filename
    * @param folderName the parent folder of filename
    * @throws HopException
    */
-
-  public void saveMessageContentToFile( String filename, String folderName ) throws HopException {
+  public void saveMessageContentToFile(String filename, String folderName) throws HopException {
     OutputStream os = null;
     try {
-      os = HopVfs.getOutputStream( folderName + ( folderName.endsWith( "/" ) ? "" : "/" ) + filename, false );
-      getMessage().writeTo( os );
+      os =
+          HopVfs.getOutputStream(
+              folderName + (folderName.endsWith("/") ? "" : "/") + filename, false);
+      getMessage().writeTo(os);
       updateSavedMessagesCounter();
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.SavingMessageContent", ""
-        + this.message.getMessageNumber(), filename, folderName ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "MailConnection.Error.SavingMessageContent",
+              "" + this.message.getMessageNumber(),
+              filename,
+              folderName),
+          e);
     } finally {
-      if ( os != null ) {
-        IOUtils.closeQuietly( os );
+      if (os != null) {
+        IOUtils.closeQuietly(os);
       }
     }
   }
@@ -712,142 +718,158 @@ public class MailConnection {
    * @param folderName the target foldername
    * @throws HopException
    */
-  public void saveAttachedFiles( String folderName ) throws HopException {
-    saveAttachedFiles( folderName, null );
+  public void saveAttachedFiles(String folderName) throws HopException {
+    saveAttachedFiles(folderName, null);
   }
 
   /**
    * Save attached files to a folder.
    *
    * @param folderName the target foldername
-   * @param pattern    regular expression to filter on files
+   * @param pattern regular expression to filter on files
    * @throws HopException
    */
-  public void saveAttachedFiles( String folderName, Pattern pattern ) throws HopException {
+  public void saveAttachedFiles(String folderName, Pattern pattern) throws HopException {
     Object content = null;
     try {
       content = getMessage().getContent();
-      if ( content instanceof Multipart ) {
-        handleMultipart( folderName, (Multipart) content, pattern );
+      if (content instanceof Multipart) {
+        handleMultipart(folderName, (Multipart) content, pattern);
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.SavingAttachedFiles", ""
-        + this.message.getMessageNumber(), folderName ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "MailConnection.Error.SavingAttachedFiles",
+              "" + this.message.getMessageNumber(),
+              folderName),
+          e);
     } finally {
-      if ( content != null ) {
+      if (content != null) {
         content = null;
       }
     }
   }
 
-  private void handleMultipart( String folderName, Multipart multipart, Pattern pattern ) throws HopException {
+  private void handleMultipart(String folderName, Multipart multipart, Pattern pattern)
+      throws HopException {
     try {
-      for ( int i = 0, n = multipart.getCount(); i < n; i++ ) {
-        handlePart( folderName, multipart.getBodyPart( i ), pattern );
+      for (int i = 0, n = multipart.getCount(); i < n; i++) {
+        handlePart(folderName, multipart.getBodyPart(i), pattern);
       }
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
-  private void handlePart( String folderName, Part part, Pattern pattern ) throws HopException {
+  private void handlePart(String folderName, Part part, Pattern pattern) throws HopException {
     try {
       String disposition = part.getDisposition();
 
       // The RFC2183 doesn't REQUIRE Content-Disposition header field so we'll create one to
       // fake out the code below.
-      if ( disposition == null || disposition.length() < 1 ) {
+      if (disposition == null || disposition.length() < 1) {
         disposition = Part.ATTACHMENT;
       }
 
-      if ( disposition.equalsIgnoreCase( Part.ATTACHMENT ) || disposition.equalsIgnoreCase( Part.INLINE ) ) {
+      if (disposition.equalsIgnoreCase(Part.ATTACHMENT)
+          || disposition.equalsIgnoreCase(Part.INLINE)) {
         String MimeText = null;
         try {
-          MimeText = MimeUtility.decodeText( part.getFileName() );
-        } catch ( Exception e ) {
+          MimeText = MimeUtility.decodeText(part.getFileName());
+        } catch (Exception e) {
           // Ignore errors
         }
-        if ( MimeText != null ) {
-          String filename = MimeUtility.decodeText( part.getFileName() );
-          if ( isWildcardMatch( filename, pattern ) ) {
+        if (MimeText != null) {
+          String filename = MimeUtility.decodeText(part.getFileName());
+          if (isWildcardMatch(filename, pattern)) {
             // Save file
-            saveFile( folderName, filename, part.getInputStream() );
+            saveFile(folderName, filename, part.getInputStream());
             updateSavedAttachedFilesCounter();
-            if ( log.isDetailed() ) {
-              log.logDetailed( BaseMessages.getString( PKG, "ActionGetMailsFromPOP.AttachedFileSaved", filename, ""
-                + getMessage().getMessageNumber(), folderName ) );
+            if (log.isDetailed()) {
+              log.logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionGetMailsFromPOP.AttachedFileSaved",
+                      filename,
+                      "" + getMessage().getMessageNumber(),
+                      folderName));
             }
           }
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
   @VisibleForTesting
-  static String findValidTarget( String folderName, final String fileName ) throws HopException {
-    if ( fileName == null || folderName == null ) {
-      throw new IllegalArgumentException( "Cannot have null arguments to findValidTarget" );
+  static String findValidTarget(String folderName, final String fileName) throws HopException {
+    if (fileName == null || folderName == null) {
+      throw new IllegalArgumentException("Cannot have null arguments to findValidTarget");
     }
-    String fileNameRoot = FilenameUtils.getBaseName( fileName ), ext = "." + FilenameUtils.getExtension( fileName );
-    if ( ( ext.length() == 1 ) ) { // only a "."
+    String fileNameRoot = FilenameUtils.getBaseName(fileName),
+        ext = "." + FilenameUtils.getExtension(fileName);
+    if ((ext.length() == 1)) { // only a "."
       ext = "";
     }
-    String rtn = "", base = FilenameUtils.concat( folderName, fileNameRoot );
+    String rtn = "", base = FilenameUtils.concat(folderName, fileNameRoot);
     int baseSz = base.length();
-    StringBuilder build = new StringBuilder( baseSz ).append( base );
+    StringBuilder build = new StringBuilder(baseSz).append(base);
     int i = -1;
     do {
       i++;
-      build.setLength( baseSz ); // bring string back to size
-      build.append( i > 0 ? Integer.toString( i ) : "" ).append( ext );
+      build.setLength(baseSz); // bring string back to size
+      build.append(i > 0 ? Integer.toString(i) : "").append(ext);
       rtn = build.toString();
-    } while ( HopVfs.fileExists( rtn ) );
+    } while (HopVfs.fileExists(rtn));
 
     return rtn;
   }
 
-  private static void saveFile( String folderName, String filename, InputStream input ) throws HopException {
+  private static void saveFile(String folderName, String filename, InputStream input)
+      throws HopException {
     OutputStream fos = null;
     BufferedOutputStream bos = null;
     BufferedInputStream bis = null;
     try {
       // Do no overwrite existing file
       String targetFileName;
-      if ( filename == null ) {
-        File f = File.createTempFile( "xx", ".out" );
+      if (filename == null) {
+        File f = File.createTempFile("xx", ".out");
         f.deleteOnExit(); // Clean up file
         filename = f.getName();
-        targetFileName = folderName + "/" + filename; // Note - createTempFile Used - so will be unique
+        targetFileName =
+            folderName + "/" + filename; // Note - createTempFile Used - so will be unique
       } else {
-        targetFileName = findValidTarget( folderName, filename );
+        targetFileName = findValidTarget(folderName, filename);
       }
-      fos = HopVfs.getOutputStream( targetFileName, false );
-      bos = new BufferedOutputStream( fos );
-      bis = new BufferedInputStream( input );
-      IOUtils.copy( bis, bos );
+      fos = HopVfs.getOutputStream(targetFileName, false);
+      bos = new BufferedOutputStream(fos);
+      bis = new BufferedInputStream(input);
+      IOUtils.copy(bis, bos);
       bos.flush();
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     } finally {
-      if ( bis != null ) {
-        IOUtils.closeQuietly( bis );
+      if (bis != null) {
+        IOUtils.closeQuietly(bis);
         bis = null; // Help the GC
       }
-      if ( bos != null ) {
-        IOUtils.closeQuietly( bos );
+      if (bos != null) {
+        IOUtils.closeQuietly(bos);
         bos = null; // Help the GC
-        // Note - closing the BufferedOuputStream closes the underlying output stream according to the Javadoc
+        // Note - closing the BufferedOuputStream closes the underlying output stream according to
+        // the Javadoc
       }
     }
   }
 
-  private boolean isWildcardMatch( String filename, Pattern pattern ) {
+  private boolean isWildcardMatch(String filename, Pattern pattern) {
     boolean retval = true;
-    if ( pattern != null ) {
-      Matcher matcher = pattern.matcher( filename );
-      retval = ( matcher.matches() );
+    if (pattern != null) {
+      Matcher matcher = pattern.matcher(filename);
+      retval = (matcher.matches());
     }
     return retval;
   }
@@ -859,59 +881,67 @@ public class MailConnection {
    */
   public void deleteMessage() throws HopException {
     try {
-      this.message.setFlag( Flag.DELETED, true );
+      this.message.setFlag(Flag.DELETED, true);
       updateDeletedMessagesCounter();
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.DeletingMessage", ""
-        + getMessage().getMessageNumber() ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "MailConnection.Error.DeletingMessage", "" + getMessage().getMessageNumber()),
+          e);
     }
   }
 
   /**
    * Set destination folder
    *
-   * @param folderName   destination foldername
+   * @param folderName destination foldername
    * @param createFolder flag create folder if needed
    * @throws HopException
    */
-  public void setDestinationFolder( String folderName, boolean createFolder ) throws HopException {
+  public void setDestinationFolder(String folderName, boolean createFolder) throws HopException {
     try {
-      String[] folderparts = folderName.split( "/" );
+      String[] folderparts = folderName.split("/");
       Folder f = this.getStore().getDefaultFolder();
       // Open destination folder
-      for ( int i = 0; i < folderparts.length; i++ ) {
-        f = f.getFolder( folderparts[ i ] );
-        if ( !f.exists() ) {
-          if ( createFolder ) {
+      for (int i = 0; i < folderparts.length; i++) {
+        f = f.getFolder(folderparts[i]);
+        if (!f.exists()) {
+          if (createFolder) {
             // Create folder
-            f.create( Folder.HOLDS_MESSAGES );
+            f.create(Folder.HOLDS_MESSAGES);
           } else {
-            throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.FolderNotFound", folderName ) );
+            throw new HopException(
+                BaseMessages.getString(PKG, "MailConnection.Error.FolderNotFound", folderName));
           }
         }
       }
       this.destinationIMAPFolder = f;
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
   /**
-   * Move current message to a target folder. (IMAP) You must call setDestinationFolder before calling this method
+   * Move current message to a target folder. (IMAP) You must call setDestinationFolder before
+   * calling this method
    *
    * @throws HopException
    */
   public void moveMessage() throws HopException {
     try {
       // move all messages
-      this.folder.copyMessages( new Message[] { this.message }, this.destinationIMAPFolder );
+      this.folder.copyMessages(new Message[] {this.message}, this.destinationIMAPFolder);
       updatedMovedMessagesCounter();
       // Make sure to delete messages
       deleteMessage();
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.MovingMessage", ""
-        + getMessage().getMessageNumber(), this.destinationIMAPFolder.getName() ), e );
-
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "MailConnection.Error.MovingMessage",
+              "" + getMessage().getMessageNumber(),
+              this.destinationIMAPFolder.getName()),
+          e);
     }
   }
 
@@ -921,7 +951,7 @@ public class MailConnection {
    * @return foldername
    */
   public String getFolderName() {
-    if ( this.folder == null ) {
+    if (this.folder == null) {
       return "";
     }
     return this.folder.getName();
@@ -970,9 +1000,10 @@ public class MailConnection {
   public void fetchNext() throws HopException {
     updateMessageNr();
     try {
-      this.message = this.messages[ getMessageNr() ];
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.FetchingMessages" ), e );
+      this.message = this.messages[getMessageNr()];
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "MailConnection.Error.FetchingMessages"), e);
     }
   }
 
@@ -1031,16 +1062,12 @@ public class MailConnection {
     return this.nrMovedMessages;
   }
 
-  /**
-   * Update count of moved messages.
-   */
+  /** Update count of moved messages. */
   private void updatedMovedMessagesCounter() {
     this.nrMovedMessages++;
   }
 
-  /**
-   * Set count of moved messages.
-   */
+  /** Set count of moved messages. */
   private void setMovedMessagesCounter() {
     this.nrMovedMessages = getMessagesCount();
   }
@@ -1050,14 +1077,15 @@ public class MailConnection {
    *
    * @throws HopException
    */
-  public void deleteMessages( boolean setCounter ) throws HopException {
+  public void deleteMessages(boolean setCounter) throws HopException {
     try {
-      this.folder.setFlags( this.messages, new Flags( Flag.DELETED ), true );
-      if ( setCounter ) {
+      this.folder.setFlags(this.messages, new Flags(Flag.DELETED), true);
+      if (setCounter) {
         setDeletedMessagesCounter();
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.DeletingMessage" ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "MailConnection.Error.DeletingMessage"), e);
     }
   }
 
@@ -1068,12 +1096,14 @@ public class MailConnection {
    */
   public void moveMessages() throws HopException {
     try {
-      this.folder.copyMessages( this.messages, this.destinationIMAPFolder );
-      deleteMessages( false );
+      this.folder.copyMessages(this.messages, this.destinationIMAPFolder);
+      deleteMessages(false);
       setMovedMessagesCounter();
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "MailConnection.Error.MovingMessages", this.destinationIMAPFolder.getName() ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "MailConnection.Error.MovingMessages", this.destinationIMAPFolder.getName()),
+          e);
     }
   }
 
@@ -1083,43 +1113,44 @@ public class MailConnection {
    * @param folderName the name of the folder
    * @return true is folder exists
    */
-  public boolean folderExists( String folderName ) {
+  public boolean folderExists(String folderName) {
     boolean retval = false;
     Folder dfolder = null;
     try {
       // Open destination folder
-      dfolder = getRecursiveFolder( folderName );
-      if ( dfolder.exists() ) {
+      dfolder = getRecursiveFolder(folderName);
+      if (dfolder.exists()) {
         retval = true;
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // Ignore errors
     } finally {
       try {
-        if ( dfolder != null ) {
-          dfolder.close( false );
+        if (dfolder != null) {
+          dfolder.close(false);
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
     return retval;
   }
 
-  private HashSet<String> returnSubfolders( Folder folder ) throws HopException {
+  private HashSet<String> returnSubfolders(Folder folder) throws HopException {
     HashSet<String> list = new HashSet<>();
     try {
-      if ( ( folder.getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
+      if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
         Folder[] f = folder.list();
-        for ( int i = 0; i < f.length; i++ ) {
+        for (int i = 0; i < f.length; i++) {
           // Search for sub folders
-          if ( ( f[ i ].getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
-            list.add( f[ i ].getFullName() );
-            list.addAll( returnSubfolders( f[ i ] ) );
+          if ((f[i].getType() & Folder.HOLDS_FOLDERS) != 0) {
+            list.add(f[i].getFullName());
+            list.addAll(returnSubfolders(f[i]));
           }
         }
       }
-    } catch ( MessagingException m ) {
-      throw new HopException( m );
+    } catch (MessagingException m) {
+      throw new HopException(m);
     }
     return list;
   }
@@ -1130,10 +1161,10 @@ public class MailConnection {
    * @param folder parent folder
    * @return sub folders
    */
-  public String[] returnAllFolders( Folder folder ) throws HopException {
+  public String[] returnAllFolders(Folder folder) throws HopException {
     HashSet<String> list = new HashSet<>();
-    list = returnSubfolders( folder );
-    return list.toArray( new String[ list.size() ] );
+    list = returnSubfolders(folder);
+    return list.toArray(new String[list.size()]);
   }
 
   /**
@@ -1142,7 +1173,7 @@ public class MailConnection {
    * @return sub folders
    */
   public String[] returnAllFolders() throws HopException {
-    return returnAllFolders( getFolder() );
+    return returnAllFolders(getFolder());
   }
 
   /**
@@ -1151,71 +1182,70 @@ public class MailConnection {
    * @param folder target folder
    * @return sub folders
    */
-  public String[] returnAllFolders( String folder ) throws HopException {
+  public String[] returnAllFolders(String folder) throws HopException {
 
     Folder dfolder = null;
     String[] retval = null;
     try {
-      if ( Utils.isEmpty( folder ) ) {
+      if (Utils.isEmpty(folder)) {
         // Default folder
         dfolder = getStore().getDefaultFolder();
       } else {
-        dfolder = getStore().getFolder( folder );
+        dfolder = getStore().getFolder(folder);
       }
-      retval = returnAllFolders( dfolder );
-    } catch ( Exception e ) {
+      retval = returnAllFolders(dfolder);
+    } catch (Exception e) {
       // Ignore errors
     } finally {
       try {
-        if ( dfolder != null ) {
-          dfolder.close( false );
+        if (dfolder != null) {
+          dfolder.close(false);
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
     return retval;
   }
 
   public String getMessageBody() throws Exception {
-    return getMessageBody( getMessage() );
+    return getMessageBody(getMessage());
   }
 
-  /**
-   * Return the primary text content of the message.
-   */
-  public String getMessageBody( Message m ) throws MessagingException, IOException {
-    return getMessageBodyOrContentType( m, false );
+  /** Return the primary text content of the message. */
+  public String getMessageBody(Message m) throws MessagingException, IOException {
+    return getMessageBodyOrContentType(m, false);
   }
 
-  public String getMessageBodyContentType( Message m ) throws MessagingException, IOException {
-    return getMessageBodyOrContentType( m, true );
+  public String getMessageBodyContentType(Message m) throws MessagingException, IOException {
+    return getMessageBodyOrContentType(m, true);
   }
 
-  private String getMessageBodyOrContentType( Part p, final boolean returnContentType ) throws MessagingException,
-    IOException {
-    if ( p.isMimeType( "text/*" ) ) {
+  private String getMessageBodyOrContentType(Part p, final boolean returnContentType)
+      throws MessagingException, IOException {
+    if (p.isMimeType("text/*")) {
       String s = (String) p.getContent();
       return returnContentType ? p.getContentType() : s;
     }
 
-    if ( p.isMimeType( "multipart/alternative" ) ) {
+    if (p.isMimeType("multipart/alternative")) {
       // prefer html text over plain text
       Multipart mp = (Multipart) p.getContent();
       String text = null;
-      for ( int i = 0; i < mp.getCount(); i++ ) {
-        Part bp = mp.getBodyPart( i );
-        if ( bp.isMimeType( "text/plain" ) ) {
-          if ( text == null ) {
-            text = getMessageBodyOrContentType( bp, returnContentType );
+      for (int i = 0; i < mp.getCount(); i++) {
+        Part bp = mp.getBodyPart(i);
+        if (bp.isMimeType("text/plain")) {
+          if (text == null) {
+            text = getMessageBodyOrContentType(bp, returnContentType);
           }
         }
       }
       return text;
-    } else if ( p.isMimeType( "multipart/*" ) ) {
+    } else if (p.isMimeType("multipart/*")) {
       Multipart mp = (Multipart) p.getContent();
-      for ( int i = 0; i < mp.getCount(); i++ ) {
-        String s = getMessageBodyOrContentType( mp.getBodyPart( i ), returnContentType );
-        if ( s != null ) {
+      for (int i = 0; i < mp.getCount(); i++) {
+        String s = getMessageBodyOrContentType(mp.getBodyPart(i), returnContentType);
+        if (s != null) {
           return s;
         }
       }
@@ -1230,13 +1260,13 @@ public class MailConnection {
    * @return true if new message
    */
   public boolean isMessageNew() {
-    return isMessageNew( getMessage() );
+    return isMessageNew(getMessage());
   }
 
-  public boolean isMessageNew( Message msg ) {
+  public boolean isMessageNew(Message msg) {
     try {
-      return msg.isSet( Flag.RECENT );
-    } catch ( MessagingException e ) {
+      return msg.isSet(Flag.RECENT);
+    } catch (MessagingException e) {
       return false;
     }
   }
@@ -1247,13 +1277,13 @@ public class MailConnection {
    * @return true if message is read
    */
   public boolean isMessageRead() {
-    return isMessageRead( getMessage() );
+    return isMessageRead(getMessage());
   }
 
-  public boolean isMessageRead( Message msg ) {
+  public boolean isMessageRead(Message msg) {
     try {
-      return msg.isSet( Flag.SEEN );
-    } catch ( MessagingException e ) {
+      return msg.isSet(Flag.SEEN);
+    } catch (MessagingException e) {
       return false;
     }
   }
@@ -1264,13 +1294,13 @@ public class MailConnection {
    * @return true if message is flagged
    */
   public boolean isMessageFlagged() {
-    return isMessageFlagged( getMessage() );
+    return isMessageFlagged(getMessage());
   }
 
-  public boolean isMessageFlagged( Message msg ) {
+  public boolean isMessageFlagged(Message msg) {
     try {
-      return msg.isSet( Flag.FLAGGED );
-    } catch ( MessagingException e ) {
+      return msg.isSet(Flag.FLAGGED);
+    } catch (MessagingException e) {
       return false;
     }
   }
@@ -1281,13 +1311,13 @@ public class MailConnection {
    * @return true if message is deleted
    */
   public boolean isMessageDeleted() {
-    return isMessageDeleted( getMessage() );
+    return isMessageDeleted(getMessage());
   }
 
-  public boolean isMessageDeleted( Message msg ) {
+  public boolean isMessageDeleted(Message msg) {
     try {
-      return msg.isSet( Flag.DELETED );
-    } catch ( MessagingException e ) {
+      return msg.isSet(Flag.DELETED);
+    } catch (MessagingException e) {
       return false;
     }
   }
@@ -1298,19 +1328,19 @@ public class MailConnection {
    * @return true if message is Draft
    */
   public boolean isMessageDraft() {
-    return isMessageDraft( getMessage() );
+    return isMessageDraft(getMessage());
   }
 
-  public boolean isMessageDraft( Message msg ) {
+  public boolean isMessageDraft(Message msg) {
     try {
-      return msg.isSet( Flag.DRAFT );
-    } catch ( MessagingException e ) {
+      return msg.isSet(Flag.DRAFT);
+    } catch (MessagingException e) {
       return false;
     }
   }
 
   public String toString() {
-    if ( getServer() != null ) {
+    if (getServer() != null) {
       return getServer();
     } else {
       return "-";
@@ -1323,43 +1353,48 @@ public class MailConnection {
    * @param pattern (optional)
    * @return true if message is Draft
    */
-  public int getAttachedFilesCount( Pattern pattern ) throws HopException {
-    return getAttachedFilesCount( getMessage(), pattern );
+  public int getAttachedFilesCount(Pattern pattern) throws HopException {
+    return getAttachedFilesCount(getMessage(), pattern);
   }
 
-  public int getAttachedFilesCount( Message message, Pattern pattern ) throws HopException {
+  public int getAttachedFilesCount(Message message, Pattern pattern) throws HopException {
     Object content = null;
     int retval = 0;
     try {
       content = message.getContent();
-      if ( content instanceof Multipart ) {
+      if (content instanceof Multipart) {
         Multipart multipart = (Multipart) content;
-        for ( int i = 0, n = multipart.getCount(); i < n; i++ ) {
-          Part part = multipart.getBodyPart( i );
+        for (int i = 0, n = multipart.getCount(); i < n; i++) {
+          Part part = multipart.getBodyPart(i);
           String disposition = part.getDisposition();
 
-          if ( ( disposition != null )
-            && ( disposition.equalsIgnoreCase( Part.ATTACHMENT ) || disposition.equalsIgnoreCase( Part.INLINE ) ) ) {
+          if ((disposition != null)
+              && (disposition.equalsIgnoreCase(Part.ATTACHMENT)
+                  || disposition.equalsIgnoreCase(Part.INLINE))) {
             String MimeText = null;
             try {
-              MimeText = MimeUtility.decodeText( part.getFileName() );
-            } catch ( Exception e ) {
+              MimeText = MimeUtility.decodeText(part.getFileName());
+            } catch (Exception e) {
               // Ignore errors
             }
-            if ( MimeText != null ) {
-              String filename = MimeUtility.decodeText( part.getFileName() );
-              if ( isWildcardMatch( filename, pattern ) ) {
+            if (MimeText != null) {
+              String filename = MimeUtility.decodeText(part.getFileName());
+              if (isWildcardMatch(filename, pattern)) {
                 retval++;
               }
             }
           }
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.CountingAttachedFiles", ""
-        + this.message.getMessageNumber() ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "MailConnection.Error.CountingAttachedFiles",
+              "" + this.message.getMessageNumber()),
+          e);
     } finally {
-      if ( content != null ) {
+      if (content != null) {
         content = null;
       }
     }

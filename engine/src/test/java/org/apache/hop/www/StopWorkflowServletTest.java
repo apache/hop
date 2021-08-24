@@ -41,11 +41,9 @@ import java.io.StringWriter;
 import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith( PowerMockRunner.class )
+@RunWith(PowerMockRunner.class)
 public class StopWorkflowServletTest {
   private WorkflowMap mockWorkflowMap;
 
@@ -53,58 +51,62 @@ public class StopWorkflowServletTest {
 
   @Before
   public void setup() {
-    mockWorkflowMap = mock( WorkflowMap.class );
-    stopWorkflowServlet = new StopWorkflowServlet( mockWorkflowMap );
+    mockWorkflowMap = mock(WorkflowMap.class);
+    stopWorkflowServlet = new StopWorkflowServlet(mockWorkflowMap);
   }
 
   @Test
-  @PrepareForTest( { Encode.class } )
-  public void testStopJobServletEscapesHtmlWhenPipelineNotFound() throws ServletException, IOException {
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
+  @PrepareForTest({Encode.class})
+  public void testStopJobServletEscapesHtmlWhenPipelineNotFound()
+      throws ServletException, IOException {
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
 
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy( Encode.class );
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( StopWorkflowServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
+    PowerMockito.spy(Encode.class);
+    when(mockHttpServletRequest.getContextPath()).thenReturn(StopWorkflowServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
 
-    stopWorkflowServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H1", out.toString() ) ) );
+    stopWorkflowServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic( atLeastOnce() );
-    Encode.forHtml( anyString() );
+    PowerMockito.verifyStatic(atLeastOnce());
+    Encode.forHtml(anyString());
   }
 
   @Test
-  @PrepareForTest( { Encode.class } )
-  public void testStopJobServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
+  @PrepareForTest({Encode.class})
+  public void testStopJobServletEscapesHtmlWhenPipelineFound()
+      throws ServletException, IOException {
     HopLogStore.init();
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    IWorkflowEngine<WorkflowMeta> mockWorkflow = mock( Workflow.class );
-    WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
-    mockWorkflowMeta.setName( ServletTestUtils.BAD_STRING_TO_TEST );
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = mock(Workflow.class);
+    WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
+    ILogChannel mockLogChannelInterface = mock(ILogChannel.class);
+    mockWorkflowMeta.setName(ServletTestUtils.BAD_STRING_TO_TEST);
     StringWriter out = new StringWriter();
-    PrintWriter printWriter = new PrintWriter( out );
+    PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy( Encode.class );
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( StopWorkflowServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( anyString() ) ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockHttpServletResponse.getWriter() ).thenReturn( printWriter );
-    when( mockWorkflowMap.getWorkflow( any( HopServerObjectEntry.class ) ) ).thenReturn( mockWorkflow );
-    when( mockWorkflow.getLogChannelId() ).thenReturn( ServletTestUtils.BAD_STRING_TO_TEST );
-    when( mockWorkflow.getLogChannel() ).thenReturn( mockLogChannelInterface );
-    when( mockWorkflow.getWorkflowMeta() ).thenReturn( mockWorkflowMeta );
-    when( mockWorkflowMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
+    PowerMockito.spy(Encode.class);
+    when(mockHttpServletRequest.getContextPath()).thenReturn(StopWorkflowServlet.CONTEXT_PATH);
+    when(mockHttpServletRequest.getParameter(anyString()))
+        .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
+    when(mockWorkflowMap.getWorkflow(any(HopServerObjectEntry.class))).thenReturn(mockWorkflow);
+    when(mockWorkflow.getLogChannelId()).thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
+    when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
+    when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
 
-    stopWorkflowServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    assertFalse( ServletTestUtils.hasBadText( ServletTestUtils.getInsideOfTag( "H1", out.toString() ) ) );
+    stopWorkflowServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+    assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic( atLeastOnce() );
-    Encode.forHtml( anyString() );
+    PowerMockito.verifyStatic(atLeastOnce());
+    Encode.forHtml(anyString());
   }
 }

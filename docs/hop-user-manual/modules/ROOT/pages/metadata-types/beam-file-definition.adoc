@@ -43,9 +43,9 @@ Transforms:
 |Description|The description to be used for this Beam file definition
 |Field Separator|separator used between fields in the file definition
 |Enclosure|field enclosure used for fields in the file definition
-|Field Definitions|List of field name, type, format, length and precision. Describes the file layout for this field definition.
+|Field Definitions|List of field name, type, format, length and precision.
+Describes the file layout for this field definition.
 |===
-
 
 == Samples
 

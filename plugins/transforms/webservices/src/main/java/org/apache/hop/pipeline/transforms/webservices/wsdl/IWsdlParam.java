@@ -22,7 +22,7 @@ public interface IWsdlParam {
 
   String[] getParamNames();
 
-  String getParamType( String paramName );
+  String getParamType(String paramName);
 
   String getItemName();
 

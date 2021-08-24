@@ -56,7 +56,8 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.GetTableNames",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetTableNames",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/gettablenames.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/gettablenames.html")
 public class GetTableNamesMeta extends BaseTransformMeta
     implements ITransformMeta<GetTableNames, GetTableNamesData> {
   private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator

@@ -41,147 +41,166 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-@HopServerServlet(id="addWorkflow", name = "Add a workflow to the server")
+@HopServerServlet(id = "addWorkflow", name = "Add a workflow to the server")
 public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = -6850701762586992604L;
 
   public static final String CONTEXT_PATH = "/hop/addWorkflow";
 
-  public AddWorkflowServlet() {
+  public AddWorkflowServlet() {}
+
+  public AddWorkflowServlet(WorkflowMap workflowMap) {
+    super(workflowMap);
   }
 
-  public AddWorkflowServlet( WorkflowMap workflowMap ) {
-    super( workflowMap );
-  }
-
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getRequestURI().startsWith( CONTEXT_PATH ) ) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getRequestURI().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( "Addition of workflow requested" );
+    if (log.isDebug()) {
+      logDebug("Addition of workflow requested");
     }
 
-    boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
+    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
     PrintWriter out = response.getWriter();
     BufferedReader in = request.getReader(); // read from the client
-    if ( log.isDetailed() ) {
-      logDetailed( "Encoding: " + request.getCharacterEncoding() );
+    if (log.isDetailed()) {
+      logDetailed("Encoding: " + request.getCharacterEncoding());
     }
 
-    if ( useXML ) {
-      response.setContentType( "text/xml" );
-      out.print( XmlHandler.getXmlHeader() );
+    if (useXML) {
+      response.setContentType("text/xml");
+      out.print(XmlHandler.getXmlHeader());
     } else {
-      response.setContentType( "text/html" );
-      out.println( "<HTML>" );
-      out.println( "<HEAD><TITLE>Add workflow</TITLE></HEAD>" );
-      out.println( "<BODY>" );
+      response.setContentType("text/html");
+      out.println("<HTML>");
+      out.println("<HEAD><TITLE>Add workflow</TITLE></HEAD>");
+      out.println("<BODY>");
     }
 
-    response.setStatus( HttpServletResponse.SC_OK );
+    response.setStatus(HttpServletResponse.SC_OK);
 
     try {
       // First read the complete pipeline in memory from the request
       int c;
       StringBuilder xml = new StringBuilder();
-      while ( ( c = in.read() ) != -1 ) {
-        xml.append( (char) c );
+      while ((c = in.read()) != -1) {
+        xml.append((char) c);
       }
 
       // Parse the XML, create a workflow configuration
       //
-      WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml( xml.toString(), variables);
+      WorkflowConfiguration workflowConfiguration =
+          WorkflowConfiguration.fromXml(xml.toString(), variables);
       IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
-      WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
-      workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
+      WorkflowExecutionConfiguration workflowExecutionConfiguration =
+          workflowConfiguration.getWorkflowExecutionConfiguration();
+      workflowMeta.setLogLevel(workflowExecutionConfiguration.getLogLevel());
 
       String serverObjectId = UUID.randomUUID().toString();
-      SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
-      servletLoggingObject.setContainerObjectId( serverObjectId );
-      servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
+      SimpleLoggingObject servletLoggingObject =
+          new SimpleLoggingObject(CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null);
+      servletLoggingObject.setContainerObjectId(serverObjectId);
+      servletLoggingObject.setLogLevel(workflowExecutionConfiguration.getLogLevel());
 
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+      final IWorkflowEngine<WorkflowMeta> workflow =
+          WorkflowEngineFactory.createWorkflowEngine(
+              variables,
+              runConfigurationName,
+              metadataProvider,
+              workflowMeta,
+              servletLoggingObject);
 
       // Setting variables
       //
-      workflow.initializeFrom( null );
-      workflow.getWorkflowMeta().setInternalHopVariables( workflow );
-      workflow.setVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
+      workflow.initializeFrom(null);
+      workflow.getWorkflowMeta().setInternalHopVariables(workflow);
+      workflow.setVariables(
+          workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap());
 
       // Also copy the parameters over...
       //
-      workflow.copyParametersFromDefinitions( workflowMeta );
+      workflow.copyParametersFromDefinitions(workflowMeta);
       workflow.clearParameterValues();
       String[] parameterNames = workflow.listParameters();
-      for ( int idx = 0; idx < parameterNames.length; idx++ ) {
+      for (int idx = 0; idx < parameterNames.length; idx++) {
         // Grab the parameter value set in the action
         //
-        String thisValue = workflowExecutionConfiguration.getParametersMap().get( parameterNames[ idx ] );
-        if ( !Utils.isEmpty( thisValue ) ) {
+        String thisValue =
+            workflowExecutionConfiguration.getParametersMap().get(parameterNames[idx]);
+        if (!Utils.isEmpty(thisValue)) {
           // Set the value as specified by the user in the action
           //
-          workflow.setParameterValue( parameterNames[ idx ], thisValue );
+          workflow.setParameterValue(parameterNames[idx], thisValue);
         }
       }
       workflow.activateParameters(workflow);
 
       // Check if there is a starting point specified.
       String startActionName = workflowExecutionConfiguration.getStartActionName();
-      if ( startActionName != null && !startActionName.isEmpty() ) {        
-        ActionMeta startActionMeta = workflowMeta.findAction( startActionName );
-        workflow.setStartActionMeta( startActionMeta );
+      if (startActionName != null && !startActionName.isEmpty()) {
+        ActionMeta startActionMeta = workflowMeta.findAction(startActionName);
+        workflow.setStartActionMeta(startActionMeta);
       }
 
-      getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
+      getWorkflowMap()
+          .addWorkflow(workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration);
 
+      String message =
+          "Workflow '"
+              + workflow.getWorkflowName()
+              + "' was added to the list with id "
+              + serverObjectId;
 
-      String message = "Workflow '" + workflow.getWorkflowName() + "' was added to the list with id " + serverObjectId;
-
-      if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_OK, message, serverObjectId ) );
+      if (useXML) {
+        out.println(new WebResult(WebResult.STRING_OK, message, serverObjectId));
       } else {
-        out.println( "<H1>" + message + "</H1>" );
-        out.println( "<p><a href=\""
-          + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name=" + workflow.getWorkflowName() + "&id="
-          + serverObjectId + "\">Go to the workflow status page</a><p>" );
+        out.println("<H1>" + message + "</H1>");
+        out.println(
+            "<p><a href=\""
+                + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
+                + "?name="
+                + workflow.getWorkflowName()
+                + "&id="
+                + serverObjectId
+                + "\">Go to the workflow status page</a><p>");
       }
-    } catch ( Exception ex ) {
-      if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ) );
+    } catch (Exception ex) {
+      if (useXML) {
+        out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)));
       } else {
-        out.println( "<p>" );
-        out.println( "<pre>" );
-        ex.printStackTrace( out );
-        out.println( "</pre>" );
+        out.println("<p>");
+        out.println("<pre>");
+        ex.printStackTrace(out);
+        out.println("</pre>");
       }
     }
 
-    if ( !useXML ) {
-      out.println( "<p>" );
-      out.println( "</BODY>" );
-      out.println( "</HTML>" );
+    if (!useXML) {
+      out.println("<p>");
+      out.println("</BODY>");
+      out.println("</HTML>");
     }
   }
 
-  protected String[] getAllArgumentStrings( Map<String, String> arguments ) {
-    if ( arguments == null || arguments.size() == 0 ) {
+  protected String[] getAllArgumentStrings(Map<String, String> arguments) {
+    if (arguments == null || arguments.size() == 0) {
       return null;
     }
 
-    String[] argNames = arguments.keySet().toArray( new String[ arguments.size() ] );
-    Arrays.sort( argNames );
+    String[] argNames = arguments.keySet().toArray(new String[arguments.size()]);
+    Arrays.sort(argNames);
 
-    String[] values = new String[ argNames.length ];
-    for ( int i = 0; i < argNames.length; i++ ) {
-      values[ i ] = arguments.get( argNames[ i ] );
+    String[] values = new String[argNames.length];
+    for (int i = 0; i < argNames.length; i++) {
+      values[i] = arguments.get(argNames[i]);
     }
 
     return values;

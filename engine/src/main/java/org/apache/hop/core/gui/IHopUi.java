@@ -19,5 +19,5 @@ package org.apache.hop.core.gui;
 
 public interface IHopUi {
 
-  boolean messageBox( String message, String text, boolean allowCancel, int type );
+  boolean messageBox(String message, String text, boolean allowCancel, int type);
 }

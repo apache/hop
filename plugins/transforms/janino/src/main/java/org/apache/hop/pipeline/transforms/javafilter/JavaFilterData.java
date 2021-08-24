@@ -22,7 +22,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.codehaus.janino.ExpressionEvaluator;
 
-
 import java.util.List;
 
 /**
@@ -55,5 +54,4 @@ public class JavaFilterData extends BaseTransformData implements ITransformData 
   public JavaFilterData() {
     super();
   }
-
 }

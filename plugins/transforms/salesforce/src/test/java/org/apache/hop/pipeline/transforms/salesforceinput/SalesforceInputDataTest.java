@@ -27,20 +27,20 @@ public class SalesforceInputDataTest {
   @Test
   public void testConstructor() {
     SalesforceInputData data = new SalesforceInputData();
-    assertEquals( 0, data.nr_repeats );
-    assertEquals( 0, data.rownr );
-    assertNull( data.previousRow );
-    assertNull( data.inputRowMeta );
-    assertNull( data.outputRowMeta );
-    assertNull( data.convertRowMeta );
-    assertEquals( 0, data.recordcount );
-    assertEquals( 0, data.nrFields );
-    assertEquals( false, data.limitReached );
-    assertEquals( 0, data.limit );
-    assertEquals( 0, data.nrRecords );
-    assertEquals( 0, data.recordIndex );
-    assertNull( data.startCal );
-    assertNull( data.endCal );
-    assertEquals( false, data.finishedRecord );
+    assertEquals(0, data.nr_repeats);
+    assertEquals(0, data.rownr);
+    assertNull(data.previousRow);
+    assertNull(data.inputRowMeta);
+    assertNull(data.outputRowMeta);
+    assertNull(data.convertRowMeta);
+    assertEquals(0, data.recordcount);
+    assertEquals(0, data.nrFields);
+    assertEquals(false, data.limitReached);
+    assertEquals(0, data.limit);
+    assertEquals(0, data.nrRecords);
+    assertEquals(0, data.recordIndex);
+    assertNull(data.startCal);
+    assertNull(data.endCal);
+    assertEquals(false, data.finishedRecord);
   }
 }

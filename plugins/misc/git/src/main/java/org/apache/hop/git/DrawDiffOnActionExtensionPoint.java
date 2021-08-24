@@ -31,11 +31,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
 
-import static org.apache.hop.git.HopDiff.ADDED;
-import static org.apache.hop.git.HopDiff.ATTR_GIT;
-import static org.apache.hop.git.HopDiff.ATTR_STATUS;
-import static org.apache.hop.git.HopDiff.CHANGED;
-import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.*;
 
 @ExtensionPoint(
     id = "DrawDiffOnActionExtensionPoint",
@@ -44,7 +40,8 @@ import static org.apache.hop.git.HopDiff.REMOVED;
 public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
+  public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
+      throws HopException {
     if (!(object instanceof WorkflowPainter)) {
       return;
     }

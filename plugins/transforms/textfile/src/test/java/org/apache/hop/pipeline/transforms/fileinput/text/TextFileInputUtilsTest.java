@@ -27,128 +27,145 @@ import org.mockito.Mockito;
 public class TextFileInputUtilsTest {
   @Test
   public void guessStringsFromLine() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock( TextFileInputMeta.class );
+    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
     inputMeta.content = new TextFileInputMeta.Content();
     inputMeta.content.fileType = "CSV";
 
-    String line = "\"\\\\valueA\"|\"valueB\\\\\"|\"val\\\\ueC\""; // "\\valueA"|"valueB\\"|"val\\ueC"
+    String line =
+        "\"\\\\valueA\"|\"valueB\\\\\"|\"val\\\\ueC\""; // "\\valueA"|"valueB\\"|"val\\ueC"
 
-    String[] strings = TextFileInputUtils
-      .guessStringsFromLine( Mockito.mock( IVariables.class ), Mockito.mock( ILogChannel.class ),
-        line, inputMeta, "|", "\"", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "\\valueA", strings[ 0 ] );
-    Assert.assertEquals( "valueB\\", strings[ 1 ] );
-    Assert.assertEquals( "val\\ueC", strings[ 2 ] );
+    String[] strings =
+        TextFileInputUtils.guessStringsFromLine(
+            Mockito.mock(IVariables.class),
+            Mockito.mock(ILogChannel.class),
+            line,
+            inputMeta,
+            "|",
+            "\"",
+            "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("\\valueA", strings[0]);
+    Assert.assertEquals("valueB\\", strings[1]);
+    Assert.assertEquals("val\\ueC", strings[2]);
   }
 
   @Test
   public void convertLineToStrings() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock( TextFileInputMeta.class );
+    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
     inputMeta.content = new TextFileInputMeta.Content();
     inputMeta.content.fileType = "CSV";
-    inputMeta.inputFields = new BaseFileField[ 3 ];
+    inputMeta.inputFields = new BaseFileField[3];
     inputMeta.content.escapeCharacter = "\\";
 
-    String line = "\"\\\\fie\\\\l\\dA\"|\"fieldB\\\\\"|\"fie\\\\ldC\""; // ""\\fie\\l\dA"|"fieldB\\"|"Fie\\ldC""
+    String line =
+        "\"\\\\fie\\\\l\\dA\"|\"fieldB\\\\\"|\"fie\\\\ldC\""; // ""\\fie\\l\dA"|"fieldB\\"|"Fie\\ldC""
 
-    String[] strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, "|", "\"", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "\\fie\\l\\dA", strings[ 0 ] );
-    Assert.assertEquals( "fieldB\\", strings[ 1 ] );
-    Assert.assertEquals( "fie\\ldC", strings[ 2 ] );
+    String[] strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, "|", "\"", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("\\fie\\l\\dA", strings[0]);
+    Assert.assertEquals("fieldB\\", strings[1]);
+    Assert.assertEquals("fie\\ldC", strings[2]);
   }
 
   @Test
   public void convertCSVLinesToStrings() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock( TextFileInputMeta.class );
+    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
     inputMeta.content = new TextFileInputMeta.Content();
     inputMeta.content.fileType = "CSV";
-    inputMeta.inputFields = new BaseFileField[ 2 ];
+    inputMeta.inputFields = new BaseFileField[2];
     inputMeta.content.escapeCharacter = "\\";
 
     String line = "A\\\\,B"; // A\\,B
 
-    String[] strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "A\\", strings[ 0 ] );
-    Assert.assertEquals( "B", strings[ 1 ] );
+    String[] strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("A\\", strings[0]);
+    Assert.assertEquals("B", strings[1]);
 
     line = "\\,AB"; // \,AB
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( ",AB", strings[ 0 ] );
-    Assert.assertEquals( null, strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals(",AB", strings[0]);
+    Assert.assertEquals(null, strings[1]);
 
     line = "\\\\\\,AB"; // \\\,AB
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "\\,AB", strings[ 0 ] );
-    Assert.assertEquals( null, strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("\\,AB", strings[0]);
+    Assert.assertEquals(null, strings[1]);
 
     line = "AB,\\"; // AB,\
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "AB", strings[ 0 ] );
-    Assert.assertEquals( "\\", strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("AB", strings[0]);
+    Assert.assertEquals("\\", strings[1]);
 
     line = "AB,\\\\\\"; // AB,\\\
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "AB", strings[ 0 ] );
-    Assert.assertEquals( "\\\\", strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("AB", strings[0]);
+    Assert.assertEquals("\\\\", strings[1]);
 
     line = "A\\B,C"; // A\B,C
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "A\\B", strings[ 0 ] );
-    Assert.assertEquals( "C", strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("A\\B", strings[0]);
+    Assert.assertEquals("C", strings[1]);
   }
 
   @Test
   public void convertCSVLinesToStringsWithEnclosure() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock( TextFileInputMeta.class );
+    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
     inputMeta.content = new TextFileInputMeta.Content();
     inputMeta.content.fileType = "CSV";
-    inputMeta.inputFields = new BaseFileField[ 2 ];
+    inputMeta.inputFields = new BaseFileField[2];
     inputMeta.content.escapeCharacter = "\\";
     inputMeta.content.enclosure = "\"";
 
     String line = "\"A\\\\\",\"B\""; // "A\\","B"
 
-    String[] strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "\"", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "A\\", strings[ 0 ] );
-    Assert.assertEquals( "B", strings[ 1 ] );
+    String[] strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "\"", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("A\\", strings[0]);
+    Assert.assertEquals("B", strings[1]);
 
     line = "\"\\\\\",\"AB\""; // "\\","AB"
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "\"", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "\\", strings[ 0 ] );
-    Assert.assertEquals( "AB", strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "\"", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("\\", strings[0]);
+    Assert.assertEquals("AB", strings[1]);
 
     line = "\"A\\B\",\"C\""; // "A\B","C"
 
-    strings = TextFileInputUtils
-      .convertLineToStrings( Mockito.mock( ILogChannel.class ), line, inputMeta, ",", "\"", "\\" );
-    Assert.assertNotNull( strings );
-    Assert.assertEquals( "A\\B", strings[ 0 ] );
-    Assert.assertEquals( "C", strings[ 1 ] );
+    strings =
+        TextFileInputUtils.convertLineToStrings(
+            Mockito.mock(ILogChannel.class), line, inputMeta, ",", "\"", "\\");
+    Assert.assertNotNull(strings);
+    Assert.assertEquals("A\\B", strings[0]);
+    Assert.assertEquals("C", strings[1]);
   }
-
 }

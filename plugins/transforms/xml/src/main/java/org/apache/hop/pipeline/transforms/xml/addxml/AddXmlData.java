@@ -17,17 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
-import java.io.OutputStreamWriter;
-import java.text.DateFormatSymbols;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.zip.ZipOutputStream;
-
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+
+import java.io.OutputStreamWriter;
+import java.text.*;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Matt
@@ -60,9 +56,7 @@ public class AddXmlData extends BaseTransformData implements ITransformData {
 
   public int[] fieldIndexes;
 
-  /**
-     *
-     */
+  /** */
   public AddXmlData() {
     super();
 
@@ -78,7 +72,5 @@ public class AddXmlData extends BaseTransformData implements ITransformData {
 
     defaultDateFormat = new SimpleDateFormat();
     defaultDateFormatSymbols = new DateFormatSymbols();
-
   }
-
 }

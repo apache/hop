@@ -18,10 +18,10 @@
 package org.apache.hop.workflow.actions.shell;
 
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -29,7 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionShellLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionShell> {
+public class WorkflowActionShellLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionShell> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -39,27 +40,29 @@ public class WorkflowActionShellLoadSaveTest extends WorkflowActionLoadSaveTestS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "filename",
-      "workDirectory",
-      "argFromPrevious",
-      "execPerRow",
-      "setLogfile",
-      "logfile",
-      "setAppendLogfile",
-      "logext",
-      "addDate",
-      "addTime",
-      "insertScript",
-      "script",
-      "logFileLevel",
-      "arguments" } );
+    return Arrays.asList(
+        new String[] {
+          "filename",
+          "workDirectory",
+          "argFromPrevious",
+          "execPerRow",
+          "setLogfile",
+          "logfile",
+          "setAppendLogfile",
+          "logext",
+          "addDate",
+          "addTime",
+          "insertScript",
+          "script",
+          "logFileLevel",
+          "arguments"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createTypeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put( LogLevel.class.getName(), new EnumLoadSaveValidator<LogLevel>( LogLevel.class ) );
+    validators.put(LogLevel.class.getName(), new EnumLoadSaveValidator<LogLevel>(LogLevel.class));
     return validators;
   }
-
 }

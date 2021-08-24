@@ -17,44 +17,46 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class AddXmlMetaTest {
 
   @Test
   public void loadSaveTest() throws HopException {
     List<String> attributes =
-        Arrays.asList( "omitXMLheader", "omitNullValues", "encoding", "valueName", "rootNode", "outputFields" );
+        Arrays.asList(
+            "omitXMLheader", "omitNullValues", "encoding", "valueName", "rootNode", "outputFields");
 
     XmlField xmlField = new XmlField();
-    xmlField.setFieldName( "TEST_FIELD" );
-    xmlField.setType( 0 );
+    xmlField.setFieldName("TEST_FIELD");
+    xmlField.setType(0);
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-      new HashMap<>();
-    fieldLoadSaveValidatorTypeMap.put( XmlField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
-        new XMLFieldLoadSaveValidator( xmlField ), 1 ) );
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<>();
+    fieldLoadSaveValidatorTypeMap.put(
+        XmlField[].class.getCanonicalName(),
+        new ArrayLoadSaveValidator<>(new XMLFieldLoadSaveValidator(xmlField), 1));
 
-//    TransformLoadSaveTester tester = new TransformLoadSaveTester( AddXmlMeta.class, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
-//        new HashMap<String, IFieldLoadSaveValidator<?>>(), fieldLoadSaveValidatorTypeMap );
+    //    TransformLoadSaveTester tester = new TransformLoadSaveTester( AddXmlMeta.class,
+    // attributes, new HashMap<String, String>(), new HashMap<String, String>(),
+    //        new HashMap<String, IFieldLoadSaveValidator<?>>(), fieldLoadSaveValidatorTypeMap );
 
-//    tester.testXmlRoundTrip();
+    //    tester.testXmlRoundTrip();
   }
 
   public static class XMLFieldLoadSaveValidator implements IFieldLoadSaveValidator<XmlField> {
 
     private final XmlField defaultValue;
 
-    public XMLFieldLoadSaveValidator( XmlField defaultValue ) {
+    public XMLFieldLoadSaveValidator(XmlField defaultValue) {
       this.defaultValue = defaultValue;
     }
 
@@ -64,8 +66,8 @@ public class AddXmlMetaTest {
     }
 
     @Override
-    public boolean validateTestObject(XmlField testObject, Object actual ) {
-      return EqualsBuilder.reflectionEquals( testObject, actual );
+    public boolean validateTestObject(XmlField testObject, Object actual) {
+      return EqualsBuilder.reflectionEquals(testObject, actual);
     }
   }
 }

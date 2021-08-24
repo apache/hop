@@ -62,7 +62,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
   private String schemaName;
 
   /** what's the table for the target? */
-  @HopMetadataProperty(key = "table", injectionKeyDescription = "PGBulkLoader.Injection.Table.Label")
+  @HopMetadataProperty(
+      key = "table",
+      injectionKeyDescription = "PGBulkLoader.Injection.Table.Label")
   private String tableName;
 
   /** database connection */
@@ -75,7 +77,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(
       injectionGroupKey = "mapping",
-      injectionGroupDescription = "PGBulkLoader.Injection.Mapping.Label" )
+      injectionGroupDescription = "PGBulkLoader.Injection.Mapping.Label")
   private List<PGBulkLoaderMappingMeta> mapping;
 
   /** Load action */

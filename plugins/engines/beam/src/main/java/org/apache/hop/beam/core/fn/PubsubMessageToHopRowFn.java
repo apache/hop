@@ -24,8 +24,8 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +39,19 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
   private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
-  private static final Logger LOG = LoggerFactory.getLogger( PubsubMessageToHopRowFn.class );
-  private final Counter numErrors = Metrics.counter( "main", "BeamSubscribeTransformErrors" );
+  private static final Logger LOG = LoggerFactory.getLogger(PubsubMessageToHopRowFn.class);
+  private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
 
   private IRowMeta rowMeta;
   private transient Counter initCounter;
   private transient Counter inputCounter;
   private transient Counter writtenCounter;
 
-  public PubsubMessageToHopRowFn( String transformName, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public PubsubMessageToHopRowFn(
+      String transformName,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.transformPluginClasses = transformPluginClasses;
@@ -57,24 +61,24 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
   @Setup
   public void setUp() {
     try {
-      inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
-      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+      inputCounter = Metrics.counter(Pipeline.METRIC_NAME_INPUT, transformName);
+      writtenCounter = Metrics.counter(Pipeline.METRIC_NAME_WRITTEN, transformName);
 
       // Initialize Hop Beam
       //
-      BeamHop.init( transformPluginClasses, xpPluginClasses );
-      rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
-      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
-    } catch ( Exception e ) {
+      Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in setup of pub/sub publish messages function", e );
-      throw new RuntimeException( "Error in setup of pub/sub publish messages function", e );
+      LOG.error("Error in setup of pub/sub publish messages function", e);
+      throw new RuntimeException("Error in setup of pub/sub publish messages function", e);
     }
   }
 
   @ProcessElement
-  public void processElement( ProcessContext processContext ) {
+  public void processElement(ProcessContext processContext) {
     try {
 
       PubsubMessage message = processContext.element();
@@ -83,13 +87,13 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
       Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
       outputRow[0] = message; // Serializable
 
-      processContext.output( new HopRow( outputRow ) );
+      processContext.output(new HopRow(outputRow));
       writtenCounter.inc();
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in pub/sub publish messages function", e );
-      throw new RuntimeException( "Error in pub/sub publish messages function", e );
+      LOG.error("Error in pub/sub publish messages function", e);
+      throw new RuntimeException("Error in pub/sub publish messages function", e);
     }
   }
 }

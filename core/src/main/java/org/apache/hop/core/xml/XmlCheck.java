@@ -27,9 +27,7 @@ import java.io.InputStream;
 
 public class XmlCheck {
 
-  public static class XMLTreeHandler extends DefaultHandler {
-
-  }
+  public static class XMLTreeHandler extends DefaultHandler {}
 
   /**
    * Checks an xml file is well formed.
@@ -37,12 +35,12 @@ public class XmlCheck {
    * @param file The file to check
    * @return true if the file is well formed.
    */
-  public static final boolean isXmlFileWellFormed(FileObject file ) throws HopException {
+  public static final boolean isXmlFileWellFormed(FileObject file) throws HopException {
     boolean retval = false;
     try {
-      retval = isXmlWellFormed( file.getContent().getInputStream() );
-    } catch ( Exception e ) {
-      throw new HopException( e );
+      retval = isXmlWellFormed(file.getContent().getInputStream());
+    } catch (Exception e) {
+      throw new HopException(e);
     }
 
     return retval;
@@ -54,7 +52,7 @@ public class XmlCheck {
    * @param is inputstream
    * @return true if the xml is well formed.
    */
-  public static boolean isXmlWellFormed(InputStream is ) throws HopException {
+  public static boolean isXmlWellFormed(InputStream is) throws HopException {
     boolean retval = false;
     try {
       SAXParserFactory factory = XmlParserFactoryProducer.createSecureSAXParserFactory();
@@ -62,12 +60,11 @@ public class XmlCheck {
 
       // Parse the input.
       SAXParser saxParser = factory.newSAXParser();
-      saxParser.parse( is, handler );
+      saxParser.parse(is, handler);
       retval = true;
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
     return retval;
   }
-
 }

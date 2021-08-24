@@ -33,17 +33,18 @@ public class Edi2XmlMetaTest {
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "inputfield", "outputfield" );
+    List<String> attributes = Arrays.asList("inputfield", "outputfield");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "inputfield", "getInputField" );
-    getterMap.put( "outputfield", "getOutputField" );
+    getterMap.put("inputfield", "getInputField");
+    getterMap.put("outputfield", "getOutputField");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "inputfield", "setInputField" );
-    setterMap.put( "outputfield", "setOutputField" );
+    setterMap.put("inputfield", "setInputField");
+    setterMap.put("outputfield", "setOutputField");
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( Edi2XmlMeta.class, attributes, getterMap, setterMap );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(Edi2XmlMeta.class, attributes, getterMap, setterMap);
     loadSaveTester.testSerialization();
   }
 }

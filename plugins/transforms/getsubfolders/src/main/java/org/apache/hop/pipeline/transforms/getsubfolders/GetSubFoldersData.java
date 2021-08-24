@@ -66,5 +66,4 @@ public class GetSubFoldersData extends BaseTransformData implements ITransformDa
     readrow = null;
     nrTransformFields = 0;
   }
-
 }

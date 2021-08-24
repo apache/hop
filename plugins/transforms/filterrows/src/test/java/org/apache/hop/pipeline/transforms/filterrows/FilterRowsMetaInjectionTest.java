@@ -29,16 +29,16 @@ public class FilterRowsMetaInjectionTest extends BaseMetadataInjectionTest<Filte
 
   @Before
   public void setup() throws Exception {
-    setup( new FilterRowsMeta() );
+    setup(new FilterRowsMeta());
   }
 
   @Test
   public void test() throws Exception {
 
-    check( "SEND_FALSE_TRANSFORM", () -> meta.getFalseTransformName() );
+    check("SEND_FALSE_TRANSFORM", () -> meta.getFalseTransformName());
 
-    check( "SEND_TRUE_TRANSFORM", () -> meta.getTrueTransformName() );
+    check("SEND_TRUE_TRANSFORM", () -> meta.getTrueTransformName());
 
-    check( "CONDITION", () -> meta.getConditionXml(), new Condition().getXml() );
+    check("CONDITION", () -> meta.getConditionXml(), new Condition().getXml());
   }
 }

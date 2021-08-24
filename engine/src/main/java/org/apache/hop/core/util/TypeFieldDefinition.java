@@ -28,51 +28,43 @@ public class TypeFieldDefinition {
    * @param type
    * @param fieldName
    */
-  public TypeFieldDefinition( int type, String fieldName ) {
+  public TypeFieldDefinition(int type, String fieldName) {
     this.type = type;
     this.fieldName = fieldName;
   }
 
-  /**
-   * @return the type
-   */
+  /** @return the type */
   public int getType() {
     return type;
   }
 
-  /**
-   * @param type the type to set
-   */
-  public void setType( int type ) {
+  /** @param type the type to set */
+  public void setType(int type) {
     this.type = type;
   }
 
-  /**
-   * @return the fieldName
-   */
+  /** @return the fieldName */
   public String getFieldName() {
     return fieldName;
   }
 
-  /**
-   * @param fieldName the fieldName to set
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName the fieldName to set */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
   public String getTypeDescription() {
-    switch ( type ) {
+    switch (type) {
       case IValueMeta.TYPE_BOOLEAN:
         return "boolean";
       case IValueMeta.TYPE_INTEGER:
         return "int";
       default:
-        return ValueMetaFactory.getValueMetaName( type );
+        return ValueMetaFactory.getValueMetaName(type);
     }
   }
 
   public String getMemberName() {
-    return fieldName.substring( 0, 1 ).toLowerCase() + fieldName.substring( 1 );
+    return fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
   }
 }

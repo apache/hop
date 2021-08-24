@@ -24,33 +24,33 @@ import java.util.Objects;
 
 public class DataProbeLocation {
 
-  @HopMetadataProperty
-  private String sourcePipelineFilename;
+  @HopMetadataProperty private String sourcePipelineFilename;
 
-  @HopMetadataProperty
-  private String sourceTransformName;
+  @HopMetadataProperty private String sourceTransformName;
 
-  public DataProbeLocation() {
-  }
+  public DataProbeLocation() {}
 
-  public DataProbeLocation( String sourcePipelineFilename, String sourceTransformName ) {
+  public DataProbeLocation(String sourcePipelineFilename, String sourceTransformName) {
     this.sourcePipelineFilename = sourcePipelineFilename;
     this.sourceTransformName = sourceTransformName;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     DataProbeLocation that = (DataProbeLocation) o;
-    return Objects.equals( sourcePipelineFilename, that.sourcePipelineFilename ) && Objects.equals( sourceTransformName, that.sourceTransformName );
+    return Objects.equals(sourcePipelineFilename, that.sourcePipelineFilename)
+        && Objects.equals(sourceTransformName, that.sourceTransformName);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( sourcePipelineFilename, sourceTransformName );
+  @Override
+  public int hashCode() {
+    return Objects.hash(sourcePipelineFilename, sourceTransformName);
   }
 
   /**
@@ -62,10 +62,8 @@ public class DataProbeLocation {
     return sourcePipelineFilename;
   }
 
-  /**
-   * @param sourcePipelineFilename The sourcePipelineFilename to set
-   */
-  public void setSourcePipelineFilename( String sourcePipelineFilename ) {
+  /** @param sourcePipelineFilename The sourcePipelineFilename to set */
+  public void setSourcePipelineFilename(String sourcePipelineFilename) {
     this.sourcePipelineFilename = sourcePipelineFilename;
   }
 
@@ -78,10 +76,8 @@ public class DataProbeLocation {
     return sourceTransformName;
   }
 
-  /**
-   * @param sourceTransformName The sourceTransformName to set
-   */
-  public void setSourceTransformName( String sourceTransformName ) {
+  /** @param sourceTransformName The sourceTransformName to set */
+  public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }
 }

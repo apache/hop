@@ -49,7 +49,7 @@ public class SwingGUIResource {
   }
 
   public static SwingGUIResource getInstance() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new SwingGUIResource();
     }
     return instance;
@@ -58,14 +58,20 @@ public class SwingGUIResource {
   private Map<String, SwingUniversalImageSvg> loadTransformImages() {
     Map<String, SwingUniversalImageSvg> map = new HashMap<>();
 
-    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( TransformPluginType.class ) ) {
+    for (IPlugin plugin : PluginRegistry.getInstance().getPlugins(TransformPluginType.class)) {
       try {
-        SwingUniversalImageSvg image = getUniversalImageIcon( plugin );
-        for ( String id : plugin.getIds() ) {
-          map.put( id, image );
+        SwingUniversalImageSvg image = getUniversalImageIcon(plugin);
+        for (String id : plugin.getIds()) {
+          map.put(id, image);
         }
-      } catch ( Exception e ) {
-        log.logError( "Unable to load transform icon image for plugin: " + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
+      } catch (Exception e) {
+        log.logError(
+            "Unable to load transform icon image for plugin: "
+                + plugin.getName()
+                + " (id="
+                + plugin.getIds()[0]
+                + ")",
+            e);
       }
     }
 
@@ -75,73 +81,82 @@ public class SwingGUIResource {
   private Map<String, SwingUniversalImageSvg> loadActionImages() {
     Map<String, SwingUniversalImageSvg> map = new HashMap<>();
 
-    for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( ActionPluginType.class ) ) {
+    for (IPlugin plugin : PluginRegistry.getInstance().getPlugins(ActionPluginType.class)) {
       try {
-        SwingUniversalImageSvg image = getUniversalImageIcon( plugin );
-        if ( image == null ) {
-          throw new HopException( "Unable to find image file: " + plugin.getImageFile() + " for plugin: " + plugin );
+        SwingUniversalImageSvg image = getUniversalImageIcon(plugin);
+        if (image == null) {
+          throw new HopException(
+              "Unable to find image file: " + plugin.getImageFile() + " for plugin: " + plugin);
         }
 
-        map.put( plugin.getIds()[ 0 ], image );
-      } catch ( Exception e ) {
-        log.logError( "Unable to load action icon image for plugin: "
-          + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
+        map.put(plugin.getIds()[0], image);
+      } catch (Exception e) {
+        log.logError(
+            "Unable to load action icon image for plugin: "
+                + plugin.getName()
+                + " (id="
+                + plugin.getIds()[0]
+                + ")",
+            e);
       }
     }
 
     return map;
   }
 
-  private SwingUniversalImageSvg getUniversalImageIcon( IPlugin plugin ) throws HopException {
+  private SwingUniversalImageSvg getUniversalImageIcon(IPlugin plugin) throws HopException {
     try {
       PluginRegistry registry = PluginRegistry.getInstance();
       String filename = plugin.getImageFile();
 
-      ClassLoader classLoader = registry.getClassLoader( plugin );
+      ClassLoader classLoader = registry.getClassLoader(plugin);
 
       SwingUniversalImageSvg image = null;
 
-      if ( SvgSupport.isSvgEnabled() && SvgSupport.isSvgName( filename ) ) {
+      if (SvgSupport.isSvgEnabled() && SvgSupport.isSvgName(filename)) {
         // Try to use the plugin class loader to get access to the icon
         //
-        InputStream inputStream = classLoader.getResourceAsStream( filename );
-        if ( inputStream == null ) {
-          inputStream = classLoader.getResourceAsStream( "/" + filename );
+        InputStream inputStream = classLoader.getResourceAsStream(filename);
+        if (inputStream == null) {
+          inputStream = classLoader.getResourceAsStream("/" + filename);
         }
         // Try to use the Hop class loader to get access to the icon
         //
-        if ( inputStream == null ) {
-          inputStream = registry.getClass().getResourceAsStream( filename );
+        if (inputStream == null) {
+          inputStream = registry.getClass().getResourceAsStream(filename);
         }
-        if ( inputStream == null ) {
-          inputStream = registry.getClass().getResourceAsStream( "/" + filename );
+        if (inputStream == null) {
+          inputStream = registry.getClass().getResourceAsStream("/" + filename);
         }
         // As a last resort, try to use the standard file-system
         //
-        if ( inputStream == null ) {
+        if (inputStream == null) {
           try {
-            inputStream = new FileInputStream( filename );
-          } catch ( FileNotFoundException e ) {
+            inputStream = new FileInputStream(filename);
+          } catch (FileNotFoundException e) {
             // Ignore, throws error below
           }
         }
-        if ( inputStream != null ) {
+        if (inputStream != null) {
           try {
-            SvgImage svg = SvgSupport.loadSvgImage( inputStream );
-            image = new SwingUniversalImageSvg( svg );
+            SvgImage svg = SvgSupport.loadSvgImage(inputStream);
+            image = new SwingUniversalImageSvg(svg);
           } finally {
-            IOUtils.closeQuietly( inputStream );
+            IOUtils.closeQuietly(inputStream);
           }
         }
       }
 
-      if ( image == null ) {
-        throw new HopException( "Unable to find file: " + plugin.getImageFile() + " for plugin: " + plugin );
+      if (image == null) {
+        throw new HopException(
+            "Unable to find file: " + plugin.getImageFile() + " for plugin: " + plugin);
       }
 
       return image;
-    } catch ( Throwable e ) {
-      throw new HopException( "Unable to load image from file : '" + plugin.getImageFile() + "' for plugin: " + plugin, e );
+    } catch (Throwable e) {
+      throw new HopException(
+          "Unable to load image from file : '" + plugin.getImageFile() + "' for plugin: " + plugin,
+          e);
     }
   }
 

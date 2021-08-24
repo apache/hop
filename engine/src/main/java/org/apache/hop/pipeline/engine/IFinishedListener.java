@@ -28,5 +28,5 @@ public interface IFinishedListener {
    * @param pipelineEngine
    * @throws HopException
    */
-  void finished( IPipelineEngine<PipelineMeta> pipelineEngine) throws HopException;
+  void finished(IPipelineEngine<PipelineMeta> pipelineEngine) throws HopException;
 }

@@ -27,40 +27,32 @@ public class Schema {
   private String schemaName;
   private String[] items;
 
-  public Schema( String schemaName, String[] items ) {
+  public Schema(String schemaName, String[] items) {
     this.schemaName = schemaName;
     this.items = items;
   }
 
-  public Schema( String schemaName ) {
-    this( schemaName, new String[] {} );
+  public Schema(String schemaName) {
+    this(schemaName, new String[] {});
   }
 
-  /**
-   * @return Returns the schemaName.
-   */
+  /** @return Returns the schemaName. */
   public String getSchemaName() {
     return schemaName;
   }
 
-  /**
-   * @param schemaName The catalogName to set.
-   */
-  public void setSchemaName( String schemaName ) {
+  /** @param schemaName The catalogName to set. */
+  public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
 
-  /**
-   * @return Returns the items.
-   */
+  /** @return Returns the items. */
   public String[] getItems() {
     return items;
   }
 
-  /**
-   * @param items The items to set.
-   */
-  public void setItems( String[] items ) {
+  /** @param items The items to set. */
+  public void setItems(String[] items) {
     this.items = items;
   }
 }

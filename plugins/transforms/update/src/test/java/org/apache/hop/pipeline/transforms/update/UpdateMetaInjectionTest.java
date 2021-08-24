@@ -28,24 +28,24 @@ public class UpdateMetaInjectionTest extends BaseMetadataInjectionTest<UpdateMet
 
   @Before
   public void setup() throws Exception {
-    setup( new UpdateMeta() );
+    setup(new UpdateMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SCHEMA_NAME", () -> meta.getSchemaName() );
-    check( "TABLE_NAME", () -> meta.getTableName() );
-    check( "COMMIT_SIZE", () -> meta.getCommitSizeVar() );
-    check( "BATCH_UPDATE", () -> meta.useBatchUpdate() );
-    check( "SKIP_LOOKUP", () -> meta.isSkipLookup() );
-    check( "IGNORE_LOOKUP_FAILURE", () -> meta.isErrorIgnored() );
-    check( "FLAG_FIELD", () -> meta.getIgnoreFlagField() );
-    check( "KEY_STREAM", () -> meta.getKeyStream()[ 0 ] );
-    check( "KEY_LOOKUP", () -> meta.getKeyLookup()[ 0 ] );
-    check( "KEY_CONDITION", () -> meta.getKeyCondition()[ 0 ] );
-    check( "KEY_STREAM2", () -> meta.getKeyStream2()[ 0 ] );
-    check( "UPDATE_LOOKUP", () -> meta.getUpdateLookup()[ 0 ] );
-    check( "UPDATE_STREAM", () -> meta.getUpdateStream()[ 0 ] );
-    skipPropertyTest( "CONNECTIONNAME" );
+    check("SCHEMA_NAME", () -> meta.getSchemaName());
+    check("TABLE_NAME", () -> meta.getTableName());
+    check("COMMIT_SIZE", () -> meta.getCommitSizeVar());
+    check("BATCH_UPDATE", () -> meta.useBatchUpdate());
+    check("SKIP_LOOKUP", () -> meta.isSkipLookup());
+    check("IGNORE_LOOKUP_FAILURE", () -> meta.isErrorIgnored());
+    check("FLAG_FIELD", () -> meta.getIgnoreFlagField());
+    check("KEY_STREAM", () -> meta.getKeyStream()[0]);
+    check("KEY_LOOKUP", () -> meta.getKeyLookup()[0]);
+    check("KEY_CONDITION", () -> meta.getKeyCondition()[0]);
+    check("KEY_STREAM2", () -> meta.getKeyStream2()[0]);
+    check("UPDATE_LOOKUP", () -> meta.getUpdateLookup()[0]);
+    check("UPDATE_STREAM", () -> meta.getUpdateStream()[0]);
+    skipPropertyTest("CONNECTIONNAME");
   }
 }

@@ -18,7 +18,7 @@
 package org.apache.hop.core.gui;
 
 public interface IScrollBar {
-  void setThumb( int thumb );
+  void setThumb(int thumb);
 
   int getSelection();
 }

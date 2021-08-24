@@ -31,5 +31,4 @@ public class SetValueFieldData extends BaseTransformData implements ITransformDa
   public SetValueFieldData() {
     super();
   }
-
 }

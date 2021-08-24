@@ -21,12 +21,14 @@ under the License.
 
 The Apache Hop (Incubating) User Manual contains all the information you need to develop and deploy data solutions with Apache Hop.
 
-We've listed a number of starting points that might find useful to you. Check the full list of topics on the left hand side.
+We've listed a number of starting points that might find useful to you.
+Check the full list of topics on the left hand side.
 If you're a developer and want to extend Hop, want to build new functionality or want to fix a bug you found, check the http://hop.apache.org/dev-manual/latest/[developer documentation]
 
-TIP: Hop treats documentation as any other part of software that can have bugs or missing features. If you find any incorrect information or are missing a crucial piece of documentation, please http://hop.apache.org/community/contribution-guides/jira-guide/[create a JIRA ticket].
+TIP: Hop treats documentation as any other part of software that can have bugs or missing features.
+If you find any incorrect information or are missing a crucial piece of documentation, please http://hop.apache.org/community/contribution-guides/jira-guide/[create a JIRA ticket].
 
-[%noheader, width="90%", frame=none,grid=none]
+[%noheader,width="90%",frame=none,grid=none]
 |====
 |image:icons/developer.svg[width="50px"]|Check the http://hop.apache.org/community/contribution-guides/documentation-contribution-guide/[documentation contribution guide] if you'd like to help us improve the Hop documentation.
 |image:icons/play.svg[width="50px"]|The xref:getting-started/index.adoc[Getting Started Guide] will help you to get started with Hop in no time

@@ -25,7 +25,7 @@ The MySQL Bulk Loader action loads data from a text file into a MySQL table.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -43,5 +43,5 @@ The MySQL Bulk Loader action loads data from a text file into a MySQL table.
 |Fields|The fields to load, separated by comma (,).
 |Replace data|Check this option if you want to replace the data in the target data.
 |Ignore the first ... lines|Ignores the first ... lines in the text file.
-|Add files to result|Check this option if you want to re-use the filename of the text file in a next workflow action. 
+|Add files to result|Check this option if you want to re-use the filename of the text file in a next workflow action.
 |===

@@ -25,10 +25,9 @@ public class Failure implements Serializable {
   private String stackTrace;
   private String sourceData;
 
-  public Failure() {
-  }
+  public Failure() {}
 
-  public Failure( String failingClass, String stackTrace, String sourceData ) {
+  public Failure(String failingClass, String stackTrace, String sourceData) {
     this.failingClass = failingClass;
     this.stackTrace = stackTrace;
     this.sourceData = sourceData;
@@ -43,10 +42,8 @@ public class Failure implements Serializable {
     return failingClass;
   }
 
-  /**
-   * @param failingClass The failingClass to set
-   */
-  public void setFailingClass( String failingClass ) {
+  /** @param failingClass The failingClass to set */
+  public void setFailingClass(String failingClass) {
     this.failingClass = failingClass;
   }
 
@@ -59,10 +56,8 @@ public class Failure implements Serializable {
     return stackTrace;
   }
 
-  /**
-   * @param stackTrace The stackTrace to set
-   */
-  public void setStackTrace( String stackTrace ) {
+  /** @param stackTrace The stackTrace to set */
+  public void setStackTrace(String stackTrace) {
     this.stackTrace = stackTrace;
   }
 
@@ -75,10 +70,8 @@ public class Failure implements Serializable {
     return sourceData;
   }
 
-  /**
-   * @param sourceData The sourceData to set
-   */
-  public void setSourceData( String sourceData ) {
+  /** @param sourceData The sourceData to set */
+  public void setSourceData(String sourceData) {
     this.sourceData = sourceData;
   }
 }

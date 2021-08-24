@@ -44,12 +44,12 @@ public class ExplorerPerspectiveRoot
     // Get the current project...
     //
     String projectName = HopNamespace.getNamespace();
-    if ( StringUtil.isEmpty(projectName)) {
+    if (StringUtil.isEmpty(projectName)) {
       return;
     }
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    ProjectConfig projectConfig = config.findProjectConfig( projectName );
-    if (projectConfig==null) {
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
       return;
     }
     ext.rootFolder = variables.resolve(projectConfig.getProjectHome());

@@ -24,9 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for GetRootServlet class
@@ -38,11 +36,11 @@ public class GetRootServletTest {
   @Test
   public void testDoGetReturn404StatusCode() throws ServletException, IOException {
     GetRootServlet servlet = new GetRootServlet();
-    servlet.setJettyMode( true );
+    servlet.setJettyMode(true);
     HttpServletRequest request =
-      when( mock( HttpServletRequest.class ).getRequestURI() ).thenReturn( "/wrong_path" ).getMock();
-    HttpServletResponse response = mock( HttpServletResponse.class );
-    servlet.doGet( request, response );
-    verify( response ).sendError( HttpServletResponse.SC_NOT_FOUND );
+        when(mock(HttpServletRequest.class).getRequestURI()).thenReturn("/wrong_path").getMock();
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    servlet.doGet(request, response);
+    verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
   }
 }

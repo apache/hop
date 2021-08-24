@@ -44,60 +44,53 @@ public interface ITransformIOMeta {
    *
    * @param infoTransforms
    */
-  void setInfoTransforms( TransformMeta[] infoTransforms );
+  void setInfoTransforms(TransformMeta[] infoTransforms);
 
   /**
    * Add a stream to the transforms I/O interface
    *
    * @param stream The stream to add
    */
-  void addStream( IStream stream );
+  void addStream(IStream stream);
 
   /**
    * Set the general info stream description
    *
    * @param string the info streams description
    */
-  void setGeneralInfoDescription( String string );
+  void setGeneralInfoDescription(String string);
 
   /**
    * Set the general target stream description
    *
    * @param string the target streams description
    */
-  void setGeneralTargetDescription( String string );
+  void setGeneralTargetDescription(String string);
 
-  /**
-   * @return the generalTargetDescription
-   */
+  /** @return the generalTargetDescription */
   String getGeneralTargetDescription();
 
-  /**
-   * @return the generalInfoDescription
-   */
+  /** @return the generalInfoDescription */
   String getGeneralInfoDescription();
 
-  /**
-   * @return true if the output targets of this transform are dynamic (variable)
-   */
+  /** @return true if the output targets of this transform are dynamic (variable) */
   boolean isOutputDynamic();
 
   /**
    * @param outputDynamic set to true if the output targets of this transform are dynamic (variable)
    */
-  void setOutputDynamic( boolean outputDynamic );
+  void setOutputDynamic(boolean outputDynamic);
 
-  /**
-   * @return true if the input info sources of this transform are dynamic (variable)
-   */
+  /** @return true if the input info sources of this transform are dynamic (variable) */
   boolean isInputDynamic();
 
   /**
-   * @param inputDynamic set to true if the input info sources of this transform are dynamic (variable)
+   * @param inputDynamic set to true if the input info sources of this transform are dynamic
+   *     (variable)
    */
-  void setInputDynamic( boolean inputDynamic );
+  void setInputDynamic(boolean inputDynamic);
 
-  IStream findTargetStream( TransformMeta targetTransform );
+  IStream findTargetStream(TransformMeta targetTransform);
 
-  IStream findInfoStream( TransformMeta infoTransform );
+  IStream findInfoStream(TransformMeta infoTransform);
 }

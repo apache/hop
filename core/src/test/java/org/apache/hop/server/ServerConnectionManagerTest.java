@@ -37,15 +37,15 @@ public class ServerConnectionManagerTest {
 
   @Test
   public void shouldOverrideDefaultSSLContextByDefault() throws Exception {
-    System.clearProperty( "javax.net.ssl.keyStore" );
+    System.clearProperty("javax.net.ssl.keyStore");
     ServerConnectionManager instance = ServerConnectionManager.getInstance();
-    assertNotEquals( defaultContext, SSLContext.getDefault() );
+    assertNotEquals(defaultContext, SSLContext.getDefault());
   }
 
   @Test
   public void shouldNotOverrideDefaultSSLContextIfKeystoreIsSet() throws Exception {
-    System.setProperty( "javax.net.ssl.keyStore", "NONE" );
+    System.setProperty("javax.net.ssl.keyStore", "NONE");
     ServerConnectionManager instance = ServerConnectionManager.getInstance();
-    assertEquals( defaultContext, SSLContext.getDefault() );
+    assertEquals(defaultContext, SSLContext.getDefault());
   }
 }

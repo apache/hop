@@ -26,16 +26,16 @@ public class NamedFieldsMapping implements IFieldsMapping {
 
   private final int[] actualToMetaFieldMapping;
 
-  public NamedFieldsMapping( int[] actualToMetaFieldMapping ) {
+  public NamedFieldsMapping(int[] actualToMetaFieldMapping) {
     this.actualToMetaFieldMapping = actualToMetaFieldMapping;
   }
 
   @Override
-  public int fieldMetaIndex( int index ) {
-    if ( index >= size() || index < 0 ) {
+  public int fieldMetaIndex(int index) {
+    if (index >= size() || index < 0) {
       return FIELD_DOES_NOT_EXIST;
     }
-    return actualToMetaFieldMapping[ index ];
+    return actualToMetaFieldMapping[index];
   }
 
   @Override
@@ -43,42 +43,40 @@ public class NamedFieldsMapping implements IFieldsMapping {
     return actualToMetaFieldMapping.length;
   }
 
-  public static NamedFieldsMapping mapping( String[] actualFieldNames, String[] metaFieldNames ) {
+  public static NamedFieldsMapping mapping(String[] actualFieldNames, String[] metaFieldNames) {
     LinkedHashMap<String, List<Integer>> metaNameToIndex = new LinkedHashMap<>();
     List<Integer> unmatchedMetaFields = new ArrayList<>();
-    int[] actualToMetaFieldMapping = new int[ actualFieldNames == null ? 0 : actualFieldNames.length ];
+    int[] actualToMetaFieldMapping =
+        new int[actualFieldNames == null ? 0 : actualFieldNames.length];
 
-    for ( int i = 0; i < metaFieldNames.length; i++ ) {
-      List<Integer> coll = metaNameToIndex.getOrDefault( metaFieldNames[ i ], new ArrayList<>() );
-      coll.add( i );
-      metaNameToIndex.put( metaFieldNames[ i ], coll );
+    for (int i = 0; i < metaFieldNames.length; i++) {
+      List<Integer> coll = metaNameToIndex.getOrDefault(metaFieldNames[i], new ArrayList<>());
+      coll.add(i);
+      metaNameToIndex.put(metaFieldNames[i], coll);
     }
 
-    if ( actualFieldNames != null ) {
-      for ( int i = 0; i < actualFieldNames.length; i++ ) {
-        List<Integer> columnIndexes = metaNameToIndex.get( actualFieldNames[ i ] );
-        if ( columnIndexes == null || columnIndexes.isEmpty() ) {
-          unmatchedMetaFields.add( i );
-          actualToMetaFieldMapping[ i ] = FIELD_DOES_NOT_EXIST;
+    if (actualFieldNames != null) {
+      for (int i = 0; i < actualFieldNames.length; i++) {
+        List<Integer> columnIndexes = metaNameToIndex.get(actualFieldNames[i]);
+        if (columnIndexes == null || columnIndexes.isEmpty()) {
+          unmatchedMetaFields.add(i);
+          actualToMetaFieldMapping[i] = FIELD_DOES_NOT_EXIST;
           continue;
         }
-        actualToMetaFieldMapping[ i ] = columnIndexes.remove( 0 );
+        actualToMetaFieldMapping[i] = columnIndexes.remove(0);
       }
     }
 
-    Iterator<Integer> remainingMetaIndexes = metaNameToIndex.values().stream()
-      .flatMap( List::stream )
-      .sorted()
-      .iterator();
+    Iterator<Integer> remainingMetaIndexes =
+        metaNameToIndex.values().stream().flatMap(List::stream).sorted().iterator();
 
-    for ( int idx : unmatchedMetaFields ) {
-      if ( !remainingMetaIndexes.hasNext() ) {
+    for (int idx : unmatchedMetaFields) {
+      if (!remainingMetaIndexes.hasNext()) {
         break;
       }
-      actualToMetaFieldMapping[ idx ] = remainingMetaIndexes.next();
+      actualToMetaFieldMapping[idx] = remainingMetaIndexes.next();
     }
 
-    return new NamedFieldsMapping( actualToMetaFieldMapping );
+    return new NamedFieldsMapping(actualToMetaFieldMapping);
   }
-
 }

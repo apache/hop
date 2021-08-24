@@ -18,6 +18,7 @@ under the License.
 = Hop Logo and Icons
 
 == CMYK for Printing
+
 image::logo/CMYK/jpg/HOP_logo_CMYK-2.jpg[HOP_logo_CMYK-2.jpg]
 image::logo/CMYK/jpg/HOP_logo_CMYK-1.jpg[HOP_logo_CMYK-1.jpg]
 image::logo/CMYK/jpg/HOP_logo_CMYK-3.jpg[HOP_logo_CMYK-3.jpg]
@@ -32,6 +33,7 @@ image::logo/CMYK/jpg/HOP_logo_CMYK-11.jpg[HOP_logo_CMYK-11.jpg]
 image::logo/CMYK/jpg/HOP_logo_CMYK-12.jpg[HOP_logo_CMYK-12.jpg]
 
 == RGB for Web usage
+
 image::logo/RGB/jpg/HOP_logo_RGB-1.jpg[HOP_logo_RGB-1.jpg]
 image::logo/RGB/jpg/HOP_logo_RGB-2.jpg[HOP_logo_RGB-2.jpg]
 image::logo/RGB/jpg/HOP_logo_RGB-3.jpg[HOP_logo_RGB-3.jpg]

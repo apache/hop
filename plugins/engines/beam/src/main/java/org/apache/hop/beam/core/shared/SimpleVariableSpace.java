@@ -21,9 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A variablespace which simply is easy to serialize.
- */
+/** A variablespace which simply is easy to serialize. */
 public class SimpleVariableSpace implements Serializable {
 
   private List<VariableValue> variables;
@@ -41,10 +39,8 @@ public class SimpleVariableSpace implements Serializable {
     return variables;
   }
 
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables( List<VariableValue> variables ) {
+  /** @param variables The variables to set */
+  public void setVariables(List<VariableValue> variables) {
     this.variables = variables;
   }
 }

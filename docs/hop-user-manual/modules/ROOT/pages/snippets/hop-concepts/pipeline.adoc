@@ -14,4 +14,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-Pipelines are the actual data workers. Operations in a Pipeline read, modify, enrich, clean and write data. Orchestration of Pipelines is done through othere Pipelines and/or Workflows.
+Pipelines are the actual data workers.
+Operations in a Pipeline read, modify, enrich, clean and write data.
+Orchestration of Pipelines is done through othere Pipelines and/or Workflows.

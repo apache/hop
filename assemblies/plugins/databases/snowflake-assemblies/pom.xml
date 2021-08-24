@@ -18,34 +18,34 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>hop-assemblies-plugins-databases</artifactId>
-		<groupId>org.apache.hop</groupId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>hop-assemblies-plugins-databases</artifactId>
+        <groupId>org.apache.hop</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>hop-assemblies-plugins-databases-snowflake</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>Hop Assemblies Plugins Databases Snowflake</name>
-	<description></description>
+    <artifactId>hop-assemblies-plugins-databases-snowflake</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Databases Snowflake</name>
+    <description></description>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.hop</groupId>
-			<artifactId>hop-databases-snowflake</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-snowflake</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>net.snowflake</groupId>
-			<artifactId>snowflake-jdbc</artifactId>
-			<version>3.11.1</version>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>net.snowflake</groupId>
+            <artifactId>snowflake-jdbc</artifactId>
+            <version>3.11.1</version>
+        </dependency>
+    </dependencies>
 
 </project>

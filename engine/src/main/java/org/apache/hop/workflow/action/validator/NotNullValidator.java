@@ -35,25 +35,31 @@ public class NotNullValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "notNull";
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
     Object value = null;
     try {
-      value = PropertyUtils.getProperty( source, propertyName );
-      if ( null == value ) {
+      value = PropertyUtils.getProperty(source, propertyName);
+      if (null == value) {
         ActionValidatorUtils.addFailureRemark(
-          source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(
-            context, VALIDATOR_NAME ) );
+            source,
+            propertyName,
+            VALIDATOR_NAME,
+            remarks,
+            ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
         return false;
       } else {
         return true;
       }
-    } catch ( IllegalAccessException e ) {
-      ActionValidatorUtils.addExceptionRemark( source, propertyName, VALIDATOR_NAME, remarks, e );
-    } catch ( InvocationTargetException e ) {
-      ActionValidatorUtils.addExceptionRemark( source, propertyName, VALIDATOR_NAME, remarks, e );
-    } catch ( NoSuchMethodException e ) {
-      ActionValidatorUtils.addExceptionRemark( source, propertyName, VALIDATOR_NAME, remarks, e );
+    } catch (IllegalAccessException e) {
+      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
+    } catch (InvocationTargetException e) {
+      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
+    } catch (NoSuchMethodException e) {
+      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
     }
     return false;
   }
@@ -61,5 +67,4 @@ public class NotNullValidator implements IActionValidator {
   public String getName() {
     return VALIDATOR_NAME;
   }
-
 }

@@ -17,28 +17,10 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData.Record;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.util.Utf8;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.avro.type.ValueMetaAvroRecord;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AvroDecodeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;

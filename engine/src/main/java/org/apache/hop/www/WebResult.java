@@ -32,21 +32,21 @@ public class WebResult {
   public static final String STRING_OK = "OK";
   public static final String STRING_ERROR = "ERROR";
 
-  public static final WebResult OK = new WebResult( STRING_OK );
+  public static final WebResult OK = new WebResult(STRING_OK);
 
   private String result;
   private String message;
   private String id;
 
-  public WebResult( String result ) {
-    this( result, null, null );
+  public WebResult(String result) {
+    this(result, null, null);
   }
 
-  public WebResult( String result, String message ) {
-    this( result, message, null );
+  public WebResult(String result, String message) {
+    this(result, message, null);
   }
 
-  public WebResult( String result, String message, String id ) {
+  public WebResult(String result, String message, String id) {
     this.result = result;
     this.message = message;
     this.id = id;
@@ -55,13 +55,13 @@ public class WebResult {
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
+    xml.append("<" + XML_TAG + ">").append(Const.CR);
 
-    xml.append( "  " ).append( XmlHandler.addTagValue( "result", result ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "message", message ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "id", id ) );
+    xml.append("  ").append(XmlHandler.addTagValue("result", result));
+    xml.append("  ").append(XmlHandler.addTagValue("message", message));
+    xml.append("  ").append(XmlHandler.addTagValue("id", id));
 
-    xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
+    xml.append("</" + XML_TAG + ">").append(Const.CR);
 
     return xml.toString();
   }
@@ -71,17 +71,17 @@ public class WebResult {
     return getXml();
   }
 
-  public WebResult( Node webResultNode ) {
-    result = XmlHandler.getTagValue( webResultNode, "result" );
-    message = XmlHandler.getTagValue( webResultNode, "message" );
-    id = XmlHandler.getTagValue( webResultNode, "id" );
+  public WebResult(Node webResultNode) {
+    result = XmlHandler.getTagValue(webResultNode, "result");
+    message = XmlHandler.getTagValue(webResultNode, "message");
+    id = XmlHandler.getTagValue(webResultNode, "id");
   }
 
   public String getResult() {
     return result;
   }
 
-  public void setResult( String result ) {
+  public void setResult(String result) {
     this.result = result;
   }
 
@@ -89,32 +89,29 @@ public class WebResult {
     return message;
   }
 
-  public void setMessage( String message ) {
+  public void setMessage(String message) {
     this.message = message;
   }
 
-  public static WebResult fromXmlString(String xml ) throws HopXmlException {
+  public static WebResult fromXmlString(String xml) throws HopXmlException {
     try {
-      Document doc = XmlHandler.loadXmlString( xml );
-      Node node = XmlHandler.getSubNode( doc, XML_TAG );
+      Document doc = XmlHandler.loadXmlString(xml);
+      Node node = XmlHandler.getSubNode(doc, XML_TAG);
 
-      return new WebResult( node );
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "WebResult.Error.UnableCreateResult" ), e );
+      return new WebResult(node);
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "WebResult.Error.UnableCreateResult"), e);
     }
   }
 
-  /**
-   * @return the id
-   */
+  /** @return the id */
   public String getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
-  public void setId( String id ) {
+  /** @param id the id to set */
+  public void setId(String id) {
     this.id = id;
   }
 }

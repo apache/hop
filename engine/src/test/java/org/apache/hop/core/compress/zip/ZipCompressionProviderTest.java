@@ -21,12 +21,7 @@ import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,9 +29,7 @@ import java.io.IOException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ZipCompressionProviderTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -47,13 +40,12 @@ public class ZipCompressionProviderTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    PluginRegistry.addPluginType( CompressionPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(CompressionPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
@@ -61,54 +53,57 @@ public class ZipCompressionProviderTest {
   }
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testCtor() {
     ZipCompressionProvider ncp = new ZipCompressionProvider();
-    assertNotNull( ncp );
+    assertNotNull(ncp);
   }
 
   @Test
   public void testGetName() {
-    ZipCompressionProvider provider = (ZipCompressionProvider) factory.getCompressionProviderByName( PROVIDER_NAME );
-    assertNotNull( provider );
-    assertEquals( PROVIDER_NAME, provider.getName() );
+    ZipCompressionProvider provider =
+        (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    assertNotNull(provider);
+    assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
   public void testGetProviderAttributes() {
-    ZipCompressionProvider provider = (ZipCompressionProvider) factory.getCompressionProviderByName( PROVIDER_NAME );
-    assertEquals( "ZIP compression", provider.getDescription() );
-    assertTrue( provider.supportsInput() );
-    assertTrue( provider.supportsOutput() );
-    assertEquals( "zip", provider.getDefaultExtension() );
+    ZipCompressionProvider provider =
+        (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    assertEquals("ZIP compression", provider.getDescription());
+    assertTrue(provider.supportsInput());
+    assertTrue(provider.supportsOutput());
+    assertEquals("zip", provider.getDefaultExtension());
   }
 
   @Test
   public void testCreateInputStream() throws IOException {
-    ZipCompressionProvider provider = (ZipCompressionProvider) factory.getCompressionProviderByName( PROVIDER_NAME );
-    ByteArrayInputStream in = new ByteArrayInputStream( "Test".getBytes() );
-    ZipInputStream zis = new ZipInputStream( in );
-    ZipCompressionInputStream inStream = new ZipCompressionInputStream( in, provider );
-    assertNotNull( inStream );
-    ZipCompressionInputStream ncis = provider.createInputStream( in );
-    assertNotNull( ncis );
-    ZipCompressionInputStream ncis2 = provider.createInputStream( zis );
-    assertNotNull( ncis2 );
+    ZipCompressionProvider provider =
+        (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    ByteArrayInputStream in = new ByteArrayInputStream("Test".getBytes());
+    ZipInputStream zis = new ZipInputStream(in);
+    ZipCompressionInputStream inStream = new ZipCompressionInputStream(in, provider);
+    assertNotNull(inStream);
+    ZipCompressionInputStream ncis = provider.createInputStream(in);
+    assertNotNull(ncis);
+    ZipCompressionInputStream ncis2 = provider.createInputStream(zis);
+    assertNotNull(ncis2);
   }
 
   @Test
   public void testCreateOutputStream() throws IOException {
-    ZipCompressionProvider provider = (ZipCompressionProvider) factory.getCompressionProviderByName( PROVIDER_NAME );
+    ZipCompressionProvider provider =
+        (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    ZipOutputStream zos = new ZipOutputStream( out );
-    ZipCompressionOutputStream outStream = new ZipCompressionOutputStream( out, provider );
-    assertNotNull( outStream );
-    ZipCompressionOutputStream ncis = provider.createOutputStream( out );
-    assertNotNull( ncis );
-    ZipCompressionOutputStream ncis2 = provider.createOutputStream( zos );
-    assertNotNull( ncis2 );
+    ZipOutputStream zos = new ZipOutputStream(out);
+    ZipCompressionOutputStream outStream = new ZipCompressionOutputStream(out, provider);
+    assertNotNull(outStream);
+    ZipCompressionOutputStream ncis = provider.createOutputStream(out);
+    assertNotNull(ncis);
+    ZipCompressionOutputStream ncis2 = provider.createOutputStream(zos);
+    assertNotNull(ncis2);
   }
 }

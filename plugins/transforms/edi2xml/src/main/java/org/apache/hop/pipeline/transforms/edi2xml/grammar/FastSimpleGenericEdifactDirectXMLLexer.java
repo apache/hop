@@ -1,4 +1,4 @@
-//CHECKSTYLE:Indentation:OFF
+// CHECKSTYLE:Indentation:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -22,15 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.edi2xml.grammar;
 
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.EarlyExitException;
-import org.antlr.runtime.Lexer;
-import org.antlr.runtime.MismatchedSetException;
-import org.antlr.runtime.NoViableAltException;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.RecognizerSharedState;
+import org.antlr.runtime.*;
 
-@SuppressWarnings( { "all", "warnings", "unchecked" } )
+@SuppressWarnings({"all", "warnings", "unchecked"})
 public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
   public static final int EOF = -1;
   public static final int T__9 = 9;
@@ -51,20 +45,19 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     return new Lexer[] {};
   }
 
-  public FastSimpleGenericEdifactDirectXMLLexer() {
+  public FastSimpleGenericEdifactDirectXMLLexer() {}
+
+  public FastSimpleGenericEdifactDirectXMLLexer(CharStream input) {
+    this(input, new RecognizerSharedState());
   }
 
-  public FastSimpleGenericEdifactDirectXMLLexer( CharStream input ) {
-    this( input, new RecognizerSharedState() );
-  }
-
-  public FastSimpleGenericEdifactDirectXMLLexer( CharStream input, RecognizerSharedState state ) {
-    super( input, state );
+  public FastSimpleGenericEdifactDirectXMLLexer(CharStream input, RecognizerSharedState state) {
+    super(input, state);
   }
 
   public String getGrammarFileName() {
     return "C:\\workspace-sts\\Hop trunk - "
-      + "restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g";
+        + "restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g";
   }
 
   // $ANTLR start "T__9"
@@ -78,7 +71,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:6:8:
     // ' '
 
-    match( ' ' );
+    match(' ');
     state.type = Type;
     state.channel = _channel;
   }
@@ -96,7 +89,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:7:9:
     // 'UNA:+,? \\''
 
-    match( "UNA:+,? '" );
+    match("UNA:+,? '");
     state.type = Type;
     state.channel = _channel;
   }
@@ -114,7 +107,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:8:9:
     // 'UNA:+.? \\''
 
-    match( "UNA:+.? '" );
+    match("UNA:+.? '");
 
     state.type = Type;
     state.channel = _channel;
@@ -133,7 +126,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:9:9:
     // '\\n'
 
-    match( '\n' );
+    match('\n');
     state.type = Type;
     state.channel = _channel;
   }
@@ -151,7 +144,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
     // FastSimpleGenericEdifactDirectXML.g:10:9: '\\r'
 
-    match( '\r' );
+    match('\r');
     state.type = Type;
     state.channel = _channel;
   }
@@ -169,7 +162,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
     // FastSimpleGenericEdifactDirectXML.g:11:9:'\\t'
 
-    match( '\t' );
+    match('\t');
     state.type = Type;
     state.channel = _channel;
   }
@@ -189,7 +182,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // FastSimpleGenericEdifactDirectXML.g:125:23:
     // '?'
 
-    match( '?' );
+    match('?');
     state.type = Type;
     state.channel = _channel;
   }
@@ -209,7 +202,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // FastSimpleGenericEdifactDirectXML.g:126:23:
     // '+'
 
-    match( '+' );
+    match('+');
     state.type = Type;
     state.channel = _channel;
   }
@@ -229,7 +222,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // FastSimpleGenericEdifactDirectXML.g:127:24:
     // '\\''
 
-    match( '\'' );
+    match('\'');
     state.type = Type;
     state.channel = _channel;
   }
@@ -249,7 +242,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // FastSimpleGenericEdifactDirectXML.g:128:35:
     // ':'
 
-    match( ':' );
+    match(':');
     state.type = Type;
     state.channel = _channel;
   }
@@ -263,34 +256,42 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
     // FastSimpleGenericEdifactDirectXML.g:129:14:
-    // ( (~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR | ELEMENT_SEPARATOR ) | (
-    // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | ( RELEASE_CHARACTER
+    // ( (~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR |
+    // ELEMENT_SEPARATOR ) | (
+    // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | (
+    // RELEASE_CHARACTER
     // COMPLEX_ELEMENT_ITEM_SEPARATOR ) | ( RELEASE_CHARACTER SEGMENT_TERMINATOR ) )+ )
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
     // FastSimpleGenericEdifactDirectXML.g:129:16:
-    // (~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR | ELEMENT_SEPARATOR ) | (
-    // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | ( RELEASE_CHARACTER
+    // (~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR |
+    // ELEMENT_SEPARATOR ) | (
+    // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | (
+    // RELEASE_CHARACTER
     // COMPLEX_ELEMENT_ITEM_SEPARATOR ) | ( RELEASE_CHARACTER SEGMENT_TERMINATOR ) )+
 
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
     // FastSimpleGenericEdifactDirectXML.g:129:16:
-    // (~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR | ELEMENT_SEPARATOR ) | (
-    // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | ( RELEASE_CHARACTER
+    // (~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR |
+    // ELEMENT_SEPARATOR ) | (
+    // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | (
+    // RELEASE_CHARACTER
     // COMPLEX_ELEMENT_ITEM_SEPARATOR ) | ( RELEASE_CHARACTER SEGMENT_TERMINATOR ) )+
     int cnt1 = 0;
     loop1:
     do {
       int alt1 = 6;
-      int LA1_0 = input.LA( 1 );
+      int LA1_0 = input.LA(1);
 
-      if ( ( ( LA1_0 >= '\u0000' && LA1_0 <= '&' )
-        || ( LA1_0 >= '(' && LA1_0 <= '*' ) || ( LA1_0 >= ',' && LA1_0 <= '9' )
-        || ( LA1_0 >= ';' && LA1_0 <= '>' ) || ( LA1_0 >= '@' && LA1_0 <= '\uFFFF' ) ) ) {
+      if (((LA1_0 >= '\u0000' && LA1_0 <= '&')
+          || (LA1_0 >= '(' && LA1_0 <= '*')
+          || (LA1_0 >= ',' && LA1_0 <= '9')
+          || (LA1_0 >= ';' && LA1_0 <= '>')
+          || (LA1_0 >= '@' && LA1_0 <= '\uFFFF'))) {
         alt1 = 1;
-      } else if ( ( LA1_0 == '?' ) ) {
-        switch ( input.LA( 2 ) ) {
+      } else if ((LA1_0 == '?')) {
+        switch (input.LA(2)) {
           case '+':
             alt1 = 2;
             break;
@@ -303,27 +304,26 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
           case '\'':
             alt1 = 5;
             break;
-
         }
-
       }
 
-      switch ( alt1 ) {
+      switch (alt1) {
         case 1:
           // C:\\workspace-sts\\Hop trunk -
           // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
           // FastSimpleGenericEdifactDirectXML.g:129:17:
-          // ~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR | ELEMENT_SEPARATOR )
+          // ~ ( RELEASE_CHARACTER | SEGMENT_TERMINATOR | COMPLEX_ELEMENT_ITEM_SEPARATOR |
+          // ELEMENT_SEPARATOR )
 
-          if ( ( input.LA( 1 ) >= '\u0000' && input.LA( 1 ) <= '&' )
-            || ( input.LA( 1 ) >= '(' && input.LA( 1 ) <= '*' )
-            || ( input.LA( 1 ) >= ',' && input.LA( 1 ) <= '9' )
-            || ( input.LA( 1 ) >= ';' && input.LA( 1 ) <= '>' )
-            || ( input.LA( 1 ) >= '@' && input.LA( 1 ) <= '\uFFFF' ) ) {
+          if ((input.LA(1) >= '\u0000' && input.LA(1) <= '&')
+              || (input.LA(1) >= '(' && input.LA(1) <= '*')
+              || (input.LA(1) >= ',' && input.LA(1) <= '9')
+              || (input.LA(1) >= ';' && input.LA(1) <= '>')
+              || (input.LA(1) >= '@' && input.LA(1) <= '\uFFFF')) {
             input.consume();
           } else {
-            MismatchedSetException mse = new MismatchedSetException( null, input );
-            recover( mse );
+            MismatchedSetException mse = new MismatchedSetException(null, input);
+            recover(mse);
             throw mse;
           }
           break;
@@ -392,14 +392,14 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
           break;
 
         default:
-          if ( cnt1 >= 1 ) {
+          if (cnt1 >= 1) {
             break loop1;
           }
-          EarlyExitException eee = new EarlyExitException( 1, input );
+          EarlyExitException eee = new EarlyExitException(1, input);
           throw eee;
       }
       cnt1++;
-    } while ( true );
+    } while (true);
     state.type = Type;
     state.channel = _channel;
   }
@@ -409,51 +409,51 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
   public void mTokens() throws RecognitionException {
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:1:8:
-    // ( T__9 | T__10 | T__11 | T__12 | T__13 | T__14 | RELEASE_CHARACTER | ELEMENT_SEPARATOR | SEGMENT_TERMINATOR |
+    // ( T__9 | T__10 | T__11 | T__12 | T__13 | T__14 | RELEASE_CHARACTER | ELEMENT_SEPARATOR |
+    // SEGMENT_TERMINATOR |
     // COMPLEX_ELEMENT_ITEM_SEPARATOR | TEXT_DATA )
     int alt2 = 11;
-    int LA2_0 = input.LA( 1 );
+    int LA2_0 = input.LA(1);
 
-    if ( ( LA2_0 == ' ' ) ) {
-      int LA2_1 = input.LA( 2 );
+    if ((LA2_0 == ' ')) {
+      int LA2_1 = input.LA(2);
 
-      if ( ( ( LA2_1 >= '\u0000' && LA2_1 <= '&' )
-        || ( LA2_1 >= '(' && LA2_1 <= '*' ) || ( LA2_1 >= ',' && LA2_1 <= '9' )
-        || ( LA2_1 >= ';' && LA2_1 <= '\uFFFF' ) ) ) {
+      if (((LA2_1 >= '\u0000' && LA2_1 <= '&')
+          || (LA2_1 >= '(' && LA2_1 <= '*')
+          || (LA2_1 >= ',' && LA2_1 <= '9')
+          || (LA2_1 >= ';' && LA2_1 <= '\uFFFF'))) {
         alt2 = 11;
       } else {
         alt2 = 1;
       }
-    } else if ( ( LA2_0 == 'U' ) ) {
-      int LA2_2 = input.LA( 2 );
+    } else if ((LA2_0 == 'U')) {
+      int LA2_2 = input.LA(2);
 
-      if ( ( LA2_2 == 'N' ) ) {
-        int LA2_12 = input.LA( 3 );
+      if ((LA2_2 == 'N')) {
+        int LA2_12 = input.LA(3);
 
-        if ( ( LA2_12 == 'A' ) ) {
-          int LA2_17 = input.LA( 4 );
+        if ((LA2_12 == 'A')) {
+          int LA2_17 = input.LA(4);
 
-          if ( ( LA2_17 == ':' ) ) {
-            int LA2_18 = input.LA( 5 );
+          if ((LA2_17 == ':')) {
+            int LA2_18 = input.LA(5);
 
-            if ( ( LA2_18 == '+' ) ) {
-              int LA2_19 = input.LA( 6 );
+            if ((LA2_18 == '+')) {
+              int LA2_19 = input.LA(6);
 
-              if ( ( LA2_19 == ',' ) ) {
+              if ((LA2_19 == ',')) {
                 alt2 = 2;
-              } else if ( ( LA2_19 == '.' ) ) {
+              } else if ((LA2_19 == '.')) {
                 alt2 = 3;
               } else {
-                NoViableAltException nvae = new NoViableAltException( "", 2, 19, input );
+                NoViableAltException nvae = new NoViableAltException("", 2, 19, input);
 
                 throw nvae;
-
               }
             } else {
-              NoViableAltException nvae = new NoViableAltException( "", 2, 18, input );
+              NoViableAltException nvae = new NoViableAltException("", 2, 18, input);
 
               throw nvae;
-
             }
           } else {
             alt2 = 11;
@@ -464,64 +464,69 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
       } else {
         alt2 = 11;
       }
-    } else if ( ( LA2_0 == '\n' ) ) {
-      int LA2_3 = input.LA( 2 );
+    } else if ((LA2_0 == '\n')) {
+      int LA2_3 = input.LA(2);
 
-      if ( ( ( LA2_3 >= '\u0000' && LA2_3 <= '&' )
-        || ( LA2_3 >= '(' && LA2_3 <= '*' ) || ( LA2_3 >= ',' && LA2_3 <= '9' )
-        || ( LA2_3 >= ';' && LA2_3 <= '\uFFFF' ) ) ) {
+      if (((LA2_3 >= '\u0000' && LA2_3 <= '&')
+          || (LA2_3 >= '(' && LA2_3 <= '*')
+          || (LA2_3 >= ',' && LA2_3 <= '9')
+          || (LA2_3 >= ';' && LA2_3 <= '\uFFFF'))) {
         alt2 = 11;
       } else {
         alt2 = 4;
       }
-    } else if ( ( LA2_0 == '\r' ) ) {
-      int LA2_4 = input.LA( 2 );
+    } else if ((LA2_0 == '\r')) {
+      int LA2_4 = input.LA(2);
 
-      if ( ( ( LA2_4 >= '\u0000' && LA2_4 <= '&' )
-        || ( LA2_4 >= '(' && LA2_4 <= '*' ) || ( LA2_4 >= ',' && LA2_4 <= '9' )
-        || ( LA2_4 >= ';' && LA2_4 <= '\uFFFF' ) ) ) {
+      if (((LA2_4 >= '\u0000' && LA2_4 <= '&')
+          || (LA2_4 >= '(' && LA2_4 <= '*')
+          || (LA2_4 >= ',' && LA2_4 <= '9')
+          || (LA2_4 >= ';' && LA2_4 <= '\uFFFF'))) {
         alt2 = 11;
       } else {
         alt2 = 5;
       }
-    } else if ( ( LA2_0 == '\t' ) ) {
-      int LA2_5 = input.LA( 2 );
+    } else if ((LA2_0 == '\t')) {
+      int LA2_5 = input.LA(2);
 
-      if ( ( ( LA2_5 >= '\u0000' && LA2_5 <= '&' )
-        || ( LA2_5 >= '(' && LA2_5 <= '*' ) || ( LA2_5 >= ',' && LA2_5 <= '9' )
-        || ( LA2_5 >= ';' && LA2_5 <= '\uFFFF' ) ) ) {
+      if (((LA2_5 >= '\u0000' && LA2_5 <= '&')
+          || (LA2_5 >= '(' && LA2_5 <= '*')
+          || (LA2_5 >= ',' && LA2_5 <= '9')
+          || (LA2_5 >= ';' && LA2_5 <= '\uFFFF'))) {
         alt2 = 11;
       } else {
         alt2 = 6;
       }
-    } else if ( ( LA2_0 == '?' ) ) {
-      int LA2_6 = input.LA( 2 );
+    } else if ((LA2_0 == '?')) {
+      int LA2_6 = input.LA(2);
 
-      if ( ( LA2_6 == '\'' || LA2_6 == '+' || LA2_6 == ':' || LA2_6 == '?' ) ) {
+      if ((LA2_6 == '\'' || LA2_6 == '+' || LA2_6 == ':' || LA2_6 == '?')) {
         alt2 = 11;
       } else {
         alt2 = 7;
       }
-    } else if ( ( LA2_0 == '+' ) ) {
+    } else if ((LA2_0 == '+')) {
       alt2 = 8;
-    } else if ( ( LA2_0 == '\'' ) ) {
+    } else if ((LA2_0 == '\'')) {
       alt2 = 9;
-    } else if ( ( LA2_0 == ':' ) ) {
+    } else if ((LA2_0 == ':')) {
       alt2 = 10;
-    } else if ( ( ( LA2_0 >= '\u0000' && LA2_0 <= '\b' )
-      || ( LA2_0 >= '\u000B' && LA2_0 <= '\f' ) || ( LA2_0 >= '\u000E' && LA2_0 <= '\u001F' )
-      || ( LA2_0 >= '!' && LA2_0 <= '&' ) || ( LA2_0 >= '(' && LA2_0 <= '*' )
-      || ( LA2_0 >= ',' && LA2_0 <= '9' )
-      || ( LA2_0 >= ';' && LA2_0 <= '>' ) || ( LA2_0 >= '@' && LA2_0 <= 'T' )
-      || ( LA2_0 >= 'V' && LA2_0 <= '\uFFFF' ) ) ) {
+    } else if (((LA2_0 >= '\u0000' && LA2_0 <= '\b')
+        || (LA2_0 >= '\u000B' && LA2_0 <= '\f')
+        || (LA2_0 >= '\u000E' && LA2_0 <= '\u001F')
+        || (LA2_0 >= '!' && LA2_0 <= '&')
+        || (LA2_0 >= '(' && LA2_0 <= '*')
+        || (LA2_0 >= ',' && LA2_0 <= '9')
+        || (LA2_0 >= ';' && LA2_0 <= '>')
+        || (LA2_0 >= '@' && LA2_0 <= 'T')
+        || (LA2_0 >= 'V' && LA2_0 <= '\uFFFF'))) {
       alt2 = 11;
     } else {
-      NoViableAltException nvae = new NoViableAltException( "", 2, 0, input );
+      NoViableAltException nvae = new NoViableAltException("", 2, 0, input);
 
       throw nvae;
-
     }
-    switch ( alt2 ) {
+    switch (alt2) {
       case 1:
         // C:\\workspace-sts\\Hop trunk -
         // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -610,9 +615,6 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
         mTEXT_DATA();
         break;
-
     }
-
   }
-
 }

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.engines.remote;
 
-import org.apache.hop.server.HopServer;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -28,7 +27,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
-import org.apache.hop.workflow.config.WorkflowRunConfiguration;
+import org.apache.hop.server.HopServer;
 
 import java.util.ArrayList;
 import java.util.Collections;

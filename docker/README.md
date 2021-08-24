@@ -19,37 +19,35 @@ under the License.
 
 A **Hop Docker image** supporting both **short-lived** and **long-lived** setups.
 
-
 ## Container Folder Structure
 
-
-Directory	| Description
+Directory    | Description
 ---	|---
-`/opt/hop`	| location of the hop package
-`/files`	| here you should mount a directory that contains the **hop and project config** as well as the **workflows and pipelines**.
+`/opt/hop`    | location of the hop package
+`/files`    | here you should mount a directory that contains the **hop and project config** as well as the **workflows
+and pipelines**.
 
 ## Environment Variables
 
 You can provide values for the following environment variables:
 
-
-Environment Variable	| Required	| Description
+Environment Variable    | Required    | Description
 ---	|----	|---
-`HOP_LOG_LEVEL`	| No	| Specify the log level. Default: `Basic`. Optional.
-`HOP_FILE_PATH`	| Yes	| Path to hop workflow or pipeline
-`HOP_LOG_PATH`	| No	| File path to hop log file
-`HOP_CONFIG_DIRECTORY`	| No	| Path to the Hop config folder. DISABLED for now.
-`HOP_PROJECT_NAME`	| Yes	| Name of the Hop project to use
-`HOP_PROJECT_DIRECTORY`	| Yes	| Path to the home of the hop project. Should start with `/files`.
-`HOP_PROJECT_CONFIG_FILE_NAME`	| No	| Name of the project config file including file extension. Defaults to `project-config.json`.
-`HOP_ENVIRONMENT_NAME`	| Yes	| Name of the Hop run environment to use
-`HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`	| Yes	| comma separated list of paths to environment config files (including filename and file extension). paths should start with `/files`.
-`HOP_RUN_CONFIG`	| Yes	| Name of the Hop run configuration to use
-`HOP_RUN_PARAMETERS`	| No	| Parameters that should be passed on to the hop-run command. Specify as comma separated list, e.g. `PARAM_1=aaa,PARAM_2=bbb`. Optional.
-`HOP_OPTIONS`	| No	| Any JRE options you want to set
-`HOP_SHARED_JDBC_DIRECTORY`	| No	| Path to the directory where the JDCB drivers are located
-`HOP_SERVER_USER`	| No	| Username for hop-server, only valid in long-lived containers. Default `cluster`
-`HOP_SERVER_PASS`	| No	| Password for hop-server user, only valid in long-lived containers. Default `cluster`
+`HOP_LOG_LEVEL`    | No    | Specify the log level. Default: `Basic`. Optional.
+`HOP_FILE_PATH`    | Yes    | Path to hop workflow or pipeline
+`HOP_LOG_PATH`    | No    | File path to hop log file
+`HOP_CONFIG_DIRECTORY`    | No    | Path to the Hop config folder. DISABLED for now.
+`HOP_PROJECT_NAME`    | Yes    | Name of the Hop project to use
+`HOP_PROJECT_DIRECTORY`    | Yes    | Path to the home of the hop project. Should start with `/files`.
+`HOP_PROJECT_CONFIG_FILE_NAME`    | No    | Name of the project config file including file extension. Defaults to `project-config.json`.
+`HOP_ENVIRONMENT_NAME`    | Yes    | Name of the Hop run environment to use
+`HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`    | Yes    | comma separated list of paths to environment config files (including filename and file extension). paths should start with `/files`.
+`HOP_RUN_CONFIG`    | Yes    | Name of the Hop run configuration to use
+`HOP_RUN_PARAMETERS`    | No    | Parameters that should be passed on to the hop-run command. Specify as comma separated list, e.g. `PARAM_1=aaa,PARAM_2=bbb`. Optional.
+`HOP_OPTIONS`    | No    | Any JRE options you want to set
+`HOP_SHARED_JDBC_DIRECTORY`    | No    | Path to the directory where the JDCB drivers are located
+`HOP_SERVER_USER`    | No    | Username for hop-server, only valid in long-lived containers. Default `cluster`
+`HOP_SERVER_PASS`    | No    | Password for hop-server user, only valid in long-lived containers. Default `cluster`
 `HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH` | No | Path to custom entrypoint extension script file, e.g. to fetch Hop project files from S3 or gitlab.
 
 The `Required` column relates to running a short-lived container.
@@ -76,7 +74,8 @@ docker run -it --rm \
   apache/incubator-hop:<tag>
 ```
 
-If you need a **long-lived container**, this option is also available. Run this command to start a Hop Server in a docker container:
+If you need a **long-lived container**, this option is also available. Run this command to start a Hop Server in a
+docker container:
 
 ```bash
 docker pull docker.io/apache/incubator-hop:<tag>
@@ -87,19 +86,25 @@ docker run -it --rm \
   --name my-hop-server-container \
  apache/incubator-hop:<tag>
 ```
-Hop Server is designed to receive all variables and metadata from executing clients. This means it needs little to no configuration to run.
+
+Hop Server is designed to receive all variables and metadata from executing clients. This means it needs little to no
+configuration to run.
 
 You can then access the hop-server UI from your host at `http://localhost:8080`
 
 ## Custom Entrypoint Extension Shell Script
 
-To make the Hop Docker image even more flexible, we added a `HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH` variable that accepts a path to a custom shell script (that you provide). This shell script will run when you start the container before your Hop project is registered with the container's Hop config and before your Hop workflow or pipeline gets kicked off.
-This feature might come in handy when you want to run some custom logic upfront, e.g. source Hop project files from S3 or clone them from GitHub. 
+To make the Hop Docker image even more flexible, we added a `HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH` variable
+that accepts a path to a custom shell script (that you provide). This shell script will run when you start the container
+before your Hop project is registered with the container's Hop config and before your Hop workflow or pipeline gets
+kicked off. This feature might come in handy when you want to run some custom logic upfront, e.g. source Hop project
+files from S3 or clone them from GitHub.
 
 The custom shell file can be provided in several ways (this is not a full list):
 
 - via the mount point (`/files`)
-- You create your own Dockerfile, define this image as the base and then use the `COPY` instruction to copy your custom shell file in your Docker image.
+- You create your own Dockerfile, define this image as the base and then use the `COPY` instruction to copy your custom
+  shell file in your Docker image.
 
 For the last scenario mentioned, it could be something like this:
 
@@ -128,9 +133,11 @@ COPY --chown=hop:hop ./resources/clone-git-repo.sh /home/hop/clone-git-repo.sh
 USER hop
 ```
 
-Note that apart from defining the new environment variables (that go in line with the parameters we defined in the `clone-git-repo.sh` earlier on ), we also `COPY` the `clone-git-repo.sh` file to user hop's home directory.
+Note that apart from defining the new environment variables (that go in line with the parameters we defined in
+the `clone-git-repo.sh` earlier on ), we also `COPY` the `clone-git-repo.sh` file to user hop's home directory.
 
-Next let's build a small script which builds our custom image and then tests it by spinning up a container and running a workflow:
+Next let's build a small script which builds our custom image and then tests it by spinning up a container and running a
+workflow:
 
 ```shell
 #!/bin/zsh
@@ -164,7 +171,6 @@ docker run -it --rm \
   --name my-simple-hop-container \
   ${HOP_DOCKER_IMAGE}
 ```
-
 
 # Shortcomings
 

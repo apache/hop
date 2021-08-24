@@ -54,7 +54,8 @@ import java.util.List;
     image = "groupby.svg",
     name = "i18n::GroupBy.Name",
     description = "i18n::GroupBy.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/groupby.html",
     keywords = "")
 @InjectionSupported(
@@ -97,7 +98,6 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   public static final int TYPE_GROUP_STANDARD_DEVIATION = 15;
 
   public static final int TYPE_GROUP_CONCAT_STRING = 16;
-
 
   public static final int TYPE_GROUP_COUNT_DISTINCT = 17;
 
@@ -157,8 +157,7 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION_SAMPLE"),
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE_NEAREST_RANK"),
-          BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF")
-
+    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF")
   };
 
   /** All rows need to pass, adding an extra row at the end of each group/block. */

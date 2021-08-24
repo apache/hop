@@ -20,11 +20,7 @@ package org.apache.hop.core.logging;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -50,24 +46,25 @@ public class LoggingBuffer {
 
   private LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
-  public LoggingBuffer( int bufferSize ) {
+  public LoggingBuffer(int bufferSize) {
     this.bufferSize = bufferSize;
     // The buffer overflow protection allows it to be overflowed for 1 item within a single thread.
     // Considering a possible high contention, let's set it's max overflow size to be 10%.
     // Anyway, even an overflow goes higher than 10%, it wouldn't cost us too much.
-    buffer = new ArrayList<>( (int) ( bufferSize * 1.1 ) );
-    layout = new HopLogLayout( true );
+    buffer = new ArrayList<>((int) (bufferSize * 1.1));
+    layout = new HopLogLayout(true);
     eventListeners = new CopyOnWriteArrayList<>();
   }
 
   /**
-   * @return the number (sequence, 1..N) of the last log line. If no records are present in the buffer, 0 is returned.
+   * @return the number (sequence, 1..N) of the last log line. If no records are present in the
+   *     buffer, 0 is returned.
    */
   public int getLastBufferLineNr() {
     lock.readLock().lock();
     try {
-      if ( buffer.size() > 0 ) {
-        return buffer.get( buffer.size() - 1 ).getNr();
+      if (buffer.size() > 0) {
+        return buffer.get(buffer.size() - 1).getNr();
       } else {
         return 0;
       }
@@ -77,24 +74,29 @@ public class LoggingBuffer {
   }
 
   /**
-   * @param channelId      channel IDs to grab
+   * @param channelId channel IDs to grab
    * @param includeGeneral include general log lines
    * @param from
    * @param to
    * @return
    */
-  public List<HopLoggingEvent> getLogBufferFromTo( List<String> channelId, boolean includeGeneral, int from,
-                                                   int to ) {
+  public List<HopLoggingEvent> getLogBufferFromTo(
+      List<String> channelId, boolean includeGeneral, int from, int to) {
     lock.readLock().lock();
     try {
-      Stream<BufferLine> bufferStream = buffer.stream().filter( line -> line.getNr() > from && line.getNr() <= to );
-      if ( channelId != null ) {
-        bufferStream = bufferStream.filter( line -> {
-          String logChannelId = getLogChId( line );
-          return includeGeneral ? isGeneral( logChannelId ) || channelId.contains( logChannelId ) : channelId.contains( logChannelId );
-        } );
+      Stream<BufferLine> bufferStream =
+          buffer.stream().filter(line -> line.getNr() > from && line.getNr() <= to);
+      if (channelId != null) {
+        bufferStream =
+            bufferStream.filter(
+                line -> {
+                  String logChannelId = getLogChId(line);
+                  return includeGeneral
+                      ? isGeneral(logChannelId) || channelId.contains(logChannelId)
+                      : channelId.contains(logChannelId);
+                });
       }
-      return bufferStream.map( BufferLine::getEvent ).collect( Collectors.toList() );
+      return bufferStream.map(BufferLine::getEvent).collect(Collectors.toList());
     } finally {
       lock.readLock().unlock();
     }
@@ -102,56 +104,58 @@ public class LoggingBuffer {
 
   /**
    * @param parentLogChannelId the parent log channel ID to grab
-   * @param includeGeneral     include general log lines
+   * @param includeGeneral include general log lines
    * @param from
    * @param to
    * @return
    */
-  public List<HopLoggingEvent> getLogBufferFromTo( String parentLogChannelId, boolean includeGeneral, int from,
-                                                   int to ) {
+  public List<HopLoggingEvent> getLogBufferFromTo(
+      String parentLogChannelId, boolean includeGeneral, int from, int to) {
 
     // Typically, the log channel id is the one from the pipeline or workflow running currently.
     // However, we also want to see the details of the transforms etc.
     // So we need to look at the parents all the way up if needed...
     //
-    List<String> childIds = loggingRegistry.getLogChannelChildren( parentLogChannelId );
+    List<String> childIds = loggingRegistry.getLogChannelChildren(parentLogChannelId);
 
-    return getLogBufferFromTo( childIds, includeGeneral, from, to );
+    return getLogBufferFromTo(childIds, includeGeneral, from, to);
   }
 
-  public StringBuffer getBuffer( String parentLogChannelId, boolean includeGeneral, int startLineNr, int endLineNr ) {
-    StringBuilder eventBuffer = new StringBuilder( 10000 );
+  public StringBuffer getBuffer(
+      String parentLogChannelId, boolean includeGeneral, int startLineNr, int endLineNr) {
+    StringBuilder eventBuffer = new StringBuilder(10000);
 
-    List<HopLoggingEvent> events = getLogBufferFromTo( parentLogChannelId, includeGeneral, startLineNr, endLineNr );
-    for ( HopLoggingEvent event : events ) {
-      eventBuffer.append( layout.format( event ) ).append( Const.CR );
+    List<HopLoggingEvent> events =
+        getLogBufferFromTo(parentLogChannelId, includeGeneral, startLineNr, endLineNr);
+    for (HopLoggingEvent event : events) {
+      eventBuffer.append(layout.format(event)).append(Const.CR);
     }
 
-    return new StringBuffer( eventBuffer );
+    return new StringBuffer(eventBuffer);
   }
 
-  public StringBuffer getBuffer( String parentLogChannelId, boolean includeGeneral ) {
-    return getBuffer( parentLogChannelId, includeGeneral, 0 );
+  public StringBuffer getBuffer(String parentLogChannelId, boolean includeGeneral) {
+    return getBuffer(parentLogChannelId, includeGeneral, 0);
   }
 
-  public StringBuffer getBuffer( String parentLogChannelId, boolean includeGeneral, int startLineNr ) {
-    return getBuffer( parentLogChannelId, includeGeneral, startLineNr, getLastBufferLineNr() );
+  public StringBuffer getBuffer(
+      String parentLogChannelId, boolean includeGeneral, int startLineNr) {
+    return getBuffer(parentLogChannelId, includeGeneral, startLineNr, getLastBufferLineNr());
   }
 
   public StringBuffer getBuffer() {
-    return getBuffer( null, true );
+    return getBuffer(null, true);
   }
 
-  public void close() {
-  }
+  public void close() {}
 
-  public void doAppend( HopLoggingEvent event ) {
-    if ( event.getMessage() instanceof LogMessage ) {
+  public void doAppend(HopLoggingEvent event) {
+    if (event.getMessage() instanceof LogMessage) {
       lock.writeLock().lock();
       try {
-        buffer.add( new BufferLine( event ) );
-        while ( bufferSize > 0 && buffer.size() > bufferSize ) {
-          buffer.remove( 0 );
+        buffer.add(new BufferLine(event));
+        while (bufferSize > 0 && buffer.size() > bufferSize) {
+          buffer.remove(0);
         }
       } finally {
         lock.writeLock().unlock();
@@ -159,7 +163,7 @@ public class LoggingBuffer {
     }
   }
 
-  public void setName( String name ) {
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -167,7 +171,7 @@ public class LoggingBuffer {
     return name;
   }
 
-  public void setLayout( HopLogLayout layout ) {
+  public void setLayout(HopLogLayout layout) {
     this.layout = layout;
   }
 
@@ -188,23 +192,20 @@ public class LoggingBuffer {
     }
   }
 
-  /**
-   * @return the maximum number of lines that this buffer contains, 0 or lower means: no limit
-   */
+  /** @return the maximum number of lines that this buffer contains, 0 or lower means: no limit */
   public int getMaxNrLines() {
     return bufferSize;
   }
 
   /**
-   * @param maxNrLines the maximum number of lines that this buffer should contain, 0 or lower means: no limit
+   * @param maxNrLines the maximum number of lines that this buffer should contain, 0 or lower
+   *     means: no limit
    */
-  public void setMaxNrLines( int maxNrLines ) {
+  public void setMaxNrLines(int maxNrLines) {
     this.bufferSize = maxNrLines;
   }
 
-  /**
-   * @return the nrLines
-   */
+  /** @return the nrLines */
   public int getNrLines() {
     return buffer.size();
   }
@@ -214,10 +215,10 @@ public class LoggingBuffer {
    *
    * @param id the id of the logging channel to remove
    */
-  public void removeChannelFromBuffer( String id ) {
+  public void removeChannelFromBuffer(String id) {
     lock.writeLock().lock();
     try {
-      buffer.removeIf( line -> id.equals( getLogChId( line ) ) );
+      buffer.removeIf(line -> id.equals(getLogChId(line)));
     } finally {
       lock.writeLock().unlock();
     }
@@ -230,18 +231,16 @@ public class LoggingBuffer {
   public void removeGeneralMessages() {
     lock.writeLock().lock();
     try {
-      buffer.removeIf( line -> isGeneral( getLogChId( line ) ) );
+      buffer.removeIf(line -> isGeneral(getLogChId(line)));
     } finally {
       lock.writeLock().unlock();
     }
   }
 
   /**
-   * We should not expose iterator out of the class.
-   * Looks like it's only used in tests.
-   * <p>
-   * Marked deprecated for now.
-   * TODO: To be made package-level in future.
+   * We should not expose iterator out of the class. Looks like it's only used in tests.
+   *
+   * <p>Marked deprecated for now. TODO: To be made package-level in future.
    */
   @Deprecated
   @VisibleForTesting
@@ -249,19 +248,20 @@ public class LoggingBuffer {
     return buffer.iterator();
   }
 
-  /**
-   * It looks like this method is not used in the project.
-   */
+  /** It looks like this method is not used in the project. */
   @Deprecated
   public String dump() {
-    StringBuilder buf = new StringBuilder( 50000 );
+    StringBuilder buf = new StringBuilder(50000);
     lock.readLock().lock();
     try {
-      buffer.forEach( line -> {
-        LogMessage message = (LogMessage) line.getEvent().getMessage();
-        buf.append( message.getLogChannelId() ).append( "\t" )
-          .append( message.getSubject() ).append( "\n" );
-      } );
+      buffer.forEach(
+          line -> {
+            LogMessage message = (LogMessage) line.getEvent().getMessage();
+            buf.append(message.getLogChannelId())
+                .append("\t")
+                .append(message.getSubject())
+                .append("\n");
+          });
       return buf.toString();
     } finally {
       lock.readLock().unlock();
@@ -274,10 +274,10 @@ public class LoggingBuffer {
    * @deprecated in favor of {@link #removeBufferLinesBefore(long)}.
    */
   @Deprecated
-  public void removeBufferLines( List<BufferLine> linesToRemove ) {
+  public void removeBufferLines(List<BufferLine> linesToRemove) {
     lock.writeLock().lock();
     try {
-      buffer.removeAll( linesToRemove );
+      buffer.removeAll(linesToRemove);
     } finally {
       lock.writeLock().unlock();
     }
@@ -289,57 +289,59 @@ public class LoggingBuffer {
    * @deprecated in favor of {@link #removeBufferLinesBefore(long)}.
    */
   @Deprecated
-  public List<BufferLine> getBufferLinesBefore( long minTimeBoundary ) {
+  public List<BufferLine> getBufferLinesBefore(long minTimeBoundary) {
     lock.readLock().lock();
     try {
-      return buffer.stream().filter( line -> line.getEvent().timeStamp < minTimeBoundary )
-        .collect( Collectors.toList() );
+      return buffer.stream()
+          .filter(line -> line.getEvent().timeStamp < minTimeBoundary)
+          .collect(Collectors.toList());
     } finally {
       lock.readLock().unlock();
     }
   }
 
-  public void removeBufferLinesBefore( long minTimeBoundary ) {
+  public void removeBufferLinesBefore(long minTimeBoundary) {
     // Using HashSet even though BufferLine does not implement hashcode and equals,
     // we just need to remove the exact objects we have found and put in the set.
     Set<BufferLine> linesToRemove = new HashSet<>();
     lock.writeLock().lock();
     try {
-      for ( BufferLine bufferLine : buffer ) {
-        if ( bufferLine.getEvent().timeStamp < minTimeBoundary ) {
-          linesToRemove.add( bufferLine );
+      for (BufferLine bufferLine : buffer) {
+        if (bufferLine.getEvent().timeStamp < minTimeBoundary) {
+          linesToRemove.add(bufferLine);
         } else {
           break;
         }
       }
       // removeAll should run fast against a HashSet,
-      // since ArrayList.batchRemove check for each element of a collection given if it is in the ArrayList.
+      // since ArrayList.batchRemove check for each element of a collection given if it is in the
+      // ArrayList.
       // Thus, removeAll should run in a linear time.
-      buffer.removeAll( linesToRemove );
+      buffer.removeAll(linesToRemove);
     } finally {
       lock.writeLock().unlock();
     }
   }
 
-  public void addLogggingEvent( HopLoggingEvent loggingEvent ) {
-    doAppend( loggingEvent );
-    eventListeners.forEach( event -> event.eventAdded( loggingEvent ) );
+  public void addLogggingEvent(HopLoggingEvent loggingEvent) {
+    doAppend(loggingEvent);
+    eventListeners.forEach(event -> event.eventAdded(loggingEvent));
   }
 
-  public void addLoggingEventListener( IHopLoggingEventListener listener ) {
-    eventListeners.add( listener );
+  public void addLoggingEventListener(IHopLoggingEventListener listener) {
+    eventListeners.add(listener);
   }
 
-  public void removeLoggingEventListener( IHopLoggingEventListener listener ) {
-    eventListeners.remove( listener );
+  public void removeLoggingEventListener(IHopLoggingEventListener listener) {
+    eventListeners.remove(listener);
   }
 
-  private boolean isGeneral( String logChannelId ) {
-    ILoggingObject loggingObject = loggingRegistry.getLoggingObject( logChannelId );
-    return loggingObject != null && LoggingObjectType.GENERAL.equals( loggingObject.getObjectType() );
+  private boolean isGeneral(String logChannelId) {
+    ILoggingObject loggingObject = loggingRegistry.getLoggingObject(logChannelId);
+    return loggingObject != null && LoggingObjectType.GENERAL.equals(loggingObject.getObjectType());
   }
 
-  private static String getLogChId( BufferLine bufferLine ) {
-    return ( (LogMessage) bufferLine.getEvent().getMessage() ).getLogChannelId();
+  private static String getLogChId(BufferLine bufferLine) {
+    return ((LogMessage) bufferLine.getEvent().getMessage()).getLogChannelId();
   }
 }

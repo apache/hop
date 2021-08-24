@@ -17,32 +17,31 @@
 
 package org.apache.hop.ui.hopgui;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import org.eclipse.rap.rwt.service.ServiceHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.rap.rwt.service.ServiceHandler;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class DownloadServiceHandler implements ServiceHandler {
 
-  public void service( HttpServletRequest request, HttpServletResponse response )
-    throws IOException, ServletException {
+  public void service(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
     // Which file to download?
-    String fileName = request.getParameter( "filename" );
+    String fileName = request.getParameter("filename");
     // Get the file content
-    File file = new File( fileName );
+    File file = new File(fileName);
     FileInputStream fin = null;
     byte[] download = null;
     try {
-      fin = new FileInputStream( file );
-      download = new byte[(int) file.length() ];
-      fin.read( download );
-    } catch ( IOException e ) {
-      throw new IOException( e.getMessage() );
+      fin = new FileInputStream(file);
+      download = new byte[(int) file.length()];
+      fin.read(download);
+    } catch (IOException e) {
+      throw new IOException(e.getMessage());
     }
     fin.close();
     /*
@@ -51,10 +50,10 @@ public class DownloadServiceHandler implements ServiceHandler {
      */
     file.delete();
     // Send the file in the response
-    response.setContentType( "application/octet-stream" );
-    response.setContentLength( download.length );
+    response.setContentType("application/octet-stream");
+    response.setContentLength(download.length);
     String contentDisposition = "attachment; filename=\"" + file.getName() + "\"";
-    response.setHeader( "Content-Disposition", contentDisposition );
-    response.getOutputStream().write( download );
+    response.setHeader("Content-Disposition", contentDisposition);
+    response.getOutputStream().write(download);
   }
 }

@@ -19,12 +19,12 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 
 public interface IDatabaseFactory {
 
-  String getConnectionTestReport( IVariables variables, DatabaseMeta databaseMeta ) throws HopDatabaseException;
+  String getConnectionTestReport(IVariables variables, DatabaseMeta databaseMeta)
+      throws HopDatabaseException;
 
-  DatabaseTestResults getConnectionTestResults( IVariables variables, DatabaseMeta databaseMeta ) throws HopDatabaseException;
-
+  DatabaseTestResults getConnectionTestResults(IVariables variables, DatabaseMeta databaseMeta)
+      throws HopDatabaseException;
 }

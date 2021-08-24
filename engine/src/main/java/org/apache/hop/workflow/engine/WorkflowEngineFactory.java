@@ -66,7 +66,7 @@ public class WorkflowEngineFactory {
 
     // Copy the parameters from the metadata...
     //
-    workflowEngine.copyParametersFromDefinitions( workflowMeta );
+    workflowEngine.copyParametersFromDefinitions(workflowMeta);
 
     // Pass the metadata providers around to make sure
     //

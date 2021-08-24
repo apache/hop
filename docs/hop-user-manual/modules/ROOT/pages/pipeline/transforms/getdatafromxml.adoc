@@ -29,52 +29,68 @@ The Get Data From XML transform provides the ability to read data from any type 
 
 === Files Tab
 
-The files tab is where you define the location of the XML files from which you want to read. The table below contains options associated with the Files tab.
+The files tab is where you define the location of the XML files from which you want to read.
+The table below contains options associated with the Files tab.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
 |XML Source from field a|
 * XML source is defined in a field : the previous transform is giving XML data in a certain field in the input stream.
-* XML source is a filename : the previous transform is giving filenames in a certain field in the input stream.  These are read.
-* Read source as URL : the  previous transform is giving URLs in a certain field in the input stream.  These are read.
+* XML source is a filename : the previous transform is giving filenames in a certain field in the input stream.
+These are read.
+* Read source as URL : the previous transform is giving URLs in a certain field in the input stream.
+These are read.
 * Get XML source from a field : specify the field to read XML, filename or URL from.
-|File or directory|Specifies the location and/or name of the input text file. Note: Click Add to add the file/directory/wildcard combination to the list of selected files (grid) below.
+|File or directory|Specifies the location and/or name of the input text file.
+Note: Click Add to add the file/directory/wildcard combination to the list of selected files (grid) below.
 |Regular expression|Specifies the regular expression you want to use to select the files in the directory specified in the previous option.
-|Selected Files|Contains a list of selected files (or wildcard selections) and a property specifying if file is required or not. If a file is required and it is not found, an error is generated;otherwise, the file name is skipped.
-|Show filename(s)...|Displays a list of all files that will be loaded based on the current selected file definitions 
+|Selected Files|Contains a list of selected files (or wildcard selections) and a property specifying if file is required or not.
+If a file is required and it is not found, an error is generated;otherwise, the file name is skipped.
+|Show filename(s)...|Displays a list of all files that will be loaded based on the current selected file definitions
 |===
 
 === Content Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Settings a|
-* Loop XPath : For every "Loop XPath" location we find in the XML file(s), we will output one row of data.  This is the main specification we use to flatten the XML file(s).  You can use the "Get XPath nodes" button to search for the possible repeating nodes in the XML document.  Please note that if the XML document is large that this can take a while.
+* Loop XPath : For every "Loop XPath" location we find in the XML file(s), we will output one row of data.
+This is the main specification we use to flatten the XML file(s).
+You can use the "Get XPath nodes" button to search for the possible repeating nodes in the XML document.
+Please note that if the XML document is large that this can take a while.
 * Encoding : the XML filename encoding in case none is specified in the XML documents. (yes, those still exist)
 * Namespace aware : check this to make the XML document namespace aware.
 * Ignore comments : Ignore all comments in the XML document while parsing.
-* Validate XML : Validate the XML prior to parsing. Use a token when you want to replace dynamically in a Xpath field value. A token is between @_ and - (@_fieldname-). Please see the Example 1 to see how it works.
+* Validate XML : Validate the XML prior to parsing.
+Use a token when you want to replace dynamically in a Xpath field value.
+A token is between @_ and - (@_fieldname-).
+Please see the Example 1 to see how it works.
 * Use token : a token is not related tro XML parsing but to Hop.
-* Igore empty file : an empty file is not a valid XML document.  Check this if you want to ignore those altogether.
+* Igore empty file : an empty file is not a valid XML document.
+Check this if you want to ignore those altogether.
 * Do not raise an error if no file: Don't raise a stink if no files are found.
 * Limit : Limits the number of rows to this number (zero (0) means all rows).
-* Prune path to handle large files: almost the same value as the "Loop XPath" property with some exceptions, see Get Data from XML - Handling Large Files for more details. Note that you can use this parameter to avoid multiple HTTP URL requests.
+* Prune path to handle large files: almost the same value as the "Loop XPath" property with some exceptions, see Get Data from XML - Handling Large Files for more details.
+Note that you can use this parameter to avoid multiple HTTP URL requests.
 
 |Additional fields a|
 
-* Include filename in output? : Allows you to specify a field name to include the file name (String) in the output of this transform.
-* Rownum in output? : Allows you to specify a field name to include the row number (Integer) in the output of this transform.
+* Include filename in output?
+: Allows you to specify a field name to include the file name (String) in the output of this transform.
+* Rownum in output?
+: Allows you to specify a field name to include the row number (Integer) in the output of this transform.
 
 |Add to result filename a|
-* Add files to result filename : Adds the XML filenames read to the result of this pipeline.  A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+* Add files to result filename : Adds the XML filenames read to the result of this pipeline.
+A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
 |===
 
 === Fields Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Name|The name of the output field
@@ -88,9 +104,10 @@ The files tab is where you define the location of the XML files from which you w
 |Decimal|The numeric decimal symbol to use during data type conversion
 |Group|The numeric grouping symbol to use during data type conversion
 |Trim type|The type of trimming to use during data type conversion
-|Repeat|Repeat the column value of the previous row if the column value is empty (null) 
+|Repeat|Repeat the column value of the previous row if the column value is empty (null)
 |===
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

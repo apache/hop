@@ -20,20 +20,24 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TargetTransformDefinition extends TransformDefinition {
-  @Injection( name = "TARGET_TAG", group = "TARGET_TRANSFORMS" )
+  @Injection(name = "TARGET_TAG", group = "TARGET_TRANSFORMS")
   public String tag = super.tag;
-  @Injection( name = "TARGET_TRANSFORM_NAME", group = "TARGET_TRANSFORMS" )
+
+  @Injection(name = "TARGET_TRANSFORM_NAME", group = "TARGET_TRANSFORMS")
   public String transformName = super.transformName;
+
   public TransformMeta transformMeta = super.transformMeta;
-  @Injection( name = "TARGET_DESCRIPTION", group = "TARGET_TRANSFORMS" )
+
+  @Injection(name = "TARGET_DESCRIPTION", group = "TARGET_TRANSFORMS")
   public String description = super.description;
 
   public TargetTransformDefinition() {
     super();
   }
 
-  public TargetTransformDefinition( String tag, String transformName, TransformMeta transformMeta, String description ) {
-    super( tag, transformName, transformMeta, description );
+  public TargetTransformDefinition(
+      String tag, String transformName, TransformMeta transformMeta, String description) {
+    super(tag, transformName, transformMeta, description);
   }
 
   public Object clone() throws CloneNotSupportedException {

@@ -25,12 +25,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.DataTypeConverter;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.injection.NullNumberConverter;
+import org.apache.hop.core.injection.*;
 import org.apache.hop.core.plugins.HopURLClassLoader;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -46,12 +41,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.JavaScriptException;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -591,8 +581,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
         jsscope.put("SKIP_PIPELINE", jsscope, Integer.valueOf(ScriptValues.SKIP_PIPELINE));
         jsscope.put("ABORT_PIPELINE", jsscope, Integer.valueOf(ScriptValues.ABORT_PIPELINE));
         jsscope.put("ERROR_PIPELINE", jsscope, Integer.valueOf(ScriptValues.ERROR_PIPELINE));
-        jsscope.put(
-            "CONTINUE_PIPELINE", jsscope, Integer.valueOf(ScriptValues.CONTINUE_PIPELINE));
+        jsscope.put("CONTINUE_PIPELINE", jsscope, Integer.valueOf(ScriptValues.CONTINUE_PIPELINE));
       } catch (Exception ex) {
         errorMessage = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
@@ -601,8 +590,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
 
       try {
         ScriptValuesDummy dummyTransform =
-            new ScriptValuesDummy(
-                prev, pipelineMeta.getTransformFields(variables, transformMeta));
+            new ScriptValuesDummy(prev, pipelineMeta.getTransformFields(variables, transformMeta));
         Scriptable jsvalue = Context.toObject(dummyTransform, jsscope);
         jsscope.put("_transform_", jsscope, jsvalue);
 

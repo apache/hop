@@ -46,29 +46,28 @@ public class WorkflowTest {
   private ActionStart mockedActionStart;
   private LogChannel mockedLogChannel;
 
-
   @Before
   public void init() {
-    mockedDataBase = mock( Database.class );
-    mockedWorkflow = mock( Workflow.class );
-    mockedVariableSpace = mock( IVariables.class );
-    mockedMetadataProvider = mock( IHopMetadataProvider.class );
-    mockedWorkflowMeta = mock( WorkflowMeta.class );
-    mockedActionMeta = mock( ActionMeta.class );
-    mockedActionStart = mock( ActionStart.class );
-    mockedLogChannel = mock( LogChannel.class );
+    mockedDataBase = mock(Database.class);
+    mockedWorkflow = mock(Workflow.class);
+    mockedVariableSpace = mock(IVariables.class);
+    mockedMetadataProvider = mock(IHopMetadataProvider.class);
+    mockedWorkflowMeta = mock(WorkflowMeta.class);
+    mockedActionMeta = mock(ActionMeta.class);
+    mockedActionStart = mock(ActionStart.class);
+    mockedLogChannel = mock(LogChannel.class);
   }
 
   @Test
   public void testNewJobWithContainerObjectId() {
-    WorkflowMeta meta = mock( WorkflowMeta.class );
+    WorkflowMeta meta = mock(WorkflowMeta.class);
 
     String carteId = UUID.randomUUID().toString();
-    doReturn( carteId ).when( meta ).getContainerId();
+    doReturn(carteId).when(meta).getContainerId();
 
-    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( meta );
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(meta);
 
-    assertEquals( carteId, workflow.getContainerId() );
+    assertEquals(carteId, workflow.getContainerId());
   }
 
   /**
@@ -76,33 +75,30 @@ public class WorkflowTest {
    */
   @Test
   public void testTwoWorkflowsGetSameLogChannelId() {
-    WorkflowMeta meta = mock( WorkflowMeta.class );
+    WorkflowMeta meta = mock(WorkflowMeta.class);
 
-    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine( meta );
-    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine( meta );
+    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine(meta);
+    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine(meta);
 
-    assertEquals( workflow1.getLogChannelId(), workflow2.getLogChannelId() );
+    assertEquals(workflow1.getLogChannelId(), workflow2.getLogChannelId());
   }
 
-  /**
-   * Two schedules -> two HopServer object Ids -> two log channel Ids
-   */
+  /** Two schedules -> two HopServer object Ids -> two log channel Ids */
   @Test
   public void testTwoWorkflowsGetDifferentLogChannelIdWithDifferentCarteId() {
-    WorkflowMeta meta1 = mock( WorkflowMeta.class );
-    WorkflowMeta meta2 = mock( WorkflowMeta.class );
+    WorkflowMeta meta1 = mock(WorkflowMeta.class);
+    WorkflowMeta meta2 = mock(WorkflowMeta.class);
 
     String carteId1 = UUID.randomUUID().toString();
     String carteId2 = UUID.randomUUID().toString();
 
-    doReturn( carteId1 ).when( meta1 ).getContainerId();
-    doReturn( carteId2 ).when( meta2 ).getContainerId();
+    doReturn(carteId1).when(meta1).getContainerId();
+    doReturn(carteId2).when(meta2).getContainerId();
 
-    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine( meta1 );
-    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine( meta2 );
+    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine(meta1);
+    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine(meta2);
 
-    assertNotEquals( workflow1.getContainerId(), workflow2.getContainerId() );
-    assertNotEquals( workflow1.getLogChannelId(), workflow2.getLogChannelId() );
+    assertNotEquals(workflow1.getContainerId(), workflow2.getContainerId());
+    assertNotEquals(workflow1.getLogChannelId(), workflow2.getLogChannelId());
   }
-
 }

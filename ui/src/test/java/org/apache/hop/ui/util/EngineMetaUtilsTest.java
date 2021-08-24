@@ -17,8 +17,8 @@
 
 package org.apache.hop.ui.util;
 
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -28,13 +28,12 @@ public class EngineMetaUtilsTest {
   @Test
   public void isJobOrPipeline_withJob() {
     WorkflowMeta jobInstance = new WorkflowMeta();
-    assertTrue( EngineMetaUtils.isJobOrPipeline( jobInstance ) );
+    assertTrue(EngineMetaUtils.isJobOrPipeline(jobInstance));
   }
 
   @Test
   public void isJobOrPipeline_withPipeline() {
     PipelineMeta pipelineInstance = new PipelineMeta();
-    assertTrue( EngineMetaUtils.isJobOrPipeline( pipelineInstance ) );
+    assertTrue(EngineMetaUtils.isJobOrPipeline(pipelineInstance));
   }
-
 }

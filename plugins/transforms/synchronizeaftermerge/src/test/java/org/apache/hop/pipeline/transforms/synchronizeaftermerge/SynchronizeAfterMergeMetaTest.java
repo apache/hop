@@ -41,50 +41,75 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "schemaName", "tableName", "databaseMeta", "commitSize", "tableNameInField", "tablenameField",
-        "operationOrderField", "useBatchUpdate", "performLookup", "OrderInsert", "OrderUpdate", "OrderDelete",
-        "keyStream", "keyLookup", "keyCondition", "keyStream2", "updateLookup", "updateStream", "update" );
+        Arrays.asList(
+            "schemaName",
+            "tableName",
+            "databaseMeta",
+            "commitSize",
+            "tableNameInField",
+            "tablenameField",
+            "operationOrderField",
+            "useBatchUpdate",
+            "performLookup",
+            "OrderInsert",
+            "OrderUpdate",
+            "OrderDelete",
+            "keyStream",
+            "keyLookup",
+            "keyCondition",
+            "keyStream2",
+            "updateLookup",
+            "updateStream",
+            "update");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "tableNameInField", "istablenameInField" );
-        put( "tablenameField", "gettablenameField" );
-        put( "useBatchUpdate", "useBatchUpdate" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "tableNameInField", "settablenameInField" );
-        put( "tablenameField", "settablenameField" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("tableNameInField", "istablenameInField");
+            put("tablenameField", "gettablenameField");
+            put("useBatchUpdate", "useBatchUpdate");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("tableNameInField", "settablenameInField");
+            put("tablenameField", "settablenameField");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
-
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "keyStream2", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "keyCondition", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "updateLookup", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "updateStream", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "update", new ArrayLoadSaveValidator<>( new BooleanLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put("keyStream", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("keyStream2", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("keyLookup", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("keyCondition", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("updateLookup", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("updateStream", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("update", new ArrayLoadSaveValidator<>(new BooleanLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransform someMeta ) {
-    if ( someMeta instanceof SynchronizeAfterMergeMeta ) {
-      ( (SynchronizeAfterMergeMeta) someMeta ).allocate( 5, 5 );
+  public void modify(ITransform someMeta) {
+    if (someMeta instanceof SynchronizeAfterMergeMeta) {
+      ((SynchronizeAfterMergeMeta) someMeta).allocate(5, 5);
     }
   }
 
@@ -92,27 +117,29 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   public void testPDI16559() throws Exception {
     SynchronizeAfterMergeMeta synchronizeAfterMerge = new SynchronizeAfterMergeMeta();
 
-    synchronizeAfterMerge.setKeyStream( new String[] { "field1", "field2", "field3", "field4", "field5" } );
-    synchronizeAfterMerge.setKeyLookup( new String[] { "lookup1", "lookup2" } );
-    synchronizeAfterMerge.setKeyCondition( new String[] { "cond1", "cond2", "cond3" } );
-    synchronizeAfterMerge.setKeyStream2( new String[] { "stream2-a", "stream2-b", "stream2-x", "stream2-d" } );
+    synchronizeAfterMerge.setKeyStream(
+        new String[] {"field1", "field2", "field3", "field4", "field5"});
+    synchronizeAfterMerge.setKeyLookup(new String[] {"lookup1", "lookup2"});
+    synchronizeAfterMerge.setKeyCondition(new String[] {"cond1", "cond2", "cond3"});
+    synchronizeAfterMerge.setKeyStream2(
+        new String[] {"stream2-a", "stream2-b", "stream2-x", "stream2-d"});
 
-    synchronizeAfterMerge.setUpdateLookup( new String[] { "updlook1", "updlook2", "updlook3", "updlook4", "updlook5" } );
-    synchronizeAfterMerge.setUpdateStream( new String[] { "updstr1", "updstr2", "updstr3" } );
-    synchronizeAfterMerge.setUpdate( new Boolean[] { false, true } );
+    synchronizeAfterMerge.setUpdateLookup(
+        new String[] {"updlook1", "updlook2", "updlook3", "updlook4", "updlook5"});
+    synchronizeAfterMerge.setUpdateStream(new String[] {"updstr1", "updstr2", "updstr3"});
+    synchronizeAfterMerge.setUpdate(new Boolean[] {false, true});
 
     synchronizeAfterMerge.afterInjectionSynchronization();
     String ktrXml = synchronizeAfterMerge.getXml();
 
     int targetSz = synchronizeAfterMerge.getKeyStream().length;
 
-    Assert.assertEquals( targetSz, synchronizeAfterMerge.getKeyLookup().length );
-    Assert.assertEquals( targetSz, synchronizeAfterMerge.getKeyCondition().length );
-    Assert.assertEquals( targetSz, synchronizeAfterMerge.getKeyStream2().length );
+    Assert.assertEquals(targetSz, synchronizeAfterMerge.getKeyLookup().length);
+    Assert.assertEquals(targetSz, synchronizeAfterMerge.getKeyCondition().length);
+    Assert.assertEquals(targetSz, synchronizeAfterMerge.getKeyStream2().length);
 
     targetSz = synchronizeAfterMerge.getUpdateLookup().length;
-    Assert.assertEquals( targetSz, synchronizeAfterMerge.getUpdateStream().length );
-    Assert.assertEquals( targetSz, synchronizeAfterMerge.getUpdate().length );
-
+    Assert.assertEquals(targetSz, synchronizeAfterMerge.getUpdateStream().length);
+    Assert.assertEquals(targetSz, synchronizeAfterMerge.getUpdate().length);
   }
 }

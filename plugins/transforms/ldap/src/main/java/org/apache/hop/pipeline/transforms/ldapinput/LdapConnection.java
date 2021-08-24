@@ -16,24 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
-import javax.naming.NameClassPair;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.PagedResultsControl;
-import javax.naming.ldap.PagedResultsResponseControl;
-import javax.naming.ldap.SortControl;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -45,9 +27,15 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
+import javax.naming.NameClassPair;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.*;
+import javax.naming.ldap.*;
+import java.util.*;
+
 public class LdapConnection {
-  private static Class<?> classFromResourcesPackage =
-      LdapInputMeta.class; // For Translator
+  private static Class<?> classFromResourcesPackage = LdapInputMeta.class; // For Translator
 
   public static final int SEARCH_SCOPE_OBJECT_SCOPE = 0;
 

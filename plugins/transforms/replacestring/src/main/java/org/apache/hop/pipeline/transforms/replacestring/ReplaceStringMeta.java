@@ -57,7 +57,8 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
     name = "i18n::BaseTransform.TypeLongDesc.ReplaceString",
     description = "i18n::BaseTransform.TypeTooltipDesc.ReplaceString",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/replacestring.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/replacestring.html")
 public class ReplaceStringMeta extends BaseTransformMeta
     implements ITransformMeta<ReplaceString, ReplaceStringData> {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator

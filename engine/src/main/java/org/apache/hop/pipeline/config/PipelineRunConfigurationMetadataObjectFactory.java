@@ -28,36 +28,43 @@ import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 
 public class PipelineRunConfigurationMetadataObjectFactory implements IHopMetadataObjectFactory {
 
-  @Override public Object createObject( String id, Object parentObject ) throws HopException {
+  @Override
+  public Object createObject(String id, Object parentObject) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
-    IPlugin plugin = registry.findPluginWithId( PipelineEnginePluginType.class, id );
-    if ( plugin == null ) {
-      throw new HopException( "Unable to find the plugin in the context of a pipeline engine plugin for id: " + id );
+    IPlugin plugin = registry.findPluginWithId(PipelineEnginePluginType.class, id);
+    if (plugin == null) {
+      throw new HopException(
+          "Unable to find the plugin in the context of a pipeline engine plugin for id: " + id);
     }
 
     try {
       // We don't return the engine but the corresponding engine configuration
       //
-      IPipelineEngine engine = registry.loadClass( plugin, IPipelineEngine.class );
+      IPipelineEngine engine = registry.loadClass(plugin, IPipelineEngine.class);
 
-      IPipelineEngineRunConfiguration engineRunConfiguration = engine.createDefaultPipelineEngineRunConfiguration();
-      engineRunConfiguration.setEnginePluginId( plugin.getIds()[0] );
-      engineRunConfiguration.setEnginePluginName( plugin.getName() );
+      IPipelineEngineRunConfiguration engineRunConfiguration =
+          engine.createDefaultPipelineEngineRunConfiguration();
+      engineRunConfiguration.setEnginePluginId(plugin.getIds()[0]);
+      engineRunConfiguration.setEnginePluginName(plugin.getName());
 
-      if (parentObject!=null && (parentObject instanceof IVariables )) {
-        engineRunConfiguration.initializeFrom( (IVariables) parentObject );
+      if (parentObject != null && (parentObject instanceof IVariables)) {
+        engineRunConfiguration.initializeFrom((IVariables) parentObject);
       }
 
       return engineRunConfiguration;
-    } catch ( HopPluginException e ) {
-      throw new HopException( "Unable to load the pipeline engine plugin class with plugin id: " + id, e );
+    } catch (HopPluginException e) {
+      throw new HopException(
+          "Unable to load the pipeline engine plugin class with plugin id: " + id, e);
     }
   }
 
-  @Override public String getObjectId( Object object ) throws HopException {
+  @Override
+  public String getObjectId(Object object) throws HopException {
     if (!(object instanceof IPipelineEngineRunConfiguration)) {
-      throw new HopException("Object provided needs to be of class "+IPipelineEngineRunConfiguration.class.getName());
+      throw new HopException(
+          "Object provided needs to be of class "
+              + IPipelineEngineRunConfiguration.class.getName());
     }
-    return ( (IPipelineEngineRunConfiguration) object ).getEnginePluginId();
+    return ((IPipelineEngineRunConfiguration) object).getEnginePluginId();
   }
 }

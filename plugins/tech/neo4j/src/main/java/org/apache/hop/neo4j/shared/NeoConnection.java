@@ -30,16 +30,7 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Config;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Logging;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.SessionConfig;
-import org.neo4j.driver.Value;
+import org.neo4j.driver.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -54,7 +45,8 @@ import java.util.logging.Level;
     name = "Neo4j Connection",
     description = "A shared connection to a Neo4j server",
     image = "neo4j_logo.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/neo4j/neo4j-connection.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/neo4j/neo4j-connection.html")
 public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String server;

@@ -22,20 +22,16 @@ public interface IKCell {
 
   /**
    * @return java.util.Date for KCellType.DATE<br>
-   * Boolean for KCellType.BOOLEAN<br>
-   * Double for KCellType.NUMBER<br>
-   * String for KCellType.LABEL<br>
-   * null for KCellType.EMPTY<br>
+   *     Boolean for KCellType.BOOLEAN<br>
+   *     Double for KCellType.NUMBER<br>
+   *     String for KCellType.LABEL<br>
+   *     null for KCellType.EMPTY<br>
    */
   Object getValue();
 
-  /**
-   * @return The content description of the cell
-   */
+  /** @return The content description of the cell */
   String getContents();
 
-  /**
-   * @return The row number in the sheet.
-   */
+  /** @return The row number in the sheet. */
   int getRow();
 }

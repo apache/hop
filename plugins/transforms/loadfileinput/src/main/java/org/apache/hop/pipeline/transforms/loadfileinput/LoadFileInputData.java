@@ -75,7 +75,5 @@ public class LoadFileInputData extends BaseTransformData implements ITransformDa
 
     readrow = null;
     fileSize = 0;
-
   }
-
 }

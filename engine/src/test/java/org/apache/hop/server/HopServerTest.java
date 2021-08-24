@@ -26,11 +26,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.utils.TestUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.AuthCache;
@@ -55,18 +51,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for HopServer class
@@ -144,7 +131,7 @@ public class HopServerTest {
             any(IVariables.class), anyString(), anyMapOf(String.class, String.class));
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
-    hopServer.execService( Variables.getADefaultVariableSpace(), "wrong_app_name");
+    hopServer.execService(Variables.getADefaultVariableSpace(), "wrong_app_name");
     fail("Incorrect connection details had been used, but no exception was thrown");
   }
 
@@ -155,7 +142,9 @@ public class HopServerTest {
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
     doReturn(uriMock).when(httpPostMock).getURI();
-    doReturn(httpPostMock).when(hopServer).buildSendXmlMethod(any(Variables.class), any(byte[].class), anyString());
+    doReturn(httpPostMock)
+        .when(hopServer)
+        .buildSendXmlMethod(any(Variables.class), any(byte[].class), anyString());
     hopServer.sendXml(variables, "", "");
     fail("Incorrect connection details had been used, but no exception was thrown");
   }
@@ -169,7 +158,8 @@ public class HopServerTest {
     doReturn(uriMock).when(httpPostMock).getURI();
     doReturn(httpPostMock)
         .when(hopServer)
-        .buildSendExportMethod(any(Variables.class), anyString(), anyString(), any(InputStream.class));
+        .buildSendExportMethod(
+            any(Variables.class), anyString(), anyString(), any(InputStream.class));
     File tempFile;
     tempFile = File.createTempFile("ApacheHop-", "tmp");
     tempFile.deleteOnExit();
@@ -206,7 +196,8 @@ public class HopServerTest {
 
     doReturn(httpPostMock)
         .when(hopServer)
-        .buildSendExportMethod(any(Variables.class), anyString(), anyString(), any(InputStream.class));
+        .buildSendExportMethod(
+            any(Variables.class), anyString(), anyString(), any(InputStream.class));
     File tempFile;
     tempFile = File.createTempFile("ApacheHop-", "tmp");
     tempFile.deleteOnExit();

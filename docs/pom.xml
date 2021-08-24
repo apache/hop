@@ -31,7 +31,7 @@
     <url>http://project-hop.org</url>
 
     <properties>
-<!--        <asciidoctor.version>2.0.0-RC.1</asciidoctor.version>-->
+        <!--        <asciidoctor.version>2.0.0-RC.1</asciidoctor.version>-->
         <asciidoctor.version>1.6.0</asciidoctor.version>
         <asciidoctorj.pdf.version>1.5.0-beta.5</asciidoctorj.pdf.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

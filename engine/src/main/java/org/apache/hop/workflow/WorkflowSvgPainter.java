@@ -45,7 +45,7 @@ public class WorkflowSvgPainter {
               null,
               null,
               null,
-            null,
+              null,
               new ArrayList<>(),
               32,
               1,
@@ -53,8 +53,7 @@ public class WorkflowSvgPainter {
               "Arial",
               10,
               1.0d,
-              false
-          );
+              false);
       workflowPainter.setMagnification(magnification);
       workflowPainter.drawWorkflow();
 

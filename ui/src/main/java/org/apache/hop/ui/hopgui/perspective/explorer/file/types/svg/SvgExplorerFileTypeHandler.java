@@ -25,7 +25,6 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
@@ -39,32 +38,33 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
-/**
- * How do we handle an SVG file in file explorer perspective?
- */
-public class SvgExplorerFileTypeHandler extends BaseExplorerFileTypeHandler implements IExplorerFileTypeHandler {
+/** How do we handle an SVG file in file explorer perspective? */
+public class SvgExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
+    implements IExplorerFileTypeHandler {
 
-  public SvgExplorerFileTypeHandler( HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile ) {
-    super( hopGui, perspective, explorerFile );
+  public SvgExplorerFileTypeHandler(
+      HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
+    super(hopGui, perspective, explorerFile);
   }
 
-  private static void paintControl( PaintEvent event, ExplorerFile explorerFile, Canvas canvas) {
+  private static void paintControl(PaintEvent event, ExplorerFile explorerFile, Canvas canvas) {
     // Render the SVG file...
     //
     Rectangle area = canvas.getBounds();
 
     try {
       SvgCacheEntry entry =
-        SvgCache.loadSvg(
-          new SvgFile(explorerFile.getFilename(), SvgExplorerFileType.class.getClassLoader()));
-      SwtUniversalImageSvg svg = new SwtUniversalImageSvg(new SvgImage(entry.getSvgDocument()), true);
+          SvgCache.loadSvg(
+              new SvgFile(explorerFile.getFilename(), SvgExplorerFileType.class.getClassLoader()));
+      SwtUniversalImageSvg svg =
+          new SwtUniversalImageSvg(new SvgImage(entry.getSvgDocument()), true);
 
-      float factorX = (float)area.width / entry.getWidth();
-      float factorY = (float)area.height / entry.getHeight();
+      float factorX = (float) area.width / entry.getWidth();
+      float factorY = (float) area.height / entry.getHeight();
       float minFactor = Math.min(factorX, factorY);
 
-      int imageWidth = (int)(entry.getWidth()*minFactor);
-      int imageHeight = (int)(entry.getHeight()*minFactor);
+      int imageWidth = (int) (entry.getWidth() * minFactor);
+      int imageHeight = (int) (entry.getHeight() * minFactor);
 
       Image image = svg.getAsBitmapForSize(canvas.getDisplay(), imageWidth, imageHeight);
 
@@ -88,5 +88,4 @@ public class SvgExplorerFileTypeHandler extends BaseExplorerFileTypeHandler impl
 
     wCanvas.addPaintListener(e -> paintControl(e, explorerFile, wCanvas));
   }
-
 }

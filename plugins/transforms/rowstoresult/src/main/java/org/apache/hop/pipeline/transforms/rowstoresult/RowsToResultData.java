@@ -38,5 +38,4 @@ public class RowsToResultData extends BaseTransformData implements ITransformDat
 
     rows = new ArrayList<>();
   }
-
 }

@@ -70,7 +70,8 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
     return (EndRepeat) super.clone();
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -84,7 +85,7 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
     return xml.toString();
   }
 
-  public void loadXml( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables )
+  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
       super.loadXml(actionNode);

@@ -28,79 +28,79 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IPipelineDialogPlugin.class )
-@PluginAnnotationType( PipelineDialogPlugin.class )
+@PluginMainClassType(IPipelineDialogPlugin.class)
+@PluginAnnotationType(PipelineDialogPlugin.class)
 public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugin> {
 
   private static PipelineDialogPluginType pluginType;
 
   private PipelineDialogPluginType() {
-    super( PipelineDialogPlugin.class, "PIPELINE_DIALOG", "Pipeline dialog" );
+    super(PipelineDialogPlugin.class, "PIPELINE_DIALOG", "Pipeline dialog");
   }
 
   public static PipelineDialogPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new PipelineDialogPluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractCategory( PipelineDialogPlugin annotation ) {
+  protected String extractCategory(PipelineDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( PipelineDialogPlugin annotation ) {
+  protected String extractDesc(PipelineDialogPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( PipelineDialogPlugin annotation ) {
+  protected String extractID(PipelineDialogPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( PipelineDialogPlugin annotation ) {
+  protected String extractName(PipelineDialogPlugin annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( PipelineDialogPlugin annotation ) {
+  protected String extractImageFile(PipelineDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( PipelineDialogPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(PipelineDialogPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, PipelineDialogPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, PipelineDialogPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( PipelineDialogPlugin annotation ) {
+  protected String extractDocumentationUrl(PipelineDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( PipelineDialogPlugin annotation ) {
+  protected String extractCasesUrl(PipelineDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( PipelineDialogPlugin annotation ) {
+  protected String extractForumUrl(PipelineDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( PipelineDialogPlugin annotation ) {
+  protected String extractSuggestion(PipelineDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( PipelineDialogPlugin annotation ) {
+  protected String extractClassLoaderGroup(PipelineDialogPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 }

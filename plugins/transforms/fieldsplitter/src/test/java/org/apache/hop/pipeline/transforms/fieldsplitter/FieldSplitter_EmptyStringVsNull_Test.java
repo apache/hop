@@ -35,10 +35,8 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-/**
- * @author Andrey Khayrutdinov
- */
-@RunWith( PowerMockRunner.class )
+/** @author Andrey Khayrutdinov */
+@RunWith(PowerMockRunner.class)
 public class FieldSplitter_EmptyStringVsNull_Test {
   private TransformMockHelper<FieldSplitterMeta, ITransformData> helper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -50,7 +48,9 @@ public class FieldSplitter_EmptyStringVsNull_Test {
 
   @Before
   public void setUp() {
-    helper = TransformMockUtil.getTransformMockHelper( FieldSplitterMeta.class, "FieldSplitter_EmptyStringVsNull_Test" );
+    helper =
+        TransformMockUtil.getTransformMockHelper(
+            FieldSplitterMeta.class, "FieldSplitter_EmptyStringVsNull_Test");
   }
 
   @After
@@ -60,57 +60,57 @@ public class FieldSplitter_EmptyStringVsNull_Test {
 
   @Test
   public void emptyAndNullsAreNotDifferent() throws Exception {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    List<Object[]> expected = Arrays.asList(
-      new Object[] { "a", "", "a" },
-      new Object[] { "b", null, "b" },
-      new Object[] { null }
-    );
-    executeAndAssertResults( expected );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
+    List<Object[]> expected =
+        Arrays.asList(
+            new Object[] {"a", "", "a"}, new Object[] {"b", null, "b"}, new Object[] {null});
+    executeAndAssertResults(expected);
   }
-
 
   @Test
   public void emptyAndNullsAreDifferent() throws Exception {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    List<Object[]> expected = Arrays.asList(
-      new Object[] { "a", "", "a" },
-      new Object[] { "b", "", "b" },
-      new Object[] { "", "", "" }
-    );
-    executeAndAssertResults( expected );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
+    List<Object[]> expected =
+        Arrays.asList(
+            new Object[] {"a", "", "a"}, new Object[] {"b", "", "b"}, new Object[] {"", "", ""});
+    executeAndAssertResults(expected);
   }
 
-  private void executeAndAssertResults( List<Object[]> expected ) throws Exception {
+  private void executeAndAssertResults(List<Object[]> expected) throws Exception {
     FieldSplitterMeta meta = new FieldSplitterMeta();
-    meta.allocate( 3 );
-    meta.setFieldName( new String[] { "s1", "s2", "s3" } );
-    meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
-    meta.setSplitField( "string" );
-    meta.setDelimiter( "," );
+    meta.allocate(3);
+    meta.setFieldName(new String[] {"s1", "s2", "s3"});
+    meta.setFieldType(
+        new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING});
+    meta.setSplitField("string");
+    meta.setDelimiter(",");
 
     FieldSplitterData data = new FieldSplitterData();
 
-    FieldSplitter transform = createAndInitTransform( meta, data );
+    FieldSplitter transform = createAndInitTransform(meta, data);
 
     RowMeta input = new RowMeta();
-    input.addValueMeta( new ValueMetaString( "string" ) );
-    transform.setInputRowMeta( input );
+    input.addValueMeta(new ValueMetaString("string"));
+    transform.setInputRowMeta(input);
 
-    transform = spy( transform );
-    doReturn( new String[] { "a, ,a" } )
-      .doReturn( new String[] { "b,,b" } )
-      .doReturn( new String[] { null } )
-      .when( transform ).getRow();
+    transform = spy(transform);
+    doReturn(new String[] {"a, ,a"})
+        .doReturn(new String[] {"b,,b"})
+        .doReturn(new String[] {null})
+        .when(transform)
+        .getRow();
 
-    List<Object[]> actual = PipelineTestingUtil.execute( transform, 3, false );
-    PipelineTestingUtil.assertResult( expected, actual );
+    List<Object[]> actual = PipelineTestingUtil.execute(transform, 3, false);
+    PipelineTestingUtil.assertResult(expected, actual);
   }
 
-  private FieldSplitter createAndInitTransform( FieldSplitterMeta meta, FieldSplitterData data ) throws Exception {
-    when( helper.transformMeta.getTransform() ).thenReturn( meta );
+  private FieldSplitter createAndInitTransform(FieldSplitterMeta meta, FieldSplitterData data)
+      throws Exception {
+    when(helper.transformMeta.getTransform()).thenReturn(meta);
 
-    FieldSplitter transform = new FieldSplitter( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    FieldSplitter transform =
+        new FieldSplitter(
+            helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
     transform.init();
     return transform;
   }

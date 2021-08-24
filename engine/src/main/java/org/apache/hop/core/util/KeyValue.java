@@ -23,24 +23,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @param <T> type of value
- */
+/** @param <T> type of value */
 public class KeyValue<T> implements Serializable {
 
-  /**
-   * The default true values.
-   */
-  public static final List<String> DEFAULT_TRUE_VALUES = Arrays.asList( new String[] { "j", "y", "on", "true" } );
+  /** The default true values. */
+  public static final List<String> DEFAULT_TRUE_VALUES =
+      Arrays.asList(new String[] {"j", "y", "on", "true"});
 
-  /**
-   * Valid key characters.
-   */
+  /** Valid key characters. */
   public static final String VALID_KEY_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789_-";
 
-  /**
-   * Serial version UID.
-   */
+  /** Serial version UID. */
   private static final long serialVersionUID = -6847244072467344205L;
 
   private final String key;
@@ -50,13 +43,13 @@ public class KeyValue<T> implements Serializable {
   /**
    * Constructor. Key will be converted to lower case.
    *
-   * @param key   key to set.
+   * @param key key to set.
    * @param value value to set, may be null.
    * @throws IllegalArgumentException if key is invalid.
    */
-  public KeyValue( final String key, final T value ) throws IllegalArgumentException {
-    final String keyToSet = StringUtils.lowerCase( key );
-    assertKey( keyToSet );
+  public KeyValue(final String key, final T value) throws IllegalArgumentException {
+    final String keyToSet = StringUtils.lowerCase(key);
+    assertKey(keyToSet);
     this.key = keyToSet;
     this.value = value;
   }
@@ -67,49 +60,43 @@ public class KeyValue<T> implements Serializable {
    * @param key key to set.
    * @throws IllegalArgumentException if key is invalid.
    */
-  public KeyValue( final String key ) throws IllegalArgumentException {
-    this( key, null );
+  public KeyValue(final String key) throws IllegalArgumentException {
+    this(key, null);
   }
 
   /**
    * @param lowerKey key to test.
    * @throws IllegalArgumentException if key is invalid.
    */
-  public static final void assertKey( final String lowerKey ) throws IllegalArgumentException {
-    Assert.assertNotEmpty( lowerKey, "Key cannot be null or empty" );
-    if ( !StringUtils.containsOnly( lowerKey, VALID_KEY_CHARS ) ) {
-      throw new IllegalArgumentException( "Key contains invalid characters [validKeyCharacters="
-        + VALID_KEY_CHARS + "]" );
+  public static final void assertKey(final String lowerKey) throws IllegalArgumentException {
+    Assert.assertNotEmpty(lowerKey, "Key cannot be null or empty");
+    if (!StringUtils.containsOnly(lowerKey, VALID_KEY_CHARS)) {
+      throw new IllegalArgumentException(
+          "Key contains invalid characters [validKeyCharacters=" + VALID_KEY_CHARS + "]");
     }
-    if ( lowerKey.charAt( 0 ) == '-' ) {
-      throw new IllegalArgumentException( "Key must not start with '-'" );
+    if (lowerKey.charAt(0) == '-') {
+      throw new IllegalArgumentException("Key must not start with '-'");
     }
-    if ( lowerKey.endsWith( "-" ) ) {
-      throw new IllegalArgumentException( "Key must not end with '-'" );
+    if (lowerKey.endsWith("-")) {
+      throw new IllegalArgumentException("Key must not end with '-'");
     }
-    if ( "_".equals( lowerKey ) ) {
-      throw new IllegalArgumentException( "Key must not be  '_'" );
+    if ("_".equals(lowerKey)) {
+      throw new IllegalArgumentException("Key must not be  '_'");
     }
   }
 
-  /**
-   * @return the key, never null.
-   */
+  /** @return the key, never null. */
   public String getKey() {
     return this.key;
   }
 
-  /**
-   * @return the value
-   */
+  /** @return the value */
   public T getValue() {
     return this.value;
   }
 
-  /**
-   * @param value the value to set
-   */
-  public void setValue( final T value ) {
+  /** @param value the value to set */
+  public void setValue(final T value) {
     this.value = value;
   }
 
@@ -117,14 +104,12 @@ public class KeyValue<T> implements Serializable {
    * @param newValue value to set.
    * @return this.
    */
-  public KeyValue<T> value( final T newValue ) {
+  public KeyValue<T> value(final T newValue) {
     this.value = newValue;
     return this;
   }
 
-  /**
-   * @return value.
-   */
+  /** @return value. */
   public T value() {
     return this.value;
   }
@@ -133,16 +118,16 @@ public class KeyValue<T> implements Serializable {
    * @param trueValues string true values, case is ignored.
    * @return boolean value, null if value is null.
    */
-  public Boolean booleanValue( final String... trueValues ) {
-    return this.booleanValue( Arrays.asList( trueValues ) );
+  public Boolean booleanValue(final String... trueValues) {
+    return this.booleanValue(Arrays.asList(trueValues));
   }
 
   /**
    * @param trueValues string true values, case is ignored.
    * @return boolean value, null if value is null.
    */
-  public Boolean booleanValue( final List<String> trueValues ) {
-    return this.booleanValue( trueValues, true );
+  public Boolean booleanValue(final List<String> trueValues) {
+    return this.booleanValue(trueValues, true);
   }
 
   /**
@@ -150,18 +135,18 @@ public class KeyValue<T> implements Serializable {
    * @param ignoreCase ignore case?
    * @return boolean value, null if value is null.
    */
-  public Boolean booleanValue( final List<String> trueValues, final boolean ignoreCase ) {
-    if ( this.value == null ) {
+  public Boolean booleanValue(final List<String> trueValues, final boolean ignoreCase) {
+    if (this.value == null) {
       return null;
     }
-    if ( this.value instanceof Boolean ) {
+    if (this.value instanceof Boolean) {
       return (Boolean) this.value;
     }
     final String stringValue = this.stringValue();
-    if ( ignoreCase ) {
-      return trueValues.contains( StringUtils.lowerCase( stringValue ) );
+    if (ignoreCase) {
+      return trueValues.contains(StringUtils.lowerCase(stringValue));
     }
-    return trueValues.contains( stringValue );
+    return trueValues.contains(stringValue);
   }
 
   /**
@@ -170,41 +155,39 @@ public class KeyValue<T> implements Serializable {
    * @return boolean value or null if value is null.
    */
   public Boolean booleanValue() {
-    return this.booleanValue( DEFAULT_TRUE_VALUES, true );
+    return this.booleanValue(DEFAULT_TRUE_VALUES, true);
   }
 
   /**
    * @param defaultValue the default value
    * @return boolean value or default value if value is null.
    */
-  public Boolean booleanValue( final Boolean defaultValue ) {
+  public Boolean booleanValue(final Boolean defaultValue) {
     final Boolean returnValue = this.booleanValue();
-    if ( returnValue == null ) {
+    if (returnValue == null) {
       return defaultValue;
     }
     return returnValue;
   }
 
-  /**
-   * @return string value or null if value is null.
-   */
+  /** @return string value or null if value is null. */
   public String stringValue() {
-    if ( this.value == null ) {
+    if (this.value == null) {
       return null;
     }
-    if ( this.value instanceof String ) {
+    if (this.value instanceof String) {
       return (String) this.value;
     }
-    return String.valueOf( this.value );
+    return String.valueOf(this.value);
   }
 
   /**
    * @param defaultValue the default value.
    * @return string value or default value if value is null.
    */
-  public String stringValue( final String defaultValue ) {
+  public String stringValue(final String defaultValue) {
     final String returnValue = this.stringValue();
-    if ( returnValue == null ) {
+    if (returnValue == null) {
       return defaultValue;
     }
     return returnValue;
@@ -214,9 +197,9 @@ public class KeyValue<T> implements Serializable {
    * @param defaultValue the default value.
    * @return string value or default value if value is blank.
    */
-  public String stringValueDefaultIfBlank( final String defaultValue ) {
+  public String stringValueDefaultIfBlank(final String defaultValue) {
     final String returnValue = this.stringValue();
-    if ( StringUtils.isBlank( returnValue ) ) {
+    if (StringUtils.isBlank(returnValue)) {
       return defaultValue;
     }
     return returnValue;
@@ -227,26 +210,26 @@ public class KeyValue<T> implements Serializable {
    * @throws NumberFormatException if string value of value cannot be converted to Integer
    */
   public Integer integerValue() throws NumberFormatException {
-    if ( this.value == null ) {
+    if (this.value == null) {
       return null;
     }
-    if ( this.value instanceof Integer ) {
+    if (this.value instanceof Integer) {
       return (Integer) this.value;
     }
-    return Integer.valueOf( String.valueOf( this.value ) );
+    return Integer.valueOf(String.valueOf(this.value));
   }
 
   /**
    * @param defaultValue the default value.
    * @return integer value or default value if value is null or cannot be converted to integer.
    */
-  public Integer integerValue( final Integer defaultValue ) {
-    if ( this.value == null ) {
+  public Integer integerValue(final Integer defaultValue) {
+    if (this.value == null) {
       return defaultValue;
     }
     try {
       return this.integerValue();
-    } catch ( NumberFormatException e ) {
+    } catch (NumberFormatException e) {
       return defaultValue;
     }
   }
@@ -256,26 +239,26 @@ public class KeyValue<T> implements Serializable {
    * @throws NumberFormatException if string value of value cannot be converted to Long
    */
   public Long longValue() throws NumberFormatException {
-    if ( this.value == null ) {
+    if (this.value == null) {
       return null;
     }
-    if ( this.value instanceof Long ) {
+    if (this.value instanceof Long) {
       return (Long) this.value;
     }
-    return Long.valueOf( String.valueOf( this.value ) );
+    return Long.valueOf(String.valueOf(this.value));
   }
 
   /**
    * @param defaultValue the default value.
    * @return long value or default value if value is null or cannot be converted to long.
    */
-  public Long longValue( final Long defaultValue ) {
-    if ( this.value == null ) {
+  public Long longValue(final Long defaultValue) {
+    if (this.value == null) {
       return defaultValue;
     }
     try {
       return this.longValue();
-    } catch ( NumberFormatException e ) {
+    } catch (NumberFormatException e) {
       return defaultValue;
     }
   }
@@ -285,26 +268,26 @@ public class KeyValue<T> implements Serializable {
    * @throws NumberFormatException if string value of value cannot be converted to Double
    */
   public Double doubleValue() throws NumberFormatException {
-    if ( this.value == null ) {
+    if (this.value == null) {
       return null;
     }
-    if ( this.value instanceof Double ) {
+    if (this.value instanceof Double) {
       return (Double) this.value;
     }
-    return Double.valueOf( String.valueOf( this.value ) );
+    return Double.valueOf(String.valueOf(this.value));
   }
 
   /**
    * @param defaultValue the default value.
    * @return double value or default value if value is null or cannot be converted to double.
    */
-  public Double doubleValue( final Double defaultValue ) {
-    if ( this.value == null ) {
+  public Double doubleValue(final Double defaultValue) {
+    if (this.value == null) {
       return defaultValue;
     }
     try {
       return this.doubleValue();
-    } catch ( NumberFormatException e ) {
+    } catch (NumberFormatException e) {
       return defaultValue;
     }
   }
@@ -314,26 +297,26 @@ public class KeyValue<T> implements Serializable {
    * @throws NumberFormatException if string value of value cannot be converted to Float
    */
   public Float floatValue() throws NumberFormatException {
-    if ( this.value == null ) {
+    if (this.value == null) {
       return null;
     }
-    if ( this.value instanceof Float ) {
+    if (this.value instanceof Float) {
       return (Float) this.value;
     }
-    return Float.valueOf( String.valueOf( this.value ) );
+    return Float.valueOf(String.valueOf(this.value));
   }
 
   /**
    * @param defaultValue the default value.
    * @return float value or default value if value is null or cannot be converted to float.
    */
-  public Float floatValue( final Float defaultValue ) {
-    if ( this.value == null ) {
+  public Float floatValue(final Float defaultValue) {
+    if (this.value == null) {
       return defaultValue;
     }
     try {
       return this.floatValue();
-    } catch ( NumberFormatException e ) {
+    } catch (NumberFormatException e) {
       return defaultValue;
     }
   }
@@ -346,17 +329,16 @@ public class KeyValue<T> implements Serializable {
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
-    builder.append( KeyValue.class.getSimpleName() );
-    builder.append( '(' );
-    builder.append( this.key );
-    if ( this.value == null ) {
-      builder.append( "<null>)" );
+    builder.append(KeyValue.class.getSimpleName());
+    builder.append('(');
+    builder.append(this.key);
+    if (this.value == null) {
+      builder.append("<null>)");
     } else {
-      builder.append( "=[" );
-      builder.append( this.value );
-      builder.append( "])" );
+      builder.append("=[");
+      builder.append(this.value);
+      builder.append("])");
     }
     return builder.toString();
   }
-
 }

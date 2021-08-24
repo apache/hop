@@ -28,26 +28,31 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputTransform;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 
 /**
- * Read all sorts of text files, convert them to rows and writes these to one or more output streams.
+ * Read all sorts of text files, convert them to rows and writes these to one or more output
+ * streams.
  *
  * @author Matt
  * @since 4-apr-2003
  */
-public class TextFileInput
-  extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData>
-  implements ITransform<TextFileInputMeta, TextFileInputData> {
+public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData>
+    implements ITransform<TextFileInputMeta, TextFileInputData> {
 
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
-  public TextFileInput( TransformMeta transformMeta, TextFileInputMeta meta, TextFileInputData data, int copyNr, PipelineMeta pipelineMeta,
-                        Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public TextFileInput(
+      TransformMeta transformMeta,
+      TextFileInputMeta meta,
+      TextFileInputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
-  protected IBaseFileInputReader createReader( TextFileInputMeta meta, TextFileInputData data, FileObject file )
-    throws Exception {
-    return new TextFileInputReader( this, meta, data, file, log );
+  protected IBaseFileInputReader createReader(
+      TextFileInputMeta meta, TextFileInputData data, FileObject file) throws Exception {
+    return new TextFileInputReader(this, meta, data, file, log);
   }
 
   @Override
@@ -57,7 +62,7 @@ public class TextFileInput
     }
     data.filePlayList = FilePlayListAll.INSTANCE;
 
-    data.filterProcessor = new TextFileFilterProcessor( meta.getFilter(), this );
+    data.filterProcessor = new TextFileFilterProcessor(meta.getFilter(), this);
 
     // calculate the file format type in advance so we can use a switch
     data.fileFormatType = meta.getFileFormatTypeNr();
@@ -66,13 +71,13 @@ public class TextFileInput
     data.fileType = meta.getFileTypeNr();
 
     // Handle the possibility of a variable substitution
-    data.separator = resolve( meta.content.separator );
-    data.enclosure = resolve( meta.content.enclosure );
-    data.escapeCharacter = resolve( meta.content.escapeCharacter );
+    data.separator = resolve(meta.content.separator);
+    data.enclosure = resolve(meta.content.enclosure);
+    data.escapeCharacter = resolve(meta.content.escapeCharacter);
     // CSV without separator defined
-    if ( meta.content.fileType.equalsIgnoreCase( "CSV" ) && ( meta.content.separator == null || meta.content.separator
-      .isEmpty() ) ) {
-      logError( BaseMessages.getString( PKG, "TextFileInput.Exception.NoSeparator" ) );
+    if (meta.content.fileType.equalsIgnoreCase("CSV")
+        && (meta.content.separator == null || meta.content.separator.isEmpty())) {
+      logError(BaseMessages.getString(PKG, "TextFileInput.Exception.NoSeparator"));
       return false;
     }
 

@@ -33,15 +33,20 @@ public class StringSearchResultTest {
   @Test
   public void testgetResultRowMeta() {
     IRowMeta rm = StringSearchResult.getResultRowMeta();
-    assertNotNull( rm );
-    assertEquals( 4, rm.getValueMetaList().size() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
-    assertEquals( BaseMessages.getString( PKG, "SearchResult.PipelineOrWorkflow" ), rm.getValueMeta( 0 ).getName() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
-    assertEquals( BaseMessages.getString( PKG, "SearchResult.TransformDatabaseNotice" ), rm.getValueMeta( 1 ).getName() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 2 ).getType() );
-    assertEquals( BaseMessages.getString( PKG, "SearchResult.String" ), rm.getValueMeta( 2 ).getName() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 3 ).getType() );
-    assertEquals( BaseMessages.getString( PKG, "SearchResult.FieldName" ), rm.getValueMeta( 3 ).getName() );
+    assertNotNull(rm);
+    assertEquals(4, rm.getValueMetaList().size());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(0).getType());
+    assertEquals(
+        BaseMessages.getString(PKG, "SearchResult.PipelineOrWorkflow"),
+        rm.getValueMeta(0).getName());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(1).getType());
+    assertEquals(
+        BaseMessages.getString(PKG, "SearchResult.TransformDatabaseNotice"),
+        rm.getValueMeta(1).getName());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(2).getType());
+    assertEquals(BaseMessages.getString(PKG, "SearchResult.String"), rm.getValueMeta(2).getName());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(3).getType());
+    assertEquals(
+        BaseMessages.getString(PKG, "SearchResult.FieldName"), rm.getValueMeta(3).getName());
   }
 }

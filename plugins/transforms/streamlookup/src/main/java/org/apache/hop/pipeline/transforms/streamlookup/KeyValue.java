@@ -21,7 +21,7 @@ public class KeyValue {
   private Object[] key;
   private Object[] value;
 
-  public KeyValue( Object[] key, Object[] value ) {
+  public KeyValue(Object[] key, Object[] value) {
     this.key = key;
     this.value = value;
   }

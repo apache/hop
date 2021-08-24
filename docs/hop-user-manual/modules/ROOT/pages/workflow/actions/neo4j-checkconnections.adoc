@@ -21,7 +21,8 @@ under the License.
 
 == Description
 
-This action allows you to line up a list of Neo4j connections that you want to check for availability.  A small static value will be retrieved from the server to see if it's properly up-and-running.
+This action allows you to line up a list of Neo4j connections that you want to check for availability.
+A small static value will be retrieved from the server to see if it's properly up-and-running.
 
 == Configuration
 

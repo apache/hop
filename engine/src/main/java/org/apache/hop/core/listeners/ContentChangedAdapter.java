@@ -23,10 +23,8 @@ package org.apache.hop.core.listeners;
  */
 public class ContentChangedAdapter implements IContentChangedListener {
   @Override
-  public void contentChanged( Object parentObject ) {
-  }
+  public void contentChanged(Object parentObject) {}
 
   @Override
-  public void contentSafe( Object parentObject ) {
-  }
+  public void contentSafe(Object parentObject) {}
 }

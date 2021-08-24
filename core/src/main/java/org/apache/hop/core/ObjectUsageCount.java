@@ -19,7 +19,8 @@ package org.apache.hop.core;
 
 import java.util.Comparator;
 
-public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparable<ObjectUsageCount> {
+public class ObjectUsageCount
+    implements Comparator<ObjectUsageCount>, Comparable<ObjectUsageCount> {
   private String objectName;
 
   private int nrUses;
@@ -28,7 +29,7 @@ public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparabl
    * @param objectName
    * @param nrUses
    */
-  public ObjectUsageCount( String objectName, int nrUses ) {
+  public ObjectUsageCount(String objectName, int nrUses) {
     this.objectName = objectName;
     this.nrUses = nrUses;
   }
@@ -38,22 +39,22 @@ public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparabl
     return objectName + ";" + nrUses;
   }
 
-  public static ObjectUsageCount fromString( String string ) {
-    String[] splits = string.split( ";" );
-    if ( splits.length >= 2 ) {
-      return new ObjectUsageCount( splits[ 0 ], Const.toInt( splits[ 1 ], 1 ) );
+  public static ObjectUsageCount fromString(String string) {
+    String[] splits = string.split(";");
+    if (splits.length >= 2) {
+      return new ObjectUsageCount(splits[0], Const.toInt(splits[1], 1));
     }
-    return new ObjectUsageCount( string, 1 );
+    return new ObjectUsageCount(string, 1);
   }
 
   @Override
-  public int compare( ObjectUsageCount count1, ObjectUsageCount count2 ) {
-    return count1.compareTo( count2 );
+  public int compare(ObjectUsageCount count1, ObjectUsageCount count2) {
+    return count1.compareTo(count2);
   }
 
   @Override
-  public int compareTo( ObjectUsageCount count ) {
-    return Integer.valueOf( count.getNrUses() ).compareTo( Integer.valueOf( getNrUses() ) );
+  public int compareTo(ObjectUsageCount count) {
+    return Integer.valueOf(count.getNrUses()).compareTo(Integer.valueOf(getNrUses()));
   }
 
   public void reset() {
@@ -70,32 +71,23 @@ public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparabl
     return nrUses;
   }
 
-  /**
-   * @return the nrUses
-   */
+  /** @return the nrUses */
   public int getNrUses() {
     return nrUses;
   }
 
-  /**
-   * @param nrUses the nrUses to set
-   */
-  public void setNrUses( int nrUses ) {
+  /** @param nrUses the nrUses to set */
+  public void setNrUses(int nrUses) {
     this.nrUses = nrUses;
   }
 
-  /**
-   * @return the objectName
-   */
+  /** @return the objectName */
   public String getObjectName() {
     return objectName;
   }
 
-  /**
-   * @param objectName the objectName to set
-   */
-  public void setObjectName( String objectName ) {
+  /** @param objectName the objectName to set */
+  public void setObjectName(String objectName) {
     this.objectName = objectName;
   }
-
 }

@@ -18,22 +18,13 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
-import junit.framework.TestCase;
-import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
-import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MultiMetadataProviderTest extends MetadataTestBase {
@@ -46,14 +37,14 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
 
   public void testGetMetadataClasses() {
     List<Class<IHopMetadata>> list = multiMetadataProvider.getMetadataClasses();
-    assertEquals( 2, list.size() );
-    assertTrue( list.contains( MetadataType1.class ));
-    assertTrue( list.contains( MetadataType2.class ));
+    assertEquals(2, list.size());
+    assertTrue(list.contains(MetadataType1.class));
+    assertTrue(list.contains(MetadataType2.class));
   }
 
   public void testGetMetadataClassForKey() throws HopException {
-    assertEquals( MetadataType1.class, multiMetadataProvider.getMetadataClassForKey( "type-1" ) );
-    assertEquals( MetadataType2.class, multiMetadataProvider.getMetadataClassForKey( "type-2" ) );
+    assertEquals(MetadataType1.class, multiMetadataProvider.getMetadataClassForKey("type-1"));
+    assertEquals(MetadataType2.class, multiMetadataProvider.getMetadataClassForKey("type-2"));
   }
 
   public void testFindProvider() {
@@ -75,13 +66,17 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
 
   public void testSetProviders() {
     List<IHopMetadataProvider> list = multiMetadataProvider.getProviders();
-    MemoryMetadataProvider provider4 = new MemoryMetadataProvider( new HopTwoWayPasswordEncoder(), Variables.getADefaultVariableSpace() );
+    MemoryMetadataProvider provider4 =
+        new MemoryMetadataProvider(
+            new HopTwoWayPasswordEncoder(), Variables.getADefaultVariableSpace());
     provider4.setDescription("Provider4");
     list.add(provider4);
-    multiMetadataProvider.setProviders( list );
-    assertEquals( 4, multiMetadataProvider.getProviders().size() );
+    multiMetadataProvider.setProviders(list);
+    assertEquals(4, multiMetadataProvider.getProviders().size());
     // see if the description has changed...
     //
-    assertEquals("Multi Metadata Provider: Provider1, Provider2, Provider3, Provider4", multiMetadataProvider.getDescription());
+    assertEquals(
+        "Multi Metadata Provider: Provider1, Provider2, Provider3, Provider4",
+        multiMetadataProvider.getDescription());
   }
 }

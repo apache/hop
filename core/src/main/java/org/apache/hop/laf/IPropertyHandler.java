@@ -24,7 +24,7 @@ public interface IPropertyHandler extends IHandler {
    * @param filename
    * @return true if load was successful
    */
-  boolean loadProps( String filename );
+  boolean loadProps(String filename);
 
   /**
    * check to see whether a property file exists within the classpath or filesystem
@@ -32,7 +32,7 @@ public interface IPropertyHandler extends IHandler {
    * @param filename
    * @return true if resource exists
    */
-  boolean exists( String filename );
+  boolean exists(String filename);
 
   /**
    * return the value of a given key from the properties list
@@ -40,15 +40,16 @@ public interface IPropertyHandler extends IHandler {
    * @param key
    * @return null if the key is not found
    */
-  String getProperty( String key );
+  String getProperty(String key);
 
   /**
-   * return the value of a given key from the properties list, returning the defValue string should the key not be found
+   * return the value of a given key from the properties list, returning the defValue string should
+   * the key not be found
    *
    * @param key
    * @param defValue
-   * @return a string representing either the value associated with the passed key or defValue should that key not be
-   * found
+   * @return a string representing either the value associated with the passed key or defValue
+   *     should that key not be found
    */
-  String getProperty( String key, String defValue );
+  String getProperty(String key, String defValue);
 }

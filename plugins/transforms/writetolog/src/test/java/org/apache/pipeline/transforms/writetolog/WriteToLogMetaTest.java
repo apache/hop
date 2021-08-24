@@ -16,7 +16,6 @@
  */
 package org.apache.pipeline.transforms.writetolog;
 
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -31,12 +30,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,49 +40,59 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "displayHeader", "limitRows", "limitRowsNumber", "logmessage", "loglevel", "fieldName" );
+        Arrays.asList(
+            "displayHeader", "limitRows", "limitRowsNumber", "logmessage", "loglevel", "fieldName");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "displayHeader", "isdisplayHeader" );
-        put( "limitRows", "isLimitRows" );
-        put( "limitRowsNumber", "getLimitRowsNumber" );
-        put( "logmessage", "getLogMessage" );
-        put( "loglevel", "getLogLevelString" );
-        put( "fieldName", "getFieldName" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "displayHeader", "setdisplayHeader" );
-        put( "limitRows", "setLimitRows" );
-        put( "limitRowsNumber", "setLimitRowsNumber" );
-        put( "logmessage", "setLogMessage" );
-        put( "loglevel", "setLogLevelString" );
-        put( "fieldName", "setFieldName" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("displayHeader", "isdisplayHeader");
+            put("limitRows", "isLimitRows");
+            put("limitRowsNumber", "getLimitRowsNumber");
+            put("logmessage", "getLogMessage");
+            put("loglevel", "getLogLevelString");
+            put("fieldName", "getFieldName");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("displayHeader", "setdisplayHeader");
+            put("limitRows", "setLimitRows");
+            put("limitRowsNumber", "setLimitRowsNumber");
+            put("logmessage", "setLogMessage");
+            put("loglevel", "setLogLevelString");
+            put("fieldName", "setFieldName");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "loglevel", new LogLevelLoadSaveValidator() );
+    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("loglevel", new LogLevelLoadSaveValidator());
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( WriteToLogMeta someMeta ) {
-    if ( someMeta instanceof WriteToLogMeta ) {
-      ( (WriteToLogMeta) someMeta ).allocate( 5 );
+  public void modify(WriteToLogMeta someMeta) {
+    if (someMeta instanceof WriteToLogMeta) {
+      ((WriteToLogMeta) someMeta).allocate(5);
     }
   }
 
@@ -102,17 +106,17 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
 
     @Override
     public String getTestObject() {
-      int idx = rand.nextInt( ( WriteToLogMeta.logLevelCodes.length ) );
-      return WriteToLogMeta.logLevelCodes[ idx ];
+      int idx = rand.nextInt((WriteToLogMeta.logLevelCodes.length));
+      return WriteToLogMeta.logLevelCodes[idx];
     }
 
     @Override
-    public boolean validateTestObject( String testObject, Object actual ) {
-      if ( !( actual instanceof String ) ) {
+    public boolean validateTestObject(String testObject, Object actual) {
+      if (!(actual instanceof String)) {
         return false;
       }
       String actualInput = (String) actual;
-      return ( testObject.equals( actualInput ) );
+      return (testObject.equals(actualInput));
     }
   }
 }

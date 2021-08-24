@@ -31,12 +31,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.search.ISearchResult;
-import org.apache.hop.core.search.ISearchable;
-import org.apache.hop.core.search.ISearchableAnalyser;
-import org.apache.hop.core.search.ISearchablesLocation;
-import org.apache.hop.core.search.SearchQuery;
-import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.search.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -48,11 +43,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class HopSearch implements Runnable, IHasHopMetadataProvider {
 
@@ -174,7 +165,8 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
               // Print the results...
               //
               for (ISearchResult searchResult : searchResults) {
-                String filename = variables.resolve(searchResult.getMatchingSearchable().getFilename());
+                String filename =
+                    variables.resolve(searchResult.getMatchingSearchable().getFilename());
                 if (StringUtils.isNotEmpty(filename)) {
                   System.out.print(filename + " : ");
                 }

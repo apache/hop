@@ -59,15 +59,15 @@ The amount of text logging generated depends on the logging level which is used 
 The logging level can be specified when executing using hop-run or in the Hop GUI.
 It is also possible to use the debug plugin to set custom logging levels on a transform:
 
-image::logging/custom-logging-actions.png[Transform action - show logging options, 35% , align="left"]
+image::logging/custom-logging-actions.png[Transform action - show logging options,35%,align="left"]
 
 You can set a custom logging level for this particular transform and only for certain rows of data:
 
-image::logging/custom-transform-logging-level.png[Setting a custom transform logging level, 60%, align="left"]
+image::logging/custom-transform-logging-level.png[Setting a custom transform logging level,60%,align="left"]
 
 You can do likewise for a workflow:
 
-image::logging/custom-action-logging-level.png[Setting a custom action logging level, 35%, align="left"]
+image::logging/custom-action-logging-level.png[Setting a custom action logging level,35%,align="left"]
 
 == Hop GUI logging
 
@@ -85,7 +85,7 @@ If you want to send logging of tools like hop-run or hop-conf to a logging file 
 
 The Write to log acction writes a specific string to the Hop logging system.
 
-Check the xref:../workflow/actions/writetolog.adoc[Write To Log] page for more details. 
+Check the xref:../workflow/actions/writetolog.adoc[Write To Log] page for more details.
 
 === Metadata Types
 
@@ -93,19 +93,19 @@ Check the xref:../workflow/actions/writetolog.adoc[Write To Log] page for more d
 
 A pipeline log allows to log the activity of a pipeline with another pipeline.
 
-Check the xref:../metadata-types/pipeline-log.adoc[pipeline log] and xref:../logging/logging-reflection.adoc[logging reflection] pages for more details. 
+Check the xref:../metadata-types/pipeline-log.adoc[pipeline log] and xref:../logging/logging-reflection.adoc[logging reflection] pages for more details.
 
 ==== Workflow Log
 
 Allows to log the activity of a workflow with a pipeline.
 
-Check the xref:../metadata-types/workflow-log.adoc[workflow log] and xref:../logging/logging-reflection.adoc[logging reflection] pages for more details. 
+Check the xref:../metadata-types/workflow-log.adoc[workflow log] and xref:../logging/logging-reflection.adoc[logging reflection] pages for more details.
 
 === Perspectives 
 
 ==== Neo4j 
 
-Hop can write execution logs for workflows and pipelines to a Neo4j database. 
+Hop can write execution logs for workflows and pipelines to a Neo4j database.
 
 Check xref:../hop-gui/perspective-neo4j.adoc[Neo4j Perspective] page for more details.
 
@@ -115,7 +115,7 @@ Check xref:../hop-gui/perspective-neo4j.adoc[Neo4j Perspective] page for more de
 
 This transform writes information to the Hop logging system.
 
-Check the xref:../pipeline/transforms/writetolog.adoc[Write To Log] page for more details. 
+Check the xref:../pipeline/transforms/writetolog.adoc[Write To Log] page for more details.
 
 === External plugins 
 

@@ -17,10 +17,10 @@
 
 package org.apache.hop.workflow.actions.waitforsql;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionWaitForSqlLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionWaitForSql> {
+public class WorkflowActionWaitForSqlLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionWaitForSql> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -38,16 +39,30 @@ public class WorkflowActionWaitForSqlLoadSaveTest extends WorkflowActionLoadSave
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "database", "schemaName", "tableName", "successCondition",
-      "rowsCountValue", "isCustomSql", "isUseVars", "customSql", "isAddRowsResult", "maximumTimeout",
-      "checkCycleTime", "successOnTimeout", "isClearResultList" } );
+    return Arrays.asList(
+        new String[] {
+          "database",
+          "schemaName",
+          "tableName",
+          "successCondition",
+          "rowsCountValue",
+          "isCustomSql",
+          "isUseVars",
+          "customSql",
+          "isAddRowsResult",
+          "maximumTimeout",
+          "checkCycleTime",
+          "successOnTimeout",
+          "isClearResultList"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put( "successCondition", new IntLoadSaveValidator( ActionWaitForSql.successConditionsCode.length ) );
+    validators.put(
+        "successCondition",
+        new IntLoadSaveValidator(ActionWaitForSql.successConditionsCode.length));
     return validators;
   }
-
 }

@@ -18,16 +18,11 @@
 package org.apache.hop.core.compress.snappy;
 
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,42 +40,40 @@ public class SnappyCompressionOutputStreamTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    PluginRegistry.addPluginType( CompressionPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(CompressionPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream in = new ByteArrayOutputStream();
-    outStream = new SnappyCompressionOutputStream( in, provider );
+    outStream = new SnappyCompressionOutputStream(in, provider);
   }
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testCtor() {
-    assertNotNull( outStream );
+    assertNotNull(outStream);
   }
 
   @Test
   public void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
-    assertEquals( provider.getName(), PROVIDER_NAME );
+    assertEquals(provider.getName(), PROVIDER_NAME);
   }
 
   @Test
   public void testClose() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new SnappyCompressionOutputStream( out, provider );
+    outStream = new SnappyCompressionOutputStream(out, provider);
     outStream.close();
   }
 
@@ -88,15 +81,15 @@ public class SnappyCompressionOutputStreamTest {
   public void testWrite() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new SnappyCompressionOutputStream( out, provider );
-    outStream.write( "Test".getBytes() );
+    outStream = new SnappyCompressionOutputStream(out, provider);
+    outStream.write("Test".getBytes());
   }
 
   @Test
   public void testAddEntry() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new SnappyCompressionOutputStream( out, provider );
-    outStream.addEntry( null, null );
+    outStream = new SnappyCompressionOutputStream(out, provider);
+    outStream.addEntry(null, null);
   }
 }

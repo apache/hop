@@ -31,5 +31,4 @@ public class NoAuthenticationAuthenticationProvider implements IAuthenticationPr
   public String getId() {
     return NO_AUTH_ID;
   }
-
 }

@@ -25,7 +25,7 @@ The Row Flattener transform allows you flatten data sequentially.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |transform name|Name of the transform; this name has to be unique in a single pipeline
@@ -36,7 +36,8 @@ The Row Flattener transform allows you flatten data sequentially.
 == Example
 
 In the sample below, if you begin with the following data set...
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |===
 |Field1|Field2|Field3|Flatten
 |A|B|C|One
@@ -46,7 +47,8 @@ In the sample below, if you begin with the following data set...
 |===
 
 The data set can be flattened to the example shown below:
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |===
 |Field1|Field2|Field3|Target1|Target2
 |A|B|C|One|Two

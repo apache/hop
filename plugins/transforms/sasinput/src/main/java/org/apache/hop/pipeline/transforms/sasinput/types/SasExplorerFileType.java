@@ -18,16 +18,8 @@
 
 package org.apache.hop.pipeline.transforms.sasinput.types;
 
-import com.epam.parso.Column;
-import com.epam.parso.ColumnFormat;
-import com.epam.parso.impl.SasFileReaderImpl;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.pipeline.transforms.sasinput.SasUtil;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -36,14 +28,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 
-import java.io.InputStream;
-import java.util.List;
 import java.util.Properties;
 
 @HopFileTypePlugin(
@@ -55,7 +40,12 @@ public class SasExplorerFileType extends BaseExplorerFileType<SasExplorerFileTyp
     implements IExplorerFileType<SasExplorerFileTypeHandler> {
 
   public SasExplorerFileType() {
-    super(  "SAS file", ".sas7bdat", new String[] {"*.sas7bdat"}, new String[] {"SAS 7 BDAT files"}, new Properties() );
+    super(
+        "SAS file",
+        ".sas7bdat",
+        new String[] {"*.sas7bdat"},
+        new String[] {"SAS 7 BDAT files"},
+        new Properties());
   }
 
   @Override
@@ -64,7 +54,9 @@ public class SasExplorerFileType extends BaseExplorerFileType<SasExplorerFileTyp
     return new EmptyHopFileTypeHandler();
   }
 
-  @Override public SasExplorerFileTypeHandler createFileTypeHandler( HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file ) {
+  @Override
+  public SasExplorerFileTypeHandler createFileTypeHandler(
+      HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
     return new SasExplorerFileTypeHandler(hopGui, perspective, file);
   }
 }

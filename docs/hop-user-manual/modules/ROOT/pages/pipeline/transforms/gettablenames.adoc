@@ -26,7 +26,7 @@ This transform gets the table names from a database connection.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
@@ -48,4 +48,5 @@ This transform gets the table names from a database connection.
 
 == Metadata injection
 
-All fields of this transform support metadata injection. You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

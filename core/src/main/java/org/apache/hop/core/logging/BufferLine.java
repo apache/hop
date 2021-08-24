@@ -20,12 +20,12 @@ package org.apache.hop.core.logging;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BufferLine {
-  private static AtomicInteger sequence = new AtomicInteger( 0 );
+  private static AtomicInteger sequence = new AtomicInteger(0);
 
   private int nr;
   private HopLoggingEvent event;
 
-  public BufferLine( HopLoggingEvent event ) {
+  public BufferLine(HopLoggingEvent event) {
     this.event = event;
     this.nr = sequence.incrementAndGet();
   }

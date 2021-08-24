@@ -18,20 +18,12 @@
 package org.apache.hop.workflow.actions.mail;
 
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionMail> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -43,24 +35,55 @@ public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSu
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "server", "port", "destination", "destinationCc", "destinationBCc",
-      "replyAddress", "replyName", "subject", "includeDate", "contactPerson", "contactPhone", "comment",
-      "includingFiles", "zipFiles", "zipFilename", "usingAuthentication", "usingSecureAuthentication",
-      "authenticationUser", "authenticationPassword", "onlySendComment", "useHTML", "usePriority",
-      "encoding", "priority", "importance", "sensitivity", "secureConnectionType", "replyToAddresses",
-      "fileType", "embeddedimages", "contentids" } );
+    return Arrays.asList(
+        new String[] {
+          "server",
+          "port",
+          "destination",
+          "destinationCc",
+          "destinationBCc",
+          "replyAddress",
+          "replyName",
+          "subject",
+          "includeDate",
+          "contactPerson",
+          "contactPhone",
+          "comment",
+          "includingFiles",
+          "zipFiles",
+          "zipFilename",
+          "usingAuthentication",
+          "usingSecureAuthentication",
+          "authenticationUser",
+          "authenticationPassword",
+          "onlySendComment",
+          "useHTML",
+          "usePriority",
+          "encoding",
+          "priority",
+          "importance",
+          "sensitivity",
+          "secureConnectionType",
+          "replyToAddresses",
+          "fileType",
+          "embeddedimages",
+          "contentids"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    validators.put( "fileType", new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator( ResultFile.fileTypeCode.length ) ) );
+    validators.put(
+        "fileType",
+        new PrimitiveIntArrayLoadSaveValidator(
+            new IntLoadSaveValidator(ResultFile.fileTypeCode.length)));
 
-    int entries = new Random().nextInt( 20 ) + 1;
-    validators.put( "embeddedimages", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
-    validators.put( "contentids", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
+    int entries = new Random().nextInt(20) + 1;
+    validators.put(
+        "embeddedimages", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
+    validators.put(
+        "contentids", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), entries));
     return validators;
   }
-
 }

@@ -45,15 +45,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.testing.DataSet;
-import org.apache.hop.testing.DataSetField;
-import org.apache.hop.testing.PipelineTweak;
-import org.apache.hop.testing.PipelineUnitTest;
-import org.apache.hop.testing.PipelineUnitTestFieldMapping;
-import org.apache.hop.testing.PipelineUnitTestSetLocation;
-import org.apache.hop.testing.PipelineUnitTestTweak;
+import org.apache.hop.testing.*;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
@@ -75,7 +68,6 @@ import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

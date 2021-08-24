@@ -44,31 +44,34 @@ public class NullIfMetaTest {
   @Before
   public void setUp() throws Exception {
 
-    List<String> attributes = Arrays.asList( "fields" );
+    List<String> attributes = Arrays.asList("fields");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "fields", "getFields" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "fields", "setFields" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("fields", "getFields");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("fields", "setFields");
+          }
+        };
     Field field = new Field();
-    field.setFieldName( "fieldName" );
-    field.setFieldValue( "fieldValue" );
+    field.setFieldName("fieldName");
+    field.setFieldValue("fieldValue");
     IFieldLoadSaveValidator<Field[]> fieldArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new NullIfFieldLoadSaveValidator( field ), 5 );
+        new ArrayLoadSaveValidator<>(new NullIfFieldLoadSaveValidator(field), 5);
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
-    typeValidatorMap.put( Field[].class.getCanonicalName(), fieldArrayLoadSaveValidator );
+    typeValidatorMap.put(Field[].class.getCanonicalName(), fieldArrayLoadSaveValidator);
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fields", fieldArrayLoadSaveValidator );
+    attrValidatorMap.put("fields", fieldArrayLoadSaveValidator);
 
     loadSaveTester =
-      new LoadSaveTester( NullIfMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            NullIfMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -79,32 +82,32 @@ public class NullIfMetaTest {
   @Test
   public void setFieldValueTest() {
     Field field = new Field();
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    field.setFieldValue( "theValue" );
-    assertEquals( "theValue", field.getFieldValue() );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
+    field.setFieldValue("theValue");
+    assertEquals("theValue", field.getFieldValue());
   }
 
   @Test
   public void setFieldValueNullTest() {
     Field field = new Field();
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    field.setFieldValue( null );
-    assertEquals( null, field.getFieldValue() );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
+    field.setFieldValue(null);
+    assertEquals(null, field.getFieldValue());
   }
 
   @Test
   public void setFieldValueNullWithEmptyStringsDiffersFromNullTest() {
     Field field = new Field();
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    field.setFieldValue( null );
-    assertEquals( "", field.getFieldValue() );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
+    field.setFieldValue(null);
+    assertEquals("", field.getFieldValue());
   }
 
   public static class NullIfFieldLoadSaveValidator implements IFieldLoadSaveValidator<Field> {
 
     private final Field defaultValue;
 
-    public NullIfFieldLoadSaveValidator( Field defaultValue ) {
+    public NullIfFieldLoadSaveValidator(Field defaultValue) {
       this.defaultValue = defaultValue;
     }
 
@@ -114,9 +117,8 @@ public class NullIfMetaTest {
     }
 
     @Override
-    public boolean validateTestObject( Field testObject, Object actual ) {
-      return EqualsBuilder.reflectionEquals( testObject, actual );
+    public boolean validateTestObject(Field testObject, Object actual) {
+      return EqualsBuilder.reflectionEquals(testObject, actual);
     }
   }
-
 }

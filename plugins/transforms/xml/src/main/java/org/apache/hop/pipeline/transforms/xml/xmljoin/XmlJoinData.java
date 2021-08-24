@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
-
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -25,7 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 
 /**
  * @author Ingo Klose
@@ -50,12 +48,8 @@ public class XmlJoinData extends BaseTransformData implements ITransformData {
   public int iSourceXMLField = -1;
   public int iCompareFieldID = -1;
 
-  /**
-     *
-     */
+  /** */
   public XmlJoinData() {
     super();
-
   }
-
 }

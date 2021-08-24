@@ -32,13 +32,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -48,7 +42,7 @@ public class HopServerPipelineStatusTest {
 
   @Test
   public void testStaticFinal() {
-    assertEquals( "pipeline-status", HopServerPipelineStatus.XML_TAG );
+    assertEquals("pipeline-status", HopServerPipelineStatus.XML_TAG);
   }
 
   @Test
@@ -56,16 +50,22 @@ public class HopServerPipelineStatusTest {
     String pipelineName = "testNullDate";
     String id = UUID.randomUUID().toString();
     String status = Pipeline.STRING_FINISHED;
-    HopServerPipelineStatus ts = new HopServerPipelineStatus( pipelineName, id, status );
+    HopServerPipelineStatus ts = new HopServerPipelineStatus(pipelineName, id, status);
     String resultXML = ts.getXml();
-    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), HopServerPipelineStatus.XML_TAG );
+    Node newPipelineStatus =
+        XmlHandler.getSubNode(XmlHandler.loadXmlString(resultXML), HopServerPipelineStatus.XML_TAG);
 
-    assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      HopServerPipelineStatus.fromXml( resultXML ).getXml() );
-    assertEquals( "There should be one \"log_date\" node in the XML", 1,
-      XmlHandler.countNodes( newPipelineStatus, "log_date" ) );
-    assertTrue( "The \"log_date\" node should have a null value",
-      Utils.isEmpty( XmlHandler.getTagValue( newPipelineStatus, "log_date" ) ) );
+    assertEquals(
+        "The XML document should match after rebuilding from XML",
+        resultXML,
+        HopServerPipelineStatus.fromXml(resultXML).getXml());
+    assertEquals(
+        "There should be one \"log_date\" node in the XML",
+        1,
+        XmlHandler.countNodes(newPipelineStatus, "log_date"));
+    assertTrue(
+        "The \"log_date\" node should have a null value",
+        Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")));
   }
 
   @Test
@@ -74,28 +74,46 @@ public class HopServerPipelineStatusTest {
     String id = UUID.randomUUID().toString();
     String status = Pipeline.STRING_FINISHED;
     Date logDate = new Date();
-    HopServerPipelineStatus ts = new HopServerPipelineStatus( pipelineName, id, status );
-    ts.setLogDate( logDate );
+    HopServerPipelineStatus ts = new HopServerPipelineStatus(pipelineName, id, status);
+    ts.setLogDate(logDate);
     String resultXML = ts.getXml();
-    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), HopServerPipelineStatus.XML_TAG );
+    Node newPipelineStatus =
+        XmlHandler.getSubNode(XmlHandler.loadXmlString(resultXML), HopServerPipelineStatus.XML_TAG);
 
-    assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      HopServerPipelineStatus.fromXml( resultXML ).getXml() );
-    assertEquals( "There should be one \"log_date\" node in the XML", 1,
-      XmlHandler.countNodes( newPipelineStatus, "log_date" ) );
-    assertEquals( "The \"log_date\" node should match the original value", XmlHandler.date2string( logDate ),
-      XmlHandler.getTagValue( newPipelineStatus, "log_date" ) );
+    assertEquals(
+        "The XML document should match after rebuilding from XML",
+        resultXML,
+        HopServerPipelineStatus.fromXml(resultXML).getXml());
+    assertEquals(
+        "There should be one \"log_date\" node in the XML",
+        1,
+        XmlHandler.countNodes(newPipelineStatus, "log_date"));
+    assertEquals(
+        "The \"log_date\" node should match the original value",
+        XmlHandler.date2string(logDate),
+        XmlHandler.getTagValue(newPipelineStatus, "log_date"));
   }
 
   @Test
   public void testSerialization() throws HopException {
     // TODO Add TransformStatusList
-    List<String> attributes = Arrays.asList( "PipelineName", "Id", "StatusDescription", "ErrorDescription",
-      "LogDate", "Paused", "FirstLoggingLineNr", "LastLoggingLineNr", "LoggingString" );
+    List<String> attributes =
+        Arrays.asList(
+            "PipelineName",
+            "Id",
+            "StatusDescription",
+            "ErrorDescription",
+            "LogDate",
+            "Paused",
+            "FirstLoggingLineNr",
+            "LastLoggingLineNr",
+            "LoggingString");
     Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<>();
-    attributeMap.put( "LoggingString", new LoggingStringLoadSaveValidator() );
+    attributeMap.put("LoggingString", new LoggingStringLoadSaveValidator());
 
-    HopServerPipelineStatusLoadSaveTester tester = new HopServerPipelineStatusLoadSaveTester( HopServerPipelineStatus.class, attributes, attributeMap );
+    HopServerPipelineStatusLoadSaveTester tester =
+        new HopServerPipelineStatusLoadSaveTester(
+            HopServerPipelineStatus.class, attributes, attributeMap);
 
     tester.testSerialization();
   }
@@ -105,13 +123,13 @@ public class HopServerPipelineStatusTest {
     HopServerPipelineStatus pipelineStatus = new HopServerPipelineStatus();
     RowMetaAndData rowMetaAndData = new RowMetaAndData();
     String testData = "testData";
-    rowMetaAndData.addValue( new ValueMetaString(), testData );
+    rowMetaAndData.addValue(new ValueMetaString(), testData);
     List<RowMetaAndData> rows = new ArrayList<>();
-    rows.add( rowMetaAndData );
+    rows.add(rowMetaAndData);
     Result result = new Result();
-    result.setRows( rows );
-    pipelineStatus.setResult( result );
-    Assert.assertFalse( pipelineStatus.getXml().contains( testData ) );
-    Assert.assertTrue( pipelineStatus.getXML( true ).contains( testData ) );
+    result.setRows(rows);
+    pipelineStatus.setResult(result);
+    Assert.assertFalse(pipelineStatus.getXml().contains(testData));
+    Assert.assertTrue(pipelineStatus.getXML(true).contains(testData));
   }
 }

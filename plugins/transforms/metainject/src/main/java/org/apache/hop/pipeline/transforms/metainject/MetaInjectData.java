@@ -17,14 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Matt

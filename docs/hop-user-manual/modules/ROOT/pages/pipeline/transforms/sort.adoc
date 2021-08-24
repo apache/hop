@@ -25,7 +25,7 @@ The Sort rows transform sorts rows based on the fields you specify and on whethe
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
@@ -35,10 +35,12 @@ The Sort rows transform sorts rows based on the fields you specify and on whethe
 |Free memory threshold (in %)|If the sort algorithm finds that it has less available free memory than the indicated number, it will start to page data to disk.
 |Compress TMP Files|Compresses temporary files when they are needed to complete the sort.
 |Only pass unique rows?|Enable if you want to pass unique rows only to the output stream(s).
-|Fields table|Specify the fields and direction (ascending/descending) to sort. You can specify whether to perform a case sensitive sort (optional)
-|Get Fields|Click to retrieve a list of all fields coming in on the stream(s). 
+|Fields table|Specify the fields and direction (ascending/descending) to sort.
+You can specify whether to perform a case sensitive sort (optional)
+|Get Fields|Click to retrieve a list of all fields coming in on the stream(s).
 |===
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

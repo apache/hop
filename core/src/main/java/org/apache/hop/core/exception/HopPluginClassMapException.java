@@ -23,15 +23,15 @@ public class HopPluginClassMapException extends HopPluginException {
     super();
   }
 
-  public HopPluginClassMapException( String message, Throwable cause ) {
-    super( message, cause );
+  public HopPluginClassMapException(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  public HopPluginClassMapException( String message ) {
-    super( message );
+  public HopPluginClassMapException(String message) {
+    super(message);
   }
 
-  public HopPluginClassMapException( Throwable cause ) {
-    super( cause );
+  public HopPluginClassMapException(Throwable cause) {
+    super(cause);
   }
 }

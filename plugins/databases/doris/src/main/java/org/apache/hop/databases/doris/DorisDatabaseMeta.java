@@ -16,20 +16,10 @@
  */
 package org.apache.hop.databases.mariadb;
 
-import com.google.common.collect.Sets;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
-import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSetMetaData;
-import java.util.Set;
+import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 
 @DatabaseMetaPlugin(type = "DORIS", typeDescription = "Apache Doris")
 @GuiPlugin(id = "GUI-DorisDatabaseMeta")
-public class DorisDatabaseMeta extends MySqlDatabaseMeta {
-}
+public class DorisDatabaseMeta extends MySqlDatabaseMeta {}

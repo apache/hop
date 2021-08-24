@@ -20,29 +20,24 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
-@ValueMetaPlugin(
-  id = "8",
-  name = "Binary",
-  description = "Binary",
-  image = "images/binary.svg"
-)
+@ValueMetaPlugin(id = "8", name = "Binary", description = "Binary", image = "images/binary.svg")
 public class ValueMetaBinary extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaBinary() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaBinary( String name ) {
-    super( name, IValueMeta.TYPE_BINARY );
+  public ValueMetaBinary(String name) {
+    super(name, IValueMeta.TYPE_BINARY);
   }
 
-  public ValueMetaBinary( String name, int length, int precision ) {
-    super( name, IValueMeta.TYPE_BINARY, length, precision );
+  public ValueMetaBinary(String name, int length, int precision) {
+    super(name, IValueMeta.TYPE_BINARY, length, precision);
   }
 
   @Override
-  public Object getNativeDataType( Object object ) throws HopValueException {
-    return getBinary( object );
+  public Object getNativeDataType(Object object) throws HopValueException {
+    return getBinary(object);
   }
 
   @Override

@@ -22,15 +22,11 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
 
-/**
- * Base class for all CSV input transform tests.
- */
-@Ignore( "No tests in abstract base class" )
-public class BaseXmlInputStreamParsingTest extends
-    BaseParsingTest<XmlInputStreamMeta, XmlInputStreamData, XmlInputStream> {
-  /**
-   * Initialize transform info.
-   */
+/** Base class for all CSV input transform tests. */
+@Ignore("No tests in abstract base class")
+public class BaseXmlInputStreamParsingTest
+    extends BaseParsingTest<XmlInputStreamMeta, XmlInputStreamData, XmlInputStream> {
+  /** Initialize transform info. */
   @Before
   public void before() {
     meta = new XmlInputStreamMeta();
@@ -40,22 +36,18 @@ public class BaseXmlInputStreamParsingTest extends
     data.outputRowMeta = new RowMeta();
   }
 
-  /**
-   * Initialize for processing specified file.
-   */
-  protected void init( String file ) throws Exception {
-    meta.setFilename( getFile( file ).getURL().getFile() );
+  /** Initialize for processing specified file. */
+  protected void init(String file) throws Exception {
+    meta.setFilename(getFile(file).getURL().getFile());
 
-    transform = new XmlInputStream( transformMeta, meta, data, 1, pipelineMeta, pipeline );
-    transform.init( );
-    transform.addRowListener( rowListener );
+    transform = new XmlInputStream(transformMeta, meta, data, 1, pipelineMeta, pipeline);
+    transform.init();
+    transform.addRowListener(rowListener);
   }
 
-  /**
-   * For BaseFileInput fields.
-   */
+  /** For BaseFileInput fields. */
   @Override
-  protected void setFields( BaseFileField... fields ) throws Exception {
-    throw new RuntimeException( "Not implemented" );
+  protected void setFields(BaseFileField... fields) throws Exception {
+    throw new RuntimeException("Not implemented");
   }
 }

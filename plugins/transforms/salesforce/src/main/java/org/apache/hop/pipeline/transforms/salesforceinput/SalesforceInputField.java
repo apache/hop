@@ -40,51 +40,52 @@ public class SalesforceInputField implements Cloneable {
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
   public static final String[] trimTypeDesc = {
-    BaseMessages.getString( PKG, "SalesforceInputField.TrimType.None" ),
-    BaseMessages.getString( PKG, "SalesforceInputField.TrimType.Left" ),
-    BaseMessages.getString( PKG, "SalesforceInputField.TrimType.Right" ),
-    BaseMessages.getString( PKG, "SalesforceInputField.TrimType.Both" ) };
+    BaseMessages.getString(PKG, "SalesforceInputField.TrimType.None"),
+    BaseMessages.getString(PKG, "SalesforceInputField.TrimType.Left"),
+    BaseMessages.getString(PKG, "SalesforceInputField.TrimType.Right"),
+    BaseMessages.getString(PKG, "SalesforceInputField.TrimType.Both")
+  };
 
-  @Injection( name = "NAME", group = "FIELDS" )
+  @Injection(name = "NAME", group = "FIELDS")
   private String name;
 
-  @Injection( name = "FIELD", group = "FIELDS" )
+  @Injection(name = "FIELD", group = "FIELDS")
   private String field;
 
   private int type;
 
-  @Injection( name = "LENGTH", group = "FIELDS" )
+  @Injection(name = "LENGTH", group = "FIELDS")
   private int length;
 
-  @Injection( name = "FORMAT", group = "FIELDS" )
+  @Injection(name = "FORMAT", group = "FIELDS")
   private String format;
 
   private int trimtype;
 
-  @Injection( name = "PRECISION", group = "FIELDS" )
+  @Injection(name = "PRECISION", group = "FIELDS")
   private int precision;
 
-  @Injection( name = "CURRENCY", group = "FIELDS" )
+  @Injection(name = "CURRENCY", group = "FIELDS")
   private String currencySymbol;
 
-  @Injection( name = "DECIMAL", group = "FIELDS" )
+  @Injection(name = "DECIMAL", group = "FIELDS")
   private String decimalSymbol;
 
-  @Injection( name = "GROUP", group = "FIELDS" )
+  @Injection(name = "GROUP", group = "FIELDS")
   private String groupSymbol;
 
-  @Injection( name = "REPEAT", group = "FIELDS" )
+  @Injection(name = "REPEAT", group = "FIELDS")
   private boolean repeat;
 
-  @Injection( name = "ISIDLOOKUP", group = "FIELDS" )
+  @Injection(name = "ISIDLOOKUP", group = "FIELDS")
   private boolean idlookup;
 
   private String[] samples;
 
-  public SalesforceInputField( String fieldname ) {
+  public SalesforceInputField(String fieldname) {
     this.name = fieldname;
     this.field = "";
     this.length = -1;
@@ -100,83 +101,83 @@ public class SalesforceInputField implements Cloneable {
   }
 
   public SalesforceInputField() {
-    this( "" );
+    this("");
   }
 
-  public SalesforceInputField( Node fnode ) throws HopTransformException {
-    readData( fnode );
+  public SalesforceInputField(Node fnode) throws HopTransformException {
+    readData(fnode);
   }
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " ).append( XmlHandler.openTag( "field" ) ).append( Const.CR );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "name", getName() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "field", getField() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "idlookup", isIdLookup() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "format", getFormat() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "currency", getCurrencySymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", getDecimalSymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "group", getGroupSymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "length", getLength() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "precision", getPrecision() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "repeat", isRepeated() ) );
-    retval.append( "      " ).append( XmlHandler.closeTag( "field" ) ).append( Const.CR );
+    retval.append("      ").append(XmlHandler.openTag("field")).append(Const.CR);
+    retval.append("        ").append(XmlHandler.addTagValue("name", getName()));
+    retval.append("        ").append(XmlHandler.addTagValue("field", getField()));
+    retval.append("        ").append(XmlHandler.addTagValue("idlookup", isIdLookup()));
+    retval.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
+    retval.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
+    retval.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    retval.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    retval.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    retval.append("        ").append(XmlHandler.addTagValue("length", getLength()));
+    retval.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
+    retval.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
+    retval.append("        ").append(XmlHandler.addTagValue("repeat", isRepeated()));
+    retval.append("      ").append(XmlHandler.closeTag("field")).append(Const.CR);
     return retval.toString();
   }
 
-  public void readData( Node fnode ) {
-    setName( XmlHandler.getTagValue( fnode, "name" ) );
-    setField( XmlHandler.getTagValue( fnode, "field" ) );
-    setIdLookup( "Y".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "idlookup" ) ) );
-    setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
-    setFormat( XmlHandler.getTagValue( fnode, "format" ) );
-    setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
-    setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
-    setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
-    setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
-    setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
-    setTrimType( getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
-    setRepeated( !"N".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "repeat" ) ) );
+  public void readData(Node fnode) {
+    setName(XmlHandler.getTagValue(fnode, "name"));
+    setField(XmlHandler.getTagValue(fnode, "field"));
+    setIdLookup("Y".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "idlookup")));
+    setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
+    setFormat(XmlHandler.getTagValue(fnode, "format"));
+    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
+    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
+    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
+    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
+    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
+    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+    setRepeated(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
   }
 
-  public static final int getTrimTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeCode.length; i++) {
+      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getTrimTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeDesc.length; i++) {
+      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
-    return SalesforceInputField.getTrimTypeByCode( tt );
+    return SalesforceInputField.getTrimTypeByCode(tt);
   }
 
-  public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
+  public static final String getTrimTypeCode(int i) {
+    if (i < 0 || i >= trimTypeCode.length) {
       return trimTypeCode[0];
     }
     return trimTypeCode[i];
   }
 
-  public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
+  public static final String getTrimTypeDesc(int i) {
+    if (i < 0 || i >= trimTypeDesc.length) {
       return trimTypeDesc[0];
     }
     return trimTypeDesc[i];
@@ -185,7 +186,7 @@ public class SalesforceInputField implements Cloneable {
   public Object clone() {
     try {
       return (SalesforceInputField) super.clone();
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -194,7 +195,7 @@ public class SalesforceInputField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -206,11 +207,11 @@ public class SalesforceInputField implements Cloneable {
     return field;
   }
 
-  public void setField( String fieldvalue ) {
+  public void setField(String fieldvalue) {
     this.field = fieldvalue;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -219,27 +220,27 @@ public class SalesforceInputField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
-  @Injection( name = "TYPE", group = "FIELDS" )
-  public void setType( String typeDesc ) {
-    this.type = ValueMetaFactory.getIdForValueMeta( typeDesc );
+  @Injection(name = "TYPE", group = "FIELDS")
+  public void setType(String typeDesc) {
+    this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
 
   public String getFormat() {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
-  public void setSamples( String[] samples ) {
+  public void setSamples(String[] samples) {
     this.samples = samples;
   }
 
@@ -252,27 +253,27 @@ public class SalesforceInputField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return getTrimTypeCode( trimtype );
+    return getTrimTypeCode(trimtype);
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc( trimtype );
+    return getTrimTypeDesc(trimtype);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
-  @Injection( name = "TRIM_TYPE", group = "FIELDS" )
-  public void setTrimTypeDesc( String trimTypeDesc ) {
-    this.trimtype = SalesforceInputField.getTrimTypeByDesc( trimTypeDesc );
+  @Injection(name = "TRIM_TYPE", group = "FIELDS")
+  public void setTrimTypeDesc(String trimTypeDesc) {
+    this.trimtype = SalesforceInputField.getTrimTypeByDesc(trimTypeDesc);
   }
 
   public String getGroupSymbol() {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String groupSymbol ) {
+  public void setGroupSymbol(String groupSymbol) {
     this.groupSymbol = groupSymbol;
   }
 
@@ -280,7 +281,7 @@ public class SalesforceInputField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimalSymbol ) {
+  public void setDecimalSymbol(String decimalSymbol) {
     this.decimalSymbol = decimalSymbol;
   }
 
@@ -288,7 +289,7 @@ public class SalesforceInputField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currencySymbol ) {
+  public void setCurrencySymbol(String currencySymbol) {
     this.currencySymbol = currencySymbol;
   }
 
@@ -296,7 +297,7 @@ public class SalesforceInputField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -304,7 +305,7 @@ public class SalesforceInputField implements Cloneable {
     return repeat;
   }
 
-  public void setRepeated( boolean repeat ) {
+  public void setRepeated(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -312,12 +313,11 @@ public class SalesforceInputField implements Cloneable {
     return idlookup;
   }
 
-  public void setIdLookup( boolean idlookup ) {
+  public void setIdLookup(boolean idlookup) {
     this.idlookup = idlookup;
   }
 
   public void flipRepeated() {
     repeat = !repeat;
   }
-
 }

@@ -25,7 +25,8 @@ image:icons/pipeline-log.svg[]
 
 Allows to log the activity of a pipeline with another pipeline.
 
-A pipeline log streams logging information from a running pipeline to another pipeline. This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+A pipeline log streams logging information from a running pipeline to another pipeline.
+This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
 
 == Related Plugins
 

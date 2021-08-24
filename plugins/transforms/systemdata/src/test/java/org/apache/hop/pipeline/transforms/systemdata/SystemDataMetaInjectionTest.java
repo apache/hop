@@ -25,15 +25,15 @@ import org.junit.Test;
 
 public class SystemDataMetaInjectionTest extends BaseMetadataInjectionTest<SystemDataMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-	
+
   @Before
   public void setup() throws Exception {
-    setup( new SystemDataMeta() );
+    setup(new SystemDataMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", () -> meta.getFieldName()[ 0 ] );
-    check( "FIELD_TYPE", () -> meta.getFieldType()[ 0 ], SystemDataTypes.class );
+    check("FIELD_NAME", () -> meta.getFieldName()[0]);
+    check("FIELD_TYPE", () -> meta.getFieldType()[0], SystemDataTypes.class);
   }
 }

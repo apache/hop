@@ -18,16 +18,11 @@
 package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.Arrays;

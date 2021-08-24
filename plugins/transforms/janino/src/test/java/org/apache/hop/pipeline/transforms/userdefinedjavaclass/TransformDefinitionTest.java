@@ -21,18 +21,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-/**
- * User: Dzmitry Stsiapanau Date: 2/6/14 Time: 2:29 PM
- */
+/** User: Dzmitry Stsiapanau Date: 2/6/14 Time: 2:29 PM */
 public class TransformDefinitionTest {
   @Test
   public void testClone() throws Exception {
     try {
-      TransformDefinition transformDefinition = new TransformDefinition( "tag", "transformName", null, "" );
+      TransformDefinition transformDefinition =
+          new TransformDefinition("tag", "transformName", null, "");
       transformDefinition.clone();
-    } catch ( NullPointerException npe ) {
-      fail( "Null value is not handled" );
+    } catch (NullPointerException npe) {
+      fail("Null value is not handled");
     }
   }
-
 }

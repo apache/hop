@@ -20,5 +20,5 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public interface ITransformSelectionListener {
-  void onUpdateSelection( TransformMeta currentTransform );
+  void onUpdateSelection(TransformMeta currentTransform);
 }

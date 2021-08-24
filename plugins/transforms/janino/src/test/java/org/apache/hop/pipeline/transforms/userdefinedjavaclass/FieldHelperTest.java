@@ -21,16 +21,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBigNumber;
-import org.apache.hop.core.row.value.ValueMetaBinary;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaInternetAddress;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaSerializable;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.row.value.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -39,240 +30,256 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 import static org.powermock.reflect.Whitebox.getMethod;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { FieldHelper.class, FieldHelperTest.class } )
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({FieldHelper.class, FieldHelperTest.class})
 public class FieldHelperTest {
 
   @Test
   public void getNativeDataTypeSimpleName_Unknown() throws Exception {
     HopValueException e = new HopValueException();
 
-    IValueMeta v = mock( IValueMeta.class );
-    doThrow( e ).when( v ).getNativeDataTypeClass();
+    IValueMeta v = mock(IValueMeta.class);
+    doThrow(e).when(v).getNativeDataTypeClass();
 
-    LogChannel log = mock( LogChannel.class );
-    whenNew( LogChannel.class ).withAnyArguments().thenReturn( log );
+    LogChannel log = mock(LogChannel.class);
+    whenNew(LogChannel.class).withAnyArguments().thenReturn(log);
 
-    assertEquals( "Object", FieldHelper.getNativeDataTypeSimpleName( v ) );
-    verify( log, times( 1 ) ).logDebug( "Unable to get name from data type" );
+    assertEquals("Object", FieldHelper.getNativeDataTypeSimpleName(v));
+    verify(log, times(1)).logDebug("Unable to get name from data type");
   }
 
   @Test
   public void getNativeDataTypeSimpleName_String() {
     ValueMetaString v = new ValueMetaString();
-    assertEquals( "String", FieldHelper.getNativeDataTypeSimpleName( v ) );
+    assertEquals("String", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
   public void getNativeDataTypeSimpleName_InetAddress() {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress();
-    assertEquals( "InetAddress", FieldHelper.getNativeDataTypeSimpleName( v ) );
+    assertEquals("InetAddress", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
   public void getNativeDataTypeSimpleName_Timestamp() {
     ValueMetaTimestamp v = new ValueMetaTimestamp();
-    assertEquals( "Timestamp", FieldHelper.getNativeDataTypeSimpleName( v ) );
+    assertEquals("Timestamp", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
   public void getNativeDataTypeSimpleName_Binary() {
     ValueMetaBinary v = new ValueMetaBinary();
-    assertEquals( "Binary", FieldHelper.getNativeDataTypeSimpleName( v ) );
+    assertEquals("Binary", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 
   @Test
   public void getGetSignature_String() {
-    ValueMetaString v = new ValueMetaString( "Name" );
-    String accessor = FieldHelper.getAccessor( true, "Name" );
+    ValueMetaString v = new ValueMetaString("Name");
+    String accessor = FieldHelper.getAccessor(true, "Name");
 
-    assertEquals( "String Name = get(Fields.In, \"Name\").getString(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getString", Object[].class ) );
+    assertEquals(
+        "String Name = get(Fields.In, \"Name\").getString(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getString", Object[].class));
   }
 
   @Test
   public void getGetSignature_InetAddress() {
-    ValueMetaInternetAddress v = new ValueMetaInternetAddress( "IP" );
-    String accessor = FieldHelper.getAccessor( true, "IP" );
+    ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
+    String accessor = FieldHelper.getAccessor(true, "IP");
 
-    assertEquals( "InetAddress IP = get(Fields.In, \"IP\").getInetAddress(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getInetAddress", Object[].class ) );
+    assertEquals(
+        "InetAddress IP = get(Fields.In, \"IP\").getInetAddress(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getInetAddress", Object[].class));
   }
 
   @Test
   public void getGetSignature_Timestamp() {
-    ValueMetaTimestamp v = new ValueMetaTimestamp( "TS" );
-    String accessor = FieldHelper.getAccessor( true, "TS" );
+    ValueMetaTimestamp v = new ValueMetaTimestamp("TS");
+    String accessor = FieldHelper.getAccessor(true, "TS");
 
-    assertEquals( "Timestamp TS = get(Fields.In, \"TS\").getTimestamp(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getTimestamp", Object[].class ) );
+    assertEquals(
+        "Timestamp TS = get(Fields.In, \"TS\").getTimestamp(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getTimestamp", Object[].class));
   }
 
   @Test
   public void getGetSignature_Binary() {
-    ValueMetaBinary v = new ValueMetaBinary( "Data" );
-    String accessor = FieldHelper.getAccessor( true, "Data" );
+    ValueMetaBinary v = new ValueMetaBinary("Data");
+    String accessor = FieldHelper.getAccessor(true, "Data");
 
-    assertEquals( "byte[] Data = get(Fields.In, \"Data\").getBinary(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getBinary", Object[].class ) );
+    assertEquals(
+        "byte[] Data = get(Fields.In, \"Data\").getBinary(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getBinary", Object[].class));
   }
 
   @Test
   public void getGetSignature_BigNumber() {
-    ValueMetaBigNumber v = new ValueMetaBigNumber( "Number" );
-    String accessor = FieldHelper.getAccessor( true, "Number" );
+    ValueMetaBigNumber v = new ValueMetaBigNumber("Number");
+    String accessor = FieldHelper.getAccessor(true, "Number");
 
-    assertEquals( "BigDecimal Number = get(Fields.In, \"Number\").getBigDecimal(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getBigDecimal", Object[].class ) );
+    assertEquals(
+        "BigDecimal Number = get(Fields.In, \"Number\").getBigDecimal(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getBigDecimal", Object[].class));
   }
 
   @Test
   public void getGetSignature_Boolean() {
-    ValueMetaBoolean v = new ValueMetaBoolean( "Value" );
-    String accessor = FieldHelper.getAccessor( true, "Value" );
+    ValueMetaBoolean v = new ValueMetaBoolean("Value");
+    String accessor = FieldHelper.getAccessor(true, "Value");
 
-    assertEquals( "Boolean Value = get(Fields.In, \"Value\").getBoolean(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getBoolean", Object[].class ) );
+    assertEquals(
+        "Boolean Value = get(Fields.In, \"Value\").getBoolean(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getBoolean", Object[].class));
   }
 
   @Test
   public void getGetSignature_Date() {
-    ValueMetaDate v = new ValueMetaDate( "DT" );
-    String accessor = FieldHelper.getAccessor( true, "DT" );
+    ValueMetaDate v = new ValueMetaDate("DT");
+    String accessor = FieldHelper.getAccessor(true, "DT");
 
-    assertEquals( "Date DT = get(Fields.In, \"DT\").getDate(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getDate", Object[].class ) );
+    assertEquals(
+        "Date DT = get(Fields.In, \"DT\").getDate(r);", FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getDate", Object[].class));
   }
 
   @Test
   public void getGetSignature_Integer() {
-    ValueMetaInteger v = new ValueMetaInteger( "Value" );
-    String accessor = FieldHelper.getAccessor( true, "Value" );
+    ValueMetaInteger v = new ValueMetaInteger("Value");
+    String accessor = FieldHelper.getAccessor(true, "Value");
 
-    assertEquals( "Long Value = get(Fields.In, \"Value\").getLong(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getLong", Object[].class ) );
+    assertEquals(
+        "Long Value = get(Fields.In, \"Value\").getLong(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getLong", Object[].class));
   }
 
   @Test
   public void getGetSignature_Number() {
-    ValueMetaNumber v = new ValueMetaNumber( "Value" );
-    String accessor = FieldHelper.getAccessor( true, "Value" );
+    ValueMetaNumber v = new ValueMetaNumber("Value");
+    String accessor = FieldHelper.getAccessor(true, "Value");
 
-    assertEquals( "Double Value = get(Fields.In, \"Value\").getDouble(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getDouble", Object[].class ) );
+    assertEquals(
+        "Double Value = get(Fields.In, \"Value\").getDouble(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getDouble", Object[].class));
   }
 
   @Test
   public void getGetSignature_Serializable() throws Exception {
-    LogChannel log = mock( LogChannel.class );
-    whenNew( LogChannel.class ).withAnyArguments().thenReturn( log );
+    LogChannel log = mock(LogChannel.class);
+    whenNew(LogChannel.class).withAnyArguments().thenReturn(log);
 
-    ValueMetaSerializable v = new ValueMetaSerializable( "Data" );
-    String accessor = FieldHelper.getAccessor( true, "Data" );
+    ValueMetaSerializable v = new ValueMetaSerializable("Data");
+    String accessor = FieldHelper.getAccessor(true, "Data");
 
-    assertEquals( "Object Data = get(Fields.In, \"Data\").getObject(r);", FieldHelper.getGetSignature( accessor, v ) );
-    assertNotNull( getMethod( FieldHelper.class, "getObject", Object[].class ) );
+    assertEquals(
+        "Object Data = get(Fields.In, \"Data\").getObject(r);",
+        FieldHelper.getGetSignature(accessor, v));
+    assertNotNull(getMethod(FieldHelper.class, "getObject", Object[].class));
   }
 
   @Test
   public void getInetAddress_Test() throws Exception {
-    ValueMetaInternetAddress v = new ValueMetaInternetAddress( "IP" );
+    ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    assertEquals( InetAddress.getLoopbackAddress(),
-      new FieldHelper( row, "IP" ).getInetAddress( new Object[] { InetAddress.getLoopbackAddress() } ) );
+    assertEquals(
+        InetAddress.getLoopbackAddress(),
+        new FieldHelper(row, "IP").getInetAddress(new Object[] {InetAddress.getLoopbackAddress()}));
   }
 
   @Test
   public void getTimestamp_Test() throws Exception {
-    ValueMetaTimestamp v = new ValueMetaTimestamp( "TS" );
+    ValueMetaTimestamp v = new ValueMetaTimestamp("TS");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    assertEquals( Timestamp.valueOf( "2018-07-23 12:40:55" ),
-      new FieldHelper( row, "TS" ).getTimestamp( new Object[] { Timestamp.valueOf( "2018-07-23 12:40:55" ) } ) );
+    assertEquals(
+        Timestamp.valueOf("2018-07-23 12:40:55"),
+        new FieldHelper(row, "TS")
+            .getTimestamp(new Object[] {Timestamp.valueOf("2018-07-23 12:40:55")}));
   }
 
   @Test
   public void getSerializable_Test() throws Exception {
-    ValueMetaSerializable v = new ValueMetaSerializable( "Data" );
+    ValueMetaSerializable v = new ValueMetaSerializable("Data");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    assertEquals( "...",
-      new FieldHelper( row, "Data" ).getSerializable( new Object[] { "..." } ) );
+    assertEquals("...", new FieldHelper(row, "Data").getSerializable(new Object[] {"..."}));
   }
 
   @Test
   public void getBinary_Test() throws Exception {
-    ValueMetaBinary v = new ValueMetaBinary( "Data" );
+    ValueMetaBinary v = new ValueMetaBinary("Data");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    assertArrayEquals( new byte[] { 0, 1, 2 },
-      new FieldHelper( row, "Data" ).getBinary( new Object[] { new byte[] { 0, 1, 2 } } ) );
+    assertArrayEquals(
+        new byte[] {0, 1, 2},
+        new FieldHelper(row, "Data").getBinary(new Object[] {new byte[] {0, 1, 2}}));
   }
 
   @Test
   public void setValue_String() {
-    ValueMetaString v = new ValueMetaString( "Name" );
+    ValueMetaString v = new ValueMetaString("Name");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    Object[] data = new Object[ 1 ];
-    new FieldHelper( row, "Name" ).setValue( data, "Hop" );
+    Object[] data = new Object[1];
+    new FieldHelper(row, "Name").setValue(data, "Hop");
 
-    assertEquals( "Hop", data[ 0 ] );
+    assertEquals("Hop", data[0]);
   }
 
   @Test
   public void setValue_InetAddress() throws Exception {
-    ValueMetaInternetAddress v = new ValueMetaInternetAddress( "IP" );
+    ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    Object[] data = new Object[ 1 ];
-    new FieldHelper( row, "IP" ).setValue( data, InetAddress.getLoopbackAddress() );
+    Object[] data = new Object[1];
+    new FieldHelper(row, "IP").setValue(data, InetAddress.getLoopbackAddress());
 
-    assertEquals( InetAddress.getLoopbackAddress(), data[ 0 ] );
+    assertEquals(InetAddress.getLoopbackAddress(), data[0]);
   }
 
   @Test
   public void setValue_ValueMetaBinary() throws Exception {
-    ValueMetaBinary v = new ValueMetaBinary( "Data" );
+    ValueMetaBinary v = new ValueMetaBinary("Data");
 
-    IRowMeta row = mock( IRowMeta.class );
-    doReturn( v ).when( row ).searchValueMeta( anyString() );
-    doReturn( 0 ).when( row ).indexOfValue( anyString() );
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
 
-    Object[] data = new Object[ 1 ];
-    new FieldHelper( row, "Data" ).setValue( data, new byte[] { 0, 1, 2 } );
+    Object[] data = new Object[1];
+    new FieldHelper(row, "Data").setValue(data, new byte[] {0, 1, 2});
 
-    assertArrayEquals( new byte[] { 0, 1, 2 }, (byte[]) data[ 0 ] );
+    assertArrayEquals(new byte[] {0, 1, 2}, (byte[]) data[0]);
   }
 }

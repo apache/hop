@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
-import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -25,10 +24,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 
-/**
- * Stores data for the Insert/Update transform.
- *
- */
+/** Stores data for the Insert/Update transform. */
 public class InsertUpdateData extends BaseTransformData implements ITransformData {
   public Database db;
 
@@ -48,9 +44,7 @@ public class InsertUpdateData extends BaseTransformData implements ITransformDat
   public IRowMeta lookupReturnRowMeta;
   public IRowMeta insertRowMeta;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public InsertUpdateData() {
     super();
 

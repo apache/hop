@@ -18,5 +18,5 @@
 package org.apache.hop.ui.core.widget;
 
 public interface IFieldDisabledListener {
-  boolean isFieldDisabled( int rowNr );
+  boolean isFieldDisabled(int rowNr);
 }

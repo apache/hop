@@ -48,5 +48,4 @@ public class UuidResourceNaming extends SimpleResourceNaming {
     //
     return UUID.randomUUID().toString();
   }
-
 }

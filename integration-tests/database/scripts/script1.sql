@@ -17,16 +17,17 @@ under the License.
 
 DROP TABLE IF EXISTS public.testtable;
 
-CREATE TABLE public.testtable (
-	"key" varchar NULL,
-	value varchar NULL
+CREATE TABLE public.testtable
+(
+    "key" varchar NULL,
+    value varchar NULL
 );
 
 INSERT INTO public.testtable
-("key", value)
-VALUES('1', 'a'),
-('2', 'b'),
-('3', 'c'),
-('4', 'd'),
-('5', 'e')
+    ("key", value)
+VALUES ('1', 'a'),
+       ('2', 'b'),
+       ('3', 'c'),
+       ('4', 'd'),
+       ('5', 'e')
 ;

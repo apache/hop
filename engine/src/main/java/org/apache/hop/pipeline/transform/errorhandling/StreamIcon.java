@@ -18,5 +18,12 @@
 package org.apache.hop.pipeline.transform.errorhandling;
 
 public enum StreamIcon {
-  GENERIC, TRUE, FALSE, ERROR, INFO, TARGET, INPUT, OUTPUT,
+  GENERIC,
+  TRUE,
+  FALSE,
+  ERROR,
+  INFO,
+  TARGET,
+  INPUT,
+  OUTPUT,
 }

@@ -17,18 +17,6 @@
 
 package org.apache.hop.workflow.actions.ftpput;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -55,6 +43,15 @@ import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.apache.hop.workflow.actions.util.IFtpConnection;
 import org.w3c.dom.Node;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines an FTP put action.
@@ -133,8 +130,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     xml.append("      ").append(XmlHandler.addTagValue("servername", serverName));
     xml.append("      ").append(XmlHandler.addTagValue("serverport", serverPort));
     xml.append("      ").append(XmlHandler.addTagValue("username", userName));
-    xml
-        .append("      ")
+    xml.append("      ")
         .append(
             XmlHandler.addTagValue(
                 "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
@@ -151,18 +147,14 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     xml.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
     xml.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
     xml.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
-    xml
-        .append("      ")
+    xml.append("      ")
         .append(
             XmlHandler.addTagValue(
                 "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
     xml.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
     xml.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
-    xml
-        .append("      ")
-        .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
-    xml
-        .append("      ")
+    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
+    xml.append("      ")
         .append(
             XmlHandler.addTagValue(
                 "socksproxy_password",
@@ -171,7 +163,9 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     return xml.toString();
   }
 
-  @Override public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  @Override
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
       super.loadXml(entrynode);
       serverName = XmlHandler.getTagValue(entrynode, "servername");
@@ -450,7 +444,8 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
         ftpclient.changeWorkingDirectory(realRemoteDirectory);
         if (log.isDetailed()) {
           logDetailed(
-              BaseMessages.getString(PKG, "ActionFtpPut.Log.ChangedDirectory", realRemoteDirectory));
+              BaseMessages.getString(
+                  PKG, "ActionFtpPut.Log.ChangedDirectory", realRemoteDirectory));
         }
       }
 
@@ -536,8 +531,8 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
             }
 
             String localFilename = realLocalDirectory + Const.FILE_SEPARATOR + file;
-            try( InputStream inputStream = HopVfs.getInputStream( localFilename ) ) {
-              ftpclient.storeFile( file, inputStream );
+            try (InputStream inputStream = HopVfs.getInputStream(localFilename)) {
+              ftpclient.storeFile(file, inputStream);
             }
 
             filesput++;
@@ -579,17 +574,19 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   // package-local visibility for testing purposes
   FTPClient createAndSetUpFtpClient() throws IOException, HopException {
 
-    FTPClient ftpClient = FtpClientUtil.connectAndLogin( log, this, this, getName() );
+    FTPClient ftpClient = FtpClientUtil.connectAndLogin(log, this, this, getName());
 
     return ftpClient;
   }
 
-
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
-  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+  @Override
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(this, workflowMeta);
     if (!Utils.isEmpty(serverName)) {
       String realServerName = resolve(serverName);
@@ -639,5 +636,4 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
   }
-
 }

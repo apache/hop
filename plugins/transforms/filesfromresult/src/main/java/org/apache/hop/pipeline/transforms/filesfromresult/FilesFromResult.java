@@ -27,9 +27,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 /**
  * Reads results from a previous pipeline in a Workflow
@@ -37,46 +35,52 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData> implements ITransform<FilesFromResultMeta, FilesFromResultData> {
+public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData>
+    implements ITransform<FilesFromResultMeta, FilesFromResultData> {
 
   private static final Class<?> PKG = FilesFromResult.class; // For Translator
 
-  public FilesFromResult( TransformMeta transformMeta, FilesFromResultMeta meta, FilesFromResultData data, int copyNr, PipelineMeta pipelineMeta,
-                          Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public FilesFromResult(
+      TransformMeta transformMeta,
+      FilesFromResultMeta meta,
+      FilesFromResultData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
-    if ( data.resultFilesList == null || getLinesRead() >= data.resultFilesList.size() ) {
+    if (data.resultFilesList == null || getLinesRead() >= data.resultFilesList.size()) {
       setOutputDone();
       return false;
     }
 
-    ResultFile resultFile = data.resultFilesList.get( (int) getLinesRead() );
+    ResultFile resultFile = data.resultFilesList.get((int) getLinesRead());
     RowMetaAndData r = resultFile.getRow();
 
-    if ( first ) {
+    if (first) {
       first = false;
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     }
     incrementLinesRead();
 
-    putRow( data.outputRowMeta, r.getData() ); // copy row to possible alternate
+    putRow(data.outputRowMeta, r.getData()); // copy row to possible alternate
     // rowset(s).
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "FilesFromResult.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      logBasic(BaseMessages.getString(PKG, "FilesFromResult.Log.LineNumber") + getLinesRead());
     }
 
     return true;
   }
 
-  public boolean init(){
-    if ( super.init() ) {
+  public boolean init() {
+    if (super.init()) {
       Result result = getPipeline().getPreviousResult();
 
-      if ( result != null ) {
+      if (result != null) {
         data.resultFilesList = result.getResultFilesList();
       } else {
         data.resultFilesList = null;

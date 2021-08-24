@@ -16,8 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -30,6 +28,9 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Write to LDAP.
  *
@@ -38,8 +39,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
  */
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
     implements ITransform<LdapOutputMeta, LdapOutputData> {
-  private static Class<?> classFromResourcesPackage =
-      LdapOutputMeta.class; // For Translator
+  private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // For Translator
 
   public LdapOutput(
       TransformMeta transformMeta,
@@ -87,8 +87,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
 
         for (int i = 0; i < data.nrFields; i++) {
 
-          data.fieldStream[i] =
-              getInputRowMeta().indexOfValue( resolve(meta.getUpdateStream()[i]));
+          data.fieldStream[i] = getInputRowMeta().indexOfValue(resolve(meta.getUpdateStream()[i]));
           if (data.fieldStream[i] < 0) {
             throw new HopException(
                 "Field [" + meta.getUpdateStream()[i] + "] couldn't be found in the input stream!");
@@ -317,8 +316,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
         // connect
         if (meta.isUseAuthentication()) {
           String username = resolve(meta.getUserName());
-          String password =
-              Encr.decryptPasswordOptionallyEncrypted( resolve(meta.getPassword()));
+          String password = Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getPassword()));
           data.connection.connect(username, password);
         } else {
           data.connection.connect();

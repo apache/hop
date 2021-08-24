@@ -21,7 +21,7 @@ package org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities;
 import java.util.Properties;
 
 public class FileTypeCapabilities {
-  public static final Properties getCapabilities(String...capabilities) {
+  public static final Properties getCapabilities(String... capabilities) {
     Properties properties = new Properties();
     for (String capability : capabilities) {
       properties.put(capability, "true");

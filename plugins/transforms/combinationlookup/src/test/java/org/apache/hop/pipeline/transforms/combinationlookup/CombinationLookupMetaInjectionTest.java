@@ -23,31 +23,32 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class CombinationLookupMetaInjectionTest extends BaseMetadataInjectionTest<CombinationLookupMeta> {
+public class CombinationLookupMetaInjectionTest
+    extends BaseMetadataInjectionTest<CombinationLookupMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setup() throws Exception {
-    setup( new CombinationLookupMeta() );
+    setup(new CombinationLookupMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SCHEMA_NAME", () -> meta.getSchemaName() );
-    check( "TABLE_NAME", () -> meta.getTableName() );
-    check( "REPLACE_FIELDS", () -> meta.replaceFields() );
-    check( "KEY_FIELDS", () -> meta.getKeyField()[ 0 ] );
-    check( "KEY_LOOKUP", () -> meta.getKeyLookup()[ 0 ] );
-    check( "USE_HASH", () -> meta.useHash() );
-    check( "HASH_FIELD", () -> meta.getHashField() );
-    check( "TECHNICAL_KEY_FIELD", () -> meta.getTechnicalKeyField() );
-    check( "SEQUENCE_FROM", () -> meta.getSequenceFrom() );
-    check( "COMMIT_SIZE", () -> meta.getCommitSize() );
-    check( "PRELOAD_CACHE", () -> meta.getPreloadCache() );
-    check( "CACHE_SIZE", () -> meta.getCacheSize() );
-    check( "AUTO_INC", () -> meta.isUseAutoinc() );
-    check( "TECHNICAL_KEY_CREATION", () -> meta.getTechKeyCreation() );
-    check( "LAST_UPDATE_FIELD", () -> meta.getLastUpdateField() );
-    skipPropertyTest( "CONNECTIONNAME" );
+    check("SCHEMA_NAME", () -> meta.getSchemaName());
+    check("TABLE_NAME", () -> meta.getTableName());
+    check("REPLACE_FIELDS", () -> meta.replaceFields());
+    check("KEY_FIELDS", () -> meta.getKeyField()[0]);
+    check("KEY_LOOKUP", () -> meta.getKeyLookup()[0]);
+    check("USE_HASH", () -> meta.useHash());
+    check("HASH_FIELD", () -> meta.getHashField());
+    check("TECHNICAL_KEY_FIELD", () -> meta.getTechnicalKeyField());
+    check("SEQUENCE_FROM", () -> meta.getSequenceFrom());
+    check("COMMIT_SIZE", () -> meta.getCommitSize());
+    check("PRELOAD_CACHE", () -> meta.getPreloadCache());
+    check("CACHE_SIZE", () -> meta.getCacheSize());
+    check("AUTO_INC", () -> meta.isUseAutoinc());
+    check("TECHNICAL_KEY_CREATION", () -> meta.getTechKeyCreation());
+    check("LAST_UPDATE_FIELD", () -> meta.getLastUpdateField());
+    skipPropertyTest("CONNECTIONNAME");
   }
 }

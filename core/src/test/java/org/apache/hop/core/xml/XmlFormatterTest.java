@@ -29,62 +29,65 @@ public class XmlFormatterTest {
 
   @BeforeClass
   public static void setupClass() {
-    XMLUnit.setIgnoreWhitespace( true );
+    XMLUnit.setIgnoreWhitespace(true);
   }
 
   @Test
   public void test1() throws Exception {
     String inXml, expectedXml;
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterIn1.xml" ) ) {
-      inXml = IOUtils.toString( in );
+    try (InputStream in = XmlFormatterTest.class.getResourceAsStream("XMLFormatterIn1.xml")) {
+      inXml = IOUtils.toString(in);
     }
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterExpected1.xml" ) ) {
-      expectedXml = IOUtils.toString( in );
+    try (InputStream in = XmlFormatterTest.class.getResourceAsStream("XMLFormatterExpected1.xml")) {
+      expectedXml = IOUtils.toString(in);
     }
 
-    String result = XmlFormatter.format( inXml );
-    assertXMLEqual( expectedXml, result );
+    String result = XmlFormatter.format(inXml);
+    assertXMLEqual(expectedXml, result);
   }
 
   @Test
   public void test2() throws Exception {
     String inXml, expectedXml;
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterIn2.xml" ) ) {
-      inXml = IOUtils.toString( in );
+    try (InputStream in = XmlFormatterTest.class.getResourceAsStream("XMLFormatterIn2.xml")) {
+      inXml = IOUtils.toString(in);
     }
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterExpected2.xml" ) ) {
-      expectedXml = IOUtils.toString( in );
+    try (InputStream in = XmlFormatterTest.class.getResourceAsStream("XMLFormatterExpected2.xml")) {
+      expectedXml = IOUtils.toString(in);
     }
 
-    String result = XmlFormatter.format( inXml );
-    assertXMLEqual( expectedXml, result );
+    String result = XmlFormatter.format(inXml);
+    assertXMLEqual(expectedXml, result);
   }
 
   @Test
   public void test3() throws Exception {
     String inXml, expectedXml;
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterIn3cdata.xml" ) ) {
-      inXml = IOUtils.toString( in );
+    try (InputStream in = XmlFormatterTest.class.getResourceAsStream("XMLFormatterIn3cdata.xml")) {
+      inXml = IOUtils.toString(in);
     }
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterExpected3cdata.xml" ) ) {
-      expectedXml = IOUtils.toString( in );
+    try (InputStream in =
+        XmlFormatterTest.class.getResourceAsStream("XMLFormatterExpected3cdata.xml")) {
+      expectedXml = IOUtils.toString(in);
     }
 
-    String result = XmlFormatter.format( inXml );
-    assertXMLEqual( expectedXml, result );
+    String result = XmlFormatter.format(inXml);
+    assertXMLEqual(expectedXml, result);
   }
 
   @Test
   public void test4() throws Exception {
     String inXml, expectedXml;
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterIn4multilinecdata.xml" ) ) {
-      inXml = IOUtils.toString( in );
+    try (InputStream in =
+        XmlFormatterTest.class.getResourceAsStream("XMLFormatterIn4multilinecdata.xml")) {
+      inXml = IOUtils.toString(in);
     }
-    try ( InputStream in = XmlFormatterTest.class.getResourceAsStream( "XMLFormatterExpected4multilinecdata.xml" ) ) {
-      expectedXml = IOUtils.toString( in );
+    try (InputStream in =
+        XmlFormatterTest.class.getResourceAsStream("XMLFormatterExpected4multilinecdata.xml")) {
+      expectedXml = IOUtils.toString(in);
     }
 
-    String result = XmlFormatter.format( inXml );
-    assertXMLEqual( expectedXml, result );
+    String result = XmlFormatter.format(inXml);
+    assertXMLEqual(expectedXml, result);
   }
 }

@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@HopServerServlet(id="registerPipeline", name = "Add a pipeline to the server")
+@HopServerServlet(id = "registerPipeline", name = "Add a pipeline to the server")
 public class RegisterPipelineServlet extends BaseWorkflowServlet {
 
   private static final long serialVersionUID = 468054102740138751L;
@@ -41,16 +41,25 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML, IVariables variables ) throws IOException, HopException, HopException, ParseException {
+  WebResult generateBody(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      boolean useXML,
+      IVariables variables)
+      throws IOException, HopException, HopException, ParseException {
 
-    final String xml = IOUtils.toString( request.getInputStream() );
+    final String xml = IOUtils.toString(request.getInputStream());
 
     // Parse the XML, create a pipeline configuration
-    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml);
+    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml(xml);
 
-    IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
+    IPipelineEngine<PipelineMeta> pipeline = createPipeline(pipelineConfiguration);
 
-    String message = "Pipeline '" + pipeline.getPipelineMeta().getName() + "' was added to HopServer with id " + pipeline.getContainerId();
-    return new WebResult( WebResult.STRING_OK, message, pipeline.getContainerId() );
+    String message =
+        "Pipeline '"
+            + pipeline.getPipelineMeta().getName()
+            + "' was added to HopServer with id "
+            + pipeline.getContainerId();
+    return new WebResult(WebResult.STRING_OK, message, pipeline.getContainerId());
   }
 }

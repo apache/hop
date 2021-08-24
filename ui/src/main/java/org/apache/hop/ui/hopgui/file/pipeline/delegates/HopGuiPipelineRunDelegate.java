@@ -52,26 +52,19 @@ public class HopGuiPipelineRunDelegate {
   private PipelineExecutionConfiguration pipelineDebugExecutionConfiguration;
 
   /**
-   * This contains a map between the name of a pipeline and the PipelineMeta object. If the pipeline has no
-   * name it will be mapped under a number [1], [2] etc.
+   * This contains a map between the name of a pipeline and the PipelineMeta object. If the pipeline
+   * has no name it will be mapped under a number [1], [2] etc.
    */
   private List<PipelineMeta> pipelineMap;
 
-  /**
-   * Remember the debugging configuration per pipeline
-   */
+  /** Remember the debugging configuration per pipeline */
   private Map<PipelineMeta, PipelineDebugMeta> pipelineDebugMetaMap;
 
-  /**
-   * Remember the preview configuration per pipeline
-   */
+  /** Remember the preview configuration per pipeline */
   private Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap;
 
-
-  /**
-   * @param hopGui
-   */
-  public HopGuiPipelineRunDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+  /** @param hopGui */
+  public HopGuiPipelineRunDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
 
@@ -84,9 +77,15 @@ public class HopGuiPipelineRunDelegate {
     pipelinePreviewMetaMap = new HashMap<>();
   }
 
-  public PipelineExecutionConfiguration executePipeline( final ILogChannel log, final PipelineMeta pipelineMeta, final boolean preview, final boolean debug, LogLevel logLevel ) throws HopException {
+  public PipelineExecutionConfiguration executePipeline(
+      final ILogChannel log,
+      final PipelineMeta pipelineMeta,
+      final boolean preview,
+      final boolean debug,
+      LogLevel logLevel)
+      throws HopException {
 
-    if ( pipelineMeta == null ) {
+    if (pipelineMeta == null) {
       return null;
     }
 
@@ -95,9 +94,9 @@ public class HopGuiPipelineRunDelegate {
     PipelineDebugMeta pipelineDebugMeta = null;
     PipelineExecutionConfiguration executionConfiguration = null;
 
-    if ( preview ) {
+    if (preview) {
       executionConfiguration = getPipelinePreviewExecutionConfiguration();
-    } else if ( debug ) {
+    } else if (debug) {
       executionConfiguration = getPipelineDebugExecutionConfiguration();
     } else {
       executionConfiguration = getPipelineExecutionConfiguration();
@@ -105,62 +104,64 @@ public class HopGuiPipelineRunDelegate {
 
     // Set MetaStore and safe mode information in both the exec config and the metadata
     //
-    pipelineMeta.setMetadataProvider( hopGui.getMetadataProvider() );
+    pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
 
-    if ( debug ) {
+    if (debug) {
       // See if we have debugging information stored somewhere?
       //
-      pipelineDebugMeta = pipelineDebugMetaMap.get( pipelineMeta );
-      if ( pipelineDebugMeta == null ) {
-        pipelineDebugMeta = new PipelineDebugMeta( pipelineMeta );
-        pipelineDebugMetaMap.put( pipelineMeta, pipelineDebugMeta );
+      pipelineDebugMeta = pipelineDebugMetaMap.get(pipelineMeta);
+      if (pipelineDebugMeta == null) {
+        pipelineDebugMeta = new PipelineDebugMeta(pipelineMeta);
+        pipelineDebugMetaMap.put(pipelineMeta, pipelineDebugMeta);
       }
 
       // Set the default number of rows to retrieve on all selected transforms...
       //
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if ( selectedTransforms != null && selectedTransforms.size() > 0 ) {
+      if (selectedTransforms != null && selectedTransforms.size() > 0) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
-        for ( TransformMeta transformMeta : pipelineMeta.getSelectedTransforms() ) {
-          TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
-          transformDebugMeta.setRowCount( PropsUi.getInstance().getDefaultPreviewSize() );
-          transformDebugMeta.setPausingOnBreakPoint( true );
-          transformDebugMeta.setReadingFirstRows( false );
-          pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );
+        for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
+          TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
+          transformDebugMeta.setRowCount(PropsUi.getInstance().getDefaultPreviewSize());
+          transformDebugMeta.setPausingOnBreakPoint(true);
+          transformDebugMeta.setReadingFirstRows(false);
+          pipelineDebugMeta.getTransformDebugMetaMap().put(transformMeta, transformDebugMeta);
         }
       }
 
-    } else if ( preview ) {
+    } else if (preview) {
       // See if we have preview information stored somewhere?
       //
-      pipelineDebugMeta = pipelinePreviewMetaMap.get( pipelineMeta );
-      if ( pipelineDebugMeta == null ) {
-        pipelineDebugMeta = new PipelineDebugMeta( pipelineMeta );
+      pipelineDebugMeta = pipelinePreviewMetaMap.get(pipelineMeta);
+      if (pipelineDebugMeta == null) {
+        pipelineDebugMeta = new PipelineDebugMeta(pipelineMeta);
 
-        pipelinePreviewMetaMap.put( pipelineMeta, pipelineDebugMeta );
+        pipelinePreviewMetaMap.put(pipelineMeta, pipelineDebugMeta);
       }
 
       // Set the default number of preview rows on all selected transforms...
       //
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if ( selectedTransforms != null && selectedTransforms.size() > 0 ) {
+      if (selectedTransforms != null && selectedTransforms.size() > 0) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
-        for ( TransformMeta transformMeta : pipelineMeta.getSelectedTransforms() ) {
-          TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
-          transformDebugMeta.setRowCount( PropsUi.getInstance().getDefaultPreviewSize() );
-          transformDebugMeta.setPausingOnBreakPoint( false );
-          transformDebugMeta.setReadingFirstRows( true );
-          pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );
+        for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
+          TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
+          transformDebugMeta.setRowCount(PropsUi.getInstance().getDefaultPreviewSize());
+          transformDebugMeta.setPausingOnBreakPoint(false);
+          transformDebugMeta.setReadingFirstRows(true);
+          pipelineDebugMeta.getTransformDebugMetaMap().put(transformMeta, transformDebugMeta);
         }
       }
     }
 
     int debugAnswer = PipelineDebugDialog.DEBUG_CONFIG;
 
-    if ( debug || preview ) {
-      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopGui.getShell(), pipelineGraph.getVariables(), pipelineDebugMeta );
+    if (debug || preview) {
+      PipelineDebugDialog pipelineDebugDialog =
+          new PipelineDebugDialog(
+              hopGui.getShell(), pipelineGraph.getVariables(), pipelineDebugMeta);
       debugAnswer = pipelineDebugDialog.open();
-      if ( debugAnswer == PipelineDebugDialog.DEBUG_CANCEL ) {
+      if (debugAnswer == PipelineDebugDialog.DEBUG_CANCEL) {
         // If we cancel the debug dialog, we don't go further with the execution either.
         //
         return null;
@@ -168,53 +169,67 @@ public class HopGuiPipelineRunDelegate {
     }
 
     Map<String, String> variableMap = new HashMap<>();
-    variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
+    variableMap.putAll(executionConfiguration.getVariablesMap()); // the default
 
-    executionConfiguration.setVariablesMap( variableMap );
-    executionConfiguration.getUsedVariables( pipelineGraph.getVariables(), pipelineMeta );
+    executionConfiguration.setVariablesMap(variableMap);
+    executionConfiguration.getUsedVariables(pipelineGraph.getVariables(), pipelineMeta);
 
-    executionConfiguration.setLogLevel( logLevel );
+    executionConfiguration.setLogLevel(logLevel);
 
     boolean execConfigAnswer = true;
 
-    if ( debugAnswer == PipelineDebugDialog.DEBUG_CONFIG && pipelineMeta.isShowDialog() ) {
+    if (debugAnswer == PipelineDebugDialog.DEBUG_CONFIG && pipelineMeta.isShowDialog()) {
       PipelineExecutionConfigurationDialog dialog =
-        new PipelineExecutionConfigurationDialog( hopGui.getShell(), executionConfiguration, pipelineMeta );
+          new PipelineExecutionConfigurationDialog(
+              hopGui.getShell(), executionConfiguration, pipelineMeta);
       execConfigAnswer = dialog.open();
     }
 
-    if ( execConfigAnswer ) {
+    if (execConfigAnswer) {
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
-      pipelineGraph.extraViewTabFolder.setSelection( 0 );
+      pipelineGraph.extraViewTabFolder.setSelection(0);
 
       // Set the log level
       //
-      if ( executionConfiguration.getLogLevel() != null ) {
-        pipelineMeta.setLogLevel( executionConfiguration.getLogLevel() );
+      if (executionConfiguration.getLogLevel() != null) {
+        pipelineMeta.setLogLevel(executionConfiguration.getLogLevel());
       }
 
       // Set the run options
-      pipelineMeta.setClearingLog( executionConfiguration.isClearingLog() );
+      pipelineMeta.setClearingLog(executionConfiguration.isClearingLog());
 
-      ExtensionPointHandler.callExtensionPoint( log, pipelineGraph.getVariables(), HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
-      ExtensionPointHandler.callExtensionPoint( log, pipelineGraph.getVariables(), HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id, executionConfiguration );
+      ExtensionPointHandler.callExtensionPoint(
+          log,
+          pipelineGraph.getVariables(),
+          HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id,
+          pipelineMeta);
+      ExtensionPointHandler.callExtensionPoint(
+          log,
+          pipelineGraph.getVariables(),
+          HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id,
+          executionConfiguration);
 
       // Verify if there is at least one transform specified to debug or preview...
-      // TODO: Is this a local preview or debugging execution? We might want to get rid of the distinction
-      if ( debug || preview ) {
-        if ( pipelineDebugMeta.getNrOfUsedTransforms() == 0 ) {
-          MessageBox box = new MessageBox( hopGui.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
-          box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Title" ) );
-          box.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Message" ) );
+      // TODO: Is this a local preview or debugging execution? We might want to get rid of the
+      // distinction
+      if (debug || preview) {
+        if (pipelineDebugMeta.getNrOfUsedTransforms() == 0) {
+          MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+          box.setText(
+              BaseMessages.getString(
+                  PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Title"));
+          box.setMessage(
+              BaseMessages.getString(
+                  PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Message"));
           int answer = box.open();
-          if ( answer != SWT.YES ) {
+          if (answer != SWT.YES) {
             return null;
           }
         }
-        pipelineGraph.debug( executionConfiguration, pipelineDebugMeta );
+        pipelineGraph.debug(executionConfiguration, pipelineDebugMeta);
       } else {
-        pipelineGraph.start( executionConfiguration );
+        pipelineGraph.start(executionConfiguration);
       }
     }
     return executionConfiguration;
@@ -229,10 +244,8 @@ public class HopGuiPipelineRunDelegate {
     return pipelineGraph;
   }
 
-  /**
-   * @param pipelineGraph The pipelineGraph to set
-   */
-  public void setPipelineGraph( HopGuiPipelineGraph pipelineGraph ) {
+  /** @param pipelineGraph The pipelineGraph to set */
+  public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
 
@@ -245,10 +258,8 @@ public class HopGuiPipelineRunDelegate {
     return hopGui;
   }
 
-  /**
-   * @param hopGui The hopGui to set
-   */
-  public void setHopGui( HopGui hopGui ) {
+  /** @param hopGui The hopGui to set */
+  public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
 
@@ -261,10 +272,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineExecutionConfiguration;
   }
 
-  /**
-   * @param pipelineExecutionConfiguration The pipelineExecutionConfiguration to set
-   */
-  public void setPipelineExecutionConfiguration( PipelineExecutionConfiguration pipelineExecutionConfiguration ) {
+  /** @param pipelineExecutionConfiguration The pipelineExecutionConfiguration to set */
+  public void setPipelineExecutionConfiguration(
+      PipelineExecutionConfiguration pipelineExecutionConfiguration) {
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
   }
 
@@ -280,7 +290,8 @@ public class HopGuiPipelineRunDelegate {
   /**
    * @param pipelinePreviewExecutionConfiguration The pipelinePreviewExecutionConfiguration to set
    */
-  public void setPipelinePreviewExecutionConfiguration( PipelineExecutionConfiguration pipelinePreviewExecutionConfiguration ) {
+  public void setPipelinePreviewExecutionConfiguration(
+      PipelineExecutionConfiguration pipelinePreviewExecutionConfiguration) {
     this.pipelinePreviewExecutionConfiguration = pipelinePreviewExecutionConfiguration;
   }
 
@@ -293,10 +304,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineDebugExecutionConfiguration;
   }
 
-  /**
-   * @param pipelineDebugExecutionConfiguration The pipelineDebugExecutionConfiguration to set
-   */
-  public void setPipelineDebugExecutionConfiguration( PipelineExecutionConfiguration pipelineDebugExecutionConfiguration ) {
+  /** @param pipelineDebugExecutionConfiguration The pipelineDebugExecutionConfiguration to set */
+  public void setPipelineDebugExecutionConfiguration(
+      PipelineExecutionConfiguration pipelineDebugExecutionConfiguration) {
     this.pipelineDebugExecutionConfiguration = pipelineDebugExecutionConfiguration;
   }
 
@@ -309,10 +319,8 @@ public class HopGuiPipelineRunDelegate {
     return pipelineMap;
   }
 
-  /**
-   * @param pipelineMap The pipelineMap to set
-   */
-  public void setPipelineMap( List<PipelineMeta> pipelineMap ) {
+  /** @param pipelineMap The pipelineMap to set */
+  public void setPipelineMap(List<PipelineMeta> pipelineMap) {
     this.pipelineMap = pipelineMap;
   }
 
@@ -325,10 +333,8 @@ public class HopGuiPipelineRunDelegate {
     return pipelineDebugMetaMap;
   }
 
-  /**
-   * @param pipelineDebugMetaMap The pipelineDebugMetaMap to set
-   */
-  public void setPipelineDebugMetaMap( Map<PipelineMeta, PipelineDebugMeta> pipelineDebugMetaMap ) {
+  /** @param pipelineDebugMetaMap The pipelineDebugMetaMap to set */
+  public void setPipelineDebugMetaMap(Map<PipelineMeta, PipelineDebugMeta> pipelineDebugMetaMap) {
     this.pipelineDebugMetaMap = pipelineDebugMetaMap;
   }
 
@@ -341,10 +347,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelinePreviewMetaMap;
   }
 
-  /**
-   * @param pipelinePreviewMetaMap The pipelinePreviewMetaMap to set
-   */
-  public void setPipelinePreviewMetaMap( Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap ) {
+  /** @param pipelinePreviewMetaMap The pipelinePreviewMetaMap to set */
+  public void setPipelinePreviewMetaMap(
+      Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap) {
     this.pipelinePreviewMetaMap = pipelinePreviewMetaMap;
   }
 }

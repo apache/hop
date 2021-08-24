@@ -28,21 +28,17 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
  * @author Matt
  * @since 11-mrt-2005
  */
-
-@DatabaseMetaPlugin(
-  type = "GREENPLUM",
-  typeDescription = "Greenplum"
-)
-@GuiPlugin( id = "GUI-GreenplumDatabaseMeta" )
+@DatabaseMetaPlugin(type = "GREENPLUM", typeDescription = "Greenplum")
+@GuiPlugin(id = "GUI-GreenplumDatabaseMeta")
 public class GreenplumDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
   @Override
   public String[] getReservedWords() {
-    String[] newWords = new String[] { "ERRORS" };
+    String[] newWords = new String[] {"ERRORS"};
     String[] pgWords = super.getReservedWords();
-    String[] gpWords = new String[ pgWords.length + newWords.length ];
+    String[] gpWords = new String[pgWords.length + newWords.length];
 
-    System.arraycopy( pgWords, 0, gpWords, 0, pgWords.length );
-    System.arraycopy( newWords, 0, gpWords, pgWords.length, newWords.length );
+    System.arraycopy(pgWords, 0, gpWords, 0, pgWords.length);
+    System.arraycopy(newWords, 0, gpWords, pgWords.length, newWords.length);
 
     return gpWords;
   }

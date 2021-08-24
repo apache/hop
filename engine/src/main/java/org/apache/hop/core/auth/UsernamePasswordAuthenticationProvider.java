@@ -18,13 +18,14 @@
 package org.apache.hop.core.auth;
 
 import org.apache.hop.core.auth.core.IAuthenticationProvider;
-@AuthenticationProviderPlugin (
-  id = "UsernameAndPassword", 
-  name = "UsernameAndPassword",
-  description = "Username And Password"
-)
+
+@AuthenticationProviderPlugin(
+    id = "UsernameAndPassword",
+    name = "UsernameAndPassword",
+    description = "Username And Password")
 public class UsernamePasswordAuthenticationProvider implements IAuthenticationProvider {
-  public static class UsernamePasswordAuthenticationProviderType implements IAuthenticationProviderType {
+  public static class UsernamePasswordAuthenticationProviderType
+      implements IAuthenticationProviderType {
 
     @Override
     public String getDisplayName() {
@@ -41,11 +42,9 @@ public class UsernamePasswordAuthenticationProvider implements IAuthenticationPr
   private String username;
   private String password;
 
-  public UsernamePasswordAuthenticationProvider() {
+  public UsernamePasswordAuthenticationProvider() {}
 
-  }
-
-  public UsernamePasswordAuthenticationProvider( String id, String username, String password ) {
+  public UsernamePasswordAuthenticationProvider(String id, String username, String password) {
     this.id = id;
     this.username = username;
     this.password = password;
@@ -55,7 +54,7 @@ public class UsernamePasswordAuthenticationProvider implements IAuthenticationPr
     return username;
   }
 
-  public void setUsername( String username ) {
+  public void setUsername(String username) {
     this.username = username;
   }
 
@@ -63,7 +62,7 @@ public class UsernamePasswordAuthenticationProvider implements IAuthenticationPr
     return password;
   }
 
-  public void setPassword( String password ) {
+  public void setPassword(String password) {
     this.password = password;
   }
 
@@ -77,7 +76,7 @@ public class UsernamePasswordAuthenticationProvider implements IAuthenticationPr
     return id;
   }
 
-  public void setId( String id ) {
+  public void setId(String id) {
     this.id = id;
   }
 }

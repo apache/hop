@@ -28,51 +28,56 @@ public class HopGuiContextDelegate {
   public static final Class<?> PKG = HopGuiContextDelegate.class;
   private HopGui hopGui;
 
-  public HopGuiContextDelegate( HopGui hopGui ) {
+  public HopGuiContextDelegate(HopGui hopGui) {
     this.hopGui = hopGui;
   }
 
-  /**
-   * Create a new file, ask which type of file or object you want created
-   */
+  /** Create a new file, ask which type of file or object you want created */
   public void fileNew() {
     // Click : shell location + 50, 50
     //
     int x = 50 + hopGui.getShell().getLocation().x;
     int y = 50 + hopGui.getShell().getLocation().y;
 
-    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell()
-            , BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectItemCreate.Dialog.Header")
-            , new Point( x, y )
-            , hopGui
-            , GuiActionType.Create
-            , "FileNew", true );
+    GuiContextUtil.getInstance()
+        .handleActionSelection(
+            hopGui.getShell(),
+            BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectItemCreate.Dialog.Header"),
+            new Point(x, y),
+            hopGui,
+            GuiActionType.Create,
+            "FileNew",
+            true);
   }
 
-  /**
-   * Edit a metadata object...
-   */
+  /** Edit a metadata object... */
   public void fileMetadataEdit() {
 
-    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell()
-            , BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectElementTypeEdit.Dialog.Header")
-            , new Point( 0, 0 )
-            , hopGui, GuiActionType.Modify
-            , "FileMetadataEdit"
-            , true );
+    GuiContextUtil.getInstance()
+        .handleActionSelection(
+            hopGui.getShell(),
+            BaseMessages.getString(
+                PKG, "HopGuiContextDelegate.SelectElementTypeEdit.Dialog.Header"),
+            new Point(0, 0),
+            hopGui,
+            GuiActionType.Modify,
+            "FileMetadataEdit",
+            true);
   }
 
-  /**
-   * Delete a metadata object...
-   */
+  /** Delete a metadata object... */
   public void fileMetadataDelete() {
 
-    GuiContextUtil.getInstance().handleActionSelection( hopGui.getShell()
-            , BaseMessages.getString(PKG, "HopGuiContextDelegate.SelectElementTypeDelete.Dialog.Header")
-            , new Point( 0, 0 )
-            , hopGui
-            , GuiActionType.Delete
-            , "FileMetadataDelete", true );
+    GuiContextUtil.getInstance()
+        .handleActionSelection(
+            hopGui.getShell(),
+            BaseMessages.getString(
+                PKG, "HopGuiContextDelegate.SelectElementTypeDelete.Dialog.Header"),
+            new Point(0, 0),
+            hopGui,
+            GuiActionType.Delete,
+            "FileMetadataDelete",
+            true);
   }
 
   /**
@@ -84,11 +89,8 @@ public class HopGuiContextDelegate {
     return hopGui;
   }
 
-  /**
-   * @param hopGui The hopGui to set
-   */
-  public void setHopGui( HopGui hopGui ) {
+  /** @param hopGui The hopGui to set */
+  public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
-
 }

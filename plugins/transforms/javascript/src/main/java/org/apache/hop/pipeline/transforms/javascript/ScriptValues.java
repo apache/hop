@@ -21,9 +21,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.JavaScriptUtils;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -32,22 +32,17 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-
+import org.mozilla.javascript.*;
 
 /**
- * Executes a JavaScript on the values in the input stream. Selected calculated values can then be put on the output
- * stream.
+ * Executes a JavaScript on the values in the input stream. Selected calculated values can then be
+ * put on the output stream.
  *
  * @author Matt
  * @since 5-April-2003
  */
-public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData> implements ITransform<ScriptValuesMeta, ScriptValuesData> {
+public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData>
+    implements ITransform<ScriptValuesMeta, ScriptValuesData> {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   public static final int SKIP_PIPELINE = 1;
@@ -78,83 +73,98 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
   public Script script;
 
-  public ScriptValues(TransformMeta transformMeta, ScriptValuesMeta meta, ScriptValuesData data, int copyNr, PipelineMeta pipelineMeta,
-                         Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public ScriptValues(
+      TransformMeta transformMeta,
+      ScriptValuesMeta meta,
+      ScriptValuesData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void determineUsedFields( IRowMeta row ) {
+  private void determineUsedFields(IRowMeta row) {
     int nr = 0;
     // Count the occurrences of the values.
     // Perhaps we find values in comments, but we take no risk!
     //
-    for ( int i = 0; i < row.size(); i++ ) {
-      String valname = row.getValueMeta( i ).getName().toUpperCase();
-      if ( strTransformScript.toUpperCase().indexOf( valname ) >= 0 ) {
+    for (int i = 0; i < row.size(); i++) {
+      String valname = row.getValueMeta(i).getName().toUpperCase();
+      if (strTransformScript.toUpperCase().indexOf(valname) >= 0) {
         nr++;
       }
     }
 
     // Allocate fields_used
-    data.fieldsUsed = new int[ nr ];
-//    data.values_used = new Value[ nr ];
+    data.fieldsUsed = new int[nr];
+    //    data.values_used = new Value[ nr ];
 
     nr = 0;
     // Count the occurrences of the values.
     // Perhaps we find values in comments, but we take no risk!
     //
-    for ( int i = 0; i < row.size(); i++ ) {
+    for (int i = 0; i < row.size(); i++) {
       // Values are case-insensitive in JavaScript.
       //
-      String valname = row.getValueMeta( i ).getName();
-      if ( strTransformScript.indexOf( valname ) >= 0 ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Log.UsedValueName", String.valueOf( i ), valname ) );
+      String valname = row.getValueMeta(i).getName();
+      if (strTransformScript.indexOf(valname) >= 0) {
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "ScriptValuesMod.Log.UsedValueName", String.valueOf(i), valname));
         }
-        data.fieldsUsed[ nr ] = i;
+        data.fieldsUsed[nr] = i;
         nr++;
       }
     }
 
-    if ( log.isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ScriptValuesMod.Log.UsingValuesFromInputStream", String
-        .valueOf( data.fieldsUsed.length ) ) );
+    if (log.isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ScriptValuesMod.Log.UsingValuesFromInputStream",
+              String.valueOf(data.fieldsUsed.length)));
     }
   }
 
-  private boolean addValues( IRowMeta rowMeta, Object[] row ) throws HopException {
-    if ( first ) {
+  private boolean addValues(IRowMeta rowMeta, Object[] row) throws HopException {
+    if (first) {
       first = false;
 
       // What is the output row looking like?
       //
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Determine the indexes of the fields used!
       //
-      determineUsedFields( rowMeta );
+      determineUsedFields(rowMeta);
 
       // Get the indexes of the replaced fields...
       //
-      data.replaceIndex = new int[ meta.getFieldname().length ];
-      for ( int i = 0; i < meta.getFieldname().length; i++ ) {
-        if ( meta.getReplace()[ i ] ) {
-          data.replaceIndex[ i ] = rowMeta.indexOfValue( meta.getFieldname()[ i ] );
-          if ( data.replaceIndex[ i ] < 0 ) {
-            if ( Utils.isEmpty( meta.getFieldname()[ i ] ) ) {
-              throw new HopTransformException( BaseMessages.getString(
-                PKG, "ScriptValuesMetaMod.Exception.FieldToReplaceNotFound", meta.getFieldname()[ i ] ) );
+      data.replaceIndex = new int[meta.getFieldname().length];
+      for (int i = 0; i < meta.getFieldname().length; i++) {
+        if (meta.getReplace()[i]) {
+          data.replaceIndex[i] = rowMeta.indexOfValue(meta.getFieldname()[i]);
+          if (data.replaceIndex[i] < 0) {
+            if (Utils.isEmpty(meta.getFieldname()[i])) {
+              throw new HopTransformException(
+                  BaseMessages.getString(
+                      PKG,
+                      "ScriptValuesMetaMod.Exception.FieldToReplaceNotFound",
+                      meta.getFieldname()[i]));
             }
-            data.replaceIndex[ i ] = rowMeta.indexOfValue( meta.getRename()[ i ] );
-            if ( data.replaceIndex[ i ] < 0 ) {
-              throw new HopTransformException( BaseMessages.getString(
-                PKG, "ScriptValuesMetaMod.Exception.FieldToReplaceNotFound", meta.getRename()[ i ] ) );
+            data.replaceIndex[i] = rowMeta.indexOfValue(meta.getRename()[i]);
+            if (data.replaceIndex[i] < 0) {
+              throw new HopTransformException(
+                  BaseMessages.getString(
+                      PKG,
+                      "ScriptValuesMetaMod.Exception.FieldToReplaceNotFound",
+                      meta.getRename()[i]));
             }
           }
         } else {
-          data.replaceIndex[ i ] = -1;
+          data.replaceIndex[i] = -1;
         }
       }
 
@@ -162,39 +172,46 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       data.cx = ContextFactory.getGlobal().enterContext();
 
       try {
-        String optimizationLevelAsString = resolve( meta.getOptimizationLevel() );
-        if ( !Utils.isEmpty( Const.trim( optimizationLevelAsString ) ) ) {
-          data.cx.setOptimizationLevel( Integer.parseInt( optimizationLevelAsString.trim() ) );
-          logBasic( BaseMessages.getString( PKG, "ScriptValuesMod.Optimization.Level", resolve( meta
-            .getOptimizationLevel() ) ) );
+        String optimizationLevelAsString = resolve(meta.getOptimizationLevel());
+        if (!Utils.isEmpty(Const.trim(optimizationLevelAsString))) {
+          data.cx.setOptimizationLevel(Integer.parseInt(optimizationLevelAsString.trim()));
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ScriptValuesMod.Optimization.Level", resolve(meta.getOptimizationLevel())));
         } else {
-          data.cx.setOptimizationLevel( Integer.parseInt( ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT ) );
-          logBasic( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Optimization.UsingDefault", ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT ) );
+          data.cx.setOptimizationLevel(
+              Integer.parseInt(ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT));
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "ScriptValuesMod.Optimization.UsingDefault",
+                  ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT));
         }
-      } catch ( NumberFormatException nfe ) {
-        throw new HopTransformException( BaseMessages.getString(
-          PKG, "ScriptValuesMetaMod.Exception.NumberFormatException", resolve( meta
-            .getOptimizationLevel() ) ) );
-      } catch ( IllegalArgumentException iae ) {
-        throw new HopException( iae.getMessage() );
+      } catch (NumberFormatException nfe) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "ScriptValuesMetaMod.Exception.NumberFormatException",
+                resolve(meta.getOptimizationLevel())));
+      } catch (IllegalArgumentException iae) {
+        throw new HopException(iae.getMessage());
       }
 
-      data.scope = data.cx.initStandardObjects( null, false );
+      data.scope = data.cx.initStandardObjects(null, false);
 
       bFirstRun = true;
 
-      Scriptable jsvalue = Context.toObject( this, data.scope );
-      data.scope.put( "_transform_", data.scope, jsvalue );
+      Scriptable jsvalue = Context.toObject(this, data.scope);
+      data.scope.put("_transform_", data.scope, jsvalue);
 
       // Adding the existing Scripts to the Context
-      for ( int i = 0; i < meta.getNumberOfJSScripts(); i++ ) {
-        Scriptable jsR = Context.toObject( jsScripts[ i ].getScript(), data.scope );
-        data.scope.put( jsScripts[ i ].getScriptName(), data.scope, jsR );
+      for (int i = 0; i < meta.getNumberOfJSScripts(); i++) {
+        Scriptable jsR = Context.toObject(jsScripts[i].getScript(), data.scope);
+        data.scope.put(jsScripts[i].getScriptName(), data.scope, jsR);
       }
 
       // Adding the Name of the Pipeline to the Context
-      data.scope.put( "_PipelineName_", data.scope, getPipelineMeta().getName() );
+      data.scope.put("_PipelineName_", data.scope, getPipelineMeta().getName());
 
       try {
         // add these now (they will be re-added later) to make compilation succeed
@@ -202,164 +219,169 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
         // Add the old style row object for compatibility reasons...
         //
-        Scriptable jsrow = Context.toObject( row, data.scope );
-        data.scope.put( "row", data.scope, jsrow );
+        Scriptable jsrow = Context.toObject(row, data.scope);
+        data.scope.put("row", data.scope, jsrow);
 
         // Add the used fields...
         //
-        for ( int i = 0; i < data.fieldsUsed.length; i++ ) {
-          IValueMeta valueMeta = rowMeta.getValueMeta( data.fieldsUsed[ i ] );
-          Object valueData = row[ data.fieldsUsed[ i ] ];
+        for (int i = 0; i < data.fieldsUsed.length; i++) {
+          IValueMeta valueMeta = rowMeta.getValueMeta(data.fieldsUsed[i]);
+          Object valueData = row[data.fieldsUsed[i]];
 
-          Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
+          Object normalStorageValueData = valueMeta.convertToNormalStorageType(valueData);
           Scriptable jsarg;
-          if ( normalStorageValueData != null ) {
-            jsarg = Context.toObject( normalStorageValueData, data.scope );
+          if (normalStorageValueData != null) {
+            jsarg = Context.toObject(normalStorageValueData, data.scope);
           } else {
             jsarg = null;
           }
-          data.scope.put( valueMeta.getName(), data.scope, jsarg );
+          data.scope.put(valueMeta.getName(), data.scope, jsarg);
         }
 
         // also add the meta information for the whole row
         //
-        Scriptable jsrowMeta = Context.toObject( rowMeta, data.scope );
-        data.scope.put( "rowMeta", data.scope, jsrowMeta );
+        Scriptable jsrowMeta = Context.toObject(rowMeta, data.scope);
+        data.scope.put("rowMeta", data.scope, jsrowMeta);
 
         // Modification for Additional Script parsing
         //
         try {
-          if ( meta.getAddClasses() != null ) {
-            for ( int i = 0; i < meta.getAddClasses().length; i++ ) {
-              Object jsOut = Context.javaToJS( meta.getAddClasses()[ i ].getAddObject(), data.scope );
-              ScriptableObject.putProperty( data.scope, meta.getAddClasses()[ i ].getJSName(), jsOut );
+          if (meta.getAddClasses() != null) {
+            for (int i = 0; i < meta.getAddClasses().length; i++) {
+              Object jsOut = Context.javaToJS(meta.getAddClasses()[i].getAddObject(), data.scope);
+              ScriptableObject.putProperty(data.scope, meta.getAddClasses()[i].getJSName(), jsOut);
             }
           }
-        } catch ( Exception e ) {
-          throw new HopValueException( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Log.CouldNotAttachAdditionalScripts" ), e );
+        } catch (Exception e) {
+          throw new HopValueException(
+              BaseMessages.getString(PKG, "ScriptValuesMod.Log.CouldNotAttachAdditionalScripts"),
+              e);
         }
 
         // Adding some default JavaScriptFunctions to the System
         try {
-          Context.javaToJS( ScriptValuesAddedFunctions.class, data.scope );
-          ( (ScriptableObject) data.scope ).defineFunctionProperties(
-            ScriptValuesAddedFunctions.jsFunctionList, ScriptValuesAddedFunctions.class,
-            ScriptableObject.DONTENUM );
-        } catch ( Exception ex ) {
-          throw new HopValueException( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Log.CouldNotAddDefaultFunctions" ), ex );
+          Context.javaToJS(ScriptValuesAddedFunctions.class, data.scope);
+          ((ScriptableObject) data.scope)
+              .defineFunctionProperties(
+                  ScriptValuesAddedFunctions.jsFunctionList,
+                  ScriptValuesAddedFunctions.class,
+                  ScriptableObject.DONTENUM);
+        } catch (Exception ex) {
+          throw new HopValueException(
+              BaseMessages.getString(PKG, "ScriptValuesMod.Log.CouldNotAddDefaultFunctions"), ex);
         }
 
         // Adding some Constants to the JavaScript
         try {
 
-          data.scope.put( "SKIP_PIPELINE", data.scope, Integer.valueOf( SKIP_PIPELINE ) );
-          data.scope.put( "ABORT_PIPELINE", data.scope, Integer.valueOf( ABORT_PIPELINE ) );
-          data.scope.put( "ERROR_PIPELINE", data.scope, Integer.valueOf( ERROR_PIPELINE ) );
-          data.scope.put( "CONTINUE_PIPELINE", data.scope, Integer.valueOf( CONTINUE_PIPELINE ) );
+          data.scope.put("SKIP_PIPELINE", data.scope, Integer.valueOf(SKIP_PIPELINE));
+          data.scope.put("ABORT_PIPELINE", data.scope, Integer.valueOf(ABORT_PIPELINE));
+          data.scope.put("ERROR_PIPELINE", data.scope, Integer.valueOf(ERROR_PIPELINE));
+          data.scope.put("CONTINUE_PIPELINE", data.scope, Integer.valueOf(CONTINUE_PIPELINE));
 
-        } catch ( Exception ex ) {
-          throw new HopValueException( BaseMessages.getString(PKG, "ScriptValuesMod.Log.CouldNotAddDefaultConstants" ), ex );
+        } catch (Exception ex) {
+          throw new HopValueException(
+              BaseMessages.getString(PKG, "ScriptValuesMod.Log.CouldNotAddDefaultConstants"), ex);
         }
 
         try {
           // Checking for StartScript
-          if ( strStartScript != null && strStartScript.length() > 0 ) {
-            Script startScript = data.cx.compileString( strStartScript, "pipeline_Start", 1, null );
-            startScript.exec( data.cx, data.scope );
-            if ( log.isDetailed() ) {
-              logDetailed( ( "Start Script found!" ) );
+          if (strStartScript != null && strStartScript.length() > 0) {
+            Script startScript = data.cx.compileString(strStartScript, "pipeline_Start", 1, null);
+            startScript.exec(data.cx, data.scope);
+            if (log.isDetailed()) {
+              logDetailed(("Start Script found!"));
             }
           } else {
-            if ( log.isDetailed() ) {
-              logDetailed( ( "No starting Script found!" ) );
+            if (log.isDetailed()) {
+              logDetailed(("No starting Script found!"));
             }
           }
-        } catch ( Exception es ) {
-          throw new HopValueException( BaseMessages.getString( PKG, "ScriptValuesMod.Log.ErrorProcessingStartScript" ), es );
-
+        } catch (Exception es) {
+          throw new HopValueException(
+              BaseMessages.getString(PKG, "ScriptValuesMod.Log.ErrorProcessingStartScript"), es);
         }
         // Now Compile our Script
-        data.script = data.cx.compileString( strTransformScript, "script", 1, null );
-      } catch ( Exception e ) {
-        throw new HopValueException( BaseMessages.getString(
-          PKG, "ScriptValuesMod.Log.CouldNotCompileJavascript" ), e );
+        data.script = data.cx.compileString(strTransformScript, "script", 1, null);
+      } catch (Exception e) {
+        throw new HopValueException(
+            BaseMessages.getString(PKG, "ScriptValuesMod.Log.CouldNotCompileJavascript"), e);
       }
     }
 
     // Filling the defined TranVars with the Values from the Row
     //
-    Object[] outputRow = RowDataUtil.resizeArray( row, data.outputRowMeta.size() );
+    Object[] outputRow = RowDataUtil.resizeArray(row, data.outputRowMeta.size());
 
     // Keep an index...
     int outputIndex = rowMeta.size();
 
     // Keep track of the changed values...
     //
-//    final Map<Integer, Value> usedRowValues;
+    //    final Map<Integer, Value> usedRowValues;
 
     try {
       try {
-          Scriptable jsrow = Context.toObject( row, data.scope );
-          data.scope.put( "row", data.scope, jsrow );
+        Scriptable jsrow = Context.toObject(row, data.scope);
+        data.scope.put("row", data.scope, jsrow);
 
-        for ( int i = 0; i < data.fieldsUsed.length; i++ ) {
-          IValueMeta valueMeta = rowMeta.getValueMeta( data.fieldsUsed[ i ] );
-          Object valueData = row[ data.fieldsUsed[ i ] ];
+        for (int i = 0; i < data.fieldsUsed.length; i++) {
+          IValueMeta valueMeta = rowMeta.getValueMeta(data.fieldsUsed[i]);
+          Object valueData = row[data.fieldsUsed[i]];
 
-          Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
+          Object normalStorageValueData = valueMeta.convertToNormalStorageType(valueData);
           Scriptable jsarg;
-          if ( normalStorageValueData != null ) {
-            jsarg = Context.toObject( normalStorageValueData, data.scope );
+          if (normalStorageValueData != null) {
+            jsarg = Context.toObject(normalStorageValueData, data.scope);
           } else {
             jsarg = null;
           }
-          data.scope.put( valueMeta.getName(), data.scope, jsarg );
+          data.scope.put(valueMeta.getName(), data.scope, jsarg);
         }
 
         // also add the meta information for the hole row
-        Scriptable jsrowMeta = Context.toObject( rowMeta, data.scope );
-        data.scope.put( "rowMeta", data.scope, jsrowMeta );
-      } catch ( Exception e ) {
-        throw new HopValueException( BaseMessages.getString( PKG, "ScriptValuesMod.Log.UnexpectedeError" ), e );
+        Scriptable jsrowMeta = Context.toObject(rowMeta, data.scope);
+        data.scope.put("rowMeta", data.scope, jsrowMeta);
+      } catch (Exception e) {
+        throw new HopValueException(
+            BaseMessages.getString(PKG, "ScriptValuesMod.Log.UnexpectedeError"), e);
       }
 
       // Executing our Script
-      data.script.exec( data.cx, data.scope );
+      data.script.exec(data.cx, data.scope);
 
-      if ( bFirstRun ) {
+      if (bFirstRun) {
         bFirstRun = false;
         // Check if we had a Pipeline Status
-        Object pipelineStatus = data.scope.get( "pipeline_Status", data.scope );
-        if ( pipelineStatus != ScriptableObject.NOT_FOUND ) {
+        Object pipelineStatus = data.scope.get("pipeline_Status", data.scope);
+        if (pipelineStatus != ScriptableObject.NOT_FOUND) {
           bWithPipelineStat = true;
-          if ( log.isDetailed() ) {
-            logDetailed( ( "tran_Status found. Checking pipeline status while script execution." ) );
+          if (log.isDetailed()) {
+            logDetailed(("tran_Status found. Checking pipeline status while script execution."));
           }
         } else {
-          if ( log.isDetailed() ) {
-            logDetailed( ( "No tran_Status found. Pipeline status checking not available." ) );
+          if (log.isDetailed()) {
+            logDetailed(("No tran_Status found. Pipeline status checking not available."));
           }
           bWithPipelineStat = false;
         }
       }
 
-      if ( bWithPipelineStat ) {
-        iPipelineStat = (int) Context.toNumber( data.scope.get( "pipeline_Status", data.scope ) );
+      if (bWithPipelineStat) {
+        iPipelineStat = (int) Context.toNumber(data.scope.get("pipeline_Status", data.scope));
       } else {
         iPipelineStat = CONTINUE_PIPELINE;
       }
 
-      if ( iPipelineStat == CONTINUE_PIPELINE ) {
+      if (iPipelineStat == CONTINUE_PIPELINE) {
         bRC = true;
-        for ( int i = 0; i < meta.getFieldname().length; i++ ) {
-          Object result = data.scope.get( meta.getFieldname()[ i ], data.scope );
-          Object valueData = getValueFromJScript( result, i );
-          if ( data.replaceIndex[ i ] < 0 ) {
-            outputRow[ outputIndex++ ] = valueData;
+        for (int i = 0; i < meta.getFieldname().length; i++) {
+          Object result = data.scope.get(meta.getFieldname()[i], data.scope);
+          Object valueData = getValueFromJScript(result, i);
+          if (data.replaceIndex[i] < 0) {
+            outputRow[outputIndex++] = valueData;
           } else {
-            outputRow[ data.replaceIndex[ i ] ] = valueData;
+            outputRow[data.replaceIndex[i]] = valueData;
           }
         }
 
@@ -367,15 +389,15 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         // --> the field.trim() type of changes...
         // As such we overwrite all the used fields again.
         //
-        putRow( data.outputRowMeta, outputRow );
+        putRow(data.outputRowMeta, outputRow);
       } else {
-        switch ( iPipelineStat ) {
+        switch (iPipelineStat) {
           case SKIP_PIPELINE:
             // eat this row.
             bRC = true;
             break;
           case ABORT_PIPELINE:
-            if ( data.cx != null ) {
+            if (data.cx != null) {
               Context.exit();
             }
             stopAll();
@@ -383,10 +405,10 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
             bRC = false;
             break;
           case ERROR_PIPELINE:
-            if ( data.cx != null ) {
+            if (data.cx != null) {
               Context.exit();
             }
-            setErrors( 1 );
+            setErrors(1);
             stopAll();
             bRC = false;
             break;
@@ -397,26 +419,29 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         // TODO: kick this "ERROR handling" junk out now that we have solid error handling in place.
         //
       }
-    } catch ( Exception e ) {
-      throw new HopValueException( BaseMessages.getString( PKG, "ScriptValuesMod.Log.JavascriptError" ), e );
+    } catch (Exception e) {
+      throw new HopValueException(
+          BaseMessages.getString(PKG, "ScriptValuesMod.Log.JavascriptError"), e);
     }
     return bRC;
   }
 
-  public Object getValueFromJScript( Object result, int i ) throws HopValueException {
-    String fieldName = meta.getFieldname()[ i ];
-    if ( !Utils.isEmpty( fieldName ) ) {
+  public Object getValueFromJScript(Object result, int i) throws HopValueException {
+    String fieldName = meta.getFieldname()[i];
+    if (!Utils.isEmpty(fieldName)) {
       // res.setName(meta.getRename()[i]);
       // res.setType(meta.getType()[i]);
 
       try {
-        return ( result == null ) ? null
-          : JavaScriptUtils.convertFromJs( result, meta.getType()[ i ], fieldName );
-      } catch ( Exception e ) {
-        throw new HopValueException( BaseMessages.getString( PKG, "ScriptValuesMod.Log.JavascriptError" ), e );
+        return (result == null)
+            ? null
+            : JavaScriptUtils.convertFromJs(result, meta.getType()[i], fieldName);
+      } catch (Exception e) {
+        throw new HopValueException(
+            BaseMessages.getString(PKG, "ScriptValuesMod.Log.JavascriptError"), e);
       }
     } else {
-      throw new HopValueException( "No name was specified for result value #" + ( i + 1 ) );
+      throw new HopValueException("No name was specified for result value #" + (i + 1));
     }
   }
 
@@ -427,36 +452,43 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if ( r == null ) {
+    if (r == null) {
       // Modification for Additional End Function
       try {
-        if ( data.cx != null ) {
+        if (data.cx != null) {
           // Checking for EndScript
-          if ( strEndScript != null && strEndScript.length() > 0 ) {
-            Script endScript = data.cx.compileString( strEndScript, "pipeline_End", 1, null );
-            endScript.exec( data.cx, data.scope );
-            if ( log.isDetailed() ) {
-              logDetailed( ( "End Script found!" ) );
+          if (strEndScript != null && strEndScript.length() > 0) {
+            Script endScript = data.cx.compileString(strEndScript, "pipeline_End", 1, null);
+            endScript.exec(data.cx, data.scope);
+            if (log.isDetailed()) {
+              logDetailed(("End Script found!"));
             }
           } else {
-            if ( log.isDetailed() ) {
-              logDetailed( ( "No end Script found!" ) );
+            if (log.isDetailed()) {
+              logDetailed(("No end Script found!"));
             }
           }
         }
-      } catch ( Exception e ) {
-        logError( BaseMessages.getString( PKG, "ScriptValuesMod.Log.UnexpectedeError" ) + " : " + e.toString() );
-        logError( BaseMessages.getString( PKG, "ScriptValuesMod.Log.ErrorStackTrace" )
-          + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) );
-        setErrors( 1 );
+      } catch (Exception e) {
+        logError(
+            BaseMessages.getString(PKG, "ScriptValuesMod.Log.UnexpectedeError")
+                + " : "
+                + e.toString());
+        logError(
+            BaseMessages.getString(PKG, "ScriptValuesMod.Log.ErrorStackTrace")
+                + Const.CR
+                + Const.getSimpleStackTrace(e)
+                + Const.CR
+                + Const.getStackTracker(e));
+        setErrors(1);
         stopAll();
       }
 
       try {
-        if ( data.cx != null ) {
+        if (data.cx != null) {
           Context.exit();
         }
-      } catch ( Exception er ) {
+      } catch (Exception er) {
         // Eat this error, it's typically : "Calling Context.exit without previous Context.enter"
         // logError(BaseMessages.getString(PKG, "System.Log.UnexpectedError"), er);
       }
@@ -467,45 +499,45 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
     // Getting the Row, with the Pipeline Status
     try {
-      addValues( getInputRowMeta(), r );
-    } catch ( HopValueException e ) {
+      addValues(getInputRowMeta(), r);
+    } catch (HopValueException e) {
       String location = null;
-      if ( e.getCause() instanceof EvaluatorException ) {
+      if (e.getCause() instanceof EvaluatorException) {
         EvaluatorException ee = (EvaluatorException) e.getCause();
         location = "--> " + ee.lineNumber() + ":" + ee.columnNumber();
       }
 
-      if ( getTransformMeta().isDoingErrorHandling() ) {
-        putError( getInputRowMeta(), r, 1, e.getMessage() + Const.CR + location, null, "SCR-001" );
+      if (getTransformMeta().isDoingErrorHandling()) {
+        putError(getInputRowMeta(), r, 1, e.getMessage() + Const.CR + location, null, "SCR-001");
         bRC = true; // continue by all means, even on the first row and out of this ugly design
       } else {
-        throw ( e );
+        throw (e);
       }
     }
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "ScriptValuesMod.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      logBasic(BaseMessages.getString(PKG, "ScriptValuesMod.Log.LineNumber") + getLinesRead());
     }
     return bRC;
   }
 
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
 
       // Add init code here.
       // Get the actual Scripts from our MetaData
       jsScripts = meta.getJSScripts();
-      for ( int j = 0; j < jsScripts.length; j++ ) {
-        switch ( jsScripts[ j ].getScriptType() ) {
+      for (int j = 0; j < jsScripts.length; j++) {
+        switch (jsScripts[j].getScriptType()) {
           case ScriptValuesScript.TRANSFORM_SCRIPT:
-            strTransformScript = jsScripts[ j ].getScript();
+            strTransformScript = jsScripts[j].getScript();
             break;
           case ScriptValuesScript.START_SCRIPT:
-            strStartScript = jsScripts[ j ].getScript();
+            strStartScript = jsScripts[j].getScript();
             break;
           case ScriptValuesScript.END_SCRIPT:
-            strEndScript = jsScripts[ j ].getScript();
+            strEndScript = jsScripts[j].getScript();
             break;
           default:
             break;
@@ -519,15 +551,14 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
   public void dispose() {
     try {
-      if ( data.cx != null ) {
+      if (data.cx != null) {
         Context.exit();
       }
-    } catch ( Exception er ) {
+    } catch (Exception er) {
       // Eat this error, it's typically : "Calling Context.exit without previous Context.enter"
       // logError(BaseMessages.getString(PKG, "System.Log.UnexpectedError"), er);
     }
 
     super.dispose();
   }
-
 }

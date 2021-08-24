@@ -26,85 +26,83 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 import java.util.Map;
 
-/**
- * This class defines how Hop Metadata plugins are loaded
- */
-@PluginMainClassType( IHopMetadata.class )
-@PluginAnnotationType( HopMetadata.class )
+/** This class defines how Hop Metadata plugins are loaded */
+@PluginMainClassType(IHopMetadata.class)
+@PluginAnnotationType(HopMetadata.class)
 public class MetadataPluginType extends BasePluginType<HopMetadata> {
   private static MetadataPluginType pluginType;
 
   private MetadataPluginType() {
-    super( HopMetadata.class, "METADATA", "Metadata" );
+    super(HopMetadata.class, "METADATA", "Metadata");
   }
 
   public static MetadataPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new MetadataPluginType();
     }
     return pluginType;
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( HopMetadata annotation ) {
+  protected String extractCategory(HopMetadata annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( HopMetadata annotation ) {
+  protected String extractDesc(HopMetadata annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( HopMetadata annotation ) {
-    return Const.NVL( annotation.key(), annotation.name() );
+  protected String extractID(HopMetadata annotation) {
+    return Const.NVL(annotation.key(), annotation.name());
   }
 
   @Override
-  protected String extractName( HopMetadata annotation ) {
+  protected String extractName(HopMetadata annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( HopMetadata annotation ) {
+  protected String extractImageFile(HopMetadata annotation) {
     return annotation.image();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( HopMetadata annotation ) {
+  protected boolean extractSeparateClassLoader(HopMetadata annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, HopMetadata annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, HopMetadata annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( HopMetadata annotation ) {
+  protected String extractDocumentationUrl(HopMetadata annotation) {
     return annotation.documentationUrl();
   }
 
   @Override
-  protected String extractCasesUrl( HopMetadata annotation ) {
+  protected String extractCasesUrl(HopMetadata annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( HopMetadata annotation ) {
+  protected String extractForumUrl(HopMetadata annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( HopMetadata annotation ) {
+  protected String extractSuggestion(HopMetadata annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( HopMetadata annotation ) {
+  protected String extractClassLoaderGroup(HopMetadata annotation) {
     return null;
   }
 }

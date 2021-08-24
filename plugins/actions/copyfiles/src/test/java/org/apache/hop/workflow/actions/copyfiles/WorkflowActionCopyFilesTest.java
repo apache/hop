@@ -31,17 +31,8 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class WorkflowActionCopyFilesTest {
   private ActionCopyFiles entry;
@@ -57,22 +48,23 @@ public class WorkflowActionCopyFilesTest {
   public void setUp() {
     entry = new ActionCopyFiles();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine();
-    entry.setParentWorkflow( parentWorkflow );
-    WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    entry.setParentWorkflowMeta( mockWorkflowMeta );
-    entry = spy( entry );
+    entry.setParentWorkflow(parentWorkflow);
+    WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
+    entry.setParentWorkflowMeta(mockWorkflowMeta);
+    entry = spy(entry);
   }
 
   @Test
   public void fileNotCopied() throws Exception {
-    entry.sourceFileFolder = new String[] { EMPTY };
-    entry.destinationFileFolder = new String[] { EMPTY };
-    entry.wildcard = new String[] { EMPTY };
+    entry.sourceFileFolder = new String[] {EMPTY};
+    entry.destinationFileFolder = new String[] {EMPTY};
+    entry.wildcard = new String[] {EMPTY};
 
-    entry.execute( new Result(), 0 );
+    entry.execute(new Result(), 0);
 
-    verify( entry, never() ).processFileFolder( anyString(), anyString(),
-      anyString(), any( Workflow.class ), any( Result.class ) );
+    verify(entry, never())
+        .processFileFolder(
+            anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
   }
 
   @Test
@@ -80,58 +72,57 @@ public class WorkflowActionCopyFilesTest {
     String srcPath = "path/to/file";
     String destPath = "path/to/dir";
 
-    entry.sourceFileFolder = new String[] { srcPath };
-    entry.destinationFileFolder = new String[] { destPath };
-    entry.wildcard = new String[] { EMPTY };
+    entry.sourceFileFolder = new String[] {srcPath};
+    entry.destinationFileFolder = new String[] {destPath};
+    entry.wildcard = new String[] {EMPTY};
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = entry.execute(new Result(), 0);
 
-    verify( entry ).processFileFolder( anyString(), anyString(),
-      anyString(), any( Workflow.class ), any( Result.class ) );
-    verify( entry, atLeast( 1 ) ).preprocessfilefilder( any( String[].class ) );
-    assertFalse( result.getResult() );
-    assertEquals( 1, result.getNrErrors() );
+    verify(entry)
+        .processFileFolder(
+            anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
+    verify(entry, atLeast(1)).preprocessfilefilder(any(String[].class));
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
   }
 
   @Test
   public void filesCopied() throws Exception {
-    String[] srcPath = new String[] { "path1", "path2", "path3" };
-    String[] destPath = new String[] { "dest1", "dest2", "dest3" };
+    String[] srcPath = new String[] {"path1", "path2", "path3"};
+    String[] destPath = new String[] {"dest1", "dest2", "dest3"};
 
     entry.sourceFileFolder = srcPath;
     entry.destinationFileFolder = destPath;
-    entry.wildcard = new String[] { EMPTY, EMPTY, EMPTY };
+    entry.wildcard = new String[] {EMPTY, EMPTY, EMPTY};
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = entry.execute(new Result(), 0);
 
-    verify( entry, times( srcPath.length ) ).processFileFolder( anyString(), anyString(),
-      anyString(), any( Workflow.class ), any( Result.class ) );
-    assertFalse( result.getResult() );
-    assertEquals( 3, result.getNrErrors() );
+    verify(entry, times(srcPath.length))
+        .processFileFolder(
+            anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
+    assertFalse(result.getResult());
+    assertEquals(3, result.getNrErrors());
   }
 
   @Test
   public void saveLoad() throws Exception {
-    String[] srcPath = new String[] { "EMPTY_SOURCE_URL-0-" };
-    String[] destPath = new String[] { "EMPTY_DEST_URL-0-" };
+    String[] srcPath = new String[] {"EMPTY_SOURCE_URL-0-"};
+    String[] destPath = new String[] {"EMPTY_DEST_URL-0-"};
 
     entry.sourceFileFolder = srcPath;
     entry.destinationFileFolder = destPath;
-    entry.wildcard = new String[] { EMPTY };
+    entry.wildcard = new String[] {EMPTY};
 
     String xml = "<entry>" + entry.getXml() + "</entry>";
-    assertTrue( xml.contains( srcPath[ 0 ] ) );
-    assertTrue( xml.contains( destPath[ 0 ] ) );
+    assertTrue(xml.contains(srcPath[0]));
+    assertTrue(xml.contains(destPath[0]));
     ActionCopyFiles loadedentry = new ActionCopyFiles();
-    InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    loadedentry.loadXml( XmlHandler.getSubNode(
-      XmlHandler.loadXmlFile( is,
+    InputStream is = new ByteArrayInputStream(xml.getBytes());
+    loadedentry.loadXml(
+        XmlHandler.getSubNode(XmlHandler.loadXmlFile(is, null, false, false), "entry"),
         null,
-        false,
-        false ),
-      "entry" ),
-      null, new Variables() );
-    assertTrue( loadedentry.destinationFileFolder[ 0 ].equals( destPath[ 0 ] ) );
-    assertTrue( loadedentry.sourceFileFolder[ 0 ].equals( srcPath[ 0 ] ) );
+        new Variables());
+    assertTrue(loadedentry.destinationFileFolder[0].equals(destPath[0]));
+    assertTrue(loadedentry.sourceFileFolder[0].equals(srcPath[0]));
   }
 }

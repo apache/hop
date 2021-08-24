@@ -19,11 +19,11 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,11 +53,11 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   @BeforeClass
   public static void setUp() throws HopException {
     transformMockHelper =
-      TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputDoubleLineEndTest" );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
-
+        TransformMockUtil.getTransformMockHelper(
+            CsvInputMeta.class, CsvInputData.class, "CsvInputDoubleLineEndTest");
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
   @AfterClass
@@ -67,65 +67,74 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
 
   @Test
   public void testASCII() throws Exception {
-    doTest( ASCII, ASCII, TEST_DATA );
+    doTest(ASCII, ASCII, TEST_DATA);
   }
 
   @Test
   public void testUTF16LE() throws Exception {
-    doTest( UTF16LE, UTF16LE, TEST_DATA );
+    doTest(UTF16LE, UTF16LE, TEST_DATA);
   }
 
   @Test
   public void testUTF16BE() throws Exception {
-    doTest( UTF16BE, UTF16BE, TEST_DATA );
+    doTest(UTF16BE, UTF16BE, TEST_DATA);
   }
 
   @Test
   public void testUTF8() throws Exception {
-    doTest( UTF8, UTF8, TEST_DATA );
+    doTest(UTF8, UTF8, TEST_DATA);
   }
 
-  private void doTest( final String fileEncoding, final String transformEncoding, final String testData ) throws Exception {
-    String testFilePath = createTestFile( fileEncoding, testData ).getAbsolutePath();
+  private void doTest(
+      final String fileEncoding, final String transformEncoding, final String testData)
+      throws Exception {
+    String testFilePath = createTestFile(fileEncoding, testData).getAbsolutePath();
 
-    CsvInputMeta meta = createTransformMeta( testFilePath, transformEncoding );
+    CsvInputMeta meta = createTransformMeta(testFilePath, transformEncoding);
     CsvInputData data = new CsvInputData();
 
-    CsvInput csvInput = new CsvInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
+    CsvInput csvInput =
+        new CsvInput(
+            transformMockHelper.transformMeta,
+            meta,
+            data,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
 
     csvInput.init();
-    csvInput.addRowListener( new RowAdapter() {
-      @Override
-      public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-        for ( int i = 0; i < rowMeta.size(); i++ ) {
-          assertEquals( "Value", row[ i ] );
-        }
-      }
-    } );
+    csvInput.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+            for (int i = 0; i < rowMeta.size(); i++) {
+              assertEquals("Value", row[i]);
+            }
+          }
+        });
 
     boolean haveRowsToRead;
     do {
       haveRowsToRead = !csvInput.processRow();
-    } while ( !haveRowsToRead );
+    } while (!haveRowsToRead);
 
     csvInput.dispose();
-    assertEquals( 2, csvInput.getLinesWritten() );
+    assertEquals(2, csvInput.getLinesWritten());
   }
 
-  private CsvInputMeta createTransformMeta( final String testFilePath, final String encoding ) {
+  private CsvInputMeta createTransformMeta(final String testFilePath, final String encoding) {
     final CsvInputMeta meta = new CsvInputMeta();
-    meta.setFilename( testFilePath );
-    meta.setDelimiter( "\t" );
-    meta.setEncoding( encoding );
-    meta.setEnclosure( "\"" );
-    meta.setBufferSize( "50000" );
-    meta.setInputFields( getInputFileFields() );
-    meta.setHeaderPresent( true );
+    meta.setFilename(testFilePath);
+    meta.setDelimiter("\t");
+    meta.setEncoding(encoding);
+    meta.setEnclosure("\"");
+    meta.setBufferSize("50000");
+    meta.setInputFields(getInputFileFields());
+    meta.setHeaderPresent(true);
     return meta;
   }
 
   private TextFileInputField[] getInputFileFields() {
-    return createInputFileFields( "Header1", "Header2" );
+    return createInputFileFields("Header1", "Header2");
   }
 }

@@ -24,19 +24,18 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 
 public class GoogleStorageFileName extends AbstractFileName {
 
-	public GoogleStorageFileName( String absPath, FileType type) {
-		super("gs", absPath, type);
-	}
+  public GoogleStorageFileName(String absPath, FileType type) {
+    super("gs", absPath, type);
+  }
 
-	@Override
-	public FileName createName(String absPath, FileType type) {
-		return new GoogleStorageFileName(absPath, type);
-	}
+  @Override
+  public FileName createName(String absPath, FileType type) {
+    return new GoogleStorageFileName(absPath, type);
+  }
 
-	@Override
-	protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
-		buffer.append(getScheme());
-        buffer.append("://");
-	}
-
+  @Override
+  protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
+    buffer.append(getScheme());
+    buffer.append("://");
+  }
 }

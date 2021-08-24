@@ -18,7 +18,7 @@
 package org.apache.hop.core.auth.core;
 
 public interface IAuthenticationPerformer<ReturnType, CreateArgType> {
-  ReturnType perform( CreateArgType consumerCreateArg ) throws AuthenticationConsumptionException;
+  ReturnType perform(CreateArgType consumerCreateArg) throws AuthenticationConsumptionException;
 
   String getDisplayName();
 

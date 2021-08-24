@@ -47,72 +47,75 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
    * @param append
    * @throws HopException
    */
-  public FileLoggingEventListener( String filename, boolean append ) throws HopException {
-    this( null, filename, append );
+  public FileLoggingEventListener(String filename, boolean append) throws HopException {
+    this(null, filename, append);
   }
 
   /**
-   * Log only lines belonging to the specified log channel ID or one of it's children (grandchildren) to the specified
-   * file.
+   * Log only lines belonging to the specified log channel ID or one of it's children
+   * (grandchildren) to the specified file.
    *
    * @param logChannelId
    * @param filename
    * @param append
    * @throws HopException
    */
-  public FileLoggingEventListener( String logChannelId, String filename, boolean append ) throws HopException {
+  public FileLoggingEventListener(String logChannelId, String filename, boolean append)
+      throws HopException {
     this.logChannelId = logChannelId;
     this.filename = filename;
-    this.layout = new HopLogLayout( true );
+    this.layout = new HopLogLayout(true);
     this.exception = null;
 
-    file = HopVfs.getFileObject( filename );
+    file = HopVfs.getFileObject(filename);
     outputStream = null;
     try {
-      outputStream = HopVfs.getOutputStream( file, append );
-    } catch ( Exception e ) {
+      outputStream = HopVfs.getOutputStream(file, append);
+    } catch (Exception e) {
       throw new HopException(
-        "Unable to create a logging event listener to write to file '" + filename + "'", e );
+          "Unable to create a logging event listener to write to file '" + filename + "'", e);
     }
   }
 
   @Override
-  public void eventAdded( HopLoggingEvent event ) {
+  public void eventAdded(HopLoggingEvent event) {
 
     try {
       Object messageObject = event.getMessage();
-      if ( messageObject instanceof LogMessage ) {
+      if (messageObject instanceof LogMessage) {
         boolean logToFile = false;
 
-        if ( logChannelId == null ) {
+        if (logChannelId == null) {
           logToFile = true;
         } else {
           LogMessage message = (LogMessage) messageObject;
           // This should be fast enough cause cached.
-          List<String> logChannelChildren = LoggingRegistry.getInstance().getLogChannelChildren( logChannelId );
+          List<String> logChannelChildren =
+              LoggingRegistry.getInstance().getLogChannelChildren(logChannelId);
           // This could be non-optimal, consider keeping the list sorted in the logging registry
-          logToFile = Const.indexOfString( message.getLogChannelId(), logChannelChildren ) >= 0;
+          logToFile = Const.indexOfString(message.getLogChannelId(), logChannelChildren) >= 0;
         }
 
-        if ( logToFile ) {
-          String logText = layout.format( event );
-          outputStream.write( logText.getBytes() );
-          outputStream.write( Const.CR.getBytes() );
+        if (logToFile) {
+          String logText = layout.format(event);
+          outputStream.write(logText.getBytes());
+          outputStream.write(Const.CR.getBytes());
           outputStream.flush();
         }
       }
-    } catch ( Exception e ) {
-      exception = new HopException( "Unable to write to logging event to file '" + filename + "'", e );
+    } catch (Exception e) {
+      exception =
+          new HopException("Unable to write to logging event to file '" + filename + "'", e);
     }
   }
 
   public void close() throws HopException {
     try {
-      if ( outputStream != null ) {
+      if (outputStream != null) {
         outputStream.close();
       }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to close output of file '" + filename + "'", e );
+    } catch (Exception e) {
+      throw new HopException("Unable to close output of file '" + filename + "'", e);
     }
   }
 
@@ -120,7 +123,7 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
     return exception;
   }
 
-  public void setException( HopException exception ) {
+  public void setException(HopException exception) {
     this.exception = exception;
   }
 
@@ -128,7 +131,7 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
     return filename;
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -136,7 +139,7 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
     return outputStream;
   }
 
-  public void setOutputStream( OutputStream outputStream ) {
+  public void setOutputStream(OutputStream outputStream) {
     this.outputStream = outputStream;
   }
 }

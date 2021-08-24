@@ -21,11 +21,7 @@ package org.apache.hop.ui.core.gui;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.ActionPluginType;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.IPluginTypeListener;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.plugins.*;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.ui.core.ConstUi;
@@ -38,23 +34,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
  * colors etc. are allocated once and released once at the end of the program.
@@ -881,7 +865,12 @@ public class GuiResource {
       Image image = null;
       try {
         ClassLoader classLoader = registry.getClassLoader(plugin);
-        image = getImage(plugin.getImageFile(), classLoader, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+        image =
+            getImage(
+                plugin.getImageFile(),
+                classLoader,
+                ConstUi.SMALL_ICON_SIZE,
+                ConstUi.SMALL_ICON_SIZE);
       } catch (Throwable t) {
         log.logError(
             "Error occurred loading image ["
@@ -1248,7 +1237,7 @@ public class GuiResource {
 
   /** @return the imageLogoSmall */
   public Image getImageHopUi() {
-      return getZoomedImaged(imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+    return getZoomedImaged(imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /** @return the image size for Taskbar */
@@ -1787,7 +1776,6 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageArrowCandidate() {
     return imageArrowCandidate;
   }
-
 
   /**
    * Gets imageToolbarClose

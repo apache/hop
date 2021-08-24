@@ -50,7 +50,8 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.DynamicSQLRow",
     description = "i18n::BaseTransform.TypeTooltipDesc.DynamicSQLRow",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/dynamicsqlrow.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/dynamicsqlrow.html")
 public class DynamicSqlRowMeta extends BaseTransformMeta
     implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
@@ -204,7 +205,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
       return;
     }
 
-    Database db = new Database(loggingObject, variables, databaseMeta );
+    Database db = new Database(loggingObject, variables, databaseMeta);
     databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
     // First try without connecting to the database... (can be S L O W)
@@ -327,7 +328,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {

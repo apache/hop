@@ -83,7 +83,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       // no more output
 
       // check any remaining buffered objects
-      if ( batch != null && batch.size() > 0) {
+      if (batch != null && batch.size() > 0) {
         try {
           doBatch();
         } catch (MongoDbException e) {
@@ -124,7 +124,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       if (!StringUtils.isEmpty(batchInsert)) {
         batchInsertSize = Integer.parseInt(batchInsert);
       }
-      batch = new ArrayList<>( batchInsertSize );
+      batch = new ArrayList<>(batchInsertSize);
       batchRows = new ArrayList<>();
 
       // output the same as the input
@@ -170,7 +170,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                 getInputRowMeta(),
                 row,
                 MongoDbOutput.this,
-              mongoTopLevelStructure );
+                mongoTopLevelStructure);
 
         if (log.isDebug()) {
           logDebug(
@@ -191,8 +191,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                     data.getMongoFields(),
                     getInputRowMeta(),
                     row,
-                  mongoTopLevelStructure,
-                    data.hasTopLevelJsonDocInsert );
+                    mongoTopLevelStructure,
+                    data.hasTopLevelJsonDocInsert);
             if (log.isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -209,7 +209,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                       getInputRowMeta(),
                       row,
                       MongoDbOutput.this,
-                    mongoTopLevelStructure );
+                      mongoTopLevelStructure);
             } catch (MongoDbException e) {
               throw new HopException(e);
             }
@@ -232,14 +232,14 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                 data.getMongoFields(),
                 getInputRowMeta(),
                 row,
-              mongoTopLevelStructure,
-                data.hasTopLevelJsonDocInsert );
+                mongoTopLevelStructure,
+                data.hasTopLevelJsonDocInsert);
 
         if (mongoInsert != null) {
           batch.add(mongoInsert);
           batchRows.add(row);
         }
-        if ( batch.size() == batchInsertSize ) {
+        if (batch.size() == batchInsertSize) {
           logDetailed(BaseMessages.getString(PKG, "MongoDbOutput.Messages.CommitingABatch"));
           try {
             doBatch();
@@ -283,15 +283,14 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       } catch (MongoException me) {
         lastEx = me;
         retrys++;
-        if (retrys <= writeRetries ) {
+        if (retrys <= writeRetries) {
           logError(
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.Error.ErrorWritingToMongo", me.toString()));
           logBasic(
-              BaseMessages.getString(
-                  PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay ));
+              BaseMessages.getString(PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
           try {
-            Thread.sleep( writeRetryDelay * 1000);
+            Thread.sleep(writeRetryDelay * 1000);
             // CHECKSTYLE:OFF
           } catch (InterruptedException e) {
             // CHECKSTYLE:ON
@@ -319,9 +318,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       throws MongoException, HopException, MongoDbException {
     WriteResult result = null;
     int count = 0;
-    logBasic(
-        BaseMessages.getString(PKG, "MongoDbOutput.Messages.CurrentBatchSize", batch.size()));
-    for ( int i = 0, len = batch.size(); i < len; i++) {
+    logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.CurrentBatchSize", batch.size()));
+    for (int i = 0, len = batch.size(); i < len; i++) {
       DBObject toTry = batch.get(i);
       Object[] correspondingRow = batchRows.get(i);
       try {
@@ -332,8 +330,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           logBasic(
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.SuccessfullySavedXDocuments", count));
-          batch = copyExceptFirst(count, batch );
-          batchRows = copyExceptFirst(count, batchRows );
+          batch = copyExceptFirst(count, batch);
+          batchRows = copyExceptFirst(count, batchRows);
           throw ex;
         }
 
@@ -341,8 +339,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         if (getTransformMeta().isDoingErrorHandling()) {
           putError(getInputRowMeta(), correspondingRow, 1, ex.getMessage(), "", "MongoDbOutput");
         } else {
-          batch = copyExceptFirst(i + 1, batch );
-          batchRows = copyExceptFirst(i + 1, batchRows );
+          batch = copyExceptFirst(i + 1, batch);
+          batchRows = copyExceptFirst(i + 1, batchRows);
           throw ex;
         }
       }
@@ -358,7 +356,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
   }
 
   private static <T> List<T> copyExceptFirst(int amount, List<T> list) {
-    return new ArrayList<>( list.subList( amount, list.size() ) );
+    return new ArrayList<>(list.subList(amount, list.size()));
   }
 
   protected void doBatch() throws HopException, MongoDbException {
@@ -369,13 +367,13 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       WriteResult result = null;
       try {
         if (retries == 0) {
-          result = data.getCollection().insert( batch );
+          result = data.getCollection().insert(batch);
         } else {
           // fall back to save
           logBasic(
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.SavingIndividualDocsInCurrentBatch"));
-          result = batchRetryUsingSave(retries == writeRetries );
+          result = batchRetryUsingSave(retries == writeRetries);
         }
       } catch (MongoException me) {
         // avoid exception if a timeout issue occurred and it was exactly the first attempt
@@ -384,7 +382,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           lastEx = me;
         }
         retries++;
-        if (retries <= writeRetries ) {
+        if (retries <= writeRetries) {
           if (shouldNotBeAvoided) {
             // skip logging error
             // however do not skip saving elements separately during next attempt to prevent losing
@@ -394,10 +392,10 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                     PKG, "MongoDbOutput.Messages.Error.ErrorWritingToMongo", me.toString()));
             logBasic(
                 BaseMessages.getString(
-                    PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay ));
+                    PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
           }
           try {
-            Thread.sleep( writeRetryDelay * 1000);
+            Thread.sleep(writeRetryDelay * 1000);
             // CHECKSTYLE:OFF
           } catch (InterruptedException e) {
             // CHECKSTYLE:ON
@@ -428,62 +426,62 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
     if (super.init()) {
 
       try {
-      if (!StringUtils.isEmpty(meta.getWriteRetries())) {
-        writeRetries = Const.toInt(meta.getWriteRetries(), MongoDbOutputMeta.RETRIES);
-      }
+        if (!StringUtils.isEmpty(meta.getWriteRetries())) {
+          writeRetries = Const.toInt(meta.getWriteRetries(), MongoDbOutputMeta.RETRIES);
+        }
 
-      if (!StringUtils.isEmpty(meta.getWriteRetryDelay())) {
-        writeRetryDelay = Const.toInt(meta.getWriteRetryDelay(), MongoDbOutputMeta.RETRY_DELAY);
-      }
+        if (!StringUtils.isEmpty(meta.getWriteRetryDelay())) {
+          writeRetryDelay = Const.toInt(meta.getWriteRetryDelay(), MongoDbOutputMeta.RETRY_DELAY);
+        }
 
-      String connectionName = resolve(meta.getConnectionName());
+        String connectionName = resolve(meta.getConnectionName());
 
-      try {
-        data.connection =
-          metadataProvider.getSerializer( MongoDbConnection.class).load(connectionName);
-      } catch (Exception e) {
-        throw new Exception(
-          BaseMessages.getString(
-            PKG, "MongoInput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
-      }
-      if (data.connection == null) {
-        throw new Exception(
-          BaseMessages.getString(
-            PKG, "MongoInput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
-      }
+        try {
+          data.connection =
+              metadataProvider.getSerializer(MongoDbConnection.class).load(connectionName);
+        } catch (Exception e) {
+          throw new Exception(
+              BaseMessages.getString(
+                  PKG, "MongoInput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
+        }
+        if (data.connection == null) {
+          throw new Exception(
+              BaseMessages.getString(
+                  PKG, "MongoInput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
+        }
 
-      String databaseName = resolve(data.connection.getDbName());
-      if (StringUtils.isEmpty(databaseName)) {
-        throw new Exception(BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoDBSpecified"));
-      }
+        String databaseName = resolve(data.connection.getDbName());
+        if (StringUtils.isEmpty(databaseName)) {
+          throw new Exception(BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoDBSpecified"));
+        }
 
-      String collection = resolve(meta.getCollection());
-      if (StringUtils.isEmpty(collection)) {
-        throw new Exception(
-          BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
-      }
+        String collection = resolve(meta.getCollection());
+        if (StringUtils.isEmpty(collection)) {
+          throw new Exception(
+              BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
+        }
 
-      if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
-        String authInfo =
-          (data.connection.isUsingKerberos()
-            ? BaseMessages.getString(
-            PKG,
-            "MongoDbInput.Message.KerberosAuthentication",
-            resolve(data.connection.getAuthenticationUser()))
-            : BaseMessages.getString(
-            PKG,
-            "MongoDbInput.Message.NormalAuthentication",
-            resolve(data.connection.getAuthenticationUser())));
-        logBasic(authInfo);
-      }
+        if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
+          String authInfo =
+              (data.connection.isUsingKerberos()
+                  ? BaseMessages.getString(
+                      PKG,
+                      "MongoDbInput.Message.KerberosAuthentication",
+                      resolve(data.connection.getAuthenticationUser()))
+                  : BaseMessages.getString(
+                      PKG,
+                      "MongoDbInput.Message.NormalAuthentication",
+                      resolve(data.connection.getAuthenticationUser())));
+          logBasic(authInfo);
+        }
 
-      // init connection constructs a MongoCredentials object if necessary
-      data.clientWrapper = data.connection.createWrapper(this, log);
+        // init connection constructs a MongoCredentials object if necessary
+        data.clientWrapper = data.connection.createWrapper(this, log);
 
-      if (StringUtils.isEmpty(collection)) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.NoCollectionSpecified"));
-      }
+        if (StringUtils.isEmpty(collection)) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.NoCollectionSpecified"));
+        }
         data.createCollection(databaseName, collection);
         data.setCollection(data.getConnection().getCollection(databaseName, collection));
 
@@ -491,7 +489,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           mongoTopLevelStructure =
               MongoDbOutputData.checkTopLevelConsistency(meta.getMongoFields(), MongoDbOutput.this);
 
-          if ( mongoTopLevelStructure == MongoDbOutputData.MongoTopLevel.INCONSISTENT) {
+          if (mongoTopLevelStructure == MongoDbOutputData.MongoTopLevel.INCONSISTENT) {
             logError(
                 BaseMessages.getString(
                     PKG, "MongoDbOutput.Messages.Error.InconsistentMongoTopLevel"));
@@ -505,12 +503,17 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         return true;
       } catch (UnknownHostException ex) {
         logError(
-            BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.UnknownHost", data.connection.getHostname()), ex);
+            BaseMessages.getString(
+                PKG, "MongoDbOutput.Messages.Error.UnknownHost", data.connection.getHostname()),
+            ex);
         return false;
       } catch (Exception e) {
         logError(
             BaseMessages.getString(
-                PKG, "MongoDbOutput.Messages.Error.ProblemConnecting", data.connection.getHostname(), data.connection.getPort()),
+                PKG,
+                "MongoDbOutput.Messages.Error.ProblemConnecting",
+                data.connection.getHostname(),
+                data.connection.getPort()),
             e);
         return false;
       }
@@ -537,10 +540,10 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
   final void checkInputFieldsMatch(IRowMeta rmi, List<MongoDbOutputMeta.MongoField> mongoFields)
       throws HopException {
-    Set<String> expected = new HashSet<>( mongoFields.size(), 1 );
-    Set<String> actual = new HashSet<>( rmi.getFieldNames().length, 1 );
+    Set<String> expected = new HashSet<>(mongoFields.size(), 1);
+    Set<String> actual = new HashSet<>(rmi.getFieldNames().length, 1);
     for (MongoDbOutputMeta.MongoField field : mongoFields) {
-      String mongoMatch = resolve(field.incomingFieldName );
+      String mongoMatch = resolve(field.incomingFieldName);
       expected.add(mongoMatch);
     }
     for (int i = 0; i < rmi.size(); i++) {

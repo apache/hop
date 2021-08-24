@@ -20,8 +20,8 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -37,9 +37,7 @@ import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ValueMetaBaseSetPreparedStmntValueTest {
 
@@ -52,19 +50,19 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
   @Before
   public void setUp() {
-    dbMeta = mock( DatabaseMeta.class );
-    when( dbMeta.supportsTimeStampToDateConversion() ).thenReturn( true );
-    ps = mock( PreparedStatement.class );
-    date = new Date( System.currentTimeMillis() );
-    ts = new Timestamp( System.currentTimeMillis() );
+    dbMeta = mock(DatabaseMeta.class);
+    when(dbMeta.supportsTimeStampToDateConversion()).thenReturn(true);
+    ps = mock(PreparedStatement.class);
+    date = new Date(System.currentTimeMillis());
+    ts = new Timestamp(System.currentTimeMillis());
   }
 
   @Test
   public void testXMLParsingWithNoDataFormatLocale() throws IOException {
-    IValueMeta r1 = new ValueMetaString( "value" );
-    r1.setDateFormatLocale( null );
+    IValueMeta r1 = new ValueMetaString("value");
+    r1.setDateFormatLocale(null);
     IRowMeta row = new RowMeta();
-    row.setValueMetaList( new ArrayList<>( Arrays.asList( r1 ) ) );
+    row.setValueMetaList(new ArrayList<>(Arrays.asList(r1)));
 
     row.getMetaXml();
   }
@@ -72,71 +70,70 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   @Test
   public void testDateRegular() throws Exception {
 
-    System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" );
+    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N");
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "" );
-    valueMeta.setPrecision( 1 );
-    valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
+    ValueMetaBase valueMeta = new ValueMetaDate("");
+    valueMeta.setPrecision(1);
+    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
 
-    verify( ps ).setDate( eq( 1 ), any( java.sql.Date.class ), any( Calendar.class ) );
+    verify(ps).setDate(eq(1), any(java.sql.Date.class), any(Calendar.class));
   }
 
   @Test
   public void testDateIgnoreTZ() throws Exception {
 
-    System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y" );
+    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y");
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "" );
-    valueMeta.setPrecision( 1 );
-    valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
+    ValueMetaBase valueMeta = new ValueMetaDate("");
+    valueMeta.setPrecision(1);
+    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
 
-    verify( ps ).setDate( eq( 1 ), any( java.sql.Date.class ) );
+    verify(ps).setDate(eq(1), any(java.sql.Date.class));
   }
 
   @Test
   public void testTimestampRegular() throws Exception {
 
-    System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" );
+    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N");
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "" );
-    valueMeta.setPreparedStatementValue( dbMeta, ps, 1, ts );
+    ValueMetaBase valueMeta = new ValueMetaDate("");
+    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, ts);
 
-    verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ), any( Calendar.class ) );
+    verify(ps).setTimestamp(eq(1), any(Timestamp.class), any(Calendar.class));
   }
 
   @Test
   public void testTimestampIgnoreTZ() throws Exception {
 
-    System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y" );
+    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y");
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "" );
-    valueMeta.setPreparedStatementValue( dbMeta, ps, 1, ts );
+    ValueMetaBase valueMeta = new ValueMetaDate("");
+    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, ts);
 
-    verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ) );
+    verify(ps).setTimestamp(eq(1), any(Timestamp.class));
   }
 
   @Test
   public void testConvertedTimestampRegular() throws Exception {
 
-    System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" );
+    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N");
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "" );
-    valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
-    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
+    ValueMetaBase valueMeta = new ValueMetaDate("");
+    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
+    valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
 
-    verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ), any( Calendar.class ) );
+    verify(ps).setTimestamp(eq(1), any(Timestamp.class), any(Calendar.class));
   }
 
   @Test
   public void testConvertedTimestampIgnoreTZ() throws Exception {
 
-    System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y" );
+    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y");
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "" );
-    valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
-    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
+    ValueMetaBase valueMeta = new ValueMetaDate("");
+    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
+    valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
 
-    verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ) );
+    verify(ps).setTimestamp(eq(1), any(Timestamp.class));
   }
-
 }

@@ -23,9 +23,7 @@ import org.w3c.dom.Document;
 
 import java.io.InputStream;
 
-/**
- * Class for base SVG images processing.
- */
+/** Class for base SVG images processing. */
 public class SvgSupport {
 
   private static final String SVG_EXTENSION = ".svg";
@@ -34,17 +32,18 @@ public class SvgSupport {
 
   private static final String PARSER = XMLResourceDescriptor.getXMLParserClassName();
 
-  private static final ThreadLocal<SAXSVGDocumentFactory> SVG_FACTORY_THREAD_LOCAL = new ThreadLocal<>();
+  private static final ThreadLocal<SAXSVGDocumentFactory> SVG_FACTORY_THREAD_LOCAL =
+      new ThreadLocal<>();
 
   private static SAXSVGDocumentFactory createFactory() {
-    return new SAXSVGDocumentFactory( PARSER );
+    return new SAXSVGDocumentFactory(PARSER);
   }
 
   private static SAXSVGDocumentFactory getSvgFactory() {
     SAXSVGDocumentFactory factory = SVG_FACTORY_THREAD_LOCAL.get();
-    if ( factory == null ) {
+    if (factory == null) {
       factory = createFactory();
-      SVG_FACTORY_THREAD_LOCAL.set( factory );
+      SVG_FACTORY_THREAD_LOCAL.set(factory);
     }
     return factory;
   }
@@ -53,44 +52,34 @@ public class SvgSupport {
     return true;
   }
 
-  /**
-   * Load SVG from file.
-   */
-  public static SvgImage loadSvgImage( InputStream in ) throws Exception {
-    Document document = getSvgFactory().createDocument( null, in );
-    return new SvgImage( document );
+  /** Load SVG from file. */
+  public static SvgImage loadSvgImage(InputStream in) throws Exception {
+    Document document = getSvgFactory().createDocument(null, in);
+    return new SvgImage(document);
   }
 
-  /**
-   * Check by file name if image is SVG.
-   */
-  public static boolean isSvgName( String name ) {
-    return name.toLowerCase().endsWith( SVG_EXTENSION );
+  /** Check by file name if image is SVG. */
+  public static boolean isSvgName(String name) {
+    return name.toLowerCase().endsWith(SVG_EXTENSION);
   }
 
-  /**
-   * Converts SVG file name to PNG.
-   */
-  public static String toPngName( String name ) {
-    if ( isSvgName( name ) ) {
-      name = name.substring( 0, name.length() - 4 ) + PNG_EXTENSION;
+  /** Converts SVG file name to PNG. */
+  public static String toPngName(String name) {
+    if (isSvgName(name)) {
+      name = name.substring(0, name.length() - 4) + PNG_EXTENSION;
     }
     return name;
   }
 
-  /**
-   * Check by file name if image is PNG.
-   */
-  public static boolean isPngName( String name ) {
-    return name.toLowerCase().endsWith( PNG_EXTENSION );
+  /** Check by file name if image is PNG. */
+  public static boolean isPngName(String name) {
+    return name.toLowerCase().endsWith(PNG_EXTENSION);
   }
 
-  /**
-   * Converts PNG file name to SVG.
-   */
-  public static String toSvgName( String name ) {
-    if ( isPngName( name ) ) {
-      name = name.substring( 0, name.length() - 4 ) + SVG_EXTENSION;
+  /** Converts PNG file name to SVG. */
+  public static String toSvgName(String name) {
+    if (isPngName(name)) {
+      name = name.substring(0, name.length() - 4) + SVG_EXTENSION;
     }
     return name;
   }
