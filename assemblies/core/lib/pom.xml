@@ -54,7 +54,7 @@
         <databricks.version>4.0.0</databricks.version>
         <paho.version>1.2.0</paho.version>
         <bahir.version>2.1.1</bahir.version>
-        <jackson.version>2.10.2</jackson.version>
+        <jackson.version>2.12.4</jackson.version>
 
         <!-- Spring -->
         <springframework4.version>4.3.18</springframework4.version>
