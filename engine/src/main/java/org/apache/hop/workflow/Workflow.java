@@ -73,6 +73,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -229,7 +230,6 @@ public abstract class Workflow extends Variables
   public Workflow(WorkflowMeta workflowMeta, ILoggingObject parentLogging) {
     super();
     this.workflowMeta = workflowMeta;
-    this.containerObjectId = workflowMeta.getContainerId();
     this.parentLoggingObject = parentLogging;
 
     init();
@@ -238,10 +238,7 @@ public abstract class Workflow extends Variables
 
     this.log = new LogChannel(this, parentLogging);
     this.logLevel = log.getLogLevel();
-
-    if (this.containerObjectId == null) {
-      this.containerObjectId = log.getContainerObjectId();
-    }
+    this.containerObjectId = UUID.randomUUID().toString();
   }
 
   public Workflow() {

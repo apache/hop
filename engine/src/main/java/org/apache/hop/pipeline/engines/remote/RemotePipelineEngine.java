@@ -215,7 +215,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // Create a new log channel when we start the action
       // It's only now that we use it
       //
-      this.logChannel = new LogChannel(this, subject);
+      this.logChannel = new LogChannel(this, getParent());
       loggingObject = new LoggingObject(this);
       this.logChannel.setLogLevel(logLevel);
 

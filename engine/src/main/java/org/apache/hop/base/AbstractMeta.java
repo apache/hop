@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,12 +48,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractMeta
-    implements IChanged,
-        IUndo,
-        IEngineMeta,
-        INamedParameterDefinitions,
-        IAttributes,
-        ILoggingObject {
+    implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes {
 
   /** Constant = 1 */
   public static final int TYPE_UNDO_CHANGE = 1;
@@ -66,8 +61,6 @@ public abstract class AbstractMeta
 
   /** Constant = 4 */
   public static final int TYPE_UNDO_POSITION = 4;
-
-  protected String containerObjectId;
 
   protected String name;
 
@@ -101,8 +94,6 @@ public abstract class AbstractMeta
 
   protected INamedParameters namedParams = new NamedParameters();
 
-  protected LogLevel logLevel = DefaultLogLevel.getLogLevel();
-
   protected IHopMetadataProvider metadataProvider;
 
   protected String createdUser, modifiedUser;
@@ -135,25 +126,6 @@ public abstract class AbstractMeta
 
   public void setAlwaysShowRunOptions(boolean alwaysShowRunOptions) {
     this.alwaysShowRunOptions = alwaysShowRunOptions;
-  }
-
-  /**
-   * Gets the container object id.
-   *
-   * @return the serverObjectId
-   */
-  @Override
-  public String getContainerId() {
-    return containerObjectId;
-  }
-
-  /**
-   * Sets the carte object id.
-   *
-   * @param containerObjectId the execution container Object id to set
-   */
-  public void setCarteObjectId(String containerObjectId) {
-    this.containerObjectId = containerObjectId;
   }
 
   protected abstract String getExtension();
@@ -1009,25 +981,6 @@ public abstract class AbstractMeta
     namedParams.removeAllParameters();
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.logging.ILoggingObject#getLogLevel()
-   */
-  @Override
-  public LogLevel getLogLevel() {
-    return logLevel;
-  }
-
-  /**
-   * Sets the log level.
-   *
-   * @param logLevel the new log level
-   */
-  public void setLogLevel(LogLevel logLevel) {
-    this.logLevel = logLevel;
-  }
-
   public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
@@ -1204,47 +1157,6 @@ public abstract class AbstractMeta
       return true;
     }
     return false;
-  }
-
-  /**
-   * Gets the registration date for the pipeline. For AbstractMeta, this method always returns null.
-   *
-   * @return null
-   */
-  @Override
-  public Date getRegistrationDate() {
-    return null;
-  }
-
-  /**
-   * Gets the interface to the parent log object. For AbstractMeta, this method always returns null.
-   *
-   * @return null
-   * @see ILoggingObject#getParent()
-   */
-  @Override
-  public ILoggingObject getParent() {
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.logging.ILoggingObject#getObjectName()
-   */
-  @Override
-  public String getObjectName() {
-    return getName();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.logging.ILoggingObject#getObjectCopy()
-   */
-  @Override
-  public String getObjectCopy() {
-    return null;
   }
 
   /**

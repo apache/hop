@@ -4771,8 +4771,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public IHasLogChannel getLogChannelProvider() {
-    return () ->
-        getPipeline() != null ? getPipeline().getLogChannel() : getPipelineMeta().getLogChannel();
+    return () -> getPipeline() != null ? getPipeline().getLogChannel() : LogChannel.GENERAL;
   }
 
   @GuiContextAction(

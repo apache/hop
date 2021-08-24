@@ -164,15 +164,6 @@ public abstract class BeamPipelineEngine extends Variables
     statusDescription = "IDLE";
   }
 
-  public BeamPipelineEngine(PipelineMeta pipelineMeta) {
-    this();
-    this.pipelineMeta = pipelineMeta;
-    this.metadataProvider = pipelineMeta.getMetadataProvider();
-    this.loggingObject = new LoggingObject(this);
-    this.logChannel = new LogChannel(this, pipelineMeta);
-    this.logLevel = this.logChannel.getLogLevel();
-  }
-
   public BeamPipelineEngine(
       PipelineMeta pipelineMeta, ILoggingObject parent, IVariables variables) {
     this();
