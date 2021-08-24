@@ -81,12 +81,7 @@ import java.util.Map;
  * @since 11-08-2003
  */
 public class WorkflowMeta extends AbstractMeta
-    implements Cloneable,
-        Comparable<WorkflowMeta>,
-        IXml,
-        IResourceExport,
-        ILoggingObject,
-        IHasFilename {
+    implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
   private static final Class<?> PKG = WorkflowMeta.class; // For Translator
 
   public static final String WORKFLOW_EXTENSION = ".hwf";
@@ -110,9 +105,6 @@ public class WorkflowMeta extends AbstractMeta
   protected String startActionName;
 
   protected boolean expandingRemoteWorkflow;
-
-  /** The log channel interface. */
-  protected ILogChannel log;
 
   /** Constant = "OK" */
   public static final String STRING_SPECIAL_OK = "OK";
@@ -153,8 +145,6 @@ public class WorkflowMeta extends AbstractMeta
     addDefaults();
     workflowStatus = -1;
     workflowVersion = null;
-
-    log = LogChannel.GENERAL;
   }
 
   /** Adds the defaults. */
@@ -1918,15 +1908,6 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Gets the log channel.
-   *
-   * @return the log channel
-   */
-  public ILogChannel getLogChannel() {
-    return log;
-  }
-
-  /**
    * Create a unique list of action interfaces
    *
    * @return
@@ -1960,31 +1941,6 @@ public class WorkflowMeta extends AbstractMeta
   public LoggingObjectType getObjectType() {
     return LoggingObjectType.WORKFLOW_META;
   }
-
-  /**
-   * Returns whether or not the workflow is gathering metrics. For a WorkflowMeta this is always
-   * false.
-   *
-   * @return is gathering metrics = false;
-   */
-  @Override
-  public boolean isGatheringMetrics() {
-    return false;
-  }
-
-  /**
-   * Sets whether or not the workflow is gathering metrics. This is a stub with not executable code.
-   */
-  @Override
-  public void setGatheringMetrics(boolean gatheringMetrics) {}
-
-  @Override
-  public boolean isForcingSeparateLogging() {
-    return false;
-  }
-
-  @Override
-  public void setForcingSeparateLogging(boolean forcingSeparateLogging) {}
 
   public boolean containsAction(ActionMeta actionMeta) {
     return workflowActions.contains(actionMeta);

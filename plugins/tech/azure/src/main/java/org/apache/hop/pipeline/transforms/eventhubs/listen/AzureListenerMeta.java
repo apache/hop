@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
@@ -25,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -272,9 +272,6 @@ public class AzureListenerMeta extends BaseTransformMeta
       // Don't set internal variables: they belong to the parent thread!
       //
       batchPipelineMeta = new PipelineMeta(realFilename, metadataProvider, false, variables);
-      batchPipelineMeta
-          .getLogChannel()
-          .logDetailed("Batch pipeline was loaded from XML '" + realFilename + "'");
     } catch (Exception e) {
       throw new HopException("Unable to load batch pipeline", e);
     }

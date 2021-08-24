@@ -75,18 +75,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetParent() {
-    assertNull(meta.getParent());
-  }
-
-  @Test
-  public void testGetSetContainerObjectId() throws Exception {
-    assertNull(meta.getContainerId());
-    meta.setCarteObjectId("myObjectId");
-    assertEquals("myObjectId", meta.getContainerId());
-  }
-
-  @Test
   public void testGetSetName() throws Exception {
     assertNull(meta.getName());
     meta.setName("myName");
@@ -327,13 +315,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetSetLogLevel() throws Exception {
-    assertEquals(LogLevel.BASIC, meta.getLogLevel());
-    meta.setLogLevel(LogLevel.DEBUG);
-    assertEquals(LogLevel.DEBUG, meta.getLogLevel());
-  }
-
-  @Test
   public void testGetSetCreatedDate() throws Exception {
     assertNull(meta.getCreatedDate());
     Date now = Calendar.getInstance().getTime();
@@ -374,19 +355,6 @@ public class AbstractMetaTest {
     meta.setChanged(true);
     meta.notifyObservers(event);
     verify(observer, times(1)).update(any(IChanged.class), anyObject());
-  }
-
-  @Test
-  public void testGetRegistrationDate() throws Exception {
-    assertNull(meta.getRegistrationDate());
-  }
-
-  @Test
-  public void testGetObjectNameCopyRevision() throws Exception {
-    assertNull(meta.getObjectName());
-    meta.setName("x");
-    assertEquals("x", meta.getObjectName());
-    assertNull(meta.getObjectCopy());
   }
 
   @Test
@@ -458,32 +426,6 @@ public class AbstractMetaTest {
     @Override
     public String getXml(IVariables variables) throws HopException {
       return null;
-    }
-
-    @Override
-    public String getLogChannelId() {
-      return null;
-    }
-
-    @Override
-    public LoggingObjectType getObjectType() {
-      return null;
-    }
-
-    @Override
-    public boolean isGatheringMetrics() {
-      return false;
-    }
-
-    @Override
-    public void setGatheringMetrics(boolean b) {}
-
-    @Override
-    public void setForcingSeparateLogging(boolean b) {}
-
-    @Override
-    public boolean isForcingSeparateLogging() {
-      return false;
     }
   }
 

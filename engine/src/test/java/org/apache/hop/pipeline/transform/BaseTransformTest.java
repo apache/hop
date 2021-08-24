@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -89,89 +89,6 @@ public class BaseTransformTest {
   @After
   public void tearDown() {
     mockHelper.cleanUp();
-  }
-
-  /**
-   * This test checks that data from one non-partitioned transform copies to 2 partitioned
-   * transforms right.
-   *
-   * @throws HopException
-   */
-  @Test
-  @Ignore // Impossible to figure out, move to integration tests
-  public void testBaseTransformPutRowLocalSpecialPartitioning() throws HopException {
-    List<TransformMeta> transformMetas = new ArrayList<>();
-    transformMetas.add(mockHelper.transformMeta);
-    transformMetas.add(mockHelper.transformMeta);
-    TransformPartitioningMeta transformPartitioningMeta = spy(new TransformPartitioningMeta());
-    BasePartitioner partitioner = mock(BasePartitioner.class);
-
-    when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
-        .thenAnswer(
-            (Answer<ILogChannel>)
-                invocation -> {
-                  ((BaseTransform) invocation.getArguments()[0]).getLogLevel();
-                  return mockHelper.iLogChannel;
-                });
-    when(mockHelper.pipeline.isRunning()).thenReturn(true);
-    when(mockHelper.pipelineMeta.findNextTransforms(any(TransformMeta.class)))
-        .thenReturn(transformMetas);
-    when(mockHelper.transformMeta.isPartitioned())
-      .thenReturn( true );
-    when(mockHelper.transformMeta.getTransformPartitioningMeta())
-        .thenReturn(transformPartitioningMeta);
-
-    when(transformPartitioningMeta.getPartitioner()).thenReturn(partitioner);
-    when(partitioner.getNrPartitions()).thenReturn(2);
-
-    Object object0 = "name0";
-    IValueMeta meta0 = new ValueMetaString(object0.toString());
-
-    Object object1 = "name1";
-    IValueMeta meta2 = new ValueMetaString(object1.toString());
-
-    IRowMeta rowMeta0 = new RowMeta();
-    rowMeta0.addValueMeta(meta0);
-
-    Object[] objects0 = {object0};
-
-    IRowMeta rowMeta1 = new RowMeta();
-    rowMeta1.addValueMeta(meta2);
-
-    Object[] objects1 = {object1};
-
-    // IVariables variables = mockHelper.pipeline;
-
-    when(transformPartitioningMeta.getPartition(any(), eq(rowMeta0), eq(objects0))).thenReturn(0);
-    when(transformPartitioningMeta.getPartition(any(), eq(rowMeta1), eq(objects1))).thenReturn(1);
-
-    BlockingRowSet[] rowSet = {
-      new BlockingRowSet(2), new BlockingRowSet(2), new BlockingRowSet(2), new BlockingRowSet(2)
-    };
-    List<IRowSet> outputRowSets = new ArrayList<>();
-    outputRowSets.addAll(Arrays.asList(rowSet));
-
-    LocalPipelineEngine pipeline = new LocalPipelineEngine();
-
-    BaseTransform<ITransformMeta, ITransformData> baseTransform =
-        new BaseTransform(
-            mockHelper.transformMeta,
-            mockHelper.iTransformMeta,
-            mockHelper.iTransformData,
-            0,
-            mockHelper.pipelineMeta,
-            pipeline
-        );
-    baseTransform.setStopped(false);
-    baseTransform.setRepartitioning(TransformPartitioningMeta.PARTITIONING_METHOD_SPECIAL);
-    baseTransform.setOutputRowSets(outputRowSets);
-    baseTransform.putRow(rowMeta0, objects0);
-    baseTransform.putRow(rowMeta1, objects1);
-
-    assertEquals(object0, baseTransform.getOutputRowSets().get(0).getRow()[0]);
-    assertEquals(object1, baseTransform.getOutputRowSets().get(1).getRow()[0]);
-    assertEquals(object0, baseTransform.getOutputRowSets().get(2).getRow()[0]);
-    assertEquals(object1, baseTransform.getOutputRowSets().get(3).getRow()[0]);
   }
 
   @Test

@@ -77,7 +77,6 @@ public class PipelineMeta extends AbstractMeta
         Comparable<PipelineMeta>,
         Cloneable,
         IResourceExport,
-        ILoggingObject,
         IHasFilename {
 
   public static final String PIPELINE_EXTENSION = ".hpl";
@@ -125,9 +124,6 @@ public class PipelineMeta extends AbstractMeta
 
   /** The previous transform cache */
   protected Map<String, List<TransformMeta>> previousTransformCache;
-
-  /** The log channel interface. */
-  protected ILogChannel log;
 
   /** The list of TransformChangeListeners */
   protected List<ITransformMetaChangeListener> transformChangeListeners;
@@ -421,8 +417,6 @@ public class PipelineMeta extends AbstractMeta
     loopCache = new HashMap<>();
     previousTransformCache = new HashMap<>();
     pipelineType = PipelineType.Normal;
-
-    log = LogChannel.GENERAL;
   }
 
   /**
@@ -1068,7 +1062,8 @@ public class PipelineMeta extends AbstractMeta
 
       PipelineHopMeta hi = getPipelineHop(i);
       if (hi == null || hi.getToTransform() == null) {
-        log.logError(BaseMessages.getString(PKG, "PipelineMeta.Log.DestinationOfHopCannotBeNull"));
+        LogChannel.GENERAL.logError(
+            BaseMessages.getString(PKG, "PipelineMeta.Log.DestinationOfHopCannotBeNull"));
       }
       if (hi != null
           && hi.getToTransform() != null
@@ -1435,8 +1430,8 @@ public class PipelineMeta extends AbstractMeta
 
     int nrPrevious = prevTransforms.size();
 
-    if (log.isDebug()) {
-      log.logDebug(
+    if (LogChannel.GENERAL.isDebug()) {
+      LogChannel.GENERAL.logDebug(
           BaseMessages.getString(
               PKG,
               "PipelineMeta.Log.FromTransformALookingAtPreviousTransform",
@@ -1458,8 +1453,8 @@ public class PipelineMeta extends AbstractMeta
       if (add == null) {
         add = new RowMeta();
       }
-      if (log.isDebug()) {
-        log.logDebug(
+      if (LogChannel.GENERAL.isDebug()) {
+        LogChannel.GENERAL.logDebug(
             BaseMessages.getString(PKG, "PipelineMeta.Log.FoundFieldsToAdd") + add.toString());
       }
       if (i == 0) {
@@ -1538,8 +1533,8 @@ public class PipelineMeta extends AbstractMeta
     }
     List<TransformMeta> prevTransforms = findPreviousTransforms(transformMeta);
     int nrPrevTransforms = prevTransforms.size();
-    if (log.isDebug()) {
-      log.logDebug(
+    if (LogChannel.GENERAL.isDebug()) {
+      LogChannel.GENERAL.logDebug(
           BaseMessages.getString(
               PKG,
               "PipelineMeta.Log.FromTransformALookingAtPreviousTransform",
@@ -1563,8 +1558,8 @@ public class PipelineMeta extends AbstractMeta
 
       IRowMeta add = getTransformFields(variables, prevTransformMeta, transformMeta, monitor);
 
-      if (log.isDebug()) {
-        log.logDebug(
+      if (LogChannel.GENERAL.isDebug()) {
+        LogChannel.GENERAL.logDebug(
             BaseMessages.getString(PKG, "PipelineMeta.Log.FoundFieldsToAdd2") + add.toString());
       }
       if (i == 0) {
@@ -1633,8 +1628,8 @@ public class PipelineMeta extends AbstractMeta
       IProgressMonitor monitor)
       throws HopTransformException {
     // Then this one.
-    if (log.isDebug()) {
-      log.logDebug(
+    if (LogChannel.GENERAL.isDebug()) {
+      LogChannel.GENERAL.logDebug(
           BaseMessages.getString(
               PKG,
               "PipelineMeta.Log.GettingFieldsFromTransform",
@@ -1848,7 +1843,7 @@ public class PipelineMeta extends AbstractMeta
     try {
       xml.append("    ").append(XmlHandler.addTagValue("key_for_session_key", keyForSessionKey));
     } catch (Exception ex) {
-      log.logError("Unable to decode key", ex);
+      LogChannel.GENERAL.logError("Unable to decode key", ex);
     }
     xml.append("    ").append(XmlHandler.addTagValue("is_key_private", isKeyPrivate));
 
@@ -2048,8 +2043,8 @@ public class PipelineMeta extends AbstractMeta
         //
         List<Node> transformNodes = XmlHandler.getNodes(pipelineNode, TransformMeta.XML_TAG);
 
-        if (log.isDebug()) {
-          log.logDebug(
+        if (LogChannel.GENERAL.isDebug()) {
+          LogChannel.GENERAL.logDebug(
               BaseMessages.getString(PKG, "PipelineMeta.Log.ReadingTransforms")
                   + transformNodes.size()
                   + " transforms...");
@@ -2097,8 +2092,8 @@ public class PipelineMeta extends AbstractMeta
         Node orderNode = XmlHandler.getSubNode(pipelineNode, XML_TAG_ORDER);
         List<Node> hopNodes = XmlHandler.getNodes(orderNode, PipelineHopMeta.XML_HOP_TAG);
 
-        if (log.isDebug()) {
-          log.logDebug(
+        if (LogChannel.GENERAL.isDebug()) {
+          LogChannel.GENERAL.logDebug(
               BaseMessages.getString(PKG, "PipelineMeta.Log.WeHaveHops")
                   + hopNodes.size()
                   + " hops...");
@@ -2179,11 +2174,11 @@ public class PipelineMeta extends AbstractMeta
           modifiedDate = XmlHandler.stringToDate(modDate);
         }
 
-        if (log.isDebug()) {
-          log.logDebug(
+        if (LogChannel.GENERAL.isDebug()) {
+          LogChannel.GENERAL.logDebug(
               BaseMessages.getString(PKG, "PipelineMeta.Log.NumberOfTransformReaded")
                   + nrTransforms());
-          log.logDebug(
+          LogChannel.GENERAL.logDebug(
               BaseMessages.getString(PKG, "PipelineMeta.Log.NumberOfHopsReaded")
                   + nrPipelineHops());
         }
@@ -2206,7 +2201,7 @@ public class PipelineMeta extends AbstractMeta
         throw new HopXmlException(e);
       } finally {
         ExtensionPointHandler.callExtensionPoint(
-            log, variables, HopExtensionPoint.PipelineMetaLoaded.id, this);
+            LogChannel.GENERAL, variables, HopExtensionPoint.PipelineMetaLoaded.id, this);
       }
     } catch (Exception e) {
       // See if we have missing plugins to report, those take precedence!
@@ -2754,9 +2749,9 @@ public class PipelineMeta extends AbstractMeta
     try {
       Collections.sort(transforms);
     } catch (Exception e) {
-      log.logError(
+      LogChannel.GENERAL.logError(
           BaseMessages.getString(PKG, "PipelineMeta.Exception.ErrorOfSortingTransforms") + e);
-      log.logError(Const.getStackTracker(e));
+      LogChannel.GENERAL.logError(Const.getStackTracker(e));
     }
   }
 
@@ -2830,7 +2825,7 @@ public class PipelineMeta extends AbstractMeta
         });
 
     long endTime = System.currentTimeMillis();
-    log.logBasic(
+    LogChannel.GENERAL.logBasic(
         BaseMessages.getString(
             PKG, "PipelineMeta.Log.TimeExecutionTransformSort", (endTime - startTime), prevCount));
 
@@ -3090,7 +3085,7 @@ public class PipelineMeta extends AbstractMeta
       }
 
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(),
+          LogChannel.GENERAL,
           variables,
           HopExtensionPoint.BeforeCheckTransforms.id,
           new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
@@ -3167,7 +3162,7 @@ public class PipelineMeta extends AbstractMeta
 
           // Check transform specific info...
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(),
+              LogChannel.GENERAL,
               variables,
               HopExtensionPoint.BeforeCheckTransform.id,
               new CheckTransformsExtension(
@@ -3175,7 +3170,7 @@ public class PipelineMeta extends AbstractMeta
           transformMeta.check(
               remarks, this, prev, input, output, info, variables, metadataProvider);
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(),
+              LogChannel.GENERAL,
               variables,
               HopExtensionPoint.AfterCheckTransform.id,
               new CheckTransformsExtension(
@@ -3312,13 +3307,12 @@ public class PipelineMeta extends AbstractMeta
         monitor.worked(1);
       }
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(),
+          LogChannel.GENERAL,
           variables,
           HopExtensionPoint.AfterCheckTransforms.id,
           new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
     } catch (Exception e) {
-      log.logError(Const.getStackTracker(e));
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error checking transforms", e);
     }
   }
 
@@ -3637,7 +3631,7 @@ public class PipelineMeta extends AbstractMeta
         variables.setVariable(
             Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI());
       } catch (HopFileException e) {
-        log.logError("Unexpected error setting internal filename variables!", e);
+        LogChannel.GENERAL.logError("Unexpected error setting internal filename variables!", e);
 
         variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "");
         variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, "");
@@ -3935,37 +3929,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the log channel.
-   *
-   * @return the log channel
-   */
-  public ILogChannel getLogChannel() {
-    return log;
-  }
-
-  /**
-   * Gets the log channel ID.
-   *
-   * @return the log channel ID
-   * @see ILoggingObject#getLogChannelId()
-   */
-  @Override
-  public String getLogChannelId() {
-    return log.getLogChannelId();
-  }
-
-  /**
-   * Gets the object type.
-   *
-   * @return the object type
-   * @see ILoggingObject#getObjectType()
-   */
-  @Override
-  public LoggingObjectType getObjectType() {
-    return LoggingObjectType.PIPELINE_META;
-  }
-
-  /**
    * Gets the pipeline type.
    *
    * @return the pipelineType
@@ -3981,26 +3944,6 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setPipelineType(PipelineType pipelineType) {
     this.pipelineType = pipelineType;
-  }
-
-  @Override
-  public boolean isGatheringMetrics() {
-    return log.isGatheringMetrics();
-  }
-
-  @Override
-  public void setGatheringMetrics(boolean gatheringMetrics) {
-    log.setGatheringMetrics(gatheringMetrics);
-  }
-
-  @Override
-  public boolean isForcingSeparateLogging() {
-    return log.isForcingSeparateLogging();
-  }
-
-  @Override
-  public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
-    log.setForcingSeparateLogging(forcingSeparateLogging);
   }
 
   public void addTransformChangeListener(ITransformMetaChangeListener listener) {

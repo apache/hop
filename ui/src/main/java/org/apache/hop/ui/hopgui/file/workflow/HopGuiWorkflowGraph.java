@@ -3523,12 +3523,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hopGuiLoggingObject.setContainerObjectId(hopGuiObjectId);
           hopGuiLoggingObject.setLogLevel(executionConfiguration.getLogLevel());
 
-          // Set the log level
-          //
-          if (executionConfiguration.getLogLevel() != null) {
-            workflowMeta.setLogLevel(executionConfiguration.getLogLevel());
-          }
-
           // Set the start transform name
           //
           if (executionConfiguration.getStartActionName() != null) {
@@ -3677,8 +3671,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public IHasLogChannel getLogChannelProvider() {
-    return () ->
-        getWorkflow() != null ? getWorkflow().getLogChannel() : getWorkflowMeta().getLogChannel();
+    return () -> getWorkflow() != null ? getWorkflow().getLogChannel() : LogChannel.GENERAL;
   }
 
   // Change of transform, connection, hop or note...

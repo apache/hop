@@ -106,6 +106,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -418,12 +419,15 @@ public abstract class Pipeline
     this();
 
     this.pipelineMeta = pipelineMeta;
-    this.containerObjectId = pipelineMeta.getContainerId();
     this.metadataProvider = pipelineMeta.getMetadataProvider();
 
     setParent(parent);
 
     initializeFrom(variables);
+
+    this.log = new LogChannel(this, parent);
+    this.logLevel = log.getLogLevel();
+    this.containerObjectId = UUID.randomUUID().toString();
   }
 
   /**
