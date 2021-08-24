@@ -20,23 +20,19 @@ package org.apache.hop.pipeline.transforms.tokenreplacement;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class TokenResolver {
 
   Map<String, String> tokenMap;
 
   public TokenResolver() {
-    tokenMap = new HashMap<String,String>();
+    tokenMap = new HashMap<String, String>();
   }
 
-  public void addToken( String tokenName, String tokenValue )
-  {
-    tokenMap.put( tokenName, tokenValue );
+  public void addToken(String tokenName, String tokenValue) {
+    tokenMap.put(tokenName, tokenValue);
   }
 
-  public String resolveToken( String tokenName )
-  {
-    return tokenMap.get( tokenName );
+  public String resolveToken(String tokenName) {
+    return tokenMap.get(tokenName);
   }
-
 }

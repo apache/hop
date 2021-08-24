@@ -35,25 +35,31 @@ public class LongValidator implements IActionValidator {
     return VALIDATOR_NAME;
   }
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
     Object result = null;
     String value = null;
 
-    value = ValidatorUtils.getValueAsString( source, propertyName );
+    value = ValidatorUtils.getValueAsString(source, propertyName);
 
-    if ( GenericValidator.isBlankOrNull( value ) ) {
+    if (GenericValidator.isBlankOrNull(value)) {
       return Boolean.TRUE;
     }
 
-    result = GenericTypeValidator.formatLong( value );
+    result = GenericTypeValidator.formatLong(value);
 
-    if ( result == null ) {
-      ActionValidatorUtils.addFailureRemark( source, propertyName, VALIDATOR_NAME, remarks,
-        ActionValidatorUtils.getLevelOnFail( context, VALIDATOR_NAME ) );
+    if (result == null) {
+      ActionValidatorUtils.addFailureRemark(
+          source,
+          propertyName,
+          VALIDATOR_NAME,
+          remarks,
+          ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
       return false;
     }
     return true;
   }
-
 }

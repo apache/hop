@@ -35,83 +35,97 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 13-may-2003
  */
-public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData> implements ITransform<GetServerSequenceMeta, GetServerSequenceData> {
+public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData>
+    implements ITransform<GetServerSequenceMeta, GetServerSequenceData> {
 
   private static final Class<?> PKG = GetServerSequence.class; // For Translator
 
-  public GetServerSequence( TransformMeta transformMeta, GetServerSequenceMeta meta, GetServerSequenceData data, int copyNr,
-                            PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public GetServerSequence(
+      TransformMeta transformMeta,
+      GetServerSequenceMeta meta,
+      GetServerSequenceData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  public Object[] addSequence( IRowMeta inputRowMeta, Object[] inputRowData ) throws HopException {
+  public Object[] addSequence(IRowMeta inputRowMeta, Object[] inputRowData) throws HopException {
     Object next = null;
 
     // Are we still in the sequence range?
     //
-    if ( data.value >= ( data.startValue + data.increment ) ) {
+    if (data.value >= (data.startValue + data.increment)) {
       // Get a new value from the service...
       //
-      data.startValue = data.hopServer.getNextServerSequenceValue( this, data.sequenceName, data.increment );
+      data.startValue =
+          data.hopServer.getNextServerSequenceValue(this, data.sequenceName, data.increment);
       data.value = data.startValue;
     }
 
-    next = Long.valueOf( data.value );
+    next = Long.valueOf(data.value);
     data.value++;
 
-    if ( next != null ) {
+    if (next != null) {
       Object[] outputRowData = inputRowData;
-      if ( inputRowData.length < inputRowMeta.size() + 1 ) {
-        outputRowData = RowDataUtil.resizeArray( inputRowData, inputRowMeta.size() + 1 );
+      if (inputRowData.length < inputRowMeta.size() + 1) {
+        outputRowData = RowDataUtil.resizeArray(inputRowData, inputRowMeta.size() + 1);
       }
-      outputRowData[ inputRowMeta.size() ] = next;
+      outputRowData[inputRowMeta.size()] = next;
       return outputRowData;
     } else {
-      throw new HopTransformException( BaseMessages.getString(
-        PKG, "GetSequence.Exception.CouldNotFindNextValueForSequence" )
-        + meta.getValuename() );
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "GetSequence.Exception.CouldNotFindNextValueForSequence")
+              + meta.getValuename());
     }
   }
 
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
       setOutputDone();
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      data.startValue = data.hopServer.getNextServerSequenceValue( this, data.sequenceName, data.increment );
+      data.startValue =
+          data.hopServer.getNextServerSequenceValue(this, data.sequenceName, data.increment);
       data.value = data.startValue;
     }
 
-    if ( log.isRowLevel() ) {
-      logRowlevel( BaseMessages.getString( PKG, "GetSequence.Log.ReadRow" )
-        + getLinesRead() + " : " + getInputRowMeta().getString( r ) );
+    if (log.isRowLevel()) {
+      logRowlevel(
+          BaseMessages.getString(PKG, "GetSequence.Log.ReadRow")
+              + getLinesRead()
+              + " : "
+              + getInputRowMeta().getString(r));
     }
 
     try {
-      putRow( data.outputRowMeta, addSequence( getInputRowMeta(), r ) );
+      putRow(data.outputRowMeta, addSequence(getInputRowMeta(), r));
 
-      if ( log.isRowLevel() ) {
-        logRowlevel( BaseMessages.getString( PKG, "GetSequence.Log.WriteRow" )
-          + getLinesWritten() + " : " + getInputRowMeta().getString( r ) );
+      if (log.isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(PKG, "GetSequence.Log.WriteRow")
+                + getLinesWritten()
+                + " : "
+                + getInputRowMeta().getString(r));
       }
-      if ( checkFeedback( getLinesRead() ) ) {
-        if ( log.isBasic() ) {
-          logBasic( BaseMessages.getString( PKG, "GetSequence.Log.LineNumber" ) + getLinesRead() );
+      if (checkFeedback(getLinesRead())) {
+        if (log.isBasic()) {
+          logBasic(BaseMessages.getString(PKG, "GetSequence.Log.LineNumber") + getLinesRead());
         }
       }
-    } catch ( HopException e ) {
-      logError( BaseMessages.getString( PKG, "GetSequence.Log.ErrorInTransform" ) + e.getMessage() );
-      setErrors( 1 );
+    } catch (HopException e) {
+      logError(BaseMessages.getString(PKG, "GetSequence.Log.ErrorInTransform") + e.getMessage());
+      setErrors(1);
       stopAll();
       setOutputDone(); // signal end to receiver(s)
       return false;
@@ -120,12 +134,12 @@ public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetS
     return true;
   }
 
-  public boolean init(){
+  public boolean init() {
 
-    if ( super.init() ) {
-      data.increment = Const.toLong( resolve( meta.getIncrement() ), 1000 );
-      data.hopServer = getPipelineMeta().findHopServer( resolve( meta.getHopServerName() ) );
-      data.sequenceName = resolve( meta.getSequenceName() );
+    if (super.init()) {
+      data.increment = Const.toLong(resolve(meta.getIncrement()), 1000);
+      data.hopServer = getPipelineMeta().findHopServer(resolve(meta.getHopServerName()));
+      data.sequenceName = resolve(meta.getSequenceName());
       data.value = -1;
 
       return true;

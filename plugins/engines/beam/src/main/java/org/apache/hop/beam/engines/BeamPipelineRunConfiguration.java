@@ -23,78 +23,70 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 
-
-public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfiguration implements IBeamPipelineEngineRunConfiguration {
+public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfiguration
+    implements IBeamPipelineEngineRunConfiguration {
 
   @GuiWidgetElement(
-    order = "90000-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "User agent"
-  )
+      order = "90000-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "User agent")
   @HopMetadataProperty
   protected String userAgent;
 
   @GuiWidgetElement(
-    order = "90010-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Temp location"
-  )
+      order = "90010-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Temp location")
   @HopMetadataProperty
   protected String tempLocation;
 
   @GuiWidgetElement(
-    order = "90020-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Plugins to stage (, delimited)"
-  )
+      order = "90020-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Plugins to stage (, delimited)")
   @HopMetadataProperty
   protected String pluginsToStage;
 
   @GuiWidgetElement(
-    order = "90030-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Transform plugin classes"
-  )
+      order = "90030-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Transform plugin classes")
   @HopMetadataProperty
   protected String transformPluginClasses;
 
   @GuiWidgetElement(
-    order = "90040-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "XP plugin classes"
-  )
+      order = "90040-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "XP plugin classes")
   @HopMetadataProperty
   protected String xpPluginClasses;
 
   @GuiWidgetElement(
-    order = "90050-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming Hop transforms flush interval (ms)"
-  )
+      order = "90050-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming Hop transforms flush interval (ms)")
   @HopMetadataProperty
   protected String streamingHopTransformsFlushInterval;
 
   @GuiWidgetElement(
-    order = "90060-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Hop streaming transforms buffer size"
-  )
+      order = "90060-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Hop streaming transforms buffer size")
   @HopMetadataProperty
   protected String streamingHopTransformsBufferSize;
 
   @GuiWidgetElement(
-    order = "90070-general-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Fat jar file location"
-  )
+      order = "90070-general-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Fat jar file location")
   @HopMetadataProperty
   protected String fatJar;
 
@@ -102,8 +94,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     userAgent = "Hop";
   }
 
-  public BeamPipelineRunConfiguration( BeamPipelineRunConfiguration config ) {
-    super( config );
+  public BeamPipelineRunConfiguration(BeamPipelineRunConfiguration config) {
+    super(config);
     this.userAgent = config.userAgent;
     this.tempLocation = config.tempLocation;
     this.pluginsToStage = config.pluginsToStage;
@@ -123,10 +115,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return userAgent;
   }
 
-  /**
-   * @param userAgent The userAgent to set
-   */
-  public void setUserAgent( String userAgent ) {
+  /** @param userAgent The userAgent to set */
+  public void setUserAgent(String userAgent) {
     this.userAgent = userAgent;
   }
 
@@ -139,10 +129,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return tempLocation;
   }
 
-  /**
-   * @param tempLocation The tempLocation to set
-   */
-  public void setTempLocation( String tempLocation ) {
+  /** @param tempLocation The tempLocation to set */
+  public void setTempLocation(String tempLocation) {
     this.tempLocation = tempLocation;
   }
 
@@ -155,10 +143,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return pluginsToStage;
   }
 
-  /**
-   * @param pluginsToStage The pluginsToStage to set
-   */
-  public void setPluginsToStage( String pluginsToStage ) {
+  /** @param pluginsToStage The pluginsToStage to set */
+  public void setPluginsToStage(String pluginsToStage) {
     this.pluginsToStage = pluginsToStage;
   }
 
@@ -171,10 +157,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return transformPluginClasses;
   }
 
-  /**
-   * @param transformPluginClasses The transformPluginClasses to set
-   */
-  public void setTransformPluginClasses( String transformPluginClasses ) {
+  /** @param transformPluginClasses The transformPluginClasses to set */
+  public void setTransformPluginClasses(String transformPluginClasses) {
     this.transformPluginClasses = transformPluginClasses;
   }
 
@@ -187,10 +171,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return xpPluginClasses;
   }
 
-  /**
-   * @param xpPluginClasses The xpPluginClasses to set
-   */
-  public void setXpPluginClasses( String xpPluginClasses ) {
+  /** @param xpPluginClasses The xpPluginClasses to set */
+  public void setXpPluginClasses(String xpPluginClasses) {
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -203,10 +185,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return streamingHopTransformsFlushInterval;
   }
 
-  /**
-   * @param streamingHopTransformsFlushInterval The streamingHopTransformsFlushInterval to set
-   */
-  public void setStreamingHopTransformsFlushInterval( String streamingHopTransformsFlushInterval ) {
+  /** @param streamingHopTransformsFlushInterval The streamingHopTransformsFlushInterval to set */
+  public void setStreamingHopTransformsFlushInterval(String streamingHopTransformsFlushInterval) {
     this.streamingHopTransformsFlushInterval = streamingHopTransformsFlushInterval;
   }
 
@@ -215,14 +195,13 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of streamingHopTransformsBufferSize
    */
-  @Override public String getStreamingHopTransformsBufferSize() {
+  @Override
+  public String getStreamingHopTransformsBufferSize() {
     return streamingHopTransformsBufferSize;
   }
 
-  /**
-   * @param streamingHopTransformsBufferSize The streamingHopTransformsBufferSize to set
-   */
-  public void setStreamingHopTransformsBufferSize( String streamingHopTransformsBufferSize ) {
+  /** @param streamingHopTransformsBufferSize The streamingHopTransformsBufferSize to set */
+  public void setStreamingHopTransformsBufferSize(String streamingHopTransformsBufferSize) {
     this.streamingHopTransformsBufferSize = streamingHopTransformsBufferSize;
   }
 
@@ -235,10 +214,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return fatJar;
   }
 
-  /**
-   * @param fatJar The fatJar to set
-   */
-  public void setFatJar( String fatJar ) {
+  /** @param fatJar The fatJar to set */
+  public void setFatJar(String fatJar) {
     this.fatJar = fatJar;
   }
 }

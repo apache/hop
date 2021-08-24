@@ -18,11 +18,8 @@
 
 package org.apache.hop.pipeline.transforms.types;
 
-import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -33,15 +30,6 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
-
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 @HopFileTypePlugin(
     id = "JsonExplorerFileType",
@@ -57,7 +45,7 @@ public class JsonExplorerFileType extends BaseExplorerFileType<JsonExplorerFileT
         ".json",
         new String[] {"*.json"},
         new String[] {"JSON files"},
-        FileTypeCapabilities.getCapabilities( IHopFileType.CAPABILITY_SAVE ));
+        FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_SAVE));
   }
 
   @Override

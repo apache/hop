@@ -18,5 +18,5 @@
 package org.apache.hop.laf;
 
 public interface ILafChangeListener<E> {
-  void notify( E changedObject );
+  void notify(E changedObject);
 }

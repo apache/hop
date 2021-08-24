@@ -44,7 +44,7 @@ github:
     merge: true
     rebase: false
 
-#remove ~ when enabling the protection
+  #remove ~ when enabling the protection
   protected_branches: ~
 #    master:
 #      required_pull_request_reviews:

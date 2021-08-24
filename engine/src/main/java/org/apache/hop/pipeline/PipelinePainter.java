@@ -22,13 +22,8 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.*;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.IScrollBar;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
@@ -52,10 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.hop.core.gui.IGc.EColor;
-import static org.apache.hop.core.gui.IGc.EFont;
-import static org.apache.hop.core.gui.IGc.EImage;
-import static org.apache.hop.core.gui.IGc.ELineStyle;
+import static org.apache.hop.core.gui.IGc.*;
 
 public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 

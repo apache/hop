@@ -20,11 +20,7 @@ package org.apache.hop.workflow.actions.shell;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -54,11 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Shell type of Workflow Entry. You can define shell scripts to be executed in a Workflow.
@@ -554,7 +546,10 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ActionShell.ExitStatus", resolve(getFilename()), "" + result.getExitStatus()));
+                  PKG,
+                  "ActionShell.ExitStatus",
+                  resolve(getFilename()),
+                  "" + result.getExitStatus()));
         }
 
         result.setNrErrors(1);
@@ -656,7 +651,8 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 

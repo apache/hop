@@ -24,7 +24,7 @@ package org.apache.hop.core;
  * @since 21-aug-2006
  */
 public interface IDescription {
-  void setDescription( String description );
+  void setDescription(String description);
 
   String getDescription();
 }

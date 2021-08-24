@@ -32,5 +32,4 @@ public class SystemDataData extends BaseTransformData implements ITransformData 
   public SystemDataData() {
     super();
   }
-
 }

@@ -30,43 +30,55 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
   private DescribedVariable describedVariable;
   private String configFilename;
 
-  public HopGuiDescribedVariableSearchable( DescribedVariable describedVariable, String configFilename ) {
+  public HopGuiDescribedVariableSearchable(
+      DescribedVariable describedVariable, String configFilename) {
     this.describedVariable = describedVariable;
     this.configFilename = configFilename;
   }
 
-  @Override public String getLocation() {
-    return "A variable in : " + (configFilename==null ? HopConfig.getInstance().getConfigFilename() : configFilename);
+  @Override
+  public String getLocation() {
+    return "A variable in : "
+        + (configFilename == null ? HopConfig.getInstance().getConfigFilename() : configFilename);
   }
 
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return describedVariable.getName();
   }
 
-  @Override public String getType() {
+  @Override
+  public String getType() {
     return "Variable";
   }
 
-  @Override public String getFilename() {
-    return configFilename==null ? HopConfig.getInstance().getConfigFilename() : configFilename;
+  @Override
+  public String getFilename() {
+    return configFilename == null ? HopConfig.getInstance().getConfigFilename() : configFilename;
   }
 
-  @Override public DescribedVariable getSearchableObject() {
+  @Override
+  public DescribedVariable getSearchableObject() {
     return describedVariable;
   }
 
-  @Override public ISearchableCallback getSearchCallback() {
-    return ( searchable, searchResult ) -> {
+  @Override
+  public ISearchableCallback getSearchCallback() {
+    return (searchable, searchResult) -> {
+      String realConfigFilename = HopGui.getInstance().getVariables().resolve(configFilename);
 
-      String realConfigFilename = HopGui.getInstance().getVariables().resolve( configFilename );
-
-      if (realConfigFilename==null) {
+      if (realConfigFilename == null) {
         HopGui.getInstance().menuToolsEditConfigVariables();
       } else {
         if (new File(realConfigFilename).exists()) {
-          DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( realConfigFilename );
+          DescribedVariablesConfigFile configFile =
+              new DescribedVariablesConfigFile(realConfigFilename);
           configFile.readFromFile();
-          HopGui.editConfigFile( HopGui.getInstance().getShell(), realConfigFilename, configFile, searchResult.getComponent() );
+          HopGui.editConfigFile(
+              HopGui.getInstance().getShell(),
+              realConfigFilename,
+              configFile,
+              searchResult.getComponent());
 
           // TODO: if you change the file you want to refresh the project & environment
         }

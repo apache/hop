@@ -17,24 +17,20 @@
 
 package org.apache.hop.core.annotations;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * An alternative when defining workflows entries. Classes annotated with "Action" are automatically recognized and
- * registered as a action.
- * <p>
- * Important: The XML definitions alienate annotated transforms and the two methods of definition are therefore mutually
- * exclusive.
+ * An alternative when defining workflows entries. Classes annotated with "Action" are automatically
+ * recognized and registered as a action.
+ *
+ * <p>Important: The XML definitions alienate annotated transforms and the two methods of definition
+ * are therefore mutually exclusive.
  *
  * @author Alex Silva
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface Action {
   String id();
 

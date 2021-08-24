@@ -37,5 +37,4 @@ public class NullIfData extends BaseTransformData implements ITransformData {
 
     nullValue = null;
   }
-
 }

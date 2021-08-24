@@ -14,12 +14,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+
 [[Variables]]
 :imagesdir: ../../assets/images
 
-xref:variables.adoc[Variables] provide an easy way to avoid hard-coding all sorts of things in your system, environment or project.  Here is some best practices advice on the subject:
+xref:variables.adoc[Variables] provide an easy way to avoid hard-coding all sorts of things in your system, environment or project.
+Here is some best practices advice on the subject:
 
-* Put environment specific settings in an environment (Duh!) configuration file. Create an environment for this.
+* Put environment specific settings in an environment (Duh!) configuration file.
+Create an environment for this.
 * When referencing file locations, prefer `${PROJECT_HOME}` over expressions like `${Internal.Entry.Current.Directory}` or `${Internal.Pipeline.Filename.Directory}`
 * Configure transform copies with variables to allow for easy transition between differently sized environments.
 

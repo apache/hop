@@ -25,7 +25,7 @@ public abstract class CompressionInputStream extends InputStream {
   private ICompressionProvider compressionProvider;
   protected InputStream delegate;
 
-  public CompressionInputStream( InputStream in, ICompressionProvider provider ) {
+  public CompressionInputStream(InputStream in, ICompressionProvider provider) {
     this();
     delegate = in;
     compressionProvider = provider;
@@ -54,12 +54,12 @@ public abstract class CompressionInputStream extends InputStream {
   }
 
   @Override
-  public int read( byte[] b ) throws IOException {
-    return delegate.read( b );
+  public int read(byte[] b) throws IOException {
+    return delegate.read(b);
   }
 
   @Override
-  public int read( byte[] b, int off, int len ) throws IOException {
-    return delegate.read( b, off, len );
+  public int read(byte[] b, int off, int len) throws IOException {
+    return delegate.read(b, off, len);
   }
 }

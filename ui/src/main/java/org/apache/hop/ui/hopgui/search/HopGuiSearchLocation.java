@@ -29,15 +29,18 @@ import java.util.Iterator;
 public class HopGuiSearchLocation implements ISearchablesLocation {
   protected HopGui hopGui;
 
-  public HopGuiSearchLocation( HopGui hopGui ) {
+  public HopGuiSearchLocation(HopGui hopGui) {
     this.hopGui = hopGui;
   }
 
-  @Override public String getLocationDescription() {
+  @Override
+  public String getLocationDescription() {
     return "Current objects loaded in the Hop GUI";
   }
 
-  @Override public Iterator<ISearchable> getSearchables( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
-    return new HopGuiSearchLocationIterator( hopGui, this );
+  @Override
+  public Iterator<ISearchable> getSearchables(
+      IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    return new HopGuiSearchLocationIterator(hopGui, this);
   }
 }

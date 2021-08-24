@@ -21,7 +21,6 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TextFileInputContentParsingTest extends BaseTextParsingTest {
@@ -32,14 +31,16 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
     meta.content.fileFormat = "unix";
 
-    initByFile( "default.csv" );
+    initByFile("default.csv");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
+    check(new Object[][] {{"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third", "3", "3.3"}});
   }
 
   @Test
@@ -48,15 +49,20 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.separator = ",";
     meta.content.fileFormat = "unix";
 
-    initByFile( "separator.csv" );
+    initByFile("separator.csv");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
-    meta.getInputFields()[2].setDecimalSymbol( "." );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
+    meta.getInputFields()[2].setDecimalSymbol(".");
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third;third", "3", "3.3" } } );
+    check(
+        new Object[][] {
+          {"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third;third", "3", "3.3"}
+        });
   }
 
   @Test
@@ -65,14 +71,19 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.escapeCharacter = "\\";
     meta.content.fileFormat = "unix";
 
-    initByFile( "escape.csv" );
+    initByFile("escape.csv");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third;third", "3", "3.3" } } );
+    check(
+        new Object[][] {
+          {"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third;third", "3", "3.3"}
+        });
   }
 
   @Test
@@ -81,62 +92,72 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.header = false;
     meta.content.fileFormat = "unix";
 
-    initByFile( "default.csv" );
+    initByFile("default.csv");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] {
-      { "Field 1", "Field 2", "Field 3" },
-      { "first", "1", "1.1" },
-      { "second", "2", "2.2" },
-      { "third", "3", "3.3" } } );
+    check(
+        new Object[][] {
+          {"Field 1", "Field 2", "Field 3"},
+          {"first", "1", "1.1"},
+          {"second", "2", "2.2"},
+          {"third", "3", "3.3"}
+        });
   }
 
   @Test
   public void testGzipCompression() throws Exception {
 
     meta.content.fileCompression = "GZip";
-    initByFile( "default.csv.gz" );
+    initByFile("default.csv.gz");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
+    check(new Object[][] {{"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third", "3", "3.3"}});
   }
 
   @Test
   public void testVfsGzipCompression() throws Exception {
 
     meta.content.fileCompression = "None";
-    String url = "gz:" + this.getClass().getResource( inPrefix + "default.csv.gz" );
-    initByURL( url );
+    String url = "gz:" + this.getClass().getResource(inPrefix + "default.csv.gz");
+    initByURL(url);
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
+    check(new Object[][] {{"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third", "3", "3.3"}});
   }
 
   @Test
   public void testVfsBzip2Compression() throws Exception {
 
     meta.content.fileCompression = "None";
-    String url = "bz2:" + this.getClass().getResource( inPrefix + "default.csv.bz2" );
-    initByURL( url );
+    String url = "bz2:" + this.getClass().getResource(inPrefix + "default.csv.bz2");
+    initByURL(url);
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
+    check(new Object[][] {{"first", "1", "1.1"}, {"second", "2", "2.2"}, {"third", "3", "3.3"}});
   }
 
   @Test
@@ -145,14 +166,21 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.fileType = "Fixed";
     meta.content.fileFormat = "unix";
 
-    initByFile( "fixed.csv" );
+    initByFile("fixed.csv");
 
-    setFields( new BaseFileField( "f1", 0, 7 ), new BaseFileField( "f2", 8, 7 ), new BaseFileField( "f3",
-      16, 7 ) );
+    setFields(
+        new BaseFileField("f1", 0, 7),
+        new BaseFileField("f2", 8, 7),
+        new BaseFileField("f3", 16, 7));
 
     process();
 
-    check( new Object[][] { { "first  ", "1      ", "1.1" }, { "second ", "2      ", "2.2" }, { "third  ", "3      ", "3.3" } } );
+    check(
+        new Object[][] {
+          {"first  ", "1      ", "1.1"},
+          {"second ", "2      ", "2.2"},
+          {"third  ", "3      ", "3.3"}
+        });
   }
 
   @Test
@@ -163,17 +191,17 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.fileFormat = "Unix";
     meta.content.encoding = "Shift_JIS";
     meta.content.length = "Bytes";
-    initByFile( "test-fixed-length-bytes.txt" );
+    initByFile("test-fixed-length-bytes.txt");
 
     setFields(
-      new BaseFileField( "f1", 0, 5 ),
-      new BaseFileField( "f2", 5, 3 ),
-      new BaseFileField( "f3", 8, 1 ),
-      new BaseFileField( "f4", 9, 3 ) );
+        new BaseFileField("f1", 0, 5),
+        new BaseFileField("f2", 5, 3),
+        new BaseFileField("f3", 8, 1),
+        new BaseFileField("f4", 9, 3));
 
     process();
 
-    check( new Object[][] { { "1.000", "個 ", "T", "1.0" }, { "2.000", "M  ", "Z", "1.0" } } );
+    check(new Object[][] {{"1.000", "個 ", "T", "1.0"}, {"2.000", "M  ", "Z", "1.0"}});
   }
 
   @Test
@@ -185,16 +213,16 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.length = "Characters";
     meta.content.fileFormat = "unix";
 
-    initByFile( "test-fixed-length-characters.txt" );
+    initByFile("test-fixed-length-characters.txt");
 
     setFields(
-      new BaseFileField( "f1", 0, 3 ),
-      new BaseFileField( "f2", 3, 2 ),
-      new BaseFileField( "f3", 5, 2 ),
-      new BaseFileField( "f4", 7, 4 ) );
+        new BaseFileField("f1", 0, 3),
+        new BaseFileField("f2", 3, 2),
+        new BaseFileField("f3", 5, 2),
+        new BaseFileField("f4", 7, 4));
 
     process();
-    check( new Object[][] { { "ABC", "DE", "FG", "HIJK" }, { "LmN", "oP", "qR", "sTuV" } } );
+    check(new Object[][] {{"ABC", "DE", "FG", "HIJK"}, {"LmN", "oP", "qR", "sTuV"}});
   }
 
   @Test
@@ -204,14 +232,20 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.fileType = "Fixed";
     meta.content.noEmptyLines = true;
     meta.content.fileFormat = "mixed";
-    initByFile( "filterempty-BACKLOG-5381.csv" );
+    initByFile("filterempty-BACKLOG-5381.csv");
 
-    setFields( new BaseFileField( "f", 0, 100 ) );
+    setFields(new BaseFileField("f", 0, 100));
 
     process();
 
-    check( new Object[][] { { "FirstLine => FirstLine " }, { "ThirdLine => SecondLine" }, { "SixthLine => ThirdLine" },
-      { "NinthLine => FourthLine" }, { "" } } );
+    check(
+        new Object[][] {
+          {"FirstLine => FirstLine "},
+          {"ThirdLine => SecondLine"},
+          {"SixthLine => ThirdLine"},
+          {"NinthLine => FourthLine"},
+          {""}
+        });
   }
 
   @Test
@@ -219,19 +253,21 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
     meta.content.fileFormat = "unix";
 
-    initByFile( "default.csv" );
+    initByFile("default.csv");
 
     Variables vars = new Variables();
-    vars.setVariable( "VAR_TEST", "second" );
+    vars.setVariable("VAR_TEST", "second");
     data.filterProcessor =
-      new TextFileFilterProcessor( new TextFileFilter[] { new TextFileFilter( 0, "${VAR_TEST}", false, false ) },
-        vars );
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
-      new BaseFileField( "f2", -1, -1 ) );
+        new TextFileFilterProcessor(
+            new TextFileFilter[] {new TextFileFilter(0, "${VAR_TEST}", false, false)}, vars);
+    setFields(
+        new BaseFileField("f1", -1, -1),
+        new BaseFileField("f2", -1, -1),
+        new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "first", "1", "1.1" }, { "third", "3", "3.3" } } );
+    check(new Object[][] {{"first", "1", "1.1"}, {"third", "3", "3.3"}});
   }
 
   @Test
@@ -239,13 +275,13 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
     meta.content.encoding = "UTF-32LE";
     meta.content.header = false;
-    initByFile( "test-BOM-UTF-8.txt" );
+    initByFile("test-BOM-UTF-8.txt");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ) );
+    setFields(new BaseFileField("f1", -1, -1), new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "data", "1" } } );
+    check(new Object[][] {{"data", "1"}});
   }
 
   @Test
@@ -253,12 +289,12 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
     meta.content.encoding = "UTF-32LE";
     meta.content.header = false;
-    initByFile( "test-BOM-UTF-16BE.txt" );
+    initByFile("test-BOM-UTF-16BE.txt");
 
-    setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ) );
+    setFields(new BaseFileField("f1", -1, -1), new BaseFileField("f2", -1, -1));
 
     process();
 
-    check( new Object[][] { { "data", "1" } } );
+    check(new Object[][] {{"data", "1"}});
   }
 }

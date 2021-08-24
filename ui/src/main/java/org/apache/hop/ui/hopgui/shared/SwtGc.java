@@ -32,14 +32,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.LineAttributes;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.graphics.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +77,7 @@ public class SwtGc implements IGc {
   private Point area;
   private Transform transform;
 
-  public SwtGc( GC gc, int width, int height, int iconSize ) {
+  public SwtGc(GC gc, int width, int height, int iconSize) {
     this.gc = gc;
     this.images = GuiResource.getInstance().getImagesTransforms();
     this.iconSize = iconSize;
@@ -117,55 +110,68 @@ public class SwtGc implements IGc {
 
   public void dispose() {
     // Do not dispose the GC.  It's handed to us so we don't dispose it
-    // However, the resources below are possibly used and allocated here so they need to be cleaned up
+    // However, the resources below are possibly used and allocated here so they need to be cleaned
+    // up
     //
-    if ( transform != null && transform.isDisposed() == false ) {
+    if (transform != null && transform.isDisposed() == false) {
       transform.dispose();
     }
-    for ( Color color : colors ) {
+    for (Color color : colors) {
       color.dispose();
     }
-    for ( Font font : fonts ) {
+    for (Font font : fonts) {
       font.dispose();
     }
   }
 
-  public void drawLine( int x, int y, int x2, int y2 ) {
-    gc.drawLine( x, y, x2, y2 );
+  public void drawLine(int x, int y, int x2, int y2) {
+    gc.drawLine(x, y, x2, y2);
   }
 
-  public void drawImage( EImage image, int x, int y, float magnification ) {
-    Image img = getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( miniIconSize * magnification ),
-      Math.round( miniIconSize * magnification ) );
-    if ( img != null ) {
-      Rectangle bounds = img.getBounds();
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, miniIconSize, miniIconSize );
-    }
-  }
-
-  public void drawImage( EImage image, int x, int y, int width, int height, float magnification ) {
-    Image img = getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( width * magnification ),
-      Math.round( height * magnification ) );
-    if ( img != null ) {
-      Rectangle bounds = img.getBounds();
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, width, height );
-    }
-  }
-
-  public void drawImage( EImage image, int x, int y, float magnification, double angle ) {
+  public void drawImage(EImage image, int x, int y, float magnification) {
     Image img =
-      getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( miniIconSize * magnification ),
-        Math.round( miniIconSize * magnification ), angle );
-    if ( img != null ) {
+        getNativeImage(image)
+            .getAsBitmapForSize(
+                gc.getDevice(),
+                Math.round(miniIconSize * magnification),
+                Math.round(miniIconSize * magnification));
+    if (img != null) {
       Rectangle bounds = img.getBounds();
-      int hx = Math.round( bounds.width / magnification );
-      int hy = Math.round( bounds.height / magnification );
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy );
+      gc.drawImage(img, 0, 0, bounds.width, bounds.height, x, y, miniIconSize, miniIconSize);
     }
   }
 
-  public static final SwtUniversalImage getNativeImage( EImage image ) {
-    switch ( image ) {
+  public void drawImage(EImage image, int x, int y, int width, int height, float magnification) {
+    Image img =
+        getNativeImage(image)
+            .getAsBitmapForSize(
+                gc.getDevice(),
+                Math.round(width * magnification),
+                Math.round(height * magnification));
+    if (img != null) {
+      Rectangle bounds = img.getBounds();
+      gc.drawImage(img, 0, 0, bounds.width, bounds.height, x, y, width, height);
+    }
+  }
+
+  public void drawImage(EImage image, int x, int y, float magnification, double angle) {
+    Image img =
+        getNativeImage(image)
+            .getAsBitmapForSize(
+                gc.getDevice(),
+                Math.round(miniIconSize * magnification),
+                Math.round(miniIconSize * magnification),
+                angle);
+    if (img != null) {
+      Rectangle bounds = img.getBounds();
+      int hx = Math.round(bounds.width / magnification);
+      int hy = Math.round(bounds.height / magnification);
+      gc.drawImage(img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy);
+    }
+  }
+
+  public static final SwtUniversalImage getNativeImage(EImage image) {
+    switch (image) {
       case LOCK:
         return GuiResource.getInstance().getSwtImageLocked();
       case FAILURE:
@@ -228,69 +234,71 @@ public class SwtGc implements IGc {
     return null;
   }
 
-  public void drawPoint( int x, int y ) {
-    gc.drawPoint( x, y );
+  public void drawPoint(int x, int y) {
+    gc.drawPoint(x, y);
   }
 
-  public void drawPolygon( int[] polygon ) {
-    gc.drawPolygon( polygon );
+  public void drawPolygon(int[] polygon) {
+    gc.drawPolygon(polygon);
   }
 
-  public void drawPolyline( int[] polyline ) {
-    gc.drawPolyline( polyline );
+  public void drawPolyline(int[] polyline) {
+    gc.drawPolyline(polyline);
   }
 
-  public void drawRectangle( int x, int y, int width, int height ) {
-    gc.drawRectangle( x, y, width, height );
+  public void drawRectangle(int x, int y, int width, int height) {
+    gc.drawRectangle(x, y, width, height);
   }
 
-  public void drawRoundRectangle( int x, int y, int width, int height, int circleWidth, int circleHeight ) {
-    gc.drawRoundRectangle( x, y, width, height, circleWidth, circleHeight );
+  public void drawRoundRectangle(
+      int x, int y, int width, int height, int circleWidth, int circleHeight) {
+    gc.drawRoundRectangle(x, y, width, height, circleWidth, circleHeight);
   }
 
-  public void drawText( String text, int x, int y ) {
-    gc.drawText( text, x, y );
+  public void drawText(String text, int x, int y) {
+    gc.drawText(text, x, y);
   }
 
-  public void drawText( String text, int x, int y, boolean transparent ) {
-    gc.drawText( text, x, y, SWT.DRAW_DELIMITER | SWT.DRAW_TAB | SWT.DRAW_TRANSPARENT );
+  public void drawText(String text, int x, int y, boolean transparent) {
+    gc.drawText(text, x, y, SWT.DRAW_DELIMITER | SWT.DRAW_TAB | SWT.DRAW_TRANSPARENT);
   }
 
-  public void fillPolygon( int[] polygon ) {
-    gc.fillPolygon( polygon );
+  public void fillPolygon(int[] polygon) {
+    gc.fillPolygon(polygon);
   }
 
-  public void fillRectangle( int x, int y, int width, int height ) {
-    gc.fillRectangle( x, y, width, height );
+  public void fillRectangle(int x, int y, int width, int height) {
+    gc.fillRectangle(x, y, width, height);
   }
 
-  public void fillGradientRectangle( int x, int y, int width, int height, boolean vertical ) {
-    gc.fillGradientRectangle( x, y, width, height, vertical );
+  public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {
+    gc.fillGradientRectangle(x, y, width, height, vertical);
   }
 
-  public void fillRoundRectangle( int x, int y, int width, int height, int circleWidth, int circleHeight ) {
-    gc.fillRoundRectangle( x, y, width, height, circleWidth, circleHeight );
+  public void fillRoundRectangle(
+      int x, int y, int width, int height, int circleWidth, int circleHeight) {
+    gc.fillRoundRectangle(x, y, width, height, circleWidth, circleHeight);
   }
 
   public Point getDeviceBounds() {
     org.eclipse.swt.graphics.Rectangle p = gc.getDevice().getBounds();
-    return new Point( p.width, p.height );
+    return new Point(p.width, p.height);
   }
 
-  public void setAlpha( int alpha ) {
-    gc.setAlpha( alpha );
+  public void setAlpha(int alpha) {
+    gc.setAlpha(alpha);
   }
 
   public int getAlpha() {
     return gc.getAlpha();
   }
 
-  public void setBackground( EColor color ) {
-    gc.setBackground( getColor( color ) );
+  public void setBackground(EColor color) {
+    gc.setBackground(getColor(color));
   }
 
-  private Color getColor( EColor color ) {
-    switch ( color ) {
+  private Color getColor(EColor color) {
+    switch (color) {
       case BACKGROUND:
         return background;
       case BLACK:
@@ -310,7 +318,7 @@ public class SwtGc implements IGc {
       case PURPULE:
         return purpule;
       case INDIGO:
-        return indigo;        
+        return indigo;
       case GRAY:
         return gray;
       case LIGHTGRAY:
@@ -326,7 +334,7 @@ public class SwtGc implements IGc {
       case HOP_TRUE:
         return hopTrue;
       case HOP_FALSE:
-        return hopFalse;        
+        return hopFalse;
       case DEPRECATED:
         return deprecated;
       default:
@@ -335,27 +343,27 @@ public class SwtGc implements IGc {
     return null;
   }
 
-  public void setFont( EFont font ) {
-    switch ( font ) {
+  public void setFont(EFont font) {
+    switch (font) {
       case GRAPH:
-        gc.setFont( GuiResource.getInstance().getFontGraph() );
+        gc.setFont(GuiResource.getInstance().getFontGraph());
         break;
       case NOTE:
-        gc.setFont( GuiResource.getInstance().getFontNote() );
+        gc.setFont(GuiResource.getInstance().getFontNote());
         break;
       case SMALL:
-        gc.setFont( GuiResource.getInstance().getFontSmall() );
+        gc.setFont(GuiResource.getInstance().getFontSmall());
         break;
       default:
         break;
     }
   }
 
-  public void setForeground( EColor color ) {
-    gc.setForeground( getColor( color ) );
+  public void setForeground(EColor color) {
+    gc.setForeground(getColor(color));
   }
 
-  public void setLineStyle( ELineStyle lineStyle ) {
+  public void setLineStyle(ELineStyle lineStyle) {
     // RAP does not implement LineStyle and LineAttributes
     if (!EnvironmentUtils.getInstance().isWeb()) {
       switch (lineStyle) {
@@ -390,173 +398,183 @@ public class SwtGc implements IGc {
     }
   }
 
-  public void setLineWidth( int width ) {
-    gc.setLineWidth( width );
+  public void setLineWidth(int width) {
+    gc.setLineWidth(width);
   }
 
-  public void setTransform( float translationX, float translationY, float magnification ) {
-    if ( transform != null ) { // dispose of previous to prevent leaking of handles
+  public void setTransform(float translationX, float translationY, float magnification) {
+    if (transform != null) { // dispose of previous to prevent leaking of handles
       transform.dispose();
     }
-    transform = new Transform( gc.getDevice() );
-    transform.translate( translationX, translationY );
-    transform.scale( magnification, magnification );
-    gc.setTransform( transform );
+    transform = new Transform(gc.getDevice());
+    transform.translate(translationX, translationY);
+    transform.scale(magnification, magnification);
+    gc.setTransform(transform);
     currentMagnification = magnification;
   }
 
-  @Override public float getMagnification() {
+  @Override
+  public float getMagnification() {
     return currentMagnification;
   }
 
-  public Point textExtent( String text ) {
-    org.eclipse.swt.graphics.Point p = gc.textExtent( text );
-    return new Point( p.x, p.y );
+  public Point textExtent(String text) {
+    org.eclipse.swt.graphics.Point p = gc.textExtent(text);
+    return new Point(p.x, p.y);
   }
 
-  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
+  public void drawTransformIcon(int x, int y, TransformMeta transformMeta, float magnification) {
     SwtUniversalImage swtImage = null;
-    
-    if ( transformMeta.isMissing() ) {
+
+    if (transformMeta.isMissing()) {
       swtImage = GuiResource.getInstance().getSwtImageMissing();
-    } else if ( transformMeta.isDeprecated() ) {
+    } else if (transformMeta.isDeprecated()) {
       swtImage = GuiResource.getInstance().getSwtImageDeprecated();
     } else {
       String pluginId = transformMeta.getPluginId();
-      if ( pluginId != null ) {
-        swtImage = GuiResource.getInstance().getImagesTransforms().get( pluginId );
+      if (pluginId != null) {
+        swtImage = GuiResource.getInstance().getImagesTransforms().get(pluginId);
       }
     }
 
-    if ( swtImage == null ) {
+    if (swtImage == null) {
       return;
     }
 
-    int w = Math.round( iconSize * magnification );
-    int h = Math.round( iconSize * magnification );
-    Image image = swtImage.getAsBitmapForSize( gc.getDevice(), w, h );
+    int w = Math.round(iconSize * magnification);
+    int h = Math.round(iconSize * magnification);
+    Image image = swtImage.getAsBitmapForSize(gc.getDevice(), w, h);
 
     org.eclipse.swt.graphics.Rectangle bounds = image.getBounds();
-    gc.drawImage( image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize );
+    gc.drawImage(image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize);
   }
 
-  public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) {
-    if ( actionMeta == null ) {
+  public void drawActionIcon(int x, int y, ActionMeta actionMeta, float magnification) {
+    if (actionMeta == null) {
       return; // Don't draw anything
     }
 
     SwtUniversalImage swtImage = null;
 
-    int w = Math.round( iconSize * magnification );
-    int h = Math.round( iconSize * magnification );
+    int w = Math.round(iconSize * magnification);
+    int h = Math.round(iconSize * magnification);
 
-    if ( actionMeta.isMissing() ) {
-	  swtImage = GuiResource.getInstance().getSwtImageMissing();
-    }
-    else if ( actionMeta.isDeprecated() ) {
+    if (actionMeta.isMissing()) {
+      swtImage = GuiResource.getInstance().getSwtImageMissing();
+    } else if (actionMeta.isDeprecated()) {
       swtImage = GuiResource.getInstance().getSwtImageDeprecated();
-    }
-    else {
+    } else {
       String pluginId = actionMeta.getAction().getPluginId();
-      if ( pluginId != null ) {
-        swtImage = GuiResource.getInstance().getImagesActions().get( pluginId );
+      if (pluginId != null) {
+        swtImage = GuiResource.getInstance().getImagesActions().get(pluginId);
       }
     }
 
-    if ( swtImage == null ) {
+    if (swtImage == null) {
       return;
     }
 
-    Image image = swtImage.getAsBitmapForSize( gc.getDevice(), w, h );
+    Image image = swtImage.getAsBitmapForSize(gc.getDevice(), w, h);
 
     org.eclipse.swt.graphics.Rectangle bounds = image.getBounds();
-    gc.drawImage( image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize );
+    gc.drawImage(image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize);
   }
 
-  @Override public void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException {
+  @Override
+  public void drawImage(
+      SvgFile svgFile,
+      int x,
+      int y,
+      int desiredWidth,
+      int desiredHeight,
+      float magnification,
+      double angle)
+      throws HopException {
     //
-    SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
-    SwtUniversalImageSvg imageSvg = new SwtUniversalImageSvg( new SvgImage(cacheEntry.getSvgDocument()) );
+    SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
+    SwtUniversalImageSvg imageSvg =
+        new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()));
 
-    int magnifiedWidth = Math.round( desiredWidth * magnification );
-    int magnifiedHeight = Math.round( desiredHeight * magnification );
-    if (angle!=0) {
-      // A rotated image is blown up to twice its size to allow it to be rendered completely in the center
+    int magnifiedWidth = Math.round(desiredWidth * magnification);
+    int magnifiedHeight = Math.round(desiredHeight * magnification);
+    if (angle != 0) {
+      // A rotated image is blown up to twice its size to allow it to be rendered completely in the
+      // center
       //
-      Image img = imageSvg.getAsBitmapForSize( gc.getDevice(), magnifiedWidth, magnifiedHeight, angle );
+      Image img =
+          imageSvg.getAsBitmapForSize(gc.getDevice(), magnifiedWidth, magnifiedHeight, angle);
       Rectangle bounds = img.getBounds();
-      int hx = Math.round( bounds.width / magnification );
-      int hy = Math.round( bounds.height / magnification );
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy );
+      int hx = Math.round(bounds.width / magnification);
+      int hy = Math.round(bounds.height / magnification);
+      gc.drawImage(img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy);
     } else {
       // Without rotation we simply draw the image with the desired width
       //
-      Image img = imageSvg.getAsBitmapForSize( gc.getDevice(), magnifiedWidth, magnifiedHeight );
+      Image img = imageSvg.getAsBitmapForSize(gc.getDevice(), magnifiedWidth, magnifiedHeight);
       Rectangle bounds = img.getBounds();
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, desiredWidth, desiredHeight );
+      gc.drawImage(img, 0, 0, bounds.width, bounds.height, x, y, desiredWidth, desiredHeight);
     }
   }
 
-  public void setAntialias( boolean antiAlias ) {
-    if ( antiAlias ) {
-      gc.setAntialias( SWT.ON );
+  public void setAntialias(boolean antiAlias) {
+    if (antiAlias) {
+      gc.setAntialias(SWT.ON);
     } else {
-      gc.setAntialias( SWT.OFF );
+      gc.setAntialias(SWT.OFF);
     }
   }
 
-  public void setBackground( int r, int g, int b ) {
-    Color color = getColor( r, g, b );
-    gc.setBackground( color );
+  public void setBackground(int r, int g, int b) {
+    Color color = getColor(r, g, b);
+    gc.setBackground(color);
   }
 
-  public void setForeground( int r, int g, int b ) {
-    Color color = getColor( r, g, b );
-    gc.setForeground( color );
+  public void setForeground(int r, int g, int b) {
+    Color color = getColor(r, g, b);
+    gc.setForeground(color);
   }
 
-  private Color getColor( int r, int g, int b ) {
-    Color color = new Color( PropsUi.getDisplay(), new RGB( r, g, b ) );
-    int index = colors.indexOf( color );
-    if ( index < 0 ) {
-      colors.add( color );
+  private Color getColor(int r, int g, int b) {
+    Color color = new Color(PropsUi.getDisplay(), new RGB(r, g, b));
+    int index = colors.indexOf(color);
+    if (index < 0) {
+      colors.add(color);
     } else {
       color.dispose();
-      color = colors.get( index );
+      color = colors.get(index);
     }
     return color;
   }
 
-  public void setFont( String fontName, int fontSize, boolean fontBold, boolean fontItalic ) {
+  public void setFont(String fontName, int fontSize, boolean fontBold, boolean fontItalic) {
     int swt = SWT.NORMAL;
-    if ( fontBold ) {
+    if (fontBold) {
       swt = SWT.BOLD;
     }
-    if ( fontItalic ) {
+    if (fontItalic) {
       swt = swt | SWT.ITALIC;
     }
 
-    Font font = new Font( PropsUi.getDisplay(), fontName, fontSize, swt );
-    int index = fonts.indexOf( font );
-    if ( index < 0 ) {
-      fonts.add( font );
+    Font font = new Font(PropsUi.getDisplay(), fontName, fontSize, swt);
+    int index = fonts.indexOf(font);
+    if (index < 0) {
+      fonts.add(font);
     } else {
       font.dispose();
-      font = fonts.get( index );
+      font = fonts.get(index);
     }
-    gc.setFont( font );
+    gc.setFont(font);
   }
 
   public void switchForegroundBackgroundColors() {
     Color fg = gc.getForeground();
     Color bg = gc.getBackground();
 
-    gc.setForeground( bg );
-    gc.setBackground( fg );
+    gc.setForeground(bg);
+    gc.setBackground(fg);
   }
 
   public Point getArea() {
     return area;
   }
-
 }

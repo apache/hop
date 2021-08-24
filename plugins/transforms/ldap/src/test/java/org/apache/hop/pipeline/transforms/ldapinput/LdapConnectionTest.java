@@ -16,9 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -31,6 +28,9 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LdapConnectionTest {
@@ -55,8 +55,7 @@ public class LdapConnectionTest {
     meta.setHost("localhost");
     meta.setPort("1389");
 
-    when(variables.resolve(Matchers.<String>any()))
-        .thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
     try {
@@ -74,8 +73,7 @@ public class LdapConnectionTest {
     meta.setHost("localhost");
     meta.setPort("1389");
 
-    when(variables.resolve(Matchers.<String>any()))
-        .thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     expectedEx.expect(HopException.class);
     expectedEx.expectMessage("Invalid Credentials");
@@ -97,8 +95,7 @@ public class LdapConnectionTest {
     meta.setUseCertificate(true);
     meta.setTrustAllCertificates(true);
 
-    when(variables.resolve(Matchers.<String>any()))
-        .thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
     try {
@@ -122,8 +119,7 @@ public class LdapConnectionTest {
     meta.setUseCertificate(true);
     meta.setTrustAllCertificates(false);
 
-    when(variables.resolve(Matchers.<String>any()))
-        .thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
     try {

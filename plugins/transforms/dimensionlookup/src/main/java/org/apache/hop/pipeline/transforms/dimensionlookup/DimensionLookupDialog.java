@@ -52,7 +52,10 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 import java.util.List;
@@ -650,8 +653,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     gTechGroup.setLayout(groupLayout);
     FormData fdTechGroup = new FormData();
     fdTechGroup.top = new FormAttachment(wTkRename, margin);
-    fdTechGroup.left = new FormAttachment(middle,0);
-    fdTechGroup.right = new FormAttachment(100,-margin);
+    fdTechGroup.left = new FormAttachment(middle, 0);
+    fdTechGroup.right = new FormAttachment(100, -margin);
     gTechGroup.setBackground(shell.getBackground()); // the default looks ugly
     gTechGroup.setLayoutData(fdTechGroup);
 
@@ -661,7 +664,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTableMax.setSelection(false);
     FormData fdTableMax = new FormData();
     fdTableMax.left = new FormAttachment(0, 0);
-    fdTableMax.top = new FormAttachment(wTkRename,  margin);
+    fdTableMax.top = new FormAttachment(wTkRename, margin);
     wTableMax.setLayoutData(fdTableMax);
     wTableMax.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.TableMaximum.Tooltip", Const.CR));
@@ -670,7 +673,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     props.setLook(wlTableMax);
     FormData fdlTableMax = new FormData();
     fdlTableMax.left = new FormAttachment(wTableMax, margin);
-    fdlTableMax.top = new FormAttachment(wTkRename,  margin);
+    fdlTableMax.top = new FormAttachment(wTkRename, margin);
     fdlTableMax.right = new FormAttachment(100, 0);
     wlTableMax.setLayoutData(fdlTableMax);
 
@@ -680,7 +683,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wSeqButton.setSelection(false);
     FormData fdSeqButton = new FormData();
     fdSeqButton.left = new FormAttachment(0, 0);
-    fdSeqButton.top = new FormAttachment(wTableMax,  margin);
+    fdSeqButton.top = new FormAttachment(wTableMax, margin);
     wSeqButton.setLayoutData(fdSeqButton);
     wSeqButton.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Tooltip", Const.CR));
@@ -689,7 +692,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     props.setLook(wlSeqButton);
     FormData fdlSeqButton = new FormData();
     fdlSeqButton.left = new FormAttachment(wSeqButton, 0);
-    fdlSeqButton.top = new FormAttachment(wTableMax,  margin);
+    fdlSeqButton.top = new FormAttachment(wTableMax, margin);
     fdlSeqButton.right = new FormAttachment(100, 0);
     wlSeqButton.setLayoutData(fdlSeqButton);
 
@@ -698,7 +701,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wSeq.addModifyListener(lsMod);
     FormData fdSeq = new FormData();
     fdSeq.left = new FormAttachment(0, 0);
-    fdSeq.top = new FormAttachment(wSeqButton,  margin);
+    fdSeq.top = new FormAttachment(wSeqButton, margin);
     fdSeq.right = new FormAttachment(100, 0);
     wSeq.setLayoutData(fdSeq);
     wSeq.addFocusListener(
@@ -721,7 +724,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wAutoinc.setSelection(false);
     FormData fdAutoinc = new FormData();
     fdAutoinc.left = new FormAttachment(0, 0);
-    fdAutoinc.top = new FormAttachment(wSeq,  margin);
+    fdAutoinc.top = new FormAttachment(wSeq, margin);
     wAutoinc.setLayoutData(fdAutoinc);
     wAutoinc.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.AutoincButton.Tooltip", Const.CR));
@@ -730,7 +733,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     props.setLook(wlAutoinc);
     FormData fdlAutoinc = new FormData();
     fdlAutoinc.left = new FormAttachment(wAutoinc, 0);
-    fdlAutoinc.top = new FormAttachment(wSeq,  margin);
+    fdlAutoinc.top = new FormAttachment(wSeq, margin);
     fdlAutoinc.right = new FormAttachment(100, 0);
     wlAutoinc.setLayoutData(fdlAutoinc);
 

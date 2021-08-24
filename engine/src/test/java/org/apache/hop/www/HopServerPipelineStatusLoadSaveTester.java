@@ -28,15 +28,23 @@ import java.util.Map;
 
 public class HopServerPipelineStatusLoadSaveTester extends LoadSaveBase<HopServerPipelineStatus> {
 
-  public HopServerPipelineStatusLoadSaveTester( Class<HopServerPipelineStatus> clazz, List<String> commonAttributes ) {
-    super( clazz, commonAttributes );
+  public HopServerPipelineStatusLoadSaveTester(
+      Class<HopServerPipelineStatus> clazz, List<String> commonAttributes) {
+    super(clazz, commonAttributes);
   }
 
-  public HopServerPipelineStatusLoadSaveTester( Class<HopServerPipelineStatus> clazz, List<String> commonAttributes,
-                                                  Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap ) {
-    super( clazz, commonAttributes, new ArrayList<>(), new HashMap<>(),
-      new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
-      new HashMap<>() );
+  public HopServerPipelineStatusLoadSaveTester(
+      Class<HopServerPipelineStatus> clazz,
+      List<String> commonAttributes,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap) {
+    super(
+        clazz,
+        commonAttributes,
+        new ArrayList<>(),
+        new HashMap<>(),
+        new HashMap<>(),
+        fieldLoadSaveValidatorAttributeMap,
+        new HashMap<>());
   }
 
   public void testSerialization() throws HopException {
@@ -46,10 +54,10 @@ public class HopServerPipelineStatusLoadSaveTester extends LoadSaveBase<HopServe
   protected void testXmlRoundTrip() throws HopException {
     HopServerPipelineStatus metaToSave = createMeta();
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
-      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+        createValidatorMapAndInvokeSetters(xmlAttributes, metaToSave);
 
     String xml = metaToSave.getXml();
-    HopServerPipelineStatus metaLoaded = HopServerPipelineStatus.fromXml( xml );
-    validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
+    HopServerPipelineStatus metaLoaded = HopServerPipelineStatus.fromXml(xml);
+    validateLoadedMeta(xmlAttributes, validatorMap, metaToSave, metaLoaded);
   }
 }

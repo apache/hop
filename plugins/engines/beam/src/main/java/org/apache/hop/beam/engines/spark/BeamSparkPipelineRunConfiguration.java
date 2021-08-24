@@ -53,113 +53,109 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import java.util.Arrays;
 
 @GuiPlugin
-public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfiguration implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
+public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfiguration
+    implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
 
   @GuiWidgetElement(
-    order = "20000-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "The Spark master",
-    toolTip = "The url of the spark master to connect to, (e.g. spark://host:port, local[4])."
-  )
+      order = "20000-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "The Spark master",
+      toolTip = "The url of the spark master to connect to, (e.g. spark://host:port, local[4]).")
   @HopMetadataProperty
   private String sparkMaster;
 
   @GuiWidgetElement(
-    order = "20010-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming: batch interval (ms)",
-    toolTip = "Batch interval for Spark streaming in milliseconds."
-  )
+      order = "20010-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming: batch interval (ms)",
+      toolTip = "Batch interval for Spark streaming in milliseconds.")
   @HopMetadataProperty
   private String sparkBatchIntervalMillis;
 
   @GuiWidgetElement(
-    order = "20020-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming: checkpoint directory",
-    toolTip = "A checkpoint directory for streaming resilience, ignored in batch. "
-      + "For durability, a reliable filesystem such as HDFS/S3/GS is necessary."
-  )
+      order = "20020-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming: checkpoint directory",
+      toolTip =
+          "A checkpoint directory for streaming resilience, ignored in batch. "
+              + "For durability, a reliable filesystem such as HDFS/S3/GS is necessary.")
   @HopMetadataProperty
   private String sparkCheckpointDir;
 
   @GuiWidgetElement(
-    order = "20030-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming: checkpoint duration (ms)",
-    toolTip = "The period to checkpoint (in Millis). If not set, Spark will default "
-      + "to Max(slideDuration, Seconds(10)). This PipelineOptions default (-1) will end-up "
-      + "with the described Spark default."
-  )
+      order = "20030-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming: checkpoint duration (ms)",
+      toolTip =
+          "The period to checkpoint (in Millis). If not set, Spark will default "
+              + "to Max(slideDuration, Seconds(10)). This PipelineOptions default (-1) will end-up "
+              + "with the described Spark default.")
   @HopMetadataProperty
   private String sparkCheckpointDurationMillis;
 
   @GuiWidgetElement(
-    order = "20040-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.CHECKBOX,
-    label = "Enable Metrics sink",
-    toolTip = "Enable/disable sending aggregator values to Spark's metric sinks"
-  )
+      order = "20040-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "Enable Metrics sink",
+      toolTip = "Enable/disable sending aggregator values to Spark's metric sinks")
   @HopMetadataProperty
   private boolean sparkEnableSparkMetricSinks;
 
   @GuiWidgetElement(
-    order = "20050-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming: maximum records per batch",
-    toolTip = "Max records per micro-batch. For streaming sources only."
-  )
+      order = "20050-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming: maximum records per batch",
+      toolTip = "Max records per micro-batch. For streaming sources only.")
   @HopMetadataProperty
   private String sparkMaxRecordsPerBatch;
 
   @GuiWidgetElement(
-    order = "20060-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming: Minimum read time (ms)",
-    toolTip = "Minimum time to spend on read, for each micro-batch."
-  )
+      order = "20060-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming: Minimum read time (ms)",
+      toolTip = "Minimum time to spend on read, for each micro-batch.")
   @HopMetadataProperty
   private String sparkMinReadTimeMillis;
 
   @GuiWidgetElement(
-    order = "20070-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Streaming: read time percentage",
-    toolTip = "A value between 0-1 to describe the percentage of a micro-batch dedicated "
-      + "to reading from UnboundedSource."
-  )
+      order = "20070-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Streaming: read time percentage",
+      toolTip =
+          "A value between 0-1 to describe the percentage of a micro-batch dedicated "
+              + "to reading from UnboundedSource.")
   @HopMetadataProperty
   private String sparkReadTimePercentage;
 
   @GuiWidgetElement(
-    order = "20080-flink-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Bundle size",
-    toolTip = "If set bundleSize will be used for splitting BoundedSources, otherwise default to "
-      + "splitting BoundedSources on Spark defaultParallelism. Most effective when used with "
-      + "Spark dynamicAllocation."
-  )
+      order = "20080-flink-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Bundle size",
+      toolTip =
+          "If set bundleSize will be used for splitting BoundedSources, otherwise default to "
+              + "splitting BoundedSources on Spark defaultParallelism. Most effective when used with "
+              + "Spark dynamicAllocation.")
   @HopMetadataProperty
   private String sparkBundleSize;
 
-  @HopMetadataProperty
-  private String sparkStorageLevel;
+  @HopMetadataProperty private String sparkStorageLevel;
+
   public BeamSparkPipelineRunConfiguration() {
     super();
-    this.tempLocation = System.getProperty( "java.io.tmpdir" );
+    this.tempLocation = System.getProperty("java.io.tmpdir");
   }
 
-  public BeamSparkPipelineRunConfiguration( BeamSparkPipelineRunConfiguration config) {
-    super( config );
+  public BeamSparkPipelineRunConfiguration(BeamSparkPipelineRunConfiguration config) {
+    super(config);
     this.sparkMaster = config.sparkMaster;
     this.sparkBatchIntervalMillis = config.sparkBatchIntervalMillis;
     this.sparkCheckpointDir = config.sparkCheckpointDir;
@@ -176,71 +172,72 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return new BeamSparkPipelineRunConfiguration(this);
   }
 
-  @Override public RunnerType getRunnerType() {
+  @Override
+  public RunnerType getRunnerType() {
     return RunnerType.Spark;
   }
 
-  @Override public PipelineOptions getPipelineOptions() throws HopException {
-    SparkPipelineOptions options = PipelineOptionsFactory.as( SparkPipelineOptions.class );
+  @Override
+  public PipelineOptions getPipelineOptions() throws HopException {
+    SparkPipelineOptions options = PipelineOptionsFactory.as(SparkPipelineOptions.class);
 
-    if ( StringUtils.isNotEmpty( getSparkMaster() ) ) {
-      options.setSparkMaster( resolve( getSparkMaster() ) );
+    if (StringUtils.isNotEmpty(getSparkMaster())) {
+      options.setSparkMaster(resolve(getSparkMaster()));
     }
-    if ( StringUtils.isNotEmpty( getSparkBatchIntervalMillis() ) ) {
-      long interval = Const.toLong( resolve( getSparkBatchIntervalMillis() ), -1L );
-      if ( interval >= 0 ) {
-        options.setBatchIntervalMillis( interval );
+    if (StringUtils.isNotEmpty(getSparkBatchIntervalMillis())) {
+      long interval = Const.toLong(resolve(getSparkBatchIntervalMillis()), -1L);
+      if (interval >= 0) {
+        options.setBatchIntervalMillis(interval);
       }
     }
-    if ( StringUtils.isNotEmpty( getSparkCheckpointDir() ) ) {
-      options.setCheckpointDir( resolve( getSparkCheckpointDir() ) );
+    if (StringUtils.isNotEmpty(getSparkCheckpointDir())) {
+      options.setCheckpointDir(resolve(getSparkCheckpointDir()));
     }
-    if ( StringUtils.isNotEmpty( getSparkCheckpointDurationMillis() ) ) {
-      long duration = Const.toLong( resolve( getSparkCheckpointDurationMillis() ), -1L );
-      if ( duration >= 0 ) {
-        options.setCheckpointDurationMillis( duration );
+    if (StringUtils.isNotEmpty(getSparkCheckpointDurationMillis())) {
+      long duration = Const.toLong(resolve(getSparkCheckpointDurationMillis()), -1L);
+      if (duration >= 0) {
+        options.setCheckpointDurationMillis(duration);
       }
     }
-    if ( StringUtils.isNotEmpty( getSparkMaxRecordsPerBatch() ) ) {
-      long records = Const.toLong( resolve( getSparkMaxRecordsPerBatch() ), -1L );
-      if ( records >= 0 ) {
-        options.setMaxRecordsPerBatch( records );
+    if (StringUtils.isNotEmpty(getSparkMaxRecordsPerBatch())) {
+      long records = Const.toLong(resolve(getSparkMaxRecordsPerBatch()), -1L);
+      if (records >= 0) {
+        options.setMaxRecordsPerBatch(records);
       }
     }
-    if ( StringUtils.isNotEmpty( getSparkMinReadTimeMillis() ) ) {
-      long readTime = Const.toLong( resolve( getSparkMinReadTimeMillis() ), -1L );
-      if ( readTime >= 0 ) {
-        options.setMinReadTimeMillis( readTime );
+    if (StringUtils.isNotEmpty(getSparkMinReadTimeMillis())) {
+      long readTime = Const.toLong(resolve(getSparkMinReadTimeMillis()), -1L);
+      if (readTime >= 0) {
+        options.setMinReadTimeMillis(readTime);
       }
     }
-    if ( StringUtils.isNotEmpty( getSparkReadTimePercentage() ) ) {
-      double percentage = Const.toDouble( resolve( getSparkReadTimePercentage() ), -1.0 );
-      if ( percentage >= 0 ) {
-        options.setReadTimePercentage( percentage / 100 );
+    if (StringUtils.isNotEmpty(getSparkReadTimePercentage())) {
+      double percentage = Const.toDouble(resolve(getSparkReadTimePercentage()), -1.0);
+      if (percentage >= 0) {
+        options.setReadTimePercentage(percentage / 100);
       }
     }
-    if ( StringUtils.isNotEmpty( getSparkBundleSize() ) ) {
-      long bundleSize = Const.toLong( resolve( getSparkBundleSize() ), -1L );
-      if ( bundleSize >= 0 ) {
-        options.setBundleSize( bundleSize );
+    if (StringUtils.isNotEmpty(getSparkBundleSize())) {
+      long bundleSize = Const.toLong(resolve(getSparkBundleSize()), -1L);
+      if (bundleSize >= 0) {
+        options.setBundleSize(bundleSize);
       }
     }
-    if ( StringUtils.isNotEmpty( getSparkStorageLevel() ) ) {
-      options.setStorageLevel( resolve( getSparkStorageLevel() ) );
-    }
-
-    if (StringUtils.isNotEmpty( getFatJar() )) {
-      options.setFilesToStage( Arrays.asList( resolve(fatJar)) );
+    if (StringUtils.isNotEmpty(getSparkStorageLevel())) {
+      options.setStorageLevel(resolve(getSparkStorageLevel()));
     }
 
+    if (StringUtils.isNotEmpty(getFatJar())) {
+      options.setFilesToStage(Arrays.asList(resolve(fatJar)));
+    }
 
     return options;
   }
 
-  @Override public boolean isRunningAsynchronous() {
+  @Override
+  public boolean isRunningAsynchronous() {
     return true;
   }
-
 
   /**
    * Gets sparkMaster
@@ -251,10 +248,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkMaster;
   }
 
-  /**
-   * @param sparkMaster The sparkMaster to set
-   */
-  public void setSparkMaster( String sparkMaster ) {
+  /** @param sparkMaster The sparkMaster to set */
+  public void setSparkMaster(String sparkMaster) {
     this.sparkMaster = sparkMaster;
   }
 
@@ -267,10 +262,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkBatchIntervalMillis;
   }
 
-  /**
-   * @param sparkBatchIntervalMillis The sparkBatchIntervalMillis to set
-   */
-  public void setSparkBatchIntervalMillis( String sparkBatchIntervalMillis ) {
+  /** @param sparkBatchIntervalMillis The sparkBatchIntervalMillis to set */
+  public void setSparkBatchIntervalMillis(String sparkBatchIntervalMillis) {
     this.sparkBatchIntervalMillis = sparkBatchIntervalMillis;
   }
 
@@ -283,10 +276,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkCheckpointDir;
   }
 
-  /**
-   * @param sparkCheckpointDir The sparkCheckpointDir to set
-   */
-  public void setSparkCheckpointDir( String sparkCheckpointDir ) {
+  /** @param sparkCheckpointDir The sparkCheckpointDir to set */
+  public void setSparkCheckpointDir(String sparkCheckpointDir) {
     this.sparkCheckpointDir = sparkCheckpointDir;
   }
 
@@ -299,10 +290,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkCheckpointDurationMillis;
   }
 
-  /**
-   * @param sparkCheckpointDurationMillis The sparkCheckpointDurationMillis to set
-   */
-  public void setSparkCheckpointDurationMillis( String sparkCheckpointDurationMillis ) {
+  /** @param sparkCheckpointDurationMillis The sparkCheckpointDurationMillis to set */
+  public void setSparkCheckpointDurationMillis(String sparkCheckpointDurationMillis) {
     this.sparkCheckpointDurationMillis = sparkCheckpointDurationMillis;
   }
 
@@ -315,10 +304,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkEnableSparkMetricSinks;
   }
 
-  /**
-   * @param sparkEnableSparkMetricSinks The sparkEnableSparkMetricSinks to set
-   */
-  public void setSparkEnableSparkMetricSinks( boolean sparkEnableSparkMetricSinks ) {
+  /** @param sparkEnableSparkMetricSinks The sparkEnableSparkMetricSinks to set */
+  public void setSparkEnableSparkMetricSinks(boolean sparkEnableSparkMetricSinks) {
     this.sparkEnableSparkMetricSinks = sparkEnableSparkMetricSinks;
   }
 
@@ -331,10 +318,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkMaxRecordsPerBatch;
   }
 
-  /**
-   * @param sparkMaxRecordsPerBatch The sparkMaxRecordsPerBatch to set
-   */
-  public void setSparkMaxRecordsPerBatch( String sparkMaxRecordsPerBatch ) {
+  /** @param sparkMaxRecordsPerBatch The sparkMaxRecordsPerBatch to set */
+  public void setSparkMaxRecordsPerBatch(String sparkMaxRecordsPerBatch) {
     this.sparkMaxRecordsPerBatch = sparkMaxRecordsPerBatch;
   }
 
@@ -347,10 +332,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkMinReadTimeMillis;
   }
 
-  /**
-   * @param sparkMinReadTimeMillis The sparkMinReadTimeMillis to set
-   */
-  public void setSparkMinReadTimeMillis( String sparkMinReadTimeMillis ) {
+  /** @param sparkMinReadTimeMillis The sparkMinReadTimeMillis to set */
+  public void setSparkMinReadTimeMillis(String sparkMinReadTimeMillis) {
     this.sparkMinReadTimeMillis = sparkMinReadTimeMillis;
   }
 
@@ -363,10 +346,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkReadTimePercentage;
   }
 
-  /**
-   * @param sparkReadTimePercentage The sparkReadTimePercentage to set
-   */
-  public void setSparkReadTimePercentage( String sparkReadTimePercentage ) {
+  /** @param sparkReadTimePercentage The sparkReadTimePercentage to set */
+  public void setSparkReadTimePercentage(String sparkReadTimePercentage) {
     this.sparkReadTimePercentage = sparkReadTimePercentage;
   }
 
@@ -379,10 +360,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkBundleSize;
   }
 
-  /**
-   * @param sparkBundleSize The sparkBundleSize to set
-   */
-  public void setSparkBundleSize( String sparkBundleSize ) {
+  /** @param sparkBundleSize The sparkBundleSize to set */
+  public void setSparkBundleSize(String sparkBundleSize) {
     this.sparkBundleSize = sparkBundleSize;
   }
 
@@ -395,10 +374,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return sparkStorageLevel;
   }
 
-  /**
-   * @param sparkStorageLevel The sparkStorageLevel to set
-   */
-  public void setSparkStorageLevel( String sparkStorageLevel ) {
+  /** @param sparkStorageLevel The sparkStorageLevel to set */
+  public void setSparkStorageLevel(String sparkStorageLevel) {
     this.sparkStorageLevel = sparkStorageLevel;
   }
 }

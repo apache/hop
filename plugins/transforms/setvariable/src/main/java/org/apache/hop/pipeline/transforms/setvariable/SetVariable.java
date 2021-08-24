@@ -38,89 +38,97 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
  * @author Matt
  * @since 27-apr-2006
  */
-public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> implements ITransform<SetVariableMeta,SetVariableData> {
+public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
+    implements ITransform<SetVariableMeta, SetVariableData> {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
 
-  public SetVariable( TransformMeta transformMeta, SetVariableMeta meta, SetVariableData data, int copyNr, PipelineMeta pipelineMeta,
-                      Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public SetVariable(
+      TransformMeta transformMeta,
+      SetVariableMeta meta,
+      SetVariableData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
     // Get one row from one of the rowsets...
     //
     Object[] rowData = getRow();
-    if ( rowData == null ) { // means: no more input to be expected...
+    if (rowData == null) { // means: no more input to be expected...
 
-      if ( first ) {
+      if (first) {
         // We do not received any row !!
-        logBasic( BaseMessages.getString( PKG, "SetVariable.Log.NoInputRowSetDefault" ) );
-        for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-          if ( !Utils.isEmpty( meta.getDefaultValue()[ i ] ) ) {
-            setValue( rowData, i, true );
+        logBasic(BaseMessages.getString(PKG, "SetVariable.Log.NoInputRowSetDefault"));
+        for (int i = 0; i < meta.getFieldName().length; i++) {
+          if (!Utils.isEmpty(meta.getDefaultValue()[i])) {
+            setValue(rowData, i, true);
           }
         }
       }
 
-      logBasic( "Finished after " + getLinesWritten() + " rows." );
+      logBasic("Finished after " + getLinesWritten() + " rows.");
       setOutputDone();
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
 
       data.outputMeta = getInputRowMeta().clone();
 
-      logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SettingVar" ) );
+      logBasic(BaseMessages.getString(PKG, "SetVariable.Log.SettingVar"));
 
-      for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-        setValue( rowData, i, false );
+      for (int i = 0; i < meta.getFieldName().length; i++) {
+        setValue(rowData, i, false);
       }
 
-      putRow( data.outputMeta, rowData );
+      putRow(data.outputMeta, rowData);
       return true;
     }
 
-    throw new HopTransformException( BaseMessages.getString(PKG, "SetVariable.RuntimeError.MoreThanOneRowReceived.SETVARIABLE0007" ) );
+    throw new HopTransformException(
+        BaseMessages.getString(
+            PKG, "SetVariable.RuntimeError.MoreThanOneRowReceived.SETVARIABLE0007"));
   }
 
-  private void setValue( Object[] rowData, int i, boolean usedefault ) throws HopException {
+  private void setValue(Object[] rowData, int i, boolean usedefault) throws HopException {
     // Set the appropriate environment variable
     //
     String value = null;
-    if ( usedefault ) {
-      value = resolve( meta.getDefaultValue()[ i ] );
+    if (usedefault) {
+      value = resolve(meta.getDefaultValue()[i]);
     } else {
-      int index = data.outputMeta.indexOfValue( meta.getFieldName()[ i ] );
-      if ( index < 0 ) {
-        throw new HopException( "Unable to find field [" + meta.getFieldName()[ i ] + "] in input row" );
+      int index = data.outputMeta.indexOfValue(meta.getFieldName()[i]);
+      if (index < 0) {
+        throw new HopException(
+            "Unable to find field [" + meta.getFieldName()[i] + "] in input row");
       }
-      IValueMeta valueMeta = data.outputMeta.getValueMeta( index );
-      Object valueData = rowData[ index ];
+      IValueMeta valueMeta = data.outputMeta.getValueMeta(index);
+      Object valueData = rowData[index];
 
       // Get variable value
       //
-      if ( meta.isUsingFormatting() ) {
-        value = valueMeta.getString( valueData );
+      if (meta.isUsingFormatting()) {
+        value = valueMeta.getString(valueData);
       } else {
-        value = valueMeta.getCompatibleString( valueData );
+        value = valueMeta.getCompatibleString(valueData);
       }
-
     }
 
-    if ( value == null ) {
+    if (value == null) {
       value = "";
     }
 
     // Get variable name
-    String varname = meta.getVariableName()[ i ];
+    String varname = meta.getVariableName()[i];
 
-    if ( Utils.isEmpty( varname ) ) {
-      if ( Utils.isEmpty( value ) ) {
-        throw new HopException( "Variable name nor value was specified on line #" + ( i + 1 ) );
+    if (Utils.isEmpty(varname)) {
+      if (Utils.isEmpty(value)) {
+        throw new HopException("Variable name nor value was specified on line #" + (i + 1));
       } else {
-        throw new HopException( "There was no variable name specified for value [" + value + "]" );
+        throw new HopException("There was no variable name specified for value [" + value + "]");
       }
     }
 
@@ -128,32 +136,31 @@ public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> 
 
     // We always set the variable in this transform and in the parent pipeline...
     //
-    setVariable( varname, value );
+    setVariable(varname, value);
 
     // Set variable in the pipeline
     //
     IPipelineEngine<PipelineMeta> pipeline = getPipeline();
-    pipeline.setVariable( varname, value );
+    pipeline.setVariable(varname, value);
 
     // Make a link between the pipeline and the parent pipeline (in a sub-pipeline)
     //
-    while ( pipeline.getParentPipeline() != null ) {
+    while (pipeline.getParentPipeline() != null) {
       pipeline = pipeline.getParentPipeline();
-      pipeline.setVariable( varname, value );
+      pipeline.setVariable(varname, value);
     }
 
     // The pipeline object we have now is the pipeline being executed by a workflow.
     // It has one or more parent workflows.
     // Below we see where we need to this value as well...
     //
-    switch ( meta.getVariableType()[ i ] ) {
+    switch (meta.getVariableType()[i]) {
       case SetVariableMeta.VARIABLE_TYPE_JVM:
-
-        System.setProperty( varname, value );
+        System.setProperty(varname, value);
 
         parentWorkflow = pipeline.getParentWorkflow();
-        while ( parentWorkflow != null ) {
-          parentWorkflow.setVariable( varname, value );
+        while (parentWorkflow != null) {
+          parentWorkflow.setVariable(varname, value);
           parentWorkflow = parentWorkflow.getParentWorkflow();
         }
 
@@ -162,8 +169,8 @@ public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> 
         // Comments by SB
         // IVariables rootJob = null;
         parentWorkflow = pipeline.getParentWorkflow();
-        while ( parentWorkflow != null ) {
-          parentWorkflow.setVariable( varname, value );
+        while (parentWorkflow != null) {
+          parentWorkflow.setVariable(varname, value);
           // rootJob = parentWorkflow;
           parentWorkflow = parentWorkflow.getParentWorkflow();
         }
@@ -173,21 +180,25 @@ public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> 
         // Set the variable in the parent workflow
         //
         parentWorkflow = pipeline.getParentWorkflow();
-        if ( parentWorkflow != null ) {
-          parentWorkflow.setVariable( varname, value );
+        if (parentWorkflow != null) {
+          parentWorkflow.setVariable(varname, value);
         } else {
-          log.logBasic("WARNING: Can't set variable ["
-            + varname + "] on parent workflow: the parent workflow is not available" );
+          log.logBasic(
+              "WARNING: Can't set variable ["
+                  + varname
+                  + "] on parent workflow: the parent workflow is not available");
         }
 
         // Set the variable on the grand-parent workflow
         //
         IVariables gpJob = pipeline.getParentWorkflow().getParentWorkflow();
-        if ( gpJob != null ) {
-          gpJob.setVariable( varname, value );
+        if (gpJob != null) {
+          gpJob.setVariable(varname, value);
         } else {
-          log.logBasic("WARNING: Can't set variable ["
-            + varname + "] on grand parent workflow: the grand parent workflow is not available" );
+          log.logBasic(
+              "WARNING: Can't set variable ["
+                  + varname
+                  + "] on grand parent workflow: the grand parent workflow is not available");
         }
         break;
 
@@ -195,10 +206,13 @@ public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> 
         // Set the variable in the parent workflow
         //
         parentWorkflow = pipeline.getParentWorkflow();
-        if ( parentWorkflow != null ) {
-          parentWorkflow.setVariable( varname, value );
+        if (parentWorkflow != null) {
+          parentWorkflow.setVariable(varname, value);
         } else {
-          log.logBasic("WARNING: Can't set variable [" + varname + "] on parent workflow: the parent workflow is not available" );
+          log.logBasic(
+              "WARNING: Can't set variable ["
+                  + varname
+                  + "] on parent workflow: the parent workflow is not available");
         }
         break;
 
@@ -206,6 +220,8 @@ public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> 
         break;
     }
 
-    logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[ i ], value ) );
+    logBasic(
+        BaseMessages.getString(
+            PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[i], value));
   }
 }

@@ -129,11 +129,15 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
     }
   }
 
-  private boolean probeLocationExists( IVariables variables, DataProbeLocation dataProbeLocation, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  private boolean probeLocationExists(
+      IVariables variables,
+      DataProbeLocation dataProbeLocation,
+      IPipelineEngine<PipelineMeta> pipeline)
+      throws HopException {
 
     // Not saved to a file, let's not probe.
     //
-    if ( StringUtils.isEmpty(pipeline.getFilename())) {
+    if (StringUtils.isEmpty(pipeline.getFilename())) {
       return false;
     }
 
@@ -142,24 +146,26 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
     FileObject parentFileObject = HopVfs.getFileObject(pipeline.getFilename());
     String parentFilename = parentFileObject.getName().getPath();
 
-    FileObject locationFileObject = HopVfs.getFileObject( variables.resolve(dataProbeLocation.getSourcePipelineFilename()) );
+    FileObject locationFileObject =
+        HopVfs.getFileObject(variables.resolve(dataProbeLocation.getSourcePipelineFilename()));
     String locationFilename = locationFileObject.getName().getPath();
     if (!parentFilename.equals(locationFilename)) {
       // No match
       return false;
     }
 
-    List<IEngineComponent> componentCopies = pipeline.getComponentCopies( dataProbeLocation.getSourceTransformName() );
-    if (componentCopies==null || componentCopies.isEmpty()) {
+    List<IEngineComponent> componentCopies =
+        pipeline.getComponentCopies(dataProbeLocation.getSourceTransformName());
+    if (componentCopies == null || componentCopies.isEmpty()) {
       return false;
     }
 
     return true;
   }
 
-  /** Execute a probing pipeline for the current pipeline.
-   *  Add a listener to the transform copies.
-   *  Send the data to the PipelineDataProbe transform(s) in the probing pipeline
+  /**
+   * Execute a probing pipeline for the current pipeline. Add a listener to the transform copies.
+   * Send the data to the PipelineDataProbe transform(s) in the probing pipeline
    *
    * @param pipelineProbe
    * @param dataProbeLocation
@@ -187,14 +193,15 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
     // Flag it as a probing and logging pipeline so we don't try to probe or log ourselves...
     //
     probingPipeline.getExtensionDataMap().put(PIPELINE_DATA_PROBE_FLAG, "Y");
-    probingPipeline.getExtensionDataMap().put( PipelineStartLoggingXp.PIPELINE_LOGGING_FLAG, "Y");
+    probingPipeline.getExtensionDataMap().put(PipelineStartLoggingXp.PIPELINE_LOGGING_FLAG, "Y");
 
     // Only log errors
     //
     probingPipeline.setLogLevel(LogLevel.ERROR);
     probingPipeline.prepareExecution();
 
-    List<IEngineComponent> componentCopies = pipeline.getComponentCopies( dataProbeLocation.getSourceTransformName() );
+    List<IEngineComponent> componentCopies =
+        pipeline.getComponentCopies(dataProbeLocation.getSourceTransformName());
     for (IEngineComponent componentCopy : componentCopies) {
 
       // We need to send rows from this component copy to
@@ -211,29 +218,32 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
           pipelineDataProbe.setSourceTransformCopy(componentCopy.getCopyNr());
 
           try {
-            final RowProducer rowProducer = probingPipeline.addRowProducer( combi.transformName, combi.copy );
+            final RowProducer rowProducer =
+                probingPipeline.addRowProducer(combi.transformName, combi.copy);
 
             // For every copy of the component, add an input row set to the parent pipeline...
             //
             componentCopy.addRowListener(
-              new RowAdapter() {
-                @Override
-                public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                  throws HopTransformException {
-                  // Pass this row to the row producer...
-                  //
-                  rowProducer.putRow( rowMeta, row );
-                }
-              });
+                new RowAdapter() {
+                  @Override
+                  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
+                      throws HopTransformException {
+                    // Pass this row to the row producer...
+                    //
+                    rowProducer.putRow(rowMeta, row);
+                  }
+                });
 
             // If the pipeline we're the transform is and we can safely stop streaming...
             //
-            pipeline.addExecutionFinishedListener( ( pe ) -> {
-              rowProducer.finished();
-            } );
+            pipeline.addExecutionFinishedListener(
+                (pe) -> {
+                  rowProducer.finished();
+                });
 
-          } catch ( HopException e ) {
-            throw new HopTransformException("Error adding row producer to transform '"+combi.transformName+"'", e);
+          } catch (HopException e) {
+            throw new HopTransformException(
+                "Error adding row producer to transform '" + combi.transformName + "'", e);
           }
         }
       }
@@ -246,7 +256,6 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
     // We'll not wait around until this is finished...
     // The pipeline should stop automatically when the parent does
     //
-    pipeline.addExecutionStoppedListener( e->probingPipeline.stopAll() );
-
+    pipeline.addExecutionStoppedListener(e -> probingPipeline.stopAll());
   }
 }

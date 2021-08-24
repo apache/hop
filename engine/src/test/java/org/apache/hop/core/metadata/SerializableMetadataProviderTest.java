@@ -37,33 +37,35 @@ public class SerializableMetadataProviderTest {
   @Test
   public void testRoundTrip() throws Exception {
     MemoryMetadataProvider source = new MemoryMetadataProvider();
-    IHopMetadataSerializer<HopServer> sourceSerializer = source.getSerializer( HopServer.class );
-    HopServer sourceServer1 = new HopServer("server1", "hostname1", "8181", "username1", "password1", null, null, null, false);
-    sourceSerializer.save( sourceServer1 );
-    HopServer sourceServer2 = new HopServer("server2", "hostname2", "8282", "username2", "password2", null, null, null, true);
-    sourceSerializer.save( sourceServer2 );
+    IHopMetadataSerializer<HopServer> sourceSerializer = source.getSerializer(HopServer.class);
+    HopServer sourceServer1 =
+        new HopServer(
+            "server1", "hostname1", "8181", "username1", "password1", null, null, null, false);
+    sourceSerializer.save(sourceServer1);
+    HopServer sourceServer2 =
+        new HopServer(
+            "server2", "hostname2", "8282", "username2", "password2", null, null, null, true);
+    sourceSerializer.save(sourceServer2);
 
-
-    SerializableMetadataProvider serializableMetadataProvider = new SerializableMetadataProvider( source );
+    SerializableMetadataProvider serializableMetadataProvider =
+        new SerializableMetadataProvider(source);
     String json = serializableMetadataProvider.toJson();
-    SerializableMetadataProvider target = new SerializableMetadataProvider( json );
-    IHopMetadataSerializer<HopServer> targetSerializer = target.getSerializer( HopServer.class );
-    HopServer targetServer1 = targetSerializer.load( "server1" );
-    assertNotNull( targetServer1 );
+    SerializableMetadataProvider target = new SerializableMetadataProvider(json);
+    IHopMetadataSerializer<HopServer> targetSerializer = target.getSerializer(HopServer.class);
+    HopServer targetServer1 = targetSerializer.load("server1");
+    assertNotNull(targetServer1);
     assertEquals(sourceServer1.getName(), targetServer1.getName());
     assertEquals(sourceServer1.getHostname(), targetServer1.getHostname());
     assertEquals(sourceServer1.getPort(), targetServer1.getPort());
     assertEquals(sourceServer1.getUsername(), targetServer1.getUsername());
     assertEquals(sourceServer1.getPassword(), targetServer1.getPassword());
 
-    HopServer targetServer2 = targetSerializer.load( "server2" );
-    assertNotNull( targetServer2 );
+    HopServer targetServer2 = targetSerializer.load("server2");
+    assertNotNull(targetServer2);
     assertEquals(sourceServer2.getName(), targetServer2.getName());
     assertEquals(sourceServer2.getHostname(), targetServer2.getHostname());
     assertEquals(sourceServer2.getPort(), targetServer2.getPort());
     assertEquals(sourceServer2.getUsername(), targetServer2.getUsername());
     assertEquals(sourceServer2.getPassword(), targetServer2.getPassword());
-
   }
-
 }

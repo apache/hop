@@ -36,24 +36,28 @@ public class FilesToResultMetaTest {
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "filename_field", "file_type" );
+    List<String> attributes = Arrays.asList("filename_field", "file_type");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "filename_field", "getFilenameField" );
-    getterMap.put( "file_type", "getFileType" );
+    getterMap.put("filename_field", "getFilenameField");
+    getterMap.put("file_type", "getFileType");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "filename_field", "setFilenameField" );
-    setterMap.put( "file_type", "setFileType" );
+    setterMap.put("filename_field", "setFilenameField");
+    setterMap.put("file_type", "setFileType");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
-    fieldLoadSaveValidatorAttributeMap.put( "file_type",
-      new IntLoadSaveValidator( ResultFile.fileTypeCode.length ) );
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
+    fieldLoadSaveValidatorAttributeMap.put(
+        "file_type", new IntLoadSaveValidator(ResultFile.fileTypeCode.length));
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( FilesToResultMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+        new LoadSaveTester(
+            FilesToResultMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
     loadSaveTester.testSerialization();
   }
 }

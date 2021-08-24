@@ -35,5 +35,4 @@ public class SplitFieldToRowsData extends BaseTransformData implements ITransfor
     super();
     delimiterPattern = null;
   }
-
 }

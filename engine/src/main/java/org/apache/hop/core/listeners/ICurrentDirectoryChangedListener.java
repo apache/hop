@@ -17,11 +17,8 @@
 
 package org.apache.hop.core.listeners;
 
-/**
- * Listens for changes in {@code Internal.Entry.Current.Directory}
- */
+/** Listens for changes in {@code Internal.Entry.Current.Directory} */
 public interface ICurrentDirectoryChangedListener {
 
-  void directoryChanged( Object origin, String previous, String current );
-
+  void directoryChanged(Object origin, String previous, String current);
 }

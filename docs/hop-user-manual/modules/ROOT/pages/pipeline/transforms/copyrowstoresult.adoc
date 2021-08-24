@@ -22,11 +22,12 @@ under the License.
 
 == Description
 
-The Copy rows to result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set. It can be used by the Get Rows from Result transform and some workflow actions that allow to process the internal result row set.
+The Copy rows to result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set.
+It can be used by the Get Rows from Result transform and some workflow actions that allow to process the internal result row set.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.

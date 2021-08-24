@@ -39,36 +39,43 @@ public class FileExistsValidator extends AbstractFileValidator {
   static final String VALIDATOR_NAME = "fileExists";
 
   private static final String KEY_FAIL_IF_DOES_NOT_EXIST =
-    "org.apache.hop.workflow.actions.createfile.failIfDoesNotExist";
+      "org.apache.hop.workflow.actions.createfile.failIfDoesNotExist";
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
 
-    String filename = ValidatorUtils.getValueAsString( source, propertyName );
-    IVariables variables = getVariableSpace( source, propertyName, remarks, context );
-    boolean failIfDoesNotExist = getFailIfDoesNotExist( source, propertyName, remarks, context );
+    String filename = ValidatorUtils.getValueAsString(source, propertyName);
+    IVariables variables = getVariableSpace(source, propertyName, remarks, context);
+    boolean failIfDoesNotExist = getFailIfDoesNotExist(source, propertyName, remarks, context);
 
-    if ( null == variables ) {
+    if (null == variables) {
       return false;
     }
 
-    String realFileName = variables.resolve( filename );
+    String realFileName = variables.resolve(filename);
     FileObject fileObject = null;
     try {
-      fileObject = HopVfs.getFileObject( realFileName );
-      if ( fileObject == null || ( fileObject != null && !fileObject.exists() && failIfDoesNotExist ) ) {
+      fileObject = HopVfs.getFileObject(realFileName);
+      if (fileObject == null
+          || (fileObject != null && !fileObject.exists() && failIfDoesNotExist)) {
         ActionValidatorUtils.addFailureRemark(
-          source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(
-            context, VALIDATOR_NAME ) );
+            source,
+            propertyName,
+            VALIDATOR_NAME,
+            remarks,
+            ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
         return false;
       }
       try {
         fileObject.close(); // Just being paranoid
-      } catch ( IOException ignored ) {
+      } catch (IOException ignored) {
         // Ignore close errors
       }
-    } catch ( Exception e ) {
-      ActionValidatorUtils.addExceptionRemark( source, propertyName, VALIDATOR_NAME, remarks, e );
+    } catch (Exception e) {
+      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
       return false;
     }
     return true;
@@ -78,16 +85,19 @@ public class FileExistsValidator extends AbstractFileValidator {
     return VALIDATOR_NAME;
   }
 
-  public static ValidatorContext putFailIfDoesNotExist( boolean failIfDoesNotExist ) {
+  public static ValidatorContext putFailIfDoesNotExist(boolean failIfDoesNotExist) {
     ValidatorContext context = new ValidatorContext();
-    context.put( KEY_FAIL_IF_DOES_NOT_EXIST, failIfDoesNotExist );
+    context.put(KEY_FAIL_IF_DOES_NOT_EXIST, failIfDoesNotExist);
     return context;
   }
 
-  protected boolean getFailIfDoesNotExist( ICheckResultSource source, String propertyName,
-                                           List<ICheckResult> remarks, ValidatorContext context ) {
-    Object obj = context.get( KEY_FAIL_IF_DOES_NOT_EXIST );
-    if ( obj instanceof Boolean ) {
+  protected boolean getFailIfDoesNotExist(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
+    Object obj = context.get(KEY_FAIL_IF_DOES_NOT_EXIST);
+    if (obj instanceof Boolean) {
       return (Boolean) obj;
     } else {
       // default is false
@@ -95,8 +105,7 @@ public class FileExistsValidator extends AbstractFileValidator {
     }
   }
 
-  public static void putFailIfDoesNotExist( ValidatorContext context, boolean failIfDoesNotExist ) {
-    context.put( KEY_FAIL_IF_DOES_NOT_EXIST, failIfDoesNotExist );
+  public static void putFailIfDoesNotExist(ValidatorContext context, boolean failIfDoesNotExist) {
+    context.put(KEY_FAIL_IF_DOES_NOT_EXIST, failIfDoesNotExist);
   }
-
 }

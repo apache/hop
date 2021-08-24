@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.junit.Before;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith( MockitoJUnitRunner.class )
+@RunWith(MockitoJUnitRunner.class)
 public class TransformOptionTest {
   @Mock TransformMeta transformMeta;
   @Mock IVariables variables;
@@ -48,58 +48,63 @@ public class TransformOptionTest {
 
   @Before
   public void setup() {
-    when( variables.resolve( anyString() ) ).thenAnswer( incovacationMock -> {
-      Object[] arguments = incovacationMock.getArguments();
-      return (String) arguments[ 0 ];
-    } );
+    when(variables.resolve(anyString()))
+        .thenAnswer(
+            incovacationMock -> {
+              Object[] arguments = incovacationMock.getArguments();
+              return (String) arguments[0];
+            });
   }
 
   @Test
   public void testCheckPass() {
     List<ICheckResult> remarks = new ArrayList<>();
-    TransformOption.checkInteger( remarks, transformMeta, variables, "IDENTIFIER", "9" );
-    TransformOption.checkLong( remarks, transformMeta, variables, "IDENTIFIER", "9" );
-    TransformOption.checkBoolean( remarks, transformMeta, variables, "IDENTIFIER", "true" );
-    TransformOption.checkBoolean( remarks, transformMeta, variables, "IDENTIFIER", "false" );
-    assertEquals( 0, remarks.size() );
+    TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", "9");
+    TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", "9");
+    TransformOption.checkBoolean(remarks, transformMeta, variables, "IDENTIFIER", "true");
+    TransformOption.checkBoolean(remarks, transformMeta, variables, "IDENTIFIER", "false");
+    assertEquals(0, remarks.size());
   }
 
   @Test
   public void testCheckPassEmpty() {
     List<ICheckResult> remarks = new ArrayList<>();
-    TransformOption.checkInteger( remarks, transformMeta, variables, "IDENTIFIER", "" );
-    TransformOption.checkLong( remarks, transformMeta, variables, "IDENTIFIER", "" );
-    TransformOption.checkBoolean( remarks, transformMeta, variables, "IDENTIFIER", "" );
-    TransformOption.checkInteger( remarks, transformMeta, variables, "IDENTIFIER", null );
-    TransformOption.checkLong( remarks, transformMeta, variables, "IDENTIFIER", null );
-    TransformOption.checkBoolean( remarks, transformMeta, variables, "IDENTIFIER", null );
-    assertEquals( 0, remarks.size() );
+    TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", "");
+    TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", "");
+    TransformOption.checkBoolean(remarks, transformMeta, variables, "IDENTIFIER", "");
+    TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", null);
+    TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", null);
+    TransformOption.checkBoolean(remarks, transformMeta, variables, "IDENTIFIER", null);
+    assertEquals(0, remarks.size());
   }
 
   @Test
   public void testCheckFailInteger() {
     List<ICheckResult> remarks = new ArrayList<>();
-    TransformOption.checkInteger( remarks, transformMeta, variables, "IDENTIFIER", "asdf" );
-    assertEquals( 1, remarks.size() );
-    assertEquals( remarks.get( 0 ).getText(),
-      getString( TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER" ) );
+    TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", "asdf");
+    assertEquals(1, remarks.size());
+    assertEquals(
+        remarks.get(0).getText(),
+        getString(TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER"));
   }
 
   @Test
   public void testCheckFailLong() {
     List<ICheckResult> remarks = new ArrayList<>();
-    TransformOption.checkLong( remarks, transformMeta, variables, "IDENTIFIER", "asdf" );
-    assertEquals( 1, remarks.size() );
-    assertEquals( remarks.get( 0 ).getText(),
-      getString( TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER" ) );
+    TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", "asdf");
+    assertEquals(1, remarks.size());
+    assertEquals(
+        remarks.get(0).getText(),
+        getString(TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER"));
   }
 
   @Test
   public void testCheckFailBoolean() {
     List<ICheckResult> remarks = new ArrayList<>();
-    TransformOption.checkBoolean( remarks, transformMeta, variables, "IDENTIFIER", "asdf" );
-    assertEquals( 1, remarks.size() );
-    assertEquals( remarks.get( 0 ).getText(),
-      getString( TransformOption.class, "TransformOption.CheckResult.NotABoolean", "IDENTIFIER" ) );
+    TransformOption.checkBoolean(remarks, transformMeta, variables, "IDENTIFIER", "asdf");
+    assertEquals(1, remarks.size());
+    assertEquals(
+        remarks.get(0).getText(),
+        getString(TransformOption.class, "TransformOption.CheckResult.NotABoolean", "IDENTIFIER"));
   }
 }

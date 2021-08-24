@@ -28,14 +28,13 @@ public class NormaliserMetaInjectionTest extends BaseMetadataInjectionTest<Norma
 
   @Before
   public void setup() throws Exception {
-    setup( new NormaliserMeta() );
+    setup(new NormaliserMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "NAME", () -> meta.getNormaliserFields()[ 0 ].getName() );
-    check( "VALUE", () -> meta.getNormaliserFields()[ 0 ].getValue() );
-    check( "NORMALISED", () -> meta.getNormaliserFields()[ 0 ].getNorm() );
+    check("NAME", () -> meta.getNormaliserFields()[0].getName());
+    check("VALUE", () -> meta.getNormaliserFields()[0].getValue());
+    check("NORMALISED", () -> meta.getNormaliserFields()[0].getNorm());
   }
-
 }

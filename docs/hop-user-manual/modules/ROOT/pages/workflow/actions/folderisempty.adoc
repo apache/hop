@@ -25,12 +25,13 @@ The Folder is empty action verifies if a folder is empty, that there are no regu
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|Workflow action name|The name of the workflow action.
+This name has to be unique in a single workflow.
 |Folder name|The name of the folder to verify for emptiness.
 |Limit search to|Limits the search for files to those with a certain wildcard (regular expression)
-|Wildcard|The wildcard (regular expression) to limit the files to look for with, for example: .*\.txt$ 
+|Wildcard|The wildcard (regular expression) to limit the files to look for with, for example: .*\.txt$
 |===
 

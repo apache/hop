@@ -19,14 +19,18 @@ under the License.
 
 = Metadata Types
 
-Metadata is one of the cornerstones in Hop. Metadata can be defined as workflows, pipelines and any other type of metadata objects.
+Metadata is one of the cornerstones in Hop.
+Metadata can be defined as workflows, pipelines and any other type of metadata objects.
 
 Hop Gui has a Metadata Perspective to manage all types of metadata: run configurations, database (relational and NoSQL) connections, logging, and pipeline probes just to name a few.
 
-Metadata is typically stored as json files in a projects' metadata folder as a set of json files, in subfolders per metadata type. The only exception to the rule are workflows and pipelines, which are defined as XML (for now, because of historical reasons). Since workflows and pipelines are what Hop is all about, these are typically stored in your project folder, not in your project's metadata folder.
+Metadata is typically stored as json files in a projects' metadata folder as a set of json files, in subfolders per metadata type.
+The only exception to the rule are workflows and pipelines, which are defined as XML (for now, because of historical reasons).
+Since workflows and pipelines are what Hop is all about, these are typically stored in your project folder, not in your project's metadata folder.
 
 
-TIP: We've made it as easy as possible to add or remove plugins in Hop. Since metadata types are plugin types too, the available metadata types in your Hop installation may not match this list entirely.
+TIP: We've made it as easy as possible to add or remove plugins in Hop.
+Since metadata types are plugin types too, the available metadata types in your Hop installation may not match this list entirely.
 
 By default, Hop contains the following metadata types:
 

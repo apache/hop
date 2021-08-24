@@ -33,48 +33,39 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SalesforceUpdateTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  private static final String ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT = "Account:ExtID_AccountId__c/Account";
+  private static final String ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT =
+      "Account:ExtID_AccountId__c/Account";
   private static final String ACCOUNT_ID = "AccountId";
   private TransformMockHelper<SalesforceUpdateMeta, SalesforceUpdateData> smh;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
-        Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   @Before
   public void setUp() throws Exception {
     smh =
-      new TransformMockHelper<>( "SalesforceUpsert", SalesforceUpdateMeta.class,
-        SalesforceUpdateData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.iLogChannel );
+        new TransformMockHelper<>(
+            "SalesforceUpsert", SalesforceUpdateMeta.class, SalesforceUpdateData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
   }
 
   @After
@@ -84,126 +75,140 @@ public class SalesforceUpdateTest {
 
   @Test
   public void testWriteToSalesForceForNullExtIdField_WithExtIdNO() throws Exception {
-    SalesforceUpdateMeta meta = generateSalesforceUpdateMeta( new String[] { ACCOUNT_ID }, new Boolean[] { false } );
+    SalesforceUpdateMeta meta =
+        generateSalesforceUpdateMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpdateData data = generateSalesforceUpdateData();
-    SalesforceUpdate sfInputTransform = new SalesforceUpdate( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    SalesforceUpdate sfInputTransform =
+        new SalesforceUpdate(smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline);
     sfInputTransform.init();
 
     RowMeta rowMeta = new RowMeta();
-    ValueMetaBase valueMeta = new ValueMetaString( "AccNoExtId" );
-    rowMeta.addValueMeta( valueMeta );
+    ValueMetaBase valueMeta = new ValueMetaString("AccNoExtId");
+    rowMeta.addValueMeta(valueMeta);
     data.inputRowMeta = rowMeta;
 
-    sfInputTransform.writeToSalesForce( new Object[] { null } );
-    assertEquals( 1, data.sfBuffer[0].getFieldsToNull().length );
-    assertEquals( ACCOUNT_ID, data.sfBuffer[0].getFieldsToNull()[0] );
-    assertNull( SalesforceConnection.getChildren( data.sfBuffer[0] ) );
+    sfInputTransform.writeToSalesForce(new Object[] {null});
+    assertEquals(1, data.sfBuffer[0].getFieldsToNull().length);
+    assertEquals(ACCOUNT_ID, data.sfBuffer[0].getFieldsToNull()[0]);
+    assertNull(SalesforceConnection.getChildren(data.sfBuffer[0]));
   }
 
   @Test
   public void testWriteToSalesForceForNullExtIdField_WithExtIdYES() throws Exception {
-    SalesforceUpdateMeta meta = generateSalesforceUpdateMeta( new String[] { ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT }, new Boolean[] { true } );
+    SalesforceUpdateMeta meta =
+        generateSalesforceUpdateMeta(
+            new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
     SalesforceUpdateData data = generateSalesforceUpdateData();
-    SalesforceUpdate sfInputTransform = new SalesforceUpdate( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    SalesforceUpdate sfInputTransform =
+        new SalesforceUpdate(smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline);
     sfInputTransform.init();
 
     RowMeta rowMeta = new RowMeta();
-    ValueMetaBase valueMeta = new ValueMetaString( "AccExtId" );
-    rowMeta.addValueMeta( valueMeta );
+    ValueMetaBase valueMeta = new ValueMetaString("AccExtId");
+    rowMeta.addValueMeta(valueMeta);
     data.inputRowMeta = rowMeta;
 
-    sfInputTransform.writeToSalesForce( new Object[] { null } );
-    assertEquals( 1, data.sfBuffer[0].getFieldsToNull().length );
-    assertEquals( ACCOUNT_ID, data.sfBuffer[0].getFieldsToNull()[0] );
-    assertNull( SalesforceConnection.getChildren( data.sfBuffer[0] ) );
+    sfInputTransform.writeToSalesForce(new Object[] {null});
+    assertEquals(1, data.sfBuffer[0].getFieldsToNull().length);
+    assertEquals(ACCOUNT_ID, data.sfBuffer[0].getFieldsToNull()[0]);
+    assertNull(SalesforceConnection.getChildren(data.sfBuffer[0]));
   }
 
   @Test
   public void testWriteToSalesForceForNotNullExtIdField_WithExtIdNO() throws Exception {
-    SalesforceUpdateMeta meta = generateSalesforceUpdateMeta( new String[] { ACCOUNT_ID }, new Boolean[] { false } );
+    SalesforceUpdateMeta meta =
+        generateSalesforceUpdateMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpdateData data = generateSalesforceUpdateData();
-    SalesforceUpdate sfInputTransform = new SalesforceUpdate( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
-    sfInputTransform.init( );
+    SalesforceUpdate sfInputTransform =
+        new SalesforceUpdate(smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline);
+    sfInputTransform.init();
 
     RowMeta rowMeta = new RowMeta();
-    ValueMetaBase valueMeta = new ValueMetaString( "AccNoExtId" );
-    rowMeta.addValueMeta( valueMeta );
+    ValueMetaBase valueMeta = new ValueMetaString("AccNoExtId");
+    rowMeta.addValueMeta(valueMeta);
     data.inputRowMeta = rowMeta;
 
-    sfInputTransform.writeToSalesForce( new Object[] { "001i000001c5Nv9AAE" } );
+    sfInputTransform.writeToSalesForce(new Object[] {"001i000001c5Nv9AAE"});
 
-    XmlObject[] children = SalesforceConnection.getChildren( data.sfBuffer[ 0 ] );
-    assertNotNull( children );
+    XmlObject[] children = SalesforceConnection.getChildren(data.sfBuffer[0]);
+    assertNotNull(children);
 
-    assertEquals( 0, data.sfBuffer[0].getFieldsToNull().length );
-    assertEquals( 1, children.length );
-    assertEquals( Constants.PARTNER_SOBJECT_NS, children[0].getName().getNamespaceURI() );
-    assertEquals( ACCOUNT_ID, children[0].getName().getLocalPart() );
-    assertEquals( "001i000001c5Nv9AAE", children[0].getValue() );
-    assertFalse( children[0].hasChildren() );
+    assertEquals(0, data.sfBuffer[0].getFieldsToNull().length);
+    assertEquals(1, children.length);
+    assertEquals(Constants.PARTNER_SOBJECT_NS, children[0].getName().getNamespaceURI());
+    assertEquals(ACCOUNT_ID, children[0].getName().getLocalPart());
+    assertEquals("001i000001c5Nv9AAE", children[0].getValue());
+    assertFalse(children[0].hasChildren());
   }
 
   @Test
   public void testWriteToSalesForceForNotNullExtIdField_WithExtIdYES() throws Exception {
-    SalesforceUpdateMeta meta = generateSalesforceUpdateMeta( new String[] { ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT }, new Boolean[] { true } );
+    SalesforceUpdateMeta meta =
+        generateSalesforceUpdateMeta(
+            new String[] {ACCOUNT_EXT_ID_ACCOUNT_ID_C_ACCOUNT}, new Boolean[] {true});
     SalesforceUpdateData data = generateSalesforceUpdateData();
-    SalesforceUpdate sfInputTransform = new SalesforceUpdate( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
+    SalesforceUpdate sfInputTransform =
+        new SalesforceUpdate(smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline);
     sfInputTransform.init();
 
     RowMeta rowMeta = new RowMeta();
-    ValueMetaBase valueMeta = new ValueMetaString( "AccExtId" );
-    rowMeta.addValueMeta( valueMeta );
+    ValueMetaBase valueMeta = new ValueMetaString("AccExtId");
+    rowMeta.addValueMeta(valueMeta);
     data.inputRowMeta = rowMeta;
 
-    sfInputTransform.writeToSalesForce( new Object[] { "tkas88" } );
+    sfInputTransform.writeToSalesForce(new Object[] {"tkas88"});
 
-    XmlObject[] children = SalesforceConnection.getChildren( data.sfBuffer[ 0 ] );
-    assertNotNull( children );
+    XmlObject[] children = SalesforceConnection.getChildren(data.sfBuffer[0]);
+    assertNotNull(children);
 
-    assertEquals( 0, data.sfBuffer[0].getFieldsToNull().length );
-    assertEquals( 1, children.length );
-    assertEquals( Constants.PARTNER_SOBJECT_NS, children[0].getName().getNamespaceURI() );
-    assertEquals( "Account", children[0].getName().getLocalPart() );
-    assertNull( children[0].getValue() );
-    assertFalse( children[0].hasChildren() );
+    assertEquals(0, data.sfBuffer[0].getFieldsToNull().length);
+    assertEquals(1, children.length);
+    assertEquals(Constants.PARTNER_SOBJECT_NS, children[0].getName().getNamespaceURI());
+    assertEquals("Account", children[0].getName().getLocalPart());
+    assertNull(children[0].getValue());
+    assertFalse(children[0].hasChildren());
   }
 
   @Test
   public void testLogMessageInDetailedModeFotWriteToSalesForce() throws HopException {
-    SalesforceUpdateMeta meta = generateSalesforceUpdateMeta( new String[] { ACCOUNT_ID }, new Boolean[] { false } );
+    SalesforceUpdateMeta meta =
+        generateSalesforceUpdateMeta(new String[] {ACCOUNT_ID}, new Boolean[] {false});
     SalesforceUpdateData data = generateSalesforceUpdateData();
-    SalesforceUpdate sfInputTransform = new SalesforceUpdate( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline );
-    sfInputTransform.init( );
-    when( sfInputTransform.getLogChannel().isDetailed() ).thenReturn( true );
+    SalesforceUpdate sfInputTransform =
+        new SalesforceUpdate(smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline);
+    sfInputTransform.init();
+    when(sfInputTransform.getLogChannel().isDetailed()).thenReturn(true);
 
     RowMeta rowMeta = new RowMeta();
-    ValueMetaBase valueMeta = new ValueMetaString( "AccNoExtId" );
-    rowMeta.addValueMeta( valueMeta );
+    ValueMetaBase valueMeta = new ValueMetaString("AccNoExtId");
+    rowMeta.addValueMeta(valueMeta);
     data.inputRowMeta = rowMeta;
 
-    verify( sfInputTransform.getLogChannel(), never() ).logDetailed( anyString() );
-    sfInputTransform.writeToSalesForce( new Object[] { "001i000001c5Nv9AAE" } );
-    verify( sfInputTransform.getLogChannel() ).logDetailed( "Called writeToSalesForce with 0 out of 2" );
+    verify(sfInputTransform.getLogChannel(), never()).logDetailed(anyString());
+    sfInputTransform.writeToSalesForce(new Object[] {"001i000001c5Nv9AAE"});
+    verify(sfInputTransform.getLogChannel())
+        .logDetailed("Called writeToSalesForce with 0 out of 2");
   }
 
   private SalesforceUpdateData generateSalesforceUpdateData() {
     SalesforceUpdateData data = smh.iTransformData;
     data.nrFields = 1;
-    data.fieldnrs = new int[] { 0 };
-    data.sfBuffer = new SObject[] { null };
-    data.outputBuffer = new Object[][] { null };
+    data.fieldnrs = new int[] {0};
+    data.sfBuffer = new SObject[] {null};
+    data.outputBuffer = new Object[][] {null};
     return data;
   }
 
-  private SalesforceUpdateMeta generateSalesforceUpdateMeta( String[] updateLookup, Boolean[] useExternalId ) {
+  private SalesforceUpdateMeta generateSalesforceUpdateMeta(
+      String[] updateLookup, Boolean[] useExternalId) {
     SalesforceUpdateMeta meta = smh.iTransformMeta;
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getTargetUrl();
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getUsername();
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getPassword();
-    doReturn( UUID.randomUUID().toString() ).when( meta ).getModule();
-    doReturn( 2 ).when( meta ).getBatchSizeInt();
-    doReturn( updateLookup ).when( meta ).getUpdateLookup();
-    doReturn( useExternalId ).when( meta ).getUseExternalId();
+    doReturn(UUID.randomUUID().toString()).when(meta).getTargetUrl();
+    doReturn(UUID.randomUUID().toString()).when(meta).getUsername();
+    doReturn(UUID.randomUUID().toString()).when(meta).getPassword();
+    doReturn(UUID.randomUUID().toString()).when(meta).getModule();
+    doReturn(2).when(meta).getBatchSizeInt();
+    doReturn(updateLookup).when(meta).getUpdateLookup();
+    doReturn(useExternalId).when(meta).getUseExternalId();
     return meta;
   }
 }

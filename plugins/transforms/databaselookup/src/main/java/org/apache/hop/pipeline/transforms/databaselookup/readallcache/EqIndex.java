@@ -22,49 +22,46 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 class EqIndex extends Index {
 
-  static Index nonEqualityIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
-    return new EqIndex( column, valueMeta, rowsAmount, true );
+  static Index nonEqualityIndex(int column, IValueMeta valueMeta, int rowsAmount) {
+    return new EqIndex(column, valueMeta, rowsAmount, true);
   }
-
 
   private final boolean isMatchingNonEquality;
 
-  EqIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
-    this( column, valueMeta, rowsAmount, false );
+  EqIndex(int column, IValueMeta valueMeta, int rowsAmount) {
+    this(column, valueMeta, rowsAmount, false);
   }
 
-  private EqIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingNonEquality ) {
-    super( column, valueMeta, rowsAmount );
+  private EqIndex(int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingNonEquality) {
+    super(column, valueMeta, rowsAmount);
     this.isMatchingNonEquality = isMatchingNonEquality;
   }
 
   @Override
-  void doApply( SearchingContext context,
-                IValueMeta lookupMeta, Object lookupValue ) throws HopException {
-    int firstValue = findInsertionPointOf( new IndexedValue( lookupValue, -1 ) );
+  void doApply(SearchingContext context, IValueMeta lookupMeta, Object lookupValue)
+      throws HopException {
+    int firstValue = findInsertionPointOf(new IndexedValue(lookupValue, -1));
     final int length = values.length;
-    if ( firstValue == length || valueMeta.compare( values[ firstValue ].key, lookupValue ) != 0 ) {
+    if (firstValue == length || valueMeta.compare(values[firstValue].key, lookupValue) != 0) {
       // nothing was found
-      if ( isMatchingNonEquality ) {
+      if (isMatchingNonEquality) {
         // everything is acceptable, just do nothing
         return;
       }
       context.setEmpty();
     } else {
       BitSet bitSet = context.getWorkingSet();
-      bitSet.set( values[ firstValue ].row, true );
+      bitSet.set(values[firstValue].row, true);
       int lastValue = firstValue + 1;
-      while ( lastValue != length && valueMeta.compare( values[ lastValue ].key, lookupValue ) == 0 ) {
-        bitSet.set( values[ lastValue ].row, true );
+      while (lastValue != length && valueMeta.compare(values[lastValue].key, lookupValue) == 0) {
+        bitSet.set(values[lastValue].row, true);
         lastValue++;
       }
 
-      context.intersect( bitSet, isMatchingNonEquality );
+      context.intersect(bitSet, isMatchingNonEquality);
     }
   }
 

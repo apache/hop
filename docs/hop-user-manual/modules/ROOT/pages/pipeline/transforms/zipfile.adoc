@@ -21,11 +21,11 @@ under the License.
 
 == Description
 
-The Zip file transform creates a standard ZIP archive using the options you specify in the dialog. 
+The Zip file transform creates a standard ZIP archive using the options you specify in the dialog.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -37,5 +37,5 @@ The Zip file transform creates a standard ZIP archive using the options you spec
 |Keep source folders|Check this option to keep the source folder within the target zip filename
 |Base folder fieldname|Define the field that contains the base folder that is removed from the filename within the zip (used by the option keep source folders)
 |After zip|The action to take after zipping
-|Move to folder field|Define the field that contains the target directory to move the source files to after zipping 
+|Move to folder field|Define the field that contains the target directory to move the source files to after zipping
 |===

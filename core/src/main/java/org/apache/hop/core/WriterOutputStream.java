@@ -32,33 +32,36 @@ public class WriterOutputStream extends OutputStream {
   private Writer writer;
   private String encoding;
 
-  public WriterOutputStream( Writer writer ) {
+  public WriterOutputStream(Writer writer) {
     this.writer = writer;
   }
 
-  public WriterOutputStream( Writer writer, String encoding ) {
+  public WriterOutputStream(Writer writer, String encoding) {
     this.writer = writer;
     this.encoding = encoding;
   }
 
   @Override
-  public void write( int b ) throws IOException {
-    write( new byte[] { (byte) b, } );
+  public void write(int b) throws IOException {
+    write(
+        new byte[] {
+          (byte) b,
+        });
   }
 
   @Override
-  public void write( byte[] b, int off, int len ) throws IOException {
-    byte[] buf = new byte[ len ];
-    System.arraycopy( b, off, buf, 0, len );
-    write( buf );
+  public void write(byte[] b, int off, int len) throws IOException {
+    byte[] buf = new byte[len];
+    System.arraycopy(b, off, buf, 0, len);
+    write(buf);
   }
 
   @Override
-  public void write( byte[] b ) throws IOException {
-    if ( Utils.isEmpty( encoding ) ) {
-      writer.append( new String( b ) );
+  public void write(byte[] b) throws IOException {
+    if (Utils.isEmpty(encoding)) {
+      writer.append(new String(b));
     } else {
-      writer.append( new String( b, encoding ) );
+      writer.append(new String(b, encoding));
     }
   }
 

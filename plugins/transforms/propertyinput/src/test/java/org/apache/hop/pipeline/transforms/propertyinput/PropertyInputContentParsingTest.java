@@ -25,16 +25,16 @@ public class PropertyInputContentParsingTest extends BasePropertyParsingTest {
 
   @Test
   public void testDefaultOptions() throws Exception {
-    init( "default.properties" );
+    init("default.properties");
 
-    PropertyInputField f1 = new PropertyInputField( "f1" );
-    f1.setColumn( PropertyInputField.COLUMN_KEY );
-    PropertyInputField f2 = new PropertyInputField( "f2" );
-    f2.setColumn( PropertyInputField.COLUMN_VALUE );
-    setFields( f1, f2 );
+    PropertyInputField f1 = new PropertyInputField("f1");
+    f1.setColumn(PropertyInputField.COLUMN_KEY);
+    PropertyInputField f2 = new PropertyInputField("f2");
+    f2.setColumn(PropertyInputField.COLUMN_VALUE);
+    setFields(f1, f2);
 
     process();
 
-    check( new Object[][] { { "f1", "d1" }, { "f2", "d2" } } );
+    check(new Object[][] {{"f1", "d1"}, {"f2", "d2"}});
   }
 }

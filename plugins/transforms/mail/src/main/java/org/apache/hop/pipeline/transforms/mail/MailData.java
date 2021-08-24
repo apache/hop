@@ -107,5 +107,4 @@ public class MailData extends BaseTransformData implements ITransformData {
     indexOfAttachedContent = -1;
     IndexOfAttachedFilename = -1;
   }
-
 }

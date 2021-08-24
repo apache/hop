@@ -29,43 +29,48 @@ public class FileErrorHandlerMissingFiles extends AbstractFileErrorHandler {
 
   private static final Class<?> PKG = FileErrorHandlerMissingFiles.class; // For Translator
 
-  public static final String THIS_FILE_DOES_NOT_EXIST = BaseMessages.getString(
-    PKG, "FileErrorHandlerMissingFiles.FILE_DOES_NOT_EXIST" );
+  public static final String THIS_FILE_DOES_NOT_EXIST =
+      BaseMessages.getString(PKG, "FileErrorHandlerMissingFiles.FILE_DOES_NOT_EXIST");
 
-  public static final String THIS_FILE_WAS_NOT_ACCESSIBLE = BaseMessages.getString(
-    PKG, "FileErrorHandlerMissingFiles.FILE_WAS_NOT_ACCESSIBLE" );
+  public static final String THIS_FILE_WAS_NOT_ACCESSIBLE =
+      BaseMessages.getString(PKG, "FileErrorHandlerMissingFiles.FILE_WAS_NOT_ACCESSIBLE");
 
-  public FileErrorHandlerMissingFiles( Date date, String destinationDirectory, String fileExtension,
-                                       String encoding, BaseTransform baseTransform ) {
-    super( date, destinationDirectory, fileExtension, encoding, baseTransform );
+  public FileErrorHandlerMissingFiles(
+      Date date,
+      String destinationDirectory,
+      String fileExtension,
+      String encoding,
+      BaseTransform baseTransform) {
+    super(date, destinationDirectory, fileExtension, encoding, baseTransform);
   }
 
-  public void handleLineError( long lineNr, String filePart ) {
+  public void handleLineError(long lineNr, String filePart) {}
 
-  }
-
-  public void handleNonExistantFile( FileObject file ) throws HopException {
-    handleFile( file );
+  public void handleNonExistantFile(FileObject file) throws HopException {
+    handleFile(file);
     try {
-      getWriter( NO_PARTS ).write( THIS_FILE_DOES_NOT_EXIST );
-      getWriter( NO_PARTS ).write( Const.CR );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FileErrorHandlerMissingFiles.Exception.CouldNotCreateNonExistantFile" )
-        + file.getName().getURI(), e );
+      getWriter(NO_PARTS).write(THIS_FILE_DOES_NOT_EXIST);
+      getWriter(NO_PARTS).write(Const.CR);
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+                  PKG, "FileErrorHandlerMissingFiles.Exception.CouldNotCreateNonExistantFile")
+              + file.getName().getURI(),
+          e);
     }
   }
 
-  public void handleNonAccessibleFile( FileObject file ) throws HopException {
-    handleFile( file );
+  public void handleNonAccessibleFile(FileObject file) throws HopException {
+    handleFile(file);
     try {
-      getWriter( NO_PARTS ).write( THIS_FILE_WAS_NOT_ACCESSIBLE );
-      getWriter( NO_PARTS ).write( Const.CR );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "FileErrorHandlerMissingFiles.Exception.CouldNotCreateNonAccessibleFile" )
-        + file.getName().getURI(), e );
+      getWriter(NO_PARTS).write(THIS_FILE_WAS_NOT_ACCESSIBLE);
+      getWriter(NO_PARTS).write(Const.CR);
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+                  PKG, "FileErrorHandlerMissingFiles.Exception.CouldNotCreateNonAccessibleFile")
+              + file.getName().getURI(),
+          e);
     }
   }
-
 }

@@ -16,10 +16,10 @@
  */
 package org.apache.hop.workflow.actions.as400command;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.apache.hop.workflow.actions.as400command.ActionAs400Command;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,8 @@ public class ActionAs400CommandLoadSaveTest
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] {"serverName", "userName", "password", "proxyHost", "proxyPort", "command"});
+    return Arrays.asList(
+        new String[] {"serverName", "userName", "password", "proxyHost", "proxyPort", "command"});
   }
 
   @Override

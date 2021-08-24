@@ -16,22 +16,24 @@
  */
 package org.apache.hop.workflow.actions.checkfilelocked;
 
-
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionCheckFilesLockedLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionCheckFilesLocked> {
+public class WorkflowActionCheckFilesLockedLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionCheckFilesLocked> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Override protected Class<ActionCheckFilesLocked> getActionClass() {
+  @Override
+  protected Class<ActionCheckFilesLocked> getActionClass() {
     return ActionCheckFilesLocked.class;
   }
 
-  @Override protected List<String> listCommonAttributes() {
-    return Arrays.asList( "argFromPrevious", "includeSubfolders" );
+  @Override
+  protected List<String> listCommonAttributes() {
+    return Arrays.asList("argFromPrevious", "includeSubfolders");
   }
 }

@@ -19,17 +19,9 @@ package org.apache.hop.pipeline.engine;
 
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-/**
- * Describes the metrics you can get from an execution engine
- */
+/** Describes the metrics you can get from an execution engine */
 public class EngineMetrics {
 
   private Date startDate;
@@ -42,7 +34,6 @@ public class EngineMetrics {
   private Map<IEngineComponent, Boolean> componentRunningMap;
 
   private Map<IEngineComponent, List<PerformanceSnapShot>> componentPerformanceSnapshots;
-
 
   public EngineMetrics() {
     components = new ArrayList<>();
@@ -60,81 +51,83 @@ public class EngineMetrics {
    */
   public Set<IEngineMetric> getMetricsList() {
     Set<IEngineMetric> set = new HashSet<>();
-    for ( Map<IEngineMetric, Long> metricsMap : componentMetricsMap.values() ) {
-      for ( IEngineMetric metric : metricsMap.keySet() ) {
-        set.add( metric );
+    for (Map<IEngineMetric, Long> metricsMap : componentMetricsMap.values()) {
+      for (IEngineMetric metric : metricsMap.keySet()) {
+        set.add(metric);
       }
     }
     return set;
   }
 
-  public void addComponent( IEngineComponent component ) {
-    components.add( component );
+  public void addComponent(IEngineComponent component) {
+    components.add(component);
   }
 
   /**
    * @param component The component to set a metric for (e.g. transform name)
-   * @param metric    The metric (e.g. input, output, ...)
-   * @param amount    the metric amount
+   * @param metric The metric (e.g. input, output, ...)
+   * @param amount the metric amount
    */
-  public void setComponentMetric( IEngineComponent component, IEngineMetric metric, Long amount ) {
-    if ( component == null || metric == null ) {
-      throw new RuntimeException( "Please provide a component and a metric to set" );
+  public void setComponentMetric(IEngineComponent component, IEngineMetric metric, Long amount) {
+    if (component == null || metric == null) {
+      throw new RuntimeException("Please provide a component and a metric to set");
     }
-    Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get( component );
-    if ( metricsMap == null ) {
+    Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get(component);
+    if (metricsMap == null) {
       metricsMap = new HashMap<>();
-      componentMetricsMap.put( component, metricsMap );
+      componentMetricsMap.put(component, metricsMap);
     }
-    metricsMap.put( metric, amount );
+    metricsMap.put(metric, amount);
   }
 
-  public void setComponentStatus( IEngineComponent component, String status ) {
-    componentStatusMap.put( component, status );
+  public void setComponentStatus(IEngineComponent component, String status) {
+    componentStatusMap.put(component, status);
   }
 
-  public void setComponentSpeed( IEngineComponent component, String status ) {
-    componentSpeedMap.put( component, status );
+  public void setComponentSpeed(IEngineComponent component, String status) {
+    componentSpeedMap.put(component, status);
   }
 
-  public void setComponentRunning( IEngineComponent component, Boolean running ) {
-    componentRunningMap.put( component, running );
+  public void setComponentRunning(IEngineComponent component, Boolean running) {
+    componentRunningMap.put(component, running);
   }
-
 
   /**
    * Retrieve the amount for a specific metric
    *
    * @param component The component of the metric (e.g. transform name)
-   * @param metric    The metric (e.g. input, output, ...)
+   * @param metric The metric (e.g. input, output, ...)
    * @return the metric amount or null if nothing was found
    */
-  public Long getComponentMetric( IEngineComponent component, IEngineMetric metric ) {
-    if ( component == null || metric == null ) {
-      throw new RuntimeException( "Please provide a component and a name for the metric to retrieve" );
+  public Long getComponentMetric(IEngineComponent component, IEngineMetric metric) {
+    if (component == null || metric == null) {
+      throw new RuntimeException(
+          "Please provide a component and a name for the metric to retrieve");
     }
-    Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get( component );
-    if ( metricsMap == null ) {
+    Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get(component);
+    if (metricsMap == null) {
       return null;
     }
-    return metricsMap.get( metric );
+    return metricsMap.get(metric);
   }
 
   /**
-   * Increment the amount for a specific metric (+1).  If the metric didn't exist create it and set it to 1.
+   * Increment the amount for a specific metric (+1). If the metric didn't exist create it and set
+   * it to 1.
    *
    * @param component The component of the metric (e.g. transform name)
-   * @param metric    The metric (e.g. input, output, ...)
+   * @param metric The metric (e.g. input, output, ...)
    */
-  public void incrementComponentMetric( IEngineComponent component, IEngineMetric metric ) {
-    if ( component == null || metric == null ) {
-      throw new RuntimeException( "Please provide a component and a name for the metric to increment" );
+  public void incrementComponentMetric(IEngineComponent component, IEngineMetric metric) {
+    if (component == null || metric == null) {
+      throw new RuntimeException(
+          "Please provide a component and a name for the metric to increment");
     }
-    Long amount = getComponentMetric( component, metric );
-    if ( amount == null ) {
-      setComponentMetric( component, metric, 1L );
+    Long amount = getComponentMetric(component, metric);
+    if (amount == null) {
+      setComponentMetric(component, metric, 1L);
     } else {
-      setComponentMetric( component, metric, amount + 1 );
+      setComponentMetric(component, metric, amount + 1);
     }
   }
 
@@ -142,27 +135,28 @@ public class EngineMetrics {
    * Remove the amount for a specific metric
    *
    * @param component The component of the metric (e.g. transform name)
-   * @param metric    The name of the metric (e.g. input, output, ...)
+   * @param metric The name of the metric (e.g. input, output, ...)
    * @return the metric amount or null if nothing stored in the first place
    */
-  public Long removeComponentMetric( IEngineComponent component, IEngineMetric metric ) {
-    if ( component == null || metric == null ) {
-      throw new RuntimeException( "Please provide a component and a name for the metric to remove" );
+  public Long removeComponentMetric(IEngineComponent component, IEngineMetric metric) {
+    if (component == null || metric == null) {
+      throw new RuntimeException("Please provide a component and a name for the metric to remove");
     }
-    Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get( component );
-    if ( metricsMap == null ) {
+    Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get(component);
+    if (metricsMap == null) {
       return null;
     }
-    return metricsMap.remove( metric );
+    return metricsMap.remove(metric);
   }
 
-  public void addCompomentPerformanceSnapShot(IEngineComponent component, PerformanceSnapShot snapShot) {
-    if ( component == null || snapShot == null ) {
-      throw new RuntimeException( "Please provide a component and a snapshot to add" );
+  public void addCompomentPerformanceSnapShot(
+      IEngineComponent component, PerformanceSnapShot snapShot) {
+    if (component == null || snapShot == null) {
+      throw new RuntimeException("Please provide a component and a snapshot to add");
     }
-    List<PerformanceSnapShot> snapShots = componentPerformanceSnapshots.get( component );
-    if (snapShots==null) {
-      snapShots = new ArrayList<>(  );
+    List<PerformanceSnapShot> snapShots = componentPerformanceSnapshots.get(component);
+    if (snapShots == null) {
+      snapShots = new ArrayList<>();
       componentPerformanceSnapshots.put(component, snapShots);
     }
     snapShots.add(snapShot);
@@ -177,10 +171,8 @@ public class EngineMetrics {
     return startDate;
   }
 
-  /**
-   * @param startDate The startDate to set
-   */
-  public void setStartDate( Date startDate ) {
+  /** @param startDate The startDate to set */
+  public void setStartDate(Date startDate) {
     this.startDate = startDate;
   }
 
@@ -193,10 +185,8 @@ public class EngineMetrics {
     return endDate;
   }
 
-  /**
-   * @param endDate The endDate to set
-   */
-  public void setEndDate( Date endDate ) {
+  /** @param endDate The endDate to set */
+  public void setEndDate(Date endDate) {
     this.endDate = endDate;
   }
 
@@ -209,10 +199,9 @@ public class EngineMetrics {
     return componentMetricsMap;
   }
 
-  /**
-   * @param componentMetricsMap The componentMetricsMap to set
-   */
-  public void setComponentMetricsMap( Map<IEngineComponent, Map<IEngineMetric, Long>> componentMetricsMap ) {
+  /** @param componentMetricsMap The componentMetricsMap to set */
+  public void setComponentMetricsMap(
+      Map<IEngineComponent, Map<IEngineMetric, Long>> componentMetricsMap) {
     this.componentMetricsMap = componentMetricsMap;
   }
 
@@ -225,10 +214,8 @@ public class EngineMetrics {
     return componentStatusMap;
   }
 
-  /**
-   * @param componentStatusMap The componentStatusMap to set
-   */
-  public void setComponentStatusMap( Map<IEngineComponent, String> componentStatusMap ) {
+  /** @param componentStatusMap The componentStatusMap to set */
+  public void setComponentStatusMap(Map<IEngineComponent, String> componentStatusMap) {
     this.componentStatusMap = componentStatusMap;
   }
 
@@ -241,10 +228,8 @@ public class EngineMetrics {
     return componentSpeedMap;
   }
 
-  /**
-   * @param componentSpeedMap The componentSpeedMap to set
-   */
-  public void setComponentSpeedMap( Map<IEngineComponent, String> componentSpeedMap ) {
+  /** @param componentSpeedMap The componentSpeedMap to set */
+  public void setComponentSpeedMap(Map<IEngineComponent, String> componentSpeedMap) {
     this.componentSpeedMap = componentSpeedMap;
   }
 
@@ -257,10 +242,8 @@ public class EngineMetrics {
     return componentRunningMap;
   }
 
-  /**
-   * @param componentRunningMap The componentRunningMap to set
-   */
-  public void setComponentRunningMap( Map<IEngineComponent, Boolean> componentRunningMap ) {
+  /** @param componentRunningMap The componentRunningMap to set */
+  public void setComponentRunningMap(Map<IEngineComponent, Boolean> componentRunningMap) {
     this.componentRunningMap = componentRunningMap;
   }
 
@@ -273,10 +256,8 @@ public class EngineMetrics {
     return components;
   }
 
-  /**
-   * @param components The components to set
-   */
-  public void setComponents( List<IEngineComponent> components ) {
+  /** @param components The components to set */
+  public void setComponents(List<IEngineComponent> components) {
     this.components = components;
   }
 
@@ -289,11 +270,9 @@ public class EngineMetrics {
     return componentPerformanceSnapshots;
   }
 
-  /**
-   * @param componentPerformanceSnapshots The componentPerformanceSnapshots to set
-   */
+  /** @param componentPerformanceSnapshots The componentPerformanceSnapshots to set */
   public void setComponentPerformanceSnapshots(
-    Map<IEngineComponent, List<PerformanceSnapShot>> componentPerformanceSnapshots ) {
+      Map<IEngineComponent, List<PerformanceSnapShot>> componentPerformanceSnapshots) {
     this.componentPerformanceSnapshots = componentPerformanceSnapshots;
   }
 }

@@ -26,38 +26,54 @@ import java.util.concurrent.Callable;
 
 /**
  * This is a holder of Plugin Class mappings which supplement those of the stock Plugin.
- * <p>
- * Created by nbaker on 3/17/17.
+ *
+ * <p>Created by nbaker on 3/17/17.
  */
 public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
   Map<Class, Callable> factoryMap = new HashMap<>();
   private Class<? extends IPluginType> pluginClass;
   private String id;
 
-  public SupplementalPlugin( Class<? extends IPluginType> pluginClass, String id ) {
-    super( new String[] { id }, pluginClass, null, "", id, id, "", false, false, Collections.emptyMap(), Collections.emptyList(), "", new String[] {}, null, false );
+  public SupplementalPlugin(Class<? extends IPluginType> pluginClass, String id) {
+    super(
+        new String[] {id},
+        pluginClass,
+        null,
+        "",
+        id,
+        id,
+        "",
+        false,
+        false,
+        Collections.emptyMap(),
+        Collections.emptyList(),
+        "",
+        new String[] {},
+        null,
+        false);
     this.pluginClass = pluginClass;
     this.id = id;
   }
 
-  @Override public <T> T loadClass( Class<T> pluginClass ) {
-    if ( !factoryMap.containsKey( pluginClass ) ) {
+  @Override
+  public <T> T loadClass(Class<T> pluginClass) {
+    if (!factoryMap.containsKey(pluginClass)) {
       return null;
     }
 
     try {
-      return (T) factoryMap.get( pluginClass ).call();
-    } catch ( Exception e ) {
-      throw new RuntimeException( new HopPluginException( "Error creating plugin class", e ) );
+      return (T) factoryMap.get(pluginClass).call();
+    } catch (Exception e) {
+      throw new RuntimeException(new HopPluginException("Error creating plugin class", e));
     }
   }
 
-  @Override public ClassLoader getClassLoader() {
+  @Override
+  public ClassLoader getClassLoader() {
     return getClass().getClassLoader();
   }
 
-  public <T> void addFactory( Class<T> tClass, Callable<T> callable ) {
-    factoryMap.put( tClass, callable );
+  public <T> void addFactory(Class<T> tClass, Callable<T> callable) {
+    factoryMap.put(tClass, callable);
   }
-
 }

@@ -29,15 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-/**
- * @author Tatsiana_Kasiankova
- */
+/** @author Tatsiana_Kasiankova */
 public class HopServerConfigTest {
 
   public static final String XML_TAG_HOP_SERVER_CONFIG = "hop-server-config";
@@ -52,11 +46,13 @@ public class HopServerConfigTest {
 
   public static final String ACCEPT_QUEUE_SIZE_VALUE = "8000";
   public static final String EXPECTED_ACCEPT_QUEUE_SIZE_VALUE = "8000";
-  public static final String EXPECTED_ACCEPT_QUEUE_SIZE_KEY = Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE;
+  public static final String EXPECTED_ACCEPT_QUEUE_SIZE_KEY =
+      Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE;
 
   public static final String LOW_RES_MAX_IDLE_TIME_VALUE = "300";
   public static final String EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE = "300";
-  public static final String EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY = Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME;
+  public static final String EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY =
+      Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME;
 
   Map<String, String> jettyOptions;
   HopServerConfig slServerConfig;
@@ -68,187 +64,214 @@ public class HopServerConfigTest {
 
   @After
   public void tearDown() {
-    System.getProperties().remove( Const.HOP_SERVER_JETTY_ACCEPTORS );
-    System.getProperties().remove( Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE );
-    System.getProperties().remove( Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME );
+    System.getProperties().remove(Const.HOP_SERVER_JETTY_ACCEPTORS);
+    System.getProperties().remove(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE);
+    System.getProperties().remove(Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME);
   }
 
   @Test
   public void testSetUpJettyOptionsAsSystemParameters() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithAllOptions() );
+    Node configNode = getConfigNode(getConfigWithAllOptions());
 
-    slServerConfig.setUpJettyOptions( configNode );
+    slServerConfig.setUpJettyOptions(configNode);
 
-    assertTrue( "Expected containing jetty option " + EXPECTED_ACCEPTORS_KEY, System.getProperties().containsKey(
-      EXPECTED_ACCEPTORS_KEY ) );
-    assertEquals( EXPECTED_ACCEPTORS_VALUE, System.getProperty( EXPECTED_ACCEPTORS_KEY ) );
-    assertTrue( "Expected containing jetty option " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, System.getProperties()
-      .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertEquals( EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, System.getProperty( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertTrue( "Expected containing jetty option " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, System.getProperties()
-      .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
-    assertEquals( EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE, System.getProperty( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+    assertTrue(
+        "Expected containing jetty option " + EXPECTED_ACCEPTORS_KEY,
+        System.getProperties().containsKey(EXPECTED_ACCEPTORS_KEY));
+    assertEquals(EXPECTED_ACCEPTORS_VALUE, System.getProperty(EXPECTED_ACCEPTORS_KEY));
+    assertTrue(
+        "Expected containing jetty option " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY,
+        System.getProperties().containsKey(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertEquals(
+        EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, System.getProperty(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertTrue(
+        "Expected containing jetty option " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY,
+        System.getProperties().containsKey(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
+    assertEquals(
+        EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE,
+        System.getProperty(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
   }
 
   @Test
-  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenNoOptionsNode() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithNoOptionsNode() );
+  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenNoOptionsNode()
+      throws HopXmlException {
+    Node configNode = getConfigNode(getConfigWithNoOptionsNode());
 
-    slServerConfig.setUpJettyOptions( configNode );
+    slServerConfig.setUpJettyOptions(configNode);
 
-    assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPTORS_KEY, System
-      .getProperties().containsKey( EXPECTED_ACCEPTORS_KEY ) );
-    assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, System
-      .getProperties().containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, System
-      .getProperties().containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+    assertFalse(
+        "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPTORS_KEY,
+        System.getProperties().containsKey(EXPECTED_ACCEPTORS_KEY));
+    assertFalse(
+        "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY,
+        System.getProperties().containsKey(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertFalse(
+        "There should not be any jetty option but it is here:  "
+            + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY,
+        System.getProperties().containsKey(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
   }
 
   @Test
-  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenEmptyOptionsNode() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithEmptyOptionsNode() );
+  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenEmptyOptionsNode()
+      throws HopXmlException {
+    Node configNode = getConfigNode(getConfigWithEmptyOptionsNode());
 
-    slServerConfig.setUpJettyOptions( configNode );
+    slServerConfig.setUpJettyOptions(configNode);
 
-    assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPTORS_KEY, System
-      .getProperties().containsKey( EXPECTED_ACCEPTORS_KEY ) );
-    assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, System
-      .getProperties().containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, System
-      .getProperties().containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+    assertFalse(
+        "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPTORS_KEY,
+        System.getProperties().containsKey(EXPECTED_ACCEPTORS_KEY));
+    assertFalse(
+        "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY,
+        System.getProperties().containsKey(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertFalse(
+        "There should not be any jetty option but it is here:  "
+            + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY,
+        System.getProperties().containsKey(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
   }
 
   @Test
   public void testParseJettyOption_Acceptors() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithAcceptorsOnlyOption() );
+    Node configNode = getConfigNode(getConfigWithAcceptorsOnlyOption());
 
-    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
+    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions(configNode);
 
-    assertNotNull( parseJettyOptions );
-    assertEquals( 1, parseJettyOptions.size() );
-    assertTrue( "Expected containing key=" + EXPECTED_ACCEPTORS_KEY, parseJettyOptions
-      .containsKey( EXPECTED_ACCEPTORS_KEY ) );
-    assertEquals( EXPECTED_ACCEPTORS_VALUE, parseJettyOptions.get( EXPECTED_ACCEPTORS_KEY ) );
+    assertNotNull(parseJettyOptions);
+    assertEquals(1, parseJettyOptions.size());
+    assertTrue(
+        "Expected containing key=" + EXPECTED_ACCEPTORS_KEY,
+        parseJettyOptions.containsKey(EXPECTED_ACCEPTORS_KEY));
+    assertEquals(EXPECTED_ACCEPTORS_VALUE, parseJettyOptions.get(EXPECTED_ACCEPTORS_KEY));
   }
 
   @Test
   public void testParseJettyOption_AcceptQueueSize() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithAcceptQueueSizeOnlyOption() );
+    Node configNode = getConfigNode(getConfigWithAcceptQueueSizeOnlyOption());
 
-    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
+    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions(configNode);
 
-    assertNotNull( parseJettyOptions );
-    assertEquals( 1, parseJettyOptions.size() );
-    assertTrue( "Expected containing key=" + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, parseJettyOptions
-      .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertEquals( EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, parseJettyOptions.get( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
+    assertNotNull(parseJettyOptions);
+    assertEquals(1, parseJettyOptions.size());
+    assertTrue(
+        "Expected containing key=" + EXPECTED_ACCEPT_QUEUE_SIZE_KEY,
+        parseJettyOptions.containsKey(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertEquals(
+        EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, parseJettyOptions.get(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
   }
 
   @Test
   public void testParseJettyOption_LowResourcesMaxIdleTime() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithLowResourcesMaxIdleTimeeOnlyOption() );
+    Node configNode = getConfigNode(getConfigWithLowResourcesMaxIdleTimeeOnlyOption());
 
-    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
+    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions(configNode);
 
-    assertNotNull( parseJettyOptions );
-    assertEquals( 1, parseJettyOptions.size() );
-    assertTrue( "Expected containing key=" + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, parseJettyOptions
-      .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
-    assertEquals( EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE, parseJettyOptions.get( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+    assertNotNull(parseJettyOptions);
+    assertEquals(1, parseJettyOptions.size());
+    assertTrue(
+        "Expected containing key=" + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY,
+        parseJettyOptions.containsKey(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
+    assertEquals(
+        EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE,
+        parseJettyOptions.get(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
   }
 
   @Test
   public void testParseJettyOption_AllOptions() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithAllOptions() );
+    Node configNode = getConfigNode(getConfigWithAllOptions());
 
-    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
+    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions(configNode);
 
-    assertNotNull( parseJettyOptions );
-    assertEquals( 3, parseJettyOptions.size() );
-    assertTrue( "Expected containing key=" + EXPECTED_ACCEPTORS_KEY, parseJettyOptions
-      .containsKey( EXPECTED_ACCEPTORS_KEY ) );
-    assertEquals( EXPECTED_ACCEPTORS_VALUE, parseJettyOptions.get( EXPECTED_ACCEPTORS_KEY ) );
-    assertTrue( "Expected containing key=" + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, parseJettyOptions
-      .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertEquals( EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, parseJettyOptions.get( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
-    assertTrue( "Expected containing key=" + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, parseJettyOptions
-      .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
-    assertEquals( EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE, parseJettyOptions.get( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+    assertNotNull(parseJettyOptions);
+    assertEquals(3, parseJettyOptions.size());
+    assertTrue(
+        "Expected containing key=" + EXPECTED_ACCEPTORS_KEY,
+        parseJettyOptions.containsKey(EXPECTED_ACCEPTORS_KEY));
+    assertEquals(EXPECTED_ACCEPTORS_VALUE, parseJettyOptions.get(EXPECTED_ACCEPTORS_KEY));
+    assertTrue(
+        "Expected containing key=" + EXPECTED_ACCEPT_QUEUE_SIZE_KEY,
+        parseJettyOptions.containsKey(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertEquals(
+        EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, parseJettyOptions.get(EXPECTED_ACCEPT_QUEUE_SIZE_KEY));
+    assertTrue(
+        "Expected containing key=" + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY,
+        parseJettyOptions.containsKey(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
+    assertEquals(
+        EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE,
+        parseJettyOptions.get(EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY));
   }
 
   @Test
   public void testParseJettyOption_EmptyOptionsNode() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithEmptyOptionsNode() );
+    Node configNode = getConfigNode(getConfigWithEmptyOptionsNode());
 
-    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
+    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions(configNode);
 
-    assertNotNull( parseJettyOptions );
-    assertEquals( 0, parseJettyOptions.size() );
+    assertNotNull(parseJettyOptions);
+    assertEquals(0, parseJettyOptions.size());
   }
 
   @Test
   public void testParseJettyOption_NoOptionsNode() throws HopXmlException {
-    Node configNode = getConfigNode( getConfigWithNoOptionsNode() );
+    Node configNode = getConfigNode(getConfigWithNoOptionsNode());
 
-    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
-    assertNull( parseJettyOptions );
+    Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions(configNode);
+    assertNull(parseJettyOptions);
   }
 
-  private Node getConfigNode( String configString ) throws HopXmlException {
-    Document document = XmlHandler.loadXmlString( configString );
-    Node configNode = XmlHandler.getSubNode( document, HopServerConfig.XML_TAG );
+  private Node getConfigNode(String configString) throws HopXmlException {
+    Document document = XmlHandler.loadXmlString(configString);
+    Node configNode = XmlHandler.getSubNode(document, HopServerConfig.XML_TAG);
     return configNode;
   }
 
   private String getConfigWithAcceptorsOnlyOption() {
     jettyOptions = new HashMap<>();
-    jettyOptions.put( XML_TAG_ACCEPTORS, ACCEPTORS_VALUE );
-    return getConfig( jettyOptions );
+    jettyOptions.put(XML_TAG_ACCEPTORS, ACCEPTORS_VALUE);
+    return getConfig(jettyOptions);
   }
 
   private String getConfigWithAcceptQueueSizeOnlyOption() {
     jettyOptions = new HashMap<>();
-    jettyOptions.put( XML_TAG_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE_VALUE );
-    return getConfig( jettyOptions );
+    jettyOptions.put(XML_TAG_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE_VALUE);
+    return getConfig(jettyOptions);
   }
 
   private String getConfigWithLowResourcesMaxIdleTimeeOnlyOption() {
     jettyOptions = new HashMap<>();
-    jettyOptions.put( XML_TAG_LOW_RES_MAX_IDLE_TIME, LOW_RES_MAX_IDLE_TIME_VALUE );
-    return getConfig( jettyOptions );
+    jettyOptions.put(XML_TAG_LOW_RES_MAX_IDLE_TIME, LOW_RES_MAX_IDLE_TIME_VALUE);
+    return getConfig(jettyOptions);
   }
 
   private String getConfigWithAllOptions() {
     jettyOptions = new HashMap<>();
-    jettyOptions.put( XML_TAG_ACCEPTORS, ACCEPTORS_VALUE );
-    jettyOptions.put( XML_TAG_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE_VALUE );
-    jettyOptions.put( XML_TAG_LOW_RES_MAX_IDLE_TIME, LOW_RES_MAX_IDLE_TIME_VALUE );
-    return getConfig( jettyOptions );
+    jettyOptions.put(XML_TAG_ACCEPTORS, ACCEPTORS_VALUE);
+    jettyOptions.put(XML_TAG_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE_VALUE);
+    jettyOptions.put(XML_TAG_LOW_RES_MAX_IDLE_TIME, LOW_RES_MAX_IDLE_TIME_VALUE);
+    return getConfig(jettyOptions);
   }
 
   private String getConfigWithEmptyOptionsNode() {
     jettyOptions = new HashMap<>();
-    return getConfig( jettyOptions );
+    return getConfig(jettyOptions);
   }
 
   private String getConfigWithNoOptionsNode() {
-    return getConfig( jettyOptions );
+    return getConfig(jettyOptions);
   }
 
-  private String getConfig( Map<String, String> jettyOptions ) {
-    StringBuilder xml = new StringBuilder( 50 );
-    xml.append( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
-    xml.append( "<" + XML_TAG_HOP_SERVER_CONFIG + ">" ).append( Const.CR );
-    if ( jettyOptions != null ) {
-      xml.append( "<" + XML_TAG_JETTY_OPTIONS + ">" ).append( Const.CR );
-      for ( Entry<String, String> jettyOption : jettyOptions.entrySet() ) {
-        xml.append( "<" + jettyOption.getKey() + ">" ).append( jettyOption.getValue() );
-        xml.append( "</" + jettyOption.getKey() + ">" ).append( Const.CR );
+  private String getConfig(Map<String, String> jettyOptions) {
+    StringBuilder xml = new StringBuilder(50);
+    xml.append(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+    xml.append("<" + XML_TAG_HOP_SERVER_CONFIG + ">").append(Const.CR);
+    if (jettyOptions != null) {
+      xml.append("<" + XML_TAG_JETTY_OPTIONS + ">").append(Const.CR);
+      for (Entry<String, String> jettyOption : jettyOptions.entrySet()) {
+        xml.append("<" + jettyOption.getKey() + ">").append(jettyOption.getValue());
+        xml.append("</" + jettyOption.getKey() + ">").append(Const.CR);
       }
-      xml.append( "</" + XML_TAG_JETTY_OPTIONS + ">" ).append( Const.CR );
+      xml.append("</" + XML_TAG_JETTY_OPTIONS + ">").append(Const.CR);
     }
-    xml.append( "</" + XML_TAG_HOP_SERVER_CONFIG + ">" ).append( Const.CR );
+    xml.append("</" + XML_TAG_HOP_SERVER_CONFIG + ">").append(Const.CR);
     return xml.toString();
   }
-
 }

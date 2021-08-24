@@ -46,14 +46,20 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
   private List<String> xpPluginClasses;
 
   // Log and count errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BeamInputTransform.class );
-  private static final Counter numErrors = Metrics.counter( "main", "BeamInputError" );
+  private static final Logger LOG = LoggerFactory.getLogger(BeamInputTransform.class);
+  private static final Counter numErrors = Metrics.counter("main", "BeamInputError");
 
-  public BeamInputTransform() {
-  }
+  public BeamInputTransform() {}
 
-  public BeamInputTransform( @Nullable String name, String transformName, String inputLocation, String separator, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( name );
+  public BeamInputTransform(
+      @Nullable String name,
+      String transformName,
+      String inputLocation,
+      String separator,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
+    super(name);
     this.transformName = transformName;
     this.inputLocation = inputLocation;
     this.separator = separator;
@@ -62,7 +68,8 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
     this.xpPluginClasses = xpPluginClasses;
   }
 
-  @Override public PCollection<HopRow> expand( PBegin input ) {
+  @Override
+  public PCollection<HopRow> expand(PBegin input) {
 
     try {
       // Only initialize once on this node/vm
@@ -71,32 +78,30 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
 
       // System.out.println("-------------- TextIO.Read from "+inputLocation+" (UNCOMPRESSED)");
 
-      TextIO.Read ioRead = TextIO.read()
-        .from( inputLocation )
-        .withCompression( Compression.UNCOMPRESSED )
-        ;
+      TextIO.Read ioRead =
+          TextIO.read().from(inputLocation).withCompression(Compression.UNCOMPRESSED);
 
-      StringToHopFn stringToHopFn = new StringToHopFn( transformName, rowMetaJson, separator, transformPluginClasses, xpPluginClasses );
+      StringToHopFn stringToHopFn =
+          new StringToHopFn(
+              transformName, rowMetaJson, separator, transformPluginClasses, xpPluginClasses);
 
-      PCollection<HopRow> output = input
+      PCollection<HopRow> output =
+          input
 
-        // We read a bunch of Strings, one per line basically
-        //
-        .apply( transformName + " READ FILE",  ioRead )
+              // We read a bunch of Strings, one per line basically
+              //
+              .apply(transformName + " READ FILE", ioRead)
 
-        // We need to transform these lines into Hop fields
-        //
-        .apply( transformName, ParDo.of( stringToHopFn ) );
+              // We need to transform these lines into Hop fields
+              //
+              .apply(transformName, ParDo.of(stringToHopFn));
 
       return output;
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       numErrors.inc();
-      LOG.error( "Error in beam input transform", e );
-      throw new RuntimeException( "Error in beam input transform", e );
+      LOG.error("Error in beam input transform", e);
+      throw new RuntimeException("Error in beam input transform", e);
     }
-
   }
-
-
 }

@@ -17,9 +17,6 @@
 
 package org.apache.hop.ui.core.metadata;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -45,6 +42,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /** Abstract implementation of all metadata editors. */
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
@@ -80,7 +80,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     String titleToolTip = annotation.name();
     if (StringUtils.isNotEmpty(metadata.getMetadataProviderName())) {
-      titleToolTip+= Const.CR+"Source: "+metadata.getMetadataProviderName();
+      titleToolTip += Const.CR + "Source: " + metadata.getMetadataProviderName();
     }
     this.setTitleToolTip(titleToolTip);
 
@@ -106,12 +106,13 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return null;
   }
 
-  protected Button createHelpButton(final Shell shell) {  
+  protected Button createHelpButton(final Shell shell) {
     HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
-    IPlugin plugin =  PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());   
+    IPlugin plugin =
+        PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());
     return HelpUtils.createHelpButton(shell, plugin);
   }
-  
+
   public HopGui getHopGui() {
     return hopGui;
   }
@@ -203,7 +204,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     // Check if the metadata is saved. If not, ask for it to be saved.
     //
-    if ( this.hasChanged()) {
+    if (this.hasChanged()) {
 
       MessageBox messageDialog =
           new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
@@ -257,8 +258,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
       if (serializer.exists(name)) {
         throw new HopException(
-            BaseMessages.getString(
-                PKG, "MetadataEditor.Error.NameAlreadyExists", name));
+            BaseMessages.getString(PKG, "MetadataEditor.Error.NameAlreadyExists", name));
       } else {
         isRename = true;
       }
@@ -269,10 +269,16 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     if (isCreated)
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(), manager.getVariables(), HopExtensionPoint.HopGuiMetadataObjectCreated.id, metadata );
+          hopGui.getLog(),
+          manager.getVariables(),
+          HopExtensionPoint.HopGuiMetadataObjectCreated.id,
+          metadata);
     else
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(), manager.getVariables(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, metadata );
+          hopGui.getLog(),
+          manager.getVariables(),
+          HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
+          metadata);
 
     // Reset changed flag
     this.isChanged = false;

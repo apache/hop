@@ -112,12 +112,10 @@ public class TableOutputMeta extends BaseTransformMeta
       injectionKeyDescription = "TableOutputMeta.Injection.PartitioningField.Field")
   private String partitioningField;
 
-  @HopMetadataProperty(key = "partitioning_daily",
-          isExcludedFromInjection = true)
+  @HopMetadataProperty(key = "partitioning_daily", isExcludedFromInjection = true)
   private boolean partitioningDaily;
 
-  @HopMetadataProperty(key = "partitioning_monthly",
-          isExcludedFromInjection = true)
+  @HopMetadataProperty(key = "partitioning_monthly", isExcludedFromInjection = true)
   private boolean partitioningMonthly;
 
   @HopMetadataProperty(

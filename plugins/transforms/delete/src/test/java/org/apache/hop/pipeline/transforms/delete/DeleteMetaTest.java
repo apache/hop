@@ -73,7 +73,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
-            "key", new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator(), 5));
+        "key", new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator(), 5));
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
@@ -112,8 +112,8 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
             }));
 
     validatorFactory.registerValidator(
-            validatorFactory.getName(List.class, DeleteKeyField.class),
-            new ListLoadSaveValidator<DeleteKeyField>(new DeleteKeyFieldInputFieldLoadSaveValidator()));
+        validatorFactory.getName(List.class, DeleteKeyField.class),
+        new ListLoadSaveValidator<DeleteKeyField>(new DeleteKeyFieldInputFieldLoadSaveValidator()));
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -222,20 +222,19 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
     }
   }
 
-
   public class DeleteKeyFieldInputFieldLoadSaveValidator
-          implements IFieldLoadSaveValidator<DeleteKeyField> {
+      implements IFieldLoadSaveValidator<DeleteKeyField> {
     final Random rand = new Random();
 
     @Override
     public DeleteKeyField getTestObject() {
 
       DeleteKeyField field =
-              new DeleteKeyField(
-                      UUID.randomUUID().toString(),
-                      "=",
-                      UUID.randomUUID().toString(),
-                      UUID.randomUUID().toString());
+          new DeleteKeyField(
+              UUID.randomUUID().toString(),
+              "=",
+              UUID.randomUUID().toString(),
+              UUID.randomUUID().toString());
 
       return field;
     }
@@ -247,12 +246,11 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
       }
       DeleteKeyField another = (DeleteKeyField) actual;
       return new EqualsBuilder()
-              .append(testObject.getKeyLookup(), another.getKeyLookup())
-              .append(testObject.getKeyCondition(), another.getKeyCondition())
-              .append(testObject.getKeyStream(), another.getKeyStream())
-              .append(testObject.getKeyStream2(), another.getKeyStream2())
-              .isEquals();
+          .append(testObject.getKeyLookup(), another.getKeyLookup())
+          .append(testObject.getKeyCondition(), another.getKeyCondition())
+          .append(testObject.getKeyStream(), another.getKeyStream())
+          .append(testObject.getKeyStream2(), another.getKeyStream2())
+          .isEquals();
     }
   }
-
 }

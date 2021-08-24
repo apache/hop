@@ -81,4 +81,5 @@ This tab contains information about the temporary files that are generated to lo
 |===
 
 === Output Fields tab
+
 This tab contains the source to target mapping.

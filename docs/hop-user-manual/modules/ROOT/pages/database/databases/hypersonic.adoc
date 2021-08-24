@@ -20,7 +20,7 @@ under the License.
 
 = Hypersonic
 
-[width="90%", cols="2*", options="header"]
+[width="90%",cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational
@@ -28,5 +28,5 @@ under the License.
 |Version Included | 2.5.0
 |Hop Dependencies | None
 |Documentation | http://hsqldb.org/doc/2.0/guide/dbproperties-chapt.html[Documentation Link]
-|JDBC Url | jdbc:hsqldb:hsql//hostname 
+|JDBC Url | jdbc:hsqldb:hsql//hostname
 |===

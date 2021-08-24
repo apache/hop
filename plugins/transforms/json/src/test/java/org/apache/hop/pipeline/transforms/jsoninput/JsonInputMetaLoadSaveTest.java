@@ -26,61 +26,92 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 
-  static final int FILE_COUNT = new Random().nextInt( 20 ) + 1;
-  static final int FIELD_COUNT = new Random().nextInt( 20 ) + 1;
+  static final int FILE_COUNT = new Random().nextInt(20) + 1;
+  static final int FIELD_COUNT = new Random().nextInt(20) + 1;
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "includeFilename", "filenameField", "includeRowNumber", "addResultFile",
-      "ReadUrl", "removeSourceField", "IgnoreEmptyFile", "doNotFailIfNoFile", "ignoreMissingPath", "defaultPathLeafToNull", "rowNumberField",
-      "FileName", "FileMask", "ExcludeFileMask", "FileRequired", "IncludeSubFolders", "InputFields", "rowLimit",
-      "inFields", "isAFile", "FieldValue", "ShortFileNameField", "PathField", "HiddenField",
-      "LastModificationDateField", "UriField", "UriField", "ExtensionField", "SizeField" );
+    List<String> attributes =
+        Arrays.asList(
+            "includeFilename",
+            "filenameField",
+            "includeRowNumber",
+            "addResultFile",
+            "ReadUrl",
+            "removeSourceField",
+            "IgnoreEmptyFile",
+            "doNotFailIfNoFile",
+            "ignoreMissingPath",
+            "defaultPathLeafToNull",
+            "rowNumberField",
+            "FileName",
+            "FileMask",
+            "ExcludeFileMask",
+            "FileRequired",
+            "IncludeSubFolders",
+            "InputFields",
+            "rowLimit",
+            "inFields",
+            "isAFile",
+            "FieldValue",
+            "ShortFileNameField",
+            "PathField",
+            "HiddenField",
+            "LastModificationDateField",
+            "UriField",
+            "UriField",
+            "ExtensionField",
+            "SizeField");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
-    getterMap.put( "includeFilename", "includeFilename" );
-    getterMap.put( "includeRowNumber", "includeRowNumber" );
-    getterMap.put( "addResultFile", "addResultFile" );
+    getterMap.put("includeFilename", "includeFilename");
+    getterMap.put("includeRowNumber", "includeRowNumber");
+    getterMap.put("addResultFile", "addResultFile");
 
-    setterMap.put( "HiddenField", "setIsHiddenField" );
+    setterMap.put("HiddenField", "setIsHiddenField");
 
     Map<String, IFieldLoadSaveValidator<?>> attributesMap = new HashMap<>();
     IFieldLoadSaveValidator<?> fileStringArrayValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), FILE_COUNT );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), FILE_COUNT);
 
-    attributesMap.put( "FileName", fileStringArrayValidator );
-    attributesMap.put( "FileMask", fileStringArrayValidator );
-    attributesMap.put( "ExcludeFileMask", fileStringArrayValidator );
-    attributesMap.put( "FileRequired", fileStringArrayValidator );
-    attributesMap.put( "IncludeSubFolders", fileStringArrayValidator );
+    attributesMap.put("FileName", fileStringArrayValidator);
+    attributesMap.put("FileMask", fileStringArrayValidator);
+    attributesMap.put("ExcludeFileMask", fileStringArrayValidator);
+    attributesMap.put("FileRequired", fileStringArrayValidator);
+    attributesMap.put("IncludeSubFolders", fileStringArrayValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<>();
-    typeMap.put( JsonInputField.class.getCanonicalName(),
-      new ArrayLoadSaveValidator<>( new JsonInputFieldValidator() ) );
-    typeMap.put( JsonInputField[].class.getCanonicalName(),
-      new ArrayLoadSaveValidator<>( new JsonInputFieldValidator() ) );
+    typeMap.put(
+        JsonInputField.class.getCanonicalName(),
+        new ArrayLoadSaveValidator<>(new JsonInputFieldValidator()));
+    typeMap.put(
+        JsonInputField[].class.getCanonicalName(),
+        new ArrayLoadSaveValidator<>(new JsonInputFieldValidator()));
 
-    LoadSaveTester tester = new LoadSaveTester( JsonInputMeta.class, attributes, new ArrayList<>(), getterMap, setterMap, attributesMap, typeMap, this );
+    LoadSaveTester tester =
+        new LoadSaveTester(
+            JsonInputMeta.class,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attributesMap,
+            typeMap,
+            this);
 
     tester.testSerialization();
   }
 
-  @SuppressWarnings( "deprecation" )
+  @SuppressWarnings("deprecation")
   @Override
-  public void modify( ITransformMeta arg0 ) {
-    if ( arg0 instanceof JsonInputMeta ) {
-      ( (JsonInputMeta) arg0 ).allocate( FILE_COUNT, FIELD_COUNT );
+  public void modify(ITransformMeta arg0) {
+    if (arg0 instanceof JsonInputMeta) {
+      ((JsonInputMeta) arg0).allocate(FILE_COUNT, FIELD_COUNT);
     }
   }
 
@@ -88,16 +119,16 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 
     @Override
     public JsonInputField getTestObject() {
-      JsonInputField retval = new JsonInputField( UUID.randomUUID().toString() );
+      JsonInputField retval = new JsonInputField(UUID.randomUUID().toString());
       return retval;
     }
 
     @Override
-    public boolean validateTestObject( JsonInputField testObject, Object actual ) {
-      if ( !( actual instanceof JsonInputField ) ) {
+    public boolean validateTestObject(JsonInputField testObject, Object actual) {
+      if (!(actual instanceof JsonInputField)) {
         return false;
       }
-      return ( (JsonInputField) actual ).getXml().equals( testObject.getXml() );
+      return ((JsonInputField) actual).getXml().equals(testObject.getXml());
     }
   }
 }

@@ -24,28 +24,24 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Some DOM utility methods.
- */
+/** Some DOM utility methods. */
 public final class DomUtils {
 
   /**
-   * <p>
    * Returns the first child element with the given name. Returns <code>null</code> if not found.
-   * </p>
    *
-   * @param parent    parent element
+   * @param parent parent element
    * @param localName name of the child element
    * @return child element, null if not found.
    */
-  protected static Element getChildElementByName( Element parent, String localName ) {
+  protected static Element getChildElementByName(Element parent, String localName) {
     NodeList children = parent.getChildNodes();
 
-    for ( int i = 0; i < children.getLength(); i++ ) {
-      Node node = children.item( i );
-      if ( node.getNodeType() == Node.ELEMENT_NODE ) {
+    for (int i = 0; i < children.getLength(); i++) {
+      Node node = children.item(i);
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
         Element element = (Element) node;
-        if ( element.getLocalName().equals( localName ) ) {
+        if (element.getLocalName().equals(localName)) {
           return element;
         }
       }
@@ -54,25 +50,24 @@ public final class DomUtils {
   }
 
   /**
-   * <p>
-   * Returns a list of child elements with the given name. Returns an empty list if there are no such child elements.
-   * </p>
+   * Returns a list of child elements with the given name. Returns an empty list if there are no
+   * such child elements.
    *
-   * @param parent    parent element
+   * @param parent parent element
    * @param localName Local name of the child element
    * @return child elements
    */
-  protected static List<Element> getChildElementsByName( Element parent, String localName ) {
+  protected static List<Element> getChildElementsByName(Element parent, String localName) {
     List<Element> elements = new ArrayList<>();
 
     NodeList children = parent.getChildNodes();
 
-    for ( int i = 0; i < children.getLength(); i++ ) {
-      Node node = children.item( i );
-      if ( node.getNodeType() == Node.ELEMENT_NODE ) {
+    for (int i = 0; i < children.getLength(); i++) {
+      Node node = children.item(i);
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
         Element element = (Element) node;
-        if ( element.getLocalName().equals( localName ) ) {
-          elements.add( element );
+        if (element.getLocalName().equals(localName)) {
+          elements.add(element);
         }
       }
     }

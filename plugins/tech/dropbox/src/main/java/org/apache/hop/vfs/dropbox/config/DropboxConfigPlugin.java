@@ -66,7 +66,7 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
     DropboxConfigPlugin instance = new DropboxConfigPlugin();
 
     DropboxConfig config = DropboxConfigSingleton.getConfig();
-    instance.accessToken = config.getAccessToken();   
+    instance.accessToken = config.getAccessToken();
 
     return instance;
   }
@@ -114,7 +114,7 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
         case WIDGET_ID_DROPBOX_ACCESS_TOKEN:
           accessToken = ((TextVar) control).getText();
           DropboxConfigSingleton.getConfig().setAccessToken(accessToken);
-          break;       
+          break;
       }
     }
     // Save the project...

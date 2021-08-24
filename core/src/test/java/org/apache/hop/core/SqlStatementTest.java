@@ -20,35 +20,32 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class SqlStatementTest {
   @Test
   public void testClass() throws HopException {
     final String name = "transformName";
-    final DatabaseMeta dbMeta = mock( DatabaseMeta.class );
+    final DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     final String sql = "sql string";
     final String error = "error";
 
-    SqlStatement statement = new SqlStatement( name, dbMeta, sql );
-    assertSame( name, statement.getTransformName() );
-    assertSame( dbMeta, statement.getDatabase() );
-    assertTrue( statement.hasSql() );
-    assertSame( sql, statement.getSql() );
-    statement.setTransformName( null );
-    assertNull( statement.getTransformName() );
-    statement.setDatabase( null );
-    assertNull( statement.getDatabase() );
-    statement.setSql( null );
-    assertNull( statement.getSql() );
-    assertFalse( statement.hasSql() );
-    assertFalse( statement.hasError() );
-    statement.setError( error );
-    assertTrue( statement.hasError() );
-    assertSame( error, statement.getError() );
+    SqlStatement statement = new SqlStatement(name, dbMeta, sql);
+    assertSame(name, statement.getTransformName());
+    assertSame(dbMeta, statement.getDatabase());
+    assertTrue(statement.hasSql());
+    assertSame(sql, statement.getSql());
+    statement.setTransformName(null);
+    assertNull(statement.getTransformName());
+    statement.setDatabase(null);
+    assertNull(statement.getDatabase());
+    statement.setSql(null);
+    assertNull(statement.getSql());
+    assertFalse(statement.hasSql());
+    assertFalse(statement.hasError());
+    statement.setError(error);
+    assertTrue(statement.hasError());
+    assertSame(error, statement.getError());
   }
 }

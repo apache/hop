@@ -17,24 +17,7 @@
 
 package org.apache.hop.core.plugins;
 
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -54,15 +37,24 @@ import org.jboss.jandex.IndexView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLDecoder;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
   protected static Class<?> classFromResourcesPackage = BasePluginType.class; // For Translator
 
   protected final PluginRegistry registry;
-  
+
   private String id;
-  
+
   private String name;
 
   private LogChannel log;
@@ -72,9 +64,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   private Class<T> pluginClass;
 
   private List<String> extraLibraryFolders;
-  
-  public BasePluginType( Class<T> pluginClazz ) {
-    this.log = new LogChannel( "Plugin type" );
+
+  public BasePluginType(Class<T> pluginClazz) {
+    this.log = new LogChannel("Plugin type");
 
     registry = PluginRegistry.getInstance();
     this.pluginClass = pluginClazz;
@@ -83,11 +75,11 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   /**
-   * @param id   The plugin type ID
+   * @param id The plugin type ID
    * @param name the name of the plugin
    */
-  public BasePluginType( Class<T> pluginType, String id, String name ) {
-    this( pluginType );
+  public BasePluginType(Class<T> pluginType, String id, String name) {
+    this(pluginType);
     this.id = id;
     this.name = name;
   }
@@ -97,8 +89,8 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   @Override
-  public void addObjectType( Class<?> clz, String xmlNodeName ) {
-    objectTypes.put( clz, xmlNodeName );
+  public void addObjectType(Class<?> clz, String xmlNodeName) {
+    objectTypes.put(clz, xmlNodeName);
   }
 
   @Override
@@ -110,21 +102,27 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   @Override
   public void searchPlugins() throws HopPluginException {
 
-    StopWatch watch = new StopWatch();    
-    if ( log.isDebug() ) {
+    StopWatch watch = new StopWatch();
+    if (log.isDebug()) {
       watch.start();
-    }    
-    
+    }
+
     // Register natives plugins
     registerNatives();
-    
+
     // Register plugins from plugin folders
     registerPluginJars();
-     
-    if ( log.isDebug() ) {
+
+    if (log.isDebug()) {
       watch.stop();
       List<Plugin> plugins = registry.getPlugins(this.getClass());
-      log.logBasic(pluginClass.getSimpleName()+" register " + plugins.size()+ " plugins (Time Elapsed: " + watch.getTime()+"ms)"); 
+      log.logBasic(
+          pluginClass.getSimpleName()
+              + " register "
+              + plugins.size()
+              + " plugins (Time Elapsed: "
+              + watch.getTime()
+              + "ms)");
     }
   }
 
@@ -141,7 +139,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
             ClassInfo classInfo = (ClassInfo) instance.target();
             String className = classInfo.name().toString();
-            
 
             Class<?> clazz = this.getClass().getClassLoader().loadClass(className);
 
@@ -149,11 +146,11 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
               throw new HopPluginException("Unable to load class: " + className);
             }
 
-            T annotation = clazz.getAnnotation( pluginClass );
+            T annotation = clazz.getAnnotation(pluginClass);
 
             List<String> libraries = new ArrayList<>();
-            
-            handlePluginAnnotation( clazz, annotation, libraries, true, null );           
+
+            handlePluginAnnotation(clazz, annotation, libraries, true, null);
           }
         }
       }
@@ -163,97 +160,91 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   @VisibleForTesting
-  protected String getPropertyExternal( String key, String def ) {
-    return System.getProperty( key, def );
+  protected String getPropertyExternal(String key, String def) {
+    return System.getProperty(key, def);
   }
 
   @VisibleForTesting
-  protected InputStream getResAsStreamExternal( String name ) {
-    return getClass().getResourceAsStream( name );
+  protected InputStream getResAsStreamExternal(String name) {
+    return getClass().getResourceAsStream(name);
   }
 
   @VisibleForTesting
-  protected InputStream getFileInputStreamExternal( String name ) throws FileNotFoundException {
-    return new FileInputStream( name );
+  protected InputStream getFileInputStreamExternal(String name) throws FileNotFoundException {
+    return new FileInputStream(name);
   }
 
-  /**
-   * @return the id
-   */
+  /** @return the id */
   @Override
   public String getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
-  public void setId( String id ) {
+  /** @param id the id to set */
+  public void setId(String id) {
     this.id = id;
   }
 
-  /**
-   * @return the name
-   */
+  /** @return the name */
   @Override
   public String getName() {
     return name;
   }
 
-  /**
-   * @param name the name to set
-   */
-  public void setName( String name ) {
+  /** @param name the name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
-  protected static String getCodedTranslation( String codedString ) {
-    if ( codedString == null ) {
+  protected static String getCodedTranslation(String codedString) {
+    if (codedString == null) {
       return null;
     }
 
-    if ( codedString.startsWith( Const.I18N_PREFIX ) ) {
-      String[] parts = codedString.split( ":" );
-      if ( parts.length != 3 ) {
+    if (codedString.startsWith(Const.I18N_PREFIX)) {
+      String[] parts = codedString.split(":");
+      if (parts.length != 3) {
         return codedString;
       } else {
-        return BaseMessages.getString( parts[ 1 ], parts[ 2 ] );
+        return BaseMessages.getString(parts[1], parts[2]);
       }
     } else {
       return codedString;
     }
   }
 
-  protected static String[] getTranslations( String[] strings, String packageName, Class<?> resourceClass) {
-    if (strings==null) {
+  protected static String[] getTranslations(
+      String[] strings, String packageName, Class<?> resourceClass) {
+    if (strings == null) {
       return null;
     }
     String[] translations = new String[strings.length];
-    for (int i=0;i<translations.length;i++) {
-      translations[i] = getTranslation( strings[i], packageName, resourceClass );
+    for (int i = 0; i < translations.length; i++) {
+      translations[i] = getTranslation(strings[i], packageName, resourceClass);
     }
     return translations;
   }
 
-  protected static String getTranslation( String string, String packageName, Class<?> resourceClass ) {
-    if ( string == null ) {
+  protected static String getTranslation(
+      String string, String packageName, Class<?> resourceClass) {
+    if (string == null) {
       return null;
     }
 
-    if ( string.startsWith( Const.I18N_PREFIX ) ) {
-      String[] parts = string.split( ":" );
-      if ( parts.length != 3 ) {
+    if (string.startsWith(Const.I18N_PREFIX)) {
+      String[] parts = string.split(":");
+      if (parts.length != 3) {
         return string;
       } else {
         String i18nPackage = parts[1];
-        if ( StringUtils.isEmpty( i18nPackage )) {
+        if (StringUtils.isEmpty(i18nPackage)) {
           i18nPackage = packageName;
         }
         String i18nKey = parts[2];
 
-        String translation = BaseMessages.getString( i18nPackage, i18nKey, resourceClass );
-        if (translation.startsWith( "!" ) && translation.endsWith( "!" )) {
-          translation = BaseMessages.getString( i18nPackage, i18nKey );
+        String translation = BaseMessages.getString(i18nPackage, i18nKey, resourceClass);
+        if (translation.startsWith("!") && translation.endsWith("!")) {
+          translation = BaseMessages.getString(i18nPackage, i18nKey);
         }
         return translation;
       }
@@ -261,32 +252,32 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       // Try the default package name
       //
       String translation;
-      if ( !Utils.isEmpty( packageName ) ) {
+      if (!Utils.isEmpty(packageName)) {
         LogLevel oldLogLevel = DefaultLogLevel.getLogLevel();
 
         // avoid i18n messages for missing locale
         //
-        DefaultLogLevel.setLogLevel( LogLevel.BASIC );
+        DefaultLogLevel.setLogLevel(LogLevel.BASIC);
 
-        translation = BaseMessages.getString( packageName, string, resourceClass );
+        translation = BaseMessages.getString(packageName, string, resourceClass);
 
         // restore loglevel, when the last alternative fails, log it when loglevel is detailed
         //
-        DefaultLogLevel.setLogLevel( oldLogLevel );        
-        
-        if ( translation.startsWith( "!" ) && translation.endsWith( "!" ) ) {
-          translation = BaseMessages.getString( classFromResourcesPackage, string, resourceClass );        
+        DefaultLogLevel.setLogLevel(oldLogLevel);
+
+        if (translation.startsWith("!") && translation.endsWith("!")) {
+          translation = BaseMessages.getString(classFromResourcesPackage, string, resourceClass);
         }
 
-        if ( translation.startsWith( "!" ) && translation.endsWith( "!" ) ) {
+        if (translation.startsWith("!") && translation.endsWith("!")) {
           translation = string;
         }
       } else {
-          // Translations are not supported, simply keep the original text.
-          //
-          translation = string;
+        // Translations are not supported, simply keep the original text.
+        //
+        translation = string;
       }
-      
+
       return translation;
     }
   }
@@ -299,7 +290,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
     try {
       // Get all the jar files with annotation index files...
-      //      
+      //
       for (File jarFile : cache.getPluginJars()) {
 
         // These are the jar files : find annotations in it...
@@ -333,62 +324,88 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   /**
-   * This method allows for custom registration of plugins that are on the main classpath. This was originally created
-   * so that test environments could register test plugins programmatically.
+   * This method allows for custom registration of plugins that are on the main classpath. This was
+   * originally created so that test environments could register test plugins programmatically.
    *
    * @param clazz the plugin implementation to register
-   * @param cat   the category of the plugin
-   * @param id    the id for the plugin
-   * @param name  the name for the plugin
-   * @param desc  the description for the plugin
+   * @param cat the category of the plugin
+   * @param id the id for the plugin
+   * @param name the name for the plugin
+   * @param desc the description for the plugin
    * @param image the image for the plugin
    * @throws HopPluginException
    */
-  public void registerCustom( Class<?> clazz, String cat, String id, String name, String desc, String image ) throws HopPluginException {
+  public void registerCustom(
+      Class<?> clazz, String cat, String id, String name, String desc, String image)
+      throws HopPluginException {
     Class<? extends IPluginType> pluginType = getClass();
     Map<Class<?>, String> classMap = new HashMap<>();
-    PluginMainClassType mainClassTypesAnnotation = pluginType.getAnnotation( PluginMainClassType.class );
-    classMap.put( mainClassTypesAnnotation.value(), clazz.getName() );
-    IPlugin plugin = new Plugin( new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
-        false, classMap, new ArrayList<>(), null, null, null, false, null, null, null );
-    registry.registerPlugin( pluginType, plugin );
+    PluginMainClassType mainClassTypesAnnotation =
+        pluginType.getAnnotation(PluginMainClassType.class);
+    classMap.put(mainClassTypesAnnotation.value(), clazz.getName());
+    IPlugin plugin =
+        new Plugin(
+            new String[] {id},
+            pluginType,
+            mainClassTypesAnnotation.value(),
+            cat,
+            name,
+            desc,
+            image,
+            false,
+            false,
+            classMap,
+            new ArrayList<>(),
+            null,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null);
+    registry.registerPlugin(pluginType, plugin);
   }
-
 
   /**
    * Loop over the extra library folders and find all the jar files in all sub-folders
+   *
    * @return the list of jar files in all the extra library folders
    */
-  private List<String> addExtraJarFiles( ) {
+  private List<String> addExtraJarFiles() {
     List<String> files = new ArrayList<>();
     for (String extraLibraryFolder : extraLibraryFolders) {
       File folder = new File(extraLibraryFolder);
       if (folder.exists()) {
-        Collection<File> jarFiles = FileUtils.listFiles( folder, new String[] { "jar", "JAR", }, true );
-        jarFiles.stream().forEach( file->files.add(file.getPath()) );
+        Collection<File> jarFiles =
+            FileUtils.listFiles(
+                folder,
+                new String[] {
+                  "jar", "JAR",
+                },
+                true);
+        jarFiles.stream().forEach(file -> files.add(file.getPath()));
       }
     }
     return files;
   }
-
 
   /**
    * @param input
    * @param localizedMap
    * @return
    */
-  protected String getAlternativeTranslation( String input, Map<String, String> localizedMap ) {
+  protected String getAlternativeTranslation(String input, Map<String, String> localizedMap) {
 
-    if ( Utils.isEmpty( input ) ) {
+    if (Utils.isEmpty(input)) {
       return null;
     }
 
-    if ( input.startsWith( "i18n" ) ) {
-      return getCodedTranslation( input );
+    if (input.startsWith("i18n")) {
+      return getCodedTranslation(input);
     } else {
-      for ( final Locale locale : GlobalMessageUtil.getActiveLocales() ) {
-        String alt = localizedMap.get( locale.toString().toLowerCase() );
-        if ( !Utils.isEmpty( alt ) ) {
+      for (final Locale locale : GlobalMessageUtil.getActiveLocales()) {
+        String alt = localizedMap.get(locale.toString().toLowerCase());
+        if (!Utils.isEmpty(alt)) {
           return alt;
         }
       }
@@ -400,27 +417,28 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   /**
-   * Create a new URL class loader with the jar file specified. Also include all the jar files in the lib folder next to
-   * that file.
+   * Create a new URL class loader with the jar file specified. Also include all the jar files in
+   * the lib folder next to that file.
    *
-   * @param jarFileUrl  The jar file to include
+   * @param jarFileUrl The jar file to include
    * @param classLoader the parent class loader to use
    * @return The URL class loader
    */
-  protected URLClassLoader createUrlClassLoader( URL jarFileUrl, ClassLoader classLoader ) {
+  protected URLClassLoader createUrlClassLoader(URL jarFileUrl, ClassLoader classLoader) {
     List<URL> urls = new ArrayList<>();
 
     // Also append all the files in the underlying lib folder if it exists...
     //
     try {
       JarCache jarCache = JarCache.getInstance();
-      
-      String parentFolderName = new File( URLDecoder.decode( jarFileUrl.getFile(), "UTF-8" ) ).getParent();
+
+      String parentFolderName =
+          new File(URLDecoder.decode(jarFileUrl.getFile(), "UTF-8")).getParent();
 
       File libFolder = new File(parentFolderName + Const.FILE_SEPARATOR + "lib");
-      if ( libFolder.exists() ) {        
-        for ( File libFile : jarCache.findJarFiles(libFolder) ) {
-          urls.add( libFile.toURI().toURL() );
+      if (libFolder.exists()) {
+        for (File libFile : jarCache.findJarFiles(libFolder)) {
+          urls.add(libFile.toURI().toURL());
         }
       }
 
@@ -428,113 +446,115 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       // The file is called dependencies.xml
       //
       String dependenciesFileName = parentFolderName + Const.FILE_SEPARATOR + "dependencies.xml";
-      File dependenciesFile = new File( dependenciesFileName );
-      if ( dependenciesFile.exists() ) {
+      File dependenciesFile = new File(dependenciesFileName);
+      if (dependenciesFile.exists()) {
         // Add the files in the dependencies folders to the classpath...
         //
-        Document document = XmlHandler.loadXmlFile( dependenciesFile );
-        Node dependenciesNode = XmlHandler.getSubNode( document, "dependencies" );
-        List<Node> folderNodes = XmlHandler.getNodes( dependenciesNode, "folder" );
-        for ( Node folderNode : folderNodes ) {
-          String relativeFolderName = XmlHandler.getNodeValue( folderNode );
-          String dependenciesFolderName = parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
-          File dependenciesFolder = new File( dependenciesFolderName );
-          if ( dependenciesFolder.exists() ) {
+        Document document = XmlHandler.loadXmlFile(dependenciesFile);
+        Node dependenciesNode = XmlHandler.getSubNode(document, "dependencies");
+        List<Node> folderNodes = XmlHandler.getNodes(dependenciesNode, "folder");
+        for (Node folderNode : folderNodes) {
+          String relativeFolderName = XmlHandler.getNodeValue(folderNode);
+          String dependenciesFolderName =
+              parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
+          File dependenciesFolder = new File(dependenciesFolderName);
+          if (dependenciesFolder.exists()) {
             // Now get the jar files in this dependency folder
             // This includes the possible lib/ folder dependencies in there
-            //            
-            for ( File libFile : jarCache.findJarFiles(dependenciesFolder) ) {
-              urls.add( libFile.toURI().toURL() );
+            //
+            for (File libFile : jarCache.findJarFiles(dependenciesFolder)) {
+              urls.add(libFile.toURI().toURL());
             }
           }
         }
       }
-    } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Unexpected error searching for plugin jar files in lib/ folder and dependencies for jar file '"
-        + jarFileUrl + "'", e );
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Unexpected error searching for plugin jar files in lib/ folder and dependencies for jar file '"
+              + jarFileUrl
+              + "'",
+          e);
     }
 
+    urls.add(jarFileUrl);
 
-    urls.add( jarFileUrl );
-
-    return new HopURLClassLoader( urls.toArray( new URL[ urls.size() ] ), classLoader );
+    return new HopURLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
   }
 
-  protected String extractCategory( T annotation ) {
+  protected String extractCategory(T annotation) {
     return null;
   }
 
-  protected abstract String extractID( T annotation );
+  protected abstract String extractID(T annotation);
 
-  protected abstract String extractName( T annotation );
+  protected abstract String extractName(T annotation);
 
-  protected abstract String extractDesc( T annotation );
+  protected abstract String extractDesc(T annotation);
 
   /**
    * Extract extra classes information from a plugin annotation.
    *
    * @param annotation
    */
-  protected String extractClassLoaderGroup( T annotation ) {
+  protected String extractClassLoaderGroup(T annotation) {
     return null;
   }
 
-  protected String extractImageFile( T annotation ) {
+  protected String extractImageFile(T annotation) {
     return null;
   }
 
-  protected boolean extractSeparateClassLoader( T annotation ) {
+  protected boolean extractSeparateClassLoader(T annotation) {
     return false;
   }
 
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, T annotation ) {
-  }
+  protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {}
 
-  protected String extractDocumentationUrl( T annotation ) {
+  protected String extractDocumentationUrl(T annotation) {
     return null;
   }
 
-  protected String extractCasesUrl( T annotation ) {
+  protected String extractCasesUrl(T annotation) {
     return null;
   }
 
-  protected String extractForumUrl( T annotation ) {
+  protected String extractForumUrl(T annotation) {
     return null;
   }
 
-  protected String extractSuggestion( T annotation ) {
+  protected String extractSuggestion(T annotation) {
     return null;
   }
 
-  protected String[] extractKeywords( T annotation ) {
+  protected String[] extractKeywords(T annotation) {
     return new String[] {};
   }
 
   protected void registerPluginJars() throws HopPluginException {
-                
-    List<PluginClassFile> pluginClassFiles = findAnnotatedClassFiles(pluginClass.getName());
-    for ( PluginClassFile pluginClassFile : pluginClassFiles ) {
 
-      URLClassLoader urlClassLoader = createUrlClassLoader( pluginClassFile.getJarFile(), getClass().getClassLoader() );
+    List<PluginClassFile> pluginClassFiles = findAnnotatedClassFiles(pluginClass.getName());
+    for (PluginClassFile pluginClassFile : pluginClassFiles) {
+
+      URLClassLoader urlClassLoader =
+          createUrlClassLoader(pluginClassFile.getJarFile(), getClass().getClassLoader());
 
       try {
-        Class<?> clazz = urlClassLoader.loadClass( pluginClassFile.getClassName() );
-        if ( clazz == null ) {
-          throw new HopPluginException( "Unable to load class: " + pluginClassFile.getClassName() );
+        Class<?> clazz = urlClassLoader.loadClass(pluginClassFile.getClassName());
+        if (clazz == null) {
+          throw new HopPluginException("Unable to load class: " + pluginClassFile.getClassName());
         }
-        List<String> libraries = Arrays.stream( urlClassLoader.getURLs() )
-          .map( URL::getFile )
-          .collect( Collectors.toList() );
-        T annotation = clazz.getAnnotation( pluginClass );
-        
-        handlePluginAnnotation( clazz, annotation, libraries, false, pluginClassFile.getFolder() );
-      } catch ( Exception e ) {
+        List<String> libraries =
+            Arrays.stream(urlClassLoader.getURLs()).map(URL::getFile).collect(Collectors.toList());
+        T annotation = clazz.getAnnotation(pluginClass);
+
+        handlePluginAnnotation(clazz, annotation, libraries, false, pluginClassFile.getFolder());
+      } catch (Exception e) {
         // Ignore for now, don't know if it's even possible.
         LogChannel.GENERAL.logError(
-          "Unexpected error registering jar plugin file: " + pluginClassFile.getJarFile(), e );
+            "Unexpected error registering jar plugin file: " + pluginClassFile.getJarFile(), e);
       } finally {
-        if ( urlClassLoader instanceof HopURLClassLoader ) {
-          ( (HopURLClassLoader) urlClassLoader ).closeClassLoader();
+        if (urlClassLoader instanceof HopURLClassLoader) {
+          ((HopURLClassLoader) urlClassLoader).closeClassLoader();
         }
       }
     }
@@ -543,59 +563,65 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   /**
    * Handle an annotated plugin
    *
-   * @param clazz            The class to use
-   * @param annotation       The annotation to get information from
-   * @param libraries        The libraries to add
+   * @param clazz The class to use
+   * @param annotation The annotation to get information from
+   * @param libraries The libraries to add
    * @param nativePluginType Is this a native plugin?
-   * @param pluginFolder     The plugin folder to use
+   * @param pluginFolder The plugin folder to use
    * @throws HopPluginException
    */
-  //@Override
-  public void handlePluginAnnotation( Class<?> clazz, T annotation, List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
+  // @Override
+  public void handlePluginAnnotation(
+      Class<?> clazz,
+      T annotation,
+      List<String> libraries,
+      boolean nativePluginType,
+      URL pluginFolder)
+      throws HopPluginException {
 
-    String idList = extractID( annotation );
-    if ( Utils.isEmpty( idList ) ) {
+    String idList = extractID(annotation);
+    if (Utils.isEmpty(idList)) {
       // We take the class name as ID...
       //
       idList = clazz.getName();
     }
 
     // Only one ID for now
-    String[] ids = idList.split( "," );
-    String packageName = clazz.getPackage().getName();    
-    String pluginName = getTranslation( extractName( annotation ), packageName, clazz );
-    String description = getTranslation( extractDesc( annotation ), packageName, clazz );
-    String category = getTranslation( extractCategory( annotation ), packageName, clazz );
-    String imageFile = extractImageFile( annotation );
-    boolean separateClassLoader = extractSeparateClassLoader( annotation );
-    String documentationUrl = extractDocumentationUrl( annotation );
-    String casesUrl = extractCasesUrl( annotation );
-    String forumUrl = extractForumUrl( annotation );
-    String suggestion = getTranslation( extractSuggestion( annotation ), packageName, clazz );
-    String classLoaderGroup = extractClassLoaderGroup( annotation );
-    String[] keywords = getTranslations(extractKeywords( annotation ), packageName, clazz);
+    String[] ids = idList.split(",");
+    String packageName = clazz.getPackage().getName();
+    String pluginName = getTranslation(extractName(annotation), packageName, clazz);
+    String description = getTranslation(extractDesc(annotation), packageName, clazz);
+    String category = getTranslation(extractCategory(annotation), packageName, clazz);
+    String imageFile = extractImageFile(annotation);
+    boolean separateClassLoader = extractSeparateClassLoader(annotation);
+    String documentationUrl = extractDocumentationUrl(annotation);
+    String casesUrl = extractCasesUrl(annotation);
+    String forumUrl = extractForumUrl(annotation);
+    String suggestion = getTranslation(extractSuggestion(annotation), packageName, clazz);
+    String classLoaderGroup = extractClassLoaderGroup(annotation);
+    String[] keywords = getTranslations(extractKeywords(annotation), packageName, clazz);
 
     Map<Class<?>, String> classMap = new HashMap<>();
 
-    PluginMainClassType mainType = getClass().getAnnotation( PluginMainClassType.class );
+    PluginMainClassType mainType = getClass().getAnnotation(PluginMainClassType.class);
     Class<?> mainClass;
-    if ( mainType != null ) {
+    if (mainType != null) {
       mainClass = mainType.value();
     } else {
       mainClass = clazz;
     }
-    classMap.put( mainClass, clazz.getName() );
-    addExtraClasses( classMap, clazz, annotation );
+    classMap.put(mainClass, clazz.getName());
+    addExtraClasses(classMap, clazz, annotation);
 
-    
     // Check if plugin main class is deprecated by annotation
     //
     Deprecated deprecated = clazz.getDeclaredAnnotation(Deprecated.class);
-    if ( deprecated!=null ) {
-      String str = BaseMessages.getString( classFromResourcesPackage, "System.Deprecated" ).toLowerCase();
+    if (deprecated != null) {
+      String str =
+          BaseMessages.getString(classFromResourcesPackage, "System.Deprecated").toLowerCase();
       pluginName += " (" + str + ")";
     }
-        
+
     // Add all the jar files in the extra library folders
     //
     List<String> extraJarFiles = addExtraJarFiles();
@@ -604,19 +630,42 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     // If there are extra classes somewhere else, don't use a plugin folder
     //
     boolean usingLibrariesOutsidePluginFolder = !extraJarFiles.isEmpty();
-    IPlugin plugin = new Plugin( ids, this.getClass(), mainClass, category, pluginName, description, imageFile, separateClassLoader,
-        classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, usingLibrariesOutsidePluginFolder, documentationUrl,
-        casesUrl, forumUrl, suggestion );
+    IPlugin plugin =
+        new Plugin(
+            ids,
+            this.getClass(),
+            mainClass,
+            category,
+            pluginName,
+            description,
+            imageFile,
+            separateClassLoader,
+            classLoaderGroup,
+            nativePluginType,
+            classMap,
+            libraries,
+            null,
+            keywords,
+            pluginFolder,
+            usingLibrariesOutsidePluginFolder,
+            documentationUrl,
+            casesUrl,
+            forumUrl,
+            suggestion);
 
-    ParentFirst parentFirstAnnotation = clazz.getAnnotation( ParentFirst.class );
-    if ( parentFirstAnnotation != null ) {
-      registry.addParentClassLoaderPatterns( plugin, parentFirstAnnotation.patterns() );
+    ParentFirst parentFirstAnnotation = clazz.getAnnotation(ParentFirst.class);
+    if (parentFirstAnnotation != null) {
+      registry.addParentClassLoaderPatterns(plugin, parentFirstAnnotation.patterns());
     }
-    registry.registerPlugin( this.getClass(), plugin );
+    registry.registerPlugin(this.getClass(), plugin);
 
-    if ( libraries != null && !libraries.isEmpty() ) {
-      LogChannel.GENERAL.logDetailed( "Plugin with id ["
-        + ids[ 0 ] + "] has " + libraries.size() + " libaries in its private class path" );
+    if (libraries != null && !libraries.isEmpty()) {
+      LogChannel.GENERAL.logDetailed(
+          "Plugin with id ["
+              + ids[0]
+              + "] has "
+              + libraries.size()
+              + " libaries in its private class path");
     }
   }
 
@@ -629,20 +678,19 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return extraLibraryFolders;
   }
 
-  /**
-   * @param extraLibraryFolders The extraLibraryFolders to set
-   */
-  public void setExtraLibraryFolders( List<String> extraLibraryFolders ) {
+  /** @param extraLibraryFolders The extraLibraryFolders to set */
+  public void setExtraLibraryFolders(List<String> extraLibraryFolders) {
     this.extraLibraryFolders = extraLibraryFolders;
   }
 
   /**
    * Register an extra plugin from the classpath. Useful for testing.
+   *
    * @param clazz The class with the annotation to register to the plugin registry.
    * @throws HopPluginException in case something goes wrong with the class or the annotation
    */
   public void registerClassPathPlugin(Class<?> clazz) throws HopPluginException {
-    T annotation = clazz.getAnnotation( pluginClass );
-    handlePluginAnnotation( clazz, annotation, new ArrayList<>(), true, null );
+    T annotation = clazz.getAnnotation(pluginClass);
+    handlePluginAnnotation(clazz, annotation, new ArrayList<>(), true, null);
   }
 }

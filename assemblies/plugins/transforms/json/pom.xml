@@ -20,75 +20,75 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-transforms</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-transforms</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+
+    <artifactId>hop-assemblies-plugins-transforms-json</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
 
+    <name>Hop Assemblies Plugins Transforms JSON</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-transforms-json</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <properties>
+        <commons-codec.version>1.9</commons-codec.version>
+        <encoder.version>1.2</encoder.version>
+        <guava.version>27.0-jre</guava.version>
+        <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+        <mockito-all.version>1.9.5</mockito-all.version>
+        <poi.version>3.17</poi.version>
+        <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
+        <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
+        <json-smart.version>2.2</json-smart.version>
+        <json-path.version>2.1.0</json-path.version>
+        <jackson-core.version>${jackson-databind.version}</jackson-core.version>
+        <jackson-databind.version>2.10.2</jackson-databind.version>
+        <json-simple.version>1.1.1</json-simple.version>
+        <jsch.version>0.1.54</jsch.version>
+    </properties>
 
-  <name>Hop Assemblies Plugins Transforms JSON</name>
-  <description></description>
-
-  <properties>
-    <commons-codec.version>1.9</commons-codec.version>
-    <encoder.version>1.2</encoder.version>
-    <guava.version>27.0-jre</guava.version>
-    <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-    <mockito-all.version>1.9.5</mockito-all.version>
-    <poi.version>3.17</poi.version>
-    <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
-    <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
-    <json-smart.version>2.2</json-smart.version>
-    <json-path.version>2.1.0</json-path.version>
-    <jackson-core.version>${jackson-databind.version}</jackson-core.version>
-    <jackson-databind.version>2.10.2</jackson-databind.version>
-    <json-simple.version>1.1.1</json-simple.version>
-    <jsch.version>0.1.54</jsch.version>
-  </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-transforms-json</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>${json-simple.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson-databind.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>${jackson-core.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>${poi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>${json-path.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.minidev</groupId>
-      <artifactId>json-smart</artifactId>
-      <version>${json-smart.version}</version>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transforms-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json-simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${json-path.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>${json-smart.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

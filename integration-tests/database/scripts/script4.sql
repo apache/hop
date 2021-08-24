@@ -19,14 +19,15 @@ DROP TABLE IF EXISTS public.dimension;
 
 CREATE TABLE public.dimension
 (
-  dimension_id BIGSERIAL
-, version INTEGER
-, date_from TIMESTAMP
-, date_to TIMESTAMP
-, "key" TEXT
-, "value" TEXT
+    dimension_id BIGSERIAL,
+    version      INTEGER,
+    date_from    TIMESTAMP,
+    date_to      TIMESTAMP,
+    "key"        TEXT,
+    "value"      TEXT
 )
-;CREATE INDEX idx_dimension_lookup ON "public".dimension("key")
 ;
-CREATE INDEX idx_dimension_tk ON "public".dimension(dimension_id)
+CREATE INDEX idx_dimension_lookup ON "public".dimension ("key")
+;
+CREATE INDEX idx_dimension_tk ON "public".dimension (dimension_id)
 ;

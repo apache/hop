@@ -18,50 +18,50 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hop.fullname" . }}
+  name: { { include "hop.fullname" . } }
   labels:
-    {{- include "hop.labels" . | nindent 4 }}
+    { { - include "hop.labels" . | nindent 4 } }
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  { { - if not .Values.autoscaling.enabled } }
+  replicas: { { .Values.replicaCount } }
+  { { - end } }
   selector:
     matchLabels:
-      {{- include "hop.selectorLabels" . | nindent 6 }}
+      { { - include "hop.selectorLabels" . | nindent 6 } }
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      { { - with .Values.podAnnotations } }
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        { { - toYaml . | nindent 8 } }
+      { { - end } }
       labels:
-        {{- include "hop.selectorLabels" . | nindent 8 }}
+        { { - include "hop.selectorLabels" . | nindent 8 } }
     spec:
-      {{- with .Values.imagePullSecrets }}
+      { { - with .Values.imagePullSecrets } }
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        { { - toYaml . | nindent 8 } }
+      { { - end } }
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        { { - toYaml .Values.podSecurityContext | nindent 8 } }
       containers:
-        - name: {{ .Chart.Name }}
+        - name: { { .Chart.Name } }
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            { { - toYaml .Values.securityContext | nindent 12 } }
           image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: { { .Values.image.pullPolicy } }
           env:
-          - name: HOP_SERVER_USER
-            valueFrom:
-              configMapKeyRef:
-                name: {{ include "hop.fullname" . }}
-                key: user
-          - name: HOP_SERVER_PASS
-            valueFrom:
-              secretKeyRef:
-                name: {{ include "hop.fullname" . }}
-                key: pass
-          - name: HOP_SERVER_PORT
-            valueFrom:
-              configMapKeyRef:
-                name: {{ include "hop.fullname" . }}
-                key: port
+            - name: HOP_SERVER_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: { { include "hop.fullname" . } }
+                  key: user
+            - name: HOP_SERVER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: { { include "hop.fullname" . } }
+                  key: pass
+            - name: HOP_SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: { { include "hop.fullname" . } }
+                  key: port

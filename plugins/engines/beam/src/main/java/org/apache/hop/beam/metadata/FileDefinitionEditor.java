@@ -16,8 +16,6 @@
  */
 package org.apache.hop.beam.metadata;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
@@ -31,11 +29,9 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.util.List;
 
 public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 
@@ -49,7 +45,8 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
   private Text wEnclosure;
   private TableView wFields;
 
-  public FileDefinitionEditor(HopGui hopGui, MetadataManager<FileDefinition> manager, FileDefinition metadata) {
+  public FileDefinitionEditor(
+      HopGui hopGui, MetadataManager<FileDefinition> manager, FileDefinition metadata) {
     super(hopGui, manager, metadata);
   }
 

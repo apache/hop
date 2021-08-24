@@ -19,18 +19,22 @@ under the License.
 
 == Introduction
 
-Hop is already being used in many countries across the world where different languages are spoken.  As such "internationalisation" represents the support for multiple languages in our software.  Since it is such a long word it is typically abbreviated to i18n.
+Hop is already being used in many countries across the world where different languages are spoken.
+As such "internationalisation" represents the support for multiple languages in our software.
+Since it is such a long word it is typically abbreviated to i18n.
 
 == Translating changes source code
 
-The message bundles that contains the translations for the various parts of Hop are part of the source code.  If you want to start any i18n efforts we recommend that you set up your development environment first as described here:
+The message bundles that contains the translations for the various parts of Hop are part of the source code.
+If you want to start any i18n efforts we recommend that you set up your development environment first as described here:
 
 xref:setup-dev-environment.adoc[Setting up your development environment]
 
 == How is it configured?
 
 In the Hop configuration file ```hop-config.json``` there is an entry called ```LocaleDefault``` which points to the locale string that you want to use.
-Such a locale string is always in the format: language code, underscore and country.  For example, the default is en_US for English in the US.
+Such a locale string is always in the format: language code, underscore and country.
+For example, the default is en_US for English in the US.
 
 You can change the locale you want to use in the configuration file or in the Hop GUI under the Tools / options menu.
 
@@ -38,8 +42,7 @@ You can change the locale you want to use in the configuration file or in the Ho
 
 === In Java code
 
-Suppose we're working on a class in file ```src/main/java/org/apache/hop/p1/Foo.java```
-What we want to do is have an easy way to get our hands on a translated String.
+Suppose we're working on a class in file ```src/main/java/org/apache/hop/p1/Foo.java``` What we want to do is have an easy way to get our hands on a translated String.
 The easiest way to do this is with the standard BaseMessages class.
 For example, you can see the following pop up all over the place in the Apache Hop source code:
 
@@ -79,7 +82,9 @@ Foo.MyMessage = My own personal message
 
 === In annotations
 
-Many plugin and GUI annotations support i18n as well. Unfortunately it is not possible to use the method explained above to resolve keys into strings.  Because of this we use the following format:
+Many plugin and GUI annotations support i18n as well.
+Unfortunately it is not possible to use the method explained above to resolve keys into strings.
+Because of this we use the following format:
 
 [source]
 ----
@@ -119,7 +124,8 @@ HopGui.Menu.File=&File
 
 If you think that it's quite a bit of a pain to figure out the keys, locations, locale and so on: we agree!
 To make i18n easy and translating fun we created a tool called Hop Translator.
-Translator allows you to provide strings for the keys that you use in your source code.  It will create the message bundles in the right location, in the right format (in UTF-8) and with the right Apache license header.
+Translator allows you to provide strings for the keys that you use in your source code.
+It will create the message bundles in the right location, in the right format (in UTF-8) and with the right Apache license header.
 
 To run translator simply build the code and then:
 
@@ -141,9 +147,11 @@ Translator uses a simple Java code scanner to look for patterns like
 * BaseMessages.getString
 * "i18:
 
-So please give Translator a chance to pick up the i18n keys as well as the package in which they're being used.  If you think that it would be "better" to use things like clever prefixes and so on please remember that all you're doing is making sure your keys can't be found by Translator and as such are hard to translate.
+So please give Translator a chance to pick up the i18n keys as well as the package in which they're being used.
+If you think that it would be "better" to use things like clever prefixes and so on please remember that all you're doing is making sure your keys can't be found by Translator and as such are hard to translate.
 
-As much as possible, define the PKG variable to the same class as the one you're working in.  This will prevent message bundles from becoming too large and perhaps difficult to merge later on.
+As much as possible, define the PKG variable to the same class as the one you're working in.
+This will prevent message bundles from becoming too large and perhaps difficult to merge later on.
 
 == Using Translator
 
@@ -165,7 +173,7 @@ The default locale ```en_US``` will be selected by default.
 
 As an example, here is how we can translate the Hop GUI menu to Dutch:
 
-* Select the hopgui package:  ```org.apache.hop.ui.hopgui````
+* Select the hopgui package: ```org.apache.hop.ui.hopgui````
 * Select locale ```nl_NL``` at the very top left
 * Select any of the missing ```HopGui.Menu...``` keys
 
@@ -178,13 +186,15 @@ Finally, when we're done with all keys and packages we can use the "Save" button
 
 image::hop-translator-save-files-dialog.png[Hop Translator: the save files dialog]
 
-Once the files are saved you re-build Hop and test them by using the translated keys.  Finally, don't forget to commit and push changes as described here:  xref:setup-dev-environment.adoc[Setting up your development environment]
+Once the files are saved you re-build Hop and test them by using the translated keys.
+Finally, don't forget to commit and push changes as described here:  xref:setup-dev-environment.adoc[Setting up your development environment]
 
 Please reference a JIRA case and see if there aren't any already for the locale you're covering.
 
 === Highlighting codes
 
-As you can see in the screenshot above many packages for nl_NL are highlighted.  That is because there are a lot of non-translated keys in those packages:
+As you can see in the screenshot above many packages for nl_NL are highlighted.
+That is because there are a lot of non-translated keys in those packages:
 
 * light red: the message bundle is missing
 * the darkest gray: over 50 keys are not translated

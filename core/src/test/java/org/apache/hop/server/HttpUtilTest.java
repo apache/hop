@@ -37,8 +37,9 @@ public class HttpUtilTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   public static final String DEFAULT_ENCODING = "UTF-8";
-  public static final String STANDART = "(\u256e\u00b0-\u00b0)\u256e\u2533\u2501\u2501\u2533\u30c6\u30fc\u30d6"
-    + "\u30eb(\u256f\u00b0\u25a1\u00b0)\u256f\u253b\u2501\u2501\u253b\u30aa\u30d5";
+  public static final String STANDART =
+      "(\u256e\u00b0-\u00b0)\u256e\u2533\u2501\u2501\u2533\u30c6\u30fc\u30d6"
+          + "\u30eb(\u256f\u00b0\u25a1\u00b0)\u256f\u253b\u2501\u2501\u253b\u30aa\u30d5";
 
   /**
    * Test that we can decode/encode Strings without loss of data.
@@ -48,11 +49,11 @@ public class HttpUtilTest {
    */
   @Test
   public final void testDecodeBase64ZippedString() throws IOException, NoSuchAlgorithmException {
-    String enc64 = this.canonicalBase64Encode( STANDART );
+    String enc64 = this.canonicalBase64Encode(STANDART);
     // decode string
-    String decoded = HttpUtil.decodeBase64ZippedString( enc64 );
+    String decoded = HttpUtil.decodeBase64ZippedString(enc64);
 
-    Assert.assertEquals( "Strings are the same after pipeline", STANDART, decoded );
+    Assert.assertEquals("Strings are the same after pipeline", STANDART, decoded);
   }
 
   @Test
@@ -60,14 +61,20 @@ public class HttpUtilTest {
     Variables variables = new Variables();
     String expected = "hostname:1234/webAppName?param=value";
 
-    Assert.assertEquals( "http://" + expected,
-      HttpUtil.constructUrl( variables, "hostname", String.valueOf( 1234 ), "webAppName", "?param=value" ) );
+    Assert.assertEquals(
+        "http://" + expected,
+        HttpUtil.constructUrl(
+            variables, "hostname", String.valueOf(1234), "webAppName", "?param=value"));
 
-    Assert.assertEquals( "http://" + expected,
-      HttpUtil.constructUrl( variables, "hostname", String.valueOf( 1234 ), "webAppName", "?param=value", false ) );
+    Assert.assertEquals(
+        "http://" + expected,
+        HttpUtil.constructUrl(
+            variables, "hostname", String.valueOf(1234), "webAppName", "?param=value", false));
 
-    Assert.assertEquals( "https://" + expected,
-      HttpUtil.constructUrl( variables, "hostname", String.valueOf( 1234 ), "webAppName", "?param=value", true ) );
+    Assert.assertEquals(
+        "https://" + expected,
+        HttpUtil.constructUrl(
+            variables, "hostname", String.valueOf(1234), "webAppName", "?param=value", true));
   }
 
   /**
@@ -77,10 +84,10 @@ public class HttpUtilTest {
    */
   @Test
   public void testEncodeBase64ZippedString() throws IOException {
-    String enc64 = HttpUtil.encodeBase64ZippedString( STANDART );
-    String decoded = HttpUtil.decodeBase64ZippedString( enc64 );
+    String enc64 = HttpUtil.encodeBase64ZippedString(STANDART);
+    String decoded = HttpUtil.decodeBase64ZippedString(enc64);
 
-    Assert.assertEquals( "Strings are the same after pipeline", STANDART, decoded );
+    Assert.assertEquals("Strings are the same after pipeline", STANDART, decoded);
   }
 
   /**
@@ -91,19 +98,19 @@ public class HttpUtilTest {
    * @return
    * @throws IOException
    */
-  private String canonicalBase64Encode( String in ) throws IOException {
-    Charset charset = Charset.forName( DEFAULT_ENCODING );
+  private String canonicalBase64Encode(String in) throws IOException {
+    Charset charset = Charset.forName(DEFAULT_ENCODING);
     CharsetEncoder encoder = charset.newEncoder();
     encoder.reset();
-    ByteBuffer baosbf = encoder.encode( CharBuffer.wrap( in ) );
-    byte[] bytes = new byte[ baosbf.limit() ];
-    baosbf.get( bytes );
+    ByteBuffer baosbf = encoder.encode(CharBuffer.wrap(in));
+    byte[] bytes = new byte[baosbf.limit()];
+    baosbf.get(bytes);
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    GZIPOutputStream gzos = new GZIPOutputStream( baos );
-    gzos.write( bytes );
+    GZIPOutputStream gzos = new GZIPOutputStream(baos);
+    gzos.write(bytes);
     gzos.close();
-    String encoded = new String( Base64.encodeBase64( baos.toByteArray() ) );
+    String encoded = new String(Base64.encodeBase64(baos.toByteArray()));
 
     return encoded;
   }

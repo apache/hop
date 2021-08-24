@@ -38,22 +38,33 @@ public class ExecSqlRowMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "sqlFieldName", "updateField", "insertField", "deleteField", "readField", "commitSize", "sqlFromfile", "sendOneStatement", "databaseMeta" );
+        Arrays.asList(
+            "sqlFieldName",
+            "updateField",
+            "insertField",
+            "deleteField",
+            "readField",
+            "commitSize",
+            "sqlFromfile",
+            "sendOneStatement",
+            "databaseMeta");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "sendOneStatement", "IsSendOneStatement" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "sendOneStatement", "SetSendOneStatement" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("sendOneStatement", "IsSendOneStatement");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("sendOneStatement", "SetSendOneStatement");
+          }
+        };
 
-    loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap );
+    loadSaveTester = new LoadSaveTester(testMetaClass, attributes, getterMap, setterMap);
   }
 
   @Test

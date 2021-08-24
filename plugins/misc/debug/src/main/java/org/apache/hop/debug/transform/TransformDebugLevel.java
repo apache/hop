@@ -33,34 +33,36 @@ public class TransformDebugLevel implements Cloneable {
     endRow = -1;
   }
 
-  public TransformDebugLevel( LogLevel logLevel ) {
+  public TransformDebugLevel(LogLevel logLevel) {
     this();
     this.logLevel = logLevel;
   }
 
-  public TransformDebugLevel( LogLevel logLevel, int startRow, int endRow, Condition condition ) {
-    this( logLevel );
+  public TransformDebugLevel(LogLevel logLevel, int startRow, int endRow, Condition condition) {
+    this(logLevel);
     this.startRow = startRow;
     this.endRow = endRow;
     this.condition = condition;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     String s = logLevel.toString();
-    if ( startRow >= 0 ) {
+    if (startRow >= 0) {
       s += ", start row=" + startRow;
     }
-    if ( endRow >= 0 ) {
+    if (endRow >= 0) {
       s += ", end row=" + endRow;
     }
-    if ( condition != null && !condition.isEmpty() ) {
+    if (condition != null && !condition.isEmpty()) {
       s += ", condition=" + condition.toString();
     }
     return s;
   }
 
-  @Override public TransformDebugLevel clone() {
-    return new TransformDebugLevel( logLevel, startRow, endRow, (Condition) condition.clone() );
+  @Override
+  public TransformDebugLevel clone() {
+    return new TransformDebugLevel(logLevel, startRow, endRow, (Condition) condition.clone());
   }
 
   /**
@@ -72,10 +74,8 @@ public class TransformDebugLevel implements Cloneable {
     return logLevel;
   }
 
-  /**
-   * @param logLevel The logLevel to set
-   */
-  public void setLogLevel( LogLevel logLevel ) {
+  /** @param logLevel The logLevel to set */
+  public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
 
@@ -88,10 +88,8 @@ public class TransformDebugLevel implements Cloneable {
     return startRow;
   }
 
-  /**
-   * @param startRow The startRow to set
-   */
-  public void setStartRow( int startRow ) {
+  /** @param startRow The startRow to set */
+  public void setStartRow(int startRow) {
     this.startRow = startRow;
   }
 
@@ -104,10 +102,8 @@ public class TransformDebugLevel implements Cloneable {
     return endRow;
   }
 
-  /**
-   * @param endRow The endRow to set
-   */
-  public void setEndRow( int endRow ) {
+  /** @param endRow The endRow to set */
+  public void setEndRow(int endRow) {
     this.endRow = endRow;
   }
 
@@ -120,10 +116,8 @@ public class TransformDebugLevel implements Cloneable {
     return condition;
   }
 
-  /**
-   * @param condition The condition to set
-   */
-  public void setCondition( Condition condition ) {
+  /** @param condition The condition to set */
+  public void setCondition(Condition condition) {
     this.condition = condition;
   }
 }

@@ -16,9 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import static org.apache.hop.core.ICheckResult.*;
-
-import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -43,6 +40,10 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
+import java.util.List;
+
+import static org.apache.hop.core.ICheckResult.*;
+
 @Transform(
     id = "LDAPInput",
     name = "i18n::LdapInput.Name",
@@ -50,8 +51,7 @@ import org.w3c.dom.Node;
     image = "ldapinput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"ldap", "input"},
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/ldapinput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
@@ -676,9 +676,7 @@ public class LdapInputMeta extends BaseTransformMeta
         type = IValueMeta.TYPE_STRING;
       }
       try {
-        IValueMeta v =
-            ValueMetaFactory.createValueMeta(
-                variables.resolve(field.getName()), type);
+        IValueMeta v = ValueMetaFactory.createValueMeta(variables.resolve(field.getName()), type);
         v.setLength(field.getLength(), field.getPrecision());
         v.setOrigin(name);
         r.addValueMeta(v);

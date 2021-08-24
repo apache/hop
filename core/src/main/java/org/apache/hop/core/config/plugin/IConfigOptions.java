@@ -23,12 +23,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 
 /**
- * The class implementing this interface has a bunch of Picocli @Option annotations
- * These options have values.
- * Typically this method recognizes the option, takes the arguments it needs and handles the option.
+ * The class implementing this interface has a bunch of Picocli @Option annotations These options
+ * have values. Typically this method recognizes the option, takes the arguments it needs and
+ * handles the option.
  */
 public interface IConfigOptions {
 
-  boolean handleOption( ILogChannel log, IHasHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
-
+  boolean handleOption(
+      ILogChannel log, IHasHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException;
 }

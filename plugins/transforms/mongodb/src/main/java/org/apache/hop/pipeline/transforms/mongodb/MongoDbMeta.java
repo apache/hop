@@ -17,14 +17,11 @@
 package org.apache.hop.pipeline.transforms.mongodb;
 
 import org.apache.hop.core.injection.Injection;
-import org.apache.hop.mongo.NamedReadPreference;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
-
-import java.util.List;
 
 public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransformData>
     extends BaseTransformMeta implements ITransformMeta<Main, Data> {
@@ -45,10 +42,8 @@ public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransfo
     return connectionName;
   }
 
-  /**
-   * @param connectionName The connectionName to set
-   */
-  public void setConnectionName( String connectionName ) {
+  /** @param connectionName The connectionName to set */
+  public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
 
@@ -61,10 +56,8 @@ public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransfo
     return collection;
   }
 
-  /**
-   * @param collection The collection to set
-   */
-  public void setCollection( String collection ) {
+  /** @param collection The collection to set */
+  public void setCollection(String collection) {
     this.collection = collection;
   }
 }

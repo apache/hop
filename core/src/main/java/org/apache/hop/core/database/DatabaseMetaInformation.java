@@ -57,20 +57,19 @@ public class DatabaseMetaInformation {
   public static final String FILTER_CATALOG_LIST = "FILTER_CATALOG_LIST";
   public static final String FILTER_SCHEMA_LIST = "FILTER_SCHEMA_LIST";
 
-  /**
-   * Create a new DatabaseMetaData object for the given database connection
-   */
-  public DatabaseMetaInformation( IVariables variables, DatabaseMeta databaseMeta ) {
+  /** Create a new DatabaseMetaData object for the given database connection */
+  public DatabaseMetaInformation(IVariables variables, DatabaseMeta databaseMeta) {
     this.variables = variables;
     this.databaseMeta = databaseMeta;
   }
 
-  public void getData( ILoggingObject parentLoggingObject, IProgressMonitor monitor ) throws HopDatabaseException {
-    if ( monitor != null ) {
-      monitor.beginTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingInfoFromDb" ), 8 );
+  public void getData(ILoggingObject parentLoggingObject, IProgressMonitor monitor)
+      throws HopDatabaseException {
+    if (monitor != null) {
+      monitor.beginTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfoFromDb"), 8);
     }
 
-    Database db = new Database( parentLoggingObject, variables, databaseMeta );
+    Database db = new Database(parentLoggingObject, variables, databaseMeta);
 
     /*
      * ResultSet tableResultSet = null;
@@ -81,53 +80,54 @@ public class DatabaseMetaInformation {
      */
 
     try {
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.ConnectingDb" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ConnectingDb"));
       }
       db.connect();
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingMetaData" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingMetaData"));
       }
       DatabaseMetaData dbmd = db.getDatabaseMetaData();
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingInfo" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfo"));
       }
       Map<String, String> connectionExtraOptions = databaseMeta.getExtraOptions();
-      if ( databaseMeta.supportsCatalogs() && dbmd.supportsCatalogsInTableDefinitions() ) {
+      if (databaseMeta.supportsCatalogs() && dbmd.supportsCatalogsInTableDefinitions()) {
         ArrayList<Catalog> catalogList = new ArrayList<>();
 
         String catalogFilterKey = databaseMeta.getPluginId() + "." + FILTER_CATALOG_LIST;
-        if ( ( connectionExtraOptions != null ) && connectionExtraOptions.containsKey( catalogFilterKey ) ) {
-          String catsFilterCommaList = connectionExtraOptions.get( catalogFilterKey );
-          String[] catsFilterArray = catsFilterCommaList.split( "," );
-          for ( int i = 0; i < catsFilterArray.length; i++ ) {
-            catalogList.add( new Catalog( catsFilterArray[ i ].trim() ) );
+        if ((connectionExtraOptions != null)
+            && connectionExtraOptions.containsKey(catalogFilterKey)) {
+          String catsFilterCommaList = connectionExtraOptions.get(catalogFilterKey);
+          String[] catsFilterArray = catsFilterCommaList.split(",");
+          for (int i = 0; i < catsFilterArray.length; i++) {
+            catalogList.add(new Catalog(catsFilterArray[i].trim()));
           }
         }
-        if ( catalogList.isEmpty() ) {
+        if (catalogList.isEmpty()) {
           ResultSet catalogResultSet = dbmd.getCatalogs();
 
           // Grab all the catalog names and put them in an array list
           // Then we can close the resultset as soon as possible.
           // This is the safest route to take for a lot of databases
           //
-          while ( catalogResultSet != null && catalogResultSet.next() ) {
-            String catalogName = catalogResultSet.getString( 1 );
-            catalogList.add( new Catalog( catalogName ) );
+          while (catalogResultSet != null && catalogResultSet.next()) {
+            String catalogName = catalogResultSet.getString(1);
+            catalogList.add(new Catalog(catalogName));
           }
 
           // Close the catalogs resultset immediately
@@ -137,16 +137,17 @@ public class DatabaseMetaInformation {
 
         // Now loop over the catalogs...
         //
-        for ( Catalog catalog : catalogList ) {
+        for (Catalog catalog : catalogList) {
           ArrayList<String> catalogTables = new ArrayList<>();
 
           try {
-            ResultSet catalogTablesResultSet = dbmd.getTables( catalog.getCatalogName(), null, null, null );
-            while ( catalogTablesResultSet.next() ) {
-              String tableName = catalogTablesResultSet.getString( 3 );
+            ResultSet catalogTablesResultSet =
+                dbmd.getTables(catalog.getCatalogName(), null, null, null);
+            while (catalogTablesResultSet.next()) {
+              String tableName = catalogTablesResultSet.getString(3);
 
-              if ( !db.isSystemTable( tableName ) ) {
-                catalogTables.add( tableName );
+              if (!db.isSystemTable(tableName)) {
+                catalogTables.add(tableName);
               }
             }
             // Immediately close the catalog tables ResultSet
@@ -154,74 +155,76 @@ public class DatabaseMetaInformation {
             catalogTablesResultSet.close();
 
             // Sort the tables by names
-            Collections.sort( catalogTables );
-          } catch ( Exception e ) {
+            Collections.sort(catalogTables);
+          } catch (Exception e) {
             // Obviously, we're not allowed to snoop around in this catalog.
             // Just ignore it!
           }
 
           // Save the list of tables in the catalog (can be empty)
           //
-          catalog.setItems( catalogTables.toArray( new String[ catalogTables.size() ] ) );
+          catalog.setItems(catalogTables.toArray(new String[catalogTables.size()]));
         }
 
         // Save for later...
-        setCatalogs( catalogList.toArray( new Catalog[ catalogList.size() ] ) );
+        setCatalogs(catalogList.toArray(new Catalog[catalogList.size()]));
       }
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingSchemaInfo" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSchemaInfo"));
       }
-      if ( databaseMeta.supportsSchemas() && dbmd.supportsSchemasInTableDefinitions() ) {
+      if (databaseMeta.supportsSchemas() && dbmd.supportsSchemasInTableDefinitions()) {
         ArrayList<Schema> schemaList = new ArrayList<>();
         try {
           String schemaFilterKey = databaseMeta.getPluginId() + "." + FILTER_SCHEMA_LIST;
-          if ( ( connectionExtraOptions != null ) && connectionExtraOptions.containsKey( schemaFilterKey ) ) {
-            String schemasFilterCommaList = connectionExtraOptions.get( schemaFilterKey );
-            String[] schemasFilterArray = schemasFilterCommaList.split( "," );
-            for ( int i = 0; i < schemasFilterArray.length; i++ ) {
-              schemaList.add( new Schema( schemasFilterArray[ i ].trim() ) );
+          if ((connectionExtraOptions != null)
+              && connectionExtraOptions.containsKey(schemaFilterKey)) {
+            String schemasFilterCommaList = connectionExtraOptions.get(schemaFilterKey);
+            String[] schemasFilterArray = schemasFilterCommaList.split(",");
+            for (int i = 0; i < schemasFilterArray.length; i++) {
+              schemaList.add(new Schema(schemasFilterArray[i].trim()));
             }
           }
-          if ( schemaList.isEmpty() ) {
+          if (schemaList.isEmpty()) {
             // Support schemas for MS SQL server
             //
             String sql = databaseMeta.getSqlListOfSchemas();
-            if ( !Utils.isEmpty( sql ) ) {
+            if (!Utils.isEmpty(sql)) {
               Statement schemaStatement = db.getConnection().createStatement();
-              ResultSet schemaResultSet = schemaStatement.executeQuery( sql );
-              while ( schemaResultSet != null && schemaResultSet.next() ) {
-                String schemaName = schemaResultSet.getString( "name" );
-                schemaList.add( new Schema( schemaName ) );
+              ResultSet schemaResultSet = schemaStatement.executeQuery(sql);
+              while (schemaResultSet != null && schemaResultSet.next()) {
+                String schemaName = schemaResultSet.getString("name");
+                schemaList.add(new Schema(schemaName));
               }
               schemaResultSet.close();
               schemaStatement.close();
             } else {
               ResultSet schemaResultSet = dbmd.getSchemas();
-              while ( schemaResultSet != null && schemaResultSet.next() ) {
-                String schemaName = schemaResultSet.getString( 1 );
-                schemaList.add( new Schema( schemaName ) );
+              while (schemaResultSet != null && schemaResultSet.next()) {
+                String schemaName = schemaResultSet.getString(1);
+                schemaList.add(new Schema(schemaName));
               }
               // Close the schema ResultSet immediately
               //
               schemaResultSet.close();
             }
           }
-          for ( Schema schema : schemaList ) {
+          for (Schema schema : schemaList) {
             ArrayList<String> schemaTables = new ArrayList<>();
 
             try {
-              ResultSet schemaTablesResultSet = dbmd.getTables( null, schema.getSchemaName(), null, null );
-              while ( schemaTablesResultSet.next() ) {
-                String tableName = schemaTablesResultSet.getString( 3 );
-                if ( !db.isSystemTable( tableName ) ) {
-                  schemaTables.add( tableName );
+              ResultSet schemaTablesResultSet =
+                  dbmd.getTables(null, schema.getSchemaName(), null, null);
+              while (schemaTablesResultSet.next()) {
+                String tableName = schemaTablesResultSet.getString(3);
+                if (!db.isSystemTable(tableName)) {
+                  schemaTables.add(tableName);
                 }
               }
               // Immediately close the schema tables ResultSet
@@ -229,91 +232,91 @@ public class DatabaseMetaInformation {
               schemaTablesResultSet.close();
 
               // Sort the tables by names
-              Collections.sort( schemaTables );
-            } catch ( Exception e ) {
+              Collections.sort(schemaTables);
+            } catch (Exception e) {
               // Obviously, we're not allowed to snoop around in this catalog.
               // Just ignore it!
             }
 
-            schema.setItems( schemaTables.toArray( new String[ schemaTables.size() ] ) );
+            schema.setItems(schemaTables.toArray(new String[schemaTables.size()]));
           }
-        } catch ( Exception e ) {
+        } catch (Exception e) {
           // Typically an unsupported feature, security issue etc.
           // Ignore it to avoid excessive spamming
         }
 
         // Save for later...
-        setSchemas( schemaList.toArray( new Schema[ schemaList.size() ] ) );
+        setSchemas(schemaList.toArray(new Schema[schemaList.size()]));
       }
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingTables" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingTables"));
       }
-      setTables( db.getTablenames( databaseMeta.supportsSchemas() ) ); // legacy call
-      setTableMap( db.getTableMap() );
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      setTables(db.getTablenames(databaseMeta.supportsSchemas())); // legacy call
+      setTableMap(db.getTableMap());
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingViews" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingViews"));
       }
-      if ( databaseMeta.supportsViews() ) {
-        setViews( db.getViews( databaseMeta.supportsSchemas() ) ); // legacy call
-        setViewMap( db.getViewMap() );
+      if (databaseMeta.supportsViews()) {
+        setViews(db.getViews(databaseMeta.supportsSchemas())); // legacy call
+        setViewMap(db.getViewMap());
       }
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingSynonyms" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSynonyms"));
       }
-      if ( databaseMeta.supportsSynonyms() ) {
-        setSynonyms( db.getSynonyms( databaseMeta.supportsSchemas() ) ); // legacy call
-        setSynonymMap( db.getSynonymMap() );
+      if (databaseMeta.supportsSynonyms()) {
+        setSynonyms(db.getSynonyms(databaseMeta.supportsSchemas())); // legacy call
+        setSynonymMap(db.getSynonymMap());
       }
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-      if ( monitor != null && monitor.isCanceled() ) {
+      if (monitor != null && monitor.isCanceled()) {
         return;
       }
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingProcedures" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingProcedures"));
       }
-      setProcedures( db.getProcedures() );
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      setProcedures(db.getProcedures());
+      if (monitor != null) {
+        monitor.worked(1);
       }
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       throw new HopDatabaseException(
-        BaseMessages.getString( PKG, "DatabaseMeta.Error.UnableRetrieveDbInfo" ), e );
+          BaseMessages.getString(PKG, "DatabaseMeta.Error.UnableRetrieveDbInfo"), e);
     } finally {
-      if ( monitor != null ) {
-        monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.ClosingDbConnection" ) );
+      if (monitor != null) {
+        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ClosingDbConnection"));
       }
 
       db.disconnect();
-      if ( monitor != null ) {
-        monitor.worked( 1 );
+      if (monitor != null) {
+        monitor.worked(1);
       }
     }
-    if ( monitor != null ) {
+    if (monitor != null) {
       monitor.done();
     }
   }
@@ -327,10 +330,8 @@ public class DatabaseMetaInformation {
     return tables;
   }
 
-  /**
-   * @param tables The tables to set
-   */
-  public void setTables( String[] tables ) {
+  /** @param tables The tables to set */
+  public void setTables(String[] tables) {
     this.tables = tables;
   }
 
@@ -343,10 +344,8 @@ public class DatabaseMetaInformation {
     return tableMap;
   }
 
-  /**
-   * @param tableMap The tableMap to set
-   */
-  public void setTableMap( Map<String, Collection<String>> tableMap ) {
+  /** @param tableMap The tableMap to set */
+  public void setTableMap(Map<String, Collection<String>> tableMap) {
     this.tableMap = tableMap;
   }
 
@@ -359,10 +358,8 @@ public class DatabaseMetaInformation {
     return views;
   }
 
-  /**
-   * @param views The views to set
-   */
-  public void setViews( String[] views ) {
+  /** @param views The views to set */
+  public void setViews(String[] views) {
     this.views = views;
   }
 
@@ -375,10 +372,8 @@ public class DatabaseMetaInformation {
     return viewMap;
   }
 
-  /**
-   * @param viewMap The viewMap to set
-   */
-  public void setViewMap( Map<String, Collection<String>> viewMap ) {
+  /** @param viewMap The viewMap to set */
+  public void setViewMap(Map<String, Collection<String>> viewMap) {
     this.viewMap = viewMap;
   }
 
@@ -391,10 +386,8 @@ public class DatabaseMetaInformation {
     return synonyms;
   }
 
-  /**
-   * @param synonyms The synonyms to set
-   */
-  public void setSynonyms( String[] synonyms ) {
+  /** @param synonyms The synonyms to set */
+  public void setSynonyms(String[] synonyms) {
     this.synonyms = synonyms;
   }
 
@@ -407,10 +400,8 @@ public class DatabaseMetaInformation {
     return synonymMap;
   }
 
-  /**
-   * @param synonymMap The synonymMap to set
-   */
-  public void setSynonymMap( Map<String, Collection<String>> synonymMap ) {
+  /** @param synonymMap The synonymMap to set */
+  public void setSynonymMap(Map<String, Collection<String>> synonymMap) {
     this.synonymMap = synonymMap;
   }
 
@@ -423,10 +414,8 @@ public class DatabaseMetaInformation {
     return catalogs;
   }
 
-  /**
-   * @param catalogs The catalogs to set
-   */
-  public void setCatalogs( Catalog[] catalogs ) {
+  /** @param catalogs The catalogs to set */
+  public void setCatalogs(Catalog[] catalogs) {
     this.catalogs = catalogs;
   }
 
@@ -439,10 +428,8 @@ public class DatabaseMetaInformation {
     return schemas;
   }
 
-  /**
-   * @param schemas The schemas to set
-   */
-  public void setSchemas( Schema[] schemas ) {
+  /** @param schemas The schemas to set */
+  public void setSchemas(Schema[] schemas) {
     this.schemas = schemas;
   }
 
@@ -455,10 +442,8 @@ public class DatabaseMetaInformation {
     return procedures;
   }
 
-  /**
-   * @param procedures The procedures to set
-   */
-  public void setProcedures( String[] procedures ) {
+  /** @param procedures The procedures to set */
+  public void setProcedures(String[] procedures) {
     this.procedures = procedures;
   }
 
@@ -471,10 +456,8 @@ public class DatabaseMetaInformation {
     return variables;
   }
 
-  /**
-   * @param variables The variables to set
-   */
-  public void setVariables( IVariables variables ) {
+  /** @param variables The variables to set */
+  public void setVariables(IVariables variables) {
     this.variables = variables;
   }
 
@@ -487,10 +470,8 @@ public class DatabaseMetaInformation {
     return databaseMeta;
   }
 
-  /**
-   * @param databaseMeta The databaseMeta to set
-   */
-  public void setDatabaseMeta( DatabaseMeta databaseMeta ) {
+  /** @param databaseMeta The databaseMeta to set */
+  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
     this.databaseMeta = databaseMeta;
   }
 }

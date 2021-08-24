@@ -18,5 +18,5 @@
 package org.apache.hop.core.auth.core;
 
 public interface IAuthenticationConsumer<ReturnType, ConsumedType> {
-  ReturnType consume( ConsumedType authenticationProvider ) throws AuthenticationConsumptionException;
+  ReturnType consume(ConsumedType authenticationProvider) throws AuthenticationConsumptionException;
 }

@@ -26,32 +26,23 @@ public class LoggingHierarchy {
   private String rootChannelId; // from the xform or workflow
   private ILoggingObject loggingObject;
 
-  /**
-   * @return the rootChannelId
-   */
+  /** @return the rootChannelId */
   public String getRootChannelId() {
     return rootChannelId;
   }
 
-  /**
-   * @param rootChannelId the rootChannelId to set
-   */
-  public void setRootChannelId( String rootChannelId ) {
+  /** @param rootChannelId the rootChannelId to set */
+  public void setRootChannelId(String rootChannelId) {
     this.rootChannelId = rootChannelId;
   }
 
-
-  /**
-   * @return the loggingObject
-   */
+  /** @return the loggingObject */
   public ILoggingObject getLoggingObject() {
     return loggingObject;
   }
 
-  /**
-   * @param loggingObject the loggingObject to set
-   */
-  public void setLoggingObject( ILoggingObject loggingObject ) {
+  /** @param loggingObject the loggingObject to set */
+  public void setLoggingObject(ILoggingObject loggingObject) {
     this.loggingObject = loggingObject;
   }
 
@@ -59,9 +50,8 @@ public class LoggingHierarchy {
    * @param rootChannelId
    * @param loggingObject
    */
-  public LoggingHierarchy( String rootChannelId, ILoggingObject loggingObject ) {
+  public LoggingHierarchy(String rootChannelId, ILoggingObject loggingObject) {
     this.rootChannelId = rootChannelId;
     this.loggingObject = loggingObject;
   }
-
 }

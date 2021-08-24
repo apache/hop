@@ -28,13 +28,13 @@ public class MultiMergeJoinMetaInjectionTest extends BaseMetadataInjectionTest<M
 
   @Before
   public void setup() throws Exception {
-    setup( new MultiMergeJoinMeta() );
+    setup(new MultiMergeJoinMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "JOIN_TYPE", () -> meta.getJoinType());
-    check( "KEY_FIELDS", () -> meta.getKeyFields()[ 0 ]);
-    check( "INPUT_TRANSFORMS", () -> meta.getInputTransforms()[ 0 ]);
+    check("JOIN_TYPE", () -> meta.getJoinType());
+    check("KEY_FIELDS", () -> meta.getKeyFields()[0]);
+    check("INPUT_TRANSFORMS", () -> meta.getInputTransforms()[0]);
   }
 }

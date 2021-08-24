@@ -17,13 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -45,12 +42,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CoalesceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CoalesceMeta.class; // For Translator
@@ -163,8 +158,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
             BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.Type.Label"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             ValueMetaBase.getTypes());
-    columns[1].setToolTip(
-        BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.Type.Tooltip"));
+    columns[1].setToolTip(BaseMessages.getString(PKG, "CoalesceDialog.ColumnInfo.Type.Tooltip"));
 
     columns[2] =
         new ColumnInfo(

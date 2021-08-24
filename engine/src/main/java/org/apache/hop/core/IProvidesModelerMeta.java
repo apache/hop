@@ -24,7 +24,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.List;
 
 public interface IProvidesModelerMeta extends IProvidesDatabaseConnectionInformation {
-  RowMeta getRowMeta( IVariables variables, ITransformData transformData );
+  RowMeta getRowMeta(IVariables variables, ITransformData transformData);
 
   List<String> getDatabaseFields();
 

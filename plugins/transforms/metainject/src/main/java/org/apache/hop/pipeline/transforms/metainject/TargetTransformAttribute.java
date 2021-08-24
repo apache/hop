@@ -27,23 +27,24 @@ public class TargetTransformAttribute {
    * @param transformName
    * @param attributeKey
    */
-  public TargetTransformAttribute(String transformName, String attributeKey, boolean detail ) {
+  public TargetTransformAttribute(String transformName, String attributeKey, boolean detail) {
     this.transformName = transformName;
     this.attributeKey = attributeKey;
     this.detail = detail;
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( !( obj instanceof TargetTransformAttribute) ) {
+  public boolean equals(Object obj) {
+    if (!(obj instanceof TargetTransformAttribute)) {
       return false;
     }
-    if ( obj == this ) {
+    if (obj == this) {
       return true;
     }
 
     TargetTransformAttribute target = (TargetTransformAttribute) obj;
-    return transformName.equalsIgnoreCase( target.getTransformName() ) && attributeKey.equals( target.getAttributeKey() );
+    return transformName.equalsIgnoreCase(target.getTransformName())
+        && attributeKey.equals(target.getAttributeKey());
   }
 
   @Override
@@ -51,42 +52,31 @@ public class TargetTransformAttribute {
     return transformName.hashCode() ^ attributeKey.hashCode();
   }
 
-  /**
-   * @return the transform name
-   */
+  /** @return the transform name */
   public String getTransformName() {
     return transformName;
   }
 
-  /**
-   * @param transformName
-   *          the transform name to set
-   */
-  public void setTransformName(String transformName ) {
+  /** @param transformName the transform name to set */
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
-  /**
-   * @return the attributeKey
-   */
+  /** @return the attributeKey */
   public String getAttributeKey() {
     return attributeKey;
   }
 
-  /**
-   * @param attributeKey
-   *          the attributeKey to set
-   */
-  public void setAttributeKey( String attributeKey ) {
+  /** @param attributeKey the attributeKey to set */
+  public void setAttributeKey(String attributeKey) {
     this.attributeKey = attributeKey;
   }
 
-  public void setDetail( boolean detail ) {
+  public void setDetail(boolean detail) {
     this.detail = detail;
   }
 
   public boolean isDetail() {
     return detail;
   }
-
 }

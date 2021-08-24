@@ -43,7 +43,8 @@ public class InputsReader implements Iterable<InputStream> {
   private JsonInputData data;
   private ErrorHandler errorHandler;
 
-  public InputsReader( JsonInput transform, JsonInputMeta meta, JsonInputData data, ErrorHandler errorHandler ) {
+  public InputsReader(
+      JsonInput transform, JsonInputMeta meta, JsonInputData data, ErrorHandler errorHandler) {
     this.transform = transform;
     this.meta = meta;
     this.data = data;
@@ -52,27 +53,27 @@ public class InputsReader implements Iterable<InputStream> {
 
   @Override
   public Iterator<InputStream> iterator() {
-    if ( !meta.isInFields() || meta.getIsAFile() ) {
+    if (!meta.isInFields() || meta.getIsAFile()) {
       Iterator<FileObject> files;
-      if ( meta.inputFiles.acceptingFilenames ) {
+      if (meta.inputFiles.acceptingFilenames) {
         // paths from input
-        files = new FileNamesIterator( transform, errorHandler, getFieldIterator() );
+        files = new FileNamesIterator(transform, errorHandler, getFieldIterator());
       } else {
         // from inner file list
-        if ( data.files == null ) {
-          data.files = meta.getFileInputList( transform );
+        if (data.files == null) {
+          data.files = meta.getFileInputList(transform);
         }
-        files = data.files.getFiles().listIterator( data.currentFileIndex );
+        files = data.files.getFiles().listIterator(data.currentFileIndex);
       }
-      return new FileContentIterator( files, data, errorHandler );
-    } else if ( meta.isReadUrl() ) {
-      return  new URLContentIterator( errorHandler, getFieldIterator() );
+      return new FileContentIterator(files, data, errorHandler);
+    } else if (meta.isReadUrl()) {
+      return new URLContentIterator(errorHandler, getFieldIterator());
     } else {
       // direct content
-      return new ChainedIterator<InputStream, String>( getFieldIterator(), errorHandler ) {
+      return new ChainedIterator<InputStream, String>(getFieldIterator(), errorHandler) {
         protected InputStream tryNext() throws IOException {
           String next = inner.next();
-          return next == null ? null : IOUtils.toInputStream( next, meta.getEncoding() );
+          return next == null ? null : IOUtils.toInputStream(next, meta.getEncoding());
         }
       };
     }
@@ -80,18 +81,16 @@ public class InputsReader implements Iterable<InputStream> {
 
   protected StringFieldIterator getFieldIterator() {
     return new StringFieldIterator(
-        new RowIterator( transform, data, errorHandler ), data.indexSourceField );
+        new RowIterator(transform, data, errorHandler), data.indexSourceField);
   }
 
   public static interface ErrorHandler {
-    /**
-     * Generic (unexpected errors)
-     */
-    void error( Exception thrown );
+    /** Generic (unexpected errors) */
+    void error(Exception thrown);
 
-    void fileOpenError( FileObject file, FileSystemException exception );
-    void fileCloseError( FileObject file, FileSystemException exception );
+    void fileOpenError(FileObject file, FileSystemException exception);
 
+    void fileCloseError(FileObject file, FileSystemException exception);
   }
 
   protected abstract class ChainedIterator<T, C> implements Iterator<T> {
@@ -99,7 +98,7 @@ public class InputsReader implements Iterable<InputStream> {
     protected Iterator<C> inner;
     protected ErrorHandler handler;
 
-    ChainedIterator( Iterator<C> inner, ErrorHandler handler ) {
+    ChainedIterator(Iterator<C> inner, ErrorHandler handler) {
       this.inner = inner;
       this.handler = handler;
     }
@@ -113,15 +112,15 @@ public class InputsReader implements Iterable<InputStream> {
     public T next() {
       try {
         return tryNext();
-      } catch ( Exception e ) {
-        handler.error( e );
+      } catch (Exception e) {
+        handler.error(e);
         return null;
       }
     }
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException( "remove" );
+      throw new UnsupportedOperationException("remove");
     }
 
     protected abstract T tryNext() throws Exception;
@@ -131,29 +130,31 @@ public class InputsReader implements Iterable<InputStream> {
 
     ErrorHandler handler;
     BaseFileInputTransformData data;
-    FileContentIterator( Iterator<FileObject> inner, BaseFileInputTransformData data, ErrorHandler handler ) {
-      super( inner, handler );
+
+    FileContentIterator(
+        Iterator<FileObject> inner, BaseFileInputTransformData data, ErrorHandler handler) {
+      super(inner, handler);
       this.data = data;
     }
 
     @Override
     public InputStream tryNext() {
-      if ( hasNext() ) {
-        if ( data.file != null ) {
+      if (hasNext()) {
+        if (data.file != null) {
           try {
             data.file.close();
-          } catch ( FileSystemException e ) {
-            handler.fileCloseError( data.file, e );
+          } catch (FileSystemException e) {
+            handler.fileCloseError(data.file, e);
           }
         }
         try {
           data.file = inner.next();
           data.currentFileIndex++;
-          if ( transform.onNewFile( data.file ) ) {
-            return HopVfs.getInputStream( data.file );
+          if (transform.onNewFile(data.file)) {
+            return HopVfs.getInputStream(data.file);
           }
-        } catch ( FileSystemException e ) {
-          handler.fileOpenError( data.file, e );
+        } catch (FileSystemException e) {
+          handler.fileOpenError(data.file, e);
         }
       }
       return null;
@@ -164,27 +165,29 @@ public class InputsReader implements Iterable<InputStream> {
 
     private IVariables vars;
 
-    public FileNamesIterator( IVariables varSpace, ErrorHandler handler, Iterator<String> fileNames ) {
-      super( fileNames, handler );
+    public FileNamesIterator(
+        IVariables varSpace, ErrorHandler handler, Iterator<String> fileNames) {
+      super(fileNames, handler);
       vars = varSpace;
     }
 
     @Override
     public FileObject tryNext() throws HopFileException {
-      String fileName = transform.resolve( inner.next() );
-      return fileName == null ? null : HopVfs.getFileObject( fileName );
+      String fileName = transform.resolve(inner.next());
+      return fileName == null ? null : HopVfs.getFileObject(fileName);
     }
   }
 
   protected class URLContentIterator extends ChainedIterator<InputStream, String> {
 
-    public URLContentIterator( ErrorHandler handler, Iterator<String> urls ) {
-      super( urls, handler );
+    public URLContentIterator(ErrorHandler handler, Iterator<String> urls) {
+      super(urls, handler);
     }
 
-    @Override protected InputStream tryNext() throws Exception {
-      if ( hasNext() ) {
-        URL url = new URL( transform.resolve( inner.next() ) );
+    @Override
+    protected InputStream tryNext() throws Exception {
+      if (hasNext()) {
+        URL url = new URL(transform.resolve(inner.next()));
         URLConnection connection = url.openConnection();
         return connection.getInputStream();
       }
@@ -197,7 +200,7 @@ public class InputsReader implements Iterable<InputStream> {
     private RowIterator rowIter;
     private int idx;
 
-    public StringFieldIterator( RowIterator rowIter, int idx ) {
+    public StringFieldIterator(RowIterator rowIter, int idx) {
       this.rowIter = rowIter;
       this.idx = idx;
     }
@@ -208,14 +211,12 @@ public class InputsReader implements Iterable<InputStream> {
 
     public String next() {
       Object[] row = rowIter.next();
-      return ( row == null || row.length <= idx )
-          ? null
-          : (String) row[idx];
+      return (row == null || row.length <= idx) ? null : (String) row[idx];
     }
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException( "remove" );
+      throw new UnsupportedOperationException("remove");
     }
   }
 
@@ -225,7 +226,7 @@ public class InputsReader implements Iterable<InputStream> {
     private ErrorHandler errorHandler;
     private boolean gotNext;
 
-    public RowIterator( ITransform transform, JsonInputData data, ErrorHandler errorHandler ) {
+    public RowIterator(ITransform transform, JsonInputData data, ErrorHandler errorHandler) {
       this.transform = transform;
       this.errorHandler = errorHandler;
       gotNext = data.readrow != null;
@@ -235,14 +236,14 @@ public class InputsReader implements Iterable<InputStream> {
       try {
         data.readrow = transform.getRow();
         gotNext = true;
-      } catch ( HopException e ) {
-        errorHandler.error( e );
+      } catch (HopException e) {
+        errorHandler.error(e);
       }
     }
 
     @Override
     public boolean hasNext() {
-      if ( !gotNext ) {
+      if (!gotNext) {
         fetchNext();
       }
       return data.readrow != null;
@@ -250,7 +251,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public Object[] next() {
-      if ( hasNext() ) {
+      if (hasNext()) {
         gotNext = false;
         return data.readrow;
       }
@@ -259,8 +260,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException( "remove" );
+      throw new UnsupportedOperationException("remove");
     }
   }
-
 }

@@ -23,13 +23,12 @@ import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 
 import java.util.Map;
 
-/**
- * This describes the main file operations for a supported Hop file
- */
+/** This describes the main file operations for a supported Hop file */
 public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
 
   /**
    * What is this handling? (pipeline, workflow, ...)
+   *
    * @return The subject being handled
    */
   Object getSubject();
@@ -43,6 +42,7 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
 
   /**
    * Set the user friendly name of the underlying file
+   *
    * @param name The user friendly name
    */
   void setName(String name);
@@ -54,9 +54,7 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    */
   IHopFileType getFileType();
 
-  /**
-   * @return The filename of the hop file
-   */
+  /** @return The filename of the hop file */
   String getFilename();
 
   /**
@@ -64,98 +62,68 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    *
    * @param filename The new filename
    */
-  void setFilename( String filename );
+  void setFilename(String filename);
 
-  /**
-   * Save the file without asking for a new filename
-   */
+  /** Save the file without asking for a new filename */
   void save() throws HopException;
 
-  /**
-   * Save the file after asking for a filename
-   */
-  void saveAs( String filename ) throws HopException;
+  /** Save the file after asking for a filename */
+  void saveAs(String filename) throws HopException;
 
-  /**
-   * Start execution
-   */
+  /** Start execution */
   void start();
 
-  /**
-   * Stop execution
-   */
+  /** Stop execution */
   void stop();
 
-  /**
-   * Pause execution
-   */
+  /** Pause execution */
   void pause();
 
-  /**
-   * Resume execution
-   */
+  /** Resume execution */
   void resume();
 
-  /**
-   * Preview this file
-   */
+  /** Preview this file */
   void preview();
 
-  /**
-   * Debug the file
-   */
+  /** Debug the file */
   void debug();
 
-  /**
-   * Refresh the graphical file representation after model changes
-   */
+  /** Refresh the graphical file representation after model changes */
   void redraw();
 
   /**
-   * Update the toolbar, menus and so on. This is needed after a file, context or capabilities changes
+   * Update the toolbar, menus and so on. This is needed after a file, context or capabilities
+   * changes
    */
   void updateGui();
 
-  /**
-   * Select all items in the current files
-   */
+  /** Select all items in the current files */
   void selectAll();
 
-  /**
-   * Unselect all items in the current file
-   */
+  /** Unselect all items in the current file */
   void unselectAll();
 
-  /**
-   * Copy the selected items to the clipboard
-   */
+  /** Copy the selected items to the clipboard */
   void copySelectedToClipboard();
 
-  /**
-   * Cut the selected items to the clipboard
-   */
+  /** Cut the selected items to the clipboard */
   void cutSelectedToClipboard();
 
-  /**
-   * Delete the selected items
-   */
+  /** Delete the selected items */
   void deleteSelected();
 
-  /**
-   * Paste items from the clipboard
-   */
+  /** Paste items from the clipboard */
   void pasteFromClipboard();
 
   /**
    * Perform any task needed to close a file, save it if needed
    *
-   * @return true if the file is ready to close. Return false if there was a problem saving or any other issue.
+   * @return true if the file is ready to close. Return false if there was a problem saving or any
+   *     other issue.
    */
   boolean isCloseable();
 
-  /**
-   * Actually close the file, remove it from the user interface.
-   */
+  /** Actually close the file, remove it from the user interface. */
   void close();
 
   /**
@@ -165,18 +133,16 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    */
   boolean hasChanged();
 
-  /**
-   * Undo a change to the file
-   */
+  /** Undo a change to the file */
   void undo();
 
-  /**
-   * Redo a change to the file
-   */
+  /** Redo a change to the file */
   void redo();
 
   /**
-   * Describe the state properties of the file being handled: zoomLevel, scrollX, scrollY, active, ...
+   * Describe the state properties of the file being handled: zoomLevel, scrollX, scrollY, active,
+   * ...
+   *
    * @return The state properties
    */
   Map<String, Object> getStateProperties();
@@ -184,9 +150,10 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
   void applyStateProperties(Map<String, Object> stateProperties);
 
   /**
-   * The variables associated with the file. It's usually keeping internal variables and other file specific settings like active unit test settings.
+   * The variables associated with the file. It's usually keeping internal variables and other file
+   * specific settings like active unit test settings.
+   *
    * @return The variables associated with the loaded file
    */
   IVariables getVariables();
-
 }

@@ -51,8 +51,15 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
   private transient Counter writtenCounter;
   private transient Date previousDate;
 
-  public StaticHopRowFn( String transformName, String rowMetaJson, String rowDataXml, boolean neverEnding, int currentTimeFieldIndex, int previousTimeFieldIndex,
-                         List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public StaticHopRowFn(
+      String transformName,
+      String rowMetaJson,
+      String rowDataXml,
+      boolean neverEnding,
+      int currentTimeFieldIndex,
+      int previousTimeFieldIndex,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.rowDataXml = rowDataXml;
@@ -66,29 +73,29 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
   @Setup
   public void setUp() {
     try {
-      inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
-      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+      inputCounter = Metrics.counter(Pipeline.METRIC_NAME_INPUT, transformName);
+      writtenCounter = Metrics.counter(Pipeline.METRIC_NAME_WRITTEN, transformName);
 
       // Initialize Hop Beam
       //
-      BeamHop.init( transformPluginClasses, xpPluginClasses );
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
 
-      IRowMeta rowMeta = JsonRowMeta.fromJson( rowMetaJson );
-      Document document = XmlHandler.loadXmlString( rowDataXml );
-      Node node = XmlHandler.getSubNode( document, RowMeta.XML_DATA_TAG );
-      Object[] rowData = rowMeta.getRow( node );
+      IRowMeta rowMeta = JsonRowMeta.fromJson(rowMetaJson);
+      Document document = XmlHandler.loadXmlString(rowDataXml);
+      Node node = XmlHandler.getSubNode(document, RowMeta.XML_DATA_TAG);
+      Object[] rowData = rowMeta.getRow(node);
 
-      rowMetaAndData = new RowMetaAndData( rowMeta, rowData );
+      rowMetaAndData = new RowMetaAndData(rowMeta, rowData);
 
-      Metrics.counter( org.apache.hop.pipeline.Pipeline.METRIC_NAME_INIT, transformName ).inc();
-    } catch ( Exception e ) {
-      Metrics.counter( org.apache.hop.pipeline.Pipeline.METRIC_NAME_ERROR, transformName ).inc();
-      throw new RuntimeException( "Error in setup of converting row generator row into Hop rows", e );
+      Metrics.counter(org.apache.hop.pipeline.Pipeline.METRIC_NAME_INIT, transformName).inc();
+    } catch (Exception e) {
+      Metrics.counter(org.apache.hop.pipeline.Pipeline.METRIC_NAME_ERROR, transformName).inc();
+      throw new RuntimeException("Error in setup of converting row generator row into Hop rows", e);
     }
   }
 
   @ProcessElement
-  public void processElement( ProcessContext processContext ) {
+  public void processElement(ProcessContext processContext) {
     // Ignore the actual element here, we provide our own data driver
     //
     processContext.element();
@@ -96,24 +103,24 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
     try {
       IRowMeta rowMeta = rowMetaAndData.getRowMeta();
       Object[] rowData = rowMetaAndData.getData();
-      Object[] rowCopy = rowMeta.cloneRow( rowData );
+      Object[] rowCopy = rowMeta.cloneRow(rowData);
 
-      if ( neverEnding ) {
+      if (neverEnding) {
 
         Date currentDate = new Date();
 
-        if ( currentTimeFieldIndex >= 0 ) {
-          rowCopy[ currentTimeFieldIndex ] = currentDate;
+        if (currentTimeFieldIndex >= 0) {
+          rowCopy[currentTimeFieldIndex] = currentDate;
         }
-        if ( previousTimeFieldIndex >= 0 ) {
-          rowCopy[ previousTimeFieldIndex ] = previousDate;
+        if (previousTimeFieldIndex >= 0) {
+          rowCopy[previousTimeFieldIndex] = previousDate;
         }
         previousDate = currentDate;
       }
 
-      processContext.output( new HopRow( rowCopy ) );
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to create copy of row", e );
+      processContext.output(new HopRow(rowCopy));
+    } catch (HopException e) {
+      throw new RuntimeException("Unable to create copy of row", e);
     }
   }
 }

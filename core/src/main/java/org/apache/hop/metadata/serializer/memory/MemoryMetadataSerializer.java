@@ -36,7 +36,11 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
   private Map<String, T> objectMap;
   protected String description;
 
-  public MemoryMetadataSerializer( IHopMetadataProvider provider, Class<T> managedClass, IVariables variables, String description ) {
+  public MemoryMetadataSerializer(
+      IHopMetadataProvider provider,
+      Class<T> managedClass,
+      IVariables variables,
+      String description) {
     this.metadataProvider = provider;
     this.managedClass = managedClass;
     this.variables = variables;
@@ -45,63 +49,70 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     objectMap = new HashMap<>();
   }
 
-  @Override public List<T> loadAll() throws HopException {
+  @Override
+  public List<T> loadAll() throws HopException {
     List<T> list = new ArrayList<>();
-    for ( String name : listObjectNames() ) {
-      list.add( load( name ) );
+    for (String name : listObjectNames()) {
+      list.add(load(name));
     }
     return list;
   }
 
-  @Override public T load( String name ) throws HopException {
-    if ( name == null ) {
-      throw new HopException( "Error: you need to specify the name of the metadata object to load" );
+  @Override
+  public T load(String name) throws HopException {
+    if (name == null) {
+      throw new HopException("Error: you need to specify the name of the metadata object to load");
     }
-    if ( !exists( name ) ) {
+    if (!exists(name)) {
       return null;
     }
-    T t = objectMap.get( name );
+    T t = objectMap.get(name);
 
-    if ( t instanceof IVariables ) {
-      ( (IVariables) t ).initializeFrom( variables );
+    if (t instanceof IVariables) {
+      ((IVariables) t).initializeFrom(variables);
     }
 
     // Remember where this came from
     //
-    t.setMetadataProviderName( metadataProvider.getDescription() );
+    t.setMetadataProviderName(metadataProvider.getDescription());
 
     return t;
   }
 
-  @Override public void save( T object ) throws HopException {
+  @Override
+  public void save(T object) throws HopException {
     String name = object.getName();
-    objectMap.put( name, object );
+    objectMap.put(name, object);
 
     // Remember in which provider this object is saved
     //
-    object.setMetadataProviderName( getMetadataProvider().getDescription() );
+    object.setMetadataProviderName(getMetadataProvider().getDescription());
   }
 
-  @Override public T delete( String name ) throws HopException {
-    if ( name == null ) {
-      throw new HopException( "Error: you need to specify the name of the metadata object to delete" );
+  @Override
+  public T delete(String name) throws HopException {
+    if (name == null) {
+      throw new HopException(
+          "Error: you need to specify the name of the metadata object to delete");
     }
-    if ( !exists( name ) ) {
-      throw new HopException( "Error: Object '" + name + "' doesn't exist" );
+    if (!exists(name)) {
+      throw new HopException("Error: Object '" + name + "' doesn't exist");
     }
-    T t = objectMap.get( name );
-    objectMap.remove( name );
+    T t = objectMap.get(name);
+    objectMap.remove(name);
     return t;
   }
 
-  @Override public List<String> listObjectNames() throws HopException {
+  @Override
+  public List<String> listObjectNames() throws HopException {
     List<String> names = new ArrayList<>();
-    names.addAll( objectMap.keySet() );
+    names.addAll(objectMap.keySet());
     return names;
   }
 
-  @Override public boolean exists( String name ) throws HopException {
-    return objectMap.containsKey( name );
+  @Override
+  public boolean exists(String name) throws HopException {
+    return objectMap.containsKey(name);
   }
 
   /**
@@ -109,14 +120,13 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
    *
    * @return value of metadataProvider
    */
-  @Override public IHopMetadataProvider getMetadataProvider() {
+  @Override
+  public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+  /** @param metadataProvider The metadataProvider to set */
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 
@@ -125,14 +135,13 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
    *
    * @return value of managedClass
    */
-  @Override public Class<T> getManagedClass() {
+  @Override
+  public Class<T> getManagedClass() {
     return managedClass;
   }
 
-  /**
-   * @param managedClass The managedClass to set
-   */
-  public void setManagedClass( Class<T> managedClass ) {
+  /** @param managedClass The managedClass to set */
+  public void setManagedClass(Class<T> managedClass) {
     this.managedClass = managedClass;
   }
 
@@ -145,10 +154,8 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     return objectMap;
   }
 
-  /**
-   * @param objectMap The objectMap to set
-   */
-  public void setObjectMap( Map<String, T> objectMap ) {
+  /** @param objectMap The objectMap to set */
+  public void setObjectMap(Map<String, T> objectMap) {
     this.objectMap = objectMap;
   }
 
@@ -166,14 +173,13 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
    *
    * @return value of description
    */
-  @Override public String getDescription() {
+  @Override
+  public String getDescription() {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 }

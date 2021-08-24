@@ -29,9 +29,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Tatsiana_Kasiankova
- */
+/** @author Tatsiana_Kasiankova */
 public class ActionHttpTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -39,18 +37,18 @@ public class ActionHttpTest {
 
   @BeforeClass
   public static void beforeClass() throws HopException {
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
-      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   @Test
   public void testDeprecatedTargetFilenameExtension() {
-    actionHttp.setTargetFilenameExtension( "txt" );
-    assertTrue( "txt".equals( actionHttp.getTargetFilenameExtension() ) );
-    actionHttp.setTargetFilenameExtension( "zip" );
-    assertTrue( "zip".equals( actionHttp.getTargetFilenameExtension() ) );
+    actionHttp.setTargetFilenameExtension("txt");
+    assertTrue("txt".equals(actionHttp.getTargetFilenameExtension()));
+    actionHttp.setTargetFilenameExtension("zip");
+    assertTrue("zip".equals(actionHttp.getTargetFilenameExtension()));
   }
 }

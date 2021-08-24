@@ -50,7 +50,7 @@ public class CalculatorData extends BaseTransformData implements ITransformData 
     return outputRowMeta;
   }
 
-  public void setOutputRowMeta( IRowMeta outputRowMeta ) {
+  public void setOutputRowMeta(IRowMeta outputRowMeta) {
     this.outputRowMeta = outputRowMeta;
   }
 
@@ -58,7 +58,7 @@ public class CalculatorData extends BaseTransformData implements ITransformData 
     return calcRowMeta;
   }
 
-  public void setCalcRowMeta( IRowMeta calcRowMeta ) {
+  public void setCalcRowMeta(IRowMeta calcRowMeta) {
     this.calcRowMeta = calcRowMeta;
   }
 
@@ -66,7 +66,7 @@ public class CalculatorData extends BaseTransformData implements ITransformData 
     return fieldIndexes;
   }
 
-  public void setFieldIndexes( Calculator.FieldIndexes[] fieldIndexes ) {
+  public void setFieldIndexes(Calculator.FieldIndexes[] fieldIndexes) {
     this.fieldIndexes = fieldIndexes;
   }
 
@@ -74,16 +74,16 @@ public class CalculatorData extends BaseTransformData implements ITransformData 
     return tempIndexes;
   }
 
-  public void setTempIndexes( int[] tempIndexes ) {
+  public void setTempIndexes(int[] tempIndexes) {
     this.tempIndexes = tempIndexes;
   }
 
-  public IValueMeta getValueMetaFor( int resultType, String name ) throws HopPluginException {
+  public IValueMeta getValueMetaFor(int resultType, String name) throws HopPluginException {
     // don't need any synchronization as data instance belongs only to one transform instance
-    IValueMeta meta = resultMetaMapping.get( resultType );
-    if ( meta == null ) {
-      meta = ValueMetaFactory.createValueMeta( name, resultType );
-      resultMetaMapping.put( resultType, meta );
+    IValueMeta meta = resultMetaMapping.get(resultType);
+    if (meta == null) {
+      meta = ValueMetaFactory.createValueMeta(name, resultType);
+      resultMetaMapping.put(resultType, meta);
     }
     return meta;
   }

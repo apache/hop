@@ -19,7 +19,6 @@ package org.apache.hop.neo4j.core.data;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 
 import java.time.LocalDate;

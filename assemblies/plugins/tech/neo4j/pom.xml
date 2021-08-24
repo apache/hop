@@ -19,35 +19,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-tech</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-tech</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-tech-neo4j</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Technology Neo4j</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-tech-neo4j</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Hop Assemblies Plugins Technology Neo4j</name>
-  <description></description>
+    <properties>
+        <neo4j.driver.version>4.3.4</neo4j.driver.version>
+    </properties>
 
-  <properties>
-    <neo4j.driver.version>4.3.4</neo4j.driver.version>
-  </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-tech-neo4j</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>${neo4j.driver.version}</version>
+        </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-plugins-tech-neo4j</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.neo4j.driver</groupId>
-      <artifactId>neo4j-java-driver</artifactId>
-      <version>${neo4j.driver.version}</version>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 </project>

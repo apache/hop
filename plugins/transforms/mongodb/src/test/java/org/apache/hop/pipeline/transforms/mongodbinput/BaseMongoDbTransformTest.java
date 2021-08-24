@@ -23,7 +23,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogChannelFactory;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;

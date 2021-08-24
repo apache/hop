@@ -44,7 +44,7 @@ public class HopEncrypt {
       // Hop password obfuscation
       //
       try {
-        String obfuscated = Encr.encryptPasswordIfNotUsingVariables( password );
+        String obfuscated = Encr.encryptPasswordIfNotUsingVariables(password);
         System.out.println(obfuscated);
         System.exit(0);
       } catch (Exception ex) {

@@ -18,11 +18,11 @@
 
 package org.apache.hop.vfs.dropbox.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
 public class DropboxConfigSingleton {
 
@@ -51,9 +51,7 @@ public class DropboxConfigSingleton {
         config = new DropboxConfig();
       }
     }
-    HopConfig.getInstance()
-        .getConfigMap()
-        .put(DropboxConfig.HOP_CONFIG_DROPBOX_CONFIG_KEY, config);
+    HopConfig.getInstance().getConfigMap().put(DropboxConfig.HOP_CONFIG_DROPBOX_CONFIG_KEY, config);
   }
 
   public static DropboxConfigSingleton getInstance() {

@@ -44,15 +44,22 @@ public class PreviewRowsDialogTest {
   @Test
   public void getDataForRow() throws Exception {
 
-    IRowMeta iRowMeta = Mockito.mock( IRowMeta.class );
-    Mockito.when( iRowMeta.size() ).thenReturn( 3 );
-    Mockito.when( iRowMeta.getValueMeta( Mockito.anyInt() ) ).thenReturn( Mockito.mock( IValueMeta.class ) );
+    IRowMeta iRowMeta = Mockito.mock(IRowMeta.class);
+    Mockito.when(iRowMeta.size()).thenReturn(3);
+    Mockito.when(iRowMeta.getValueMeta(Mockito.anyInt()))
+        .thenReturn(Mockito.mock(IValueMeta.class));
 
-    PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( Mockito.mock( Shell.class ), Mockito.mock( IVariables.class ), SWT.None, "test",
-      iRowMeta, Collections.emptyList() );
+    PreviewRowsDialog previewRowsDialog =
+        new PreviewRowsDialog(
+            Mockito.mock(Shell.class),
+            Mockito.mock(IVariables.class),
+            SWT.None,
+            "test",
+            iRowMeta,
+            Collections.emptyList());
 
-    //run without NPE
-    int actualResult = previewRowsDialog.getDataForRow( Mockito.mock( TableItem.class ), null );
-    Assert.assertEquals( 0, actualResult );
+    // run without NPE
+    int actualResult = previewRowsDialog.getDataForRow(Mockito.mock(TableItem.class), null);
+    Assert.assertEquals(0, actualResult);
   }
 }

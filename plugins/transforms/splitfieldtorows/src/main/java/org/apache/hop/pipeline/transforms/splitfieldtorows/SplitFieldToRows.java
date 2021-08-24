@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -134,7 +134,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
     }
 
     if (checkFeedback(getLinesRead()) && log.isDetailed()) {
-          logBasic(BaseMessages.getString(PKG, "SplitFieldToRows.Log.LineNumber") + getLinesRead());
+      logBasic(BaseMessages.getString(PKG, "SplitFieldToRows.Log.LineNumber") + getLinesRead());
     }
 
     return true;

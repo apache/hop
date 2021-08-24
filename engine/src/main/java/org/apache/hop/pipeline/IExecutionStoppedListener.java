@@ -18,5 +18,5 @@
 package org.apache.hop.pipeline;
 
 public interface IExecutionStoppedListener<T> {
-  void stopped( T engine );
+  void stopped(T engine);
 }

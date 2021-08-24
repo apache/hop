@@ -40,7 +40,12 @@ public class MarkDownExplorerFileType extends BaseExplorerFileType<TextExplorerF
     implements IExplorerFileType<TextExplorerFileTypeHandler> {
 
   public MarkDownExplorerFileType() {
-    super("MarkDown File", ".md", new String[] {"*.md"}, new String[] {"MarkDown files"}, new Properties());
+    super(
+        "MarkDown File",
+        ".md",
+        new String[] {"*.md"},
+        new String[] {"MarkDown files"},
+        new Properties());
   }
 
   @Override

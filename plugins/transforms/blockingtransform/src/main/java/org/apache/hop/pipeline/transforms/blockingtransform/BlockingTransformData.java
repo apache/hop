@@ -44,7 +44,7 @@ public class BlockingTransformData extends BaseTransformData implements ITransfo
   public BlockingTransformData() {
     super();
 
-    buffer = new ArrayList<>( BlockingTransformMeta.CACHE_SIZE );
+    buffer = new ArrayList<>(BlockingTransformMeta.CACHE_SIZE);
     files = new ArrayList<>();
     fis = new ArrayList<>();
     dis = new ArrayList<>();

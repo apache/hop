@@ -41,26 +41,26 @@ public class BatchFolderIterator implements Iterator<Message> {
 
   private int msgCount;
 
-  public BatchFolderIterator( Folder folder, int batchSize ) {
-    this( folder, batchSize, null, null );
+  public BatchFolderIterator(Folder folder, int batchSize) {
+    this(folder, batchSize, null, null);
   }
 
-  public BatchFolderIterator( Folder folder, Integer batchSize, Integer start, Integer end ) {
+  public BatchFolderIterator(Folder folder, Integer batchSize, Integer start, Integer end) {
     this.folder = folder;
     try {
       this.msgCount = folder.getMessageCount();
-    } catch ( MessagingException e ) {
+    } catch (MessagingException e) {
       this.msgCount = SIZE_ERR;
     }
-    this.batchSize = ( batchSize == null ) ? msgCount : batchSize;
+    this.batchSize = (batchSize == null) ? msgCount : batchSize;
 
-    this.start = ( start == null ) ? 1 : start;
-    this.end = ( end == null ) ? msgCount : end;
+    this.start = (start == null) ? 1 : start;
+    this.end = (end == null) ? msgCount : end;
 
     this.batchFirst = this.start;
     this.batchLast = this.start - 1;
 
-    messages = new Message[ 0 ];
+    messages = new Message[0];
     // if (!getNextBatch() || msgCount == SIZE_ERR) throw new RuntimeException("TODO:"); //TODO
 
   }
@@ -72,23 +72,23 @@ public class BatchFolderIterator implements Iterator<Message> {
   // TODO:search
   @Override
   public boolean hasNext() {
-    return buffIndex < Math.min( messages.length, end ) || getNextBatch();
+    return buffIndex < Math.min(messages.length, end) || getNextBatch();
   }
 
   private boolean getNextBatch() {
-    if ( batchLast >= end ) {
+    if (batchLast >= end) {
       return false;
     } else {
       batchFirst = batchLast + 1;
-      batchLast = Math.min( batchFirst + batchSize - 1, end );
-      if ( batchLast < batchFirst ) {
+      batchLast = Math.min(batchFirst + batchSize - 1, end);
+      if (batchLast < batchFirst) {
         return false;
       }
       try {
-        messages = folder.getMessages( batchFirst, batchLast );
+        messages = folder.getMessages(batchFirst, batchLast);
         buffIndex = 0;
         return messages != null && messages.length > 0;
-      } catch ( MessagingException e ) {
+      } catch (MessagingException e) {
         return false;
       }
     }
@@ -96,7 +96,7 @@ public class BatchFolderIterator implements Iterator<Message> {
 
   @Override
   public Message next() {
-    return messages[ buffIndex++ ];
+    return messages[buffIndex++];
   }
 
   /**
@@ -112,5 +112,4 @@ public class BatchFolderIterator implements Iterator<Message> {
   public String getFolderName() {
     return folder != null ? folder.getName() : null;
   }
-
 }

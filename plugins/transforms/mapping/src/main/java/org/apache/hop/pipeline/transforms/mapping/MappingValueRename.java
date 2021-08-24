@@ -25,7 +25,7 @@ public class MappingValueRename implements Cloneable {
    * @param sourceValueName
    * @param targetValueName
    */
-  public MappingValueRename( String sourceValueName, String targetValueName ) {
+  public MappingValueRename(String sourceValueName, String targetValueName) {
     super();
     this.sourceValueName = sourceValueName;
     this.targetValueName = targetValueName;
@@ -43,8 +43,8 @@ public class MappingValueRename implements Cloneable {
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    return sourceValueName.equals( obj );
+  public boolean equals(Object obj) {
+    return sourceValueName.equals(obj);
   }
 
   @Override
@@ -52,33 +52,23 @@ public class MappingValueRename implements Cloneable {
     return sourceValueName.hashCode();
   }
 
-  /**
-   * @return the sourceValueName
-   */
+  /** @return the sourceValueName */
   public String getSourceValueName() {
     return sourceValueName;
   }
 
-  /**
-   * @param sourceValueName
-   *          the sourceValueName to set. If null set to empty String
-   */
-  public void setSourceValueName( String sourceValueName ) {
+  /** @param sourceValueName the sourceValueName to set. If null set to empty String */
+  public void setSourceValueName(String sourceValueName) {
     this.sourceValueName = sourceValueName == null ? "" : sourceValueName;
   }
 
-  /**
-   * @return the targetValueName
-   */
+  /** @return the targetValueName */
   public String getTargetValueName() {
     return targetValueName;
   }
 
-  /**
-   * @param targetValueName
-   *          the targetValueName to set. If null set to empty String.
-   */
-  public void setTargetValueName( String targetValueName ) {
+  /** @param targetValueName the targetValueName to set. If null set to empty String. */
+  public void setTargetValueName(String targetValueName) {
     this.targetValueName = targetValueName == null ? "" : targetValueName;
   }
 }

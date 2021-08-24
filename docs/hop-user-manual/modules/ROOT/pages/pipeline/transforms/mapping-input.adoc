@@ -21,8 +21,10 @@ under the License.
 
 == Description
 
-This transform is not just a place-holder in a Mapping pipeline (referred to as a Mapping), it represents and describes its input.  The data of this input will be provided for by the parent pipeline calling the mapping.
+This transform is not just a place-holder in a Mapping pipeline (referred to as a Mapping), it represents and describes its input.
+The data of this input will be provided for by the parent pipeline calling the mapping.
 
 == Options
 
-The fields described in this transform are those that you want to refer to in this pipeline.  When you use the mapping you can map input to these field names to arrive at a re-usable part of a pipeline.
+The fields described in this transform are those that you want to refer to in this pipeline.
+When you use the mapping you can map input to these field names to arrive at a re-usable part of a pipeline.

@@ -25,7 +25,6 @@ import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.callback.GuiCallback;
-import org.apache.hop.core.gui.plugin.callback.GuiCallbackMethod;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
@@ -49,18 +48,18 @@ import java.util.List;
 public class HopGuiEnvironment extends HopClientEnvironment {
 
   public static void init() throws HopException {
-    init( Arrays.asList(
-      GuiPluginType.getInstance(),
-      HopPerspectivePluginType.getInstance(),
-      HopFileTypePluginType.getInstance(),
-      SearchableAnalyserPluginType.getInstance()
-    ) );
+    init(
+        Arrays.asList(
+            GuiPluginType.getInstance(),
+            HopPerspectivePluginType.getInstance(),
+            HopFileTypePluginType.getInstance(),
+            SearchableAnalyserPluginType.getInstance()));
   }
 
-  public static void init( List<IPluginType> pluginTypes ) throws HopException {
-    pluginTypes.forEach( PluginRegistry::addPluginType );
+  public static void init(List<IPluginType> pluginTypes) throws HopException {
+    pluginTypes.forEach(PluginRegistry::addPluginType);
 
-    for ( IPluginType pluginType : pluginTypes ) {
+    for (IPluginType pluginType : pluginTypes) {
       pluginType.searchPlugins();
     }
 
@@ -68,8 +67,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
   }
 
   /**
-   * Look for GuiWidgetElement annotated fields in all the GuiPlugins.
-   * Put them in the Gui registry
+   * Look for GuiWidgetElement annotated fields in all the GuiPlugins. Put them in the Gui registry
    *
    * @throws HopException
    */
@@ -79,62 +77,63 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       GuiRegistry guiRegistry = GuiRegistry.getInstance();
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
 
-      List<IPlugin> guiPlugins = pluginRegistry.getPlugins( GuiPluginType.class );
-      for ( IPlugin guiPlugin : guiPlugins ) {
-        ClassLoader classLoader = pluginRegistry.getClassLoader( guiPlugin );
-        Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray( new Class<?>[ 0 ] );
-        String guiPluginClassName = guiPlugin.getClassMap().get( typeClasses[ 0 ] );
-        Class<?> guiPluginClass = classLoader.loadClass( guiPluginClassName );
+      List<IPlugin> guiPlugins = pluginRegistry.getPlugins(GuiPluginType.class);
+      for (IPlugin guiPlugin : guiPlugins) {
+        ClassLoader classLoader = pluginRegistry.getClassLoader(guiPlugin);
+        Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray(new Class<?>[0]);
+        String guiPluginClassName = guiPlugin.getClassMap().get(typeClasses[0]);
+        Class<?> guiPluginClass = classLoader.loadClass(guiPluginClassName);
 
         // Component widgets are defined on fields
         //
-        List<Field> fields = findDeclaredFields( guiPluginClass );
+        List<Field> fields = findDeclaredFields(guiPluginClass);
 
-        for ( Field field : fields ) {
-          GuiWidgetElement guiElement = field.getAnnotation( GuiWidgetElement.class );
-          if ( guiElement != null ) {
+        for (Field field : fields) {
+          GuiWidgetElement guiElement = field.getAnnotation(GuiWidgetElement.class);
+          if (guiElement != null) {
             // Add the GUI Element to the registry...
             //
-            guiRegistry.addGuiWidgetElement( guiPluginClassName, guiElement, field );
+            guiRegistry.addGuiWidgetElement(guiPluginClassName, guiElement, field);
           }
         }
 
         // Menu and toolbar items are defined on methods
         //
-        List<Method> methods = findDeclaredMethods( guiPluginClass );
-        for ( Method method : methods ) {
-          GuiMenuElement menuElement = method.getAnnotation( GuiMenuElement.class );
-          if ( menuElement != null ) {
-            guiRegistry.addGuiWidgetElement( guiPluginClassName, menuElement, method, classLoader );
+        List<Method> methods = findDeclaredMethods(guiPluginClass);
+        for (Method method : methods) {
+          GuiMenuElement menuElement = method.getAnnotation(GuiMenuElement.class);
+          if (menuElement != null) {
+            guiRegistry.addGuiWidgetElement(guiPluginClassName, menuElement, method, classLoader);
           }
-          GuiToolbarElement toolbarElement = method.getAnnotation( GuiToolbarElement.class );
-          if ( toolbarElement != null ) {
-            guiRegistry.addGuiToolbarElement( guiPluginClassName, toolbarElement, method, classLoader );
+          GuiToolbarElement toolbarElement = method.getAnnotation(GuiToolbarElement.class);
+          if (toolbarElement != null) {
+            guiRegistry.addGuiToolbarElement(
+                guiPluginClassName, toolbarElement, method, classLoader);
           }
-          GuiKeyboardShortcut shortcut = method.getAnnotation( GuiKeyboardShortcut.class );
-          if ( shortcut != null ) {
+          GuiKeyboardShortcut shortcut = method.getAnnotation(GuiKeyboardShortcut.class);
+          if (shortcut != null) {
             // RAP does not support ESC as a shortcut key.
             if (EnvironmentUtils.getInstance().isWeb() && shortcut.key() == SWT.ESC) {
               continue;
             }
-            guiRegistry.addKeyboardShortcut( guiPluginClassName, method, shortcut );
+            guiRegistry.addKeyboardShortcut(guiPluginClassName, method, shortcut);
           }
-          GuiOsxKeyboardShortcut osxShortcut = method.getAnnotation( GuiOsxKeyboardShortcut.class );
-          if ( osxShortcut != null ) {
+          GuiOsxKeyboardShortcut osxShortcut = method.getAnnotation(GuiOsxKeyboardShortcut.class);
+          if (osxShortcut != null) {
             // RAP does not support ESC as a shortcut key.
             if (EnvironmentUtils.getInstance().isWeb() && osxShortcut.key() == SWT.ESC) {
               continue;
             }
-            guiRegistry.addKeyboardShortcut( guiPluginClassName, method, osxShortcut );
+            guiRegistry.addKeyboardShortcut(guiPluginClassName, method, osxShortcut);
           }
-          GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
-          if ( contextAction != null ) {
-            guiRegistry.addGuiContextAction( guiPluginClassName, method, contextAction, classLoader );
+          GuiContextAction contextAction = method.getAnnotation(GuiContextAction.class);
+          if (contextAction != null) {
+            guiRegistry.addGuiContextAction(guiPluginClassName, method, contextAction, classLoader);
           }
 
-          GuiCallback guiCallback = method.getAnnotation( GuiCallback.class );
-          if ( guiCallback != null ) {
-            guiRegistry.registerGuiCallback( guiPluginClass, method, guiCallback );
+          GuiCallback guiCallback = method.getAnnotation(GuiCallback.class);
+          if (guiCallback != null) {
+            guiRegistry.registerGuiCallback(guiPluginClass, method, guiCallback);
           }
         }
       }
@@ -148,17 +147,22 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       // Get all the file handler plugins
       //
       PluginRegistry registry = PluginRegistry.getInstance();
-      List<IPlugin> plugins = registry.getPlugins( HopFileTypePluginType.class );
-      for ( IPlugin plugin : plugins ) {
+      List<IPlugin> plugins = registry.getPlugins(HopFileTypePluginType.class);
+      for (IPlugin plugin : plugins) {
         try {
-          IHopFileType hopFileTypeInterface = registry.loadClass( plugin, IHopFileType.class );
-          HopFileTypeRegistry.getInstance().registerHopFile( hopFileTypeInterface );
-        } catch ( HopPluginException e ) {
-          throw new HopException( "Unable to load plugin with ID '" + plugin.getIds()[ 0 ] + "' and type : " + plugin.getPluginType().getName(), e );
+          IHopFileType hopFileTypeInterface = registry.loadClass(plugin, IHopFileType.class);
+          HopFileTypeRegistry.getInstance().registerHopFile(hopFileTypeInterface);
+        } catch (HopPluginException e) {
+          throw new HopException(
+              "Unable to load plugin with ID '"
+                  + plugin.getIds()[0]
+                  + "' and type : "
+                  + plugin.getPluginType().getName(),
+              e);
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( "Error looking for Elements in GUI Plugins ", e );
+    } catch (Exception e) {
+      throw new HopException("Error looking for Elements in GUI Plugins ", e);
     }
   }
 }

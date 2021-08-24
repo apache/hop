@@ -23,11 +23,12 @@ under the License.
 
 == Description
 
-Replace in string is a simple search and replace. It also supports regular expressions and group references. group references are picked up in the replace by string as $n where n is the number of the group.
+Replace in string is a simple search and replace.
+It also supports regular expressions and group references. group references are picked up in the replace by string as $n where n is the number of the group.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -54,4 +55,5 @@ This will replace any 11 digit numbers with the last 7 digits.
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

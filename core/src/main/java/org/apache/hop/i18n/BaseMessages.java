@@ -21,9 +21,9 @@ import org.apache.hop.laf.ILafChangeListener;
 import org.apache.hop.laf.LafFactory;
 
 /**
- * BaseMessage is called by all Message classes to enable the delegation of message delivery, by key to be delegated to
- * the appropriately authoritative supplier as registered in the LafFactory enabling both i18n as well as pluggable look
- * and feel (LAF)
+ * BaseMessage is called by all Message classes to enable the delegation of message delivery, by key
+ * to be delegated to the appropriately authoritative supplier as registered in the LafFactory
+ * enabling both i18n as well as pluggable look and feel (LAF)
  *
  * @author dhushon
  */
@@ -42,11 +42,11 @@ public class BaseMessages implements ILafChangeListener<IMessageHandler> {
 
   private void init() {
     // counting on LafFactory to return a class conforming to @see IMessageHandler
-    handler = LafFactory.getHandler( clazz );
+    handler = LafFactory.getHandler(clazz);
   }
 
   public static BaseMessages getInstance() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new BaseMessages();
     }
     return instance;
@@ -60,40 +60,44 @@ public class BaseMessages implements ILafChangeListener<IMessageHandler> {
     return getInstance().getHandler();
   }
 
-  public static String getString( String key ) {
-    return getInstanceHandler().getString( key );
+  public static String getString(String key) {
+    return getInstanceHandler().getString(key);
   }
 
-  public static String getString( String packageName, String key ) {
-    return getInstanceHandler().getString( packageName, key, new String[] {} );
+  public static String getString(String packageName, String key) {
+    return getInstanceHandler().getString(packageName, key, new String[] {});
   }
 
-  public static String getString( String packageName, String key, String... parameters ) {
-    return getInstanceHandler().getString( packageName, key, parameters );
+  public static String getString(String packageName, String key, String... parameters) {
+    return getInstanceHandler().getString(packageName, key, parameters);
   }
 
-  public static String getString( String packageName, String key, Class<?> resourceClass, String... parameters ) {
-    return getInstanceHandler().getString( packageName, key, resourceClass, parameters );
+  public static String getString(
+      String packageName, String key, Class<?> resourceClass, String... parameters) {
+    return getInstanceHandler().getString(packageName, key, resourceClass, parameters);
   }
 
-  public static String getString( Class<?> packageClass, String key, String... parameters ) {
-    return getInstanceHandler().getString( packageClass.getPackage().getName(), key, packageClass, parameters );
+  public static String getString(Class<?> packageClass, String key, String... parameters) {
+    return getInstanceHandler()
+        .getString(packageClass.getPackage().getName(), key, packageClass, parameters);
   }
 
-  public static String getString( Class<?> packageClass, String key, Class<?> resourceClass, String... parameters ) {
-    return getInstanceHandler().getString( packageClass.getPackage().getName(), key, packageClass, parameters );
+  public static String getString(
+      Class<?> packageClass, String key, Class<?> resourceClass, String... parameters) {
+    return getInstanceHandler()
+        .getString(packageClass.getPackage().getName(), key, packageClass, parameters);
   }
 
-  public static String getString( Class<?> packageClass, String key, Object... parameters ) {
-    String[] strings = new String[ parameters.length ];
-    for ( int i = 0; i < strings.length; i++ ) {
-      strings[ i ] = parameters[ i ] != null ? parameters[ i ].toString() : "";
+  public static String getString(Class<?> packageClass, String key, Object... parameters) {
+    String[] strings = new String[parameters.length];
+    for (int i = 0; i < strings.length; i++) {
+      strings[i] = parameters[i] != null ? parameters[i].toString() : "";
     }
-    return getString( packageClass, key, strings );
+    return getString(packageClass, key, strings);
   }
 
   @Override
-  public void notify( IMessageHandler changedObject ) {
+  public void notify(IMessageHandler changedObject) {
     handler = changedObject;
   }
 }

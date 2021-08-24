@@ -26,23 +26,11 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.vfs.googledrive.util.CustomLocalServerReceiver;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 public class GoogleAuthorizationDialog extends Dialog {
 
@@ -120,14 +108,15 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.addListener(
           SWT.MouseEnter,
           event -> {
-            helpLabel.setForeground(new Color(display, PropsUi.getInstance().contrastColor( 0, 0, 0)));
+            helpLabel.setForeground(
+                new Color(display, PropsUi.getInstance().contrastColor(0, 0, 0)));
             helpLabel.setCursor(new Cursor(display, SWT.CURSOR_HAND));
           });
 
       helpLabel.addListener(
           SWT.MouseExit,
           event -> {
-            helpLabel.setForeground(new Color(display, props.contrastColor( 0, 94, 170)));
+            helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170)));
           });
 
       Label cancelButton = new Label(dialog, SWT.NONE);

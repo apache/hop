@@ -20,7 +20,8 @@ package org.apache.hop.core.gui;
 public class GuiFactory {
 
   private static IHopUi hopGuiInstance;
-  private static IThreadDialogs threadDialogs = new RuntimeThreadDialogs(); // default to the runtime one
+  private static IThreadDialogs threadDialogs =
+      new RuntimeThreadDialogs(); // default to the runtime one
 
   public static IHopUi getInstance() {
     return hopGuiInstance;
@@ -29,5 +30,4 @@ public class GuiFactory {
   public static IThreadDialogs getThreadDialogs() {
     return threadDialogs;
   }
-
 }

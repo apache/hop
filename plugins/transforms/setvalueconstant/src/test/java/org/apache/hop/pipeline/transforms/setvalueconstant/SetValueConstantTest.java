@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.setvalueconstant;
 
 import junit.framework.Assert;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -46,10 +46,10 @@ public class SetValueConstantTest {
   @Before
   public void setUp() {
     smh =
-      new TransformMockHelper<>( "SetValueConstant", SetValueConstantMeta.class,
-        SetValueConstantData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.iLogChannel );
+        new TransformMockHelper<>(
+            "SetValueConstant", SetValueConstantMeta.class, SetValueConstantData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
   }
 
   @After
@@ -59,36 +59,43 @@ public class SetValueConstantTest {
 
   @Test
   public void testUpdateField() throws Exception {
-    SetValueConstant transform = new SetValueConstant( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    SetValueConstant transform =
+        new SetValueConstant(
+            smh.transformMeta,
+            smh.iTransformMeta,
+            smh.iTransformData,
+            0,
+            smh.pipelineMeta,
+            smh.pipeline);
 
-    IValueMeta valueMeta = new ValueMetaString( "Field1" );
-    valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
+    IValueMeta valueMeta = new ValueMetaString("Field1");
+    valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
 
     RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta( valueMeta );
+    rowMeta.addValueMeta(valueMeta);
 
     SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
-    field.setFieldName( "Field Name" );
-    field.setEmptyString( true );
-    field.setReplaceMask( "Replace Mask" );
-    field.setReplaceValue( "Replace Value" );
+    field.setFieldName("Field Name");
+    field.setEmptyString(true);
+    field.setReplaceMask("Replace Mask");
+    field.setReplaceValue("Replace Value");
 
-    doReturn( Collections.singletonList( field ) ).when( smh.iTransformMeta ).getFields();
-    doReturn( field ).when( smh.iTransformMeta ).getField( 0 );
-    doReturn( rowMeta ).when( smh.iTransformData ).getConvertRowMeta();
-    doReturn( rowMeta ).when( smh.iTransformData ).getOutputRowMeta();
-    doReturn( 1 ).when( smh.iTransformData ).getFieldnr();
-    doReturn( new int[] { 0 } ).when( smh.iTransformData ).getFieldnrs();
-    doReturn( new String[] { "foo" } ).when( smh.iTransformData ).getRealReplaceByValues();
+    doReturn(Collections.singletonList(field)).when(smh.iTransformMeta).getFields();
+    doReturn(field).when(smh.iTransformMeta).getField(0);
+    doReturn(rowMeta).when(smh.iTransformData).getConvertRowMeta();
+    doReturn(rowMeta).when(smh.iTransformData).getOutputRowMeta();
+    doReturn(1).when(smh.iTransformData).getFieldnr();
+    doReturn(new int[] {0}).when(smh.iTransformData).getFieldnrs();
+    doReturn(new String[] {"foo"}).when(smh.iTransformData).getRealReplaceByValues();
 
     transform.init();
 
-    Method m = SetValueConstant.class.getDeclaredMethod( "updateField", Object[].class );
-    m.setAccessible( true );
+    Method m = SetValueConstant.class.getDeclaredMethod("updateField", Object[].class);
+    m.setAccessible(true);
 
-    Object[] row = new Object[] { null };
-    m.invoke( transform, new Object[] { row } );
+    Object[] row = new Object[] {null};
+    m.invoke(transform, new Object[] {row});
 
-    Assert.assertEquals( "foo", valueMeta.getString( row[ 0 ] ) );
+    Assert.assertEquals("foo", valueMeta.getString(row[0]));
   }
 }

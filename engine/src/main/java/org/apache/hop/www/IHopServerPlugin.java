@@ -22,13 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface IHopServerPlugin extends IHopServerServlet {
 
-  void setup( PipelineMap pipelineMap, WorkflowMap workflowMap );
+  void setup(PipelineMap pipelineMap, WorkflowMap workflowMap);
 
-  void doGet( HttpServletRequest request, HttpServletResponse response ) throws Exception;
+  void doGet(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
   String getContextPath();
 
-  void setJettyMode( boolean jettyMode );
+  void setJettyMode(boolean jettyMode);
 
   boolean isJettyMode();
 }

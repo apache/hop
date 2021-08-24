@@ -42,16 +42,17 @@ public class MetadataTestBase extends TestCase {
   protected MemoryMetadataProvider provider2;
   protected MemoryMetadataProvider provider3;
 
-  @Override protected void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     HopClientEnvironment.init();
     PluginRegistry registry = PluginRegistry.getInstance();
-    registry.registerPluginType( MetadataPluginType.class);
+    registry.registerPluginType(MetadataPluginType.class);
 
     registry.registerPluginClass(
-      MetadataType1.class.getName(), MetadataPluginType.class, HopMetadata.class);
+        MetadataType1.class.getName(), MetadataPluginType.class, HopMetadata.class);
     assertNotNull(registry.findPluginWithId(MetadataPluginType.class, "type-1"));
     registry.registerPluginClass(
-      MetadataType2.class.getName(), MetadataPluginType.class, HopMetadata.class);
+        MetadataType2.class.getName(), MetadataPluginType.class, HopMetadata.class);
     assertNotNull(registry.findPluginWithId(MetadataPluginType.class, "type-2"));
 
     IVariables variables = Variables.getADefaultVariableSpace();
@@ -65,7 +66,7 @@ public class MetadataTestBase extends TestCase {
     provider3.setDescription("Provider3");
 
     List<IHopMetadataProvider> providers =
-      new ArrayList<>( Arrays.asList(provider1, provider2, provider3));
+        new ArrayList<>(Arrays.asList(provider1, provider2, provider3));
 
     multiMetadataProvider = new MultiMetadataProvider(twoWayPasswordEncoder, providers, variables);
   }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -25,10 +27,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;

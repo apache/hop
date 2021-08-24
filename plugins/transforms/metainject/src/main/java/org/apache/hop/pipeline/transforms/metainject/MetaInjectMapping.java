@@ -17,31 +17,29 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-
 import org.apache.hop.core.injection.Injection;
 
 public class MetaInjectMapping {
 
-  @Injection( name = "MAPPING_SOURCE_TRANSFORM", group = "MAPPING_FIELDS" )
+  @Injection(name = "MAPPING_SOURCE_TRANSFORM", group = "MAPPING_FIELDS")
   private String sourceTransform;
 
-  @Injection( name = "MAPPING_SOURCE_FIELD", group = "MAPPING_FIELDS" )
+  @Injection(name = "MAPPING_SOURCE_FIELD", group = "MAPPING_FIELDS")
   private String sourceField;
 
-  @Injection( name = "MAPPING_TARGET_TRANSFORM", group = "MAPPING_FIELDS" )
+  @Injection(name = "MAPPING_TARGET_TRANSFORM", group = "MAPPING_FIELDS")
   private String targetTransform;
 
-  @Injection( name = "MAPPING_TARGET_FIELD", group = "MAPPING_FIELDS" )
+  @Injection(name = "MAPPING_TARGET_FIELD", group = "MAPPING_FIELDS")
   private String targetField;
 
-  public MetaInjectMapping() {
-  }
+  public MetaInjectMapping() {}
 
   public String getSourceTransform() {
     return sourceTransform;
   }
 
-  public void setSourceTransform(String sourceTransform ) {
+  public void setSourceTransform(String sourceTransform) {
     this.sourceTransform = sourceTransform;
   }
 
@@ -49,7 +47,7 @@ public class MetaInjectMapping {
     return sourceField;
   }
 
-  public void setSourceField( String sourceField ) {
+  public void setSourceField(String sourceField) {
     this.sourceField = sourceField;
   }
 
@@ -65,8 +63,7 @@ public class MetaInjectMapping {
     return targetField;
   }
 
-  public void setTargetField( String targetField ) {
+  public void setTargetField(String targetField) {
     this.targetField = targetField;
   }
-
 }

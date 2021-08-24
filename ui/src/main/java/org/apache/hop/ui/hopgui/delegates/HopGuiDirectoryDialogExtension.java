@@ -25,7 +25,7 @@ public class HopGuiDirectoryDialogExtension {
   public AtomicBoolean doIt;
   public IDirectoryDialog directoryDialog;
 
-  public HopGuiDirectoryDialogExtension( AtomicBoolean doIt, IDirectoryDialog directoryDialog) {
+  public HopGuiDirectoryDialogExtension(AtomicBoolean doIt, IDirectoryDialog directoryDialog) {
     this.doIt = doIt;
     this.directoryDialog = directoryDialog;
   }
@@ -39,10 +39,8 @@ public class HopGuiDirectoryDialogExtension {
     return doIt;
   }
 
-  /**
-   * @param doIt The doIt to set
-   */
-  public void setDoIt( AtomicBoolean doIt ) {
+  /** @param doIt The doIt to set */
+  public void setDoIt(AtomicBoolean doIt) {
     this.doIt = doIt;
   }
 
@@ -55,10 +53,8 @@ public class HopGuiDirectoryDialogExtension {
     return directoryDialog;
   }
 
-  /**
-   * @param directoryDialog The directoryDialog to set
-   */
-  public void setDirectoryDialog( IDirectoryDialog directoryDialog ) {
+  /** @param directoryDialog The directoryDialog to set */
+  public void setDirectoryDialog(IDirectoryDialog directoryDialog) {
     this.directoryDialog = directoryDialog;
   }
 }

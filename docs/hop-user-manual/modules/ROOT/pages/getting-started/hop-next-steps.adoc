@@ -23,7 +23,8 @@ under the License.
 
 You now know what Hop is and how to create your first workflows and pipelines.
 
-There's a lot more to discover in Hop. Here are a couple of topics you may want to look into:
+There's a lot more to discover in Hop.
+Here are a couple of topics you may want to look into:
 
 * xref:pipeline/pipelines.adoc[Pipelines] takes closer look at the various aspects of creating and running pipelines, and contains the entire list of transforms that are at your disposal
 * xref:workflow/workflows.adoc[Workflows] takes a closer look at the various aspects of create and running workflows, and contains the entire list of actions that are at your disposal

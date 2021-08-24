@@ -17,21 +17,17 @@
 
 package org.apache.hop.resource;
 
-
 public interface IResourceHolder {
 
-  /**
-   * @return The name of the holder of the resource
-   */
+  /** @return The name of the holder of the resource */
   String getName();
 
-  /**
-   * @return The description of the holder of the resource
-   */
+  /** @return The description of the holder of the resource */
   String getDescription();
 
   /**
-   * @return The Type ID of the resource holder. The Type ID is the system-defined type identifier (like PIPELINE or SORT).
+   * @return The Type ID of the resource holder. The Type ID is the system-defined type identifier
+   *     (like PIPELINE or SORT).
    */
   String getPluginId();
 
@@ -41,5 +37,4 @@ public interface IResourceHolder {
    * @return JOBENTRY, TRANSFORM, etc.
    */
   String getTypeId();
-
 }

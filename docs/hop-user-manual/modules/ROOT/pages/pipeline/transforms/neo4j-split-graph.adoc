@@ -23,7 +23,7 @@ This transforms splits the nodes and relationships of a graph data type.
 
 == Options
 
-[options="header", width="90%"]
+[options="header",width="90%"]
 |===
 |Option|Default|Description
 |Transform name|Neo4j Split Graph|the name to use for this transform in the pipeline

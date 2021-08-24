@@ -27,19 +27,35 @@ public class SalesforceConnectionUtilsTest {
 
   @Test
   public void testLookups() {
-    assertEquals( SalesforceConnectionUtils.recordsFilterCode.length, SalesforceConnectionUtils.recordsFilterDesc.length );
-    assertEquals( SalesforceConnectionUtils.recordsFilterCode[0], SalesforceConnectionUtils.getRecordsFilterCode( -1 ) );
-    assertEquals( SalesforceConnectionUtils.recordsFilterCode[0],
-      SalesforceConnectionUtils.getRecordsFilterCode( SalesforceConnectionUtils.recordsFilterDesc.length + 1 ) );
-    assertEquals( SalesforceConnectionUtils.recordsFilterDesc[0], SalesforceConnectionUtils.getRecordsFilterDesc( -1 ) );
-    assertEquals( SalesforceConnectionUtils.recordsFilterDesc[0],
-      SalesforceConnectionUtils.getRecordsFilterDesc( SalesforceConnectionUtils.recordsFilterDesc.length + 1 ) );
+    assertEquals(
+        SalesforceConnectionUtils.recordsFilterCode.length,
+        SalesforceConnectionUtils.recordsFilterDesc.length);
+    assertEquals(
+        SalesforceConnectionUtils.recordsFilterCode[0],
+        SalesforceConnectionUtils.getRecordsFilterCode(-1));
+    assertEquals(
+        SalesforceConnectionUtils.recordsFilterCode[0],
+        SalesforceConnectionUtils.getRecordsFilterCode(
+            SalesforceConnectionUtils.recordsFilterDesc.length + 1));
+    assertEquals(
+        SalesforceConnectionUtils.recordsFilterDesc[0],
+        SalesforceConnectionUtils.getRecordsFilterDesc(-1));
+    assertEquals(
+        SalesforceConnectionUtils.recordsFilterDesc[0],
+        SalesforceConnectionUtils.getRecordsFilterDesc(
+            SalesforceConnectionUtils.recordsFilterDesc.length + 1));
 
-    assertEquals( 0, SalesforceConnectionUtils.getRecordsFilterByCode( null ) );
-    assertEquals( 1, SalesforceConnectionUtils.getRecordsFilterByCode( SalesforceConnectionUtils.recordsFilterCode[1] ) );
-    assertEquals( 0, SalesforceConnectionUtils.getRecordsFilterByCode( UUID.randomUUID().toString() ) );
-    assertEquals( 0, SalesforceConnectionUtils.getRecordsFilterByDesc( null ) );
-    assertEquals( 1, SalesforceConnectionUtils.getRecordsFilterByDesc( SalesforceConnectionUtils.recordsFilterCode[1] ) );
-    assertEquals( 0, SalesforceConnectionUtils.getRecordsFilterByDesc( UUID.randomUUID().toString() ) );
+    assertEquals(0, SalesforceConnectionUtils.getRecordsFilterByCode(null));
+    assertEquals(
+        1,
+        SalesforceConnectionUtils.getRecordsFilterByCode(
+            SalesforceConnectionUtils.recordsFilterCode[1]));
+    assertEquals(0, SalesforceConnectionUtils.getRecordsFilterByCode(UUID.randomUUID().toString()));
+    assertEquals(0, SalesforceConnectionUtils.getRecordsFilterByDesc(null));
+    assertEquals(
+        1,
+        SalesforceConnectionUtils.getRecordsFilterByDesc(
+            SalesforceConnectionUtils.recordsFilterCode[1]));
+    assertEquals(0, SalesforceConnectionUtils.getRecordsFilterByDesc(UUID.randomUUID().toString()));
   }
 }

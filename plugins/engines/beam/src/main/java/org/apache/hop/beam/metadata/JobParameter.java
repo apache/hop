@@ -21,16 +21,13 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class JobParameter {
 
-  @HopMetadataProperty
-  private String variable;
+  @HopMetadataProperty private String variable;
 
-  @HopMetadataProperty
-  private String value;
+  @HopMetadataProperty private String value;
 
-  public JobParameter() {
-  }
+  public JobParameter() {}
 
-  public JobParameter( String variable, String value ) {
+  public JobParameter(String variable, String value) {
     this.variable = variable;
     this.value = value;
   }
@@ -44,10 +41,8 @@ public class JobParameter {
     return variable;
   }
 
-  /**
-   * @param variable The variable to set
-   */
-  public void setVariable( String variable ) {
+  /** @param variable The variable to set */
+  public void setVariable(String variable) {
     this.variable = variable;
   }
 
@@ -60,10 +55,8 @@ public class JobParameter {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 }

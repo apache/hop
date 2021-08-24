@@ -28,12 +28,9 @@ import java.util.function.Function;
 
 import static org.apache.hop.core.logging.LogLevel.BASIC;
 import static org.apache.hop.core.logging.LogLevel.ERROR;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-
-@RunWith( MockitoJUnitRunner.class )
+@RunWith(MockitoJUnitRunner.class)
 public class Slf4jLoggingEventListenerTest {
 
   @Mock private Logger pipelineLogger, jobLogger, diLogger;
@@ -47,7 +44,6 @@ public class Slf4jLoggingEventListenerTest {
   private String messageSub = "subject";
   private LogLevel logLevel = BASIC;
 
-
   private Slf4jLoggingEventListener listener = new Slf4jLoggingEventListener();
 
   @Before
@@ -56,60 +52,57 @@ public class Slf4jLoggingEventListenerTest {
     listener.jobLogger = jobLogger;
     listener.diLogger = diLogger;
     listener.logObjProvider = logObjProvider;
-    when( logEvent.getMessage() ).thenReturn( message );
-    when( message.getLogChannelId() ).thenReturn( logChannelId );
-    when( message.getLevel() ).thenReturn( logLevel );
-    when( message.getMessage() ).thenReturn( msgText );
-    when( message.getSubject() ).thenReturn( messageSub );
+    when(logEvent.getMessage()).thenReturn(message);
+    when(message.getLogChannelId()).thenReturn(logChannelId);
+    when(message.getLevel()).thenReturn(logLevel);
+    when(message.getMessage()).thenReturn(msgText);
+    when(message.getSubject()).thenReturn(messageSub);
   }
 
   @Test
   public void testAddLogEventNoRegisteredLogObject() {
-    listener.eventAdded( logEvent );
-    verify( diLogger ).info( messageSub + " " + msgText );
+    listener.eventAdded(logEvent);
+    verify(diLogger).info(messageSub + " " + msgText);
 
-    when( message.getLevel() ).thenReturn( ERROR );
-    listener.eventAdded( logEvent );
-    verify( diLogger ).error( messageSub + " " + msgText );
-    verifyZeroInteractions( pipelineLogger );
-    verifyZeroInteractions( jobLogger );
+    when(message.getLevel()).thenReturn(ERROR);
+    listener.eventAdded(logEvent);
+    verify(diLogger).error(messageSub + " " + msgText);
+    verifyZeroInteractions(pipelineLogger);
+    verifyZeroInteractions(jobLogger);
   }
 
   @Test
   public void testAddLogEventPipeline() {
-    when( logObjProvider.apply( logChannelId ) ).thenReturn( loggingObject );
-    when( loggingObject.getLogChannelId() ).thenReturn( logChannelId );
-    when( loggingObject.getObjectType() ).thenReturn( LoggingObjectType.PIPELINE );
-    when( loggingObject.getFilename() ).thenReturn( "filename" );
-    when( message.getLevel() ).thenReturn( LogLevel.BASIC );
-    listener.eventAdded( logEvent );
+    when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
+    when(loggingObject.getLogChannelId()).thenReturn(logChannelId);
+    when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.PIPELINE);
+    when(loggingObject.getFilename()).thenReturn("filename");
+    when(message.getLevel()).thenReturn(LogLevel.BASIC);
+    listener.eventAdded(logEvent);
 
-
-    verify( pipelineLogger ).info( "[filename]  " + msgText );
-    when( message.getLevel() ).thenReturn( LogLevel.ERROR );
-    listener.eventAdded( logEvent );
-    verify( pipelineLogger ).error( "[filename]  " + msgText );
-    verifyZeroInteractions( diLogger );
-    verifyZeroInteractions( jobLogger );
+    verify(pipelineLogger).info("[filename]  " + msgText);
+    when(message.getLevel()).thenReturn(LogLevel.ERROR);
+    listener.eventAdded(logEvent);
+    verify(pipelineLogger).error("[filename]  " + msgText);
+    verifyZeroInteractions(diLogger);
+    verifyZeroInteractions(jobLogger);
   }
 
   @Test
   public void testAddLogEventJob() {
-    when( logObjProvider.apply( logChannelId ) ).thenReturn( loggingObject );
-    when( loggingObject.getLogChannelId() ).thenReturn( logChannelId );
-    when( loggingObject.getObjectType() ).thenReturn( LoggingObjectType.WORKFLOW );
-    when( loggingObject.getFilename() ).thenReturn( "filename" );
-    when( message.getLevel() ).thenReturn( LogLevel.BASIC );
-    listener.eventAdded( logEvent );
+    when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
+    when(loggingObject.getLogChannelId()).thenReturn(logChannelId);
+    when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.WORKFLOW);
+    when(loggingObject.getFilename()).thenReturn("filename");
+    when(message.getLevel()).thenReturn(LogLevel.BASIC);
+    listener.eventAdded(logEvent);
 
+    verify(jobLogger).info("[filename]  " + msgText);
 
-    verify( jobLogger ).info( "[filename]  " + msgText );
-
-    when( message.getLevel() ).thenReturn( LogLevel.ERROR );
-    listener.eventAdded( logEvent );
-    verify( jobLogger ).error( "[filename]  " + msgText );
-    verifyZeroInteractions( diLogger );
-    verifyZeroInteractions( pipelineLogger );
+    when(message.getLevel()).thenReturn(LogLevel.ERROR);
+    listener.eventAdded(logEvent);
+    verify(jobLogger).error("[filename]  " + msgText);
+    verifyZeroInteractions(diLogger);
+    verifyZeroInteractions(pipelineLogger);
   }
-
 }

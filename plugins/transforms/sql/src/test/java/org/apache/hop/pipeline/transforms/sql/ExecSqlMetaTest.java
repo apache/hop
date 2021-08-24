@@ -30,11 +30,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
@@ -44,36 +40,54 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "databaseMeta", "sql", "executedEachInputRow", "updateField", "insertField", "deleteField", "readField",
-        "singleStatement", "replaceVariables", "quoteString", "params", "arguments" );
+        Arrays.asList(
+            "databaseMeta",
+            "sql",
+            "executedEachInputRow",
+            "updateField",
+            "insertField",
+            "deleteField",
+            "readField",
+            "singleStatement",
+            "replaceVariables",
+            "quoteString",
+            "params",
+            "arguments");
 
     Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "replaceVariables", "setVariableReplacementActive" );
-      }
-    };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("replaceVariables", "setVariableReplacementActive");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
-
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "arguments", stringArrayLoadSaveValidator );
+    attrValidatorMap.put("arguments", stringArrayLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof ExecSqlMeta ) {
-      ( (ExecSqlMeta) someMeta ).allocate( 5 );
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof ExecSqlMeta) {
+      ((ExecSqlMeta) someMeta).allocate(5);
     }
   }
 
@@ -81,5 +95,4 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }

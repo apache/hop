@@ -33,14 +33,10 @@ public class StringOperationsData extends BaseTransformData implements ITransfor
 
   public String[] outStreamNrs;
 
-  /**
-   * Runtime trim operators
-   */
+  /** Runtime trim operators */
   public int[] trimOperators;
 
-  /**
-   * Runtime trim operators
-   */
+  /** Runtime trim operators */
   public int[] lowerUpperOperators;
 
   public int[] padType;
@@ -63,9 +59,7 @@ public class StringOperationsData extends BaseTransformData implements ITransfor
 
   public int nrFieldsInStream;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public StringOperationsData() {
     super();
     this.inputFieldsNr = 0;

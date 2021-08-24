@@ -21,11 +21,13 @@ under the License.
 
 == Description
 
-This action runs a series of pipeline unit tests.  The action is successful if all tests run without error. Errors are logged.
+This action runs a series of pipeline unit tests.
+The action is successful if all tests run without error.
+Errors are logged.
 
 == Options
 
-[width="75%", options="header"]
+[width="75%",options="header"]
 |===
 |Option|Description
 |Action Name|The name of the action.

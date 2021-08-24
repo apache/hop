@@ -17,18 +17,21 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 
-public class DelegatingNoAuthConsumer implements IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> {
+public class DelegatingNoAuthConsumer
+    implements IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> {
   private IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate;
 
-  public DelegatingNoAuthConsumer( IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate ) {
+  public DelegatingNoAuthConsumer(
+      IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> delegate) {
     this.delegate = delegate;
   }
 
   @Override
-  public Object consume( NoAuthenticationAuthenticationProvider authenticationProvider ) throws AuthenticationConsumptionException {
-    return delegate.consume( authenticationProvider );
+  public Object consume(NoAuthenticationAuthenticationProvider authenticationProvider)
+      throws AuthenticationConsumptionException {
+    return delegate.consume(authenticationProvider);
   }
 }

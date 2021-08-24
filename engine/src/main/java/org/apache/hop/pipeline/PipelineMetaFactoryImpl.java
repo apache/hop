@@ -25,7 +25,8 @@ import org.w3c.dom.Node;
 public class PipelineMetaFactoryImpl implements IPipelineMetaFactory {
 
   @Override
-  public PipelineMeta create( Node pipelineNode, IHopMetadataProvider metadataProvider ) throws HopXmlException, HopMissingPluginsException {
-    return new PipelineMeta( pipelineNode, metadataProvider );
+  public PipelineMeta create(Node pipelineNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException, HopMissingPluginsException {
+    return new PipelineMeta(pipelineNode, metadataProvider);
   }
 }

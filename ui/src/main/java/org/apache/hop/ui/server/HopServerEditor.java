@@ -19,7 +19,6 @@ package org.apache.hop.ui.server;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.PropsUi;
@@ -210,7 +209,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlWebAppName.right = new FormAttachment(middle, -margin);
     wlWebAppName.setLayoutData(fdlWebAppName);
 
-    wWebAppName = new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wWebAppName =
+        new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wWebAppName);
     FormData fdWebAppName = new FormData();
@@ -229,7 +229,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlUsername.right = new FormAttachment(middle, -margin);
     wlUsername.setLayoutData(fdlUsername);
 
-    wUsername = new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUsername =
+        new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wUsername);
     FormData fdUsername = new FormData();
@@ -248,7 +249,9 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
 
-    wPassword = new PasswordTextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPassword =
+        new PasswordTextVar(
+            manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
     props.setLook(wPassword);
     FormData fdPassword = new FormData();
@@ -321,7 +324,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlProxyHost.right = new FormAttachment(middle, -margin);
     wlProxyHost.setLayoutData(fdlProxyHost);
 
-    wProxyHost = new TextVar(manager.getVariables(), wProxyComp, SWT.BORDER | SWT.LEFT | SWT.SINGLE);
+    wProxyHost =
+        new TextVar(manager.getVariables(), wProxyComp, SWT.BORDER | SWT.LEFT | SWT.SINGLE);
 
     props.setLook(wProxyHost);
     FormData fdProxyHost = new FormData();
@@ -340,7 +344,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlProxyPort.right = new FormAttachment(middle, -margin);
     wlProxyPort.setLayoutData(fdlProxyPort);
 
-    wProxyPort = new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProxyPort =
+        new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wProxyPort);
     FormData fdProxyPort = new FormData();
     fdProxyPort.top = new FormAttachment(wProxyHost, margin);
@@ -359,7 +364,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlNonProxyHosts.right = new FormAttachment(middle, -margin);
     wlNonProxyHosts.setLayoutData(fdlNonProxyHosts);
 
-    wNonProxyHosts = new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNonProxyHosts =
+        new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wNonProxyHosts);
     FormData fdNonProxyHosts = new FormData();
     fdNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
@@ -423,7 +429,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     try {
       String xml = "<sample/>";
-      String reply = server.sendXml(manager.getVariables(), xml, RegisterPipelineServlet.CONTEXT_PATH);
+      String reply =
+          server.sendXml(manager.getVariables(), xml, RegisterPipelineServlet.CONTEXT_PATH);
 
       String message =
           BaseMessages.getString(PKG, "HopServer.Replay.Info1")

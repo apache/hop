@@ -33,7 +33,7 @@
 
     <name>Hop Plugins Transforms Excel Input</name>
 
-    <properties>       
+    <properties>
         <odfdom-java.version>0.8.7</odfdom-java.version>
         <poi.version>3.17</poi.version>
         <xerces.version>2.12.0</xerces.version>

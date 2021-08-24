@@ -18,7 +18,9 @@
 package org.apache.hop.core.auth.core;
 
 public interface IAuthenticationPerformerFactory {
-  <ReturnType, CreateArgType, ConsumedType> IAuthenticationPerformer<ReturnType, CreateArgType> create(
-    IAuthenticationProvider authenticationProvider,
-    IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumer );
+  <ReturnType, CreateArgType, ConsumedType>
+      IAuthenticationPerformer<ReturnType, CreateArgType> create(
+          IAuthenticationProvider authenticationProvider,
+          IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType>
+              authenticationConsumer);
 }

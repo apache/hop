@@ -30,47 +30,62 @@ import java.lang.reflect.InvocationTargetException;
 import static org.mockito.Mockito.when;
 
 /**
- * <p>
  * Util class to handle TransformMock creation in generic way.
- * </p>
- * <p>
- * Usage example:
+ *
+ * <p>Usage example:
+ *
  * <pre>
  * Mapping transform = TransformMockUtil.getTransform( Mapping.class, MappingMeta.class, "junit" );
  * </pre>
- *
- *
- * </p>
  */
 public class TransformMockUtil {
 
-  public static TransformMockHelper getTransformMockHelper( Class<MetaInjectMeta> metaClass, Class<MetaInjectData> dataClass, String name ) {
+  public static TransformMockHelper getTransformMockHelper(
+      Class<MetaInjectMeta> metaClass, Class<MetaInjectData> dataClass, String name) {
 
-    TransformMockHelper<MetaInjectMeta, MetaInjectData> transformMockHelper = new TransformMockHelper<>( name, metaClass, dataClass );
+    TransformMockHelper<MetaInjectMeta, MetaInjectData> transformMockHelper =
+        new TransformMockHelper<>(name, metaClass, dataClass);
 
-    when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any(), ArgumentMatchers.any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.iLogChannel );
-    when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any() ) ).thenReturn( transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
+    when(transformMockHelper.logChannelFactory.create(
+            ArgumentMatchers.any(), ArgumentMatchers.any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.logChannelFactory.create(ArgumentMatchers.any()))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
     return transformMockHelper;
   }
 
-  public static MetaInject getTransform( Class<MetaInject> klass, TransformMockHelper mock )
-    throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    Constructor<MetaInject> kons = klass.getConstructor(
-      TransformMeta.class,
-      MetaInjectMeta.class,
-      MetaInjectData.class,
-      int.class,
-      PipelineMeta.class,
-      Pipeline.class
-    );
-    MetaInject transform = kons.newInstance( mock.transformMeta, mock.iTransformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline );
+  public static MetaInject getTransform(Class<MetaInject> klass, TransformMockHelper mock)
+      throws NoSuchMethodException, SecurityException, InstantiationException,
+          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    Constructor<MetaInject> kons =
+        klass.getConstructor(
+            TransformMeta.class,
+            MetaInjectMeta.class,
+            MetaInjectData.class,
+            int.class,
+            PipelineMeta.class,
+            Pipeline.class);
+    MetaInject transform =
+        kons.newInstance(
+            mock.transformMeta,
+            mock.iTransformMeta,
+            mock.iTransformData,
+            0,
+            mock.pipelineMeta,
+            mock.pipeline);
     return transform;
   }
 
-  public static MetaInject getTransform( Class<MetaInject> transformClass, Class<MetaInjectMeta> transformMetaClass, Class<MetaInjectData> dataClass, String transformName )
-    throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    return TransformMockUtil.getTransform( transformClass, TransformMockUtil.getTransformMockHelper( transformMetaClass, dataClass, transformName ) );
+  public static MetaInject getTransform(
+      Class<MetaInject> transformClass,
+      Class<MetaInjectMeta> transformMetaClass,
+      Class<MetaInjectData> dataClass,
+      String transformName)
+      throws NoSuchMethodException, SecurityException, InstantiationException,
+          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    return TransformMockUtil.getTransform(
+        transformClass,
+        TransformMockUtil.getTransformMockHelper(transformMetaClass, dataClass, transformName));
   }
-
 }

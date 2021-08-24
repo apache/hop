@@ -24,46 +24,50 @@ import org.junit.Test;
 
 public class XmlOutputMetaInjectionTest extends BaseMetadataInjectionTest<XmlOutputMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() {
 
-    try{
-      setup( new XmlOutputMeta() );
-    }catch(Exception e){
+    try {
+      setup(new XmlOutputMeta());
+    } catch (Exception e) {
 
     }
   }
 
   @Test
   public void test() throws Exception {
-    check( "FILENAME", () -> meta.getFileName() );
-    check( "EXTENSION", () -> meta.getExtension() );
-    check( "SPLIT_EVERY", () -> meta.getSplitEvery() );
-    check( "INC_TRANSFORMNR_IN_FILENAME", () -> meta.isTransformNrInFilename() );
-    check( "INC_DATE_IN_FILENAME", () -> meta.isDateInFilename() );
-    check( "INC_TIME_IN_FILENAME", () -> meta.isTimeInFilename() );
-    check( "ZIPPED", () -> meta.isZipped() );
-    check( "ENCODING", () -> meta.getEncoding() );
-    check( "NAMESPACE", () -> meta.getNameSpace() );
-    check( "MAIN_ELEMENT", () -> meta.getMainElement() );
-    check( "REPEAT_ELEMENT", () -> meta.getRepeatElement() );
-    check( "ADD_TO_RESULT", () -> meta.isAddToResultFiles() );
-    check( "DO_NOT_CREATE_FILE_AT_STARTUP", () -> meta.isDoNotOpenNewFileInit() );
-    check( "OMIT_NULL_VALUES", () -> meta.isOmitNullValues() );
-    check( "SPEFICY_FORMAT", () -> meta.isSpecifyFormat() );
-    check( "DATE_FORMAT", () -> meta.getDateTimeFormat() );
-    check( "OUTPUT_FIELDNAME", () -> meta.getOutputFields()[0].getFieldName() );
-    check( "OUTPUT_ELEMENTNAME", () -> meta.getOutputFields()[0].getElementName() );
-    check( "OUTPUT_FORMAT", () -> meta.getOutputFields()[0].getFormat() );
-    check( "OUTPUT_LENGTH", () -> meta.getOutputFields()[0].getLength() );
-    check( "OUTPUT_PRECISION", () -> meta.getOutputFields()[0].getPrecision() );
-    check( "OUTPUT_CURRENCY", () -> meta.getOutputFields()[0].getCurrencySymbol() );
-    check( "OUTPUT_DECIMAL", () -> meta.getOutputFields()[0].getDecimalSymbol() );
-    check( "OUTPUT_GROUP", () -> meta.getOutputFields()[0].getGroupingSymbol() );
-    check( "OUTPUT_NULL", () -> meta.getOutputFields()[0].getNullString() );
-    check( "OUTPUT_CONTENT_TYPE", () -> meta.getOutputFields()[0].getContentType(), XmlField.ContentType.class );
+    check("FILENAME", () -> meta.getFileName());
+    check("EXTENSION", () -> meta.getExtension());
+    check("SPLIT_EVERY", () -> meta.getSplitEvery());
+    check("INC_TRANSFORMNR_IN_FILENAME", () -> meta.isTransformNrInFilename());
+    check("INC_DATE_IN_FILENAME", () -> meta.isDateInFilename());
+    check("INC_TIME_IN_FILENAME", () -> meta.isTimeInFilename());
+    check("ZIPPED", () -> meta.isZipped());
+    check("ENCODING", () -> meta.getEncoding());
+    check("NAMESPACE", () -> meta.getNameSpace());
+    check("MAIN_ELEMENT", () -> meta.getMainElement());
+    check("REPEAT_ELEMENT", () -> meta.getRepeatElement());
+    check("ADD_TO_RESULT", () -> meta.isAddToResultFiles());
+    check("DO_NOT_CREATE_FILE_AT_STARTUP", () -> meta.isDoNotOpenNewFileInit());
+    check("OMIT_NULL_VALUES", () -> meta.isOmitNullValues());
+    check("SPEFICY_FORMAT", () -> meta.isSpecifyFormat());
+    check("DATE_FORMAT", () -> meta.getDateTimeFormat());
+    check("OUTPUT_FIELDNAME", () -> meta.getOutputFields()[0].getFieldName());
+    check("OUTPUT_ELEMENTNAME", () -> meta.getOutputFields()[0].getElementName());
+    check("OUTPUT_FORMAT", () -> meta.getOutputFields()[0].getFormat());
+    check("OUTPUT_LENGTH", () -> meta.getOutputFields()[0].getLength());
+    check("OUTPUT_PRECISION", () -> meta.getOutputFields()[0].getPrecision());
+    check("OUTPUT_CURRENCY", () -> meta.getOutputFields()[0].getCurrencySymbol());
+    check("OUTPUT_DECIMAL", () -> meta.getOutputFields()[0].getDecimalSymbol());
+    check("OUTPUT_GROUP", () -> meta.getOutputFields()[0].getGroupingSymbol());
+    check("OUTPUT_NULL", () -> meta.getOutputFields()[0].getNullString());
+    check(
+        "OUTPUT_CONTENT_TYPE",
+        () -> meta.getOutputFields()[0].getContentType(),
+        XmlField.ContentType.class);
 
     // TODO check field type plugins
-    skipPropertyTest( "OUTPUT_TYPE" );
+    skipPropertyTest("OUTPUT_TYPE");
   }
 }

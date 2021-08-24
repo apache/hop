@@ -19,16 +19,14 @@ package org.apache.hop.pipeline.transforms.excelinput;
 
 import org.apache.hop.core.spreadsheet.IKCell;
 
-/**
- * Represent 1 row in a an Excel sheet.
- */
+/** Represent 1 row in a an Excel sheet. */
 public class ExcelInputRow {
 
   public final String sheetName;
   public final int rownr;
   public final IKCell[] cells;
 
-  public ExcelInputRow( String sheetName, int rownr, IKCell[] cells ) {
+  public ExcelInputRow(String sheetName, int rownr, IKCell[] cells) {
     this.sheetName = sheetName;
     this.rownr = rownr;
     this.cells = cells;

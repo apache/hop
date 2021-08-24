@@ -22,14 +22,12 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import javax.sql.RowSet;
 import java.util.List;
 
 /**
  * @author Biswapesh
  * @since 24-nov-2005
  */
-
 public class MergeJoinData extends BaseTransformData implements ITransformData {
   public Object[] one, two;
   public IRowMeta oneMeta, twoMeta;
@@ -44,9 +42,7 @@ public class MergeJoinData extends BaseTransformData implements ITransformData {
   public IRowSet oneRowSet;
   public IRowSet twoRowSet;
 
-  /**
-   * Default initializer
-   */
+  /** Default initializer */
   public MergeJoinData() {
     super();
     ones = null;
@@ -60,5 +56,4 @@ public class MergeJoinData extends BaseTransformData implements ITransformData {
     keyNrs1 = null;
     keyNrs2 = null;
   }
-
 }

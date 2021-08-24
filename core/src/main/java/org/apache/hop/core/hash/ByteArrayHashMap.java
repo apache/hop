@@ -31,31 +31,33 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   private IRowMeta keyMeta;
 
   /**
-   * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and load factor.
+   * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and load
+   * factor.
    *
    * @param initialCapacity the initial capacity
-   * @param loadFactor      the load factor
-   * @throws IllegalArgumentException if the initial capacity is negative or the load factor is nonpositive
+   * @param loadFactor the load factor
+   * @throws IllegalArgumentException if the initial capacity is negative or the load factor is
+   *     nonpositive
    */
-  public ByteArrayHashMap( int initialCapacity, float loadFactor, IRowMeta keyMeta ) {
-    super( initialCapacity, loadFactor );
+  public ByteArrayHashMap(int initialCapacity, float loadFactor, IRowMeta keyMeta) {
+    super(initialCapacity, loadFactor);
     this.keyMeta = keyMeta;
   }
 
   @Override
-  protected boolean isEqualKey( Object key1, Object key2 ) {
-    return equalsByteArray( (byte[]) key1, (byte[]) key2 );
+  protected boolean isEqualKey(Object key1, Object key2) {
+    return equalsByteArray((byte[]) key1, (byte[]) key2);
   }
 
   @Override
-  protected boolean isEqualValue( Object value1, Object value2 ) {
-    return equalsByteArray( (byte[]) value1, (byte[]) value2 );
+  protected boolean isEqualValue(Object value1, Object value2) {
+    return equalsByteArray((byte[]) value1, (byte[]) value2);
   }
 
-  public final boolean equalsByteArray( byte[] value, byte[] cmpValue ) {
-    if ( value.length == cmpValue.length ) {
-      for ( int i = 0; i < value.length; i++ ) {
-        if ( value[ i ] != cmpValue[ i ] ) {
+  public final boolean equalsByteArray(byte[] value, byte[] cmpValue) {
+    if (value.length == cmpValue.length) {
+      for (int i = 0; i < value.length; i++) {
+        if (value[i] != cmpValue[i]) {
           return false;
         }
       }
@@ -65,60 +67,62 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   }
 
   /**
-   * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and the default load factor
-   * (0.75).
+   * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and the
+   * default load factor (0.75).
    *
    * @param initialCapacity the initial capacity.
    * @throws IllegalArgumentException if the initial capacity is negative.
    */
-  public ByteArrayHashMap( int initialCapacity, IRowMeta keyMeta ) {
-    this( initialCapacity, DEFAULT_LOAD_FACTOR, keyMeta );
+  public ByteArrayHashMap(int initialCapacity, IRowMeta keyMeta) {
+    this(initialCapacity, DEFAULT_LOAD_FACTOR, keyMeta);
   }
 
   /**
-   * Constructs an empty <tt>HashMap</tt> with the default initial capacity (16) and the default load factor (0.75).
+   * Constructs an empty <tt>HashMap</tt> with the default initial capacity (16) and the default
+   * load factor (0.75).
    */
-  public ByteArrayHashMap( IRowMeta keyMeta ) {
-    this( DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, keyMeta );
+  public ByteArrayHashMap(IRowMeta keyMeta) {
+    this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, keyMeta);
   }
 
   /**
-   * Returns the entry to which the specified key is &quot;mapped&quot;, or, in other words, if this index contains an
-   * entry that is equal to the given key, or {@code null} if this is not the case.
+   * Returns the entry to which the specified key is &quot;mapped&quot;, or, in other words, if this
+   * index contains an entry that is equal to the given key, or {@code null} if this is not the
+   * case.
    *
-   * <p>
-   * More formally, if this index contains an entry {@code e} such that {@code key.equals(e))}, then this method returns
-   * {@code e}; otherwise it returns {@code null}. (There can be at most one such entry.)
+   * <p>More formally, if this index contains an entry {@code e} such that {@code key.equals(e))},
+   * then this method returns {@code e}; otherwise it returns {@code null}. (There can be at most
+   * one such entry.)
    *
    * @param key The key to look up.
    * @throws HopValueException in case of a value conversion error
    * @see #put(Object)
    * @see #insert(Object)
    */
-  public byte[] get( byte[] key ) {
-    return (byte[]) super.get( key );
+  public byte[] get(byte[] key) {
+    return (byte[]) super.get(key);
   }
 
-  public void put( byte[] key, byte[] value ) {
-    super.put( key, value );
+  public void put(byte[] key, byte[] value) {
+    super.put(key, value);
   }
 
   @Override
-  protected int hash( Object key ) {
+  protected int hash(Object key) {
     byte[] rowKey = (byte[]) key;
     try {
-      return keyMeta.hashCode( RowMeta.getRow( keyMeta, rowKey ) );
-    } catch ( HopValueException ex ) {
-      throw new IllegalArgumentException( ex );
+      return keyMeta.hashCode(RowMeta.getRow(keyMeta, rowKey));
+    } catch (HopValueException ex) {
+      throw new IllegalArgumentException(ex);
     }
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings("unchecked")
   public List<byte[]> getKeys() {
-    List<byte[]> rtn = new ArrayList<>( this.size() );
+    List<byte[]> rtn = new ArrayList<>(this.size());
     Set<byte[]> kSet = this.keySet();
-    for ( Iterator<byte[]> it = kSet.iterator(); it.hasNext(); ) {
-      rtn.add( it.next() );
+    for (Iterator<byte[]> it = kSet.iterator(); it.hasNext(); ) {
+      rtn.add(it.next());
     }
     return rtn;
   }

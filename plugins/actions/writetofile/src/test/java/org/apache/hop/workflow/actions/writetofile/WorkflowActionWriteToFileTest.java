@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.writetofile;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionWriteToFileTest extends WorkflowActionLoadSaveTestSupport<ActionWriteToFile> {
+public class WorkflowActionWriteToFileTest
+    extends WorkflowActionLoadSaveTestSupport<ActionWriteToFile> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,32 +35,26 @@ public class WorkflowActionWriteToFileTest extends WorkflowActionLoadSaveTestSup
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "filename",
-      "createParentFolder",
-      "appendFile",
-      "content",
-      "encoding" );
+    return Arrays.asList("filename", "createParentFolder", "appendFile", "content", "encoding");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "filename", "getFilename",
-      "createParentFolder", "isCreateParentFolder",
-      "appendFile", "isAppendFile",
-      "content", "getContent",
-      "encoding", "getEncoding" );
+        "filename", "getFilename",
+        "createParentFolder", "isCreateParentFolder",
+        "appendFile", "isAppendFile",
+        "content", "getContent",
+        "encoding", "getEncoding");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "filename", "setFilename",
-      "createParentFolder", "setCreateParentFolder",
-      "appendFile", "setAppendFile",
-      "content", "setContent",
-      "encoding", "setEncoding" );
+        "filename", "setFilename",
+        "createParentFolder", "setCreateParentFolder",
+        "appendFile", "setAppendFile",
+        "content", "setContent",
+        "encoding", "setEncoding");
   }
-
 }

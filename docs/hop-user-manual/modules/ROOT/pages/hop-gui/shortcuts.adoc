@@ -18,13 +18,15 @@ under the License.
 :imagesdir: ../assets/images
 = Hop Shortcuts
 
-The table below lists the main shortcuts in Hop. Using them will save you a lot of time while working with Hop.
+The table below lists the main shortcuts in Hop.
+Using them will save you a lot of time while working with Hop.
 
-NOTE: If you are a Mac user, please be aware that the Mac keys must be used. Most of the times you can replace ctrl with cmd.
+NOTE: If you are a Mac user, please be aware that the Mac keys must be used.
+Most of the times you can replace ctrl with cmd.
 
 == General Shortcuts
 
-[width="85%", cols="25%, 75%", options="header"]
+[width="85%",cols="25%, 75%",options="header"]
 |===
 |Shortcut|Action
 |Ctr + n |Create a new work item
@@ -49,7 +51,7 @@ NOTE: If you are a Mac user, please be aware that the Mac keys must be used. Mos
 
 == Pipeline and Workflow Shortcuts
 
-[width="85%", cols="30%, 70%", options="header"]
+[width="85%",cols="30%, 70%",options="header"]
 |===
 |Shortcut|Action
 |Ctrl + HOME|Align all items to the specified grid side
@@ -64,9 +66,9 @@ NOTE: If you are a Mac user, please be aware that the Mac keys must be used. Mos
 |Ctrl + 0|Reset the zoom percentage to 100%
 |===
 
-
 == Perspective Shortcuts
-[width="85%", cols="30%, 70%", options="header"]
+
+[width="85%",cols="30%, 70%",options="header"]
 |===
 |Shortcut|Action
 |CTRL + Shift + &uarr; | Switch one perspective up

@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.config.plugin;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * This annotation signals to the plugin system that the class is a configuration plugin.
@@ -29,8 +25,8 @@ import java.lang.annotation.Target;
  * @author matt
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface ConfigPlugin {
   String CATEGORY_CONFIG = "config";
   String CATEGORY_RUN = "run";
@@ -38,6 +34,8 @@ public @interface ConfigPlugin {
   String CATEGORY_IMPORT = "import";
 
   String id();
+
   String description() default "";
+
   String category() default CATEGORY_CONFIG;
 }

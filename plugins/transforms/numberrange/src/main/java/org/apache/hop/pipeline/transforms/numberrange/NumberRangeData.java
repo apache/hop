@@ -21,9 +21,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * + * Data for the NumberRangePlugin + * + *
- */
+/** + * Data for the NumberRangePlugin + * + * */
 public class NumberRangeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public int inputColumnNr;

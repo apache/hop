@@ -19,9 +19,9 @@ package org.apache.hop.databases.monetdb;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -32,11 +32,8 @@ import org.apache.hop.core.util.Utils;
  * @author Matt
  * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(
-  type = "MONETDB",
-  typeDescription = "MonetDB"
-)
-@GuiPlugin( id = "GUI-MonetDBDatabaseMeta" )
+@DatabaseMetaPlugin(type = "MONETDB", typeDescription = "MonetDB")
+@GuiPlugin(id = "GUI-MonetDBDatabaseMeta")
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<>();
@@ -49,31 +46,26 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public int[] getAccessTypeList() {
-    return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE };
+    return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /**
-   * @see IDatabase#getDefaultDatabasePort()
-   */
+  /** @see IDatabase#getDefaultDatabasePort() */
   @Override
   public int getDefaultDatabasePort() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
+    if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
       return 50000; // According to https://www.monetdb.org/Documentation/monetdb-man-page
     } else {
       return -1;
     }
   }
 
-  /**
-   * @see IDatabase#getNotFoundTK(boolean)
-   */
+  /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
-  public int getNotFoundTK( boolean useAutoinc ) {
-    if ( supportsAutoInc() && useAutoinc ) {
+  public int getNotFoundTK(boolean useAutoinc) {
+    if (supportsAutoInc() && useAutoinc) {
       return 1;
     }
-    return super.getNotFoundTK( useAutoinc );
+    return super.getNotFoundTK(useAutoinc);
   }
 
   @Override
@@ -82,12 +74,12 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
-      if ( Utils.isEmpty( port ) ) {
-        return "jdbc:monetdb://" + hostname + "/" + databaseName;
-      } else {
-        return "jdbc:monetdb://" + hostname + ":" + port + "/" + databaseName;
-      }
+  public String getURL(String hostname, String port, String databaseName) {
+    if (Utils.isEmpty(port)) {
+      return "jdbc:monetdb://" + hostname + "/" + databaseName;
+    } else {
+      return "jdbc:monetdb://" + hostname + ":" + port + "/" + databaseName;
+    }
   }
 
   /**
@@ -100,9 +92,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /**
-   * @return true if the database supports bitmap indexes
-   */
+  /** @return true if the database supports bitmap indexes */
   @Override
   public boolean supportsBitmapIndex() {
     return true;
@@ -128,61 +118,138 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
-  public String getTruncateTableStatement( String tableName ) {
+  public String getTruncateTableStatement(String tableName) {
     return "DELETE FROM " + tableName;
   }
 
   /**
-   * Generates the SQL statement to add a column to the specified table For this generic type, i set it to the most
-   * common possibility.
+   * Generates the SQL statement to add a column to the specified table For this generic type, i set
+   * it to the most common possibility.
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                       String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  public String getAddColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
+    return "ALTER TABLE "
+        + tableName
+        + " ADD "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                          String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tableName + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  public String getModifyColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
+    return "ALTER TABLE "
+        + tableName
+        + " MODIFY "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   @Override
   public String[] getReservedWords() {
     return new String[] {
-      "IS", "ISNULL", "NOTNULL", "IN", "BETWEEN", "OVERLAPS", "LIKE", "ILIKE", "NOT", "AND", "OR", "CHAR", "VARCHAR",
-      "CLOB", "BLOB", "DECIMAL", "DEC", "NUMERIC", "TINYINT", "SMALLINT", "INT", "BIGINT", "REAL", "DOUBLE", "BOOLEAN",
-      "DATE", "TIME", "TIMESTAMP", "INTERVAL", "YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND", "TIMEZONE", "EXTRACT",
-      "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "LOCALTIME", "LOCALTIMESTAMP", "CURRENT_TIME", "SERIAL", "START",
-      "WITH", "INCREMENT", "CACHE", "CYCLE", "SEQUENCE", "GETANCHOR", "GETBASENAME", "GETCONTENT", "GETCONTEXT", "GETDOMAIN",
-      "GETEXTENSION", "GETFILE", "GETHOST", "GETPORT", "GETPROTOCOL", "GETQUERY", "GETUSER", "GETROBOTURL", "ISURL", "NEWURL",
-      "BROADCAST", "MASKLEN", "SETMASKLEN", "NETMASK", "HOSTMASK", "NETWORK", "TEXT", "ABBREV", "CREATE", "TYPE", "NAME", "DROP",
-      "USER" };
+      "IS",
+      "ISNULL",
+      "NOTNULL",
+      "IN",
+      "BETWEEN",
+      "OVERLAPS",
+      "LIKE",
+      "ILIKE",
+      "NOT",
+      "AND",
+      "OR",
+      "CHAR",
+      "VARCHAR",
+      "CLOB",
+      "BLOB",
+      "DECIMAL",
+      "DEC",
+      "NUMERIC",
+      "TINYINT",
+      "SMALLINT",
+      "INT",
+      "BIGINT",
+      "REAL",
+      "DOUBLE",
+      "BOOLEAN",
+      "DATE",
+      "TIME",
+      "TIMESTAMP",
+      "INTERVAL",
+      "YEAR",
+      "MONTH",
+      "DAY",
+      "HOUR",
+      "MINUTE",
+      "SECOND",
+      "TIMEZONE",
+      "EXTRACT",
+      "CURRENT_DATE",
+      "CURRENT_TIME",
+      "CURRENT_TIMESTAMP",
+      "LOCALTIME",
+      "LOCALTIMESTAMP",
+      "CURRENT_TIME",
+      "SERIAL",
+      "START",
+      "WITH",
+      "INCREMENT",
+      "CACHE",
+      "CYCLE",
+      "SEQUENCE",
+      "GETANCHOR",
+      "GETBASENAME",
+      "GETCONTENT",
+      "GETCONTEXT",
+      "GETDOMAIN",
+      "GETEXTENSION",
+      "GETFILE",
+      "GETHOST",
+      "GETPORT",
+      "GETPROTOCOL",
+      "GETQUERY",
+      "GETUSER",
+      "GETROBOTURL",
+      "ISURL",
+      "NEWURL",
+      "BROADCAST",
+      "MASKLEN",
+      "SETMASKLEN",
+      "NETMASK",
+      "HOSTMASK",
+      "NETWORK",
+      "TEXT",
+      "ABBREV",
+      "CREATE",
+      "TYPE",
+      "NAME",
+      "DROP",
+      "USER"
+    };
   }
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldName, boolean addCr ) {
+  public String getFieldDefinition(
+      IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
     StringBuilder retval = new StringBuilder();
 
     String fieldname = v.getName();
@@ -192,106 +259,109 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     Boolean mode = MonetDBDatabaseMeta.safeModeLocal.get();
     boolean safeMode = mode != null && mode.booleanValue();
 
-    if ( addFieldName ) {
+    if (addFieldName) {
       // protect the fieldname
-      if ( safeMode ) {
-        fieldname = getSafeFieldname( fieldname );
+      if (safeMode) {
+        fieldname = getSafeFieldname(fieldname);
       }
 
-      retval.append( fieldname + " " );
+      retval.append(fieldname + " ");
     }
 
     int type = v.getType();
-    switch ( type ) {
+    switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
       case IValueMeta.TYPE_DATE:
-        retval.append( "TIMESTAMP" );
+        retval.append("TIMESTAMP");
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if ( supportsBooleanDataType() ) {
-          retval.append( "BOOLEAN" );
+        if (supportsBooleanDataType()) {
+          retval.append("BOOLEAN");
         } else {
-          retval.append( "CHAR(1)" );
+          retval.append("CHAR(1)");
         }
         break;
       case IValueMeta.TYPE_NUMBER:
       case IValueMeta.TYPE_INTEGER:
       case IValueMeta.TYPE_BIGNUMBER:
-        if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
-          fieldname.equalsIgnoreCase( pk ) // Primary key
+        if (fieldname.equalsIgnoreCase(tk)
+            || // Technical key
+            fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
-          if ( useAutoinc ) {
-            retval.append( "SERIAL" );
+          if (useAutoinc) {
+            retval.append("SERIAL");
           } else {
-            retval.append( "BIGINT" );
+            retval.append("BIGINT");
           }
         } else {
           // Integer values...
-          if ( precision == 0 ) {
-            if ( length > 9 ) {
-              if ( length < 19 ) {
+          if (precision == 0) {
+            if (length > 9) {
+              if (length < 19) {
                 // can hold signed values between -9223372036854775808 and 9223372036854775807
                 // 18 significant digits
-                retval.append( "BIGINT" );
+                retval.append("BIGINT");
               } else {
-                retval.append( "DECIMAL(" ).append( length ).append( ")" );
+                retval.append("DECIMAL(").append(length).append(")");
               }
-            } else if ( type == IValueMeta.TYPE_NUMBER ) {
-              retval.append( "DOUBLE" );
+            } else if (type == IValueMeta.TYPE_NUMBER) {
+              retval.append("DOUBLE");
             } else {
-              retval.append( "BIGINT" );
+              retval.append("BIGINT");
             }
           } else {
             // Floating point values...
-            if ( length > 15 ) {
-              retval.append( "DECIMAL(" ).append( length );
-              if ( precision > 0 ) {
-                retval.append( ", " ).append( precision );
+            if (length > 15) {
+              retval.append("DECIMAL(").append(length);
+              if (precision > 0) {
+                retval.append(", ").append(precision);
               }
-              retval.append( ")" );
+              retval.append(")");
             } else {
-              // A double-precision floating-point number is accurate to approximately 15 decimal places.
+              // A double-precision floating-point number is accurate to approximately 15 decimal
+              // places.
               // http://mysql.mirrors-r-us.net/doc/refman/5.1/en/numeric-type-overview.html
-              retval.append( "DOUBLE" );
+              retval.append("DOUBLE");
             }
           }
         }
         break;
       case IValueMeta.TYPE_STRING:
-        if ( length > getMaxVARCHARLength() ) {
-          retval.append( "CLOB" );
+        if (length > getMaxVARCHARLength()) {
+          retval.append("CLOB");
         } else {
-          retval.append( "VARCHAR(" );
-          if ( length > 0 ) {
-            retval.append( length );
+          retval.append("VARCHAR(");
+          if (length > 0) {
+            retval.append(length);
           } else {
-            if ( safeMode ) {
-              retval.append( DEFAULT_VARCHAR_LENGTH );
+            if (safeMode) {
+              retval.append(DEFAULT_VARCHAR_LENGTH);
             }
           }
-          retval.append( ")" );
+          retval.append(")");
         }
         break;
       default:
-        retval.append( " UNKNOWN" );
+        retval.append(" UNKNOWN");
         break;
     }
 
-    if ( addCr ) {
-      retval.append( Const.CR );
+    if (addCr) {
+      retval.append(Const.CR);
     }
 
     return retval.toString();
   }
 
   /**
-   * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
+   * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given
+   * database table
    *
    * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override
-  public String getSqlQueryFields( String tableName ) {
+  public String getSqlQueryFields(String tableName) {
     return "SELECT * FROM " + tableName + ";";
   }
 
@@ -316,19 +386,19 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSqlSequenceExists( String sequenceName ) {
-    return String.format( "SELECT * FROM sys.sequences WHERE name = '%s'", sequenceName );
+  public String getSqlSequenceExists(String sequenceName) {
+    return String.format("SELECT * FROM sys.sequences WHERE name = '%s'", sequenceName);
   }
 
   @Override
-  public String getSqlCurrentSequenceValue( String sequenceName ) {
-    String realSequenceName = sequenceName.replace( getStartQuote(), "" ).replace( getEndQuote(), "" );
-    return String.format( "SELECT get_value_for( 'sys', '%s' )", realSequenceName );
+  public String getSqlCurrentSequenceValue(String sequenceName) {
+    String realSequenceName = sequenceName.replace(getStartQuote(), "").replace(getEndQuote(), "");
+    return String.format("SELECT get_value_for( 'sys', '%s' )", realSequenceName);
   }
 
   @Override
-  public String getSqlNextSequenceValue( String sequenceName ) {
-    String realSequenceName = sequenceName.replace( getStartQuote(), "" ).replace( getEndQuote(), "" );
-    return String.format( "SELECT next_value_for( 'sys', '%s' )", realSequenceName );
+  public String getSqlNextSequenceValue(String sequenceName) {
+    String realSequenceName = sequenceName.replace(getStartQuote(), "").replace(getEndQuote(), "");
+    return String.format("SELECT next_value_for( 'sys', '%s' )", realSequenceName);
   }
 }

@@ -33,7 +33,7 @@ public class SqlScriptStatement {
    * @param toIndex
    * @param query
    */
-  public SqlScriptStatement( String statement, int fromIndex, int toIndex, boolean query ) {
+  public SqlScriptStatement(String statement, int fromIndex, int toIndex, boolean query) {
     this.statement = statement;
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
@@ -45,102 +45,73 @@ public class SqlScriptStatement {
     return statement;
   }
 
-  /**
-   * @return the statement
-   */
+  /** @return the statement */
   public String getStatement() {
     return statement;
   }
 
-  /**
-   * @param statement the statement to set
-   */
-  public void setStatement( String statement ) {
+  /** @param statement the statement to set */
+  public void setStatement(String statement) {
     this.statement = statement;
   }
 
-  /**
-   * @return the fromIndex
-   */
+  /** @return the fromIndex */
   public int getFromIndex() {
     return fromIndex;
   }
 
-  /**
-   * @param fromIndex the fromIndex to set
-   */
-  public void setFromIndex( int fromIndex ) {
+  /** @param fromIndex the fromIndex to set */
+  public void setFromIndex(int fromIndex) {
     this.fromIndex = fromIndex;
   }
 
-  /**
-   * @return the toIndex
-   */
+  /** @return the toIndex */
   public int getToIndex() {
     return toIndex;
   }
 
-  /**
-   * @param toIndex the toIndex to set
-   */
-  public void setToIndex( int toIndex ) {
+  /** @param toIndex the toIndex to set */
+  public void setToIndex(int toIndex) {
     this.toIndex = toIndex;
   }
 
-  /**
-   * @return the query
-   */
+  /** @return the query */
   public boolean isQuery() {
     return query;
   }
 
-  /**
-   * @param query the query to set
-   */
-  public void setQuery( boolean query ) {
+  /** @param query the query to set */
+  public void setQuery(boolean query) {
     this.query = query;
   }
 
-  /**
-   * @return the ok
-   */
+  /** @return the ok */
   public boolean isOk() {
     return ok;
   }
 
-  /**
-   * @param ok the ok to set
-   */
-  public void setOk( boolean ok ) {
+  /** @param ok the ok to set */
+  public void setOk(boolean ok) {
     this.ok = ok;
   }
 
-  /**
-   * @return the loggingText
-   */
+  /** @return the loggingText */
   public String getLoggingText() {
     return loggingText;
   }
 
-  /**
-   * @param loggingText the loggingText to set
-   */
-  public void setLoggingText( String loggingText ) {
+  /** @param loggingText the loggingText to set */
+  public void setLoggingText(String loggingText) {
     this.loggingText = loggingText;
   }
 
-  /**
-   * @return the complete
-   */
+  /** @return the complete */
   public boolean isComplete() {
     return complete;
   }
 
-  /**
-   * @param complete the complete to set
-   */
-  public void setComplete( boolean complete ) {
+  /** @param complete the complete to set */
+  public void setComplete(boolean complete) {
     this.complete = complete;
   }
-
 }

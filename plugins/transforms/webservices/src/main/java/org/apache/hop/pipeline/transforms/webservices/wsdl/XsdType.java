@@ -33,31 +33,44 @@ public class XsdType {
   public static final String BINARY = "base64Binary";
   public static final String DECIMAL = "decimal";
 
-  public static final String[] TYPES = new String[] {
-    STRING, INTEGER, INTEGER_DESC, SHORT, BOOLEAN, DATE, TIME, DATE_TIME, DOUBLE, FLOAT, BINARY, DECIMAL, };
+  public static final String[] TYPES =
+      new String[] {
+        STRING,
+        INTEGER,
+        INTEGER_DESC,
+        SHORT,
+        BOOLEAN,
+        DATE,
+        TIME,
+        DATE_TIME,
+        DOUBLE,
+        FLOAT,
+        BINARY,
+        DECIMAL,
+      };
 
-  public static int xsdTypeToHopType( String aXsdType ) {
+  public static int xsdTypeToHopType(String aXsdType) {
     int vRet = IValueMeta.TYPE_NONE;
-    if ( aXsdType != null ) {
-      if ( aXsdType.equalsIgnoreCase( DATE ) ) {
+    if (aXsdType != null) {
+      if (aXsdType.equalsIgnoreCase(DATE)) {
         vRet = IValueMeta.TYPE_DATE;
-      } else if ( aXsdType.equalsIgnoreCase( TIME ) ) {
+      } else if (aXsdType.equalsIgnoreCase(TIME)) {
         vRet = IValueMeta.TYPE_DATE;
-      } else if ( aXsdType.equalsIgnoreCase( DATE_TIME ) ) {
+      } else if (aXsdType.equalsIgnoreCase(DATE_TIME)) {
         vRet = IValueMeta.TYPE_DATE;
-      } else if ( aXsdType.equalsIgnoreCase( INTEGER ) || aXsdType.equalsIgnoreCase( INTEGER_DESC ) ) {
+      } else if (aXsdType.equalsIgnoreCase(INTEGER) || aXsdType.equalsIgnoreCase(INTEGER_DESC)) {
         vRet = IValueMeta.TYPE_INTEGER;
-      } else if ( aXsdType.equalsIgnoreCase( SHORT ) ) {
+      } else if (aXsdType.equalsIgnoreCase(SHORT)) {
         vRet = IValueMeta.TYPE_INTEGER;
-      } else if ( aXsdType.equalsIgnoreCase( BOOLEAN ) ) {
+      } else if (aXsdType.equalsIgnoreCase(BOOLEAN)) {
         vRet = IValueMeta.TYPE_BOOLEAN;
-      } else if ( aXsdType.equalsIgnoreCase( STRING ) ) {
+      } else if (aXsdType.equalsIgnoreCase(STRING)) {
         vRet = IValueMeta.TYPE_STRING;
-      } else if ( aXsdType.equalsIgnoreCase( DOUBLE ) ) {
+      } else if (aXsdType.equalsIgnoreCase(DOUBLE)) {
         vRet = IValueMeta.TYPE_NUMBER;
-      } else if ( aXsdType.equalsIgnoreCase( BINARY ) ) {
+      } else if (aXsdType.equalsIgnoreCase(BINARY)) {
         vRet = IValueMeta.TYPE_BINARY;
-      } else if ( aXsdType.equalsIgnoreCase( DECIMAL ) ) {
+      } else if (aXsdType.equalsIgnoreCase(DECIMAL)) {
         vRet = IValueMeta.TYPE_BIGNUMBER;
       } else {
         // When all else fails, map it to a String

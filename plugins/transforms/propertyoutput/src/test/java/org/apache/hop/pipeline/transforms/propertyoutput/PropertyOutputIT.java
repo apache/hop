@@ -28,43 +28,41 @@ public class PropertyOutputIT {
   @Before
   public void setUp() throws Exception {
     HopClientEnvironment.init();
-    PluginRegistry.addPluginType( TransformPluginType.getInstance() );
+    PluginRegistry.addPluginType(TransformPluginType.getInstance());
     PluginRegistry.init();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() throws Exception {}
 
-  }
+  /*
+    @Test
+    @Ignore
+    public void testExecute() throws HopException, IOException {
+      PipelineMeta meta = new PipelineMeta( getClass().getResource( "propertyOutput.hpl" ).getPath() );
+      Pipeline pipeline = new LocalPipelineEngine( meta );
+      pipeline.execute();
+      pipeline.waitUntilFinished();
 
-/*
-  @Test
-  @Ignore
-  public void testExecute() throws HopException, IOException {
-    PipelineMeta meta = new PipelineMeta( getClass().getResource( "propertyOutput.hpl" ).getPath() );
-    Pipeline pipeline = new LocalPipelineEngine( meta );
-    pipeline.execute();
-    pipeline.waitUntilFinished();
+      //check that pipeline is finished
+      assertTrue( pipeline.isFinished() );
 
-    //check that pipeline is finished
-    assertTrue( pipeline.isFinished() );
+      PropertyOutputData dataTransform = (PropertyOutputData) pipeline.getTransforms().get( 1 ).data;
 
-    PropertyOutputData dataTransform = (PropertyOutputData) pipeline.getTransforms().get( 1 ).data;
-
-    RandomAccessFile fos = null;
-    try {
-      File file = new File( URI.create( dataTransform.filename.replace( "\\", "/" ) ).getPath() );
-      if ( file.exists() ) {
-        fos = new RandomAccessFile( file, "rw" );
-      }
-    } catch ( FileNotFoundException | SecurityException e ) {
-      fail( "the file with properties should be unallocated" );
-    } finally {
-      if ( fos != null ) {
-        fos.close();
+      RandomAccessFile fos = null;
+      try {
+        File file = new File( URI.create( dataTransform.filename.replace( "\\", "/" ) ).getPath() );
+        if ( file.exists() ) {
+          fos = new RandomAccessFile( file, "rw" );
+        }
+      } catch ( FileNotFoundException | SecurityException e ) {
+        fail( "the file with properties should be unallocated" );
+      } finally {
+        if ( fos != null ) {
+          fos.close();
+        }
       }
     }
-  }
-*/
+  */
 
 }

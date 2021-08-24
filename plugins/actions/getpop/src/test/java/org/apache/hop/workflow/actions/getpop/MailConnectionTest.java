@@ -23,7 +23,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.mail.Folder;
@@ -41,22 +40,22 @@ public class MailConnectionTest {
   @Before
   public void beforeExec() throws HopException, MessagingException {
     Object subj = new Object();
-    ILogChannel log = new LogChannel( subj );
-    conn = new Mconn( log );
+    ILogChannel log = new LogChannel(subj);
+    conn = new Mconn(log);
   }
 
   /**
-   * Test {@link MailConnection#openFolder(String, boolean, boolean)} method. tests that folders are opened
-   * recursively
+   * Test {@link MailConnection#openFolder(String, boolean, boolean)} method. tests that folders are
+   * opened recursively
    *
    * @throws HopException
    * @throws MessagingException
    */
   @Test
   public void openFolderTest() throws HopException, MessagingException {
-    conn.openFolder( "a/b", false, false );
+    conn.openFolder("a/b", false, false);
     Folder folder = conn.getFolder();
-    Assert.assertEquals( "Folder B is opened", "B", folder.getFullName() );
+    Assert.assertEquals("Folder B is opened", "B", folder.getFullName());
   }
 
   /**
@@ -67,102 +66,113 @@ public class MailConnectionTest {
    */
   @Test
   public void setDestinationFolderTest() throws HopException, MessagingException {
-    conn.setDestinationFolder( "a/b/c", true );
-    Assert.assertTrue( "Folder C created", conn.cCreated );
-    Assert.assertEquals( "Folder created with holds messages mode", Folder.HOLDS_MESSAGES, conn.mode.intValue() );
+    conn.setDestinationFolder("a/b/c", true);
+    Assert.assertTrue("Folder C created", conn.cCreated);
+    Assert.assertEquals(
+        "Folder created with holds messages mode", Folder.HOLDS_MESSAGES, conn.mode.intValue());
   }
 
   /**
    * Test {@link MailConnection#findValidTarget(String, String) }
-   * <p>
-   * Note - this test case relies on the ability to create temporary files
-   * of zero-byte size in the java.io.tmpdir folder.
+   *
+   * <p>Note - this test case relies on the ability to create temporary files of zero-byte size in
+   * the java.io.tmpdir folder.
    */
   @Test
   public void findValidTargetTest() throws IOException, HopException {
     File aFile = null;
-    String tmpFileLocation = System.getProperty( "java.io.tmpdir" );
+    String tmpFileLocation = System.getProperty("java.io.tmpdir");
     String aBaseFile = "pdi17713-.junk";
-    tmpFileLocation = tmpFileLocation.replace( "\\", "/" );
-    if ( !tmpFileLocation.endsWith( "/" ) ) {
+    tmpFileLocation = tmpFileLocation.replace("\\", "/");
+    if (!tmpFileLocation.endsWith("/")) {
       tmpFileLocation = tmpFileLocation + "/";
     }
 
     // Create temporary files to set up algorithm to have to find an available temp file
-    for ( int i = 0; i < 3; i++ ) {
-      aFile = new File( tmpFileLocation + "pdi17713-" + i + ".junk" );
-      if ( !aFile.exists() ) {
-        makeAFile( aFile );
+    for (int i = 0; i < 3; i++) {
+      aFile = new File(tmpFileLocation + "pdi17713-" + i + ".junk");
+      if (!aFile.exists()) {
+        makeAFile(aFile);
       }
-      aFile = new File( tmpFileLocation + "pdi17713-" + i ); // no extension version
-      if ( !aFile.exists() ) {
-        makeAFile( aFile );
+      aFile = new File(tmpFileLocation + "pdi17713-" + i); // no extension version
+      if (!aFile.exists()) {
+        makeAFile(aFile);
       }
     }
 
-    //**********************************
+    // **********************************
     // Test with file extensions...
-    //**********************************
+    // **********************************
 
     // Should now have six files in the tmp folder...
-    // with extensions: {tempdir}/pdi17713-0.junk, {tempdir}/pdi17713-1.junk, and {tempdir}/pdi17713-2.junk
+    // with extensions: {tempdir}/pdi17713-0.junk, {tempdir}/pdi17713-1.junk, and
+    // {tempdir}/pdi17713-2.junk
     // without extensions: {tempdir}/pdi17713-0, {tempdir}/pdi17713-1, and {tempdir}/pdi17713-2
-    String validTargetTestRtn = MailConnection.findValidTarget( tmpFileLocation, aBaseFile );
+    String validTargetTestRtn = MailConnection.findValidTarget(tmpFileLocation, aBaseFile);
     // Tests that if the base file doesn't already exist (like IMG00003.png), it will use that one
 
-    Assert.assertTrue( "Original file name should be tried first.", validTargetTestRtn.endsWith( aBaseFile ) );
+    Assert.assertTrue(
+        "Original file name should be tried first.", validTargetTestRtn.endsWith(aBaseFile));
 
     // Make sure that the target file already exists so it has to try to find the next available one
-    makeAFile( tmpFileLocation + aBaseFile );
-    validTargetTestRtn = MailConnection.findValidTarget( tmpFileLocation, aBaseFile );
+    makeAFile(tmpFileLocation + aBaseFile);
+    validTargetTestRtn = MailConnection.findValidTarget(tmpFileLocation, aBaseFile);
     // Tests that next available file has a "-3" because 0, 1, and 2 are taken
-    Assert.assertTrue( "File extension test failed - expected pdi17713-3.junk as file name", validTargetTestRtn.endsWith( "pdi17713-3.junk" ) );
+    Assert.assertTrue(
+        "File extension test failed - expected pdi17713-3.junk as file name",
+        validTargetTestRtn.endsWith("pdi17713-3.junk"));
 
-    //**********************************
+    // **********************************
     // Now test without file extensions
-    //**********************************
+    // **********************************
 
     aBaseFile = "pdi17713-";
-    validTargetTestRtn = MailConnection.findValidTarget( tmpFileLocation, aBaseFile );
+    validTargetTestRtn = MailConnection.findValidTarget(tmpFileLocation, aBaseFile);
     // Makes sure that it will still use the base file, even with no file extension
-    Assert.assertTrue( "Original file name should be tried first.", validTargetTestRtn.endsWith( aBaseFile ) );
-    makeAFile( tmpFileLocation + aBaseFile );
+    Assert.assertTrue(
+        "Original file name should be tried first.", validTargetTestRtn.endsWith(aBaseFile));
+    makeAFile(tmpFileLocation + aBaseFile);
     // Make sure that the target file already exists so it has to try to find the next available one
-    validTargetTestRtn = MailConnection.findValidTarget( tmpFileLocation, aBaseFile );
-    // Tests that next available file has a "-3" because 0, 1, and 2 are taken, even without a file extension
-    Assert.assertTrue( "File without extension test failed - expected pdi17713-3.junk as file name", validTargetTestRtn.endsWith( "pdi17713-3" ) );
+    validTargetTestRtn = MailConnection.findValidTarget(tmpFileLocation, aBaseFile);
+    // Tests that next available file has a "-3" because 0, 1, and 2 are taken, even without a file
+    // extension
+    Assert.assertTrue(
+        "File without extension test failed - expected pdi17713-3.junk as file name",
+        validTargetTestRtn.endsWith("pdi17713-3"));
 
     try {
-      validTargetTestRtn = MailConnection.findValidTarget( null, "wibble" );
-      Assert.fail( "Expected an IllegalArgumentException with a null parameter for folderName to findValidTarget" );
-    } catch ( IllegalArgumentException expected ) {
+      validTargetTestRtn = MailConnection.findValidTarget(null, "wibble");
+      Assert.fail(
+          "Expected an IllegalArgumentException with a null parameter for folderName to findValidTarget");
+    } catch (IllegalArgumentException expected) {
       // Expect this exception
     }
 
     try {
-      validTargetTestRtn = MailConnection.findValidTarget( "wibble", null );
-      Assert.fail( "Expected an IllegalArgumentException with a null parameter for fileName to findValidTarget" );
-    } catch ( IllegalArgumentException expected ) {
+      validTargetTestRtn = MailConnection.findValidTarget("wibble", null);
+      Assert.fail(
+          "Expected an IllegalArgumentException with a null parameter for fileName to findValidTarget");
+    } catch (IllegalArgumentException expected) {
       // Expect this exception
     }
   }
 
-  /**
-   * Test {@link MailConnection#folderExists(String)} method.
-   */
+  /** Test {@link MailConnection#folderExists(String)} method. */
   @Test
   public void folderExistsTest() {
-    boolean actual = conn.folderExists( "a/b" );
-    Assert.assertTrue( "Folder B exists", actual );
+    boolean actual = conn.folderExists("a/b");
+    Assert.assertTrue("Folder B exists", actual);
   }
 
-  private static void makeAFile( String path ) throws IOException {
-    File aFile = new File( path );
-    makeAFile( aFile );
+  private static void makeAFile(String path) throws IOException {
+    File aFile = new File(path);
+    makeAFile(aFile);
   }
 
-  private static void makeAFile( File aFile ) throws IOException {
-    aFile.createNewFile(); // makes sure the base file exists so that it will have to use new algorithm
+  private static void makeAFile(File aFile) throws IOException {
+    aFile
+        .createNewFile(); // makes sure the base file exists so that it will have to use new
+                          // algorithm
     aFile.deleteOnExit();
   }
 
@@ -178,36 +188,47 @@ public class MailConnectionTest {
 
     boolean cCreated = false;
 
-    public Mconn( ILogChannel log ) throws HopException, MessagingException {
-      super( log, MailConnectionMeta.PROTOCOL_IMAP, "junit", 0, "junit", "junit", false, false, "junit" );
+    public Mconn(ILogChannel log) throws HopException, MessagingException {
+      super(
+          log,
+          MailConnectionMeta.PROTOCOL_IMAP,
+          "junit",
+          0,
+          "junit",
+          "junit",
+          false,
+          false,
+          "junit");
 
-      store = Mockito.mock( Store.class );
+      store = Mockito.mock(Store.class);
 
-      inbox = Mockito.mock( Folder.class );
-      a = Mockito.mock( Folder.class );
-      b = Mockito.mock( Folder.class );
-      c = Mockito.mock( Folder.class );
+      inbox = Mockito.mock(Folder.class);
+      a = Mockito.mock(Folder.class);
+      b = Mockito.mock(Folder.class);
+      c = Mockito.mock(Folder.class);
 
-      when( a.getFullName() ).thenReturn( "A" );
-      when( b.getFullName() ).thenReturn( "B" );
-      when( c.getFullName() ).thenReturn( "C" );
+      when(a.getFullName()).thenReturn("A");
+      when(b.getFullName()).thenReturn("B");
+      when(c.getFullName()).thenReturn("C");
 
-      when( a.exists() ).thenReturn( true );
-      when( b.exists() ).thenReturn( true );
-      when( c.exists() ).thenReturn( cCreated );
-      when( c.create( Mockito.anyInt() ) ).thenAnswer( (Answer<Boolean>) invocation -> {
-        Object arg0 = invocation.getArguments()[ 0 ];
-        mode = Integer.class.cast( arg0 );
-        cCreated = true;
-        return true;
-      } );
+      when(a.exists()).thenReturn(true);
+      when(b.exists()).thenReturn(true);
+      when(c.exists()).thenReturn(cCreated);
+      when(c.create(Mockito.anyInt()))
+          .thenAnswer(
+              (Answer<Boolean>)
+                  invocation -> {
+                    Object arg0 = invocation.getArguments()[0];
+                    mode = Integer.class.cast(arg0);
+                    cCreated = true;
+                    return true;
+                  });
 
-      when( inbox.getFolder( "a" ) ).thenReturn( a );
-      when( a.getFolder( "b" ) ).thenReturn( b );
-      when( b.getFolder( "c" ) ).thenReturn( c );
+      when(inbox.getFolder("a")).thenReturn(a);
+      when(a.getFolder("b")).thenReturn(b);
+      when(b.getFolder("c")).thenReturn(c);
 
-      when( store.getDefaultFolder() ).thenReturn( inbox );
-
+      when(store.getDefaultFolder()).thenReturn(inbox);
     }
 
     @Override

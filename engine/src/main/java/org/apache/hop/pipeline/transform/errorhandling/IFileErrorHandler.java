@@ -20,9 +20,7 @@ package org.apache.hop.pipeline.transform.errorhandling;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 
-/**
- * @author Johnny Vanhentenyk
- */
+/** @author Johnny Vanhentenyk */
 public interface IFileErrorHandler {
 
   /**
@@ -31,7 +29,7 @@ public interface IFileErrorHandler {
    * @param file
    * @throws HopException
    */
-  void handleFile( FileObject file ) throws HopException;
+  void handleFile(FileObject file) throws HopException;
 
   /**
    * This method handles an error when processing the line with corresponding lineNr.
@@ -40,11 +38,9 @@ public interface IFileErrorHandler {
    * @param filePart allows us to split error according to a filePart
    * @throws HopException
    */
-  void handleLineError( long lineNr, String filePart ) throws HopException;
+  void handleLineError(long lineNr, String filePart) throws HopException;
 
-  /**
-   * This method closes the handler;
-   */
+  /** This method closes the handler; */
   void close() throws HopException;
 
   /**
@@ -53,7 +49,7 @@ public interface IFileErrorHandler {
    * @param file
    * @throws HopException
    */
-  void handleNonExistantFile( FileObject file ) throws HopException;
+  void handleNonExistantFile(FileObject file) throws HopException;
 
   /**
    * This method handles a file that is required, but is not accessible.
@@ -61,5 +57,5 @@ public interface IFileErrorHandler {
    * @param file
    * @throws HopException
    */
-  void handleNonAccessibleFile( FileObject file ) throws HopException;
+  void handleNonAccessibleFile(FileObject file) throws HopException;
 }

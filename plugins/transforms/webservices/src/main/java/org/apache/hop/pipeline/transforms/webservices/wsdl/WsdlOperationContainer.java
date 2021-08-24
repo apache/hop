@@ -28,7 +28,7 @@ public class WsdlOperationContainer implements WsdlParamContainer {
 
   private WsdlOperation operation;
 
-  public WsdlOperationContainer( WsdlOperation operation, ParameterMode mode ) {
+  public WsdlOperationContainer(WsdlOperation operation, ParameterMode mode) {
     this.mode = mode;
     this.operation = operation;
   }
@@ -39,18 +39,18 @@ public class WsdlOperationContainer implements WsdlParamContainer {
 
   public String[] getParamNames() {
     List<String> paramsRet = new ArrayList<>();
-    for ( WsdlOpParameter param : operation.getParameters() ) {
-      if ( param.getMode().equals( mode ) ) {
-        paramsRet.add( param.getName().getLocalPart() );
+    for (WsdlOpParameter param : operation.getParameters()) {
+      if (param.getMode().equals(mode)) {
+        paramsRet.add(param.getName().getLocalPart());
       }
     }
-    return paramsRet.toArray( new String[ paramsRet.size() ] );
+    return paramsRet.toArray(new String[paramsRet.size()]);
   }
 
-  public String getParamType( String paramName ) {
+  public String getParamType(String paramName) {
     String typeRet = null;
-    for ( WsdlOpParameter param : operation.getParameters() ) {
-      if ( param.getMode().equals( mode ) && param.getName().getLocalPart().equals( paramName ) ) {
+    for (WsdlOpParameter param : operation.getParameters()) {
+      if (param.getMode().equals(mode) && param.getName().getLocalPart().equals(paramName)) {
         typeRet = param.getXmlType().getLocalPart();
         break;
       }

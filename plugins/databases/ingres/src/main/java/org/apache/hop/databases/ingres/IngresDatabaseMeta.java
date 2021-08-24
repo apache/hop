@@ -19,9 +19,9 @@ package org.apache.hop.databases.ingres;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -32,21 +32,17 @@ import org.apache.hop.core.util.Utils;
  * @author Matt
  * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(
-  type = "INGRES",
-  typeDescription = "Ingres"
-)
-@GuiPlugin( id = "GUI-IngresDatabaseMeta" )
+@DatabaseMetaPlugin(type = "INGRES", typeDescription = "Ingres")
+@GuiPlugin(id = "GUI-IngresDatabaseMeta")
 public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE};
+    return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
   @Override
   public int getDefaultDatabasePort() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
+    if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
       return -1;
     }
     return -1;
@@ -58,7 +54,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
+  public String getURL(String hostname, String port, String databaseName) {
     if (Utils.isEmpty(port)) {
       return "jdbc:ingres://" + hostname + ":II7/" + databaseName;
     } else {
@@ -66,17 +62,13 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
   }
 
-  /**
-   * @return true if the database supports bitmap indexes
-   */
+  /** @return true if the database supports bitmap indexes */
   @Override
   public boolean supportsBitmapIndex() {
     return false;
   }
 
-  /**
-   * @return true if the database supports synonyms
-   */
+  /** @return true if the database supports synonyms */
   @Override
   public boolean supportsSynonyms() {
     return false;
@@ -85,70 +77,75 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                       String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  public String getAddColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
+    return "ALTER TABLE "
+        + tableName
+        + " ADD COLUMN "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                          String pk, boolean semicolon ) {
+  public String getModifyColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
     return "ALTER TABLE "
-      + tableName + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+        + tableName
+        + " ALTER COLUMN "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                        String pk, boolean semicolon ) {
+  public String getDropColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
     return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldName, boolean addCr ) {
+  public String getFieldDefinition(
+      IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
     String retval = "";
 
     String fieldname = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( addFieldName ) {
+    if (addFieldName) {
       retval += fieldname + " ";
     }
 
     int type = v.getType();
-    switch ( type ) {
+    switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
         retval += "TIMESTAMP";
         break;
@@ -161,23 +158,24 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_NUMBER:
       case IValueMeta.TYPE_INTEGER:
       case IValueMeta.TYPE_BIGNUMBER:
-        if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
-          fieldname.equalsIgnoreCase( pk ) // Primary key
+        if (fieldname.equalsIgnoreCase(tk)
+            || // Technical key
+            fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
-          if ( useAutoinc ) {
+          if (useAutoinc) {
             retval += "BIGINT PRIMARY KEY IDENTITY(0,1)";
           } else {
             retval += "BIGINT PRIMARY KEY NOT NULL";
           }
         } else {
-          if ( precision == 0 ) { // integer numbers
-            if ( length > 9 ) {
+          if (precision == 0) { // integer numbers
+            if (length > 9) {
               retval += "BIGINT";
             } else {
-              if ( length > 4 ) {
+              if (length > 4) {
                 retval += "INTEGER";
               } else {
-                if ( length > 2 ) {
+                if (length > 2) {
                   retval += "SMALLINT";
                 } else {
                   retval += "INTEGER1";
@@ -191,7 +189,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         break;
       case IValueMeta.TYPE_STRING:
         // Maybe use some default DB String length in case length<=0
-        if ( length > 0 ) {
+        if (length > 0) {
           retval += "VARCHAR(" + length + ")";
         } else {
           retval += "VARCHAR(2000)";
@@ -202,7 +200,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         break;
     }
 
-    if ( addCr ) {
+    if (addCr) {
       retval += Const.CR;
     }
 
@@ -214,7 +212,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
-  public String getTruncateTableStatement( String tableName ) {
+  public String getTruncateTableStatement(String tableName) {
     return "DELETE FROM " + tableName;
   }
 
@@ -222,5 +220,4 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public boolean supportsGetBlob() {
     return false;
   }
-
 }

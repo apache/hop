@@ -17,14 +17,15 @@
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionMssqlBulkLoadLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionMssqlBulkLoad> {
+public class WorkflowActionMssqlBulkLoadLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionMssqlBulkLoad> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,10 +35,34 @@ public class WorkflowActionMssqlBulkLoadLoadSaveTest extends WorkflowActionLoadS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "schemaname", "tablename", "filename", "dataFileType", "fieldTerminator",
-      "lineterminated", "codePage", "specificCodePage", "formatFilename", "fireTriggers", "checkConstraints",
-      "keepNulls", "keepIdentity", "tablock", "startFile", "endFile", "orderBy", "orderDirection", "maxErrors",
-      "batchSize", "rowsPerBatch", "errorFilename", "addDatetime", "addFileToResult", "truncate", "database" } );
+    return Arrays.asList(
+        new String[] {
+          "schemaname",
+          "tablename",
+          "filename",
+          "dataFileType",
+          "fieldTerminator",
+          "lineterminated",
+          "codePage",
+          "specificCodePage",
+          "formatFilename",
+          "fireTriggers",
+          "checkConstraints",
+          "keepNulls",
+          "keepIdentity",
+          "tablock",
+          "startFile",
+          "endFile",
+          "orderBy",
+          "orderDirection",
+          "maxErrors",
+          "batchSize",
+          "rowsPerBatch",
+          "errorFilename",
+          "addDatetime",
+          "addFileToResult",
+          "truncate",
+          "database"
+        });
   }
-
 }

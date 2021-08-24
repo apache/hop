@@ -36,10 +36,9 @@ public class YamlInputData extends BaseTransformData implements ITransformData {
   public int totalOutFields;
   public int totalOutStreamFields;
 
-  /**
-   * The YAML files to read
-   */
+  /** The YAML files to read */
   public FileInputList files;
+
   public FileObject file;
   public int filenr;
 

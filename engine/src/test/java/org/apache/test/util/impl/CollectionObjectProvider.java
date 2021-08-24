@@ -24,7 +24,7 @@ import java.util.Collection;
 public class CollectionObjectProvider<T> implements IObjectProvider<T> {
   private final Collection<T> objects;
 
-  public CollectionObjectProvider( Collection<T> objects ) {
+  public CollectionObjectProvider(Collection<T> objects) {
     this.objects = objects;
   }
 

@@ -1,19 +1,24 @@
 {
-  "variables" : [ {
-    "name" : "CASSANDRA_HOSTNAME",
-    "value" : "cassandra",
-    "description" : "The Cassandra hostname"
-  }, {
-    "name" : "CASSANDRA_PORT",
-    "value" : "9042",
-    "description" : "The data port "
-  }, {
-    "name" : "CASSANDRA_USERNAME",
-    "value" : "",
-    "description" : "Username: none"
-  }, {
-    "name" : "CASSANDRA_PASSWORD",
-    "value" : "",
-    "description" : "Password: none"
-  } ]
+  "variables": [
+    {
+      "name": "CASSANDRA_HOSTNAME",
+      "value": "cassandra",
+      "description": "The Cassandra hostname"
+    },
+    {
+      "name": "CASSANDRA_PORT",
+      "value": "9042",
+      "description": "The data port "
+    },
+    {
+      "name": "CASSANDRA_USERNAME",
+      "value": "",
+      "description": "Username: none"
+    },
+    {
+      "name": "CASSANDRA_PASSWORD",
+      "value": "",
+      "description": "Password: none"
+    }
+  ]
 }

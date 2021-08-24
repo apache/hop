@@ -82,7 +82,8 @@ sha512sum -c apache-hop-X.XX-incubating-src.tar.gz.sha512
 
 == Creating the client
 
-The client included in the release has to be build using the source code in the release. Use the source you just prepared to generate the client.
+The client included in the release has to be build using the source code in the release.
+Use the source you just prepared to generate the client.
 
 [source,bash]
 ----
@@ -146,7 +147,6 @@ svn commit -m 'Add release files for Apache hop X.XX-rcX'
 
 Check if the files are uploaded https://dist.apache.org/repos/dist/dev/incubator/hop/[here]
 
-
 == Send mail to dev list to announce new release candidate
 
 Mail Template
@@ -190,7 +190,6 @@ Best Regards,
 <YOUR NAME>
 
 ----
-
 
 == Send a result mail to the dev mailing list
 
@@ -284,7 +283,6 @@ gpg -k <username>@apache.org
 gpg --send-keys --keyserver php.mit.edu <KEY ID>
 gpg --send-keys --keyserver keyserver.ubuntu.com <KEY ID>
 ----
-
 
 Next step is to add your key to the key file in the Apache SVN repository.
 

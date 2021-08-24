@@ -28,8 +28,6 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.UUID;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.doReturn;

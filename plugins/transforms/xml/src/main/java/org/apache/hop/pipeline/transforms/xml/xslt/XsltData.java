@@ -17,25 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Properties;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Properties;
+
 /**
  * @author Samatar
  * @since 24-jan-2005
- * 
  */
 public class XsltData extends BaseTransformData implements ITransformData {
 
@@ -69,43 +67,44 @@ public class XsltData extends BaseTransformData implements ITransformData {
     setOutputProperties = false;
   }
 
-  public Transformer getTemplate( String xslFilename, boolean isAfile ) throws Exception {
-    Transformer template = transformers.get( xslFilename );
-    if ( template != null ) {
+  public Transformer getTemplate(String xslFilename, boolean isAfile) throws Exception {
+    Transformer template = transformers.get(xslFilename);
+    if (template != null) {
       template.clearParameters();
       return template;
     }
 
-    return createNewTemplate( xslFilename, isAfile );
+    return createNewTemplate(xslFilename, isAfile);
   }
 
-  private Transformer createNewTemplate( String xslSource, boolean isAfile ) throws Exception {
+  private Transformer createNewTemplate(String xslSource, boolean isAfile) throws Exception {
     FileObject file = null;
     InputStream xslInputStream = null;
     Transformer transformer = null;
     try {
-      if ( isAfile ) {
-        file = HopVfs.getFileObject( xslSource );
-        xslInputStream = HopVfs.getInputStream( file );
+      if (isAfile) {
+        file = HopVfs.getFileObject(xslSource);
+        xslInputStream = HopVfs.getInputStream(file);
       } else {
-        xslInputStream = new ByteArrayInputStream( xslSource.getBytes( "UTF-8" ) );
+        xslInputStream = new ByteArrayInputStream(xslSource.getBytes("UTF-8"));
       }
 
       // Use the factory to create a template containing the xsl source
-      transformer = factory.newTransformer( new StreamSource( xslInputStream ) );
+      transformer = factory.newTransformer(new StreamSource(xslInputStream));
       // Add transformer to cache
-      transformers.put( xslSource, transformer );
+      transformers.put(xslSource, transformer);
 
       return transformer;
     } finally {
       try {
-        if ( file != null ) {
+        if (file != null) {
           file.close();
         }
-        if ( xslInputStream != null ) {
+        if (xslInputStream != null) {
           xslInputStream.close();
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
   }

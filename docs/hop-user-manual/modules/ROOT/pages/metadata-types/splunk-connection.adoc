@@ -25,7 +25,6 @@ image:icons/splunk.svg[]
 
 Describes a Splunk connection.
 
-
 == Related Plugins
 
 * xref:pipeline/transforms/splunkinput.adoc[Splunk Input]

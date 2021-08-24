@@ -18,44 +18,43 @@
 package org.apache.hop.ui.hopgui.file;
 
 import org.apache.hop.core.plugins.BasePluginType;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-@PluginMainClassType( IHopFileType.class )
-@PluginAnnotationType( HopFileTypePlugin.class )
+@PluginMainClassType(IHopFileType.class)
+@PluginAnnotationType(HopFileTypePlugin.class)
 public class HopFileTypePluginType extends BasePluginType<HopFileTypePlugin> {
 
   private HopFileTypePluginType() {
-    super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type" );
+    super(HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type");
   }
 
   private static HopFileTypePluginType pluginType;
 
   public static HopFileTypePluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new HopFileTypePluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractDesc( HopFileTypePlugin annotation ) {
+  protected String extractDesc(HopFileTypePlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( HopFileTypePlugin annotation ) {
-    return  annotation.id();
+  protected String extractID(HopFileTypePlugin annotation) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( HopFileTypePlugin annotation ) {
-    return  annotation.name();
+  protected String extractName(HopFileTypePlugin annotation) {
+    return annotation.name();
   }
-  
+
   @Override
-  protected String extractImageFile( HopFileTypePlugin annotation ) {
+  protected String extractImageFile(HopFileTypePlugin annotation) {
     return annotation.image();
-  }  
+  }
 }

@@ -28,31 +28,29 @@ import java.util.List;
 
 public class JsonOutputData extends BaseTransformData implements ITransformData {
 
-    public IRowMeta inputRowMeta;
-    public IRowMeta outputRowMeta;
-    public int inputRowMetaSize;
-    public boolean rowsAreSafe;
+  public IRowMeta inputRowMeta;
+  public IRowMeta outputRowMeta;
+  public int inputRowMetaSize;
+  public boolean rowsAreSafe;
 
-    public int nrFields;
-    public int[] fieldIndexes;
-    public int[] keysGroupIndexes;
-    public int nrRow;
-    public List<ObjectNode> jsonItems;
-    public List<ObjectNode> jsonKeyGroupItems;
+  public int nrFields;
+  public int[] fieldIndexes;
+  public int[] keysGroupIndexes;
+  public int nrRow;
+  public List<ObjectNode> jsonItems;
+  public List<ObjectNode> jsonKeyGroupItems;
 
-    public String realBlocName;
-    public int splitnr;
-    public Writer writer;
-    public boolean isWriteToFile;
+  public String realBlocName;
+  public int splitnr;
+  public Writer writer;
+  public boolean isWriteToFile;
 
-    /**
-     *
-     */
-    public JsonOutputData() {
-        super();
+  /** */
+  public JsonOutputData() {
+    super();
 
-        this.nrRow = 0;
-        this.writer = null;
-        this.jsonKeyGroupItems = new ArrayList<>();
-    }
+    this.nrRow = 0;
+    this.writer = null;
+    this.jsonKeyGroupItems = new ArrayList<>();
+  }
 }

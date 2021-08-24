@@ -18,40 +18,40 @@
   -->
 
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.apache.hop</groupId>
-		<artifactId>hop-plugins-transforms</artifactId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>hop-transform-pgbulkloader</artifactId>
-	<packaging>jar</packaging>
+    <artifactId>hop-transform-pgbulkloader</artifactId>
+    <packaging>jar</packaging>
 
-	<name>Hop Plugins Transforms PostgreSQL bulk loader</name>
+    <name>Hop Plugins Transforms PostgreSQL bulk loader</name>
 
-	<properties>
-		<postgresql.version>42.2.23</postgresql.version>
-	</properties>
+    <properties>
+        <postgresql.version>42.2.23</postgresql.version>
+    </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgresql.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.hop</groupId>
-			<artifactId>hop-databases-postgresql</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>		
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-postgresql</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

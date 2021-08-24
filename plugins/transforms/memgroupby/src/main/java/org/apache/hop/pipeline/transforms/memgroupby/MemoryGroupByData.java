@@ -33,7 +33,7 @@ public class MemoryGroupByData extends BaseTransformData implements ITransformDa
   public class HashEntry {
     private Object[] groupData;
 
-    public HashEntry( Object[] groupData ) {
+    public HashEntry(Object[] groupData) {
       this.groupData = groupData;
     }
 
@@ -41,29 +41,29 @@ public class MemoryGroupByData extends BaseTransformData implements ITransformDa
       return groupData;
     }
 
-    public boolean equals( Object obj ) {
+    public boolean equals(Object obj) {
       HashEntry entry = (HashEntry) obj;
 
       try {
-        return groupMeta.compare( groupData, entry.groupData ) == 0;
-      } catch ( HopValueException e ) {
-        throw new RuntimeException( e );
+        return groupMeta.compare(groupData, entry.groupData) == 0;
+      } catch (HopValueException e) {
+        throw new RuntimeException(e);
       }
     }
 
     public int hashCode() {
       try {
-        return groupMeta.hashCode( getHashValue() );
-      } catch ( HopValueException e ) {
-        throw new RuntimeException( e );
+        return groupMeta.hashCode(getHashValue());
+      } catch (HopValueException e) {
+        throw new RuntimeException(e);
       }
     }
 
     private Object[] getHashValue() throws HopValueException {
-      Object[] groupDataHash = new Object[ groupMeta.size() ];
-      for ( int i = 0; i < groupMeta.size(); i++ ) {
-        IValueMeta valueMeta = groupMeta.getValueMeta( i );
-        groupDataHash[ i ] = valueMeta.convertToNormalStorageType( groupData[ i ] );
+      Object[] groupDataHash = new Object[groupMeta.size()];
+      for (int i = 0; i < groupMeta.size(); i++) {
+        IValueMeta valueMeta = groupMeta.getValueMeta(i);
+        groupDataHash[i] = valueMeta.convertToNormalStorageType(groupData[i]);
       }
       return groupDataHash;
     }
@@ -95,16 +95,13 @@ public class MemoryGroupByData extends BaseTransformData implements ITransformDa
 
   public MemoryGroupByData() {
     super();
-
   }
 
-  public HashEntry getHashEntry( Object[] groupData ) {
-    return new HashEntry( groupData );
+  public HashEntry getHashEntry(Object[] groupData) {
+    return new HashEntry(groupData);
   }
 
-  /**
-   * Method responsible for clearing out memory hogs
-   */
+  /** Method responsible for clearing out memory hogs */
   public void clear() {
     map = new HashMap<>();
   }

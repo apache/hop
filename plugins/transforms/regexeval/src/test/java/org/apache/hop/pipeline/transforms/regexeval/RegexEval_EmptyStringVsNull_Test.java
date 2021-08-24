@@ -36,10 +36,8 @@ import java.util.regex.Pattern;
 
 import static org.mockito.Mockito.*;
 
-/**
- * @author Andrey Khayrutdinov
- */
-@RunWith( PowerMockRunner.class )
+/** @author Andrey Khayrutdinov */
+@RunWith(PowerMockRunner.class)
 public class RegexEval_EmptyStringVsNull_Test {
   private TransformMockHelper<RegexEvalMeta, ITransformData> helper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -51,7 +49,9 @@ public class RegexEval_EmptyStringVsNull_Test {
 
   @Before
   public void setUp() {
-    helper = TransformMockUtil.getTransformMockHelper( RegexEvalMeta.class, "RegexEval_EmptyStringVsNull_Test" );
+    helper =
+        TransformMockUtil.getTransformMockHelper(
+            RegexEvalMeta.class, "RegexEval_EmptyStringVsNull_Test");
   }
 
   @After
@@ -61,64 +61,62 @@ public class RegexEval_EmptyStringVsNull_Test {
 
   @Test
   public void emptyAndNullsAreNotDifferent() throws Exception {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    List<Object[]> expected = Arrays.asList(
-      new Object[] { false, "" },
-      new Object[] { false, "" },
-      new Object[] { false, null }
-    );
-    executeAndAssertResults( expected );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
+    List<Object[]> expected =
+        Arrays.asList(
+            new Object[] {false, ""}, new Object[] {false, ""}, new Object[] {false, null});
+    executeAndAssertResults(expected);
   }
-
 
   @Test
   public void emptyAndNullsAreDifferent() throws Exception {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    List<Object[]> expected = Arrays.asList(
-      new Object[] { false, "" },
-      new Object[] { false, "" },
-      new Object[] { false, null }
-    );
-    executeAndAssertResults( expected );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
+    List<Object[]> expected =
+        Arrays.asList(
+            new Object[] {false, ""}, new Object[] {false, ""}, new Object[] {false, null});
+    executeAndAssertResults(expected);
   }
 
-  private void executeAndAssertResults( List<Object[]> expected ) throws Exception {
+  private void executeAndAssertResults(List<Object[]> expected) throws Exception {
     RegexEvalMeta meta = new RegexEvalMeta();
-    meta.allocate( 2 );
-    meta.getFieldName()[ 0 ] = "string";
-    meta.getFieldName()[ 1 ] = "matcher";
-    meta.setFieldType( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } );
-    meta.setResultFieldName( "string" );
-    meta.setReplacefields( true );
-    meta.setMatcher( "matcher" );
-    meta.setAllowCaptureGroupsFlag( true );
+    meta.allocate(2);
+    meta.getFieldName()[0] = "string";
+    meta.getFieldName()[1] = "matcher";
+    meta.setFieldType(new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING});
+    meta.setResultFieldName("string");
+    meta.setReplacefields(true);
+    meta.setMatcher("matcher");
+    meta.setAllowCaptureGroupsFlag(true);
 
     RegexEvalData data = new RegexEvalData();
-    RegexEval transform = createAndInitTransform( meta, data );
+    RegexEval transform = createAndInitTransform(meta, data);
 
     RowMeta input = new RowMeta();
-    input.addValueMeta( new ValueMetaString( "string" ) );
-    input.addValueMeta( new ValueMetaString( "matcher" ) );
-    transform.setInputRowMeta( input );
+    input.addValueMeta(new ValueMetaString("string"));
+    input.addValueMeta(new ValueMetaString("matcher"));
+    transform.setInputRowMeta(input);
 
-    transform = spy( transform );
-    doReturn( new String[] { " ", " " } )
-      .doReturn( new String[] { "", "" } )
-      .doReturn( new String[] { null, null } )
-      .when( transform ).getRow();
+    transform = spy(transform);
+    doReturn(new String[] {" ", " "})
+        .doReturn(new String[] {"", ""})
+        .doReturn(new String[] {null, null})
+        .when(transform)
+        .getRow();
 
     // dummy pattern, just to contain two groups
     // needed to activate a branch with conversion from string
-    data.pattern = Pattern.compile( "(a)(a)" );
+    data.pattern = Pattern.compile("(a)(a)");
 
-    List<Object[]> actual = PipelineTestingUtil.execute( transform, 3, false );
-    PipelineTestingUtil.assertResult( expected, actual );
+    List<Object[]> actual = PipelineTestingUtil.execute(transform, 3, false);
+    PipelineTestingUtil.assertResult(expected, actual);
   }
 
-  private RegexEval createAndInitTransform( RegexEvalMeta meta, RegexEvalData data ) throws Exception {
-    when( helper.transformMeta.getTransform() ).thenReturn( meta );
+  private RegexEval createAndInitTransform(RegexEvalMeta meta, RegexEvalData data)
+      throws Exception {
+    when(helper.transformMeta.getTransform()).thenReturn(meta);
 
-    RegexEval transform = new RegexEval( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
+    RegexEval transform =
+        new RegexEval(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
     transform.init();
     return transform;
   }

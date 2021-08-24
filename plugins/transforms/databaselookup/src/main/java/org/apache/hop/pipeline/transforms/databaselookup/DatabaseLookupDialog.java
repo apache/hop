@@ -26,7 +26,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -52,12 +51,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -384,13 +378,14 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             ValueMetaFactory.getValueMetaNames());
 
-    ciReturn[4] = new ColumnInfo(
+    ciReturn[4] =
+        new ColumnInfo(
             BaseMessages.getString(PKG, "DatabaseLookupDialog.TrimTypeColumn.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             ValueMetaString.trimTypeDesc,
             true);
 
-            tableFieldColumns.add(ciReturn[0]);
+    tableFieldColumns.add(ciReturn[0]);
 
     wReturn =
         new TableView(
@@ -623,7 +618,12 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
       item.setText(2, Const.NVL(returnValue.getNewName(), ""));
       item.setText(3, Const.NVL(returnValue.getDefaultValue(), ""));
       item.setText(4, Const.NVL(returnValue.getDefaultType(), ""));
-      item.setText(5, Const.NVL(ValueMetaString.getTrimTypeDesc(ValueMetaString.getTrimTypeByCode(returnValue.getTrimType())), ValueMetaBase.trimTypeCode[0]));
+      item.setText(
+          5,
+          Const.NVL(
+              ValueMetaString.getTrimTypeDesc(
+                  ValueMetaString.getTrimTypeByCode(returnValue.getTrimType())),
+              ValueMetaBase.trimTypeCode[0]));
     }
     wSchema.setText(Const.NVL(input.getSchemaName(), ""));
     wTable.setText(Const.NVL(input.getTableName(), ""));
@@ -677,7 +677,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
       returnValue.setNewName(item.getText(2));
       returnValue.setDefaultValue(item.getText(3));
       returnValue.setDefaultType(item.getText(4));
-      returnValue.setTrimType(ValueMetaString.getTrimTypeCode(ValueMetaString.getTrimTypeByDesc(item.getText(5))));
+      returnValue.setTrimType(
+          ValueMetaString.getTrimTypeCode(ValueMetaString.getTrimTypeByDesc(item.getText(5))));
       lookup.getReturnValues().add(returnValue);
     }
 

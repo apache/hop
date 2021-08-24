@@ -39,11 +39,10 @@ public class RegexEvalUnitTest {
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<>(
-        "REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
   @After
@@ -52,29 +51,34 @@ public class RegexEvalUnitTest {
   }
 
   @Test
-  public void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds() throws HopException {
+  public void testOutputIsMuchBiggerThanInputDoesntThrowArrayIndexOutOfBounds()
+      throws HopException {
     RegexEval regexEval =
-      new RegexEval(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
-    when( transformMockHelper.iTransformMeta.isAllowCaptureGroupsFlagSet() ).thenReturn( true );
-    String[] outFields = new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" };
-    when( transformMockHelper.iTransformMeta.getFieldName() ).thenReturn( outFields );
-    when( transformMockHelper.iTransformMeta.getMatcher() ).thenReturn( "\\.+" );
-    transformMockHelper.iTransformData.pattern = Pattern.compile( "(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)" );
+        new RegexEval(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    when(transformMockHelper.iTransformMeta.isAllowCaptureGroupsFlagSet()).thenReturn(true);
+    String[] outFields = new String[] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"};
+    when(transformMockHelper.iTransformMeta.getFieldName()).thenReturn(outFields);
+    when(transformMockHelper.iTransformMeta.getMatcher()).thenReturn("\\.+");
+    transformMockHelper.iTransformData.pattern =
+        Pattern.compile("(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)");
     Object[] inputRow = new Object[] {};
-    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet( inputRow );
-    IRowMeta mockInputRowMeta = mock( IRowMeta.class );
-    IRowMeta mockOutputRoMeta = mock( IRowMeta.class );
-    when( mockOutputRoMeta.size() ).thenReturn( outFields.length );
-    when( mockInputRowMeta.size() ).thenReturn( 0 );
-    when( inputRowSet.getRowMeta() ).thenReturn( mockInputRowMeta );
-    when( mockInputRowMeta.clone() ).thenReturn( mockOutputRoMeta );
-    when( mockInputRowMeta.isNull( any( Object[].class ), anyInt() ) ).thenReturn( true );
-    regexEval.addRowSetToInputRowSets( inputRowSet );
+    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet(inputRow);
+    IRowMeta mockInputRowMeta = mock(IRowMeta.class);
+    IRowMeta mockOutputRoMeta = mock(IRowMeta.class);
+    when(mockOutputRoMeta.size()).thenReturn(outFields.length);
+    when(mockInputRowMeta.size()).thenReturn(0);
+    when(inputRowSet.getRowMeta()).thenReturn(mockInputRowMeta);
+    when(mockInputRowMeta.clone()).thenReturn(mockOutputRoMeta);
+    when(mockInputRowMeta.isNull(any(Object[].class), anyInt())).thenReturn(true);
+    regexEval.addRowSetToInputRowSets(inputRowSet);
 
     regexEval.processRow();
-    regexEval
-      .processRow();
+    regexEval.processRow();
   }
 }

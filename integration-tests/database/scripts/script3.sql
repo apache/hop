@@ -17,7 +17,8 @@ under the License.
 
 DROP TABLE IF EXISTS public.testtable;
 
-CREATE TABLE public.testtable (
-	"key" integer NULL,
-	value varchar NULL
+CREATE TABLE public.testtable
+(
+    "key" integer NULL,
+    value varchar NULL
 );

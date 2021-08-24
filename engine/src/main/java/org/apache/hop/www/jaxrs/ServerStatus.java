@@ -54,7 +54,7 @@ public class ServerStatus {
 
   public ServerStatus() {
     OperatingSystemMXBean operatingSystemMXBean =
-      java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+        java.lang.management.ManagementFactory.getOperatingSystemMXBean();
     ThreadMXBean threadMXBean = java.lang.management.ManagementFactory.getThreadMXBean();
     RuntimeMXBean runtimeMXBean = java.lang.management.ManagementFactory.getRuntimeMXBean();
 
@@ -71,135 +71,111 @@ public class ServerStatus {
     long allThreadsCpuTime = 0L;
 
     long[] threadIds = threadMXBean.getAllThreadIds();
-    for ( int i = 0; i < threadIds.length; i++ ) {
-      allThreadsCpuTime += threadMXBean.getThreadCpuTime( threadIds[ i ] );
+    for (int i = 0; i < threadIds.length; i++) {
+      allThreadsCpuTime += threadMXBean.getThreadCpuTime(threadIds[i]);
     }
 
     long uptime = runtimeMXBean.getUptime();
 
-    setCpuCores( cores );
-    setCpuProcessTime( allThreadsCpuTime );
-    setUptime( uptime );
-    setThreadCount( threadCount );
-    setLoadAvg( loadAvg );
-    setOsName( osName );
-    setOsVersion( osVersion );
-    setOsArchitecture( osArch );
-    setMemoryFree( freeMemory );
-    setMemoryTotal( totalMemory );
+    setCpuCores(cores);
+    setCpuProcessTime(allThreadsCpuTime);
+    setUptime(uptime);
+    setThreadCount(threadCount);
+    setLoadAvg(loadAvg);
+    setOsName(osName);
+    setOsVersion(osVersion);
+    setOsArchitecture(osArch);
+    setMemoryFree(freeMemory);
+    setMemoryTotal(totalMemory);
   }
 
-  public ServerStatus( String statusDescription ) {
+  public ServerStatus(String statusDescription) {
     this();
     this.statusDescription = statusDescription;
   }
 
-  public ServerStatus( Node statusNode ) throws HopException {
+  public ServerStatus(Node statusNode) throws HopException {
     this();
-    statusDescription = XmlHandler.getTagValue( statusNode, "statusdesc" );
+    statusDescription = XmlHandler.getTagValue(statusNode, "statusdesc");
 
-    memoryFree = Const.toLong( XmlHandler.getTagValue( statusNode, "memory_free" ), -1L );
-    memoryTotal = Const.toLong( XmlHandler.getTagValue( statusNode, "memory_total" ), -1L );
+    memoryFree = Const.toLong(XmlHandler.getTagValue(statusNode, "memory_free"), -1L);
+    memoryTotal = Const.toLong(XmlHandler.getTagValue(statusNode, "memory_total"), -1L);
 
-    String cpuCoresStr = XmlHandler.getTagValue( statusNode, "cpu_cores" );
-    cpuCores = Const.toInt( cpuCoresStr, -1 );
-    String cpuProcessTimeStr = XmlHandler.getTagValue( statusNode, "cpu_process_time" );
-    cpuProcessTime = Utils.isEmpty( cpuProcessTimeStr ) ? 0L : Long.valueOf( cpuProcessTimeStr );
+    String cpuCoresStr = XmlHandler.getTagValue(statusNode, "cpu_cores");
+    cpuCores = Const.toInt(cpuCoresStr, -1);
+    String cpuProcessTimeStr = XmlHandler.getTagValue(statusNode, "cpu_process_time");
+    cpuProcessTime = Utils.isEmpty(cpuProcessTimeStr) ? 0L : Long.valueOf(cpuProcessTimeStr);
 
-    uptime = Const.toLong( XmlHandler.getTagValue( statusNode, "uptime" ), -1 );
-    threadCount = Const.toInt( XmlHandler.getTagValue( statusNode, "thread_count" ), -1 );
-    loadAvg = Const.toDouble( XmlHandler.getTagValue( statusNode, "load_avg" ), -1.0 );
+    uptime = Const.toLong(XmlHandler.getTagValue(statusNode, "uptime"), -1);
+    threadCount = Const.toInt(XmlHandler.getTagValue(statusNode, "thread_count"), -1);
+    loadAvg = Const.toDouble(XmlHandler.getTagValue(statusNode, "load_avg"), -1.0);
 
-    osName = XmlHandler.getTagValue( statusNode, "os_name" );
-    osVersion = XmlHandler.getTagValue( statusNode, "os_version" );
-    osArchitecture = XmlHandler.getTagValue( statusNode, "os_arch" );
+    osName = XmlHandler.getTagValue(statusNode, "os_name");
+    osVersion = XmlHandler.getTagValue(statusNode, "os_version");
+    osArchitecture = XmlHandler.getTagValue(statusNode, "os_arch");
   }
 
-  /**
-   * @return the statusDescription
-   */
+  /** @return the statusDescription */
   public String getStatusDescription() {
     return statusDescription;
   }
 
-  /**
-   * @param statusDescription the statusDescription to set
-   */
-  public void setStatusDescription( String statusDescription ) {
+  /** @param statusDescription the statusDescription to set */
+  public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /**
-   * @return the errorDescription
-   */
+  /** @return the errorDescription */
   public String getErrorDescription() {
     return errorDescription;
   }
 
-  /**
-   * @param errorDescription the errorDescription to set
-   */
-  public void setErrorDescription( String errorDescription ) {
+  /** @param errorDescription the errorDescription to set */
+  public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
   }
 
-  /**
-   * @return the memoryFree
-   */
+  /** @return the memoryFree */
   public double getMemoryFree() {
     return memoryFree;
   }
 
-  /**
-   * @param memoryFree the memoryFree to set
-   */
-  public void setMemoryFree( long memoryFree ) {
+  /** @param memoryFree the memoryFree to set */
+  public void setMemoryFree(long memoryFree) {
     this.memoryFree = memoryFree;
   }
 
-  /**
-   * @return the memoryTotal
-   */
+  /** @return the memoryTotal */
   public double getMemoryTotal() {
     return memoryTotal;
   }
 
-  /**
-   * @param memoryTotal the memoryTotal to set
-   */
-  public void setMemoryTotal( long memoryTotal ) {
+  /** @param memoryTotal the memoryTotal to set */
+  public void setMemoryTotal(long memoryTotal) {
     this.memoryTotal = memoryTotal;
   }
 
-  /**
-   * @return the cpuCores
-   */
+  /** @return the cpuCores */
   public int getCpuCores() {
     return cpuCores;
   }
 
-  /**
-   * @param cpuCores the cpuCores to set
-   */
-  public void setCpuCores( int cpuCores ) {
+  /** @param cpuCores the cpuCores to set */
+  public void setCpuCores(int cpuCores) {
     this.cpuCores = cpuCores;
   }
 
-  /**
-   * @return the cpuProcessTime
-   */
+  /** @return the cpuProcessTime */
   public long getCpuProcessTime() {
     return cpuProcessTime;
   }
 
-  /**
-   * @param cpuProcessTime the cpuProcessTime to set
-   */
-  public void setCpuProcessTime( long cpuProcessTime ) {
+  /** @param cpuProcessTime the cpuProcessTime to set */
+  public void setCpuProcessTime(long cpuProcessTime) {
     this.cpuProcessTime = cpuProcessTime;
   }
 
-  public void setUptime( long uptime ) {
+  public void setUptime(long uptime) {
     this.uptime = uptime;
   }
 
@@ -207,7 +183,7 @@ public class ServerStatus {
     return uptime;
   }
 
-  public void setThreadCount( int threadCount ) {
+  public void setThreadCount(int threadCount) {
     this.threadCount = threadCount;
   }
 
@@ -215,7 +191,7 @@ public class ServerStatus {
     return threadCount;
   }
 
-  public void setLoadAvg( double loadAvg ) {
+  public void setLoadAvg(double loadAvg) {
     this.loadAvg = loadAvg;
   }
 
@@ -223,7 +199,7 @@ public class ServerStatus {
     return loadAvg;
   }
 
-  public void setOsName( String osName ) {
+  public void setOsName(String osName) {
     this.osName = osName;
   }
 
@@ -231,7 +207,7 @@ public class ServerStatus {
     return osName;
   }
 
-  public void setOsVersion( String osVersion ) {
+  public void setOsVersion(String osVersion) {
     this.osVersion = osVersion;
   }
 
@@ -239,7 +215,7 @@ public class ServerStatus {
     return osVersion;
   }
 
-  public void setOsArchitecture( String osArch ) {
+  public void setOsArchitecture(String osArch) {
     this.osArchitecture = osArch;
   }
 

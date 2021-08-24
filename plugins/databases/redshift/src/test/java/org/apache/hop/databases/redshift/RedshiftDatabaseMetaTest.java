@@ -25,9 +25,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-/**
- * Unit tests for RedshiftDatabaseMeta
- */
+/** Unit tests for RedshiftDatabaseMeta */
 public class RedshiftDatabaseMetaTest {
 
   private RedshiftDatabaseMeta dbMeta;
@@ -35,47 +33,48 @@ public class RedshiftDatabaseMetaTest {
   @Before
   public void setUp() throws Exception {
     dbMeta = new RedshiftDatabaseMeta();
-    dbMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
+    dbMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
 
   @Test
   public void testExtraOption() {
     Map<String, String> opts = dbMeta.getExtraOptions();
-    assertNotNull( opts );
-    assertEquals( "true", opts.get( "REDSHIFT.tcpKeepAlive" ) );
+    assertNotNull(opts);
+    assertEquals("true", opts.get("REDSHIFT.tcpKeepAlive"));
   }
 
   @Test
   public void testGetDefaultDatabasePort() throws Exception {
-    assertEquals( 5439, dbMeta.getDefaultDatabasePort() );
+    assertEquals(5439, dbMeta.getDefaultDatabasePort());
   }
 
   @Test
   public void testGetDriverClass() throws Exception {
-    assertEquals( "com.amazon.redshift.jdbc42.Driver", dbMeta.getDriverClass() );
+    assertEquals("com.amazon.redshift.jdbc42.Driver", dbMeta.getDriverClass());
   }
 
   @Test
   public void testGetURL() throws Exception {
-    assertEquals( "jdbc:redshift://:/", dbMeta.getURL( "", "", "" ) );
-    assertEquals( "jdbc:redshift://rs.project-hop.org:4444/myDB",
-      dbMeta.getURL( "rs.project-hop.org", "4444", "myDB" ) );
+    assertEquals("jdbc:redshift://:/", dbMeta.getURL("", "", ""));
+    assertEquals(
+        "jdbc:redshift://rs.project-hop.org:4444/myDB",
+        dbMeta.getURL("rs.project-hop.org", "4444", "myDB"));
   }
 
   @Test
   public void testGetExtraOptionsHelpText() throws Exception {
-    assertEquals( "http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html",
-      dbMeta.getExtraOptionsHelpText() );
+    assertEquals(
+        "http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html",
+        dbMeta.getExtraOptionsHelpText());
   }
 
   @Test
   public void testIsFetchSizeSupported() throws Exception {
-    assertFalse( dbMeta.isFetchSizeSupported() );
+    assertFalse(dbMeta.isFetchSizeSupported());
   }
 
   @Test
   public void testSupportsSetMaxRows() throws Exception {
-    assertFalse( dbMeta.supportsSetMaxRows() );
+    assertFalse(dbMeta.supportsSetMaxRows());
   }
-
 }

@@ -18,17 +18,18 @@ under the License.
 
 = Working with git
 
-Version control is an important aspect of any serious data orchestration project. Hop wants to make it as easy as possible to manage versions for your workflows and pipelines through the integrated git options in the xref:hop-gui/perspectives.adoc#_file_explorer_perspective[File Explorer perspective].
+Version control is an important aspect of any serious data orchestration project.
+Hop wants to make it as easy as possible to manage versions for your workflows and pipelines through the integrated git options in the xref:hop-gui/perspectives.adoc#_file_explorer_perspective[File Explorer perspective].
 
 == File Explorer Toolbar
 
 The toolbar in the file explorer's tree dialog will enable the git options when it detects the project's root directory is a git repository (has a `.git` folder).
 
-image::hop-gui/hop-gui-no-git.png[No git available, width="30%"]
+image::hop-gui/hop-gui-no-git.png[No git available,width="30%"]
 
 If git was found, the toolbar will be shown with the git options enabled.
 
-image::hop-gui/hop-gui-git-toolbar.png[Git toolbar, width="30%"]
+image::hop-gui/hop-gui-git-toolbar.png[Git toolbar,width="30%"]
 
 The options available in this toolbar are:
 
@@ -46,20 +47,32 @@ The options available in this toolbar are:
 
 In the folder and file structure tree below the toolbar, files use a color coding scheme to indicate the git status of a file:
 
-* black: unchanged. This is the latest version of the file available in git, no changes detected.
+* black: unchanged.
+This is the latest version of the file available in git, no changes detected.
 * grey: this file is ignored
-* blue: staged for commit. This file is ready to be committed ('Git Commit')
-* red: not staged for commit. Add this file to git before changes can be committed ('Git Add').
+* blue: staged for commit.
+This file is ready to be committed ('Git Commit')
+* red: not staged for commit.
+Add this file to git before changes can be committed ('Git Add').
 
 == Working with files in git
 
 Add a file::
-Click on a file that is not yet staged for commit (red), click 'Git Add'. The color of the file changes to blue (staged for commit).
+Click on a file that is not yet staged for commit (red), click 'Git Add'.
+The color of the file changes to blue (staged for commit).
 
 Commit a file::
-Click on a file that is staged for commit (blue), click 'Git Commit'. A popup dialog will ask to confirm the file to commit, and will show a popup for your commit message. Change the default 'Commit Message' to a commit message that describes the changes you made to the file. The file color changes to black (no changes).
+Click on a file that is staged for commit (blue), click 'Git Commit'.
+A popup dialog will ask to confirm the file to commit, and will show a popup for your commit message.
+Change the default 'Commit Message' to a commit message that describes the changes you made to the file.
+The file color changes to black (no changes).
 
 Show git info::
-Click on a file that is under version control (black or blue). The file explorer will show the git status for this file: the file or folder, status, branch and a revisions table (list of previous commits). Select one of the available commits to show the changed files to show the changed files for that revision. Select any of the files in the revision from the 'Changed files' list to show the git diff information on the right hand side. For workflows and pipelines, click 'Visual diff' to open the file in the Data Orchestration perspective. Hop will show an additional icon in the upper right corner of the action or transform icon to indicate the git change that was made (green for added or yellow for changed)
+Click on a file that is under version control (black or blue).
+The file explorer will show the git status for this file: the file or folder, status, branch and a revisions table (list of previous commits).
+Select one of the available commits to show the changed files to show the changed files for that revision.
+Select any of the files in the revision from the 'Changed files' list to show the git diff information on the right hand side.
+For workflows and pipelines, click 'Visual diff' to open the file in the Data Orchestration perspective.
+Hop will show an additional icon in the upper right corner of the action or transform icon to indicate the git change that was made (green for added or yellow for changed)
 
-image::hop-gui/git-visual-diff.png[Git visual diff, width="65%"]
+image::hop-gui/git-visual-diff.png[Git visual diff,width="65%"]

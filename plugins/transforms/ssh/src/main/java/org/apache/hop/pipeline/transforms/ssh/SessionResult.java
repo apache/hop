@@ -31,14 +31,14 @@ public class SessionResult {
   private String stderr;
   private boolean stderrortype;
 
-  public SessionResult( Session session ) throws HopException {
-    readStd( session );
+  public SessionResult(Session session) throws HopException {
+    readStd(session);
   }
 
-  private void setStdErr( String value ) {
+  private void setStdErr(String value) {
     this.stderr = value;
-    if ( !Utils.isEmpty( getStdErr() ) ) {
-      setStdTypeErr( true );
+    if (!Utils.isEmpty(getStdErr())) {
+      setStdTypeErr(true);
     }
   }
 
@@ -50,7 +50,7 @@ public class SessionResult {
     return getStdOut() + getStdErr();
   }
 
-  private void setStdOut( String value ) {
+  private void setStdOut(String value) {
     this.stdout = value;
   }
 
@@ -58,7 +58,7 @@ public class SessionResult {
     return this.stdout;
   }
 
-  private void setStdTypeErr( boolean value ) {
+  private void setStdTypeErr(boolean value) {
     this.stderrortype = value;
   }
 
@@ -66,56 +66,57 @@ public class SessionResult {
     return this.stderrortype;
   }
 
-  private void readStd( Session session ) throws HopException {
+  private void readStd(Session session) throws HopException {
     InputStream isOut = null;
     InputStream isErr = null;
     try {
       isOut = session.getStdout();
       isErr = session.getStderr();
 
-      setStdOut( readInputStream( isOut ) );
-      setStdErr( readInputStream( isErr ) );
+      setStdOut(readInputStream(isOut));
+      setStdErr(readInputStream(isErr));
 
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     } finally {
       try {
-        if ( isOut != null ) {
+        if (isOut != null) {
           isOut.close();
         }
-        if ( isErr != null ) {
+        if (isErr != null) {
           isErr.close();
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
-
   }
 
-  private String readInputStream( InputStream std ) throws HopException {
+  private String readInputStream(InputStream std) throws HopException {
     BufferedReader br = null;
     try {
-      br = new BufferedReader( new InputStreamReader( std ) );
+      br = new BufferedReader(new InputStreamReader(std));
 
       String line = "";
       StringBuilder stringStdout = new StringBuilder();
 
-      if ( ( line = br.readLine() ) != null ) {
-        stringStdout.append( line );
+      if ((line = br.readLine()) != null) {
+        stringStdout.append(line);
       }
-      while ( ( line = br.readLine() ) != null ) {
-        stringStdout.append( "\n" + line );
+      while ((line = br.readLine()) != null) {
+        stringStdout.append("\n" + line);
       }
 
       return stringStdout.toString();
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     } finally {
       try {
-        if ( br != null ) {
+        if (br != null) {
           br.close();
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
   }

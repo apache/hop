@@ -23,17 +23,14 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
 
-/**
- * Base class for all Fixed input transform tests.
- */
-@Ignore( "No tests in abstract base class" )
-public class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelInputData, ExcelInput> {
-  /**
-   * Initialize transform info.
-   */
+/** Base class for all Fixed input transform tests. */
+@Ignore("No tests in abstract base class")
+public class BaseExcelParsingTest
+    extends BaseParsingTest<ExcelInputMeta, ExcelInputData, ExcelInput> {
+  /** Initialize transform info. */
   @Before
   public void before() {
-    inPrefix = '/' + this.getClass().getPackage().getName().replace( '.', '/' ) + "/files/";
+    inPrefix = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
 
     meta = new ExcelInputMeta();
     meta.setDefault();
@@ -42,34 +39,29 @@ public class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelI
     data.outputRowMeta = new RowMeta();
   }
 
-  /**
-   * Initialize for processing specified file.
-   */
-  protected void init( String file ) throws Exception {
-    meta.setFileName( new String[] { getFile( file ).getURL().getFile() } );
-    meta.setFileMask( new String[] { "" } );
-    meta.setExcludeFileMask( new String[] { "" } );
-    meta.setFileRequired( new String[] { "Y" } );
-    meta.setIncludeSubFolders( new String[] { "N" } );
+  /** Initialize for processing specified file. */
+  protected void init(String file) throws Exception {
+    meta.setFileName(new String[] {getFile(file).getURL().getFile()});
+    meta.setFileMask(new String[] {""});
+    meta.setExcludeFileMask(new String[] {""});
+    meta.setFileRequired(new String[] {"Y"});
+    meta.setIncludeSubFolders(new String[] {"N"});
 
-    transform = new ExcelInput( transformMeta, meta, new ExcelInputData(), 1, pipelineMeta, pipeline );
+    transform =
+        new ExcelInput(transformMeta, meta, new ExcelInputData(), 1, pipelineMeta, pipeline);
     transform.init();
-    transform.addRowListener( rowListener );
+    transform.addRowListener(rowListener);
   }
 
-  /**
-   * Declare fields for test.
-   */
-  protected void setFields( ExcelInputField... fields ) throws Exception {
-    meta.setField( fields );
-    meta.getFields( data.outputRowMeta, meta.getName(), null, null, new Variables(), null );
+  /** Declare fields for test. */
+  protected void setFields(ExcelInputField... fields) throws Exception {
+    meta.setField(fields);
+    meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
   }
 
-  /**
-   * For BaseFileInput fields.
-   */
+  /** For BaseFileInput fields. */
   @Override
-  protected void setFields( BaseFileField... fields ) throws Exception {
-    throw new RuntimeException( "Not implemented" );
+  protected void setFields(BaseFileField... fields) throws Exception {
+    throw new RuntimeException("Not implemented");
   }
 }

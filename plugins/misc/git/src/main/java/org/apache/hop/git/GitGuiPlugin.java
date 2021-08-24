@@ -38,12 +38,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
-import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
-import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRefreshListener;
-import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRootChangedListener;
-import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerSelectionListener;
+import org.apache.hop.ui.hopgui.perspective.explorer.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.MessageBox;
@@ -51,11 +46,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @GuiPlugin
 public class GitGuiPlugin
@@ -169,7 +160,7 @@ public class GitGuiPlugin
               new EnterStringDialog(
                   HopGui.getInstance().getShell(),
                   BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Header"),
-                      BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Message"),
+                  BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Message"),
                   "");
           String message = enterStringDialog.open();
           if (message != null) {
@@ -227,9 +218,10 @@ public class GitGuiPlugin
       git.push();
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell()
-              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header")
-              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"), e);
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+          e);
     }
   }
 
@@ -243,8 +235,10 @@ public class GitGuiPlugin
       git.pull();
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullError.Header")
-              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullError.Message"), e);
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PullError.Message"),
+          e);
     }
   }
 
@@ -270,8 +264,10 @@ public class GitGuiPlugin
       ExplorerPerspective.getInstance().refresh();
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(), BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.AddError.Header")
-              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.AddError.Message"), e);
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.AddError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.AddError.Message"),
+          e);
     }
   }
 
@@ -308,7 +304,7 @@ public class GitGuiPlugin
                 HopGui.getInstance().getShell(),
                 files,
                 BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFiles.Header"),
-                    BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFiles.Message"));
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertFiles.Message"));
         selectionDialog.setMulti(true);
         // Select all files by default
         //
@@ -324,9 +320,9 @@ public class GitGuiPlugin
       }
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell()
-              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertError.Header")
-              , BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertError.Message"),
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertError.Message"),
           e);
     }
 
@@ -436,7 +432,6 @@ public class GitGuiPlugin
 
     widgets.enableToolbarItem(TOOLBAR_ITEM_PUSH, isGit);
     widgets.enableToolbarItem(TOOLBAR_ITEM_PULL, isGit);
-
   }
 
   /**
@@ -499,10 +494,11 @@ public class GitGuiPlugin
     ExplorerFile activeFile = explorerPerspective.getSelectedFile();
     if (activeFile == null) {
       activeFile = new ExplorerFile();
-      activeFile.setName( BaseMessages.getString(PKG, "GitGuiPlugin.Project.Label") );
-      activeFile.setFilename( git.getDirectory() );
+      activeFile.setName(BaseMessages.getString(PKG, "GitGuiPlugin.Project.Label"));
+      activeFile.setFilename(git.getDirectory());
     }
-    activeFile.setName(BaseMessages.getString(PKG, "GitGuiPlugin.Info.Label", activeFile.getName()));
+    activeFile.setName(
+        BaseMessages.getString(PKG, "GitGuiPlugin.Info.Label", activeFile.getName()));
     GitInfoExplorerFileType fileType = new GitInfoExplorerFileType();
     activeFile.setFileType(fileType);
     GitInfoExplorerFileTypeHandler fileTypeHandler =

@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.msgboxinfo;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionMsgBoxInfoTest extends WorkflowActionLoadSaveTestSupport<ActionMsgBoxInfo> {
+public class WorkflowActionMsgBoxInfoTest
+    extends WorkflowActionLoadSaveTestSupport<ActionMsgBoxInfo> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,23 +35,20 @@ public class WorkflowActionMsgBoxInfoTest extends WorkflowActionLoadSaveTestSupp
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "bodymessage",
-      "titremessage" );
+    return Arrays.asList("bodymessage", "titremessage");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "bodymessage", "getBodyMessage",
-      "titremessage", "getTitleMessage" );
+        "bodymessage", "getBodyMessage",
+        "titremessage", "getTitleMessage");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "bodymessage", "setBodyMessage",
-      "titremessage", "setTitleMessage" );
+        "bodymessage", "setBodyMessage",
+        "titremessage", "setTitleMessage");
   }
-
 }

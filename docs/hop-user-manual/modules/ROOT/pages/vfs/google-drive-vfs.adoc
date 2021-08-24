@@ -28,7 +28,12 @@ The scheme you can use to access your files in Google Drive is
 
 == Configuration
 
-You need to generate a credentials file to make it work.  Follow the Google documentation to see how that is done.  You also need to specify a folder in which security tokens are going to be saved.  You can specify both in the Hop system configuration options.  This can be done in the Hop GUI: go to the "Google Drive" tab in the Options dialog (from the Tools menu).  You can also use the `hop-conf` script with the following options:
+You need to generate a credentials file to make it work.
+Follow the Google documentation to see how that is done.
+You also need to specify a folder in which security tokens are going to be saved.
+You can specify both in the Hop system configuration options.
+This can be done in the Hop GUI: go to the "Google Drive" tab in the Options dialog (from the Tools menu).
+You can also use the `hop-conf` script with the following options:
 
 [source,shell script]
 ----
@@ -59,12 +64,15 @@ Please open the following address in your browser:
   https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=yourClientId&redirect_uri=http://localhost:8888/Callback&response_type=code&scope=https://www.googleapis.com/auth/drive
 ----
 
-Open that URL in a browser and authenticate the given client ID. You'll then get a token in the configured `tokens folder` with which you can work.
-
+Open that URL in a browser and authenticate the given client ID.
+You'll then get a token in the configured `tokens folder` with which you can work.
 
 == Usage and testing
 
-To test if the configuration works you can simply put a small CSV file in Google Drive and then use File/Open in Hop GUI.  Then you type in googledrive:// as a file location and hit enter (or click the refresh button).  Browse to the CSV file you uploaded and open it.  If all is configured correctly you should be able to see the content in the Hop GUI.
+To test if the configuration works you can simply put a small CSV file in Google Drive and then use File/Open in Hop GUI.
+Then you type in googledrive:// as a file location and hit enter (or click the refresh button).
+Browse to the CSV file you uploaded and open it.
+If all is configured correctly you should be able to see the content in the Hop GUI.
 
 
 

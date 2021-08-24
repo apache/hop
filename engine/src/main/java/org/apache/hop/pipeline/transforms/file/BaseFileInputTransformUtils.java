@@ -35,36 +35,37 @@ import java.util.List;
  */
 public class BaseFileInputTransformUtils {
 
-  public static void handleMissingFiles( FileInputList files, ILogChannel log, boolean isErrorIgnored,
-                                         IFileErrorHandler errorHandler ) throws HopException {
+  public static void handleMissingFiles(
+      FileInputList files, ILogChannel log, boolean isErrorIgnored, IFileErrorHandler errorHandler)
+      throws HopException {
     List<FileObject> nonExistantFiles = files.getNonExistantFiles();
 
-    if ( !nonExistantFiles.isEmpty() ) {
-      String message = FileInputList.getRequiredFilesDescription( nonExistantFiles );
-      if ( log.isBasic() ) {
-        log.logBasic( "Required files", "WARNING: Missing " + message );
+    if (!nonExistantFiles.isEmpty()) {
+      String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
+      if (log.isBasic()) {
+        log.logBasic("Required files", "WARNING: Missing " + message);
       }
-      if ( isErrorIgnored ) {
-        for ( FileObject fileObject : nonExistantFiles ) {
-          errorHandler.handleNonExistantFile( fileObject );
+      if (isErrorIgnored) {
+        for (FileObject fileObject : nonExistantFiles) {
+          errorHandler.handleNonExistantFile(fileObject);
         }
       } else {
-        throw new HopException( "Following required files are missing: " + message );
+        throw new HopException("Following required files are missing: " + message);
       }
     }
 
     List<FileObject> nonAccessibleFiles = files.getNonAccessibleFiles();
-    if ( !nonAccessibleFiles.isEmpty() ) {
-      String message = FileInputList.getRequiredFilesDescription( nonAccessibleFiles );
-      if ( log.isBasic() ) {
-        log.logBasic( "Required files", "WARNING: Not accessible " + message );
+    if (!nonAccessibleFiles.isEmpty()) {
+      String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
+      if (log.isBasic()) {
+        log.logBasic("Required files", "WARNING: Not accessible " + message);
       }
-      if ( isErrorIgnored ) {
-        for ( FileObject fileObject : nonAccessibleFiles ) {
-          errorHandler.handleNonAccessibleFile( fileObject );
+      if (isErrorIgnored) {
+        for (FileObject fileObject : nonAccessibleFiles) {
+          errorHandler.handleNonAccessibleFile(fileObject);
         }
       } else {
-        throw new HopException( "Following required files are not accessible: " + message );
+        throw new HopException("Following required files are not accessible: " + message);
       }
     }
   }
@@ -76,16 +77,16 @@ public class BaseFileInputTransformUtils {
    * @param fieldName
    * @return Index in row meta of value meta with <code>fieldName</code>
    */
-  public static int addValueMeta( String transformName, IRowMeta rowMeta, String fieldName ) {
-    IValueMeta valueMeta = new ValueMetaString( fieldName );
-    valueMeta.setOrigin( transformName );
+  public static int addValueMeta(String transformName, IRowMeta rowMeta, String fieldName) {
+    IValueMeta valueMeta = new ValueMetaString(fieldName);
+    valueMeta.setOrigin(transformName);
     // add if doesn't exist
     int index = -1;
-    if ( !rowMeta.exists( valueMeta ) ) {
+    if (!rowMeta.exists(valueMeta)) {
       index = rowMeta.size();
-      rowMeta.addValueMeta( valueMeta );
+      rowMeta.addValueMeta(valueMeta);
     } else {
-      index = rowMeta.indexOfValue( fieldName );
+      index = rowMeta.indexOfValue(fieldName);
     }
     return index;
   }

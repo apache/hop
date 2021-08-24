@@ -31,11 +31,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SetValueFieldMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
@@ -45,41 +41,48 @@ public class SetValueFieldMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "fieldName", "replaceByFieldValue" );
+    PluginRegistry.init(false);
+    List<String> attributes = Arrays.asList("fieldName", "replaceByFieldValue");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "fieldName", "getFieldName" );
-        put( "replaceByFieldValue", "getReplaceByFieldValue" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "fieldName", "setFieldName" );
-        put( "replaceByFieldValue", "setReplaceByFieldValue" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("fieldName", "getFieldName");
+            put("replaceByFieldValue", "getReplaceByFieldValue");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("fieldName", "setFieldName");
+            put("replaceByFieldValue", "setReplaceByFieldValue");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
-
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "replaceByFieldValue", stringArrayLoadSaveValidator );
+    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("replaceByFieldValue", stringArrayLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof SetValueFieldMeta ) {
-      ( (SetValueFieldMeta) someMeta ).allocate( 5 );
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof SetValueFieldMeta) {
+      ((SetValueFieldMeta) someMeta).allocate(5);
     }
   }
 

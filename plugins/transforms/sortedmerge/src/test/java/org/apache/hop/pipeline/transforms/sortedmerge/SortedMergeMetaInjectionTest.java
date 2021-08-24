@@ -28,12 +28,12 @@ public class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTest<Sort
 
   @Before
   public void setup() throws Exception {
-    setup( new SortedMergeMeta() );
+    setup(new SortedMergeMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", () -> meta.getFieldName()[ 0 ] );
-    check( "ASCENDING", () -> meta.getAscending()[ 0 ] );
+    check("FIELD_NAME", () -> meta.getFieldName()[0]);
+    check("ASCENDING", () -> meta.getAscending()[0]);
   }
 }

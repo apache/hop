@@ -28,64 +28,73 @@ import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
-import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 
-//@PipelineEnginePlugin(
+// @PipelineEnginePlugin(
 //  id = "LocalSingle",
 //  name = "Hop local single threaded pipeline engine",
 //  description = "Executes your pipeline locally in a single-threaded fashion"
-//)
+// )
 public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
 
   public LocalSinglePipelineEngine() {
     super();
   }
 
-  public LocalSinglePipelineEngine( PipelineMeta pipelineMeta ) {
-    super( pipelineMeta );
+  public LocalSinglePipelineEngine(PipelineMeta pipelineMeta) {
+    super(pipelineMeta);
   }
 
-  public LocalSinglePipelineEngine( PipelineMeta pipelineMeta, IVariables variables, ILoggingObject parent ) {
-    super( pipelineMeta, variables, parent );
+  public LocalSinglePipelineEngine(
+      PipelineMeta pipelineMeta, IVariables variables, ILoggingObject parent) {
+    super(pipelineMeta, variables, parent);
   }
 
-  public <Parent extends IVariables & INamedParameters> LocalSinglePipelineEngine( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
-    super( parent, name, filename, metadataProvider );
+  public <Parent extends IVariables & INamedParameters> LocalSinglePipelineEngine(
+      Parent parent, String name, String filename, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    super(parent, name, filename, metadataProvider);
   }
 
-  @Override public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
+  @Override
+  public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
     return new LocalSinglePipelineRunConfiguration();
   }
 
   /**
    * Should support everything
+   *
    * @return
    */
-  @Override public PipelineEngineCapabilities getEngineCapabilities() {
-    return new PipelineEngineCapabilities( true, true, true, true );
+  @Override
+  public PipelineEngineCapabilities getEngineCapabilities() {
+    return new PipelineEngineCapabilities(true, true, true, true);
   }
 
-  @Override public void prepareExecution() throws HopException {
-    pipelineMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
+  @Override
+  public void prepareExecution() throws HopException {
+    pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     super.prepareExecution();
   }
 
-  @Override public void startThreads() throws HopException {
+  @Override
+  public void startThreads() throws HopException {
     super.startThreads();
 
-    SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor( this );
+    SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(this);
 
     if (!executor.init()) {
-      throw new HopException( "Error initializing single threaded pipeline execution. See the log for more details." );
+      throw new HopException(
+          "Error initializing single threaded pipeline execution. See the log for more details.");
     }
 
     // Iterate until done.
     //
-    while (executor.oneIteration() && !isStopped());
-
+    while (executor.oneIteration() && !isStopped())
+      ;
   }
 
-  @Override public String getStatusDescription() {
+  @Override
+  public String getStatusDescription() {
     return super.getStatus();
   }
 }

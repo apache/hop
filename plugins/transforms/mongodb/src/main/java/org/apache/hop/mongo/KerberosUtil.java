@@ -134,8 +134,7 @@ public class KerberosUtil {
      */
     EXTERNAL;
 
-    public static JaasAuthenticationMode byName(String modeName)
-        throws MongoDbException {
+    public static JaasAuthenticationMode byName(String modeName) throws MongoDbException {
       if (modeName == null) {
         // default value
         return KERBEROS_USER;
@@ -211,8 +210,7 @@ public class KerberosUtil {
 
     // Extend the default keytab config properties and set the necessary
     // overrides for this invocation
-    Map<String, String> keytabConfig =
-      new HashMap<>( LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB );
+    Map<String, String> keytabConfig = new HashMap<>(LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB);
     keytabConfig.put("keyTab", keytabFile);
     keytabConfig.put("principal", principal);
 

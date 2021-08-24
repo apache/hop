@@ -21,10 +21,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mailinput.MailInput.MessageParser;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.junit.*;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
@@ -64,8 +64,8 @@ public class ParseMailInputTest {
   public static final String REC2 = "Pupkin";
   public static final String SUBJ = "mocktest";
   public static final String DESC = "desc";
-  public static final Date DATE1 = new Date( 0 );
-  public static final Date DATE2 = new Date( 60000 );
+  public static final Date DATE1 = new Date(0);
+  public static final Date DATE2 = new Date(60000);
   public static final String CNTNT_TYPE_EMAIL = "application/acad";
   public static int CNTNT_SIZE = 23;
   public static String HDR_EX1 = "header_ex1";
@@ -82,11 +82,10 @@ public class ParseMailInputTest {
   @BeforeClass
   public static void setup() {
     transformMockHelper =
-      new TransformMockHelper<>(
-        "ABORT TEST", MailInputMeta.class, ITransformData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("ABORT TEST", MailInputMeta.class, ITransformData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 
   @AfterClass
@@ -96,61 +95,69 @@ public class ParseMailInputTest {
 
   @Before
   public void beforeTest() throws MessagingException, IOException, HopException {
-    message = Mockito.mock( Message.class );
+    message = Mockito.mock(Message.class);
 
-    MailConnection conn = mock( MailConnection.class );
-    when( conn.getMessageBody( any( Message.class ) ) ).thenReturn( MSG_BODY );
-    when( conn.getFolderName() ).thenReturn( FLD_NAME );
-    when( conn.getAttachedFilesCount( any( Message.class ), any( Pattern.class ) ) ).thenReturn( ATTCH_COUNT );
-    when( conn.getMessageBodyContentType( any( Message.class ) ) ).thenReturn( CNTNT_TYPE );
-    data = mock( MailInputData.class );
+    MailConnection conn = mock(MailConnection.class);
+    when(conn.getMessageBody(any(Message.class))).thenReturn(MSG_BODY);
+    when(conn.getFolderName()).thenReturn(FLD_NAME);
+    when(conn.getAttachedFilesCount(any(Message.class), any(Pattern.class)))
+        .thenReturn(ATTCH_COUNT);
+    when(conn.getMessageBodyContentType(any(Message.class))).thenReturn(CNTNT_TYPE);
+    data = mock(MailInputData.class);
     data.mailConn = conn;
 
-    mailInput = new MailInput( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    mailInput =
+        new MailInput(
+            transformMockHelper.transformMeta,
+            meta,
+            data,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
 
-    Address addrFrom1 = mock( Address.class );
-    when( addrFrom1.toString() ).thenReturn( FROM1 );
-    Address addrFrom2 = mock( Address.class );
-    when( addrFrom2.toString() ).thenReturn( FROM2 );
-    Address addrRep1 = mock( Address.class );
-    when( addrRep1.toString() ).thenReturn( REP1 );
-    Address addrRep2 = mock( Address.class );
-    when( addrRep2.toString() ).thenReturn( REP2 );
-    Address allRec1 = mock( Address.class );
-    when( allRec1.toString() ).thenReturn( REC1 );
-    Address allRec2 = mock( Address.class );
-    when( allRec2.toString() ).thenReturn( REC2 );
+    Address addrFrom1 = mock(Address.class);
+    when(addrFrom1.toString()).thenReturn(FROM1);
+    Address addrFrom2 = mock(Address.class);
+    when(addrFrom2.toString()).thenReturn(FROM2);
+    Address addrRep1 = mock(Address.class);
+    when(addrRep1.toString()).thenReturn(REP1);
+    Address addrRep2 = mock(Address.class);
+    when(addrRep2.toString()).thenReturn(REP2);
+    Address allRec1 = mock(Address.class);
+    when(allRec1.toString()).thenReturn(REC1);
+    Address allRec2 = mock(Address.class);
+    when(allRec2.toString()).thenReturn(REC2);
 
-    Address[] adrFr = { addrFrom1, addrFrom2 };
-    Address[] adrRep = { addrRep1, addrRep2 };
-    Address[] adrRecip = { allRec1, allRec2 };
+    Address[] adrFr = {addrFrom1, addrFrom2};
+    Address[] adrRep = {addrRep1, addrRep2};
+    Address[] adrRecip = {allRec1, allRec2};
 
-    message = Mockito.mock( Message.class );
-    when( message.getMessageNumber() ).thenReturn( MSG_NUMB );
-    when( message.getSubject() ).thenReturn( SUBJ );
+    message = Mockito.mock(Message.class);
+    when(message.getMessageNumber()).thenReturn(MSG_NUMB);
+    when(message.getSubject()).thenReturn(SUBJ);
 
-    when( message.getFrom() ).thenReturn( adrFr );
-    when( message.getReplyTo() ).thenReturn( adrRep );
-    when( message.getAllRecipients() ).thenReturn( adrRecip );
-    when( message.getDescription() ).thenReturn( DESC );
-    when( message.getReceivedDate() ).thenReturn( DATE1 );
-    when( message.getSentDate() ).thenReturn( DATE2 );
-    when( message.getContentType() ).thenReturn( CNTNT_TYPE_EMAIL );
-    when( message.getSize() ).thenReturn( CNTNT_SIZE );
+    when(message.getFrom()).thenReturn(adrFr);
+    when(message.getReplyTo()).thenReturn(adrRep);
+    when(message.getAllRecipients()).thenReturn(adrRecip);
+    when(message.getDescription()).thenReturn(DESC);
+    when(message.getReceivedDate()).thenReturn(DATE1);
+    when(message.getSentDate()).thenReturn(DATE2);
+    when(message.getContentType()).thenReturn(CNTNT_TYPE_EMAIL);
+    when(message.getSize()).thenReturn(CNTNT_SIZE);
 
-    Header ex1 = new Header( HDR_EX1, HDR_EX1V );
-    Header ex2 = new Header( HDR_EX2, HDR_EX2V );
+    Header ex1 = new Header(HDR_EX1, HDR_EX1V);
+    Header ex2 = new Header(HDR_EX2, HDR_EX2V);
 
-    when( message.getMatchingHeaders( AdditionalMatchers.aryEq( new String[] { HDR_EX1 } ) ) ).thenReturn(
-      getEnum( new Header[] { ex1 } ) );
-    when( message.getMatchingHeaders( AdditionalMatchers.aryEq( new String[] { HDR_EX2 } ) ) ).thenReturn(
-      getEnum( new Header[] { ex2 } ) );
-    when( message.getMatchingHeaders( AdditionalMatchers.aryEq( new String[] { HDR_EX1, HDR_EX2 } ) ) ).thenReturn(
-      getEnum( new Header[] { ex1, ex2 } ) );
+    when(message.getMatchingHeaders(AdditionalMatchers.aryEq(new String[] {HDR_EX1})))
+        .thenReturn(getEnum(new Header[] {ex1}));
+    when(message.getMatchingHeaders(AdditionalMatchers.aryEq(new String[] {HDR_EX2})))
+        .thenReturn(getEnum(new Header[] {ex2}));
+    when(message.getMatchingHeaders(AdditionalMatchers.aryEq(new String[] {HDR_EX1, HDR_EX2})))
+        .thenReturn(getEnum(new Header[] {ex1, ex2}));
 
     // for previous implementation
-    when( message.getHeader( eq( HDR_EX1 ) ) ).thenReturn( new String[] { ex1.getValue() } );
-    when( message.getHeader( eq( HDR_EX2 ) ) ).thenReturn( new String[] { ex2.getValue() } );
+    when(message.getHeader(eq(HDR_EX1))).thenReturn(new String[] {ex1.getValue()});
+    when(message.getHeader(eq(HDR_EX2))).thenReturn(new String[] {ex2.getValue()});
   }
 
   /**
@@ -163,23 +170,23 @@ public class ParseMailInputTest {
   @Ignore
   public void testHeadersParsedPositive() throws Exception {
     // add expected fields:
-    int[] fields = { MailInputField.COLUMN_HEADER };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
+    int[] fields = {MailInputField.COLUMN_HEADER};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
     // points to existed header
-    farr[ 0 ].setName( HDR_EX1 );
+    farr[0].setName(HDR_EX1);
 
-    this.mockMailInputMeta( farr );
+    this.mockMailInputMeta(farr);
 
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Header is correct", HDR_EX1V, String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Header is correct", HDR_EX1V, String.class.cast(r[0]));
   }
 
   /**
@@ -190,22 +197,22 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testHeadersParsedNegative() throws Exception {
-    int[] fields = { MailInputField.COLUMN_HEADER };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    farr[ 0 ].setName( HDR_EX1 + "salt" );
+    int[] fields = {MailInputField.COLUMN_HEADER};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    farr[0].setName(HDR_EX1 + "salt");
 
-    this.mockMailInputMeta( farr );
+    this.mockMailInputMeta(farr);
 
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Header is correct", "", String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Header is correct", "", String.class.cast(r[0]));
   }
 
   /**
@@ -216,18 +223,18 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageNumberIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_MESSAGE_NR };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_MESSAGE_NR};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
-    Assert.assertEquals( "Message number is correct", new Long( MSG_NUMB ), Long.class.cast( r[ 0 ] ) );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
+    Assert.assertEquals("Message number is correct", new Long(MSG_NUMB), Long.class.cast(r[0]));
   }
 
   /**
@@ -238,18 +245,18 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageSubjectIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_SUBJECT };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_SUBJECT};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
-    Assert.assertEquals( "Message subject is correct", SUBJ, String.class.cast( r[ 0 ] ) );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
+    Assert.assertEquals("Message subject is correct", SUBJ, String.class.cast(r[0]));
   }
 
   /**
@@ -260,21 +267,21 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageFromIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_SENDER };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_SENDER};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
     // expect, that from is concatenated with ';'
-    String expected = StringUtils.join( new String[] { FROM1, FROM2 }, ";" );
-    Assert.assertEquals( "Message From is correct", expected, String.class.cast( r[ 0 ] ) );
+    String expected = StringUtils.join(new String[] {FROM1, FROM2}, ";");
+    Assert.assertEquals("Message From is correct", expected, String.class.cast(r[0]));
   }
 
   /**
@@ -285,21 +292,21 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageReplayToIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_REPLY_TO };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_REPLY_TO};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
     // is concatenated with ';'
-    String expected = StringUtils.join( new String[] { REP1, REP2 }, ";" );
-    Assert.assertEquals( "Message ReplayTo is correct", expected, String.class.cast( r[ 0 ] ) );
+    String expected = StringUtils.join(new String[] {REP1, REP2}, ";");
+    Assert.assertEquals("Message ReplayTo is correct", expected, String.class.cast(r[0]));
   }
 
   /**
@@ -310,21 +317,21 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageRecipientsIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_RECIPIENTS };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_RECIPIENTS};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
     // is concatenated with ';'
-    String expected = StringUtils.join( new String[] { REC1, REC2 }, ";" );
-    Assert.assertEquals( "Message Recipients is correct", expected, String.class.cast( r[ 0 ] ) );
+    String expected = StringUtils.join(new String[] {REC1, REC2}, ";");
+    Assert.assertEquals("Message Recipients is correct", expected, String.class.cast(r[0]));
   }
 
   /**
@@ -335,19 +342,19 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageDescriptionIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_DESCRIPTION };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_DESCRIPTION};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Description is correct", DESC, String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Message Description is correct", DESC, String.class.cast(r[0]));
   }
 
   /**
@@ -358,19 +365,19 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageRecivedDateIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_RECEIVED_DATE };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_RECEIVED_DATE};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Recived date is correct", DATE1, Date.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Message Recived date is correct", DATE1, Date.class.cast(r[0]));
   }
 
   /**
@@ -381,19 +388,19 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageSentDateIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_SENT_DATE };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_SENT_DATE};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Sent date is correct", DATE2, Date.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Message Sent date is correct", DATE2, Date.class.cast(r[0]));
   }
 
   /**
@@ -404,19 +411,20 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageContentTypeIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_CONTENT_TYPE };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_CONTENT_TYPE};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Content type is correct", CNTNT_TYPE_EMAIL, String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals(
+        "Message Content type is correct", CNTNT_TYPE_EMAIL, String.class.cast(r[0]));
   }
 
   /**
@@ -427,19 +435,19 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageSizeIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_SIZE };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_SIZE};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Size is correct", new Long( CNTNT_SIZE ), Long.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Message Size is correct", new Long(CNTNT_SIZE), Long.class.cast(r[0]));
   }
 
   /**
@@ -450,19 +458,19 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageBodyIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_BODY };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_BODY};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Body is correct", MSG_BODY, String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Message Body is correct", MSG_BODY, String.class.cast(r[0]));
   }
 
   /**
@@ -473,19 +481,19 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageFolderNameIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_FOLDER_NAME };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_FOLDER_NAME};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Folder Name is correct", FLD_NAME, String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals("Message Folder Name is correct", FLD_NAME, String.class.cast(r[0]));
   }
 
   /**
@@ -496,20 +504,20 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageAttachedFilesCountNameIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_ATTACHED_FILES_COUNT };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_ATTACHED_FILES_COUNT};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message Attached files count is correct", new Long( ATTCH_COUNT ), Long.class
-      .cast( r[ 0 ] ) );
+    Assert.assertEquals(
+        "Message Attached files count is correct", new Long(ATTCH_COUNT), Long.class.cast(r[0]));
   }
 
   /**
@@ -520,38 +528,39 @@ public class ParseMailInputTest {
   @Test
   @Ignore
   public void testMessageBodyContentTypeIsParsed() throws Exception {
-    int[] fields = { MailInputField.COLUMN_BODY_CONTENT_TYPE };
-    MailInputField[] farr = this.getDefaultInputFields( fields );
-    this.mockMailInputMeta( farr );
+    int[] fields = {MailInputField.COLUMN_BODY_CONTENT_TYPE};
+    MailInputField[] farr = this.getDefaultInputFields(fields);
+    this.mockMailInputMeta(farr);
     try {
       mailInput.init();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // don't worry about it
     }
     MessageParser underTest = mailInput.new MessageParser();
-    Object[] r = RowDataUtil.allocateRowData( data.nrFields );
-    underTest.parseToArray( r, message );
+    Object[] r = RowDataUtil.allocateRowData(data.nrFields);
+    underTest.parseToArray(r, message);
 
-    Assert.assertEquals( "Message body content type is correct", CNTNT_TYPE, String.class.cast( r[ 0 ] ) );
+    Assert.assertEquals(
+        "Message body content type is correct", CNTNT_TYPE, String.class.cast(r[0]));
   }
 
-  private void mockMailInputMeta( MailInputField[] arr ) {
+  private void mockMailInputMeta(MailInputField[] arr) {
     data.nrFields = arr.length;
-    meta = mock( MailInputMeta.class );
-    when( meta.getInputFields() ).thenReturn( arr );
+    meta = mock(MailInputMeta.class);
+    when(meta.getInputFields()).thenReturn(arr);
   }
 
-  private MailInputField[] getDefaultInputFields( int[] arr ) {
-    MailInputField[] fields = new MailInputField[ arr.length ];
-    for ( int i = 0; i < arr.length; i++ ) {
-      fields[ i ] = new MailInputField();
-      fields[ i ].setColumn( arr[ i ] );
-      fields[ i ].setName( MailInputField.getColumnDesc( arr[ i ] ) );
+  private MailInputField[] getDefaultInputFields(int[] arr) {
+    MailInputField[] fields = new MailInputField[arr.length];
+    for (int i = 0; i < arr.length; i++) {
+      fields[i] = new MailInputField();
+      fields[i].setColumn(arr[i]);
+      fields[i].setName(MailInputField.getColumnDesc(arr[i]));
     }
     return fields;
   }
 
-  private Enumeration<?> getEnum( Header[] headers ) {
-    return Collections.enumeration( Arrays.asList( headers ) );
+  private Enumeration<?> getEnum(Header[] headers) {
+    return Collections.enumeration(Arrays.asList(headers));
   }
 }

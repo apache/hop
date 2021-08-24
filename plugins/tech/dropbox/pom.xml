@@ -19,83 +19,83 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.hop</groupId>
-  <artifactId>hop-plugins-tech-dropbox</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
-
-  <name>Hop Plugins Technology Dropbox</name>
-  <url>http://maven.apache.org</url>
-
-  <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins-tech</artifactId>
+    <artifactId>hop-plugins-tech-dropbox</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>jar</packaging>
 
-  <licenses>
-    <license>
-      <name>Apache License, version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-      <distribution>repo</distribution>
-      <comments/>
-    </license>
-  </licenses>
+    <name>Hop Plugins Technology Dropbox</name>
+    <url>http://maven.apache.org</url>
 
-  <properties>
-    <dropbox.version>4.0.0</dropbox.version> 
-  </properties>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-tech</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  <dependencies>
-    <!-- Dropbox SDK -->
-   <dependency>
-      <groupId>com.dropbox.core</groupId>
-      <artifactId>dropbox-core-sdk</artifactId>
-      <version>${dropbox.version}</version>
-    </dependency>
-        
-    <!-- Test and Hop dependencies -->
+    <licenses>
+        <license>
+            <name>Apache License, version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+            <comments/>
+        </license>
+    </licenses>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <scope>compile</scope>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>${mockito-all.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-ui</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-engine</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
+    <properties>
+        <dropbox.version>4.0.0</dropbox.version>
+    </properties>
 
-  </dependencies>
+    <dependencies>
+        <!-- Dropbox SDK -->
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <version>${dropbox.version}</version>
+        </dependency>
+
+        <!-- Test and Hop dependencies -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <scope>compile</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito-all.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 </project>

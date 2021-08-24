@@ -30,7 +30,8 @@ public class HopGuiWorkflowGraphExtension {
   private AreaOwner areaOwner;
   private boolean preventingDefault;
 
-  public HopGuiWorkflowGraphExtension( HopGuiWorkflowGraph workflowGraph, MouseEvent event, Point point, AreaOwner areaOwner ) {
+  public HopGuiWorkflowGraphExtension(
+      HopGuiWorkflowGraph workflowGraph, MouseEvent event, Point point, AreaOwner areaOwner) {
     this.workflowGraph = workflowGraph;
     this.event = event;
     this.point = point;
@@ -47,10 +48,8 @@ public class HopGuiWorkflowGraphExtension {
     return event;
   }
 
-  /**
-   * @param event The event to set
-   */
-  public void setEvent( MouseEvent event ) {
+  /** @param event The event to set */
+  public void setEvent(MouseEvent event) {
     this.event = event;
   }
 
@@ -63,10 +62,8 @@ public class HopGuiWorkflowGraphExtension {
     return point;
   }
 
-  /**
-   * @param point The point to set
-   */
-  public void setPoint( Point point ) {
+  /** @param point The point to set */
+  public void setPoint(Point point) {
     this.point = point;
   }
 
@@ -79,10 +76,8 @@ public class HopGuiWorkflowGraphExtension {
     return workflowGraph;
   }
 
-  /**
-   * @param workflowGraph The workflowGraph to set
-   */
-  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
+  /** @param workflowGraph The workflowGraph to set */
+  public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
 
@@ -95,10 +90,8 @@ public class HopGuiWorkflowGraphExtension {
     return areaOwner;
   }
 
-  /**
-   * @param areaOwner The areaOwner to set
-   */
-  public void setAreaOwner( AreaOwner areaOwner ) {
+  /** @param areaOwner The areaOwner to set */
+  public void setAreaOwner(AreaOwner areaOwner) {
     this.areaOwner = areaOwner;
   }
 
@@ -111,10 +104,8 @@ public class HopGuiWorkflowGraphExtension {
     return preventingDefault;
   }
 
-  /**
-   * @param preventingDefault The preventingDefault to set
-   */
-  public void setPreventingDefault( boolean preventingDefault ) {
+  /** @param preventingDefault The preventingDefault to set */
+  public void setPreventingDefault(boolean preventingDefault) {
     this.preventingDefault = preventingDefault;
   }
 }

@@ -36,50 +36,50 @@ public class ObjectTesterBuilder<T> {
 
   public IObjectTester<T> build() {
     IObjectProvider<T> provider = this.provider;
-    if ( provider == null ) {
-      if ( objects != null ) {
-        provider = new CollectionObjectProvider<>( objects );
+    if (provider == null) {
+      if (objects != null) {
+        provider = new CollectionObjectProvider<>(objects);
       }
     }
     IObjectValidator<T> validator = this.validator;
-    if ( validator == null ) {
-      if ( useEqualsEquals ) {
+    if (validator == null) {
+      if (useEqualsEquals) {
         validator = new EqualsEqualsValidator<>();
       } else {
         validator = new DotEqualsValidator<>();
       }
     }
-    return new DefaultObjectTester<>( provider, validator );
+    return new DefaultObjectTester<>(provider, validator);
   }
 
-  public ObjectTesterBuilder<T> setObjects( Collection<T> objects ) {
+  public ObjectTesterBuilder<T> setObjects(Collection<T> objects) {
     this.objects = objects;
     return this;
   }
 
-  public ObjectTesterBuilder<T> addObject( T object ) {
-    if ( this.objects == null ) {
+  public ObjectTesterBuilder<T> addObject(T object) {
+    if (this.objects == null) {
       this.objects = new ArrayList<>();
     }
-    this.objects.add( object );
+    this.objects.add(object);
     return this;
   }
 
-  public ObjectTesterBuilder<T> setProvider( IObjectProvider<T> provider ) {
+  public ObjectTesterBuilder<T> setProvider(IObjectProvider<T> provider) {
     this.provider = provider;
     return this;
   }
 
-  public ObjectTesterBuilder<T> setUseEqualsEquals( boolean useDotEquals ) {
+  public ObjectTesterBuilder<T> setUseEqualsEquals(boolean useDotEquals) {
     this.useEqualsEquals = useDotEquals;
     return this;
   }
 
   public ObjectTesterBuilder<T> useEqualsEquals() {
-    return setUseEqualsEquals( true );
+    return setUseEqualsEquals(true);
   }
 
-  public ObjectTesterBuilder<T> setValidator( IObjectValidator<T> validator ) {
+  public ObjectTesterBuilder<T> setValidator(IObjectValidator<T> validator) {
     this.validator = validator;
     return this;
   }

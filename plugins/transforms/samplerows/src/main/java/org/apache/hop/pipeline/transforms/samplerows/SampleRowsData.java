@@ -42,5 +42,4 @@ public class SampleRowsData extends BaseTransformData implements ITransformData 
     addlineField = false;
     outputRow = null;
   }
-
 }

@@ -20,29 +20,24 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
-@ValueMetaPlugin(
-  id = "4",
-  name = "Boolean",
-  description = "Boolean",
-  image = "images/boolean.svg"
-)
+@ValueMetaPlugin(id = "4", name = "Boolean", description = "Boolean", image = "images/boolean.svg")
 public class ValueMetaBoolean extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaBoolean() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaBoolean( String name ) {
-    super( name, IValueMeta.TYPE_BOOLEAN );
+  public ValueMetaBoolean(String name) {
+    super(name, IValueMeta.TYPE_BOOLEAN);
   }
 
-  public ValueMetaBoolean( String name, int length, int precision ) {
-    super( name, IValueMeta.TYPE_BOOLEAN, length, precision );
+  public ValueMetaBoolean(String name, int length, int precision) {
+    super(name, IValueMeta.TYPE_BOOLEAN, length, precision);
   }
 
   @Override
-  public Object getNativeDataType( Object object ) throws HopValueException {
-    return getBoolean( object );
+  public Object getNativeDataType(Object object) throws HopValueException {
+    return getBoolean(object);
   }
 
   @Override

@@ -36,11 +36,11 @@ public class StreamLogger implements Runnable {
 
   private String lastLine;
 
-  public StreamLogger( ILogChannel log, InputStream is, String type ) {
-    this( log, is, type, false );
+  public StreamLogger(ILogChannel log, InputStream is, String type) {
+    this(log, is, type, false);
   }
 
-  public StreamLogger( ILogChannel log, InputStream is, String type, Boolean errorStream ) {
+  public StreamLogger(ILogChannel log, InputStream is, String type, Boolean errorStream) {
     this.log = log;
     this.is = is;
     this.type = type;
@@ -50,26 +50,23 @@ public class StreamLogger implements Runnable {
   @Override
   public void run() {
     try {
-      InputStreamReader isr = new InputStreamReader( is );
-      BufferedReader br = new BufferedReader( isr );
+      InputStreamReader isr = new InputStreamReader(is);
+      BufferedReader br = new BufferedReader(isr);
       String line = null;
-      while ( ( line = br.readLine() ) != null ) {
+      while ((line = br.readLine()) != null) {
         lastLine = line;
-        if ( errorStream ) {
-          log.logError( type + " " + line );
+        if (errorStream) {
+          log.logError(type + " " + line);
         } else {
-          log.logBasic( type + " " + line );
+          log.logBasic(type + " " + line);
         }
-
       }
-    } catch ( IOException ioe ) {
-      log.logError( type + " " + Const.getStackTracker( ioe ) );
+    } catch (IOException ioe) {
+      log.logError(type + " " + Const.getStackTracker(ioe));
     }
-
   }
 
   public String getLastLine() {
     return lastLine;
   }
-
 }

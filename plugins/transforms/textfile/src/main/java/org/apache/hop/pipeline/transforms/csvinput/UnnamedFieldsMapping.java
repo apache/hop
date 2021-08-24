@@ -21,13 +21,13 @@ public class UnnamedFieldsMapping implements IFieldsMapping {
 
   private final int fieldsCount;
 
-  public UnnamedFieldsMapping( int fieldsCount ) {
+  public UnnamedFieldsMapping(int fieldsCount) {
     this.fieldsCount = fieldsCount;
   }
 
   @Override
-  public int fieldMetaIndex( int index ) {
-    return ( index >= fieldsCount || index < 0 ) ? IFieldsMapping.FIELD_DOES_NOT_EXIST : index;
+  public int fieldMetaIndex(int index) {
+    return (index >= fieldsCount || index < 0) ? IFieldsMapping.FIELD_DOES_NOT_EXIST : index;
   }
 
   @Override
@@ -35,8 +35,7 @@ public class UnnamedFieldsMapping implements IFieldsMapping {
     return fieldsCount;
   }
 
-  public static UnnamedFieldsMapping mapping( int fieldsCount ) {
-    return new UnnamedFieldsMapping( fieldsCount );
+  public static UnnamedFieldsMapping mapping(int fieldsCount) {
+    return new UnnamedFieldsMapping(fieldsCount);
   }
-
 }

@@ -25,13 +25,13 @@ The Beam GCP Pub/Sub : Publish transform publishes messages to a link:https://cl
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
 |Topic to publish to|The Google Cloud Pub/Sub topic.
 |The type of message to publish a|
- 
+
 * String
 * PubsubMessage
 |The field to use as message|The field which contains the message.

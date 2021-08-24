@@ -23,28 +23,26 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-/**
- * Created by bmorrise on 3/21/16.
- */
+/** Created by bmorrise on 3/21/16. */
 public class ReplaceStringMetaInjectionTest extends BaseMetadataInjectionTest<ReplaceStringMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setup() throws Exception {
-    setup( new ReplaceStringMeta() );
+    setup(new ReplaceStringMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_IN_STREAM", () -> meta.getFieldInStream()[ 0 ] );
-    check( "FIELD_OUT_STREAM", () -> meta.getFieldOutStream()[ 0 ] );
-    check( "USE_REGEX", () -> meta.getUseRegEx()[ 0 ] );
-    check( "REPLACE_STRING", () -> meta.getReplaceString()[ 0 ] );
-    check( "REPLACE_BY", () -> meta.getReplaceByString()[ 0 ] );
-    check( "EMPTY_STRING", () -> meta.isSetEmptyString()[ 0 ] );
-    check( "REPLACE_WITH_FIELD", () -> meta.getFieldReplaceByString()[ 0 ] );
-    check( "REPLACE_WHOLE_WORD", () -> meta.getWholeWord()[ 0 ] );
-    check( "CASE_SENSITIVE", () -> meta.getCaseSensitive()[ 0 ] );
-    check( "IS_UNICODE", () -> meta.isUnicode()[ 0 ] );
+    check("FIELD_IN_STREAM", () -> meta.getFieldInStream()[0]);
+    check("FIELD_OUT_STREAM", () -> meta.getFieldOutStream()[0]);
+    check("USE_REGEX", () -> meta.getUseRegEx()[0]);
+    check("REPLACE_STRING", () -> meta.getReplaceString()[0]);
+    check("REPLACE_BY", () -> meta.getReplaceByString()[0]);
+    check("EMPTY_STRING", () -> meta.isSetEmptyString()[0]);
+    check("REPLACE_WITH_FIELD", () -> meta.getFieldReplaceByString()[0]);
+    check("REPLACE_WHOLE_WORD", () -> meta.getWholeWord()[0]);
+    check("CASE_SENSITIVE", () -> meta.getCaseSensitive()[0]);
+    check("IS_UNICODE", () -> meta.isUnicode()[0]);
   }
 }

@@ -18,14 +18,9 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.annotations.HopServerServlet;
-import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.SvgGc;
-import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -35,9 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 
-@HopServerServlet(id="workflowImage", name = "Generate a PNG image of a workflow")
+@HopServerServlet(id = "workflowImage", name = "Generate a PNG image of a workflow")
 public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
@@ -47,68 +41,69 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
 
   public static final String CONTEXT_PATH = "/hop/workflowImage";
 
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "GetWorkflowImageServlet.Log.WorkflowImageRequested" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "GetWorkflowImageServlet.Log.WorkflowImageRequested"));
     }
 
-    String workflowName = request.getParameter( "name" );
-    String id = request.getParameter( "id" );
+    String workflowName = request.getParameter("name");
+    String id = request.getParameter("id");
 
     // ID is optional...
     //
     IWorkflowEngine<WorkflowMeta> workflow;
     HopServerObjectEntry entry;
-    if ( Utils.isEmpty( id ) ) {
+    if (Utils.isEmpty(id)) {
       // get the first pipeline that matches...
       //
-      entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
-      if ( entry == null ) {
+      entry = getWorkflowMap().getFirstHopServerObjectEntry(workflowName);
+      if (entry == null) {
         workflow = null;
       } else {
         id = entry.getId();
-        workflow = getWorkflowMap().getWorkflow( entry );
+        workflow = getWorkflowMap().getWorkflow(entry);
       }
     } else {
       // Take the ID into account!
       //
-      entry = new HopServerObjectEntry( workflowName, id );
-      workflow = getWorkflowMap().getWorkflow( entry );
+      entry = new HopServerObjectEntry(workflowName, id);
+      workflow = getWorkflowMap().getWorkflow(entry);
     }
 
     ByteArrayOutputStream svgStream = null;
 
     try {
-      if ( workflow != null ) {
+      if (workflow != null) {
 
-        response.setStatus( HttpServletResponse.SC_OK );
+        response.setStatus(HttpServletResponse.SC_OK);
 
-        response.setCharacterEncoding( "UTF-8" );
-        response.setContentType( "image/svg+xml" );
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("image/svg+xml");
 
         // Generate workflow SVG image
         //
-        String svgXml = WorkflowSvgPainter.generateWorkflowSvg( workflow.getWorkflowMeta(), 1.0f, variables );
+        String svgXml =
+            WorkflowSvgPainter.generateWorkflowSvg(workflow.getWorkflowMeta(), 1.0f, variables);
         svgStream = new ByteArrayOutputStream();
         try {
-          svgStream.write( svgXml.getBytes("UTF-8") );
+          svgStream.write(svgXml.getBytes("UTF-8"));
         } finally {
           svgStream.flush();
         }
-        response.setContentLength( svgStream.size() );
+        response.setContentLength(svgStream.size());
 
         OutputStream out = response.getOutputStream();
-        out.write( svgStream.toByteArray() );
+        out.write(svgStream.toByteArray());
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       e.printStackTrace();
     } finally {
-      if (svgStream!=null) {
+      if (svgStream != null) {
         svgStream.close();
       }
     }

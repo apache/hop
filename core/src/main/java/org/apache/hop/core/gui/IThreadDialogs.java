@@ -19,6 +19,5 @@ package org.apache.hop.core.gui;
 
 public interface IThreadDialogs {
 
-  boolean threadMessageBox( String message, String text, boolean allowCancel, int type );
-
+  boolean threadMessageBox(String message, String text, boolean allowCancel, int type);
 }

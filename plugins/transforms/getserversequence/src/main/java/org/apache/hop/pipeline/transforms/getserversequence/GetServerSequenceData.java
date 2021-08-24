@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.getserversequence;
 
-import org.apache.hop.server.HopServer;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.server.HopServer;
 
 /**
  * @author Matt

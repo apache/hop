@@ -18,5 +18,10 @@
 package org.apache.hop.core.metrics;
 
 public enum MetricsSnapshotType {
-  START, STOP, MIN, MAX, SUM, COUNT;
+  START,
+  STOP,
+  MIN,
+  MAX,
+  SUM,
+  COUNT;
 }

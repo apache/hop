@@ -130,7 +130,8 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
     return false;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 

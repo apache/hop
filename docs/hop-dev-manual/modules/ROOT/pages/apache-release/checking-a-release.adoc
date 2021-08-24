@@ -17,11 +17,15 @@ under the License.
 [[CheckingARelease]]
 = Checking a Release
 
-After the release manager creates a release as described in xref:apache-release/creating-a-release.adoc[Creating a Release] the voting process starts. This guide will contain some steps you can take to validate a release candidate and base your vote on. Each member will have his own way to check some parts of a release. There is no general rule on how to check a release, there is only a list on what has to be checked this list can be found in the https://www.apache.org/legal/release-policy.html[official release documentation].
+After the release manager creates a release as described in xref:apache-release/creating-a-release.adoc[Creating a Release] the voting process starts.
+This guide will contain some steps you can take to validate a release candidate and base your vote on.
+Each member will have his own way to check some parts of a release.
+There is no general rule on how to check a release, there is only a list on what has to be checked this list can be found in the https://www.apache.org/legal/release-policy.html[official release documentation].
 
 == Possible checks that can be followed (Linux)
 
-Start by grabbing the artifacts mentioned in the vote mail. Either use the link provided in the mail or grab them https://dist.apache.org/repos/dist/dev/incubator/hop/[here].
+Start by grabbing the artifacts mentioned in the vote mail.
+Either use the link provided in the mail or grab them https://dist.apache.org/repos/dist/dev/incubator/hop/[here].
 
 In these examples a folder to check everything in was created in `/tmp` and the artifacts are already in place.
 
@@ -132,9 +136,6 @@ unzip hop-client-*.zip
 cd hop 
 ./hop-gui.sh
 ----
-
-
-
 
 == Extra checks
 

@@ -45,21 +45,23 @@ import java.util.List;
 import java.util.Objects;
 
 @InjectionSupported(
-  localizationPrefix = "Janino.Injection.",
-  groups = {"FORMULA",})
+    localizationPrefix = "Janino.Injection.",
+    groups = {
+      "FORMULA",
+    })
 @Transform(
     id = "Janino",
     image = "janino.svg",
     name = "i18n::BaseTransform.TypeLongDesc.Janino",
     description = "i18n::BaseTransform.TypeTooltipDesc.Janino",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/userdefinedjavaexpression.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/userdefinedjavaexpression.html")
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   /** The formula calculations to be performed */
-  @InjectionDeep
-  private JaninoMetaFunction[] formula;
+  @InjectionDeep private JaninoMetaFunction[] formula;
 
   public JaninoMeta() {
     super(); // allocate BaseTransformMeta

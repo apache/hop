@@ -24,16 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@CompressionPlugin(
-  id = "Zip",
-  name = "Zip",
-  description = "ZIP compression"
-)
+@CompressionPlugin(id = "Zip", name = "Zip", description = "ZIP compression")
 public class ZipCompressionProvider implements ICompressionProvider {
 
   @Override
-  public ZipCompressionInputStream createInputStream( InputStream in ) throws IOException {
-    return new ZipCompressionInputStream( in, this );
+  public ZipCompressionInputStream createInputStream(InputStream in) throws IOException {
+    return new ZipCompressionInputStream(in, this);
   }
 
   @Override
@@ -42,8 +38,8 @@ public class ZipCompressionProvider implements ICompressionProvider {
   }
 
   @Override
-  public ZipCompressionOutputStream createOutputStream( OutputStream out ) throws IOException {
-    return new ZipCompressionOutputStream( out, this );
+  public ZipCompressionOutputStream createOutputStream(OutputStream out) throws IOException {
+    return new ZipCompressionOutputStream(out, this);
   }
 
   @Override

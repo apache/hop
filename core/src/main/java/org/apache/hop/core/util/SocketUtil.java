@@ -21,33 +21,30 @@ import org.apache.hop.core.exception.HopException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-/**
- * Utility class for socket related methods
- */
+/** Utility class for socket related methods */
 public class SocketUtil {
 
-  private SocketUtil() {
-  }
+  private SocketUtil() {}
 
   /**
    * Attempts to connect to the specified host, wrapping any exceptions in a HopException
    *
-   * @param host    the host to connect to
-   * @param port    the port to connect to
+   * @param host the host to connect to
+   * @param port the port to connect to
    * @param timeout the timeout
    * @throws HopException
    */
-  public static void connectToHost( String host, int port, int timeout ) throws HopException {
+  public static void connectToHost(String host, int port, int timeout) throws HopException {
 
-    try ( Socket socket = new Socket() ) {
-      InetSocketAddress is = new InetSocketAddress( host, port );
-      if ( timeout < 0 ) {
-        socket.connect( is );
+    try (Socket socket = new Socket()) {
+      InetSocketAddress is = new InetSocketAddress(host, port);
+      if (timeout < 0) {
+        socket.connect(is);
       } else {
-        socket.connect( is, timeout );
+        socket.connect(is, timeout);
       }
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 }

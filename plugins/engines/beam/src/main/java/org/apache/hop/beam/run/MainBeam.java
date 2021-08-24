@@ -84,23 +84,26 @@ public class MainBeam {
       System.out.println(">>>>>> Building Apache Beam Pipeline...");
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin beamInputPlugin =
-          registry.getPlugin( TransformPluginType.class, BeamConst.STRING_BEAM_INPUT_PLUGIN_ID);
+          registry.getPlugin(TransformPluginType.class, BeamConst.STRING_BEAM_INPUT_PLUGIN_ID);
       if (beamInputPlugin != null) {
         System.out.println(">>>>>> Found Beam Input transform plugin class loader");
       } else {
-        throw new HopException("ERROR: Unable to find Beam Input transform plugin. Is it in the fat jar? ");
+        throw new HopException(
+            "ERROR: Unable to find Beam Input transform plugin. Is it in the fat jar? ");
       }
 
       IVariables variables = Variables.getADefaultVariableSpace();
 
       // Execute it...
       //
-      IPipelineEngine<PipelineMeta> pipelineEngine = PipelineEngineFactory.createPipelineEngine( variables, runConfigName, metadataProvider, pipelineMeta );
+      IPipelineEngine<PipelineMeta> pipelineEngine =
+          PipelineEngineFactory.createPipelineEngine(
+              variables, runConfigName, metadataProvider, pipelineMeta);
       System.out.println(">>>>>> Pipeline executing starting...");
       pipelineEngine.execute();
       pipelineEngine.waitUntilFinished();
       System.out.println(">>>>>> Execution finished...");
-      System.exit( 0 );
+      System.exit(0);
     } catch (Exception e) {
       System.err.println("Error running Beam pipeline: " + e.getMessage());
       e.printStackTrace();

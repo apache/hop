@@ -3768,7 +3768,7 @@ public class Database implements IVariables, ILoggingObject {
         }
       }
     }
-    res.sort(String.CASE_INSENSITIVE_ORDER);  
+    res.sort(String.CASE_INSENSITIVE_ORDER);
     return res.toArray(new String[res.size()]);
   }
 

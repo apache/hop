@@ -21,20 +21,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.exception.HopException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.io.*;
+import java.util.*;
 
 /**
- * This class contains a messages store: for a certain Locale and for a certain messages package, it keeps all the keys
- * and values. This class can read and write messages files...
+ * This class contains a messages store: for a certain Locale and for a certain messages package, it
+ * keeps all the keys and values. This class can read and write messages files...
  *
  * @author matt
  */
@@ -60,22 +52,28 @@ public class MessagesStore extends ChangedFlag {
   /**
    * Create a new messages store
    *
-   * @param locale                   The locale to read
-   * @param sourceFolder             The source folder to read
-   * @param messagesPackage          The messages package to consider
+   * @param locale The locale to read
+   * @param sourceFolder The source folder to read
+   * @param messagesPackage The messages package to consider
    * @param sourcePackageOccurrences The occurrences map
    */
-  public MessagesStore( String locale, String sourceFolder, String messagesPackage,
-                        Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+  public MessagesStore(
+      String locale,
+      String sourceFolder,
+      String messagesPackage,
+      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences) {
     this();
     this.sourceFolder = sourceFolder;
     this.locale = locale;
     this.messagesPackage = messagesPackage;
     this.sourcePackageOccurrences = sourcePackageOccurrences;
 
-    if ( sourceFolder == null ) {
-      throw new RuntimeException( "Source folder can not be null, messages package : "
-        + messagesPackage + ", locale: " + locale );
+    if (sourceFolder == null) {
+      throw new RuntimeException(
+          "Source folder can not be null, messages package : "
+              + messagesPackage
+              + ", locale: "
+              + locale);
     }
   }
 
@@ -85,42 +83,48 @@ public class MessagesStore extends ChangedFlag {
    * @param bundleRootFolder
    * @param filename
    */
-  public MessagesStore( String bundleRootFolder, String filename ) {
+  public MessagesStore(String bundleRootFolder, String filename) {
     this();
     this.filename = filename;
 
     String folderName = new File(filename).getParentFile().getPath();
-    if (folderName.startsWith( bundleRootFolder )) {
-      messagesPackage = folderName.substring( bundleRootFolder.length() ).replace( '/', '.' ).replaceAll("^\\.", "").replaceAll("\\.messages$", "");
-      System.out.println("Messages file '"+filename+"' found, package is : '"+messagesPackage+"'");
+    if (folderName.startsWith(bundleRootFolder)) {
+      messagesPackage =
+          folderName
+              .substring(bundleRootFolder.length())
+              .replace('/', '.')
+              .replaceAll("^\\.", "")
+              .replaceAll("\\.messages$", "");
+      System.out.println(
+          "Messages file '" + filename + "' found, package is : '" + messagesPackage + "'");
     }
   }
 
-  public void read( List<String> directories ) throws HopException {
+  public void read(List<String> directories) throws HopException {
     try {
-      filename = getLoadFilename( directories );
+      filename = getLoadFilename(directories);
 
       Properties properties = new Properties();
-      FileInputStream fileInputStream = new FileInputStream( new File( filename ) );
-      properties.load( fileInputStream );
+      FileInputStream fileInputStream = new FileInputStream(new File(filename));
+      properties.load(fileInputStream);
       fileInputStream.close();
 
       // Put all the properties in our map...
       //
-      for ( Object key : properties.keySet() ) {
-        Object value = properties.get( key );
-        messagesMap.put( (String) key, (String) value );
+      for (Object key : properties.keySet()) {
+        Object value = properties.get(key);
+        messagesMap.put((String) key, (String) value);
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       String keys = "[";
-      Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
-      List<KeyOccurrence> keyList = po == null ? new ArrayList<>() : po.get( messagesPackage );
-      if ( keyList == null ) {
+      Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get(sourceFolder);
+      List<KeyOccurrence> keyList = po == null ? new ArrayList<>() : po.get(messagesPackage);
+      if (keyList == null) {
         keyList = new ArrayList<>();
       }
       boolean first = true;
-      for ( KeyOccurrence occ : keyList ) {
-        if ( first ) {
+      for (KeyOccurrence occ : keyList) {
+        if (first) {
           first = false;
         } else {
           keys += ", ";
@@ -128,93 +132,125 @@ public class MessagesStore extends ChangedFlag {
         keys += occ.getKey() + "/" + occ.getFileObject().toString();
       }
       keys += "]";
-      throw new HopException( "Unable to read messages file for locale : '"
-        + locale + "' and package '" + messagesPackage + "', keys=" + keys, e );
+      throw new HopException(
+          "Unable to read messages file for locale : '"
+              + locale
+              + "' and package '"
+              + messagesPackage
+              + "', keys="
+              + keys,
+          e);
     }
   }
 
   public void write() throws HopException {
-    if ( filename == null ) {
-      throw new HopException( "Please specify a filename before saving messages store for package '"
-        + messagesPackage + "' and locale '" + locale + "" );
+    if (filename == null) {
+      throw new HopException(
+          "Please specify a filename before saving messages store for package '"
+              + messagesPackage
+              + "' and locale '"
+              + locale
+              + "");
     }
-    write( filename );
+    write(filename);
   }
 
-  public void write( String filename ) throws HopException {
+  public void write(String filename) throws HopException {
     try {
-      File file = new File( filename );
-      if ( !file.exists() ) {
+      File file = new File(filename);
+      if (!file.exists()) {
         File parent = file.getParentFile();
-        if ( !parent.exists() ) {
+        if (!parent.exists()) {
           parent.mkdirs(); // create the messages/ folder
         }
       }
       Properties properties = new Properties();
-      for ( String key : messagesMap.keySet() ) {
-        properties.put( key, messagesMap.get( key ) );
+      for (String key : messagesMap.keySet()) {
+        properties.put(key, messagesMap.get(key));
       }
-      FileOutputStream fileOutputStream = new FileOutputStream( file );
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
       String comment =
-        "File generated by Hop Translator for package '"
-          + messagesPackage + "' in locale '" + locale + "'" + Const.CR + Const.CR;
-      properties.store( fileOutputStream, comment );
+          "File generated by Hop Translator for package '"
+              + messagesPackage
+              + "' in locale '"
+              + locale
+              + "'"
+              + Const.CR
+              + Const.CR;
+      properties.store(fileOutputStream, comment);
       fileOutputStream.close();
-      setChanged( false );
-    } catch ( IOException e ) {
-      throw new HopException( "Unable to save messages properties file '" + filename + "'", e );
+      setChanged(false);
+    } catch (IOException e) {
+      throw new HopException("Unable to save messages properties file '" + filename + "'", e);
     }
   }
 
   /**
-   * Find a suitable filename for the specified locale and messages package. It tries to find the file in the specified
-   * directories in the order that they are specified.
+   * Find a suitable filename for the specified locale and messages package. It tries to find the
+   * file in the specified directories in the order that they are specified.
    *
    * @param alternativeSourceFolders
    * @return the filename that was found.
    */
-  public String getLoadFilename( List<String> alternativeSourceFolders ) throws FileNotFoundException {
-    String path = calcFolderName( sourceFolder );
+  public String getLoadFilename(List<String> alternativeSourceFolders)
+      throws FileNotFoundException {
+    String path = calcFolderName(sourceFolder);
 
     // First try the source folder of the Java file
     //
-    if ( new File( path ).exists() ) {
+    if (new File(path).exists()) {
       return path;
     }
 
     // Then try the rest of the project source folders in order of occurrence ..
     //
-    for ( String altSourceFolder : alternativeSourceFolders ) {
-      path = calcFolderName( altSourceFolder );
-      if ( new File( path ).exists() ) {
+    for (String altSourceFolder : alternativeSourceFolders) {
+      path = calcFolderName(altSourceFolder);
+      if (new File(path).exists()) {
         return path;
       }
     }
-    throw new FileNotFoundException( "package file could not be found for file in folder "
-      + sourceFolder + ", with messages package " + messagesPackage + " in locale " + locale );
+    throw new FileNotFoundException(
+        "package file could not be found for file in folder "
+            + sourceFolder
+            + ", with messages package "
+            + messagesPackage
+            + " in locale "
+            + locale);
   }
 
-  private String calcFolderName( String sourceFolderPath ) {
-    String localeUpperLower = locale.substring( 0, 3 ).toLowerCase() + locale.substring( 3 ).toUpperCase();
+  private String calcFolderName(String sourceFolderPath) {
+    String localeUpperLower =
+        locale.substring(0, 3).toLowerCase() + locale.substring(3).toUpperCase();
     String filename = "messages_" + localeUpperLower + ".properties";
     String path =
-      sourceFolderPath
-        + File.separator + messagesPackage.replace( '.', '/' ) + File.separator + "messages" + File.separator
-        + filename;
+        sourceFolderPath
+            + File.separator
+            + messagesPackage.replace('.', '/')
+            + File.separator
+            + "messages"
+            + File.separator
+            + filename;
     return path;
   }
 
-  public String getSourceDirectory( List<String> directories ) {
-    String localeUpperLower = locale.substring( 0, 3 ).toLowerCase() + locale.substring( 3 ).toUpperCase();
+  public String getSourceDirectory(List<String> directories) {
+    String localeUpperLower =
+        locale.substring(0, 3).toLowerCase() + locale.substring(3).toUpperCase();
 
     String filename = "messages_" + localeUpperLower + ".properties";
-    String path = messagesPackage.replace( '.', '/' );
+    String path = messagesPackage.replace('.', '/');
 
-    for ( String directory : directories ) {
+    for (String directory : directories) {
       String attempt =
-        directory
-          + Const.FILE_SEPARATOR + path + Const.FILE_SEPARATOR + "messages" + Const.FILE_SEPARATOR + filename;
-      if ( new File( attempt ).exists() ) {
+          directory
+              + Const.FILE_SEPARATOR
+              + path
+              + Const.FILE_SEPARATOR
+              + "messages"
+              + Const.FILE_SEPARATOR
+              + filename;
+      if (new File(attempt).exists()) {
         return directory;
       }
     }
@@ -222,61 +258,55 @@ public class MessagesStore extends ChangedFlag {
   }
 
   /**
-   * Find a suitable filename to save this information in the specified locale and messages package. It needs a source
-   * directory to save the package in
+   * Find a suitable filename to save this information in the specified locale and messages package.
+   * It needs a source directory to save the package in
    *
    * @param directory the source directory to save the messages file in.
    * @return the filename that was generated.
    */
-  public String getSaveFilename( String directory ) {
-    String localeUpperLower = locale.substring( 0, 3 ).toLowerCase() + locale.substring( 3 ).toUpperCase();
+  public String getSaveFilename(String directory) {
+    String localeUpperLower =
+        locale.substring(0, 3).toLowerCase() + locale.substring(3).toUpperCase();
 
     String filename = "messages_" + localeUpperLower + ".properties";
-    String path = messagesPackage.replace( '.', '/' );
+    String path = messagesPackage.replace('.', '/');
 
     return directory
-      + Const.FILE_SEPARATOR + path + Const.FILE_SEPARATOR + "messages" + Const.FILE_SEPARATOR + filename;
+        + Const.FILE_SEPARATOR
+        + path
+        + Const.FILE_SEPARATOR
+        + "messages"
+        + Const.FILE_SEPARATOR
+        + filename;
   }
 
-  /**
-   * @return the locale
-   */
+  /** @return the locale */
   public String getLocale() {
     return locale;
   }
 
-  /**
-   * @param locale the locale to set
-   */
-  public void setLocale( String locale ) {
+  /** @param locale the locale to set */
+  public void setLocale(String locale) {
     this.locale = locale;
   }
 
-  /**
-   * @return the messagesPackage
-   */
+  /** @return the messagesPackage */
   public String getMessagesPackage() {
     return messagesPackage;
   }
 
-  /**
-   * @param messagesPackage the messagesPackage to set
-   */
-  public void setMessagesPackage( String messagesPackage ) {
+  /** @param messagesPackage the messagesPackage to set */
+  public void setMessagesPackage(String messagesPackage) {
     this.messagesPackage = messagesPackage;
   }
 
-  /**
-   * @return the map
-   */
+  /** @return the map */
   public Map<String, String> getMessagesMap() {
     return messagesMap;
   }
 
-  /**
-   * @param messsagesMap the map to set
-   */
-  public void setMessagesMap( Map<String, String> messsagesMap ) {
+  /** @param messsagesMap the map to set */
+  public void setMessagesMap(Map<String, String> messsagesMap) {
     this.messagesMap = messsagesMap;
   }
 
@@ -284,7 +314,7 @@ public class MessagesStore extends ChangedFlag {
     return filename;
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -292,8 +322,7 @@ public class MessagesStore extends ChangedFlag {
     return sourceFolder;
   }
 
-  public void setSourceFolder( String sourceFolder ) {
+  public void setSourceFolder(String sourceFolder) {
     this.sourceFolder = sourceFolder;
   }
-
 }

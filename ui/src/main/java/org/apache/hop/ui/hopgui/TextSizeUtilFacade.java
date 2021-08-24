@@ -20,13 +20,15 @@ package org.apache.hop.ui.hopgui;
 import org.eclipse.swt.graphics.Point;
 
 public abstract class TextSizeUtilFacade {
-  private final static TextSizeUtilFacade IMPL;
+  private static final TextSizeUtilFacade IMPL;
+
   static {
-    IMPL = (TextSizeUtilFacade) ImplementationLoader.newInstance( TextSizeUtilFacade.class );
+    IMPL = (TextSizeUtilFacade) ImplementationLoader.newInstance(TextSizeUtilFacade.class);
   }
 
   public static Point textExtent(String text) {
     return IMPL.textExtentInternal(text);
   }
+
   abstract Point textExtentInternal(String text);
 }

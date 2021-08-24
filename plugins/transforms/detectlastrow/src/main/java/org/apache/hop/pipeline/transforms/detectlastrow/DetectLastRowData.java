@@ -30,20 +30,16 @@ public class DetectLastRowData extends BaseTransformData implements ITransformDa
   public int NrPrevFields;
   public IRowMeta previousRowMeta;
 
-  private final Object[] trueArray = new Object[] { Boolean.TRUE };
+  private final Object[] trueArray = new Object[] {Boolean.TRUE};
 
-  private final Object[] falseArray = new Object[] { Boolean.FALSE };
+  private final Object[] falseArray = new Object[] {Boolean.FALSE};
 
-  /**
-   * Return a array with a constant True.
-   */
+  /** Return a array with a constant True. */
   public Object[] getTrueArray() {
     return trueArray;
   }
 
-  /**
-   * Return a array with a constant False.
-   */
+  /** Return a array with a constant False. */
   public Object[] getFalseArray() {
     return falseArray;
   }

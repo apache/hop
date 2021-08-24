@@ -22,41 +22,43 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 
 import java.util.Objects;
 
-public class EmptyPipelineRunConfiguration extends Variables implements IPipelineEngineRunConfiguration {
+public class EmptyPipelineRunConfiguration extends Variables
+    implements IPipelineEngineRunConfiguration {
 
   private String pluginId;
   private String pluginName;
 
-  public EmptyPipelineRunConfiguration() {
-  }
+  public EmptyPipelineRunConfiguration() {}
 
-  public EmptyPipelineRunConfiguration( String pluginId, String pluginName ) {
+  public EmptyPipelineRunConfiguration(String pluginId, String pluginName) {
     this.pluginId = pluginId;
     this.pluginName = pluginName;
   }
 
-  public EmptyPipelineRunConfiguration( EmptyPipelineRunConfiguration config ) {
+  public EmptyPipelineRunConfiguration(EmptyPipelineRunConfiguration config) {
     this.pluginId = config.pluginId;
     this.pluginName = config.pluginName;
   }
 
   public EmptyPipelineRunConfiguration clone() {
-    return new EmptyPipelineRunConfiguration( this );
+    return new EmptyPipelineRunConfiguration(this);
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     EmptyPipelineRunConfiguration that = (EmptyPipelineRunConfiguration) o;
-    return pluginId.equals( that.pluginId );
+    return pluginId.equals(that.pluginId);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( pluginId );
+  @Override
+  public int hashCode() {
+    return Objects.hash(pluginId);
   }
 
   /**
@@ -68,10 +70,9 @@ public class EmptyPipelineRunConfiguration extends Variables implements IPipelin
     return pluginId;
   }
 
-  /**
-   * @param pluginId The pluginId to set
-   */
-  @Override public void setEnginePluginId( String pluginId ) {
+  /** @param pluginId The pluginId to set */
+  @Override
+  public void setEnginePluginId(String pluginId) {
     this.pluginId = pluginId;
   }
 
@@ -84,10 +85,9 @@ public class EmptyPipelineRunConfiguration extends Variables implements IPipelin
     return pluginName;
   }
 
-  /**
-   * @param pluginName The pluginName to set
-   */
-  @Override public void setEnginePluginName( String pluginName ) {
+  /** @param pluginName The pluginName to set */
+  @Override
+  public void setEnginePluginName(String pluginName) {
     this.pluginName = pluginName;
   }
 }

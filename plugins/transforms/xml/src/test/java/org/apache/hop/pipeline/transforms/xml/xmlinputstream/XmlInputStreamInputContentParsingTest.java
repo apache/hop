@@ -23,18 +23,23 @@ import org.junit.Test;
 
 public class XmlInputStreamInputContentParsingTest extends BaseXmlInputStreamParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testDefaultOptions() throws Exception {
-    init( "default.xml" );
+    init("default.xml");
 
     process();
 
-    check( new Object[][] { { "START_DOCUMENT", 0L, null, 0L, "", null, null, null },
-      { "START_ELEMENT", 1L, 0L, 1L, "/xml", "", "xml", null },
-      { "START_ELEMENT", 2L, 1L, 2L, "/xml/tag", "/xml", "tag", null },
-      { "ATTRIBUTE", 2L, 1L, 2L, "/xml/tag", "/xml", "a", "1" },
-      { "CHARACTERS", 2L, 1L, 2L, "/xml/tag", "/xml", "tag", "zz" },
-      { "END_ELEMENT", 2L, 1L, 2L, "/xml/tag", "/xml", "tag", null },
-      { "END_ELEMENT", 1L, 0L, 1L, "/xml", "", "xml", null }, { "END_DOCUMENT", 0L, null, 0L, "", null, null, null } } );
+    check(
+        new Object[][] {
+          {"START_DOCUMENT", 0L, null, 0L, "", null, null, null},
+          {"START_ELEMENT", 1L, 0L, 1L, "/xml", "", "xml", null},
+          {"START_ELEMENT", 2L, 1L, 2L, "/xml/tag", "/xml", "tag", null},
+          {"ATTRIBUTE", 2L, 1L, 2L, "/xml/tag", "/xml", "a", "1"},
+          {"CHARACTERS", 2L, 1L, 2L, "/xml/tag", "/xml", "tag", "zz"},
+          {"END_ELEMENT", 2L, 1L, 2L, "/xml/tag", "/xml", "tag", null},
+          {"END_ELEMENT", 1L, 0L, 1L, "/xml", "", "xml", null},
+          {"END_DOCUMENT", 0L, null, 0L, "", null, null, null}
+        });
   }
 }

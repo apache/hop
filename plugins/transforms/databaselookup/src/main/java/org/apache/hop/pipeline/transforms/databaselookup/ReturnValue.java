@@ -17,9 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ReturnValue {
@@ -49,9 +46,9 @@ public class ReturnValue {
 
   /** Have the lookup eat the incoming row when nothing gets found */
   @HopMetadataProperty(
-          key = "trim_type",
-          injectionKey = "return_trim_type",
-          injectionKeyDescription = "DatabaseLookupMeta.Injection.TrimType")
+      key = "trim_type",
+      injectionKey = "return_trim_type",
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.TrimType")
   private String trimType;
 
   public ReturnValue() {}
@@ -64,7 +61,8 @@ public class ReturnValue {
     this.trimType = r.trimType;
   }
 
-  public ReturnValue(String tableField, String newName, String defaultValue, String defaultType, String trimType) {
+  public ReturnValue(
+      String tableField, String newName, String defaultValue, String defaultType, String trimType) {
     this.tableField = tableField;
     this.newName = newName;
     this.defaultValue = defaultValue;
@@ -140,7 +138,4 @@ public class ReturnValue {
   public void setTrimType(String trimType) {
     this.trimType = trimType;
   }
-
-
-
 }

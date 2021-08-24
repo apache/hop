@@ -20,7 +20,7 @@ Hop Encrypt is a command line tool to encrypt (obfuscate) passwords for use in X
 
 == Usage
 
-[source, bash]
+[source,bash]
 ----
 hop-encrypt usage:
 
@@ -36,7 +36,7 @@ Hop will then be able to make the distinction between regular plain text passwor
 
 == Options
 
-[options="header", width="90%"]
+[options="header",width="90%"]
 |===
 |Option|Description
 |<password>|The password to obfuscate
@@ -53,7 +53,6 @@ Encrypt (obfuscate) the password 'abcd' for use in Hop workflows, pipelines and 
 `./hop-encrypt.sh -hop abcd`
 
 Output: `Encrypted 2be98afc86aa7f2e4cb79ce10df90acde`
-
 
 === Hop Server Example
 

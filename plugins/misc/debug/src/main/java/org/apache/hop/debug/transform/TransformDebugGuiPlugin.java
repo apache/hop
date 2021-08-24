@@ -37,37 +37,35 @@ import java.util.Map;
 public class TransformDebugGuiPlugin {
 
   @GuiContextAction(
-    id = "pipeline-graph-transform-11001-clear-logging",
-    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
-    type = GuiActionType.Delete,
-    name = "Clear Custom Logging",
-    tooltip = "Clear custom log settings ",
-    image = "ui/images/debug.svg",
-    category = "Logging",
-    categoryOrder = "7"
-  )
-  public void clearCustomTransformLogging( HopGuiPipelineTransformContext context ) {
+      id = "pipeline-graph-transform-11001-clear-logging",
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Delete,
+      name = "Clear Custom Logging",
+      tooltip = "Clear custom log settings ",
+      image = "ui/images/debug.svg",
+      category = "Logging",
+      categoryOrder = "7")
+  public void clearCustomTransformLogging(HopGuiPipelineTransformContext context) {
     PipelineMeta pipelineMeta = context.getPipelineMeta();
     TransformMeta transformMeta = context.getTransformMeta();
 
     Map<String, Map<String, String>> attributesMap = pipelineMeta.getAttributesMap();
-    Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
+    Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
 
-    DebugLevelUtil.clearDebugLevel( debugGroupAttributesMap, transformMeta.getName());
+    DebugLevelUtil.clearDebugLevel(debugGroupAttributesMap, transformMeta.getName());
     pipelineMeta.setChanged();
   }
 
   @GuiContextAction(
-    id = "pipeline-graph-transform-11000-config-logging",
-    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
-    type = GuiActionType.Modify,
-    name = "Edit Custom Logging",
-    tooltip = "Edit the custom log settings for this transform",
-    image = "ui/images/debug.svg",
-    category = "Logging",
-    categoryOrder = "7"
-  )
-  public void applyCustomTransformLogging( HopGuiPipelineTransformContext context ) {
+      id = "pipeline-graph-transform-11000-config-logging",
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "Edit Custom Logging",
+      tooltip = "Edit the custom log settings for this transform",
+      image = "ui/images/debug.svg",
+      category = "Logging",
+      categoryOrder = "7")
+  public void applyCustomTransformLogging(HopGuiPipelineTransformContext context) {
     HopGui hopGui = HopGui.getInstance();
     try {
       PipelineMeta pipelineMeta = context.getPipelineMeta();
@@ -75,30 +73,30 @@ public class TransformDebugGuiPlugin {
       IVariables variables = context.getPipelineGraph().getVariables();
 
       Map<String, Map<String, String>> attributesMap = pipelineMeta.getAttributesMap();
-      Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
+      Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
 
-      if ( debugGroupAttributesMap == null ) {
+      if (debugGroupAttributesMap == null) {
         debugGroupAttributesMap = new HashMap<>();
-        attributesMap.put( Defaults.DEBUG_GROUP, debugGroupAttributesMap );
+        attributesMap.put(Defaults.DEBUG_GROUP, debugGroupAttributesMap);
       }
 
-      TransformDebugLevel debugLevel = DebugLevelUtil.getTransformDebugLevel( debugGroupAttributesMap, transformMeta.getName() );
-      if ( debugLevel==null ) {
+      TransformDebugLevel debugLevel =
+          DebugLevelUtil.getTransformDebugLevel(debugGroupAttributesMap, transformMeta.getName());
+      if (debugLevel == null) {
         debugLevel = new TransformDebugLevel();
       }
 
-      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( variables, transformMeta );
-      TransformDebugLevelDialog dialog = new TransformDebugLevelDialog( hopGui.getShell(), debugLevel, inputRowMeta );
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+      TransformDebugLevelDialog dialog =
+          new TransformDebugLevelDialog(hopGui.getShell(), debugLevel, inputRowMeta);
       if (dialog.open()) {
-        DebugLevelUtil.storeTransformDebugLevel(debugGroupAttributesMap, transformMeta.getName(), debugLevel);
+        DebugLevelUtil.storeTransformDebugLevel(
+            debugGroupAttributesMap, transformMeta.getName(), debugLevel);
       }
 
       pipelineMeta.setChanged();
-    } catch(Exception e) {
+    } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error changing transform log settings", e);
     }
-
   }
-
-
 }

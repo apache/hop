@@ -32,22 +32,14 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-/**
- * Created by gmoran on 2/25/14.
- */
+/** Created by gmoran on 2/25/14. */
 public class PGBulkLoaderMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -62,49 +54,60 @@ public class PGBulkLoaderMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "schemaName", "tableName", "loadAction", "dbNameOverride", "delimiter",
-        "enclosure", "stopOnError", "databaseMeta" );
+        Arrays.asList(
+            "schemaName",
+            "tableName",
+            "loadAction",
+            "dbNameOverride",
+            "delimiter",
+            "enclosure",
+            "stopOnError",
+            "databaseMeta");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "schemaName", "getSchemaName" );
-        put( "tableName", "getTableName" );
-        put( "loadAction", "getLoadAction" );
-        put( "dbNameOverride", "getDbNameOverride" );
-        put( "delimiter", "getDelimiter" );
-        put( "enclosure", "getEnclosure" );
-        put( "stopOnError", "isStopOnError" );
-        put( "databaseMeta", "getDatabaseMeta" );
-      }
-    };
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "schemaName", "setSchemaName" );
-        put( "tableName", "setTableName" );
-        put( "loadAction", "setLoadAction" );
-        put( "dbNameOverride", "setDbNameOverride" );
-        put( "delimiter", "setDelimiter" );
-        put( "enclosure", "setEnclosure" );
-        put( "stopOnError", "setStopOnError" );
-        put( "databaseMeta", "setDatabaseMeta" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("schemaName", "getSchemaName");
+            put("tableName", "getTableName");
+            put("loadAction", "getLoadAction");
+            put("dbNameOverride", "getDbNameOverride");
+            put("delimiter", "getDelimiter");
+            put("enclosure", "getEnclosure");
+            put("stopOnError", "isStopOnError");
+            put("databaseMeta", "getDatabaseMeta");
+          }
+        };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("schemaName", "setSchemaName");
+            put("tableName", "setTableName");
+            put("loadAction", "setLoadAction");
+            put("dbNameOverride", "setDbNameOverride");
+            put("delimiter", "setDelimiter");
+            put("enclosure", "setEnclosure");
+            put("stopOnError", "setStopOnError");
+            put("databaseMeta", "setDatabaseMeta");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
     IFieldLoadSaveValidator<String[]> datemaskArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new DateMaskLoadSaveValidator(), 5 );
+        new ArrayLoadSaveValidator<>(new DateMaskLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldTable", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "fieldStream", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "dateMask", datemaskArrayLoadSaveValidator );
-    attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
+    attrValidatorMap.put("fieldTable", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("fieldStream", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("dateMask", datemaskArrayLoadSaveValidator);
+    attrValidatorMap.put("databaseMeta", new DatabaseMetaLoadSaveValidator());
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
-    loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+    loadSaveTester =
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -114,42 +117,47 @@ public class PGBulkLoaderMetaTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @Before
   public void setUp() {
     PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setName( "loader" );
+    pipelineMeta.setName("loader");
 
     lm = new PGBulkLoaderMeta();
     ld = new PGBulkLoaderData();
 
     PluginRegistry plugReg = PluginRegistry.getInstance();
 
-    String loaderPid = plugReg.getPluginId( TransformPluginType.class, lm );
+    String loaderPid = plugReg.getPluginId(TransformPluginType.class, lm);
 
-    transformMeta = new TransformMeta( loaderPid, "loader", lm );
-    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
-    pipelineMeta.addTransform( transformMeta );
+    transformMeta = new TransformMeta(loaderPid, "loader", lm);
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipelineMeta.addTransform(transformMeta);
 
-    loader = new PGBulkLoader( transformMeta, lm, ld, 1, pipelineMeta, pipeline );
+    loader = new PGBulkLoader(transformMeta, lm, ld, 1, pipelineMeta, pipeline);
   }
 
   public static class DateMaskLoadSaveValidator implements IFieldLoadSaveValidator<String> {
     Random r = new Random();
-    private final String[] masks = new String[] { PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH, PGBulkLoaderMeta.DATE_MASK_DATE, PGBulkLoaderMeta.DATE_MASK_DATETIME };
+    private final String[] masks =
+        new String[] {
+          PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH,
+          PGBulkLoaderMeta.DATE_MASK_DATE,
+          PGBulkLoaderMeta.DATE_MASK_DATETIME
+        };
 
     @Override
     public String getTestObject() {
-      int idx = r.nextInt( 3 );
-      return masks[ idx ];
+      int idx = r.nextInt(3);
+      return masks[idx];
     }
 
     @Override
-    public boolean validateTestObject( String test, Object actual ) {
-      return test.equals( actual );
+    public boolean validateTestObject(String test, Object actual) {
+      return test.equals(actual);
     }
   }
 }

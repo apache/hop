@@ -26,5 +26,4 @@ public interface ILoggingPlugin extends IHopLoggingEventListener {
   void init();
 
   void dispose();
-
 }

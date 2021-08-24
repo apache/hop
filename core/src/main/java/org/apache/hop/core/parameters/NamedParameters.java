@@ -142,7 +142,7 @@ public class NamedParameters implements INamedParameters {
    * @param definitions The
    */
   @Override
-  public void copyParametersFromDefinitions( INamedParameterDefinitions definitions) {
+  public void copyParametersFromDefinitions(INamedParameterDefinitions definitions) {
     for (String name : definitions.listParameters()) {
       try {
         String defaultValue = definitions.getParameterDefault(name);

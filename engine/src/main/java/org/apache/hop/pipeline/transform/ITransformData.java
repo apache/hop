@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 
 /**
- * This defines the basic interface for the data used by a thread. This will allow us to stop execution of threads and
- * restart them later on without loosing track of the situation. Typically the ITransformData implementing class will
- * contain result sets, temporary data, caching indexes, etc.
+ * This defines the basic interface for the data used by a thread. This will allow us to stop
+ * execution of threads and restart them later on without loosing track of the situation. Typically
+ * the ITransformData implementing class will contain result sets, temporary data, caching indexes,
+ * etc.
  *
  * @author Matt
  * @since 20-jan-2005
@@ -35,7 +35,7 @@ public interface ITransformData {
    *
    * @param status the new status
    */
-  void setStatus( ComponentExecutionStatus status );
+  void setStatus(ComponentExecutionStatus status);
 
   /**
    * Gets the status.

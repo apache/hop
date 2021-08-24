@@ -34,9 +34,7 @@ public class AppendData extends BaseTransformData implements ITransformData {
   public IRowSet tailRowSet;
   public IRowMeta outputRowMeta;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public AppendData() {
     super();
   }

@@ -21,9 +21,9 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -37,15 +37,9 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
   LoadSaveTester<GetVariableMeta> loadSaveTester;
@@ -55,46 +49,54 @@ public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
   }
 
   @Before
   public void setUpLoadSave() throws Exception {
-    List<String> attributes = Arrays.asList( "fieldDefinitions" );
+    List<String> attributes = Arrays.asList("fieldDefinitions");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "fieldDefinitions", "getFieldDefinitions" );
+    getterMap.put("fieldDefinitions", "getFieldDefinitions");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "fieldDefinitions", "setFieldDefinitions" );
+    setterMap.put("fieldDefinitions", "setFieldDefinitions");
 
     FieldDefinition fieldDefinition = new FieldDefinition();
-    fieldDefinition.setFieldName( "fieldName" );
-    fieldDefinition.setFieldLength( 4 );
-    fieldDefinition.setCurrency( null );
-    fieldDefinition.setFieldPrecision( 5 );
-    fieldDefinition.setFieldType( IValueMeta.TYPE_NUMBER );
-    fieldDefinition.setGroup( "group" );
-    fieldDefinition.setVariableString( "variableString" );
+    fieldDefinition.setFieldName("fieldName");
+    fieldDefinition.setFieldLength(4);
+    fieldDefinition.setCurrency(null);
+    fieldDefinition.setFieldPrecision(5);
+    fieldDefinition.setFieldType(IValueMeta.TYPE_NUMBER);
+    fieldDefinition.setGroup("group");
+    fieldDefinition.setVariableString("variableString");
 
     IFieldLoadSaveValidator<FieldDefinition[]> fieldDefinitionLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new FieldDefinitionLoadSaveValidator( fieldDefinition ), 5 );
+        new ArrayLoadSaveValidator<>(new FieldDefinitionLoadSaveValidator(fieldDefinition), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldName", fieldDefinitionLoadSaveValidator );
+    attrValidatorMap.put("fieldName", fieldDefinitionLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    typeValidatorMap.put( FieldDefinition[].class.getCanonicalName(), fieldDefinitionLoadSaveValidator );
+    typeValidatorMap.put(
+        FieldDefinition[].class.getCanonicalName(), fieldDefinitionLoadSaveValidator);
 
     loadSaveTester =
-      new LoadSaveTester<>( testMetaClass, attributes, Collections.emptyList(), getterMap,
-        setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester<>(
+            testMetaClass,
+            attributes,
+            Collections.emptyList(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( GetVariableMeta someMeta ) {
-    someMeta.allocate( 5 );
+  public void modify(GetVariableMeta someMeta) {
+    someMeta.allocate(5);
   }
 
   @Test
@@ -108,26 +110,27 @@ public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
     meta.setDefault();
 
     FieldDefinition field = new FieldDefinition();
-    field.setFieldName( "outputField" );
-    field.setVariableString( String.valueOf( 2000000L ) );
-    field.setFieldType( IValueMeta.TYPE_TIMESTAMP );
-    meta.setFieldDefinitions( new FieldDefinition[] { field } );
+    field.setFieldName("outputField");
+    field.setVariableString(String.valueOf(2000000L));
+    field.setFieldType(IValueMeta.TYPE_TIMESTAMP);
+    meta.setFieldDefinitions(new FieldDefinition[] {field});
 
     IRowMeta rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "transformName", null, null, new Variables(), null );
+    meta.getFields(rowMeta, "transformName", null, null, new Variables(), null);
 
-    assertNotNull( rowMeta );
-    assertEquals( 1, rowMeta.size() );
-    assertEquals( "outputField", rowMeta.getFieldNames()[ 0 ] );
-    assertEquals( IValueMeta.TYPE_TIMESTAMP, rowMeta.getValueMeta( 0 ).getType() );
-    assertTrue( rowMeta.getValueMeta( 0 ) instanceof ValueMetaTimestamp );
+    assertNotNull(rowMeta);
+    assertEquals(1, rowMeta.size());
+    assertEquals("outputField", rowMeta.getFieldNames()[0]);
+    assertEquals(IValueMeta.TYPE_TIMESTAMP, rowMeta.getValueMeta(0).getType());
+    assertTrue(rowMeta.getValueMeta(0) instanceof ValueMetaTimestamp);
   }
 
-  public static class FieldDefinitionLoadSaveValidator implements IFieldLoadSaveValidator<FieldDefinition> {
+  public static class FieldDefinitionLoadSaveValidator
+      implements IFieldLoadSaveValidator<FieldDefinition> {
 
     private final FieldDefinition defaultValue;
 
-    public FieldDefinitionLoadSaveValidator( FieldDefinition defaultValue ) {
+    public FieldDefinitionLoadSaveValidator(FieldDefinition defaultValue) {
       this.defaultValue = defaultValue;
     }
 
@@ -137,8 +140,8 @@ public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
     }
 
     @Override
-    public boolean validateTestObject( FieldDefinition testObject, Object actual ) {
-      return EqualsBuilder.reflectionEquals( testObject, actual );
+    public boolean validateTestObject(FieldDefinition testObject, Object actual) {
+      return EqualsBuilder.reflectionEquals(testObject, actual);
     }
   }
 }

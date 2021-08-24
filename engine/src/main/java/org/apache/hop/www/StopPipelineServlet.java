@@ -33,119 +33,135 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-@HopServerServlet(id="stopPipeline", name = "Stop a pipeline")
+@HopServerServlet(id = "stopPipeline", name = "Stop a pipeline")
 public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = StopPipelineServlet.class; // For Translator
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/stopPipeline";
 
-  public StopPipelineServlet() {
+  public StopPipelineServlet() {}
+
+  public StopPipelineServlet(PipelineMap pipelineMap) {
+    super(pipelineMap);
   }
 
-  public StopPipelineServlet( PipelineMap pipelineMap ) {
-    super( pipelineMap );
-  }
-
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "StopPipelineServlet.StopOfPipelineRequested" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "StopPipelineServlet.StopOfPipelineRequested"));
     }
 
-    String pipelineName = request.getParameter( "name" );
-    String id = request.getParameter( "id" );
-    boolean inputOnly = "Y".equalsIgnoreCase( request.getParameter( "inputOnly" ) );
-    boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
+    String pipelineName = request.getParameter("name");
+    String id = request.getParameter("id");
+    boolean inputOnly = "Y".equalsIgnoreCase(request.getParameter("inputOnly"));
+    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
     PrintWriter out = response.getWriter();
     try {
-      if ( useXML ) {
-        response.setContentType( "text/xml" );
-        response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
+      if (useXML) {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding(Const.XML_ENCODING);
+        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
       } else {
-        response.setContentType( "text/html;charset=UTF-8" );
-        out.println( "<HTML>" );
-        out.println( "<HEAD>" );
-        out.println( "<TITLE>" + BaseMessages.getString( PKG, "StopPipelineServlet.StopPipeline" ) + "</TITLE>" );
-        out.println( "<META http-equiv=\"Refresh\" content=\"2;url="
-          + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name="
-          + URLEncoder.encode( pipelineName, "UTF-8" ) + "\">" );
-        out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-        out.println( "</HEAD>" );
-        out.println( "<BODY>" );
+        response.setContentType("text/html;charset=UTF-8");
+        out.println("<HTML>");
+        out.println("<HEAD>");
+        out.println(
+            "<TITLE>"
+                + BaseMessages.getString(PKG, "StopPipelineServlet.StopPipeline")
+                + "</TITLE>");
+        out.println(
+            "<META http-equiv=\"Refresh\" content=\"2;url="
+                + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
+                + "?name="
+                + URLEncoder.encode(pipelineName, "UTF-8")
+                + "\">");
+        out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+        out.println("</HEAD>");
+        out.println("<BODY>");
       }
 
       // ID is optional...
       //
       IPipelineEngine<PipelineMeta> pipeline;
       HopServerObjectEntry entry;
-      if ( Utils.isEmpty( id ) ) {
+      if (Utils.isEmpty(id)) {
         // get the first pipeline that matches...
         //
-        entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
-        if ( entry == null ) {
+        entry = getPipelineMap().getFirstServerObjectEntry(pipelineName);
+        if (entry == null) {
           pipeline = null;
         } else {
           id = entry.getId();
-          pipeline = getPipelineMap().getPipeline( entry );
+          pipeline = getPipelineMap().getPipeline(entry);
         }
       } else {
         // Take the ID into account!
         //
-        entry = new HopServerObjectEntry( pipelineName, id );
-        pipeline = getPipelineMap().getPipeline( entry );
+        entry = new HopServerObjectEntry(pipelineName, id);
+        pipeline = getPipelineMap().getPipeline(entry);
       }
 
-      if ( pipeline != null ) {
+      if (pipeline != null) {
 
         pipeline.stopAll();
 
-        String message = BaseMessages.getString( PKG, "StopPipelineServlet.PipelineStopRequested", pipelineName );
+        String message =
+            BaseMessages.getString(PKG, "StopPipelineServlet.PipelineStopRequested", pipelineName);
 
-        if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_OK, message, id ).getXml() );
+        if (useXML) {
+          out.println(new WebResult(WebResult.STRING_OK, message, id).getXml());
         } else {
-          out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
-          out.println( "<a href=\""
-            + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name="
-            + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">"
-            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToPipelineStatusPage" ) + "</a><p>" );
+          out.println("<H1>" + Encode.forHtml(message) + "</H1>");
+          out.println(
+              "<a href=\""
+                  + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
+                  + "?name="
+                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + "&id="
+                  + URLEncoder.encode(id, "UTF-8")
+                  + "\">"
+                  + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToPipelineStatusPage")
+                  + "</a><p>");
         }
       } else {
-        String message = BaseMessages.getString( PKG, "StopPipelineServlet.CanNotFindPipeline", pipelineName );
+        String message =
+            BaseMessages.getString(PKG, "StopPipelineServlet.CanNotFindPipeline", pipelineName);
 
-        if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_ERROR, message, id ).getXml() );
+        if (useXML) {
+          out.println(new WebResult(WebResult.STRING_ERROR, message, id).getXml());
         } else {
-          out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
-          out.println( "<a href=\""
-            + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
-          response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+          out.println("<H1>" + Encode.forHtml(message) + "</H1>");
+          out.println(
+              "<a href=\""
+                  + convertContextPath(GetStatusServlet.CONTEXT_PATH)
+                  + "\">"
+                  + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
+                  + "</a><p>");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
       }
-    } catch ( Exception ex ) {
-      if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ).getXml() );
+    } catch (Exception ex) {
+      if (useXML) {
+        out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)).getXml());
       } else {
-        out.println( "<p>" );
-        out.println( "<pre>" );
-        out.println( Encode.forHtml( Const.getStackTracker( ex ) ) );
-        out.println( "</pre>" );
-        response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+        out.println("<p>");
+        out.println("<pre>");
+        out.println(Encode.forHtml(Const.getStackTracker(ex)));
+        out.println("</pre>");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
 
-    if ( !useXML ) {
-      out.println( "<p>" );
-      out.println( "</BODY>" );
-      out.println( "</HTML>" );
+    if (!useXML) {
+      out.println("<p>");
+      out.println("</BODY>");
+      out.println("</HTML>");
     }
   }
 

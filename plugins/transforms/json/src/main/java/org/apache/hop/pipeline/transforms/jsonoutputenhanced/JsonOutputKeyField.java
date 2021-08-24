@@ -17,58 +17,56 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
-
 import org.apache.hop.core.injection.Injection;
 
 public class JsonOutputKeyField implements Cloneable {
 
-    @Injection( name = "JSON_FIELDNAME", group = "KEY_FIELDS" )
-    private String fieldName;
+  @Injection(name = "JSON_FIELDNAME", group = "KEY_FIELDS")
+  private String fieldName;
 
-    @Injection( name = "JSON_ELEMENTNAME", group = "KEY_FIELDS" )
-    private String elementName;
+  @Injection(name = "JSON_ELEMENTNAME", group = "KEY_FIELDS")
+  private String elementName;
 
-    public JsonOutputKeyField(String fieldName) {
-        this.fieldName = fieldName;
+  public JsonOutputKeyField(String fieldName) {
+    this.fieldName = fieldName;
+  }
+
+  public JsonOutputKeyField() {}
+
+  public int compare(Object obj) {
+    JsonOutputKeyField field = (JsonOutputKeyField) obj;
+
+    return fieldName.compareTo(field.getFieldName());
+  }
+
+  public boolean equal(Object obj) {
+    JsonOutputKeyField field = (JsonOutputKeyField) obj;
+
+    return fieldName.equals(field.getFieldName());
+  }
+
+  public Object clone() {
+    try {
+      Object retval = super.clone();
+      return retval;
+    } catch (CloneNotSupportedException e) {
+      return null;
     }
+  }
 
-    public JsonOutputKeyField() {
-    }
+  public String getFieldName() {
+    return fieldName;
+  }
 
-    public int compare(Object obj) {
-        JsonOutputKeyField field = (JsonOutputKeyField) obj;
+  public void setFieldName(String fieldname) {
+    this.fieldName = fieldname;
+  }
 
-        return fieldName.compareTo(field.getFieldName());
-    }
+  public String getElementName() {
+    return elementName;
+  }
 
-    public boolean equal(Object obj) {
-        JsonOutputKeyField field = (JsonOutputKeyField) obj;
-
-        return fieldName.equals(field.getFieldName());
-    }
-
-    public Object clone() {
-        try {
-            Object retval = super.clone();
-            return retval;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public void setFieldName(String fieldname) {
-        this.fieldName = fieldname;
-    }
-
-    public String getElementName() {
-        return elementName;
-    }
-
-    public void setElementName(String elementName) {
-        this.elementName = elementName;
-    }
+  public void setElementName(String elementName) {
+    this.elementName = elementName;
+  }
 }

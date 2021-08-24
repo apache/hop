@@ -20,18 +20,16 @@ package org.apache.hop.workflow.config;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataObject;
 
-@HopMetadataObject(
-  objectFactory = WorkflowRunConfigurationMetadataObjectFactory.class
-)
+@HopMetadataObject(objectFactory = WorkflowRunConfigurationMetadataObjectFactory.class)
 public interface IWorkflowEngineRunConfiguration extends Cloneable, IVariables {
 
   IWorkflowEngineRunConfiguration clone();
 
-  void setEnginePluginId( String pluginId );
+  void setEnginePluginId(String pluginId);
 
   String getEnginePluginId();
 
-  void setEnginePluginName( String name );
+  void setEnginePluginName(String name);
 
   String getEnginePluginName();
 }

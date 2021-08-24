@@ -33,8 +33,13 @@ public class HopAttribute implements IHopAttribute {
    * @param tooltip
    * @param type
    */
-  public HopAttribute( String key, String xmlCode, String description, String tooltip,
-                       int type, IHopAttribute parent ) {
+  public HopAttribute(
+      String key,
+      String xmlCode,
+      String description,
+      String tooltip,
+      int type,
+      IHopAttribute parent) {
     this.key = key;
     this.xmlCode = xmlCode;
     this.description = description;
@@ -48,82 +53,62 @@ public class HopAttribute implements IHopAttribute {
     return key;
   }
 
-  public void setKey( String key ) {
+  public void setKey(String key) {
     this.key = key;
   }
 
-  /**
-   * @return the xmlCode
-   */
+  /** @return the xmlCode */
   @Override
   public String getXmlCode() {
     return xmlCode;
   }
 
-  /**
-   * @param xmlCode the xmlCode to set
-   */
-  public void setXmlCode( String xmlCode ) {
+  /** @param xmlCode the xmlCode to set */
+  public void setXmlCode(String xmlCode) {
     this.xmlCode = xmlCode;
   }
 
-  /**
-   * @return the description
-   */
+  /** @return the description */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /**
-   * @param description the description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description the description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
-  /**
-   * @return the tooltip
-   */
+  /** @return the tooltip */
   @Override
   public String getTooltip() {
     return tooltip;
   }
 
-  /**
-   * @param tooltip the tooltip to set
-   */
-  public void setTooltip( String tooltip ) {
+  /** @param tooltip the tooltip to set */
+  public void setTooltip(String tooltip) {
     this.tooltip = tooltip;
   }
 
-  /**
-   * @return the type
-   */
+  /** @return the type */
   @Override
   public int getType() {
     return type;
   }
 
-  /**
-   * @param type the type to set
-   */
-  public void setType( int type ) {
+  /** @param type the type to set */
+  public void setType(int type) {
     this.type = type;
   }
 
-  /**
-   * @return the parent
-   */
+  /** @return the parent */
   @Override
   public IHopAttribute getParent() {
     return parent;
   }
 
-  /**
-   * @param parent the parent to set
-   */
-  public void setParent( IHopAttribute parent ) {
+  /** @param parent the parent to set */
+  public void setParent(IHopAttribute parent) {
     this.parent = parent;
   }
 }

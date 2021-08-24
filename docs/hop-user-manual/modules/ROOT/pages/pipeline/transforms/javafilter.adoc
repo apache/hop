@@ -22,7 +22,8 @@ under the License.
 
 == Description
 
-The Java Filter transform allows the stream to be filtered using user defined Java expressions. The input stream, coming from one or more transforms, can be redirected to two different transforms based on the evaluation of the written expression.
+The Java Filter transform allows the stream to be filtered using user defined Java expressions.
+The input stream, coming from one or more transforms, can be redirected to two different transforms based on the evaluation of the written expression.
 
 In other words, the user is able to perform an if-statement to filter the data stream with pure java expressions:
 
@@ -36,13 +37,14 @@ else
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
 |Destination transform for matching rows (optional)|The rows for which the written condition is evaluated to true are sent to this transform.
 |Destination transform for non-matching rows (optional)|The rows for which the written condition is evaluated to false are sent to this transform.
-|Condition (Java Expression)|Defines the Java condition on which to filter the data. See examples below.
+|Condition (Java Expression)|Defines the Java condition on which to filter the data.
+See examples below.
 |===
 
 === Examples

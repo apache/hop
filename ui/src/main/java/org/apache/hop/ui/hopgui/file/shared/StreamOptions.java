@@ -30,37 +30,28 @@ public class StreamOptions {
    * @param options
    * @param location
    */
-  public StreamOptions( List<IStream> options, Point location ) {
+  public StreamOptions(List<IStream> options, Point location) {
     this.options = options;
     this.location = location;
   }
 
-  /**
-   * @return the options
-   */
+  /** @return the options */
   public List<IStream> getOptions() {
     return options;
   }
 
-  /**
-   * @param options the options to set
-   */
-  public void setOptions( List<IStream> options ) {
+  /** @param options the options to set */
+  public void setOptions(List<IStream> options) {
     this.options = options;
   }
 
-  /**
-   * @return the location
-   */
+  /** @return the location */
   public Point getLocation() {
     return location;
   }
 
-  /**
-   * @param location the location to set
-   */
-  public void setLocation( Point location ) {
+  /** @param location the location to set */
+  public void setLocation(Point location) {
     this.location = location;
   }
-
 }

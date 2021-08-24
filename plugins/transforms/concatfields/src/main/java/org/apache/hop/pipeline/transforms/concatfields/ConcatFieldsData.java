@@ -31,7 +31,7 @@ public class ConcatFieldsData extends BaseTransformData implements ITransformDat
   public int[] remainingFieldsInputOutputMapping;
   public IRowMeta outputRowMeta;
   public IRowMeta inputRowMetaModified; // the field precisions and lengths are altered! see
-                                                // TextFileOutputMeta.getFields().
+  // TextFileOutputMeta.getFields().
   public String stringSeparator;
   public String stringEnclosure;
   public String[] stringNullValue;
@@ -40,5 +40,4 @@ public class ConcatFieldsData extends BaseTransformData implements ITransformDat
   public ConcatFieldsData() {
     super(); // allocate TextFileOutputData
   }
-
 }

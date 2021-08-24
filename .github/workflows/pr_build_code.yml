@@ -24,7 +24,7 @@ on:
     paths-ignore:
       - 'docs/**'
   pull_request:
-    branches: ['master']
+    branches: [ 'master' ]
     paths-ignore:
       - 'docs/**'
 

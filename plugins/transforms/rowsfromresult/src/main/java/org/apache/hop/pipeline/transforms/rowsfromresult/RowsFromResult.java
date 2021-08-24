@@ -24,10 +24,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Reads results from a previous pipeline in a Job
@@ -35,34 +33,41 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @author Matt
  * @since 2-jun-2003
  */
-public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData> implements ITransform<RowsFromResultMeta, RowsFromResultData> {
+public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData>
+    implements ITransform<RowsFromResultMeta, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class; // For Translator
 
-  public RowsFromResult( TransformMeta transformMeta, RowsFromResultMeta meta, RowsFromResultData data, int copyNr, PipelineMeta pipelineMeta,
-                         Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public RowsFromResult(
+      TransformMeta transformMeta,
+      RowsFromResultMeta meta,
+      RowsFromResultData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
     Result previousResult = getPipeline().getPreviousResult();
-    if ( previousResult == null || getLinesRead() >= previousResult.getRows().size() ) {
+    if (previousResult == null || getLinesRead() >= previousResult.getRows().size()) {
       setOutputDone();
       return false;
     }
-    RowMetaAndData row = previousResult.getRows().get( (int) getLinesRead() );
+    RowMetaAndData row = previousResult.getRows().get((int) getLinesRead());
     incrementLinesRead();
 
-    // We don't get the meta-data from the previous transforms (there aren't any) but from the previous pipeline or workflow
+    // We don't get the meta-data from the previous transforms (there aren't any) but from the
+    // previous pipeline or workflow
     //
     data.outputRowMeta = row.getRowMeta();
 
     // copy row to possible alternate rowset(s).
     //
-    putRow( data.outputRowMeta, row.getData() );
+    putRow(data.outputRowMeta, row.getData());
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      if ( log.isBasic() ) {
-        logBasic( BaseMessages.getString( PKG, "RowsFromResult.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      if (log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "RowsFromResult.Log.LineNumber") + getLinesRead());
       }
     }
 

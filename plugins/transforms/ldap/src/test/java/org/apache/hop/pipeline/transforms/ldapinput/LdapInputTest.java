@@ -16,18 +16,16 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests LDAP Input Transform
@@ -40,10 +38,9 @@ public class LdapInputTest {
   @BeforeClass
   public static void setup() {
     mockHelper =
-      new TransformMockHelper<>(
-        "LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class );
+        new TransformMockHelper<>("LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
-        .thenReturn(mockHelper.iLogChannel );
+        .thenReturn(mockHelper.iLogChannel);
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 

@@ -23,21 +23,21 @@ import java.lang.reflect.Type;
 public class FieldGetter<T> implements IGetter<T> {
   private final Field field;
 
-  public FieldGetter( Field field ) {
+  public FieldGetter(Field field) {
     this.field = field;
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings("unchecked")
   @Override
-  public T get( Object obj ) {
+  public T get(Object obj) {
     try {
-      return (T) field.get( obj );
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Error getting " + field + " on " + obj, e );
+      return (T) field.get(obj);
+    } catch (Exception e) {
+      throw new RuntimeException("Error getting " + field + " on " + obj, e);
     }
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings("unchecked")
   @Override
   public Class<T> getType() {
     return (Class<T>) field.getType();
@@ -52,32 +52,31 @@ public class FieldGetter<T> implements IGetter<T> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ( ( field == null ) ? 0 : field.hashCode() );
+    result = prime * result + ((field == null) ? 0 : field.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( this == obj ) {
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
-    if ( obj == null ) {
+    if (obj == null) {
       return false;
     }
-    if ( getClass() != obj.getClass() ) {
+    if (getClass() != obj.getClass()) {
       return false;
     }
     FieldGetter<?> other = (FieldGetter<?>) obj;
-    if ( field == null ) {
-      if ( other.field != null ) {
+    if (field == null) {
+      if (other.field != null) {
         return false;
       }
     } else {
-      if ( !field.equals( other.field ) ) {
+      if (!field.equals(other.field)) {
         return false;
       }
     }
     return true;
   }
-
 }

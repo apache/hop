@@ -17,27 +17,28 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.IAuthenticationConsumer;
-import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
-import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
-import org.apache.hop.core.auth.core.IAuthenticationPerformer;
-import org.apache.hop.core.auth.core.IAuthenticationProvider;
+import org.apache.hop.core.auth.core.*;
 
-public class DefaultAuthenticationPerformer<ReturnType, CreateArgType, T extends IAuthenticationProvider> implements
-  IAuthenticationPerformer<ReturnType, CreateArgType> {
+public class DefaultAuthenticationPerformer<
+        ReturnType, CreateArgType, T extends IAuthenticationProvider>
+    implements IAuthenticationPerformer<ReturnType, CreateArgType> {
   private final T provider;
-  private final IAuthenticationConsumerFactory<ReturnType, CreateArgType, T> authenticationConsumerFactory;
+  private final IAuthenticationConsumerFactory<ReturnType, CreateArgType, T>
+      authenticationConsumerFactory;
 
-  public DefaultAuthenticationPerformer( T provider,
-                                         IAuthenticationConsumerFactory<ReturnType, CreateArgType, T> authenticationConsumerFactory ) {
+  public DefaultAuthenticationPerformer(
+      T provider,
+      IAuthenticationConsumerFactory<ReturnType, CreateArgType, T> authenticationConsumerFactory) {
     this.provider = provider;
     this.authenticationConsumerFactory = authenticationConsumerFactory;
   }
 
   @Override
-  public ReturnType perform( CreateArgType consumerCreateArg ) throws AuthenticationConsumptionException {
-    IAuthenticationConsumer<ReturnType, T> consumer = authenticationConsumerFactory.create( consumerCreateArg );
-    return consumer.consume( provider );
+  public ReturnType perform(CreateArgType consumerCreateArg)
+      throws AuthenticationConsumptionException {
+    IAuthenticationConsumer<ReturnType, T> consumer =
+        authenticationConsumerFactory.create(consumerCreateArg);
+    return consumer.consume(provider);
   }
 
   @Override

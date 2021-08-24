@@ -21,5 +21,5 @@ import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
 
 public interface IAddUndoPosition {
-  void addUndoPosition( IUndo undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr );
+  void addUndoPosition(IUndo undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr);
 }

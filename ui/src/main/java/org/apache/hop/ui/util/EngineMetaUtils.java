@@ -18,8 +18,8 @@
 package org.apache.hop.ui.util;
 
 import org.apache.hop.core.IEngineMeta;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 
 public class EngineMetaUtils {
 
@@ -29,9 +29,9 @@ public class EngineMetaUtils {
    * @param engineMetaInterface
    * @return true if engineMetaInterface instance is Workflow or Pipeline, otherwise false.
    */
-  public static boolean isJobOrPipeline( IEngineMeta engineMetaInterface ) {
+  public static boolean isJobOrPipeline(IEngineMeta engineMetaInterface) {
 
-    return ( engineMetaInterface instanceof PipelineMeta ) || ( engineMetaInterface instanceof WorkflowMeta );
+    return (engineMetaInterface instanceof PipelineMeta)
+        || (engineMetaInterface instanceof WorkflowMeta);
   }
-
 }

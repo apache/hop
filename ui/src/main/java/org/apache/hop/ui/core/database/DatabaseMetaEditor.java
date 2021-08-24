@@ -20,11 +20,7 @@ package org.apache.hop.ui.core.database;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.DatabasePluginType;
-import org.apache.hop.core.database.DatabaseTestResults;
-import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.*;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -50,22 +46,10 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(description = "This is the editor for database connection metadata")
@@ -308,17 +292,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Add a composite area
     //
     wDatabaseSpecificComp = new Composite(wGeneralComp, SWT.BACKGROUND);
-    //props.setLook(wDatabaseSpecificComp);
+    // props.setLook(wDatabaseSpecificComp);
     wDatabaseSpecificComp.setLayout(new FormLayout());
     FormData fdDatabaseSpecificComp = new FormData();
     fdDatabaseSpecificComp.left = new FormAttachment(0, 0);
     fdDatabaseSpecificComp.right = new FormAttachment(100, 0);
-    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, 2*margin);
+    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, 2 * margin);
     fdDatabaseSpecificComp.bottom = new FormAttachment(100, 0);
     wDatabaseSpecificComp.setLayoutData(fdDatabaseSpecificComp);
     lastControl = wDatabaseSpecificComp;
-    
-   // wDatabaseSpecificComp.setBackground(wTabFolder.getDisplay().getSystemColor(SWT.COLOR_BLUE));
+
+    // wDatabaseSpecificComp.setBackground(wTabFolder.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
     // Now add the database plugin specific widgets
     //
@@ -331,13 +315,15 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null);
 
     // Add listener to detect change
-    guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
-      @Override
-      public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-        setChanged(); 
-      }        
-    });  
-    
+    guiCompositeWidgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            setChanged();
+          }
+        });
+
     addCompositeWidgetsUsernamePassword();
 
     // manual URL field
@@ -423,13 +409,15 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
         null);
-    guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
-      @Override
-      public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-        setChanged(); 
-      }        
-    });  
-    
+    guiCompositeWidgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            setChanged();
+          }
+        });
+
     // System.out.println( "---- widgets created for class: " +
     // workingMeta.getIDatabase().getClass().getName() );
     addCompositeWidgetsUsernamePassword();

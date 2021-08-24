@@ -21,20 +21,20 @@ public class PackageMessages {
   private final Class<?> packageClass;
   private final String prefix;
 
-  public PackageMessages( final Class<?> packageClass ) {
-    this( packageClass, null );
+  public PackageMessages(final Class<?> packageClass) {
+    this(packageClass, null);
   }
 
-  public PackageMessages( final Class<?> packageClass, String prefix ) {
+  public PackageMessages(final Class<?> packageClass, String prefix) {
     this.packageClass = packageClass;
     this.prefix = prefix == null ? packageClass.getSimpleName() + "." : prefix;
   }
 
-  public String getString( final String key, final String... parameters ) {
-    return getString( prefix, key, parameters );
+  public String getString(final String key, final String... parameters) {
+    return getString(prefix, key, parameters);
   }
 
-  public String getString( final String prefix, final String key, final String... parameters ) {
-    return BaseMessages.getString( packageClass, prefix + key, parameters );
+  public String getString(final String prefix, final String key, final String... parameters) {
+    return BaseMessages.getString(packageClass, prefix + key, parameters);
   }
 }

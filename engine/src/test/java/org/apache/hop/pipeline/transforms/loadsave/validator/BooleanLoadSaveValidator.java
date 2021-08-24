@@ -28,7 +28,7 @@ public class BooleanLoadSaveValidator implements IFieldLoadSaveValidator<Boolean
   }
 
   @Override
-  public boolean validateTestObject( Boolean original, Object actual ) {
-    return original.equals( actual );
+  public boolean validateTestObject(Boolean original, Object actual) {
+    return original.equals(actual);
   }
 }

@@ -21,11 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,9 +29,7 @@ import java.io.OutputStream;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -44,21 +38,20 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
     HopEnvironment.init();
   }
 
-
   private File tmpFile;
   private String tmpFilePath;
   private ActionDosToUnix entry;
 
   @Before
   public void setUp() throws Exception {
-    tmpFile = File.createTempFile( "pdi-14161-", null );
+    tmpFile = File.createTempFile("pdi-14161-", null);
     tmpFilePath = tmpFile.toURI().toString();
     entry = new ActionDosToUnix();
   }
 
   @After
   public void tearDown() throws Exception {
-    if ( tmpFile != null ) {
+    if (tmpFile != null) {
       tmpFile.delete();
       tmpFile = null;
     }
@@ -66,119 +59,111 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
     entry = null;
   }
 
-
   @Test
   public void oneSeparator_nix2dos() throws Exception {
-    doTest( "\n", false, "\r\n" );
+    doTest("\n", false, "\r\n");
   }
 
   @Test
   public void oneSeparator_nix2nix() throws Exception {
-    doTest( "\n", true, "\n" );
+    doTest("\n", true, "\n");
   }
 
   @Test
   public void oneSeparator_dos2nix() throws Exception {
-    doTest( "\r\n", true, "\n" );
+    doTest("\r\n", true, "\n");
   }
 
   @Test
   public void oneSeparator_dos2dos() throws Exception {
-    doTest( "\r\n", false, "\r\n" );
+    doTest("\r\n", false, "\r\n");
   }
-
 
   @Test
   public void charNewLineChar_nix2dos() throws Exception {
-    doTest( "a\nb", false, "a\r\nb" );
+    doTest("a\nb", false, "a\r\nb");
   }
 
   @Test
   public void charNewLineChar_nix2nix() throws Exception {
-    doTest( "a\nb", true, "a\nb" );
+    doTest("a\nb", true, "a\nb");
   }
 
   @Test
   public void charNewLineChar_dos2nix() throws Exception {
-    doTest( "a\r\nb", true, "a\nb" );
+    doTest("a\r\nb", true, "a\nb");
   }
 
   @Test
   public void charNewLineChar_dos2dos() throws Exception {
-    doTest( "a\r\nb", false, "a\r\nb" );
+    doTest("a\r\nb", false, "a\r\nb");
   }
-
 
   @Test
   public void twoCrOneLf_2nix() throws Exception {
-    doTest( "\r\r\n", true, "\r\n" );
+    doTest("\r\r\n", true, "\r\n");
   }
 
   @Test
   public void twoCrOneLf_2dos() throws Exception {
-    doTest( "\r\r\n", false, "\r\r\n" );
+    doTest("\r\r\n", false, "\r\r\n");
   }
-
 
   @Test
   public void crCharCrLf_2nix() throws Exception {
-    doTest( "\ra\r\n", true, "\ra\n" );
+    doTest("\ra\r\n", true, "\ra\n");
   }
 
   @Test
   public void crCharCrLf_2dos() throws Exception {
-    doTest( "\ra\r\n", false, "\ra\r\n" );
+    doTest("\ra\r\n", false, "\ra\r\n");
   }
-
 
   @Test
   public void oneSeparator_nix2dos_hugeInput() throws Exception {
-    doTestForSignificantInput( "\n", false, "\r\n" );
+    doTestForSignificantInput("\n", false, "\r\n");
   }
 
   @Test
   public void oneSeparator_nix2nix_hugeInput() throws Exception {
-    doTestForSignificantInput( "\n", true, "\n" );
+    doTestForSignificantInput("\n", true, "\n");
   }
 
   @Test
   public void oneSeparator_dos2nix_hugeInput() throws Exception {
-    doTestForSignificantInput( "\r\n", true, "\n" );
+    doTestForSignificantInput("\r\n", true, "\n");
   }
 
   @Test
   public void oneSeparator_dos2dos_hugeInput() throws Exception {
-    doTestForSignificantInput( "\r\n", false, "\r\n" );
+    doTestForSignificantInput("\r\n", false, "\r\n");
   }
 
+  private void doTestForSignificantInput(
+      String contentPattern, boolean toUnix, String expectedPattern) throws Exception {
+    int copyTimes = (8 * 1024 / contentPattern.length()) + 1;
+    String content = copyUntilReachesEightKbs(contentPattern, copyTimes);
+    String expected = copyUntilReachesEightKbs(expectedPattern, copyTimes);
 
-  private void doTestForSignificantInput( String contentPattern,
-                                          boolean toUnix,
-                                          String expectedPattern ) throws Exception {
-    int copyTimes = ( 8 * 1024 / contentPattern.length() ) + 1;
-    String content = copyUntilReachesEightKbs( contentPattern, copyTimes );
-    String expected = copyUntilReachesEightKbs( expectedPattern, copyTimes );
-
-    doTest( content, toUnix, expected );
+    doTest(content, toUnix, expected);
   }
 
-  private String copyUntilReachesEightKbs( String pattern, int times ) {
-    StringBuilder sb = new StringBuilder( pattern.length() * times );
-    for ( int i = 0; i < times; i++ ) {
-      sb.append( pattern );
+  private String copyUntilReachesEightKbs(String pattern, int times) {
+    StringBuilder sb = new StringBuilder(pattern.length() * times);
+    for (int i = 0; i < times; i++) {
+      sb.append(pattern);
     }
     return sb.toString();
   }
 
-
-  private void doTest( String content, boolean toUnix, String expected ) throws Exception {
-    try ( OutputStream os = new FileOutputStream( tmpFile ) ) {
-      IOUtils.write( content.getBytes(), os );
+  private void doTest(String content, boolean toUnix, String expected) throws Exception {
+    try (OutputStream os = new FileOutputStream(tmpFile)) {
+      IOUtils.write(content.getBytes(), os);
     }
 
-    entry.convert( HopVfs.getFileObject( tmpFilePath ), toUnix );
+    entry.convert(HopVfs.getFileObject(tmpFilePath), toUnix);
 
-    String converted = HopVfs.getTextFileContent( tmpFilePath, "UTF-8" );
-    assertEquals( expected, converted );
+    String converted = HopVfs.getTextFileContent(tmpFilePath, "UTF-8");
+    assertEquals(expected, converted);
   }
 }

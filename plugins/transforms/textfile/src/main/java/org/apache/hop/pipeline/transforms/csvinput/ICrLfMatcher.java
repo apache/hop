@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 public interface ICrLfMatcher {
-  boolean isReturn( byte[] source, int location );
+  boolean isReturn(byte[] source, int location);
 
-  boolean isLineFeed( byte[] source, int location );
+  boolean isLineFeed(byte[] source, int location);
 }

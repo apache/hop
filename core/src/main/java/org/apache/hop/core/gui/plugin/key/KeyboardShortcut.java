@@ -34,7 +34,7 @@ public class KeyboardShortcut {
     keyCode = 0;
   }
 
-  public KeyboardShortcut( GuiKeyboardShortcut shortcut, Method parentMethod ) {
+  public KeyboardShortcut(GuiKeyboardShortcut shortcut, Method parentMethod) {
     this.osx = false;
     this.alt = shortcut.alt();
     this.control = shortcut.control();
@@ -44,7 +44,7 @@ public class KeyboardShortcut {
     this.parentMethodName = parentMethod.getName();
   }
 
-  public KeyboardShortcut( GuiOsxKeyboardShortcut shortcut, Method parentMethod ) {
+  public KeyboardShortcut(GuiOsxKeyboardShortcut shortcut, Method parentMethod) {
     this.osx = true;
     this.alt = shortcut.alt();
     this.control = shortcut.control();
@@ -54,39 +54,40 @@ public class KeyboardShortcut {
     this.parentMethodName = parentMethod.getName();
   }
 
-  @Override public String toString() {
-    if ( keyCode == 0 ) {
+  @Override
+  public String toString() {
+    if (keyCode == 0) {
       return parentMethodName.toString();
     }
     StringBuilder str = new StringBuilder();
-    if ( control ) {
-      str.append( "Ctrl+" );
+    if (control) {
+      str.append("Ctrl+");
     }
-    if ( alt ) {
-      str.append( "Alt+" );
+    if (alt) {
+      str.append("Alt+");
     }
-    if ( shift ) {
-      str.append( "Shift+" );
+    if (shift) {
+      str.append("Shift+");
     }
-    if ( command ) {
-      str.append( "Cmd+" );
+    if (command) {
+      str.append("Cmd+");
     }
-        
+
     // Character upper
-    if ( keyCode >= 65 && keyCode <= 90 ) {
-      str.append( (char) keyCode );
+    if (keyCode >= 65 && keyCode <= 90) {
+      str.append((char) keyCode);
     }
     // Character lower
-    else if ( keyCode >= 97 && keyCode <= 122 ) {
-      str.append( Character.toUpperCase( (char) keyCode ) );
+    else if (keyCode >= 97 && keyCode <= 122) {
+      str.append(Character.toUpperCase((char) keyCode));
     }
     // Delete key
-    else if ( keyCode == 127 ) {
-      str.append( "Delete" );
-    } 
+    else if (keyCode == 127) {
+      str.append("Delete");
+    }
     // Digit
-    else if ( keyCode >= 48 && keyCode <= 57 ) {
-      str.append( ( (char) keyCode ) );
+    else if (keyCode >= 48 && keyCode <= 57) {
+      str.append(((char) keyCode));
     }
     if ((keyCode & (1 << 24)) != 0) {
       switch (keyCode & (0xFFFF)) {
@@ -182,24 +183,26 @@ public class KeyboardShortcut {
     return str.toString();
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     KeyboardShortcut that = (KeyboardShortcut) o;
-    return alt == that.alt &&
-      control == that.control &&
-      shift == that.shift &&
-      command == that.command &&
-      keyCode == that.keyCode &&
-      parentMethodName.equals( that.parentMethodName );
+    return alt == that.alt
+        && control == that.control
+        && shift == that.shift
+        && command == that.command
+        && keyCode == that.keyCode
+        && parentMethodName.equals(that.parentMethodName);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( alt, control, shift, command, keyCode, parentMethodName );
+  @Override
+  public int hashCode() {
+    return Objects.hash(alt, control, shift, command, keyCode, parentMethodName);
   }
 
   /**
@@ -211,10 +214,8 @@ public class KeyboardShortcut {
     return osx;
   }
 
-  /**
-   * @param osx The osx to set
-   */
-  public void setOsx( boolean osx ) {
+  /** @param osx The osx to set */
+  public void setOsx(boolean osx) {
     this.osx = osx;
   }
 
@@ -227,10 +228,8 @@ public class KeyboardShortcut {
     return alt;
   }
 
-  /**
-   * @param alt The alt to set
-   */
-  public void setAlt( boolean alt ) {
+  /** @param alt The alt to set */
+  public void setAlt(boolean alt) {
     this.alt = alt;
   }
 
@@ -243,10 +242,8 @@ public class KeyboardShortcut {
     return control;
   }
 
-  /**
-   * @param control The control to set
-   */
-  public void setControl( boolean control ) {
+  /** @param control The control to set */
+  public void setControl(boolean control) {
     this.control = control;
   }
 
@@ -259,10 +256,8 @@ public class KeyboardShortcut {
     return shift;
   }
 
-  /**
-   * @param shift The shift to set
-   */
-  public void setShift( boolean shift ) {
+  /** @param shift The shift to set */
+  public void setShift(boolean shift) {
     this.shift = shift;
   }
 
@@ -275,10 +270,8 @@ public class KeyboardShortcut {
     return command;
   }
 
-  /**
-   * @param command The command to set
-   */
-  public void setCommand( boolean command ) {
+  /** @param command The command to set */
+  public void setCommand(boolean command) {
     this.command = command;
   }
 
@@ -291,10 +284,8 @@ public class KeyboardShortcut {
     return keyCode;
   }
 
-  /**
-   * @param keyCode The keyCode to set
-   */
-  public void setKeyCode( int keyCode ) {
+  /** @param keyCode The keyCode to set */
+  public void setKeyCode(int keyCode) {
     this.keyCode = keyCode;
   }
 
@@ -307,11 +298,8 @@ public class KeyboardShortcut {
     return parentMethodName;
   }
 
-  /**
-   * @param parentMethodName The parentMethodName to set
-   */
-  public void setParentMethodName( String parentMethodName ) {
+  /** @param parentMethodName The parentMethodName to set */
+  public void setParentMethodName(String parentMethodName) {
     this.parentMethodName = parentMethodName;
   }
-
 }

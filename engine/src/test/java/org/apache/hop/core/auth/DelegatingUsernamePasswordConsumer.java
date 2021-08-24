@@ -17,20 +17,21 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 
-public class DelegatingUsernamePasswordConsumer implements
-  IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> {
+public class DelegatingUsernamePasswordConsumer
+    implements IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> {
   private IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate;
 
   public DelegatingUsernamePasswordConsumer(
-    IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate ) {
+      IAuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate) {
     this.delegate = delegate;
   }
 
   @Override
-  public Object consume( UsernamePasswordAuthenticationProvider authenticationProvider ) throws AuthenticationConsumptionException {
-    return delegate.consume( authenticationProvider );
+  public Object consume(UsernamePasswordAuthenticationProvider authenticationProvider)
+      throws AuthenticationConsumptionException {
+    return delegate.consume(authenticationProvider);
   }
 }

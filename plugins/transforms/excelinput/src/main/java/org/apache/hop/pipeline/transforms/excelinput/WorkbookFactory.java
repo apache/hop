@@ -26,38 +26,42 @@ import org.apache.hop.pipeline.transforms.excelinput.staxpoi.StaxPoiWorkbook;
 import java.io.InputStream;
 
 public class WorkbookFactory {
-  
+
   private WorkbookFactory() {
     throw new IllegalStateException("Utility class");
   }
 
-  public static IKWorkbook getWorkbook( SpreadSheetType type, String filename, String encoding ) throws HopException {
-    switch ( type ) {
-
+  public static IKWorkbook getWorkbook(SpreadSheetType type, String filename, String encoding)
+      throws HopException {
+    switch (type) {
       case POI:
-        return new PoiWorkbook( filename, encoding ); // encoding is not used, perhaps detected automatically?
+        return new PoiWorkbook(
+            filename, encoding); // encoding is not used, perhaps detected automatically?
       case SAX_POI:
-        return new StaxPoiWorkbook( filename, encoding );
+        return new StaxPoiWorkbook(filename, encoding);
       case ODS:
-        return new OdfWorkbook( filename, encoding ); // encoding is not used, perhaps detected automatically?
+        return new OdfWorkbook(
+            filename, encoding); // encoding is not used, perhaps detected automatically?
       default:
-        throw new HopException( "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported" );
+        throw new HopException(
+            "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
     }
-
   }
 
-  public static IKWorkbook getWorkbook( SpreadSheetType type, InputStream inputStream, String encoding ) throws HopException {
-    switch ( type ) {
-
+  public static IKWorkbook getWorkbook(
+      SpreadSheetType type, InputStream inputStream, String encoding) throws HopException {
+    switch (type) {
       case POI:
-        return new PoiWorkbook( inputStream, encoding ); // encoding is not used, perhaps detected automatically?
+        return new PoiWorkbook(
+            inputStream, encoding); // encoding is not used, perhaps detected automatically?
       case SAX_POI:
-        return new StaxPoiWorkbook( inputStream, encoding );
+        return new StaxPoiWorkbook(inputStream, encoding);
       case ODS:
-        return new OdfWorkbook( inputStream, encoding ); // encoding is not used, perhaps detected automatically?
+        return new OdfWorkbook(
+            inputStream, encoding); // encoding is not used, perhaps detected automatically?
       default:
-        throw new HopException( "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported" );
+        throw new HopException(
+            "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
     }
-
   }
 }

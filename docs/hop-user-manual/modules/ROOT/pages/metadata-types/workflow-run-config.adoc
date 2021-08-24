@@ -26,8 +26,8 @@ image:icons/workflow_run_config.svg[]
 
 Describes how to run a workflow
 
-Workflows can be executed either locally or remotely. Check xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations] for more details.
-
+Workflows can be executed either locally or remotely.
+Check xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations] for more details.
 
 == Related Plugins
 

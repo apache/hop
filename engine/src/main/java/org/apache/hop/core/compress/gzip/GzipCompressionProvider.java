@@ -24,16 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@CompressionPlugin(
-  id = "GZIP",
-  name = "GZip",
-  description = "GZIP compression"
-)
+@CompressionPlugin(id = "GZIP", name = "GZip", description = "GZIP compression")
 public class GzipCompressionProvider implements ICompressionProvider {
 
   @Override
-  public GzipCompressionInputStream createInputStream( InputStream in ) throws IOException {
-    return new GzipCompressionInputStream( in, this );
+  public GzipCompressionInputStream createInputStream(InputStream in) throws IOException {
+    return new GzipCompressionInputStream(in, this);
   }
 
   @Override
@@ -42,8 +38,8 @@ public class GzipCompressionProvider implements ICompressionProvider {
   }
 
   @Override
-  public GzipCompressionOutputStream createOutputStream( OutputStream out ) throws IOException {
-    return new GzipCompressionOutputStream( out, this );
+  public GzipCompressionOutputStream createOutputStream(OutputStream out) throws IOException {
+    return new GzipCompressionOutputStream(out, this);
   }
 
   @Override

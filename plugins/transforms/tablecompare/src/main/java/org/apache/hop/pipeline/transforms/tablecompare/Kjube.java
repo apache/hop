@@ -24,7 +24,7 @@ public class Kjube {
   public static final String DEFAULT_LIFECYCLE_PARAMETER = "KJUBE_LIFECYCLE";
 
   public static final String DEFAULT_CONFIG_FILE_PATH =
-    "/kjube/projects/${KJUBE_CUSTOMER}/${KJUBE_APPLICATION}/config/configuration_${KJUBE_LIFECYCLE}.properties";
+      "/kjube/projects/${KJUBE_CUSTOMER}/${KJUBE_APPLICATION}/config/configuration_${KJUBE_LIFECYCLE}.properties";
 
   public static final String DEFAULT_BATCH_ID_CONNECTION = "${KJUBE_BATCH_ID_CONNECTION}";
   public static final String DEFAULT_BATCH_ID_SCHEMA = "${KJUBE_BATCH_ID_SCHEMA}";
@@ -40,19 +40,20 @@ public class Kjube {
   public static final String DEFAULT_BATCH_ID_VARIABLE_NAME = "${KJUBE_BATCH_ID}";
 
   public static final String DEFAULT_ERROR_COUNT_VARIABLE_NAME = "${KJUBE_ERROR_COUNT_FIELD}";
-  public static final String DEFAULT_ERROR_DESCRIPTIONS_VARIABLE_NAME = "${KJUBE_ERROR_DESCRIPTIONS_FIELD}";
+  public static final String DEFAULT_ERROR_DESCRIPTIONS_VARIABLE_NAME =
+      "${KJUBE_ERROR_DESCRIPTIONS_FIELD}";
   public static final String DEFAULT_ERROR_FIELDS_VARIABLE_NAME = "${KJUBE_ERROR_FIELDS_FIELD}";
   public static final String DEFAULT_ERROR_CODES_VARIABLE_NAME = "${KJUBE_ERROR_CODES_FIELD}";
 
   /**
-   * Determines whether or not a character is considered a variables. A character is considered a variables in Hop if it is a
-   * variables, a tab, a newline or a cariage return.
+   * Determines whether or not a character is considered a variables. A character is considered a
+   * variables in Hop if it is a variables, a tab, a newline or a cariage return.
    *
    * @param c The character to verify if it is a variables.
    * @return true if the character is a variables. false otherwise.
    */
-  public static final boolean isSpace( char c ) {
-    return c == ' ' || c == '\t' || c == '\r' || c == '\n' || Character.isWhitespace( c );
+  public static final boolean isSpace(char c) {
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n' || Character.isWhitespace(c);
   }
 
   /**
@@ -61,16 +62,16 @@ public class Kjube {
    * @param str The String to left trim
    * @return The left trimmed String
    */
-  public static String ltrim( String source ) {
-    if ( source == null ) {
+  public static String ltrim(String source) {
+    if (source == null) {
       return null;
     }
     int from = 0;
-    while ( from < source.length() && isSpace( source.charAt( from ) ) ) {
+    while (from < source.length() && isSpace(source.charAt(from))) {
       from++;
     }
 
-    return source.substring( from );
+    return source.substring(from);
   }
 
   /**
@@ -79,17 +80,17 @@ public class Kjube {
    * @param str The string to right trim
    * @return The trimmed string.
    */
-  public static String rtrim( String source ) {
-    if ( source == null ) {
+  public static String rtrim(String source) {
+    if (source == null) {
       return null;
     }
 
     int max = source.length();
-    while ( max > 0 && isSpace( source.charAt( max - 1 ) ) ) {
+    while (max > 0 && isSpace(source.charAt(max - 1))) {
       max--;
     }
 
-    return source.substring( 0, max );
+    return source.substring(0, max);
   }
 
   /**
@@ -98,26 +99,25 @@ public class Kjube {
    * @param str The string to trim
    * @return The trimmed string.
    */
-  public static final String trim( String str ) {
-    if ( str == null ) {
+  public static final String trim(String str) {
+    if (str == null) {
       return null;
     }
 
     int max = str.length() - 1;
     int min = 0;
 
-    while ( min <= max && isSpace( str.charAt( min ) ) ) {
+    while (min <= max && isSpace(str.charAt(min))) {
       min++;
     }
-    while ( max >= 0 && isSpace( str.charAt( max ) ) ) {
+    while (max >= 0 && isSpace(str.charAt(max))) {
       max--;
     }
 
-    if ( max < min ) {
+    if (max < min) {
       return "";
     }
 
-    return str.substring( min, max + 1 );
+    return str.substring(min, max + 1);
   }
-
 }

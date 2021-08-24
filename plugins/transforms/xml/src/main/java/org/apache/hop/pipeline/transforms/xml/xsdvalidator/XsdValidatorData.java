@@ -24,7 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 /**
  * @author Samatar
  * @since 14-08-2007
- * 
  */
 public class XsdValidatorData extends BaseTransformData implements ITransformData {
   public int xmlindex;
@@ -35,7 +34,5 @@ public class XsdValidatorData extends BaseTransformData implements ITransformDat
     super();
     xmlindex = -1;
     xsdindex = -1;
-
   }
-
 }

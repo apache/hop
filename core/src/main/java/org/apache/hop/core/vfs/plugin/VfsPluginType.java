@@ -28,82 +28,82 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IVfs.class )
-@PluginAnnotationType( VfsPlugin.class )
+@PluginMainClassType(IVfs.class)
+@PluginAnnotationType(VfsPlugin.class)
 public class VfsPluginType extends BasePluginType<VfsPlugin> {
   private static VfsPluginType pluginType;
 
   private VfsPluginType() {
-    super( VfsPlugin.class, "VFS", "VFS" );
+    super(VfsPlugin.class, "VFS", "VFS");
   }
 
   public static VfsPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new VfsPluginType();
     }
     return pluginType;
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( VfsPlugin annotation ) {
+  protected String extractCategory(VfsPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( VfsPlugin annotation ) {
+  protected String extractDesc(VfsPlugin annotation) {
     return annotation.typeDescription();
   }
 
   @Override
-  protected String extractID( VfsPlugin annotation ) {
+  protected String extractID(VfsPlugin annotation) {
     return annotation.type();
   }
 
   @Override
-  protected String extractName( VfsPlugin annotation ) {
+  protected String extractName(VfsPlugin annotation) {
     return annotation.typeDescription();
   }
 
   @Override
-  protected String extractImageFile( VfsPlugin annotation ) {
+  protected String extractImageFile(VfsPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( VfsPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(VfsPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, VfsPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, VfsPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( VfsPlugin annotation ) {
+  protected String extractDocumentationUrl(VfsPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( VfsPlugin annotation ) {
+  protected String extractCasesUrl(VfsPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( VfsPlugin annotation ) {
+  protected String extractForumUrl(VfsPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( VfsPlugin annotation ) {
+  protected String extractSuggestion(VfsPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( VfsPlugin annotation ) {
+  protected String extractClassLoaderGroup(VfsPlugin annotation) {
     return null;
   }
 }

@@ -42,12 +42,7 @@ import org.apache.http.entity.ContentType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Editor that allows you to change Web Service metadata
@@ -270,7 +265,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     lastControl = wlListStatus;
 
     setWidgetsContent();
-    
+
     // Add listener to detect change after loading data
     Listener modifyListener = e -> setChanged();
     wName.addListener(SWT.Modify, modifyListener);
@@ -382,7 +377,6 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wField.setText(Const.NVL(ws.getFieldName(), ""));
     wContentType.setText(Const.NVL(ws.getContentType(), ""));
     wListStatus.setSelection(ws.isListingStatus());
-
   }
 
   @Override
@@ -421,19 +415,29 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     try {
       PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, true, variables);
 
-      EnterSelectionDialog selectTransformDialog = new EnterSelectionDialog( hopGui.getShell(), pipelineMeta.getTransformNames(), "Select output transform", "Select the transform output for the web service");
+      EnterSelectionDialog selectTransformDialog =
+          new EnterSelectionDialog(
+              hopGui.getShell(),
+              pipelineMeta.getTransformNames(),
+              "Select output transform",
+              "Select the transform output for the web service");
       String transformName = selectTransformDialog.open();
-      if (transformName==null) {
+      if (transformName == null) {
         return;
       }
-      IRowMeta rowMeta = pipelineMeta.getTransformFields( variables, transformName );
-      EnterSelectionDialog selectFieldDialog = new EnterSelectionDialog( hopGui.getShell(), rowMeta.getFieldNames(), "Select the output field", "Select the field to use as output for this web service" );
+      IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, transformName);
+      EnterSelectionDialog selectFieldDialog =
+          new EnterSelectionDialog(
+              hopGui.getShell(),
+              rowMeta.getFieldNames(),
+              "Select the output field",
+              "Select the field to use as output for this web service");
       String fieldName = selectFieldDialog.open();
-      if (fieldName==null) {
+      if (fieldName == null) {
         return;
       }
-      wTransform.setText( transformName );
-      wField.setText( fieldName );
+      wTransform.setText(transformName);
+      wField.setText(fieldName);
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error selecting output field", e);
     }

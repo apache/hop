@@ -23,7 +23,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -32,16 +31,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -54,23 +48,13 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -197,7 +181,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.TransformName.Label"));
+    wlTransformName.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.TransformName.Label"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -581,7 +566,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     // Add a checkbox: inherit all variables...
     //
     wInheritAll = new Button(wParametersComposite, SWT.CHECK);
-    wInheritAll.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.InheritAll"));
+    wInheritAll.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.InheritAll"));
     props.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.left = new FormAttachment(0, 0);
@@ -706,7 +692,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     final CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
     wTab.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResults.Title"));
-    wTab.setToolTipText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResults.Tooltip"));
+    wTab.setToolTipText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResults.Tooltip"));
 
     ScrolledComposite scrolledComposite =
         new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -955,7 +942,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wResultRowsTarget.setLayoutData(fdResultRowsTarget);
 
     wlResultFields = new Label(wInputComposite, SWT.NONE);
-    wlResultFields.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFields.Label"));
+    wlResultFields.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFields.Label"));
     props.setLook(wlResultFields);
     FormData fdlResultFields = new FormData();
     fdlResultFields.left = new FormAttachment(0, 0);

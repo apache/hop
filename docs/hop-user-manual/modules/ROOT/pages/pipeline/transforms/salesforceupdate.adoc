@@ -32,7 +32,8 @@ You can also use the following other transforms to modify your Salesforce databa
 
 Enter the following information in the transform name field:
 
-* Transform name: Specifies the unique name of the Salesforce Update transform on the canvas. You can customize the name or leave it as the default.
+* Transform name: Specifies the unique name of the Salesforce Update transform on the canvas.
+You can customize the name or leave it as the default.
 
 include::salesforce-connection.adoc[]
 

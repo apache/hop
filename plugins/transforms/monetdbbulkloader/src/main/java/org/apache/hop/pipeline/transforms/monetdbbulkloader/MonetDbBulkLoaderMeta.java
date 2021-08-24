@@ -16,7 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
-import org.apache.hop.core.*;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;

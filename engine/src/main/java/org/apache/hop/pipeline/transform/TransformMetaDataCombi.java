@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transform;
 
-public class TransformMetaDataCombi<Main extends ITransform, Meta extends ITransformMeta, Data extends ITransformData> {
+public class TransformMetaDataCombi<
+    Main extends ITransform, Meta extends ITransformMeta, Data extends ITransformData> {
 
   public TransformMeta transformMeta;
   public String transformName;
@@ -30,5 +31,4 @@ public class TransformMetaDataCombi<Main extends ITransform, Meta extends ITrans
   public String toString() {
     return transform.toString();
   }
-
 }

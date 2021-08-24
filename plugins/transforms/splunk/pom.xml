@@ -20,40 +20,40 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins-transforms</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>hop-transform-splunk</artifactId>
-  <packaging>jar</packaging>
+    <artifactId>hop-transform-splunk</artifactId>
+    <packaging>jar</packaging>
 
-  <name>Hop Plugins Transforms Splunk</name>
+    <name>Hop Plugins Transforms Splunk</name>
 
-  <repositories>
-    <repository>
-      <id>splunk-artifactory</id>
-      <name>Splunk Releases</name>
-      <url>https://splunk.jfrog.io/splunk/ext-releases-local</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <id>splunk-artifactory</id>
+            <name>Splunk Releases</name>
+            <url>https://splunk.jfrog.io/splunk/ext-releases-local</url>
+        </repository>
+    </repositories>
 
-  <properties>
-    <splunk.version>1.6.5.0</splunk.version>
-  </properties>
+    <properties>
+        <splunk.version>1.6.5.0</splunk.version>
+    </properties>
 
-  <dependencies>
+    <dependencies>
 
-    <dependency>
-      <groupId>com.splunk</groupId>
-      <artifactId>splunk</artifactId>
-      <version>${splunk.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.splunk</groupId>
+            <artifactId>splunk</artifactId>
+            <version>${splunk.version}</version>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 
 
 </project>

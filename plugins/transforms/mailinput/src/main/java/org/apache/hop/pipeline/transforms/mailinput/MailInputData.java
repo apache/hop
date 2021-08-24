@@ -18,9 +18,9 @@
 package org.apache.hop.pipeline.transforms.mailinput;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.workflow.actions.getpop.MailConnection;
 
 import javax.mail.Message;
 import java.util.Iterator;
@@ -62,5 +62,4 @@ public class MailInputData extends BaseTransformData implements ITransformData {
     totalpreviousfields = 0;
     rowlimit = 0;
   }
-
 }

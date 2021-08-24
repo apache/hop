@@ -24,9 +24,7 @@ import java.util.prefs.Preferences;
 
 public class BooleanPluginProperty extends KeyValue<Boolean> implements IPluginProperty {
 
-  /**
-   * Serial version UID.
-   */
+  /** Serial version UID. */
   private static final long serialVersionUID = -2990345692552430357L;
 
   /**
@@ -35,44 +33,33 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements IPluginP
    * @param key key to set.
    * @throws IllegalArgumentException if key is invalid.
    */
-  public BooleanPluginProperty( final String key ) throws IllegalArgumentException {
-    super( key, DEFAULT_BOOLEAN_VALUE );
+  public BooleanPluginProperty(final String key) throws IllegalArgumentException {
+    super(key, DEFAULT_BOOLEAN_VALUE);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   public boolean evaluate() {
-    return Boolean.TRUE.equals( this.getValue() );
+    return Boolean.TRUE.equals(this.getValue());
   }
 
-  /**
-   *
-   */
-  public void appendXml( final StringBuilder builder ) {
-    builder.append( XmlHandler.addTagValue( this.getKey(), this.getValue() ) );
+  /** */
+  public void appendXml(final StringBuilder builder) {
+    builder.append(XmlHandler.addTagValue(this.getKey(), this.getValue()));
   }
 
-  /**
-   *
-   */
-  public void loadXml( final Node node ) {
-    final String stringValue = XmlHandler.getTagValue( node, this.getKey() );
-    this.setValue( BOOLEAN_STRING_TRUE.equalsIgnoreCase( stringValue ) );
+  /** */
+  public void loadXml(final Node node) {
+    final String stringValue = XmlHandler.getTagValue(node, this.getKey());
+    this.setValue(BOOLEAN_STRING_TRUE.equalsIgnoreCase(stringValue));
   }
 
-  /**
-   *
-   */
-  public void saveToPreferences( final Preferences node ) {
-    node.putBoolean( this.getKey(), this.getValue() );
+  /** */
+  public void saveToPreferences(final Preferences node) {
+    node.putBoolean(this.getKey(), this.getValue());
   }
 
-  /**
-   *
-   */
-  public void readFromPreferences( final Preferences node ) {
-    this.setValue( node.getBoolean( this.getKey(), this.getValue() ) );
+  /** */
+  public void readFromPreferences(final Preferences node) {
+    this.setValue(node.getBoolean(this.getKey(), this.getValue()));
   }
-
 }

@@ -29,16 +29,16 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipCompressionOutputStream extends CompressionOutputStream {
 
-  public ZipCompressionOutputStream( OutputStream out, ICompressionProvider provider ) {
-    super( getDelegate( out ), provider );
+  public ZipCompressionOutputStream(OutputStream out, ICompressionProvider provider) {
+    super(getDelegate(out), provider);
   }
 
-  protected static ZipOutputStream getDelegate( OutputStream out ) {
+  protected static ZipOutputStream getDelegate(OutputStream out) {
     ZipOutputStream delegate;
-    if ( out instanceof ZipOutputStream ) {
+    if (out instanceof ZipOutputStream) {
       delegate = (ZipOutputStream) out;
     } else {
-      delegate = new ZipOutputStream( out );
+      delegate = new ZipOutputStream(out);
     }
     return delegate;
   }
@@ -53,29 +53,29 @@ public class ZipCompressionOutputStream extends CompressionOutputStream {
   }
 
   @Override
-  public void addEntry( String filename, String extension ) throws IOException {
+  public void addEntry(String filename, String extension) throws IOException {
     // remove folder hierarchy
-    int index = filename.lastIndexOf( Const.FILE_SEPARATOR );
+    int index = filename.lastIndexOf(Const.FILE_SEPARATOR);
     String entryPath;
-    if ( index != -1 ) {
-      entryPath = filename.substring( index + 1 );
+    if (index != -1) {
+      entryPath = filename.substring(index + 1);
     } else {
       entryPath = filename;
     }
 
     // remove ZIP extension
-    index = entryPath.toLowerCase().lastIndexOf( ".zip" );
-    if ( index != -1 ) {
-      entryPath = entryPath.substring( 0, index ) + entryPath.substring( index + ".zip".length() );
+    index = entryPath.toLowerCase().lastIndexOf(".zip");
+    if (index != -1) {
+      entryPath = entryPath.substring(0, index) + entryPath.substring(index + ".zip".length());
     }
 
     // add real extension if needed
-    if ( !Utils.isEmpty( extension ) ) {
+    if (!Utils.isEmpty(extension)) {
       entryPath += "." + extension;
     }
 
-    ZipEntry zipentry = new ZipEntry( entryPath );
-    zipentry.setComment( "Compressed by Hop" );
-    ( (ZipOutputStream) delegate ).putNextEntry( zipentry );
+    ZipEntry zipentry = new ZipEntry(entryPath);
+    zipentry.setComment("Compressed by Hop");
+    ((ZipOutputStream) delegate).putNextEntry(zipentry);
   }
 }

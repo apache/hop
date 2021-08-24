@@ -16,14 +16,14 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.truststore.CustomSocketFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 import java.util.Collection;
 import java.util.Map;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.truststore.CustomSocketFactory;
 
 public class LdapSslProtocol extends LdapProtocol {
 
@@ -56,6 +56,7 @@ public class LdapSslProtocol extends LdapProtocol {
   public static String getName() {
     return "LDAP SSL";
   }
+
   protected void configureSslEnvironment(Map<String, String> env) {
     env.put(javax.naming.Context.SECURITY_PROTOCOL, "ssl");
     env.put("java.naming.ldap.factory.socket", CustomSocketFactory.class.getCanonicalName());

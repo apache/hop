@@ -29,11 +29,11 @@ public interface INamedParameters extends INamedParameterDefinitions {
   /**
    * Set the value of a parameter.
    *
-   * @param key   key to set value of
+   * @param key key to set value of
    * @param value value to set it to.
    * @throws UnknownParamException Parameter 'key' is unknown.
    */
-  void setParameterValue( String key, String value ) throws UnknownParamException;
+  void setParameterValue(String key, String value) throws UnknownParamException;
 
   /**
    * Get the value of a parameter.
@@ -42,29 +42,27 @@ public interface INamedParameters extends INamedParameterDefinitions {
    * @return value of parameter key.
    * @throws UnknownParamException Parameter 'key' is unknown.
    */
-  String getParameterValue( String key ) throws UnknownParamException;
+  String getParameterValue(String key) throws UnknownParamException;
 
-  /**
-   * Clear the values.
-   */
+  /** Clear the values. */
   void removeAllParameters();
 
   /**
-   * Activate the currently set parameters.  Apply the values set in the parameters to the specified variables.
+   * Activate the currently set parameters. Apply the values set in the parameters to the specified
+   * variables.
+   *
    * @param variables where variables to apply the parameter values to
    */
-  void activateParameters( IVariables variables );
+  void activateParameters(IVariables variables);
 
-  /**
-   * Clear all parameters
-   */
+  /** Clear all parameters */
   void clearParameterValues();
 
   /**
-   * Copy the parameters defined in the provided definitions with null values.
-   * Parameters which already exists are untouched.
+   * Copy the parameters defined in the provided definitions with null values. Parameters which
+   * already exists are untouched.
    *
    * @param definitions
    */
-  void copyParametersFromDefinitions( INamedParameterDefinitions definitions);
+  void copyParametersFromDefinitions(INamedParameterDefinitions definitions);
 }

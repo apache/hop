@@ -21,7 +21,8 @@ under the License.
 
 == Description
 
-The XSD Validator action performs an XSD validation against data in a file or in an input field. XSD is short for link:http://en.wikipedia.org/wiki/XML_Schema_(W3C)[XML Schema] Definition.
+The XSD Validator action performs an XSD validation against data in a file or in an input field.
+XSD is short for link:http://en.wikipedia.org/wiki/XML_Schema_(W3C)[XML Schema] Definition.
 
 As such, there are 2 entities at work here:
 
@@ -32,10 +33,12 @@ See also the XSD Validator action.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |XML File name|The name of the XML file
-|XSD File name|The name of the XSD file 
+|XSD File name|The name of the XSD file
 |===

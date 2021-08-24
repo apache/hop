@@ -19,30 +19,28 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class EnumLoadSaveValidator<E extends Enum<E>> implements IFieldLoadSaveValidator<E> {
 
   private final Enum<E>[] values;
 
-  public EnumLoadSaveValidator( E defaultValue ) {
-    this( defaultValue.getClass() );
+  public EnumLoadSaveValidator(E defaultValue) {
+    this(defaultValue.getClass());
   }
 
-  @SuppressWarnings( { "unchecked", "rawtypes" } )
-  public EnumLoadSaveValidator( Class<? extends Enum> clazz ) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public EnumLoadSaveValidator(Class<? extends Enum> clazz) {
     this.values = clazz.getEnumConstants();
   }
 
-  @SuppressWarnings( "unchecked" )
+  @SuppressWarnings("unchecked")
   @Override
   public E getTestObject() {
-    return (E) values[ new Random().nextInt( values.length ) ];
+    return (E) values[new Random().nextInt(values.length)];
   }
 
   @Override
-  public boolean validateTestObject( E testObject, Object actual ) {
+  public boolean validateTestObject(E testObject, Object actual) {
     return testObject == actual;
   }
 }

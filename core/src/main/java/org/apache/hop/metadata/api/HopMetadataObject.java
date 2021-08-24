@@ -16,17 +16,16 @@ package org.apache.hop.metadata.api;
  * limitations under the License.
  */
 
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * This class annotation signals to Hop Metadata that this object can be serialized.
- * It also provides information on how the object should be instantiated.
+ * This class annotation signals to Hop Metadata that this object can be serialized. It also
+ * provides information on how the object should be instantiated.
  */
-@Retention( RetentionPolicy.RUNTIME )
+@Retention(RetentionPolicy.RUNTIME)
 public @interface HopMetadataObject {
 
-  Class<? extends IHopMetadataObjectFactory> objectFactory() default HopMetadataDefaultObjectFactory.class;
-
+  Class<? extends IHopMetadataObjectFactory> objectFactory() default
+      HopMetadataDefaultObjectFactory.class;
 }

@@ -17,25 +17,19 @@
 
 package org.apache.hop.core.logging;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * Classes annotated with "LoggingPlugin" are automatically recognized and registered as a new logging channel. They are
- * added to the central logging store as listeners.
+ * Classes annotated with "LoggingPlugin" are automatically recognized and registered as a new
+ * logging channel. They are added to the central logging store as listeners.
  *
  * @author matt
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface LoggingPlugin {
-  /**
-   * @return The ID of the logging plug-in
-   */
+  /** @return The ID of the logging plug-in */
   String id();
 
   String classLoaderGroup() default "";

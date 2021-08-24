@@ -32,15 +32,16 @@ For the success condition you can check the number of rows if they are:
 * Smaller than
 * Smaller or equal to
 * Greater than
-* Greater or equal to 
+* Greater or equal to
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Property|Description
 |Custom SQL|Check this option when you want to specify a custom SQL statement in the below field
 |Use variable substitution|Variables in the SQL statements will be substituted.
 |Clear list of result rows|Clears the internal list of result rows before executing.
-|Add rows to result|Adds all rows returned from the SQL statement within the internal list of result rows. This list of result rows can then be used in subsequent workflow actions to loop over or e.g. within a pipeline by the Get rows from result transform.
+|Add rows to result|Adds all rows returned from the SQL statement within the internal list of result rows.
+This list of result rows can then be used in subsequent workflow actions to loop over or e.g. within a pipeline by the Get rows from result transform.
 |===

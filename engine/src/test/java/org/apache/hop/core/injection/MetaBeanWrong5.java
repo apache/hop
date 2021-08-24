@@ -17,13 +17,10 @@
 
 package org.apache.hop.core.injection;
 
-/**
- * Wrong declaration - setter should have only one parameter.
- */
-@InjectionSupported( localizationPrefix = "" )
+/** Wrong declaration - setter should have only one parameter. */
+@InjectionSupported(localizationPrefix = "")
 public class MetaBeanWrong5 {
 
-  @Injection( name = "TEST" )
-  public void setter( int index, int value ) {
-  }
+  @Injection(name = "TEST")
+  public void setter(int index, int value) {}
 }

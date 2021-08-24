@@ -26,10 +26,10 @@ public class HopLoggingEvent {
   private LogLevel level;
 
   public HopLoggingEvent() {
-    this( null, System.currentTimeMillis(), LogLevel.BASIC );
+    this(null, System.currentTimeMillis(), LogLevel.BASIC);
   }
 
-  public HopLoggingEvent( Object message, long timeStamp, LogLevel level ) {
+  public HopLoggingEvent(Object message, long timeStamp, LogLevel level) {
     super();
     this.message = message;
     this.timeStamp = timeStamp;
@@ -40,7 +40,7 @@ public class HopLoggingEvent {
     return message;
   }
 
-  public void setMessage( Object message ) {
+  public void setMessage(Object message) {
     this.message = message;
   }
 
@@ -48,7 +48,7 @@ public class HopLoggingEvent {
     return timeStamp;
   }
 
-  public void setTimeStamp( long timeStamp ) {
+  public void setTimeStamp(long timeStamp) {
     this.timeStamp = timeStamp;
   }
 
@@ -56,8 +56,7 @@ public class HopLoggingEvent {
     return level;
   }
 
-  public void setLevel( LogLevel level ) {
+  public void setLevel(LogLevel level) {
     this.level = level;
   }
-
 }

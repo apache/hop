@@ -48,5 +48,4 @@ public class JaninoData extends BaseTransformData implements ITransformData {
   public JaninoData() {
     super();
   }
-
 }

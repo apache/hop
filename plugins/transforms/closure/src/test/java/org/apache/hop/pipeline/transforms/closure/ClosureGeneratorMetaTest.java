@@ -37,9 +37,9 @@ public class ClosureGeneratorMetaTest {
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     List<String> attributes =
-      Arrays.asList( "rootIdZero", "parentIdFieldName", "childIdFieldName", "distanceFieldName" );
+        Arrays.asList("rootIdZero", "parentIdFieldName", "childIdFieldName", "distanceFieldName");
 
-    loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes );
+    loadSaveTester = new LoadSaveTester<>(testMetaClass, attributes);
   }
 
   @Test

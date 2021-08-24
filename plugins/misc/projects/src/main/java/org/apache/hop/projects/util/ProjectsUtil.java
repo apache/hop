@@ -189,6 +189,7 @@ public class ProjectsUtil {
 
   /**
    * Returns true if given project exists
+   *
    * @param projectName
    * @return
    */
@@ -200,7 +201,7 @@ public class ProjectsUtil {
     List<String> prjs = config.listProjectConfigNames();
     Iterator<String> iPrj = prjs.iterator();
 
-    while(!prjFound && iPrj.hasNext()) {
+    while (!prjFound && iPrj.hasNext()) {
       String p = iPrj.next();
       prjFound = p.equals(projectName);
     }
@@ -225,7 +226,8 @@ public class ProjectsUtil {
           ProjectConfig prjCfg = config.findProjectConfig(prj);
           Project thePrj = prjCfg.loadProject(hopGui.getVariables());
           if (thePrj != null) {
-            if (thePrj.getParentProjectName() != null && thePrj.getParentProjectName().equals(projectName)) {
+            if (thePrj.getParentProjectName() != null
+                && thePrj.getParentProjectName().equals(projectName)) {
               parentProjectReferences.add(prj);
             }
           } else {

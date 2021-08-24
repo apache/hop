@@ -24,16 +24,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class represents a splitter of SQL script into separate statements. It respects the notion of a string
- * literal and comments, such that if a separator appears in a string literal or comment, it is treated as
- * part of the string or comment instead of a separator.
+ * This class represents a splitter of SQL script into separate statements. It respects the notion
+ * of a string literal and comments, such that if a separator appears in a string literal or
+ * comment, it is treated as part of the string or comment instead of a separator.
  *
  * @author Alexander Buloichik
  */
 public class SqlScriptParser {
 
   enum MODE {
-    SQL, LINE_COMMENT, BLOCK_COMMENT, STRING
+    SQL,
+    LINE_COMMENT,
+    BLOCK_COMMENT,
+    STRING
   }
 
   private boolean usingBackslashAsEscapeCharForQuotation;
@@ -41,7 +44,7 @@ public class SqlScriptParser {
   /**
    * @param usingBackslashAsEscapeCharForQuotation use backslash as escape char for quotation (\')
    */
-  public SqlScriptParser( boolean usingBackslashAsEscapeCharForQuotation ) {
+  public SqlScriptParser(boolean usingBackslashAsEscapeCharForQuotation) {
     this.usingBackslashAsEscapeCharForQuotation = usingBackslashAsEscapeCharForQuotation;
   }
 
@@ -51,8 +54,8 @@ public class SqlScriptParser {
    * @param script a string representing the SQL script to parse
    * @return the list of statements
    */
-  public List<String> split( String script ) {
-    if ( script == null ) {
+  public List<String> split(String script) {
+    if (script == null) {
       return Collections.emptyList();
     }
     List<String> result = new ArrayList<>();
@@ -62,20 +65,20 @@ public class SqlScriptParser {
     char currentStringChar = 0;
     int statementStart = 0;
 
-    for ( int i = 0; i < script.length(); i++ ) {
-      char ch = script.charAt( i );
-      char nextCh = i < script.length() - 1 ? script.charAt( i + 1 ) : 0;
-      switch ( mode ) {
+    for (int i = 0; i < script.length(); i++) {
+      char ch = script.charAt(i);
+      char nextCh = i < script.length() - 1 ? script.charAt(i + 1) : 0;
+      switch (mode) {
         case SQL:
-          switch ( ch ) {
+          switch (ch) {
             case '/':
-              if ( nextCh == '*' ) {
+              if (nextCh == '*') {
                 mode = MODE.BLOCK_COMMENT;
                 i = i + 1;
               }
               break;
             case '-':
-              if ( nextCh == '-' ) {
+              if (nextCh == '-') {
                 mode = MODE.LINE_COMMENT;
                 i = i + 1;
               }
@@ -86,35 +89,37 @@ public class SqlScriptParser {
               currentStringChar = ch;
               break;
             case ';':
-              String st = script.substring( statementStart, i );
-              if ( StringUtils.isNotBlank( st ) ) {
-                result.add( st );
+              String st = script.substring(statementStart, i);
+              if (StringUtils.isNotBlank(st)) {
+                result.add(st);
               }
               statementStart = i + 1;
               break;
           }
           break;
         case BLOCK_COMMENT:
-          if ( ch == '*' ) {
-            if ( nextCh == '/' ) {
+          if (ch == '*') {
+            if (nextCh == '/') {
               mode = MODE.SQL;
               i = i + 1;
             }
           }
           break;
         case LINE_COMMENT:
-          if ( ch == '\n' || ch == '\r' ) {
+          if (ch == '\n' || ch == '\r') {
             mode = MODE.SQL;
           }
           break;
         case STRING:
-          if ( ch == '\\' && nextCh == '\\' ) {
+          if (ch == '\\' && nextCh == '\\') {
             /*
              * The user is hard-coding a backslash into the string.
              * Pass the hard-coded backslash through, and skip over the real backslash on the next loop
              */
             i = i + 1;
-          } else if ( ch == '\\' && nextCh == currentStringChar && usingBackslashAsEscapeCharForQuotation ) {
+          } else if (ch == '\\'
+              && nextCh == currentStringChar
+              && usingBackslashAsEscapeCharForQuotation) {
             /*
              * The user is hard-coding a quote character into the string.
              * Pass the hard-coded quote character through, and skip over the quote on next loop
@@ -130,16 +135,16 @@ public class SqlScriptParser {
              *
              */
             i = i + 1;
-          } else if ( ch == currentStringChar ) {
+          } else if (ch == currentStringChar) {
             mode = MODE.SQL;
           }
           break;
       }
     }
-    if ( statementStart < script.length() ) {
-      String st = script.substring( statementStart );
-      if ( StringUtils.isNotBlank( st ) ) {
-        result.add( st );
+    if (statementStart < script.length()) {
+      String st = script.substring(statementStart);
+      if (StringUtils.isNotBlank(st)) {
+        result.add(st);
       }
     }
     return result;
@@ -151,8 +156,8 @@ public class SqlScriptParser {
    * @param script a string representing the SQL script to parse
    * @return script without comments
    */
-  public String removeComments( String script ) {
-    if ( script == null ) {
+  public String removeComments(String script) {
+    if (script == null) {
       return null;
     }
 
@@ -162,22 +167,22 @@ public class SqlScriptParser {
 
     char currentStringChar = 0;
 
-    for ( int i = 0; i < script.length(); i++ ) {
-      char ch = script.charAt( i );
-      char nextCh = i < script.length() - 1 ? script.charAt( i + 1 ) : 0;
-      char nextPlusOneCh = i < script.length() - 2 ? script.charAt( i + 2 ) : 0;
-      switch ( mode ) {
+    for (int i = 0; i < script.length(); i++) {
+      char ch = script.charAt(i);
+      char nextCh = i < script.length() - 1 ? script.charAt(i + 1) : 0;
+      char nextPlusOneCh = i < script.length() - 2 ? script.charAt(i + 2) : 0;
+      switch (mode) {
         case SQL:
-          switch ( ch ) {
+          switch (ch) {
             case '/':
-              if ( nextCh == '*' && nextPlusOneCh != '+' ) {
+              if (nextCh == '*' && nextPlusOneCh != '+') {
                 mode = MODE.BLOCK_COMMENT;
                 i = i + 1;
                 ch = 0;
               }
               break;
             case '-':
-              if ( nextCh == '-' ) {
+              if (nextCh == '-') {
                 mode = MODE.LINE_COMMENT;
                 i = i + 1;
                 ch = 0;
@@ -191,8 +196,8 @@ public class SqlScriptParser {
           }
           break;
         case BLOCK_COMMENT:
-          if ( ch == '*' ) {
-            if ( nextCh == '/' ) {
+          if (ch == '*') {
+            if (nextCh == '/') {
               mode = MODE.SQL;
               i = i + 1;
             }
@@ -200,14 +205,14 @@ public class SqlScriptParser {
           ch = 0;
           break;
         case LINE_COMMENT:
-          if ( ch == '\n' || ch == '\r' ) {
+          if (ch == '\n' || ch == '\r') {
             mode = MODE.SQL;
           } else {
             ch = 0;
           }
           break;
         case STRING:
-          if ( ch == '\\' && nextCh == currentStringChar && usingBackslashAsEscapeCharForQuotation ) {
+          if (ch == '\\' && nextCh == currentStringChar && usingBackslashAsEscapeCharForQuotation) {
             /*
              * The user is hard-coding a quote character into the string.
              * Pass the hard-coded quote character through, and skip over the quote on next loop
@@ -223,17 +228,17 @@ public class SqlScriptParser {
              *
              */
 
-            result.append( ch );
-            result.append( nextCh );
+            result.append(ch);
+            result.append(nextCh);
             ch = 0;
             i++;
-          } else if ( ch == currentStringChar ) {
+          } else if (ch == currentStringChar) {
             mode = MODE.SQL;
           }
           break;
       }
-      if ( ch != 0 ) {
-        result.append( ch );
+      if (ch != 0) {
+        result.append(ch);
       }
     }
 

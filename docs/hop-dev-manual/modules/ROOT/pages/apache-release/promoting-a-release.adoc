@@ -35,6 +35,7 @@ svn update
 ----
 
 Checkout the release area
+
 [source,bash]
 ----
 svn co https://dist.apache.org/repos/dist/release/incubator/hop/ hop_public_release
@@ -51,6 +52,7 @@ cp ../hop_release/apache-hop-X.XX-incubating-rcX/* X.XX
 ----
 
 Remove the rc from the files and fix the link in the sha512 file
+
 [source,bash]
 ----
 

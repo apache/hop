@@ -27,79 +27,79 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IHopServerPlugin.class )
-@PluginAnnotationType( HopServerServlet.class )
+@PluginMainClassType(IHopServerPlugin.class)
+@PluginAnnotationType(HopServerServlet.class)
 public class HopServerPluginType extends BasePluginType<HopServerServlet> {
 
   private static HopServerPluginType hopServerPluginType;
 
   private HopServerPluginType() {
-    super( HopServerServlet.class, "HOP_SERVER_SERVLET", "HopServer Servlet" );
+    super(HopServerServlet.class, "HOP_SERVER_SERVLET", "HopServer Servlet");
   }
 
   public static HopServerPluginType getInstance() {
-    if ( hopServerPluginType == null ) {
+    if (hopServerPluginType == null) {
       hopServerPluginType = new HopServerPluginType();
     }
     return hopServerPluginType;
   }
 
   @Override
-  protected String extractCategory( HopServerServlet annotation ) {
+  protected String extractCategory(HopServerServlet annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( HopServerServlet annotation ) {
+  protected String extractDesc(HopServerServlet annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( HopServerServlet annotation ) {
+  protected String extractID(HopServerServlet annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( HopServerServlet annotation ) {
+  protected String extractName(HopServerServlet annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( HopServerServlet annotation ) {
+  protected String extractImageFile(HopServerServlet annotation) {
     return "";
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( HopServerServlet annotation ) {
+  protected boolean extractSeparateClassLoader(HopServerServlet annotation) {
     return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, HopServerServlet annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, HopServerServlet annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( HopServerServlet annotation ) {
+  protected String extractDocumentationUrl(HopServerServlet annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( HopServerServlet annotation ) {
+  protected String extractCasesUrl(HopServerServlet annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( HopServerServlet annotation ) {
+  protected String extractForumUrl(HopServerServlet annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( HopServerServlet annotation ) {
+  protected String extractSuggestion(HopServerServlet annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( HopServerServlet annotation ) {
+  protected String extractClassLoaderGroup(HopServerServlet annotation) {
     return annotation.classLoaderGroup();
   }
 }

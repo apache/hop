@@ -32,7 +32,6 @@ The goal is not to retrieve data but to execute various statements like creating
 
 == Configuration options
 
-
 |===
 |Option |Description
 
@@ -40,7 +39,8 @@ The goal is not to retrieve data but to execute various statements like creating
 |The name of the connection on which you want to execute the cypher statements.
 
 |Script
-|The script with cypher commands seperated by a semi-colon (;) on a new line.  For examples see below.
+|The script with cypher commands seperated by a semi-colon (;) on a new line.
+For examples see below.
 
 |Replace variables
 |Check this option if you want to replace variables in the format `{openvar}VARIABLE_NAME{closevar}` in the script prior to execution.

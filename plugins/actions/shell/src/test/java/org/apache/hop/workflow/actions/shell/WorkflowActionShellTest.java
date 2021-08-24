@@ -28,31 +28,25 @@ import static org.mockito.Mockito.verify;
 
 public class WorkflowActionShellTest {
 
-  @Mock
-  private ActionShell jobEntryShellMock;
+  @Mock private ActionShell jobEntryShellMock;
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks( this );
+    MockitoAnnotations.initMocks(this);
   }
 
-  /**
-   * tests if Windows's EOL characters is replaced.
-   *
-   */
+  /** tests if Windows's EOL characters is replaced. */
   @Test
   public void replaceWinEOLtest() {
     // string is shell content
-    String content = "#!/bin/bash\r\n"
-      + "\r\n"
-      + "echo `date` > /home/project-hop/test_output/output.txt";
-    doCallRealMethod().when( jobEntryShellMock ).replaceWinEOL( anyString() );
-    content = jobEntryShellMock.replaceWinEOL( content );
-    verify( jobEntryShellMock ).replaceWinEOL( anyString() );
+    String content =
+        "#!/bin/bash\r\n" + "\r\n" + "echo `date` > /home/project-hop/test_output/output.txt";
+    doCallRealMethod().when(jobEntryShellMock).replaceWinEOL(anyString());
+    content = jobEntryShellMock.replaceWinEOL(content);
+    verify(jobEntryShellMock).replaceWinEOL(anyString());
     String assertionFailedMessage = "Windows EOL character is detected";
-    // shouldn't contains CR and CR+LF characters  
-    Assert.assertFalse( assertionFailedMessage, content.contains( "\r\n" ) );
-    Assert.assertFalse( assertionFailedMessage, content.contains( "\r" ) );
+    // shouldn't contains CR and CR+LF characters
+    Assert.assertFalse(assertionFailedMessage, content.contains("\r\n"));
+    Assert.assertFalse(assertionFailedMessage, content.contains("\r"));
   }
-
 }

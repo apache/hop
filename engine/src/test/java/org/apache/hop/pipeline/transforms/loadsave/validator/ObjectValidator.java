@@ -33,65 +33,76 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
   private final Class<T> clazz;
   private final List<String> fieldNames;
 
-  public ObjectValidator( IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
-                          List<String> fieldNames, Map<String, String> getterMap, Map<String, String> setterMap ) {
+  public ObjectValidator(
+      IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory,
+      Class<T> clazz,
+      List<String> fieldNames,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap) {
     this.fieldLoadSaveValidatorFactory = fieldLoadSaveValidatorFactory;
-    manipulator = new JavaBeanManipulator<>( clazz, fieldNames, getterMap, setterMap );
+    manipulator = new JavaBeanManipulator<>(clazz, fieldNames, getterMap, setterMap);
     this.clazz = clazz;
-    this.fieldNames = new ArrayList<>( fieldNames );
+    this.fieldNames = new ArrayList<>(fieldNames);
   }
 
-  public ObjectValidator( IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
-                          List<String> fieldNames ) {
-    this( fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<>(),
-      new HashMap<>() );
+  public ObjectValidator(
+      IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory,
+      Class<T> clazz,
+      List<String> fieldNames) {
+    this(fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<>(), new HashMap<>());
   }
 
-  @SuppressWarnings( { "rawtypes", "unchecked" } )
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public T getTestObject() {
     try {
       T object = clazz.newInstance();
-      for ( String attribute : fieldNames ) {
-        ISetter setter = manipulator.getSetter( attribute );
-        setter.set( object, fieldLoadSaveValidatorFactory.createValidator( manipulator.getGetter( attribute ) )
-          .getTestObject() );
+      for (String attribute : fieldNames) {
+        ISetter setter = manipulator.getSetter(attribute);
+        setter.set(
+            object,
+            fieldLoadSaveValidatorFactory
+                .createValidator(manipulator.getGetter(attribute))
+                .getTestObject());
       }
       return object;
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Unable to instantiate " + clazz, e );
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to instantiate " + clazz, e);
     }
   }
 
   @Override
-  public boolean validateTestObject( T testObject, Object actual ) {
-    if ( actual == null || !( clazz.isAssignableFrom( actual.getClass() ) ) ) {
+  public boolean validateTestObject(T testObject, Object actual) {
+    if (actual == null || !(clazz.isAssignableFrom(actual.getClass()))) {
       return false;
     }
     try {
-      for ( String attribute : fieldNames ) {
-        IGetter<?> getter = manipulator.getGetter( attribute );
-        IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator( getter );
+      for (String attribute : fieldNames) {
+        IGetter<?> getter = manipulator.getGetter(attribute);
+        IFieldLoadSaveValidator<?> validator =
+            fieldLoadSaveValidatorFactory.createValidator(getter);
         Method validatorMethod = null;
-        for ( Method method : validator.getClass().getMethods() ) {
-          if ( "validateTestObject".equals( method.getName() ) ) {
+        for (Method method : validator.getClass().getMethods()) {
+          if ("validateTestObject".equals(method.getName())) {
             Class<?>[] types = method.getParameterTypes();
-            if ( types.length == 2 ) {
+            if (types.length == 2) {
               validatorMethod = method;
               break;
             }
           }
         }
-        if ( validatorMethod == null ) {
-          throw new RuntimeException( "Unable to find validator for " + attribute + " " + getter.getGenericType() );
+        if (validatorMethod == null) {
+          throw new RuntimeException(
+              "Unable to find validator for " + attribute + " " + getter.getGenericType());
         }
-        if ( !(Boolean) validatorMethod.invoke( validator, getter.get( testObject ), getter.get( actual ) ) ) {
+        if (!(Boolean)
+            validatorMethod.invoke(validator, getter.get(testObject), getter.get(actual))) {
           return false;
         }
       }
       return true;
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Unable to instantiate " + clazz, e );
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to instantiate " + clazz, e);
     }
   }
 }

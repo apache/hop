@@ -27,11 +27,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormatSymbols;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;
@@ -136,8 +132,7 @@ public class GetFileNamesData extends BaseTransformData implements ITransformDat
     indexOfExcludeWildcardField = -1;
   }
 
-  public void setDateFormatLenient( boolean lenient ) {
-    daf.setLenient( lenient );
+  public void setDateFormatLenient(boolean lenient) {
+    daf.setLenient(lenient);
   }
-
 }

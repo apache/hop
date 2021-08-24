@@ -28,80 +28,80 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IWorkflowDialogPlugin.class )
-@PluginAnnotationType( WorkflowDialogPlugin.class )
+@PluginMainClassType(IWorkflowDialogPlugin.class)
+@PluginAnnotationType(WorkflowDialogPlugin.class)
 public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugin> {
   private static final Class<?> PKG = WorkflowDialogPluginType.class; // For Translator
 
   private static WorkflowDialogPluginType pluginType;
 
   private WorkflowDialogPluginType() {
-    super( WorkflowDialogPlugin.class, "WORKFLOW_DIALOG", "Workflow dialog" );
+    super(WorkflowDialogPlugin.class, "WORKFLOW_DIALOG", "Workflow dialog");
   }
 
   public static WorkflowDialogPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new WorkflowDialogPluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractCategory( WorkflowDialogPlugin annotation ) {
+  protected String extractCategory(WorkflowDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractDesc( WorkflowDialogPlugin annotation ) {
-    return ( (WorkflowDialogPlugin) annotation ).description();
+  protected String extractDesc(WorkflowDialogPlugin annotation) {
+    return ((WorkflowDialogPlugin) annotation).description();
   }
 
   @Override
-  protected String extractID( WorkflowDialogPlugin annotation ) {
-    return ( (WorkflowDialogPlugin) annotation ).id();
+  protected String extractID(WorkflowDialogPlugin annotation) {
+    return ((WorkflowDialogPlugin) annotation).id();
   }
 
   @Override
-  protected String extractName( WorkflowDialogPlugin annotation ) {
-    return ( (WorkflowDialogPlugin) annotation ).name();
+  protected String extractName(WorkflowDialogPlugin annotation) {
+    return ((WorkflowDialogPlugin) annotation).name();
   }
 
   @Override
-  protected String extractImageFile( WorkflowDialogPlugin annotation ) {
+  protected String extractImageFile(WorkflowDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( WorkflowDialogPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(WorkflowDialogPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, WorkflowDialogPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, WorkflowDialogPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( WorkflowDialogPlugin annotation ) {
+  protected String extractDocumentationUrl(WorkflowDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( WorkflowDialogPlugin annotation ) {
+  protected String extractCasesUrl(WorkflowDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( WorkflowDialogPlugin annotation ) {
+  protected String extractForumUrl(WorkflowDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( WorkflowDialogPlugin annotation ) {
+  protected String extractSuggestion(WorkflowDialogPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( WorkflowDialogPlugin annotation ) {
-    return ( (WorkflowDialogPlugin) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup(WorkflowDialogPlugin annotation) {
+    return ((WorkflowDialogPlugin) annotation).classLoaderGroup();
   }
 }

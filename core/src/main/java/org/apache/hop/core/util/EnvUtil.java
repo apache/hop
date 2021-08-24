@@ -17,75 +17,71 @@
 
 package org.apache.hop.core.util;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
+import java.util.*;
 
 public class EnvUtil {
   private static Properties env = null;
 
-  private EnvUtil() {
-  }
+  private EnvUtil() {}
 
   /**
    * This method is written especially for weird JVM's like
    *
    * @param key The key, the name of the environment variable to return
    * @param def The default value to return in case the key can't be found
-   * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   * variable is not defined and the default value is returned.
+   * @return The value of a System environment variable in the java virtual machine. If the key is
+   *     not present, the variable is not defined and the default value is returned.
    */
-  public static final String getSystemProperty( String key, String def ) {
-    return System.getProperty( key, def );
+  public static final String getSystemProperty(String key, String def) {
+    return System.getProperty(key, def);
   }
 
   /**
    * @param key The key, the name of the environment variable to return
-   * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   * variable is not defined and null returned.
+   * @return The value of a System environment variable in the java virtual machine. If the key is
+   *     not present, the variable is not defined and null returned.
    */
-  public static final String getSystemProperty( String key ) {
-    return getSystemProperty( key, null );
+  public static final String getSystemProperty(String key) {
+    return getSystemProperty(key, null);
   }
 
   /**
    * @param key The key, the name of the environment variable to clear
-   * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   * variable is not defined and null returned.
+   * @return The value of a System environment variable in the java virtual machine. If the key is
+   *     not present, the variable is not defined and null returned.
    */
-  public static final String clearSystemProperty( String key ) {
-    return System.clearProperty( key );
+  public static final String clearSystemProperty(String key) {
+    return System.clearProperty(key);
   }
 
   /**
    * Returns an available java.util.Locale object for the given localeCode.
-   * <p>
-   * The localeCode code can be case insensitive, if it is available the method will find it and return it.
+   *
+   * <p>The localeCode code can be case insensitive, if it is available the method will find it and
+   * return it.
    *
    * @param localeCode
    * @return java.util.Locale.
    */
-  public static Locale createLocale( String localeCode ) {
-    if ( Utils.isEmpty( localeCode ) ) {
+  public static Locale createLocale(String localeCode) {
+    if (Utils.isEmpty(localeCode)) {
       return null;
     }
-    StringTokenizer parser = new StringTokenizer( localeCode, "_" );
-    if ( parser.countTokens() == 2 ) {
-      return new Locale( parser.nextToken(), parser.nextToken() );
+    StringTokenizer parser = new StringTokenizer(localeCode, "_");
+    if (parser.countTokens() == 2) {
+      return new Locale(parser.nextToken(), parser.nextToken());
     }
-    if ( parser.countTokens() == 3 ) {
-      return new Locale( parser.nextToken(), parser.nextToken(), parser.nextToken() );
+    if (parser.countTokens() == 3) {
+      return new Locale(parser.nextToken(), parser.nextToken(), parser.nextToken());
     }
-    return new Locale( localeCode );
+    return new Locale(localeCode);
   }
 
-  public static TimeZone createTimeZone( String timeZoneId ) {
+  public static TimeZone createTimeZone(String timeZoneId) {
 
     TimeZone resultTimeZone = null;
-    if ( !Utils.isEmpty( timeZoneId ) ) {
-      return TimeZone.getTimeZone( timeZoneId );
+    if (!Utils.isEmpty(timeZoneId)) {
+      return TimeZone.getTimeZone(timeZoneId);
     } else {
       resultTimeZone = TimeZone.getDefault();
     }
@@ -94,17 +90,17 @@ public class EnvUtil {
 
   public static String[] getTimeZones() {
     String[] timeZones = TimeZone.getAvailableIDs();
-    Arrays.sort( timeZones );
+    Arrays.sort(timeZones);
     return timeZones;
   }
 
   public static String[] getLocaleList() {
     Locale[] locales = Locale.getAvailableLocales();
-    String[] strings = new String[ locales.length ];
-    for ( int i = 0; i < strings.length; i++ ) {
-      strings[ i ] = locales[ i ].toString();
+    String[] strings = new String[locales.length];
+    for (int i = 0; i < strings.length; i++) {
+      strings[i] = locales[i].toString();
     }
-    Arrays.sort( strings );
+    Arrays.sort(strings);
     return strings;
   }
 }

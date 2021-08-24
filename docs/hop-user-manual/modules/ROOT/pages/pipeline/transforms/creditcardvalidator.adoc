@@ -23,17 +23,17 @@ under the License.
 
 The Credit card validator transform will help you check the following:
 
-* The validity of a credit card number. This uses a LUHN10 (MOD-10) algorithm.
+* The validity of a credit card number.
+This uses a LUHN10 (MOD-10) algorithm.
 * The credit card vendor that handles the number: VISA, MasterCard, Diners Club, EnRoute, American Express (AMEX),...
-
 
 == Options
 
-
 * transform name: the transform name, unique in a pipeline
 * Credit card field: the name of the input field that will contain the credit card number during execution
-* Get only digits? : Enable this option if you want to strip all non-numeric characters from the (String) input field
+* Get only digits?
+: Enable this option if you want to strip all non-numeric characters from the (String) input field
 * Output Fields
-  ** Result fieldname: the name of the (Boolean) output field indicating the validity of the number
-  ** Credit card type field: the name of the output field that will hold the credit card type (vendor)
-  ** Not valid message: the name of the output field that will hold the error message.
+** Result fieldname: the name of the (Boolean) output field indicating the validity of the number
+** Credit card type field: the name of the output field that will hold the credit card type (vendor)
+** Not valid message: the name of the output field that will hold the error message.

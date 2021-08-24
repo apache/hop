@@ -17,11 +17,7 @@
 
 package org.apache.hop.mongo;
 
-import com.mongodb.DBObject;
-import com.mongodb.ReadPreference;
-import com.mongodb.Tag;
-import com.mongodb.TagSet;
-import com.mongodb.TaggableReadPreference;
+import com.mongodb.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

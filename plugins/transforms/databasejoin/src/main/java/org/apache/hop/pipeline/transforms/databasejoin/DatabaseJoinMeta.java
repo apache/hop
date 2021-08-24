@@ -23,11 +23,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -262,7 +258,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       return;
     }
 
-    Database db = new Database(loggingObject, variables, databaseMeta );
+    Database db = new Database(loggingObject, variables, databaseMeta);
     databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
     // Which fields are parameters?
@@ -353,7 +349,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {
@@ -495,7 +491,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
 
     IRowMeta fields = null;
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
       try {

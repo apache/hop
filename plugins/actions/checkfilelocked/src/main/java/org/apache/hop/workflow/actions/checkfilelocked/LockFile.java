@@ -23,24 +23,21 @@ import org.apache.hop.core.vfs.HopVfs;
 
 public class LockFile {
 
-  /**
-   * name of file to check
-   **/
+  /** name of file to check */
   private String filename;
-  /**
-   * lock indicator
-   **/
+  /** lock indicator */
   private boolean locked;
 
   /**
-   * Checks if a file is locked In order to check is a file is locked we will use a dummy renaming exercise
+   * Checks if a file is locked In order to check is a file is locked we will use a dummy renaming
+   * exercise
    *
    * @param filename
    * @throws HopException
    */
-  public LockFile( String filename ) throws HopException {
-    setFilename( filename );
-    setLocked( false );
+  public LockFile(String filename) throws HopException {
+    setFilename(filename);
+    setLocked(false);
 
     // In order to check is a file is locked
     // we will use a dummy renaming exercise
@@ -49,31 +46,32 @@ public class LockFile {
 
     try {
 
-      file = HopVfs.getFileObject( filename );
-      if ( file.exists() ) {
-        dummyfile = HopVfs.getFileObject( filename );
+      file = HopVfs.getFileObject(filename);
+      if (file.exists()) {
+        dummyfile = HopVfs.getFileObject(filename);
         // move file to itself!
-        file.moveTo( dummyfile );
+        file.moveTo(dummyfile);
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // We got an exception
       // The is locked by another process
-      setLocked( true );
+      setLocked(true);
     } finally {
-      if ( file != null ) {
+      if (file != null) {
         try {
           file.close();
-        } catch ( Exception e ) { /* Ignore */
+        } catch (Exception e) {
+          /* Ignore */
         }
       }
-      if ( dummyfile != null ) {
+      if (dummyfile != null) {
         try {
           file.close();
-        } catch ( Exception e ) { /* Ignore */
+        } catch (Exception e) {
+          /* Ignore */
         }
       }
     }
-
   }
 
   /**
@@ -90,7 +88,7 @@ public class LockFile {
    *
    * @param filename
    */
-  private void setFilename( String filename ) {
+  private void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -108,7 +106,7 @@ public class LockFile {
    *
    * @param lock
    */
-  private void setLocked( boolean lock ) {
+  private void setLocked(boolean lock) {
     this.locked = lock;
   }
 }

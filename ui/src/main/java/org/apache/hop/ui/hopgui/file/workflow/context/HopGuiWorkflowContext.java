@@ -26,10 +26,10 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.workflow.WorkflowMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,58 +44,71 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
   private Point click;
   private GuiActionLambdaBuilder<HopGuiWorkflowContext> lambdaBuilder;
 
-  public HopGuiWorkflowContext( WorkflowMeta workflowMeta, HopGuiWorkflowGraph workflowGraph, Point click ) {
+  public HopGuiWorkflowContext(
+      WorkflowMeta workflowMeta, HopGuiWorkflowGraph workflowGraph, Point click) {
     this.workflowMeta = workflowMeta;
     this.workflowGraph = workflowGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
 
-
-  @Override public String getContextId() {
+  @Override
+  public String getContextId() {
     return CONTEXT_ID;
   }
 
   /**
-   * Create a list of supported actions on a workflow.
-   * We'll add the creation of every possible action as well as the modification of the workflow itself from the annotations.
+   * Create a list of supported actions on a workflow. We'll add the creation of every possible
+   * action as well as the modification of the workflow itself from the annotations.
    *
    * @return The list of supported actions
    */
-  @Override public List<GuiAction> getSupportedActions() {
+  @Override
+  public List<GuiAction> getSupportedActions() {
     List<GuiAction> guiActions = new ArrayList<>();
 
     // Get the actions from the plugins...
     //
-    List<GuiAction> pluginActions = getPluginActions( true );
-    if ( pluginActions != null ) {
-      for ( GuiAction pluginAction : pluginActions ) {
-        guiActions.add( lambdaBuilder.createLambda( pluginAction, this, workflowGraph ) );
+    List<GuiAction> pluginActions = getPluginActions(true);
+    if (pluginActions != null) {
+      for (GuiAction pluginAction : pluginActions) {
+        guiActions.add(lambdaBuilder.createLambda(pluginAction, this, workflowGraph));
       }
     }
 
     // Also add all the entry creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> actionPlugins = registry.getPlugins( ActionPluginType.class );
-    for ( IPlugin actionPlugin : actionPlugins ) {
-     
-        GuiAction createActionGuiAction =
-          new GuiAction( "workflow-graph-create-workflow-action-" + actionPlugin.getIds()[ 0 ], GuiActionType.Create, actionPlugin.getName(), actionPlugin.getDescription(), actionPlugin.getImageFile(),
-            (shiftClicked, controlClicked, t) -> {
-              workflowGraph.workflowActionDelegate.newAction( workflowMeta, actionPlugin.getIds()[ 0 ], actionPlugin.getName(), controlClicked, click );
-            }
-          );
-        createActionGuiAction.getKeywords().addAll( Arrays.asList(actionPlugin.getKeywords()));
-        createActionGuiAction.setCategory( actionPlugin.getCategory() );
-        createActionGuiAction.setCategoryOrder( "9999_"+actionPlugin.getCategory() ); // sort alphabetically
+    List<IPlugin> actionPlugins = registry.getPlugins(ActionPluginType.class);
+    for (IPlugin actionPlugin : actionPlugins) {
+
+      GuiAction createActionGuiAction =
+          new GuiAction(
+              "workflow-graph-create-workflow-action-" + actionPlugin.getIds()[0],
+              GuiActionType.Create,
+              actionPlugin.getName(),
+              actionPlugin.getDescription(),
+              actionPlugin.getImageFile(),
+              (shiftClicked, controlClicked, t) -> {
+                workflowGraph.workflowActionDelegate.newAction(
+                    workflowMeta,
+                    actionPlugin.getIds()[0],
+                    actionPlugin.getName(),
+                    controlClicked,
+                    click);
+              });
+      createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getKeywords()));
+      createActionGuiAction.setCategory(actionPlugin.getCategory());
+      createActionGuiAction.setCategoryOrder(
+          "9999_" + actionPlugin.getCategory()); // sort alphabetically
       try {
-        createActionGuiAction.setClassLoader( registry.getClassLoader( actionPlugin ) );
-      } catch ( HopPluginException e ) {
-        LogChannel.UI.logError( "Unable to get classloader for action plugin " + actionPlugin.getIds()[ 0 ], e );
+        createActionGuiAction.setClassLoader(registry.getClassLoader(actionPlugin));
+      } catch (HopPluginException e) {
+        LogChannel.UI.logError(
+            "Unable to get classloader for action plugin " + actionPlugin.getIds()[0], e);
       }
-      createActionGuiAction.getKeywords().add( actionPlugin.getCategory() );
-      guiActions.add( createActionGuiAction );
+      createActionGuiAction.getKeywords().add(actionPlugin.getCategory());
+      guiActions.add(createActionGuiAction);
     }
 
     return guiActions;
@@ -110,10 +123,8 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return workflowMeta;
   }
 
-  /**
-   * @param workflowMeta The workflowMeta to set
-   */
-  public void setWorkflowMeta( WorkflowMeta workflowMeta ) {
+  /** @param workflowMeta The workflowMeta to set */
+  public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
   }
 
@@ -126,10 +137,8 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return workflowGraph;
   }
 
-  /**
-   * @param workflowGraph The workflowGraph to set
-   */
-  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
+  /** @param workflowGraph The workflowGraph to set */
+  public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
 
@@ -142,10 +151,8 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return click;
   }
 
-  /**
-   * @param click The click to set
-   */
-  public void setClick( Point click ) {
+  /** @param click The click to set */
+  public void setClick(Point click) {
     this.click = click;
   }
 
@@ -158,10 +165,8 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return lambdaBuilder;
   }
 
-  /**
-   * @param lambdaBuilder The lambdaBuilder to set
-   */
-  public void setLambdaBuilder( GuiActionLambdaBuilder<HopGuiWorkflowContext> lambdaBuilder ) {
+  /** @param lambdaBuilder The lambdaBuilder to set */
+  public void setLambdaBuilder(GuiActionLambdaBuilder<HopGuiWorkflowContext> lambdaBuilder) {
     this.lambdaBuilder = lambdaBuilder;
   }
 }

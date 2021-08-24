@@ -36,41 +36,50 @@ public class LoginContextInvocationHandler<T> implements InvocationHandler {
   private final LoginContext loginContext;
   private final Set<Class<?>> interfacesToDelegate;
 
-  public LoginContextInvocationHandler( T delegate, LoginContext loginContext ) {
-    this( delegate, loginContext, new HashSet<>() );
+  public LoginContextInvocationHandler(T delegate, LoginContext loginContext) {
+    this(delegate, loginContext, new HashSet<>());
   }
 
-  public LoginContextInvocationHandler( T delegate, LoginContext loginContext, Set<Class<?>> interfacesToDelegate ) {
+  public LoginContextInvocationHandler(
+      T delegate, LoginContext loginContext, Set<Class<?>> interfacesToDelegate) {
     this.delegate = delegate;
     this.loginContext = loginContext;
     this.interfacesToDelegate = interfacesToDelegate;
   }
 
-  @SuppressWarnings( "unchecked" )
-  public static <T> T forObject( T delegate, LoginContext loginContext, Set<Class<?>> interfacesToDelegate ) {
-    return (T) Proxy.newProxyInstance( delegate.getClass().getClassLoader(), ( (List<Class<?>>) ClassUtils
-        .getAllInterfaces( delegate.getClass() ) ).toArray( new Class<?>[] {} ),
-      new LoginContextInvocationHandler<Object>( delegate, loginContext, interfacesToDelegate ) );
+  @SuppressWarnings("unchecked")
+  public static <T> T forObject(
+      T delegate, LoginContext loginContext, Set<Class<?>> interfacesToDelegate) {
+    return (T)
+        Proxy.newProxyInstance(
+            delegate.getClass().getClassLoader(),
+            ((List<Class<?>>) ClassUtils.getAllInterfaces(delegate.getClass()))
+                .toArray(new Class<?>[] {}),
+            new LoginContextInvocationHandler<Object>(
+                delegate, loginContext, interfacesToDelegate));
   }
 
   @Override
-  public Object invoke( Object proxy, final Method method, final Object[] args ) throws Throwable {
+  public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
     try {
-      return Subject.doAs( loginContext.getSubject(), (PrivilegedExceptionAction<Object>) () -> {
-        Object result = method.invoke( delegate, args );
-        if ( result != null ) {
-          for ( Class<?> iface : result.getClass().getInterfaces() ) {
-            if ( interfacesToDelegate.contains( iface ) ) {
-              result = forObject( result, loginContext, interfacesToDelegate );
-              break;
-            }
-          }
-        }
-        return result;
-      } );
-    } catch ( PrivilegedActionException e ) {
-      if ( e.getCause() instanceof InvocationTargetException ) {
-        throw ( (InvocationTargetException) e.getCause() ).getCause();
+      return Subject.doAs(
+          loginContext.getSubject(),
+          (PrivilegedExceptionAction<Object>)
+              () -> {
+                Object result = method.invoke(delegate, args);
+                if (result != null) {
+                  for (Class<?> iface : result.getClass().getInterfaces()) {
+                    if (interfacesToDelegate.contains(iface)) {
+                      result = forObject(result, loginContext, interfacesToDelegate);
+                      break;
+                    }
+                  }
+                }
+                return result;
+              });
+    } catch (PrivilegedActionException e) {
+      if (e.getCause() instanceof InvocationTargetException) {
+        throw ((InvocationTargetException) e.getCause()).getCause();
       }
       throw e;
     }

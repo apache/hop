@@ -35,77 +35,90 @@ import java.util.List;
  * @author Matt
  * @since 4-aug-2003
  */
-public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData> implements ITransform<GetVariableMeta, GetVariableData> {
+public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
+    implements ITransform<GetVariableMeta, GetVariableData> {
 
-  public GetVariable( TransformMeta transformMeta, GetVariableMeta meta, GetVariableData data, int copyNr, PipelineMeta pipelineMeta,
-                      Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public GetVariable(
+      TransformMeta transformMeta,
+      GetVariableMeta meta,
+      GetVariableData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
     Object[] rowData;
 
-    if ( data.readsRows ) {
+    if (data.readsRows) {
       rowData = getRow();
-      if ( rowData == null ) {
+      if (rowData == null) {
         setOutputDone();
         return false;
       }
     } else {
-      rowData = RowDataUtil.allocateRowData( 0 );
+      rowData = RowDataUtil.allocateRowData(0);
       incrementLinesRead();
     }
 
     // initialize
-    if ( first && rowData != null ) {
+    if (first && rowData != null) {
       first = false;
 
       // Make output meta data
       //
-      if ( data.readsRows ) {
+      if (data.readsRows) {
         data.inputRowMeta = getInputRowMeta();
       } else {
         data.inputRowMeta = new RowMeta();
       }
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Create a copy of the output row metadata to do the data conversion...
       //
-      data.conversionMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
+      data.conversionMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
 
       // Add the variables to the row...
       //
-      // Keep the Object[] for speed. Although this transform will always be used in "small" amounts, there's always going to
+      // Keep the Object[] for speed. Although this transform will always be used in "small"
+      // amounts, there's always going to
       // be those cases where performance is required.
       //
       int fieldsLength = meta.getFieldDefinitions().length;
-      data.extraData = new Object[ fieldsLength ];
-      for ( int i = 0; i < fieldsLength; i++ ) {
-        String newValue = resolve( meta.getFieldDefinitions()[ i ].getVariableString() );
-        if ( log.isDetailed() ) {
-          logDetailed( "field [" + meta.getFieldDefinitions()[ i ].getFieldName() + "] has value [" + newValue + "]" );
+      data.extraData = new Object[fieldsLength];
+      for (int i = 0; i < fieldsLength; i++) {
+        String newValue = resolve(meta.getFieldDefinitions()[i].getVariableString());
+        if (log.isDetailed()) {
+          logDetailed(
+              "field ["
+                  + meta.getFieldDefinitions()[i].getFieldName()
+                  + "] has value ["
+                  + newValue
+                  + "]");
         }
 
         // Convert the data to the desired data type...
         //
-        IValueMeta targetMeta = data.outputRowMeta.getValueMeta( data.inputRowMeta.size() + i );
-        IValueMeta sourceMeta = data.conversionMeta.getValueMeta( data.inputRowMeta.size() + i ); // String type
+        IValueMeta targetMeta = data.outputRowMeta.getValueMeta(data.inputRowMeta.size() + i);
+        IValueMeta sourceMeta =
+            data.conversionMeta.getValueMeta(data.inputRowMeta.size() + i); // String type
         // +
         // conversion
         // masks,
         // symbols,
         // trim type,
         // etc
-        data.extraData[ i ] = targetMeta.convertData( sourceMeta, newValue );
+        data.extraData[i] = targetMeta.convertData(sourceMeta, newValue);
       }
     }
 
-    rowData = RowDataUtil.addRowData( rowData, data.inputRowMeta.size(), data.extraData );
+    rowData = RowDataUtil.addRowData(rowData, data.inputRowMeta.size(), data.extraData);
 
-    putRow( data.outputRowMeta, rowData );
+    putRow(data.outputRowMeta, rowData);
 
-    if ( !data.readsRows ) { // Just one row and then stop!
+    if (!data.readsRows) { // Just one row and then stop!
 
       setOutputDone();
       return false;
@@ -116,11 +129,11 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
 
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
       // Add init code here.
       //      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
-      List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
-      if ( previous != null && previous.size() > 0 ) {
+      List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
+      if (previous != null && previous.size() > 0) {
         data.readsRows = true;
       }
 
@@ -128,5 +141,4 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
     }
     return false;
   }
-
 }

@@ -25,10 +25,12 @@ This workflow action can be used to verify a file link:https://www.gnupg.org/gph
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |GPG location|The signature file path.
 |Filename|The signed file path.
 |Use detached signature|Whether or not to use a detached signature.

@@ -106,7 +106,10 @@ public class HopGuiWorkflowLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    workflowLogText = new Text(workflowLogComposite, SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    workflowLogText =
+        new Text(
+            workflowLogComposite,
+            SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     hopGui.getProps().setLook(workflowLogText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
@@ -152,9 +155,7 @@ public class HopGuiWorkflowLogDelegate {
   }
 
   private void addToolBar() {
-    toolbar =
-        new ToolBar(
-            workflowLogComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolbar = new ToolBar(workflowLogComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);

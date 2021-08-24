@@ -50,9 +50,7 @@ public class CombinationLookupData extends BaseTransformData implements ITransfo
   public PreparedStatement prepStatementInsert;
   public long smallestCacheKey;
 
-  /**
-   * Default Constructor
-   */
+  /** Default Constructor */
   public CombinationLookupData() {
     super();
     db = null;

@@ -31,7 +31,8 @@ public class TransformDefinition implements Cloneable {
     this.description = "";
   }
 
-  public TransformDefinition( String tag, String transformName, TransformMeta transformMeta, String description ) {
+  public TransformDefinition(
+      String tag, String transformName, TransformMeta transformMeta, String description) {
     this.tag = tag;
     this.transformName = transformName;
     this.transformMeta = transformMeta;
@@ -41,7 +42,7 @@ public class TransformDefinition implements Cloneable {
   public Object clone() throws CloneNotSupportedException {
     TransformDefinition retval;
     retval = (TransformDefinition) super.clone();
-    if ( transformMeta != null ) {
+    if (transformMeta != null) {
       retval.transformMeta = (TransformMeta) transformMeta.clone();
     }
     return retval;

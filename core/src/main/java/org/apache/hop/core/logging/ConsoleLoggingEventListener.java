@@ -22,19 +22,19 @@ public class ConsoleLoggingEventListener implements IHopLoggingEventListener {
   private HopLogLayout layout;
 
   public ConsoleLoggingEventListener() {
-    this.layout = new HopLogLayout( true );
+    this.layout = new HopLogLayout(true);
   }
 
   @Override
-  public void eventAdded( HopLoggingEvent event ) {
+  public void eventAdded(HopLoggingEvent event) {
 
-    String logText = layout.format( event );
+    String logText = layout.format(event);
 
-    if ( event.getLevel() == LogLevel.ERROR ) {
-      HopLogStore.OriginalSystemErr.println( logText );
+    if (event.getLevel() == LogLevel.ERROR) {
+      HopLogStore.OriginalSystemErr.println(logText);
       HopLogStore.OriginalSystemErr.flush();
     } else {
-      HopLogStore.OriginalSystemOut.println( logText );
+      HopLogStore.OriginalSystemOut.println(logText);
       HopLogStore.OriginalSystemOut.flush();
     }
   }

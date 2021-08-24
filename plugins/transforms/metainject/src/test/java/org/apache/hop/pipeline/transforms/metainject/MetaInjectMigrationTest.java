@@ -17,29 +17,30 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class MetaInjectMigrationTest {
   @Test
   public void test70() {
     Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping = new HashMap<>();
-    TargetTransformAttribute target = new TargetTransformAttribute( "transform", "SCHENAMENAMEFIELD", true );
-    SourceTransformField source = new SourceTransformField( "transform", "field" );
-    targetSourceMapping.put( target, source );
+    TargetTransformAttribute target =
+        new TargetTransformAttribute("transform", "SCHENAMENAMEFIELD", true);
+    SourceTransformField source = new SourceTransformField("transform", "field");
+    targetSourceMapping.put(target, source);
 
-    MetaInjectMigration.migrateFrom70( targetSourceMapping );
+    MetaInjectMigration.migrateFrom70(targetSourceMapping);
 
-    assertEquals( 1, targetSourceMapping.size() );
+    assertEquals(1, targetSourceMapping.size());
     TargetTransformAttribute target2 = targetSourceMapping.keySet().iterator().next();
-    assertEquals( "SCHEMANAMEFIELD", target2.getAttributeKey() );
-    assertEquals( target.getTransformName(), target2.getTransformName() );
-    assertEquals( target.isDetail(), target2.isDetail() );
+    assertEquals("SCHEMANAMEFIELD", target2.getAttributeKey());
+    assertEquals(target.getTransformName(), target2.getTransformName());
+    assertEquals(target.isDetail(), target2.isDetail());
 
-    assertEquals( source, targetSourceMapping.get( target2 ) );
+    assertEquals(source, targetSourceMapping.get(target2));
   }
 }

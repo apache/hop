@@ -19,8 +19,10 @@ package org.apache.hop.core.gui;
 
 public interface IGuiSize {
   int getWidth();
-  void setWidth( int width );
+
+  void setWidth(int width);
 
   int getHeight();
-  void setHeight( int height );
+
+  void setHeight(int height);
 }

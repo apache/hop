@@ -26,7 +26,8 @@ import java.util.List;
 
 /**
  * This class contains value lineage information.<br>
- * That means that we will have information on where and how a certain value is originating, being manipulated etc.<br>
+ * That means that we will have information on where and how a certain value is originating, being
+ * manipulated etc.<br>
  *
  * @author matt
  */
@@ -41,52 +42,39 @@ public class ValueLineage {
    *
    * @param valueMeta
    */
-  public ValueLineage( PipelineMeta pipelineMeta, IValueMeta valueMeta ) {
+  public ValueLineage(PipelineMeta pipelineMeta, IValueMeta valueMeta) {
     this.pipelineMeta = pipelineMeta;
     this.valueMeta = valueMeta;
     this.sourceTransforms = new ArrayList<>();
   }
 
-  /**
-   * @return the pipelineMeta
-   */
+  /** @return the pipelineMeta */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /**
-   * @param pipelineMeta the pipelineMeta to set
-   */
-  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+  /** @param pipelineMeta the pipelineMeta to set */
+  public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
 
-  /**
-   * @return the valueMeta
-   */
+  /** @return the valueMeta */
   public IValueMeta getValueMeta() {
     return valueMeta;
   }
 
-  /**
-   * @param valueMeta the valueMeta to set
-   */
-  public void setValueMeta( IValueMeta valueMeta ) {
+  /** @param valueMeta the valueMeta to set */
+  public void setValueMeta(IValueMeta valueMeta) {
     this.valueMeta = valueMeta;
   }
 
-  /**
-   * @return the sourceTransforms
-   */
+  /** @return the sourceTransforms */
   public List<TransformMeta> getSourceTransforms() {
     return sourceTransforms;
   }
 
-  /**
-   * @param sourceTransforms the sourceTransforms to set
-   */
-  public void setSourceTransforms( List<TransformMeta> sourceTransforms ) {
+  /** @param sourceTransforms the sourceTransforms to set */
+  public void setSourceTransforms(List<TransformMeta> sourceTransforms) {
     this.sourceTransforms = sourceTransforms;
   }
-
 }

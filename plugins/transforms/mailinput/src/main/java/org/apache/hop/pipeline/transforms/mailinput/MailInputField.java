@@ -50,53 +50,57 @@ public class MailInputField implements Cloneable {
   public static final int COLUMN_BODY_CONTENT_TYPE = 19;
 
   public static final String[] ColumnCode = {
-    "messagenumber", "subject", "sender", "replyto", "recipients", "description", "body", "receiveddate",
-    "sendeddate", "contenttype", "folder", "size", "flag_new", "flag_read", "flag_flagged", "flag_draft",
-    "flag_deleted", "attached_files_count", "header", "body_contenttype" };
+    "messagenumber", "subject", "sender", "replyto", "recipients", "description", "body",
+        "receiveddate",
+    "sendeddate", "contenttype", "folder", "size", "flag_new", "flag_read", "flag_flagged",
+        "flag_draft",
+    "flag_deleted", "attached_files_count", "header", "body_contenttype"
+  };
 
   public static final String[] ColumnDesc = {
-    BaseMessages.getString( PKG, "MailInputField.Column.MessageNumber" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Subject" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Sender" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.ReplyTo" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Recipients" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Description" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Body" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.ReceivedDate" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.SentDate" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.ContentType" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Folder" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Size" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.FlagNew" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.FlagRead" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.FlagFlagged" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.FlagDraft" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.FlagDeleted" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.AttachedFilesCount" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.Header" ),
-    BaseMessages.getString( PKG, "MailInputField.Column.BodyContentType" ), };
+    BaseMessages.getString(PKG, "MailInputField.Column.MessageNumber"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Subject"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Sender"),
+    BaseMessages.getString(PKG, "MailInputField.Column.ReplyTo"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Recipients"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Description"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Body"),
+    BaseMessages.getString(PKG, "MailInputField.Column.ReceivedDate"),
+    BaseMessages.getString(PKG, "MailInputField.Column.SentDate"),
+    BaseMessages.getString(PKG, "MailInputField.Column.ContentType"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Folder"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Size"),
+    BaseMessages.getString(PKG, "MailInputField.Column.FlagNew"),
+    BaseMessages.getString(PKG, "MailInputField.Column.FlagRead"),
+    BaseMessages.getString(PKG, "MailInputField.Column.FlagFlagged"),
+    BaseMessages.getString(PKG, "MailInputField.Column.FlagDraft"),
+    BaseMessages.getString(PKG, "MailInputField.Column.FlagDeleted"),
+    BaseMessages.getString(PKG, "MailInputField.Column.AttachedFilesCount"),
+    BaseMessages.getString(PKG, "MailInputField.Column.Header"),
+    BaseMessages.getString(PKG, "MailInputField.Column.BodyContentType"),
+  };
 
   private String name;
   private int column;
 
-  public MailInputField( String fieldname ) {
+  public MailInputField(String fieldname) {
     this.name = fieldname;
     this.column = COLUMN_MESSAGE_NR;
   }
 
   public MailInputField() {
-    this( null );
+    this(null);
   }
 
   public String getColumnDesc() {
-    return getColumnDesc( column );
+    return getColumnDesc(column);
   }
 
-  public static final String getColumnDesc( int i ) {
-    if ( i < 0 || i >= ColumnDesc.length ) {
-      return ColumnDesc[ 0 ];
+  public static final String getColumnDesc(int i) {
+    if (i < 0 || i >= ColumnDesc.length) {
+      return ColumnDesc[0];
     }
-    return ColumnDesc[ i ];
+    return ColumnDesc[i];
   }
 
   public int getColumn() {
@@ -104,23 +108,23 @@ public class MailInputField implements Cloneable {
   }
 
   public String getColumnCode() {
-    return getColumnCode( column );
+    return getColumnCode(column);
   }
 
-  public static final String getColumnCode( int i ) {
-    if ( i < 0 || i >= ColumnCode.length ) {
-      return ColumnCode[ 0 ];
+  public static final String getColumnCode(int i) {
+    if (i < 0 || i >= ColumnCode.length) {
+      return ColumnCode[0];
     }
-    return ColumnCode[ i ];
+    return ColumnCode[i];
   }
 
-  public static final int getColumnByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getColumnByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ColumnCode.length; i++ ) {
-      if ( ColumnCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ColumnCode.length; i++) {
+      if (ColumnCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
@@ -131,7 +135,7 @@ public class MailInputField implements Cloneable {
     try {
       MailInputField retval = (MailInputField) super.clone();
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -140,25 +144,24 @@ public class MailInputField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
-  public static final int getColumnByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getColumnByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ColumnDesc.length; i++ ) {
-      if ( ColumnDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ColumnDesc.length; i++) {
+      if (ColumnDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public void setColumn( int column ) {
+  public void setColumn(int column) {
     this.column = column;
   }
-
 }

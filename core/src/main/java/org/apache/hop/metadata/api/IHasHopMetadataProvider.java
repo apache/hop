@@ -22,5 +22,4 @@ public interface IHasHopMetadataProvider {
   IHopMetadataProvider getMetadataProvider();
 
   void setMetadataProvider(IHopMetadataProvider metadataProvider);
-
 }

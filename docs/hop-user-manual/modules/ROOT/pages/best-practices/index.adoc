@@ -23,33 +23,43 @@ under the License.
 
 Apache Hop gives you a large amount of freedom when deciding how to do the things you want to do.
 This freedom means you can be creative and productive in arriving at the desired outcome.
-So please consider the advice given on this page as tips or free advice to be taken or rejected for a particular situation.  Only you can decide what the advice is worth.
+So please consider the advice given on this page as tips or free advice to be taken or rejected for a particular situation.
+Only you can decide what the advice is worth.
 
 == Naming
+
 include::../snippets/best-practices/naming-conventions.adoc[]
 
 == Size matters
+
 include::../snippets/best-practices/size-matters.adoc[]
 
 == Variables
+
 include::../snippets/best-practices/variables.adoc[]
 
 == Logging
+
 include::../snippets/best-practices/logging.adoc[]
 
 == Mappings
+
 include::../snippets/best-practices/mappings.adoc[]
 
 == Metadata Injection
+
 include::../snippets/best-practices/metadata-injection.adoc[]
 
 == Performance basics
+
 include::../snippets/best-practices/performance-basics.adoc[]
 
 == Governance
+
 include::../snippets/best-practices/governance.adoc[]
 
 == Loops
+
 include::../snippets/best-practices/loops.adoc[]
 
 

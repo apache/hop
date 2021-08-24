@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 public class DotEqualsValidator<T> implements IObjectValidator<T> {
 
   @Override
-  public void validate( T expected, Object actual ) {
-    assertEquals( expected, actual );
+  public void validate(T expected, Object actual) {
+    assertEquals(expected, actual);
   }
 }

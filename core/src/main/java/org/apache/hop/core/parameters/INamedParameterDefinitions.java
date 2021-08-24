@@ -19,18 +19,18 @@ package org.apache.hop.core.parameters;
 
 /**
  * This contains only parameter definitions without the possibility to actually give values to them.
- *
  */
 public interface INamedParameterDefinitions {
   /**
    * Add a parameter definition to this set.
    *
-   * @param key         Name of the parameter.
-   * @param defValue    default value.
+   * @param key Name of the parameter.
+   * @param defValue default value.
    * @param description Description of the parameter.
    * @throws DuplicateParamException Upon duplicate parameter definitions
    */
-  void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException;
+  void addParameterDefinition(String key, String defValue, String description)
+      throws DuplicateParamException;
 
   /**
    * Get the description of a parameter.
@@ -39,7 +39,7 @@ public interface INamedParameterDefinitions {
    * @return description of parameter key.
    * @throws UnknownParamException Parameter 'key' is unknown.
    */
-  String getParameterDescription( String key ) throws UnknownParamException;
+  String getParameterDescription(String key) throws UnknownParamException;
 
   /**
    * Get the default value of a parameter.
@@ -48,7 +48,7 @@ public interface INamedParameterDefinitions {
    * @return default value for parameter key.
    * @throws UnknownParamException Parameter 'key' is unknown.
    */
-  String getParameterDefault( String key ) throws UnknownParamException;
+  String getParameterDefault(String key) throws UnknownParamException;
 
   /**
    * List the parameters.
@@ -57,8 +57,6 @@ public interface INamedParameterDefinitions {
    */
   String[] listParameters();
 
-  /**
-   * Remove all defined parameters
-   */
+  /** Remove all defined parameters */
   void removeAllParameters();
 }

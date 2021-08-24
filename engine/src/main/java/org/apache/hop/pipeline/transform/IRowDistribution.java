@@ -23,25 +23,22 @@ import org.apache.hop.core.svg.SvgFile;
 
 public interface IRowDistribution {
 
-  /**
-   * @return The row distribution code (plugin id)
-   */
+  /** @return The row distribution code (plugin id) */
   String getCode();
 
-  /**
-   * @return The row distribution description (plugin description)
-   */
+  /** @return The row distribution description (plugin description) */
   String getDescription();
 
   /**
    * Do the actual row distribution in the transform
    *
-   * @param rowMeta    the meta-data of the row to distribute
-   * @param row        the data of the row data to distribute
+   * @param rowMeta the meta-data of the row to distribute
+   * @param row the data of the row data to distribute
    * @param iTransform The transform to distribute the rows in
    * @throws HopTransformException
    */
-  void distributeRow( IRowMeta rowMeta, Object[] row, ITransform iTransform ) throws HopTransformException;
+  void distributeRow(IRowMeta rowMeta, Object[] row, ITransform iTransform)
+      throws HopTransformException;
 
   /**
    * Which mini-icon needs to be shown on the hop?

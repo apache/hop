@@ -30,7 +30,7 @@ public class WebServiceField implements Cloneable {
   public WebServiceField clone() {
     try {
       return (WebServiceField) super.clone();
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       e.printStackTrace();
       return null;
     }
@@ -46,7 +46,7 @@ public class WebServiceField implements Cloneable {
     return name;
   }
 
-  public void setName( String name ) {
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -54,7 +54,7 @@ public class WebServiceField implements Cloneable {
     return wsName;
   }
 
-  public void setWsName( String wsName ) {
+  public void setWsName(String wsName) {
     this.wsName = wsName;
   }
 
@@ -62,17 +62,17 @@ public class WebServiceField implements Cloneable {
     return xsdType;
   }
 
-  public void setXsdType( String xsdType ) {
+  public void setXsdType(String xsdType) {
     this.xsdType = xsdType;
   }
 
   public int getType() {
-    return XsdType.xsdTypeToHopType( xsdType );
+    return XsdType.xsdTypeToHopType(xsdType);
   }
 
   /**
-   * We consider a field to be complex if it's a type we don't recognize. In that case, we will give back XML as a
-   * string.
+   * We consider a field to be complex if it's a type we don't recognize. In that case, we will give
+   * back XML as a string.
    *
    * @return
    */

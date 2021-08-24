@@ -17,8 +17,8 @@
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -27,92 +27,91 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.IRowListener;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-//import org.apache.hop.pipeline.transform.TransformListener;
-import org.apache.hop.pipeline.transform.ITransformFinishedListener;
-import org.apache.hop.pipeline.transform.ITransformStartedListener;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.*;
 
 import java.util.List;
 import java.util.Map;
 
-public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> implements ITransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> {
+public class UserDefinedJavaClass
+    extends BaseTransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData>
+    implements ITransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> {
   private TransformClassBase child;
   public static final String HOP_DEFAULT_CLASS_CACHE_SIZE = "HOP_DEFAULT_CLASS_CACHE_SIZE";
 
-  public UserDefinedJavaClass( TransformMeta transformMeta, UserDefinedJavaClassMeta meta, UserDefinedJavaClassData data, int copyNr,
-                               PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public UserDefinedJavaClass(
+      TransformMeta transformMeta,
+      UserDefinedJavaClassMeta meta,
+      UserDefinedJavaClassData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
 
-    if ( copyNr == 0 ) {
+    if (copyNr == 0) {
       meta.cookClasses();
     }
 
-    child = meta.newChildInstance( this, meta, data );
+    child = meta.newChildInstance(this, meta, data);
 
-    if ( meta.cookErrors.size() > 0 ) {
-      for ( Exception e : meta.cookErrors ) {
-        logErrorImpl( "Error initializing UserDefinedJavaClass:", e );
+    if (meta.cookErrors.size() > 0) {
+      for (Exception e : meta.cookErrors) {
+        logErrorImpl("Error initializing UserDefinedJavaClass:", e);
       }
-      setErrorsImpl( meta.cookErrors.size() );
+      setErrorsImpl(meta.cookErrors.size());
       stopAllImpl();
     }
   }
 
-  public void addResultFile( ResultFile resultFile ) {
-    if ( child == null ) {
-      addResultFileImpl( resultFile );
+  public void addResultFile(ResultFile resultFile) {
+    if (child == null) {
+      addResultFileImpl(resultFile);
     } else {
-      child.addResultFile( resultFile );
+      child.addResultFile(resultFile);
     }
   }
 
-  public void addResultFileImpl( ResultFile resultFile ) {
-    super.addResultFile( resultFile );
+  public void addResultFileImpl(ResultFile resultFile) {
+    super.addResultFile(resultFile);
   }
 
-  public void addRowListener( IRowListener rowListener ) {
-    if ( child == null ) {
-      addRowListenerImpl( rowListener );
+  public void addRowListener(IRowListener rowListener) {
+    if (child == null) {
+      addRowListenerImpl(rowListener);
     } else {
-      child.addRowListener( rowListener );
+      child.addRowListener(rowListener);
     }
   }
 
-  public void addRowListenerImpl( IRowListener rowListener ) {
-    super.addRowListener( rowListener );
+  public void addRowListenerImpl(IRowListener rowListener) {
+    super.addRowListener(rowListener);
   }
 
-//  public void addTransformListener( TransformListener transformListener ) {
-//    if ( child == null ) {
-//      addTransformListenerImpl( transformListener );
-//    } else {
-//      child.addTransformListener( transformListener );
-//    }
-//  }
+  //  public void addTransformListener( TransformListener transformListener ) {
+  //    if ( child == null ) {
+  //      addTransformListenerImpl( transformListener );
+  //    } else {
+  //      child.addTransformListener( transformListener );
+  //    }
+  //  }
 
-//  public void addTransformListenerImpl( TransformListener transformListener ) {
-//    super.addTransformListener( transformListener );
-//  }
+  //  public void addTransformListenerImpl( TransformListener transformListener ) {
+  //    super.addTransformListener( transformListener );
+  //  }
 
-  public boolean checkFeedback( long lines ) {
-    if ( child == null ) {
-      return checkFeedbackImpl( lines );
+  public boolean checkFeedback(long lines) {
+    if (child == null) {
+      return checkFeedbackImpl(lines);
     } else {
-      return child.checkFeedback( lines );
+      return child.checkFeedback(lines);
     }
   }
 
-  public boolean checkFeedbackImpl( long lines ) {
-    return super.checkFeedback( lines );
+  public boolean checkFeedbackImpl(long lines) {
+    return super.checkFeedback(lines);
   }
 
   public void cleanup() {
-    if ( child == null ) {
+    if (child == null) {
       cleanupImpl();
     } else {
       child.cleanup();
@@ -124,7 +123,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long decrementLinesRead() {
-    if ( child == null ) {
+    if (child == null) {
       return decrementLinesReadImpl();
     } else {
       return child.decrementLinesRead();
@@ -136,7 +135,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long decrementLinesWritten() {
-    if ( child == null ) {
+    if (child == null) {
       return decrementLinesWrittenImpl();
     } else {
       return child.decrementLinesWritten();
@@ -147,74 +146,72 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.decrementLinesWritten();
   }
 
-
-  public void disposeImpl( ITransform smi, ITransformData sdi ) {
+  public void disposeImpl(ITransform smi, ITransformData sdi) {
     super.dispose();
   }
 
-  public IRowSet findInputRowSet( String sourceTransform ) throws HopTransformException {
-    if ( child == null ) {
-      return findInputRowSetImpl( sourceTransform );
+  public IRowSet findInputRowSet(String sourceTransform) throws HopTransformException {
+    if (child == null) {
+      return findInputRowSetImpl(sourceTransform);
     } else {
-      return child.findInputRowSet( sourceTransform );
+      return child.findInputRowSet(sourceTransform);
     }
   }
 
-  public IRowSet findInputRowSet( String from, int fromcopy, String to, int tocopy ) {
-    if ( child == null ) {
-      return findInputRowSetImpl( from, fromcopy, to, tocopy );
+  public IRowSet findInputRowSet(String from, int fromcopy, String to, int tocopy) {
+    if (child == null) {
+      return findInputRowSetImpl(from, fromcopy, to, tocopy);
     } else {
-      return child.findInputRowSet( from, fromcopy, to, tocopy );
+      return child.findInputRowSet(from, fromcopy, to, tocopy);
     }
   }
 
-  public IRowSet findInputRowSetImpl( String sourceTransform ) throws HopTransformException {
-    return super.findInputRowSet( sourceTransform );
+  public IRowSet findInputRowSetImpl(String sourceTransform) throws HopTransformException {
+    return super.findInputRowSet(sourceTransform);
   }
 
-  public IRowSet findInputRowSetImpl( String from, int fromcopy, String to, int tocopy ) {
-    return super.findInputRowSet( from, fromcopy, to, tocopy );
+  public IRowSet findInputRowSetImpl(String from, int fromcopy, String to, int tocopy) {
+    return super.findInputRowSet(from, fromcopy, to, tocopy);
   }
 
-  public IRowSet findOutputRowSet( String targetTransform ) throws HopTransformException {
-    if ( child == null ) {
-      return findOutputRowSetImpl( targetTransform );
+  public IRowSet findOutputRowSet(String targetTransform) throws HopTransformException {
+    if (child == null) {
+      return findOutputRowSetImpl(targetTransform);
     } else {
-      return child.findOutputRowSet( targetTransform );
+      return child.findOutputRowSet(targetTransform);
     }
   }
 
-  public IRowSet findOutputRowSet( String from, int fromcopy, String to, int tocopy ) {
-    if ( child == null ) {
-      return findOutputRowSetImpl( from, fromcopy, to, tocopy );
+  public IRowSet findOutputRowSet(String from, int fromcopy, String to, int tocopy) {
+    if (child == null) {
+      return findOutputRowSetImpl(from, fromcopy, to, tocopy);
     } else {
-      return child.findOutputRowSet( from, fromcopy, to, tocopy );
+      return child.findOutputRowSet(from, fromcopy, to, tocopy);
     }
   }
 
-  public IRowSet findOutputRowSetImpl( String targetTransform ) throws HopTransformException {
-    return super.findOutputRowSet( targetTransform );
+  public IRowSet findOutputRowSetImpl(String targetTransform) throws HopTransformException {
+    return super.findOutputRowSet(targetTransform);
   }
 
-  public IRowSet findOutputRowSetImpl( String from, int fromcopy, String to, int tocopy ) {
-    return super.findOutputRowSet( from, fromcopy, to, tocopy );
+  public IRowSet findOutputRowSetImpl(String from, int fromcopy, String to, int tocopy) {
+    return super.findOutputRowSet(from, fromcopy, to, tocopy);
   }
 
-//  public int getClusterSize() {
-//    if ( child == null ) {
-//      return getClusterSizeImpl();
-//    } else {
-//      return child.getClusterSize();
-//    }
-//  }
-
+  //  public int getClusterSize() {
+  //    if ( child == null ) {
+  //      return getClusterSizeImpl();
+  //    } else {
+  //      return child.getClusterSize();
+  //    }
+  //  }
 
   public int getCopyImpl() {
     return super.getCopy();
   }
 
   public IRowMeta getErrorRowMeta() {
-    if ( child == null ) {
+    if (child == null) {
       return getErrorRowMetaImpl();
     } else {
       return child.getErrorRowMeta();
@@ -226,7 +223,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getErrors() {
-    if ( child == null ) {
+    if (child == null) {
       return getErrorsImpl();
     } else {
       return child.getErrors();
@@ -238,7 +235,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public IRowMeta getInputRowMeta() {
-    if ( child == null ) {
+    if (child == null) {
       return getInputRowMetaImpl();
     } else {
       return child.getInputRowMeta();
@@ -250,7 +247,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public List<IRowSet> getInputRowSets() {
-    return child==null ? getInputRowSetsImpl() : child.getInputRowSets();
+    return child == null ? getInputRowSetsImpl() : child.getInputRowSets();
   }
 
   public List<IRowSet> getInputRowSetsImpl() {
@@ -258,7 +255,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesInput() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesInputImpl();
     } else {
       return child.getLinesInput();
@@ -270,7 +267,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesOutput() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesOutputImpl();
     } else {
       return child.getLinesOutput();
@@ -282,7 +279,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesRead() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesReadImpl();
     } else {
       return child.getLinesRead();
@@ -294,7 +291,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesRejected() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesRejectedImpl();
     } else {
       return child.getLinesRejected();
@@ -306,7 +303,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesSkipped() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesSkippedImpl();
     } else {
       return child.getLinesSkipped();
@@ -318,7 +315,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesUpdated() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesUpdatedImpl();
     } else {
       return child.getLinesUpdated();
@@ -330,7 +327,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getLinesWritten() {
-    if ( child == null ) {
+    if (child == null) {
       return getLinesWrittenImpl();
     } else {
       return child.getLinesWritten();
@@ -342,7 +339,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public List<IRowSet> getOutputRowSets() {
-    if ( child == null ) {
+    if (child == null) {
       return getOutputRowSetsImpl();
     } else {
       return child.getOutputRowSets();
@@ -354,7 +351,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public String getPartitionId() {
-    if ( child == null ) {
+    if (child == null) {
       return getPartitionIdImpl();
     } else {
       return child.getPartitionId();
@@ -365,9 +362,8 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.getPartitionId();
   }
 
-
   public Map<String, BlockingRowSet> getPartitionTargets() {
-    if ( child == null ) {
+    if (child == null) {
       return getPartitionTargetsImpl();
     } else {
       return child.getPartitionTargets();
@@ -379,7 +375,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long getProcessed() {
-    if ( child == null ) {
+    if (child == null) {
       return getProcessedImpl();
     } else {
       return child.getProcessed();
@@ -391,7 +387,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public int getRepartitioning() {
-    if ( child == null ) {
+    if (child == null) {
       return getRepartitioningImpl();
     } else {
       return child.getRepartitioning();
@@ -403,7 +399,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public Map<String, ResultFile> getResultFiles() {
-    if ( child == null ) {
+    if (child == null) {
       return getResultFilesImpl();
     } else {
       return child.getResultFiles();
@@ -415,23 +411,23 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public Object[] getRow() throws HopException {
-    if ( child == null ) {
+    if (child == null) {
       return getRowImpl();
     } else {
       return child.getRow();
     }
   }
 
-  public Object[] getRowFrom( IRowSet rowSet ) throws HopTransformException {
-    if ( child == null ) {
-      return getRowFromImpl( rowSet );
+  public Object[] getRowFrom(IRowSet rowSet) throws HopTransformException {
+    if (child == null) {
+      return getRowFromImpl(rowSet);
     } else {
-      return child.getRowFrom( rowSet );
+      return child.getRowFrom(rowSet);
     }
   }
 
-  public Object[] getRowFromImpl( IRowSet rowSet ) throws HopTransformException {
-    return super.getRowFrom( rowSet );
+  public Object[] getRowFromImpl(IRowSet rowSet) throws HopTransformException {
+    return super.getRowFrom(rowSet);
   }
 
   public Object[] getRowImpl() throws HopException {
@@ -439,7 +435,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public List<IRowListener> getRowListeners() {
-    if ( child == null ) {
+    if (child == null) {
       return getRowListenersImpl();
     } else {
       return child.getRowListeners();
@@ -450,32 +446,32 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.getRowListeners();
   }
 
-//  public long getRuntime() {
-//    if ( child == null ) {
-//      return getRuntimeImpl();
-//    } else {
-//      return child.getRuntime();
-//    }
-//  }
+  //  public long getRuntime() {
+  //    if ( child == null ) {
+  //      return getRuntimeImpl();
+  //    } else {
+  //      return child.getRuntime();
+  //    }
+  //  }
 
-//  public int getServerNr() {
-//    if ( child == null ) {
-//      return getServerNrImpl();
-//    } else {
-//      return child.getServerNr();
-//    }
-//  }
+  //  public int getServerNr() {
+  //    if ( child == null ) {
+  //      return getServerNrImpl();
+  //    } else {
+  //      return child.getServerNr();
+  //    }
+  //  }
 
-//  public int getServerNrImpl() {
-//    if ( child == null ) {
-//      return getServerNrImpl();
-//    } else {
-//      return super.getServerNr();
-//    }
-//  }
+  //  public int getServerNrImpl() {
+  //    if ( child == null ) {
+  //      return getServerNrImpl();
+  //    } else {
+  //      return super.getServerNr();
+  //    }
+  //  }
 
   public ComponentExecutionStatus getStatus() {
-    if ( child == null ) {
+    if (child == null) {
       return getStatusImpl();
     } else {
       return child.getStatus();
@@ -483,7 +479,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public String getStatusDescription() {
-    if ( child == null ) {
+    if (child == null) {
       return getStatusDescriptionImpl();
     } else {
       return child.getStatusDescription();
@@ -499,7 +495,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public String getTransformPluginId() {
-    if ( child == null ) {
+    if (child == null) {
       return getTransformPluginIdImpl();
     } else {
       return child.getTransformPluginId();
@@ -511,7 +507,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public TransformMeta getTransformMeta() {
-    if ( child == null ) {
+    if (child == null) {
       return getTransformMetaImpl();
     } else {
       return child.getTransformMeta();
@@ -523,7 +519,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public String getTransformName() {
-    if ( child == null ) {
+    if (child == null) {
       return getTransformNameImpl();
     } else {
       return child.getTransformName();
@@ -539,7 +535,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public PipelineMeta getPipelineMeta() {
-    if ( child == null ) {
+    if (child == null) {
       return getPipelineMetaImpl();
     } else {
       return child.getPipelineMeta();
@@ -550,32 +546,32 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.getPipelineMeta();
   }
 
-  public String getVariable( String variableName ) {
-    if ( child == null ) {
-      return getVariableImpl( variableName );
+  public String getVariable(String variableName) {
+    if (child == null) {
+      return getVariableImpl(variableName);
     } else {
-      return child.getVariable( variableName );
+      return child.getVariable(variableName);
     }
   }
 
-  public String getVariable( String variableName, String defaultValue ) {
-    if ( child == null ) {
-      return getVariableImpl( variableName, defaultValue );
+  public String getVariable(String variableName, String defaultValue) {
+    if (child == null) {
+      return getVariableImpl(variableName, defaultValue);
     } else {
-      return child.getVariable( variableName, defaultValue );
+      return child.getVariable(variableName, defaultValue);
     }
   }
 
-  public String getVariableImpl( String variableName ) {
-    return super.getVariable( variableName );
+  public String getVariableImpl(String variableName) {
+    return super.getVariable(variableName);
   }
 
-  public String getVariableImpl( String variableName, String defaultValue ) {
-    return super.getVariable( variableName, defaultValue );
+  public String getVariableImpl(String variableName, String defaultValue) {
+    return super.getVariable(variableName, defaultValue);
   }
 
   public long incrementLinesInput() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesInputImpl();
     } else {
       return child.incrementLinesInput();
@@ -587,7 +583,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long incrementLinesOutput() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesOutputImpl();
     } else {
       return child.incrementLinesOutput();
@@ -599,7 +595,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long incrementLinesRead() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesReadImpl();
     } else {
       return child.incrementLinesRead();
@@ -611,7 +607,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long incrementLinesRejected() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesRejectedImpl();
     } else {
       return child.incrementLinesRejected();
@@ -623,7 +619,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long incrementLinesSkipped() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesSkippedImpl();
     } else {
       return child.incrementLinesSkipped();
@@ -635,7 +631,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long incrementLinesUpdated() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesUpdatedImpl();
     } else {
       return child.incrementLinesUpdated();
@@ -647,7 +643,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public long incrementLinesWritten() {
-    if ( child == null ) {
+    if (child == null) {
       return incrementLinesWrittenImpl();
     } else {
       return child.incrementLinesWritten();
@@ -658,25 +654,25 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.incrementLinesWritten();
   }
 
-  public boolean init( ITransform transformMetaInterface, ITransformData iTransformData ) {
-    if ( meta.cookErrors.size() > 0 ) {
+  public boolean init(ITransform transformMetaInterface, ITransformData iTransformData) {
+    if (meta.cookErrors.size() > 0) {
       return false;
     }
 
-    if ( meta.cookedTransformClass == null ) {
-      logError( "No UDFC marked as Pipeline class" );
+    if (meta.cookedTransformClass == null) {
+      logError("No UDFC marked as Pipeline class");
       return false;
     }
 
-    if ( child == null ) {
-      return initImpl( transformMetaInterface, data );
+    if (child == null) {
+      return initImpl(transformMetaInterface, data);
     } else {
       return child.init(transformMetaInterface, data);
     }
   }
 
   public void initBeforeStart() throws HopTransformException {
-    if ( child == null ) {
+    if (child == null) {
       initBeforeStartImpl();
     } else {
       child.initBeforeStart();
@@ -687,12 +683,12 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     super.initBeforeStart();
   }
 
-  public boolean initImpl( ITransform transformMetaInterface, ITransformData iTransformData ) {
+  public boolean initImpl(ITransform transformMetaInterface, ITransformData iTransformData) {
     return super.init();
   }
 
   public boolean isDistributed() {
-    if ( child == null ) {
+    if (child == null) {
       return isDistributedImpl();
     } else {
       return child.isDistributed();
@@ -704,7 +700,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public boolean isInitialising() {
-    if ( child == null ) {
+    if (child == null) {
       return isInitialisingImpl();
     } else {
       return child.isInitialising();
@@ -716,7 +712,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public boolean isPartitioned() {
-    if ( child == null ) {
+    if (child == null) {
       return isPartitionedImpl();
     } else {
       return child.isPartitioned();
@@ -728,7 +724,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public boolean isSafeModeEnabled() {
-    if ( child == null ) {
+    if (child == null) {
       return isSafeModeEnabledImpl();
     } else {
       return child.isSafeModeEnabled();
@@ -740,7 +736,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public boolean isStopped() {
-    if ( child == null ) {
+    if (child == null) {
       return isStoppedImpl();
     } else {
       return child.isStopped();
@@ -751,104 +747,104 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.isStopped();
   }
 
-//  public boolean isUsingThreadPriorityManagment() {
-//    if ( child == null ) {
-//      return isUsingThreadPriorityManagmentImpl();
-//    } else {
-//      return child.isUsingThreadPriorityManagment();
-//    }
-//  }
+  //  public boolean isUsingThreadPriorityManagment() {
+  //    if ( child == null ) {
+  //      return isUsingThreadPriorityManagmentImpl();
+  //    } else {
+  //      return child.isUsingThreadPriorityManagment();
+  //    }
+  //  }
 
-//  public boolean isUsingThreadPriorityManagmentImpl() {
-//    return super.isUsingThreadPriorityManagment();
-//  }
+  //  public boolean isUsingThreadPriorityManagmentImpl() {
+  //    return super.isUsingThreadPriorityManagment();
+  //  }
 
-  public void logBasic( String s ) {
-    if ( child == null ) {
-      logBasicImpl( s );
+  public void logBasic(String s) {
+    if (child == null) {
+      logBasicImpl(s);
     } else {
-      child.logBasic( s );
+      child.logBasic(s);
     }
   }
 
-  public void logBasicImpl( String s ) {
-    super.logBasic( s );
+  public void logBasicImpl(String s) {
+    super.logBasic(s);
   }
 
-  public void logDebug( String s ) {
-    if ( child == null ) {
-      logDebugImpl( s );
+  public void logDebug(String s) {
+    if (child == null) {
+      logDebugImpl(s);
     } else {
-      child.logDebug( s );
+      child.logDebug(s);
     }
   }
 
-  public void logDebugImpl( String s ) {
-    super.logDebug( s );
+  public void logDebugImpl(String s) {
+    super.logDebug(s);
   }
 
-  public void logDetailed( String s ) {
-    if ( child == null ) {
-      logDetailedImpl( s );
+  public void logDetailed(String s) {
+    if (child == null) {
+      logDetailedImpl(s);
     } else {
-      child.logDetailed( s );
+      child.logDetailed(s);
     }
   }
 
-  public void logDetailedImpl( String s ) {
-    super.logDetailed( s );
+  public void logDetailedImpl(String s) {
+    super.logDetailed(s);
   }
 
-  public void logError( String s ) {
-    if ( child == null ) {
-      logErrorImpl( s );
+  public void logError(String s) {
+    if (child == null) {
+      logErrorImpl(s);
     } else {
-      child.logError( s );
+      child.logError(s);
     }
   }
 
-  public void logError( String s, Throwable e ) {
-    if ( child == null ) {
-      logErrorImpl( s, e );
+  public void logError(String s, Throwable e) {
+    if (child == null) {
+      logErrorImpl(s, e);
     } else {
-      child.logError( s, e );
+      child.logError(s, e);
     }
   }
 
-  public void logErrorImpl( String s ) {
-    super.logError( s );
+  public void logErrorImpl(String s) {
+    super.logError(s);
   }
 
-  public void logErrorImpl( String s, Throwable e ) {
-    super.logError( s, e );
+  public void logErrorImpl(String s, Throwable e) {
+    super.logError(s, e);
   }
 
-  public void logMinimal( String s ) {
-    if ( child == null ) {
-      logMinimalImpl( s );
+  public void logMinimal(String s) {
+    if (child == null) {
+      logMinimalImpl(s);
     } else {
-      child.logMinimal( s );
+      child.logMinimal(s);
     }
   }
 
-  public void logMinimalImpl( String s ) {
-    super.logMinimal( s );
+  public void logMinimalImpl(String s) {
+    super.logMinimal(s);
   }
 
-  public void logRowlevel( String s ) {
-    if ( child == null ) {
-      logRowlevelImpl( s );
+  public void logRowlevel(String s) {
+    if (child == null) {
+      logRowlevelImpl(s);
     } else {
-      child.logRowlevel( s );
+      child.logRowlevel(s);
     }
   }
 
-  public void logRowlevelImpl( String s ) {
-    super.logRowlevel( s );
+  public void logRowlevelImpl(String s) {
+    super.logRowlevel(s);
   }
 
   public void logSummary() {
-    if ( child == null ) {
+    if (child == null) {
       logSummaryImpl();
     } else {
       child.logSummary();
@@ -860,7 +856,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public void markStart() {
-    if ( child == null ) {
+    if (child == null) {
       markStartImpl();
     } else {
       child.markStart();
@@ -872,7 +868,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public void markStop() {
-    if ( child == null ) {
+    if (child == null) {
       markStopImpl();
     } else {
       child.markStop();
@@ -883,32 +879,32 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     super.markStop();
   }
 
-//  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
-//    if ( child == null ) {
-//      openRemoteInputTransformSocketsOnceImpl();
-//    } else {
-//      child.openRemoteInputTransformSocketsOnce();
-//    }
-//  }
+  //  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
+  //    if ( child == null ) {
+  //      openRemoteInputTransformSocketsOnceImpl();
+  //    } else {
+  //      child.openRemoteInputTransformSocketsOnce();
+  //    }
+  //  }
 
-//  public void openRemoteInputTransformSocketsOnceImpl() throws HopTransformException {
-//    super.openRemoteInputTransformSocketsOnce();
-//  }
+  //  public void openRemoteInputTransformSocketsOnceImpl() throws HopTransformException {
+  //    super.openRemoteInputTransformSocketsOnce();
+  //  }
 
-//  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
-//    if ( child == null ) {
-//      openRemoteOutputTransformSocketsOnceImpl();
-//    } else {
-//      child.openRemoteOutputTransformSocketsOnce();
-//    }
-//  }
+  //  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
+  //    if ( child == null ) {
+  //      openRemoteOutputTransformSocketsOnceImpl();
+  //    } else {
+  //      child.openRemoteOutputTransformSocketsOnce();
+  //    }
+  //  }
 
-//  public void openRemoteOutputTransformSocketsOnceImpl() throws HopTransformException {
-//    super.openRemoteOutputTransformSocketsOnce();
-//  }
+  //  public void openRemoteOutputTransformSocketsOnceImpl() throws HopTransformException {
+  //    super.openRemoteOutputTransformSocketsOnce();
+  //  }
 
   public boolean outputIsDone() {
-    if ( child == null ) {
+    if (child == null) {
       return outputIsDoneImpl();
     } else {
       return child.outputIsDone();
@@ -920,65 +916,79 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public boolean processRow() throws HopException {
-    if ( child == null ) {
+    if (child == null) {
       return false;
     } else {
       return child.processRow();
     }
   }
 
-  public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
-                        String fieldNames, String errorCodes ) throws HopTransformException {
-    if ( child == null ) {
-      putErrorImpl( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
+  public void putError(
+      IRowMeta rowMeta,
+      Object[] row,
+      long nrErrors,
+      String errorDescriptions,
+      String fieldNames,
+      String errorCodes)
+      throws HopTransformException {
+    if (child == null) {
+      putErrorImpl(rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes);
     } else {
-      child.putError( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
+      child.putError(rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes);
     }
   }
 
-  public void putErrorImpl( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
-                            String fieldNames, String errorCodes ) throws HopTransformException {
-    super.putError( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
+  public void putErrorImpl(
+      IRowMeta rowMeta,
+      Object[] row,
+      long nrErrors,
+      String errorDescriptions,
+      String fieldNames,
+      String errorCodes)
+      throws HopTransformException {
+    super.putError(rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes);
   }
 
-  public void putRow( IRowMeta row, Object[] data ) throws HopTransformException {
-    if ( child == null ) {
-      putRowImpl( row, data );
+  public void putRow(IRowMeta row, Object[] data) throws HopTransformException {
+    if (child == null) {
+      putRowImpl(row, data);
     } else {
-      child.putRow( row, data );
+      child.putRow(row, data);
     }
   }
 
-  public void putRowImpl( IRowMeta row, Object[] data ) throws HopTransformException {
-    super.putRow( row, data );
+  public void putRowImpl(IRowMeta row, Object[] data) throws HopTransformException {
+    super.putRow(row, data);
   }
 
-  public void putRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
-    if ( child == null ) {
-      putRowToImpl( rowMeta, row, rowSet );
+  public void putRowTo(IRowMeta rowMeta, Object[] row, IRowSet rowSet)
+      throws HopTransformException {
+    if (child == null) {
+      putRowToImpl(rowMeta, row, rowSet);
     } else {
-      child.putRowTo( rowMeta, row, rowSet );
+      child.putRowTo(rowMeta, row, rowSet);
     }
   }
 
-  public void putRowToImpl( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
-    super.putRowTo( rowMeta, row, rowSet );
+  public void putRowToImpl(IRowMeta rowMeta, Object[] row, IRowSet rowSet)
+      throws HopTransformException {
+    super.putRowTo(rowMeta, row, rowSet);
   }
 
-  public void removeRowListener( IRowListener rowListener ) {
-    if ( child == null ) {
-      removeRowListenerImpl( rowListener );
+  public void removeRowListener(IRowListener rowListener) {
+    if (child == null) {
+      removeRowListenerImpl(rowListener);
     } else {
-      child.removeRowListener( rowListener );
+      child.removeRowListener(rowListener);
     }
   }
 
-  public void removeRowListenerImpl( IRowListener rowListener ) {
-    super.removeRowListener( rowListener );
+  public void removeRowListenerImpl(IRowListener rowListener) {
+    super.removeRowListener(rowListener);
   }
 
   public int rowsetInputSize() {
-    if ( child == null ) {
+    if (child == null) {
       return rowsetInputSizeImpl();
     } else {
       return child.rowsetInputSize();
@@ -990,7 +1000,7 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   }
 
   public int rowsetOutputSize() {
-    if ( child == null ) {
+    if (child == null) {
       return rowsetOutputSizeImpl();
     } else {
       return child.rowsetOutputSize();
@@ -1001,140 +1011,140 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     return super.rowsetOutputSize();
   }
 
-  public void safeModeChecking( IRowMeta row ) throws HopRowException {
-    if ( child == null ) {
-      safeModeCheckingImpl( row );
+  public void safeModeChecking(IRowMeta row) throws HopRowException {
+    if (child == null) {
+      safeModeCheckingImpl(row);
     } else {
-      child.safeModeChecking( row );
+      child.safeModeChecking(row);
     }
   }
 
-  public void safeModeCheckingImpl( IRowMeta row ) throws HopRowException {
-    super.safeModeChecking( row );
+  public void safeModeCheckingImpl(IRowMeta row) throws HopRowException {
+    super.safeModeChecking(row);
   }
 
-  public void setErrors( long errors ) {
-    if ( child == null ) {
-      setErrorsImpl( errors );
+  public void setErrors(long errors) {
+    if (child == null) {
+      setErrorsImpl(errors);
     } else {
-      child.setErrors( errors );
+      child.setErrors(errors);
     }
   }
 
-  public void setErrorsImpl( long errors ) {
-    super.setErrors( errors );
+  public void setErrorsImpl(long errors) {
+    super.setErrors(errors);
   }
 
-  public void setInputRowMeta( IRowMeta rowMeta ) {
-    if ( child == null ) {
-      setInputRowMetaImpl( rowMeta );
+  public void setInputRowMeta(IRowMeta rowMeta) {
+    if (child == null) {
+      setInputRowMetaImpl(rowMeta);
     } else {
-      child.setInputRowMeta( rowMeta );
+      child.setInputRowMeta(rowMeta);
     }
   }
 
-  public void setInputRowMetaImpl( IRowMeta rowMeta ) {
-    super.setInputRowMeta( rowMeta );
+  public void setInputRowMetaImpl(IRowMeta rowMeta) {
+    super.setInputRowMeta(rowMeta);
   }
 
-  public void setInputRowSets( List<IRowSet> inputRowSets ) {
-    if ( child == null ) {
-      setInputRowSetsImpl( inputRowSets );
+  public void setInputRowSets(List<IRowSet> inputRowSets) {
+    if (child == null) {
+      setInputRowSetsImpl(inputRowSets);
     } else {
-      child.setInputRowSets( inputRowSets );
+      child.setInputRowSets(inputRowSets);
     }
   }
 
-  public void setInputRowSetsImpl( List<IRowSet> inputRowSets ) {
-    super.setInputRowSets( inputRowSets );
+  public void setInputRowSetsImpl(List<IRowSet> inputRowSets) {
+    super.setInputRowSets(inputRowSets);
   }
 
-  public void setLinesInput( long newLinesInputValue ) {
-    if ( child == null ) {
-      setLinesInputImpl( newLinesInputValue );
+  public void setLinesInput(long newLinesInputValue) {
+    if (child == null) {
+      setLinesInputImpl(newLinesInputValue);
     } else {
-      child.setLinesInput( newLinesInputValue );
+      child.setLinesInput(newLinesInputValue);
     }
   }
 
-  public void setLinesInputImpl( long newLinesInputValue ) {
-    super.setLinesInput( newLinesInputValue );
+  public void setLinesInputImpl(long newLinesInputValue) {
+    super.setLinesInput(newLinesInputValue);
   }
 
-  public void setLinesOutput( long newLinesOutputValue ) {
-    if ( child == null ) {
-      setLinesOutputImpl( newLinesOutputValue );
+  public void setLinesOutput(long newLinesOutputValue) {
+    if (child == null) {
+      setLinesOutputImpl(newLinesOutputValue);
     } else {
-      child.setLinesOutput( newLinesOutputValue );
+      child.setLinesOutput(newLinesOutputValue);
     }
   }
 
-  public void setLinesOutputImpl( long newLinesOutputValue ) {
-    super.setLinesOutput( newLinesOutputValue );
+  public void setLinesOutputImpl(long newLinesOutputValue) {
+    super.setLinesOutput(newLinesOutputValue);
   }
 
-  public void setLinesRead( long newLinesReadValue ) {
-    if ( child == null ) {
-      setLinesReadImpl( newLinesReadValue );
+  public void setLinesRead(long newLinesReadValue) {
+    if (child == null) {
+      setLinesReadImpl(newLinesReadValue);
     } else {
-      child.setLinesRead( newLinesReadValue );
+      child.setLinesRead(newLinesReadValue);
     }
   }
 
-  public void setLinesReadImpl( long newLinesReadValue ) {
-    super.setLinesRead( newLinesReadValue );
+  public void setLinesReadImpl(long newLinesReadValue) {
+    super.setLinesRead(newLinesReadValue);
   }
 
-  public void setLinesRejected( long linesRejected ) {
-    if ( child == null ) {
-      setLinesRejectedImpl( linesRejected );
+  public void setLinesRejected(long linesRejected) {
+    if (child == null) {
+      setLinesRejectedImpl(linesRejected);
     } else {
-      child.setLinesRejected( linesRejected );
+      child.setLinesRejected(linesRejected);
     }
   }
 
-  public void setLinesRejectedImpl( long linesRejected ) {
-    super.setLinesRejected( linesRejected );
+  public void setLinesRejectedImpl(long linesRejected) {
+    super.setLinesRejected(linesRejected);
   }
 
-  public void setLinesSkipped( long newLinesSkippedValue ) {
-    if ( child == null ) {
-      setLinesSkippedImpl( newLinesSkippedValue );
+  public void setLinesSkipped(long newLinesSkippedValue) {
+    if (child == null) {
+      setLinesSkippedImpl(newLinesSkippedValue);
     } else {
-      child.setLinesSkipped( newLinesSkippedValue );
+      child.setLinesSkipped(newLinesSkippedValue);
     }
   }
 
-  public void setLinesSkippedImpl( long newLinesSkippedValue ) {
-    super.setLinesSkipped( newLinesSkippedValue );
+  public void setLinesSkippedImpl(long newLinesSkippedValue) {
+    super.setLinesSkipped(newLinesSkippedValue);
   }
 
-  public void setLinesUpdated( long newLinesUpdatedValue ) {
-    if ( child == null ) {
-      setLinesUpdatedImpl( newLinesUpdatedValue );
+  public void setLinesUpdated(long newLinesUpdatedValue) {
+    if (child == null) {
+      setLinesUpdatedImpl(newLinesUpdatedValue);
     } else {
-      child.setLinesUpdated( newLinesUpdatedValue );
+      child.setLinesUpdated(newLinesUpdatedValue);
     }
   }
 
-  public void setLinesUpdatedImpl( long newLinesUpdatedValue ) {
-    super.setLinesUpdated( newLinesUpdatedValue );
+  public void setLinesUpdatedImpl(long newLinesUpdatedValue) {
+    super.setLinesUpdated(newLinesUpdatedValue);
   }
 
-  public void setLinesWritten( long newLinesWrittenValue ) {
-    if ( child == null ) {
-      setLinesWrittenImpl( newLinesWrittenValue );
+  public void setLinesWritten(long newLinesWrittenValue) {
+    if (child == null) {
+      setLinesWrittenImpl(newLinesWrittenValue);
     } else {
-      child.setLinesWritten( newLinesWrittenValue );
+      child.setLinesWritten(newLinesWrittenValue);
     }
   }
 
-  public void setLinesWrittenImpl( long newLinesWrittenValue ) {
-    super.setLinesWritten( newLinesWrittenValue );
+  public void setLinesWrittenImpl(long newLinesWrittenValue) {
+    super.setLinesWritten(newLinesWrittenValue);
   }
 
   public void setOutputDone() {
-    if ( child == null ) {
+    if (child == null) {
       setOutputDoneImpl();
     } else {
       child.setOutputDone();
@@ -1145,44 +1155,44 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     super.setOutputDone();
   }
 
-  public void setOutputRowSets( List<IRowSet> outputRowSets ) {
-    if ( child == null ) {
-      setOutputRowSetsImpl( outputRowSets );
+  public void setOutputRowSets(List<IRowSet> outputRowSets) {
+    if (child == null) {
+      setOutputRowSetsImpl(outputRowSets);
     } else {
-      child.setOutputRowSets( outputRowSets );
+      child.setOutputRowSets(outputRowSets);
     }
   }
 
-  public void setOutputRowSetsImpl( List<IRowSet> outputRowSets ) {
-    super.setOutputRowSets( outputRowSets );
+  public void setOutputRowSetsImpl(List<IRowSet> outputRowSets) {
+    super.setOutputRowSets(outputRowSets);
   }
 
-//  public void setTransformListeners( List<TransformListener> transformListeners ) {
-//    if ( child == null ) {
-//      setTransformListenersImpl( transformListeners );
-//    } else {
-//      child.setTransformListeners( transformListeners );
-//    }
-//  }
+  //  public void setTransformListeners( List<TransformListener> transformListeners ) {
+  //    if ( child == null ) {
+  //      setTransformListenersImpl( transformListeners );
+  //    } else {
+  //      child.setTransformListeners( transformListeners );
+  //    }
+  //  }
 
-//  public void setTransformListenersImpl( List<TransformListener> transformListeners ) {
-//    super.setTransformListeners( transformListeners );
-//  }
+  //  public void setTransformListenersImpl( List<TransformListener> transformListeners ) {
+  //    super.setTransformListeners( transformListeners );
+  //  }
 
-  public void setVariable( String variableName, String variableValue ) {
-    if ( child == null ) {
-      setVariableImpl( variableName, variableValue );
+  public void setVariable(String variableName, String variableValue) {
+    if (child == null) {
+      setVariableImpl(variableName, variableValue);
     } else {
-      child.setVariable( variableName, variableValue );
+      child.setVariable(variableName, variableValue);
     }
   }
 
-  public void setVariableImpl( String variableName, String variableValue ) {
-    super.setVariable( variableName, variableValue );
+  public void setVariableImpl(String variableName, String variableValue) {
+    super.setVariable(variableName, variableValue);
   }
 
   public void stopAll() {
-    if ( child == null ) {
+    if (child == null) {
       stopAllImpl();
     } else {
       child.stopAll();
@@ -1193,20 +1203,22 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
     super.stopAll();
   }
 
-  public void stopRunning( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
-    if ( child == null ) {
-      stopRunningImpl( transformMetaInterface, data );
+  public void stopRunning(ITransform transformMetaInterface, ITransformData iTransformData)
+      throws HopException {
+    if (child == null) {
+      stopRunningImpl(transformMetaInterface, data);
     } else {
-      child.stopRunning( transformMetaInterface, data );
+      child.stopRunning(transformMetaInterface, data);
     }
   }
 
-  public void stopRunningImpl( ITransform transformMetaInterface, ITransformData iTransformData ) throws HopException {
+  public void stopRunningImpl(ITransform transformMetaInterface, ITransformData iTransformData)
+      throws HopException {
     super.stopRunning();
   }
 
   public String toString() {
-    if ( child == null ) {
+    if (child == null) {
       return toStringImpl();
     } else {
       return child.toString();
@@ -1216,5 +1228,4 @@ public class UserDefinedJavaClass extends BaseTransform<UserDefinedJavaClassMeta
   public String toStringImpl() {
     return super.toString();
   }
-
 }

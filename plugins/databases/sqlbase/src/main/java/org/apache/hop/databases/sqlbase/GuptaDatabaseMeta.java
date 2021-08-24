@@ -19,9 +19,9 @@ package org.apache.hop.databases.sqlbase;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -31,29 +31,23 @@ import org.apache.hop.core.row.IValueMeta;
  * @author Matt
  * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(
-  type = "SQLBASE",
-  typeDescription = "Gupta SQL Base"
-)
-@GuiPlugin( id = "GUI-SQLBaseDatabaseMeta" )
+@DatabaseMetaPlugin(type = "SQLBASE", typeDescription = "Gupta SQL Base")
+@GuiPlugin(id = "GUI-SQLBaseDatabaseMeta")
 public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE };
+    return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
   @Override
   public int getDefaultDatabasePort() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
+    if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
       return 2155;
     }
     return -1;
   }
 
-  /**
-   * @return Whether or not the database can use auto increment type of fields (pk)
-   */
+  /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
   public boolean supportsAutoInc() {
     return false;
@@ -65,8 +59,8 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
-      return "jdbc:sqlbase://" + hostname + ":" + port + "/" + databaseName;
+  public String getURL(String hostname, String port, String databaseName) {
+    return "jdbc:sqlbase://" + hostname + ":" + port + "/" + databaseName;
   }
 
   /**
@@ -79,17 +73,13 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /**
-   * @return true if the database supports bitmap indexes
-   */
+  /** @return true if the database supports bitmap indexes */
   @Override
   public boolean supportsBitmapIndex() {
     return false;
   }
 
-  /**
-   * @return true if the database supports catalogs
-   */
+  /** @return true if the database supports catalogs */
   @Override
   public boolean supportsCatalogs() {
     return false;
@@ -106,55 +96,62 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                       String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  public String getAddColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
+    return "ALTER TABLE "
+        + tableName
+        + " ADD "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                          String pk, boolean semicolon ) {
+  public String getModifyColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
     String retval = "";
     retval += "ALTER TABLE " + tableName + " DROP " + v.getName() + Const.CR + ";" + Const.CR;
-    retval += "ALTER TABLE " + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+    retval +=
+        "ALTER TABLE "
+            + tableName
+            + " ADD "
+            + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
     return retval;
   }
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldName, boolean addCr ) {
+  public String getFieldDefinition(
+      IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
     String retval = "";
 
     String fieldname = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( addFieldName ) {
+    if (addFieldName) {
       retval += fieldname + " ";
     }
 
     int type = v.getType();
-    switch ( type ) {
+    switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
       case IValueMeta.TYPE_DATE:
         retval += "DATETIME NULL";
@@ -165,12 +162,13 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_NUMBER:
       case IValueMeta.TYPE_INTEGER:
       case IValueMeta.TYPE_BIGNUMBER:
-        if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
-          fieldname.equalsIgnoreCase( pk ) // Primary key
+        if (fieldname.equalsIgnoreCase(tk)
+            || // Technical key
+            fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
           retval += "INTEGER NOT NULL";
         } else {
-          if ( ( length < 0 && precision < 0 ) || precision > 0 || length > 9 ) {
+          if ((length < 0 && precision < 0) || precision > 0 || length > 9) {
             retval += "DOUBLE PRECISION";
           } else { // Precision == 0 && length<=9
             retval += "INTEGER";
@@ -178,7 +176,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         }
         break;
       case IValueMeta.TYPE_STRING:
-        if ( length > 254 || length < 0 ) {
+        if (length > 254 || length < 0) {
           retval += "LONG VARCHAR";
         } else {
           retval += "VARCHAR(" + length + ")";
@@ -189,7 +187,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         break;
     }
 
-    if ( addCr ) {
+    if (addCr) {
       retval += Const.CR;
     }
 
@@ -201,19 +199,19 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return true if the specified table is a system table
    */
   @Override
-  public boolean isSystemTable( String tableName ) {
-      return tableName.startsWith( "SYS" );
+  public boolean isSystemTable(String tableName) {
+    return tableName.startsWith("SYS");
   }
 
   /**
-   * Most databases allow you to retrieve result metadata by preparing a SELECT statement. Gupta though doesn't.
+   * Most databases allow you to retrieve result metadata by preparing a SELECT statement. Gupta
+   * though doesn't.
    *
-   * @return true if the database supports retrieval of query metadata from a prepared statement. False if the query
-   * needs to be executed first.
+   * @return true if the database supports retrieval of query metadata from a prepared statement.
+   *     False if the query needs to be executed first.
    */
   @Override
   public boolean supportsPreparedStatementMetadataRetrieval() {
     return false;
   }
-
 }

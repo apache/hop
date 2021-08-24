@@ -23,7 +23,8 @@ under the License.
 
 This guide walks you through the Hop basics.
 
-We'll focus on the core knowledge you need to move around in Hop, without going in detail. At the end of this guide, there will be links to dive deeper into various Hop topics.
+We'll focus on the core knowledge you need to move around in Hop, without going in detail.
+At the end of this guide, there will be links to dive deeper into various Hop topics.
 
 This is what we'll cover:
 

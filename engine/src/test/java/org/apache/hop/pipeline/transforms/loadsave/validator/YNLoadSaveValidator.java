@@ -29,7 +29,7 @@ public class YNLoadSaveValidator implements IFieldLoadSaveValidator<String> {
   }
 
   @Override
-  public boolean validateTestObject( String test, Object actual ) {
-    return test.equals( actual );
+  public boolean validateTestObject(String test, Object actual) {
+    return test.equals(actual);
   }
 }

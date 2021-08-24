@@ -29,7 +29,7 @@ public class PluginClassFile {
    * @param jarFile
    * @param folder
    */
-  public PluginClassFile( String className, URL jarFile, URL folder ) {
+  public PluginClassFile(String className, URL jarFile, URL folder) {
     this.className = className;
     this.jarFile = jarFile;
     this.pluginFolder = folder;
@@ -40,9 +40,7 @@ public class PluginClassFile {
     return jarFile.toString();
   }
 
-  /**
-   * @return the jarFile
-   */
+  /** @return the jarFile */
   public URL getJarFile() {
     return jarFile;
   }
@@ -54,5 +52,4 @@ public class PluginClassFile {
   public String getClassName() {
     return className;
   }
-
 }

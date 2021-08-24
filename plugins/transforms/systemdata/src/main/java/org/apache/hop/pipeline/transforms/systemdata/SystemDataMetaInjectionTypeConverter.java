@@ -23,12 +23,13 @@ import org.apache.hop.core.injection.InjectionTypeConverter;
 public class SystemDataMetaInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
-  public Enum<?> string2enum( Class<?> enumClass, String v ) throws HopValueException {
+  public Enum<?> string2enum(Class<?> enumClass, String v) throws HopValueException {
     // For SystemDataMeta, enum should be a SystemDataTypes
-    SystemDataTypes type = SystemDataTypes.getTypeFromString( v );
-    if ( !SystemDataTypes.TYPE_SYSTEM_INFO_NONE.toString().equals( v ) && type == SystemDataTypes.TYPE_SYSTEM_INFO_NONE ) {
+    SystemDataTypes type = SystemDataTypes.getTypeFromString(v);
+    if (!SystemDataTypes.TYPE_SYSTEM_INFO_NONE.toString().equals(v)
+        && type == SystemDataTypes.TYPE_SYSTEM_INFO_NONE) {
       // Throw exception to let user know entered string was not valid SystemDataType
-      throw new HopValueException( "Unknown value '" + v + "' for enum " + enumClass );
+      throw new HopValueException("Unknown value '" + v + "' for enum " + enumClass);
     } else {
       return type;
     }

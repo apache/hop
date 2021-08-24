@@ -25,7 +25,7 @@ The MySQL Bulk File action can bulk load data from MySQL into a file.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

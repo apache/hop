@@ -27,7 +27,6 @@ import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

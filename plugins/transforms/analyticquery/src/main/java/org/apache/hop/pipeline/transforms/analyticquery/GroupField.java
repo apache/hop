@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.Objects;

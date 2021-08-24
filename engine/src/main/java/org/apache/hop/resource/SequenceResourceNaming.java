@@ -21,12 +21,12 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * With this resource naming scheme we try to keep the original filename. However, if there are multiple files with the
- * same name, we add a sequence nr starting at 2.
- * <p>
- * For example :
- * <p>
- * Load orders.hpl Load orders 2.hpl Load orders 3.hpl etc.
+ * With this resource naming scheme we try to keep the original filename. However, if there are
+ * multiple files with the same name, we add a sequence nr starting at 2.
+ *
+ * <p>For example :
+ *
+ * <p>Load orders.hpl Load orders 2.hpl Load orders 3.hpl etc.
  *
  * @author matt
  */
@@ -53,19 +53,18 @@ public class SequenceResourceNaming extends SimpleResourceNaming {
   // Output Example 3 (file system prefix: ${HOP_FILE_BASE}!, path is used)
   // ${HOP_FILE_BASE}!japps/hop/samples/Marc_Sample_Pipeline_014.hpl
 
-  protected String getFileNameUniqueIdentifier( String filename, String extension ) {
+  protected String getFileNameUniqueIdentifier(String filename, String extension) {
 
     String key = filename + extension;
-    Integer seq = sequenceMap.get( key );
-    if ( seq == null ) {
-      seq = new Integer( 2 );
-      sequenceMap.put( key, seq );
+    Integer seq = sequenceMap.get(key);
+    if (seq == null) {
+      seq = new Integer(2);
+      sequenceMap.put(key, seq);
       return null;
     }
 
-    sequenceMap.put( key, new Integer( seq.intValue() + 1 ) );
+    sequenceMap.put(key, new Integer(seq.intValue() + 1));
 
     return seq.toString();
   }
-
 }

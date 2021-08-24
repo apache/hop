@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class contains and handles all the translations for the keys specified in the Java source code.
+ * This class contains and handles all the translations for the keys specified in the Java source
+ * code.
  *
  * @author matt
  */
@@ -39,14 +40,18 @@ public class TranslationsStore {
   private ILogChannel log;
 
   /**
-   *  @param log
+   * @param log
    * @param localeList
    * @param mainLocale
    * @param sourcePackageOccurrences
    * @param bundlesStore
    */
-  public TranslationsStore( ILogChannel log, List<String> localeList, String mainLocale,
-                            Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences, BundlesStore bundlesStore ) {
+  public TranslationsStore(
+      ILogChannel log,
+      List<String> localeList,
+      String mainLocale,
+      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences,
+      BundlesStore bundlesStore) {
     super();
     this.log = log;
     this.localeList = localeList;
@@ -58,81 +63,73 @@ public class TranslationsStore {
   /**
    * Look up the translation for a key in a certain locale
    *
-   * @param locale          the locale to hunt for
+   * @param locale the locale to hunt for
    * @param messagesPackage the messages package to look in
-   * @param key             the key
+   * @param key the key
    * @return the translation for the specified key in the desired locale, from the requested package
    */
-  public String lookupKeyValue( String locale, String messagesPackage, String key ) {
+  public String lookupKeyValue(String locale, String messagesPackage, String key) {
     return bundleStore.lookupTranslation(messagesPackage, locale, key);
   }
 
-  public void removeValue( String locale, String sourceFolder, String messagesPackage, String key ) {
+  public void removeValue(String locale, String sourceFolder, String messagesPackage, String key) {
     bundleStore.removeTranslation(messagesPackage, locale, key);
   }
 
-  public void storeValue( String locale, String sourceFolder, String messagesPackage, String key, String value ) {
+  public void storeValue(
+      String locale, String sourceFolder, String messagesPackage, String key, String value) {
     bundleStore.addTranslation(sourceFolder, messagesPackage, locale, key, value);
   }
 
-  /**
-   * @return the list of changed messages stores.
-   */
+  /** @return the list of changed messages stores. */
   public List<BundleFile> getChangedBundleFiles() {
     return bundleStore.getChangedBundleFiles();
   }
 
   /**
-   * @param searchLocale    the locale the filter on.
-   * @param messagesPackage the messagesPackage to filter on. Specify null to get all message stores.
+   * @param searchLocale the locale the filter on.
+   * @param messagesPackage the messagesPackage to filter on. Specify null to get all message
+   *     stores.
    * @return the list of messages bundle files for the locale
    */
-  public List<BundleFile> findBundleFiles( String searchLocale, String messagesPackage ) {
+  public List<BundleFile> findBundleFiles(String searchLocale, String messagesPackage) {
     return bundleStore.getBundleFiles(searchLocale, messagesPackage);
   }
 
-  public BundleFile findMainBundleFile( String messagesPackage ) {
-    List<BundleFile> bundlesFiles = findBundleFiles( mainLocale, messagesPackage );
+  public BundleFile findMainBundleFile(String messagesPackage) {
+    List<BundleFile> bundlesFiles = findBundleFiles(mainLocale, messagesPackage);
     if (bundlesFiles.isEmpty()) {
       return null;
     }
     return bundlesFiles.get(0);
   }
 
-  /**
-   * @return the localeList
-   */
+  /** @return the localeList */
   public List<String> getLocaleList() {
     return localeList;
   }
 
-  /**
-   * @param localeList the localeList to set
-   */
-  public void setLocaleList( List<String> localeList ) {
+  /** @param localeList the localeList to set */
+  public void setLocaleList(List<String> localeList) {
     this.localeList = localeList;
   }
 
-  /**
-   * @return the mainLocale
-   */
+  /** @return the mainLocale */
   public String getMainLocale() {
     return mainLocale;
   }
 
-  /**
-   * @param mainLocale the mainLocale to set
-   */
-  public void setMainLocale( String mainLocale ) {
+  /** @param mainLocale the mainLocale to set */
+  public void setMainLocale(String mainLocale) {
     this.mainLocale = mainLocale;
   }
-
 
   public Map<String, Map<String, List<KeyOccurrence>>> getSourcePackageOccurrences() {
     return sourcePackageOccurrences;
   }
 
-  public void setSourcePackageOccurrences( Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+  public void setSourcePackageOccurrences(
+      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences) {
     this.sourcePackageOccurrences = sourcePackageOccurrences;
   }
 
@@ -154,10 +151,8 @@ public class TranslationsStore {
     return log;
   }
 
-  /**
-   * @param log The log to set
-   */
-  public void setLog( ILogChannel log ) {
+  /** @param log The log to set */
+  public void setLog(ILogChannel log) {
     this.log = log;
   }
 }

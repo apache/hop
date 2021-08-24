@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.webserviceavailable;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionWebServiceAvailableTest extends WorkflowActionLoadSaveTestSupport<ActionWebServiceAvailable> {
+public class WorkflowActionWebServiceAvailableTest
+    extends WorkflowActionLoadSaveTestSupport<ActionWebServiceAvailable> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,26 +35,22 @@ public class WorkflowActionWebServiceAvailableTest extends WorkflowActionLoadSav
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "url",
-      "connectTimeOut",
-      "readTimeOut" );
+    return Arrays.asList("url", "connectTimeOut", "readTimeOut");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "url", "getURL",
-      "connectTimeOut", "getConnectTimeOut",
-      "readTimeOut", "getReadTimeOut" );
+        "url", "getURL",
+        "connectTimeOut", "getConnectTimeOut",
+        "readTimeOut", "getReadTimeOut");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "url", "setURL",
-      "connectTimeOut", "setConnectTimeOut",
-      "readTimeOut", "setReadTimeOut" );
+        "url", "setURL",
+        "connectTimeOut", "setConnectTimeOut",
+        "readTimeOut", "setReadTimeOut");
   }
-
 }

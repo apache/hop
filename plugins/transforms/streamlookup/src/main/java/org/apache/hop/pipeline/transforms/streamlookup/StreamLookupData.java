@@ -26,47 +26,33 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
 public class StreamLookupData extends BaseTransformData implements ITransformData {
-  /**
-   * used to store values in used to look up things
-   */
+  /** used to store values in used to look up things */
   public Map<RowMetaAndData, Object[]> look;
 
   public List<KeyValue> list;
 
-  /**
-   * nrs of keys-values in row.
-   */
+  /** nrs of keys-values in row. */
   public int[] keynrs;
 
-  /**
-   * The metadata we send out
-   */
+  /** The metadata we send out */
   public IRowMeta outputRowMeta;
 
-  /**
-   * default string converted to values...
-   */
+  /** default string converted to values... */
   public Object[] nullIf;
 
-  /**
-   * Flag to indicate that we have to read lookup values from the info transform
-   */
+  /** Flag to indicate that we have to read lookup values from the info transform */
   public boolean readLookupValues;
 
   /**
-   * Stores the first row of the lookup-values to later determine if the types are the same as the input row lookup
-   * values.
+   * Stores the first row of the lookup-values to later determine if the types are the same as the
+   * input row lookup values.
    */
   public IRowMeta keyTypes;
 
@@ -87,9 +73,7 @@ public class StreamLookupData extends BaseTransformData implements ITransformDat
 
   public boolean metadataVerifiedIntegerPair;
 
-  /**
-   * See if we need to convert the keys to a native data type
-   */
+  /** See if we need to convert the keys to a native data type */
   public boolean[] convertKeysToNative;
 
   // Did we read rows from the lookup hop.
@@ -106,13 +90,13 @@ public class StreamLookupData extends BaseTransformData implements ITransformDat
     metadataVerifiedIntegerPair = false;
     hasLookupRows = false;
 
-    comparator = ( k1, k2 ) -> {
-      try {
-        return cacheKeyMeta.compare( k1.getKey(), k2.getKey() );
-      } catch ( HopValueException e ) {
-        throw new RuntimeException( "Stream Lookup comparator error", e );
-      }
-    };
+    comparator =
+        (k1, k2) -> {
+          try {
+            return cacheKeyMeta.compare(k1.getKey(), k2.getKey());
+          } catch (HopValueException e) {
+            throw new RuntimeException("Stream Lookup comparator error", e);
+          }
+        };
   }
-
 }

@@ -36,11 +36,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -63,11 +59,7 @@ import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
-import org.apache.hop.ui.core.gui.GuiMenuWidgets;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
-import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.gui.*;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
@@ -99,28 +91,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.*;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 @GuiPlugin(description = "The main hop graphical user interface")
 public class HopGui
@@ -443,7 +422,10 @@ public class HopGui
         // Create a toolbar item
         //
         ToolItem item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
-        item.setToolTipText(Const.NVL(TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass), perspective.getId()));
+        item.setToolTipText(
+            Const.NVL(
+                TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass),
+                perspective.getId()));
         item.setData(perspective);
         item.addListener(
             SWT.Selection,
@@ -595,8 +577,8 @@ public class HopGui
       id = ID_MAIN_TOOLBAR_SAVE_AS,
       image = "ui/images/save-as.svg",
       toolTip = "i18n::HopGui.Menu.File.SaveAs")
-  @GuiKeyboardShortcut(control = true, shift=true, key = 's')
-  @GuiOsxKeyboardShortcut(command = true, shift=true, key = 's')  
+  @GuiKeyboardShortcut(control = true, shift = true, key = 's')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 's')
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
   }
@@ -1056,9 +1038,11 @@ public class HopGui
    * @param running set this to true if the current file is running
    * @param paused set this to true if the current file is paused
    */
-  public void handleFileCapabilities(IHopFileType fileType, boolean changed, boolean running, boolean paused) {
+  public void handleFileCapabilities(
+      IHopFileType fileType, boolean changed, boolean running, boolean paused) {
 
-    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
+    mainMenuWidgets.enableMenuItem(
+        fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
         fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
     mainMenuWidgets.enableMenuItem(
@@ -1472,18 +1456,18 @@ public class HopGui
     return false;
   }
 
-  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_UP)
+  @GuiKeyboardShortcut(control = true, shift = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = SWT.ARROW_UP)
   public void previousPerspective() {
     IHopPerspective perspective = getActivePerspective();
-    getPerspectiveManager().showPreviousPerspective( perspective );
+    getPerspectiveManager().showPreviousPerspective(perspective);
   }
 
-  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.ARROW_DOWN)
-  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.ARROW_DOWN)
+  @GuiKeyboardShortcut(control = true, shift = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = SWT.ARROW_DOWN)
   public void nextPerspective() {
     IHopPerspective perspective = getActivePerspective();
-    getPerspectiveManager().showNextPerspective( perspective );
+    getPerspectiveManager().showNextPerspective(perspective);
   }
 
   /**

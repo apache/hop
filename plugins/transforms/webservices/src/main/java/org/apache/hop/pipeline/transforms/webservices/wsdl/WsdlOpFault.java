@@ -19,9 +19,7 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
 import javax.xml.namespace.QName;
 
-/**
- * Wsdl operation fault abstraction.
- */
+/** Wsdl operation fault abstraction. */
 public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -32,14 +30,14 @@ public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Seria
   /**
    * Create a new WsdlOpFault instance.
    *
-   * @param name      QName of the parameter.
-   * @param xmlType   XML type of the parameter.
+   * @param name QName of the parameter.
+   * @param xmlType XML type of the parameter.
    * @param wsdlTypes Wsdl type information.
    */
-  protected WsdlOpFault( String name, QName xmlType, boolean isComplexType, WsdlTypes wsdlTypes ) {
+  protected WsdlOpFault(String name, QName xmlType, boolean isComplexType, WsdlTypes wsdlTypes) {
 
-    this.name = wsdlTypes.getTypeQName( name );
-    this.isElementFormQualified = wsdlTypes.isElementFormQualified( this.name.getNamespaceURI() );
+    this.name = wsdlTypes.getTypeQName(name);
+    this.isElementFormQualified = wsdlTypes.isElementFormQualified(this.name.getNamespaceURI());
     this.xmlType = xmlType;
     this.isComplexType = isComplexType;
   }

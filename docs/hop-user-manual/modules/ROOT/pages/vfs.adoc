@@ -21,14 +21,17 @@ under the License.
 
 == Description
 
-https://commons.apache.org/proper/commons-vfs/[Apache Virtual File System (VFS)] is part of the Apache Commons project. Through VFS, Hop users can access various files from different sources such as files on the local disk, on a HTTP(S) server, inside a ZIP archive and so through a url format.
+https://commons.apache.org/proper/commons-vfs/[Apache Virtual File System (VFS)] is part of the Apache Commons project.
+Through VFS, Hop users can access various files from different sources such as files on the local disk, on a HTTP(S) server, inside a ZIP archive and so through a url format.
 
-Apache Hop makes fervent usage of VFS. Beyond the standard VFS file system types, we have added a number which are present in the various technology stacks supported by Hop. Like the standard file systems each has its own unique name scheme which you can use.
-
+Apache Hop makes fervent usage of VFS.
+Beyond the standard VFS file system types, we have added a number which are present in the various technology stacks supported by Hop.
+Like the standard file systems each has its own unique name scheme which you can use.
 
 == Apache Hop VFS File Systems
 
-The table below provides a quick overview of the VFS file systems supported by Apache Hop. Click the File system name to access more detailed file system documentation.
+The table below provides a quick overview of the VFS file systems supported by Apache Hop.
+Click the File system name to access more detailed file system documentation.
 
 [options="header",cols="2,3,5"]
 |===
@@ -43,7 +46,6 @@ The table below provides a quick overview of the VFS file systems supported by A
 == Apache VFS File System Types
 
 The table below lists the file system types provided by the default Apache VFS implementation.
-
 
 Check the Apache VFS https://commons.apache.org/proper/commons-vfs/filesystems.html[file system types] for more information on the supported functionality per files system.
 
@@ -60,7 +62,8 @@ a|URI Format
 
 `+bz2:// compressed-file-uri+`
 
-Where compressed-file-uri refers to a file of any supported type. There is no need to add a `!` part to the URI if you read the content of the file you always will get the uncompressed version.
+Where compressed-file-uri refers to a file of any supported type.
+There is no need to add a `!` part to the URI if you read the content of the file you always will get the uncompressed version.
 
 Examples
 
@@ -75,7 +78,8 @@ a|URI Format
 
 `+[file://] absolute-path+`
 
-Where `absolute-path` is a valid absolute file name for the local platform. UNC names are supported under Windows.
+Where `absolute-path` is a valid absolute file name for the local platform.
+UNC names are supported under Windows.
 
 Examples
 
@@ -99,7 +103,8 @@ Examples
 
 `+ftp://myusername:mypassword@somehost/pub/downloads/somefile.tgz+`
 
-By default, the path is relative to the user's home directory. This can be changed with:
+By default, the path is relative to the user's home directory.
+This can be changed with:
 
 `+FtpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(options, false);+`
 //
@@ -122,7 +127,8 @@ Examples
 //
 // HDFS
 //
-|HDFS|Provides (read-only) access to files in an Apache Hadoop File System (HDFS). On Windows the integration test is disabled by default, as it requires binaries.
+|HDFS|Provides (read-only) access to files in an Apache Hadoop File System (HDFS).
+On Windows the integration test is disabled by default, as it requires binaries.
 a|
 URI Format
 
@@ -150,8 +156,10 @@ File System Options
 * **proxyPort** The proxy port to use.
 * **proxyScheme** The proxy scheme (http/https) to use.
 * **cookies** An array of Cookies to add to the request.
-* **maxConnectionsPerHost** The maximum number of connections allowed to a specific host and port. The default is 5.
-* **maxTotalConnections** The maximum number of connections allowed to all hosts. The default is 50.
+* **maxConnectionsPerHost** The maximum number of connections allowed to a specific host and port.
+The default is 5.
+* **maxTotalConnections** The maximum number of connections allowed to all hosts.
+The default is 50.
 * **keystoreFile** The keystore file for SSL connections.
 * **keystorePass** The keystore password.
 * **keystoreType** The keystore type.
@@ -178,7 +186,8 @@ URI Format
 
 `+tbz2:// arch-file-uri[! absolute-path]+`
 
-Where `arch-file-uri` refers to a file of any supported type, including other zip files. Note: if you would like to use the ! as normal character it must be escaped using `%21`.
+Where `arch-file-uri` refers to a file of any supported type, including other zip files.
+Note: if you would like to use the ! as normal character it must be escaped using `%21`.
 `tgz` and `tbz2` are convenience for `tar:gz` and `tar:bz2`.
 
 Examples
@@ -194,7 +203,8 @@ Examples
 // mime
 //
 |mime*|This (sandbox) filesystem can read mails and its attachements like archives.
-If a part in the parsed mail has no name, a dummy name will be generated. The dummy name is: _body_part_X where X will be replaced by the part number.
+If a part in the parsed mail has no name, a dummy name will be generated.
+The dummy name is: _body_part_X where X will be replaced by the part number.
 a|
 URI Format
 
@@ -260,7 +270,8 @@ Examples
 //
 // Temp
 //
-|Temp|Provides access to a temporary file system, or scratchpad, that is deleted when Commons VFS shuts down. The temporary file system is backed by a local file system.
+|Temp|Provides access to a temporary file system, or scratchpad, that is deleted when Commons VFS shuts down.
+The temporary file system is backed by a local file system.
 a|
 URI Format
 
@@ -282,7 +293,8 @@ URI Format
 File System Options
 
 * **versioning** true if versioning should be enabled
-* **creatorName** the user name to be identified with changes to a file. If not set the user name used to authenticate will be used.
+* **creatorName** the user name to be identified with changes to a file.
+If not set the user name used to authenticate will be used.
 
 Examples
 

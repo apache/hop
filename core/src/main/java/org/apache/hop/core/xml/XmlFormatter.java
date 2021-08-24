@@ -16,12 +16,7 @@
  */
 package org.apache.hop.core.xml;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -29,9 +24,9 @@ import java.util.List;
 
 /**
  * XML formatting for better VCS diff.
- * <p>
- * It preserve formatting only in cases: 1) inside one tag if there are only characters, 2) in comments, 3) if there are
- * some characters outside tags
+ *
+ * <p>It preserve formatting only in cases: 1) inside one tag if there are only characters, 2) in
+ * comments, 3) if there are some characters outside tags
  *
  * @author Alexander Buloichik
  */
@@ -42,22 +37,22 @@ public class XmlFormatter {
   private static XMLOutputFactory OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
   static {
-    INPUT_FACTORY.setProperty( XMLInputFactory.IS_COALESCING, false );
+    INPUT_FACTORY.setProperty(XMLInputFactory.IS_COALESCING, false);
   }
 
-  public static String format( String xml ) {
+  public static String format(String xml) {
     XMLStreamReader rd = null;
     XMLStreamWriter wr = null;
 
     StringWriter result = new StringWriter();
     try {
-      rd = INPUT_FACTORY.createXMLStreamReader( new StringReader( xml ) );
+      rd = INPUT_FACTORY.createXMLStreamReader(new StringReader(xml));
 
-      synchronized ( OUTPUT_FACTORY ) {
+      synchronized (OUTPUT_FACTORY) {
         // BACKLOG-18743: This object was not thread safe in some scenarios
         // causing the `result` variable to have data from other concurrent executions
         // and making the final output invalid.
-        wr = OUTPUT_FACTORY.createXMLStreamWriter( result );
+        wr = OUTPUT_FACTORY.createXMLStreamWriter(result);
       }
 
       StartElementBuffer startElementBuffer = null;
@@ -66,110 +61,110 @@ public class XmlFormatter {
       StringBuilder cdata = new StringBuilder();
       boolean wasStart = false;
       boolean wasSomething = false;
-      while ( rd.hasNext() ) {
+      while (rd.hasNext()) {
         int event = rd.next();
-        if ( event != XMLStreamConstants.CDATA && cdata.length() > 0 ) {
+        if (event != XMLStreamConstants.CDATA && cdata.length() > 0) {
           // was CDATA
-          wr.writeCData( cdata.toString() );
-          cdata.setLength( 0 );
+          wr.writeCData(cdata.toString());
+          cdata.setLength(0);
         }
 
-        if ( startElementBuffer != null ) {
-          if ( event == XMLStreamConstants.END_ELEMENT ) {
-            startElementBuffer.writeTo( wr, true );
+        if (startElementBuffer != null) {
+          if (event == XMLStreamConstants.END_ELEMENT) {
+            startElementBuffer.writeTo(wr, true);
             startElementBuffer = null;
-            prefix.setLength( prefix.length() - TRANSFORM_PREFIX.length() );
+            prefix.setLength(prefix.length() - TRANSFORM_PREFIX.length());
             wasStart = false;
             continue;
           } else {
-            startElementBuffer.writeTo( wr, false );
+            startElementBuffer.writeTo(wr, false);
             startElementBuffer = null;
           }
         }
 
-        switch ( event ) {
+        switch (event) {
           case XMLStreamConstants.START_ELEMENT:
-            if ( !whitespacesOnly( str ) ) {
-              wr.writeCharacters( str.toString() );
-            } else if ( wasSomething ) {
-              wr.writeCharacters( "\n" + prefix );
+            if (!whitespacesOnly(str)) {
+              wr.writeCharacters(str.toString());
+            } else if (wasSomething) {
+              wr.writeCharacters("\n" + prefix);
             }
-            str.setLength( 0 );
-            prefix.append( TRANSFORM_PREFIX );
-            startElementBuffer = new StartElementBuffer( rd );
+            str.setLength(0);
+            prefix.append(TRANSFORM_PREFIX);
+            startElementBuffer = new StartElementBuffer(rd);
             wasStart = true;
             wasSomething = true;
             break;
           case XMLStreamConstants.END_ELEMENT:
-            prefix.setLength( prefix.length() - TRANSFORM_PREFIX.length() );
-            if ( wasStart ) {
-              wr.writeCharacters( str.toString() );
+            prefix.setLength(prefix.length() - TRANSFORM_PREFIX.length());
+            if (wasStart) {
+              wr.writeCharacters(str.toString());
             } else {
-              if ( !whitespacesOnly( str ) ) {
-                wr.writeCharacters( str.toString() );
+              if (!whitespacesOnly(str)) {
+                wr.writeCharacters(str.toString());
               } else {
-                wr.writeCharacters( "\n" + prefix );
+                wr.writeCharacters("\n" + prefix);
               }
             }
-            str.setLength( 0 );
+            str.setLength(0);
             wr.writeEndElement();
             wasStart = false;
             break;
           case XMLStreamConstants.SPACE:
           case XMLStreamConstants.CHARACTERS:
-            str.append( rd.getText() );
+            str.append(rd.getText());
             break;
           case XMLStreamConstants.CDATA:
-            if ( !whitespacesOnly( str ) ) {
-              wr.writeCharacters( str.toString() );
+            if (!whitespacesOnly(str)) {
+              wr.writeCharacters(str.toString());
             }
-            str.setLength( 0 );
-            cdata.append( rd.getText() );
+            str.setLength(0);
+            cdata.append(rd.getText());
             wasSomething = true;
             break;
           case XMLStreamConstants.COMMENT:
-            if ( !whitespacesOnly( str ) ) {
-              wr.writeCharacters( str.toString() );
-            } else if ( wasSomething ) {
-              wr.writeCharacters( "\n" + prefix );
+            if (!whitespacesOnly(str)) {
+              wr.writeCharacters(str.toString());
+            } else if (wasSomething) {
+              wr.writeCharacters("\n" + prefix);
             }
-            str.setLength( 0 );
-            wr.writeComment( rd.getText() );
+            str.setLength(0);
+            wr.writeComment(rd.getText());
             wasSomething = true;
             break;
           case XMLStreamConstants.END_DOCUMENT:
-            wr.writeCharacters( "\n" );
+            wr.writeCharacters("\n");
             wr.writeEndDocument();
             break;
           default:
-            throw new RuntimeException( "Unknown XML event: " + event );
+            throw new RuntimeException("Unknown XML event: " + event);
         }
       }
 
       wr.flush();
 
       return result.toString();
-    } catch ( XMLStreamException ex ) {
-      throw new RuntimeException( ex );
+    } catch (XMLStreamException ex) {
+      throw new RuntimeException(ex);
     } finally {
       try {
-        if ( wr != null ) {
+        if (wr != null) {
           wr.close();
         }
-      } catch ( Exception ex ) {
+      } catch (Exception ex) {
       }
       try {
-        if ( rd != null ) {
+        if (rd != null) {
           rd.close();
         }
-      } catch ( Exception ex ) {
+      } catch (Exception ex) {
       }
     }
   }
 
   /**
-   * Storage for start element info. It required since elements can be empty, i.e. we should call writeEmptyElement for
-   * writer instead writeStartElement.
+   * Storage for start element info. It required since elements can be empty, i.e. we should call
+   * writeEmptyElement for writer instead writeStartElement.
    */
   private static class StartElementBuffer {
     String prefix;
@@ -177,31 +172,31 @@ public class XmlFormatter {
     String localName;
     List<AttrBuffer> attrBuffer = new ArrayList<>();
 
-    public StartElementBuffer( XMLStreamReader rd ) {
+    public StartElementBuffer(XMLStreamReader rd) {
       prefix = rd.getPrefix();
       namespace = rd.getNamespaceURI();
       localName = rd.getLocalName();
-      for ( int i = 0; i < rd.getAttributeCount(); i++ ) {
-        attrBuffer.add( new AttrBuffer( rd, i ) );
+      for (int i = 0; i < rd.getAttributeCount(); i++) {
+        attrBuffer.add(new AttrBuffer(rd, i));
       }
     }
 
-    public void writeTo( XMLStreamWriter wr, boolean empty ) throws XMLStreamException {
-      if ( empty ) {
-        if ( namespace != null ) {
-          wr.writeEmptyElement( prefix, localName, namespace );
+    public void writeTo(XMLStreamWriter wr, boolean empty) throws XMLStreamException {
+      if (empty) {
+        if (namespace != null) {
+          wr.writeEmptyElement(prefix, localName, namespace);
         } else {
-          wr.writeEmptyElement( localName );
+          wr.writeEmptyElement(localName);
         }
       } else {
-        if ( namespace != null ) {
-          wr.writeStartElement( prefix, localName, namespace );
+        if (namespace != null) {
+          wr.writeStartElement(prefix, localName, namespace);
         } else {
-          wr.writeStartElement( localName );
+          wr.writeStartElement(localName);
         }
       }
-      for ( AttrBuffer a : attrBuffer ) {
-        a.writeTo( wr );
+      for (AttrBuffer a : attrBuffer) {
+        a.writeTo(wr);
       }
     }
   }
@@ -212,25 +207,25 @@ public class XmlFormatter {
     String localName;
     String value;
 
-    public AttrBuffer( XMLStreamReader rd, int attrIndex ) {
-      prefix = rd.getAttributePrefix( attrIndex );
-      namespace = rd.getAttributeNamespace( attrIndex );
-      localName = rd.getAttributeLocalName( attrIndex );
-      value = rd.getAttributeValue( attrIndex );
+    public AttrBuffer(XMLStreamReader rd, int attrIndex) {
+      prefix = rd.getAttributePrefix(attrIndex);
+      namespace = rd.getAttributeNamespace(attrIndex);
+      localName = rd.getAttributeLocalName(attrIndex);
+      value = rd.getAttributeValue(attrIndex);
     }
 
-    public void writeTo( XMLStreamWriter wr ) throws XMLStreamException {
-      if ( namespace != null ) {
-        wr.writeAttribute( prefix, namespace, localName, value );
+    public void writeTo(XMLStreamWriter wr) throws XMLStreamException {
+      if (namespace != null) {
+        wr.writeAttribute(prefix, namespace, localName, value);
       } else {
-        wr.writeAttribute( localName, value );
+        wr.writeAttribute(localName, value);
       }
     }
   }
 
-  private static boolean whitespacesOnly( StringBuilder str ) {
-    for ( int i = 0; i < str.length(); i++ ) {
-      if ( !Character.isWhitespace( str.charAt( i ) ) ) {
+  private static boolean whitespacesOnly(StringBuilder str) {
+    for (int i = 0; i < str.length(); i++) {
+      if (!Character.isWhitespace(str.charAt(i))) {
         return false;
       }
     }

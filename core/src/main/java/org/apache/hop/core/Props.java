@@ -23,14 +23,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
- * We use Props to store all kinds of user interactive information such as the selected colors, fonts, positions of
- * windows, etc.
+ * We use Props to store all kinds of user interactive information such as the selected colors,
+ * fonts, positions of windows, etc.
  *
  * @author Matt
  * @since 15-12-2003
@@ -72,7 +70,8 @@ public class Props implements Cloneable {
   public static final String STRING_ICON_SIZE = "IconSize";
   public static final String STRING_LINE_WIDTH = "LineWidth";
   public static final String STRING_MIDDLE_PCT = "MiddlePct";
-  public static final String STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS = "IndicateSlowPipelineTransforms";
+  public static final String STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS =
+      "IndicateSlowPipelineTransforms";
 
   public static final String STRING_LAST_PREVIEW_PIPELINE = "LastPreviewPipeline";
   public static final String STRING_LAST_PREVIEW_TRANSFORM = "LastPreviewTransform";
@@ -107,7 +106,7 @@ public class Props implements Cloneable {
   public static final int WIDGET_STYLE_TOOLBAR = 6;
 
   public Props() {
-    log = new LogChannel( STRING_USER_PREFERENCES );
+    log = new LogChannel(STRING_USER_PREFERENCES);
   }
 
   @Override
@@ -115,66 +114,64 @@ public class Props implements Cloneable {
     return STRING_USER_PREFERENCES;
   }
 
-
   protected void setDefault() {
-    if ( !containsKey( "WorkflowDialogStyle" ) ) {
-      setProperty( "WorkflowDialogStyle", "RESIZE,MAX,MIN" );
+    if (!containsKey("WorkflowDialogStyle")) {
+      setProperty("WorkflowDialogStyle", "RESIZE,MAX,MIN");
     }
   }
 
   protected void setProperty(String key, String value) {
     try {
-      HopConfig.setGuiProperty( key, value );
+      HopConfig.setGuiProperty(key, value);
       HopConfig.getInstance().saveToFile();
-    } catch(Exception e) {
-      throw new RuntimeException("Error saving hop config option key '"+key+"', value '"+value+"'", e);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Error saving hop config option key '" + key + "', value '" + value + "'", e);
     }
   }
 
-  public String getProperty( String propertyName ) {
-    return getProperty( propertyName, null );
+  public String getProperty(String propertyName) {
+    return getProperty(propertyName, null);
   }
 
-  public String getProperty( String propertyName, String defaultValue ) {
-    String value = HopConfig.getGuiProperty( propertyName );
-    if ( StringUtils.isEmpty(value)) {
+  public String getProperty(String propertyName, String defaultValue) {
+    String value = HopConfig.getGuiProperty(propertyName);
+    if (StringUtils.isEmpty(value)) {
       return defaultValue;
     }
     return value;
   }
 
   public boolean containsKey(String key) {
-    return HopConfig.getInstance().getConfigMap().containsKey( key );
+    return HopConfig.getInstance().getConfigMap().containsKey(key);
   }
 
-  public void setUseDBCache( boolean use ) {
-    setProperty( STRING_USE_DB_CACHE, use ? "Y" : "N" );
+  public void setUseDBCache(boolean use) {
+    setProperty(STRING_USE_DB_CACHE, use ? "Y" : "N");
   }
 
   public boolean useDBCache() {
-    String use = getProperty( STRING_USE_DB_CACHE );
-    return !"N".equalsIgnoreCase( use );
+    String use = getProperty(STRING_USE_DB_CACHE);
+    return !"N".equalsIgnoreCase(use);
   }
-
-
 
   /**
    * @param parameterName The parameter name
-   * @param defaultValue  The default value in case the parameter doesn't exist yet.
+   * @param defaultValue The default value in case the parameter doesn't exist yet.
    * @return The custom parameter
    */
-  public String getCustomParameter( String parameterName, String defaultValue ) {
-    return getProperty( STRING_CUSTOM_PARAMETER + parameterName, defaultValue );
+  public String getCustomParameter(String parameterName, String defaultValue) {
+    return getProperty(STRING_CUSTOM_PARAMETER + parameterName, defaultValue);
   }
 
   /**
    * Set the custom parameter
    *
    * @param parameterName The name of the parameter
-   * @param value         The value to be stored in the properties file.
+   * @param value The value to be stored in the properties file.
    */
-  public void setCustomParameter( String parameterName, String value ) {
-    setProperty( STRING_CUSTOM_PARAMETER + parameterName, value );
+  public void setCustomParameter(String parameterName, String value) {
+    setProperty(STRING_CUSTOM_PARAMETER + parameterName, value);
   }
 
   public void clearCustomParameters() throws HopException {
@@ -182,7 +179,7 @@ public class Props implements Cloneable {
     Iterator<Map.Entry<String, String>> iterator = configMap.entrySet().iterator();
     while (iterator.hasNext()) {
       Map.Entry<String, String> entry = iterator.next();
-      if (entry.getKey().startsWith( STRING_CUSTOM_PARAMETER )) {
+      if (entry.getKey().startsWith(STRING_CUSTOM_PARAMETER)) {
         iterator.remove();
       }
     }
@@ -196,6 +193,4 @@ public class Props implements Cloneable {
   private void clear() {
     HopConfig.getInstance().getConfigMap().clear();
   }
-
-
 }

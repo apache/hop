@@ -18,12 +18,13 @@
 package org.apache.hop.core.plugins;
 
 /**
- * Plugins implementing this type will be asked to load classes instead of having it handled by the PluginRegistry.
- * <p>
- * User: nbaker Date: 12/12/10
+ * Plugins implementing this type will be asked to load classes instead of having it handled by the
+ * PluginRegistry.
+ *
+ * <p>User: nbaker Date: 12/12/10
  */
 public interface IClassLoadingPlugin {
-  <T> T loadClass( Class<T> pluginClass );
+  <T> T loadClass(Class<T> pluginClass);
 
   ClassLoader getClassLoader();
 }

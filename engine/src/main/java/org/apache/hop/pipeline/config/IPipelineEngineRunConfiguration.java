@@ -20,18 +20,16 @@ package org.apache.hop.pipeline.config;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataObject;
 
-@HopMetadataObject(
-  objectFactory = PipelineRunConfigurationMetadataObjectFactory.class
-)
+@HopMetadataObject(objectFactory = PipelineRunConfigurationMetadataObjectFactory.class)
 public interface IPipelineEngineRunConfiguration extends Cloneable, IVariables {
 
   IPipelineEngineRunConfiguration clone();
 
-  void setEnginePluginId( String pluginId );
+  void setEnginePluginId(String pluginId);
 
   String getEnginePluginId();
 
-  void setEnginePluginName( String name );
+  void setEnginePluginName(String name);
 
   String getEnginePluginName();
 }

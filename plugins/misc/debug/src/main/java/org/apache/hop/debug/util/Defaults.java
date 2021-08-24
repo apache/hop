@@ -44,7 +44,7 @@ public class Defaults {
     Set<String> strings = new HashSet<>();
 
     List<String> valuesList = Arrays.asList();
-    strings.addAll( valuesList );
+    strings.addAll(valuesList);
 
     return strings;
   }

@@ -20,30 +20,27 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class TimedRowTest {
   @Test
   public void testClass() {
     final long time = 1447691729119L;
-    final Date date = new Date( time );
-    final Object[] data = new Object[] { "value1", "value2", null };
-    TimedRow row = new TimedRow( date, data );
-    assertSame( data, row.getRow() );
-    assertSame( date, row.getLogDate() );
-    assertEquals( time, row.getLogtime() );
-    assertEquals( "value1, value2, null", row.toString() );
-    row.setRow( null );
-    assertNull( row.getRow() );
-    row.setLogDate( null );
-    assertNull( row.getLogDate() );
-    assertEquals( 0L, row.getLogtime() );
+    final Date date = new Date(time);
+    final Object[] data = new Object[] {"value1", "value2", null};
+    TimedRow row = new TimedRow(date, data);
+    assertSame(data, row.getRow());
+    assertSame(date, row.getLogDate());
+    assertEquals(time, row.getLogtime());
+    assertEquals("value1, value2, null", row.toString());
+    row.setRow(null);
+    assertNull(row.getRow());
+    row.setLogDate(null);
+    assertNull(row.getLogDate());
+    assertEquals(0L, row.getLogtime());
 
-    row = new TimedRow( data );
-    assertSame( data, row.getRow() );
-    assertNotSame( date, row.getLogDate() );
+    row = new TimedRow(data);
+    assertSame(data, row.getRow());
+    assertNotSame(date, row.getLogDate());
   }
 }

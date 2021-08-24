@@ -23,39 +23,37 @@ import java.util.Objects;
 
 public class Music implements IInterest {
 
-  @HopMetadataProperty
-  private InterestType type;
+  @HopMetadataProperty private InterestType type;
 
-  @HopMetadataProperty
-  private String name;
+  @HopMetadataProperty private String name;
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  public Music() {
-  }
+  public Music() {}
 
-  public Music( String name, String description ) {
+  public Music(String name, String description) {
     this.type = InterestType.Entertainment;
     this.name = name;
     this.description = description;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     Music music = (Music) o;
-    return type == music.type &&
-      Objects.equals( name, music.name ) &&
-      Objects.equals( description, music.description );
+    return type == music.type
+        && Objects.equals(name, music.name)
+        && Objects.equals(description, music.description);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( type, name, description );
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, name, description);
   }
 
   /**
@@ -63,14 +61,13 @@ public class Music implements IInterest {
    *
    * @return value of name
    */
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -79,14 +76,13 @@ public class Music implements IInterest {
    *
    * @return value of description
    */
-  @Override public String getDescription() {
+  @Override
+  public String getDescription() {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -99,10 +95,8 @@ public class Music implements IInterest {
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( InterestType type ) {
+  /** @param type The type to set */
+  public void setType(InterestType type) {
     this.type = type;
   }
 }

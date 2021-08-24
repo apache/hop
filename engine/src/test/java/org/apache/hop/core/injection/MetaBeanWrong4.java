@@ -17,13 +17,10 @@
 
 package org.apache.hop.core.injection;
 
-/**
- * Wrong declaration - getter shouldn't have parameters.
- */
-@InjectionSupported( localizationPrefix = "" )
+/** Wrong declaration - getter shouldn't have parameters. */
+@InjectionSupported(localizationPrefix = "")
 public class MetaBeanWrong4 {
 
   @InjectionDeep
-  public void getter( int index ) {
-  }
+  public void getter(int index) {}
 }

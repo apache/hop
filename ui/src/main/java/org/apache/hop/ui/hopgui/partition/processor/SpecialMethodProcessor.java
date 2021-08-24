@@ -23,25 +23,28 @@ import org.apache.hop.ui.hopgui.file.pipeline.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * @author Evgeniy_Lyakhov@epam.com
- */
+/** @author Evgeniy_Lyakhov@epam.com */
 public class SpecialMethodProcessor extends AbstractMethodProcessor {
 
   @Override
-  public void schemaSelection( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection )
-    throws HopException {
-    String schema = super.askForSchema( settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex() );
-    super.processForKnownSchema( schema, settings );
-    if ( !StringUtil.isEmpty( schema ) ) {
-      askForField( settings, shell, schemaSelection );
+  public void schemaSelection(
+      PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection)
+      throws HopException {
+    String schema =
+        super.askForSchema(
+            settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex());
+    super.processForKnownSchema(schema, settings);
+    if (!StringUtil.isEmpty(schema)) {
+      askForField(settings, shell, schemaSelection);
     }
   }
 
-  private void askForField( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection ) throws HopException {
-    String fieldName = schemaSelection.schemaFieldSelection( shell, settings );
-    if ( StringUtil.isEmpty( fieldName ) ) {
-      settings.rollback( settings.getBefore() );
+  private void askForField(
+      PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection)
+      throws HopException {
+    String fieldName = schemaSelection.schemaFieldSelection(shell, settings);
+    if (StringUtil.isEmpty(fieldName)) {
+      settings.rollback(settings.getBefore());
     }
   }
 }

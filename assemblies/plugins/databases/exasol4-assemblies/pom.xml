@@ -37,7 +37,6 @@
     <description></description>
 
 
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>

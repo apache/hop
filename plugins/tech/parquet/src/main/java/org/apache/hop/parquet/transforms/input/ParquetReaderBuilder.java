@@ -17,19 +17,10 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.parquet.HadoopReadOptions;
-import org.apache.parquet.ParquetReadOptions;
-import org.apache.parquet.Preconditions;
-import org.apache.parquet.compression.CompressionCodecFactory;
-import org.apache.parquet.crypto.FileDecryptionProperties;
-import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.io.InputFile;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.Objects;
 
 public class ParquetReaderBuilder<T> extends ParquetReader.Builder<T> {

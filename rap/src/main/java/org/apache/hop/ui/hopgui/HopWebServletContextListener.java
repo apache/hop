@@ -17,31 +17,18 @@
 
 package org.apache.hop.ui.hopgui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletContextEvent;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.www.HopServerSingleton;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+
+import javax.servlet.ServletContextEvent;
+import java.util.logging.Logger;
 
 public class HopWebServletContextListener extends RWTServletContextListener {
-  private final static Logger logger = Logger.getLogger( HopWebServletContextListener.class.getName() );
+  private static final Logger logger =
+      Logger.getLogger(HopWebServletContextListener.class.getName());
 
-  public void contextInitialized( ServletContextEvent event ) {
+  public void contextInitialized(ServletContextEvent event) {
     /*
      *  The following lines are from HopGui.main
      *  because they are application-wide context.
@@ -49,14 +36,15 @@ public class HopWebServletContextListener extends RWTServletContextListener {
     try {
       HopEnvironment.init();
       HopGuiEnvironment.init();
-    } catch ( HopException e ) {
+    } catch (HopException e) {
       e.printStackTrace();
     }
-    super.contextInitialized( event );
+    super.contextInitialized(event);
   }
-  public void contextDestroyed( ServletContextEvent event ) {
-    super.contextDestroyed( event );
+
+  public void contextDestroyed(ServletContextEvent event) {
+    super.contextDestroyed(event);
     // Kill all remaining things in this VM!
-    System.exit( 0 );
+    System.exit(0);
   }
 }

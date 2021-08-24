@@ -20,7 +20,7 @@ package org.apache.hop.core.changed;
 public interface IChanged {
   boolean hasChanged();
 
-  void setChanged( boolean changed );
+  void setChanged(boolean changed);
 
   void setChanged();
 

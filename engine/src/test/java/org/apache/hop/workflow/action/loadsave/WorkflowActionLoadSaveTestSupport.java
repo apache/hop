@@ -19,8 +19,8 @@ package org.apache.hop.workflow.action.loadsave;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.workflow.action.IAction;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,9 +32,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   private LoadSaveTester<T> tester;
@@ -53,10 +51,17 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
     Map<String, IFieldLoadSaveValidator<?>> attributeValidators = createAttributeValidatorsMap();
     Map<String, IFieldLoadSaveValidator<?>> typeValidators = createTypeValidatorsMap();
 
-    assertTrue( !commonAttributes.isEmpty() || !xmlAttributes.isEmpty() );
+    assertTrue(!commonAttributes.isEmpty() || !xmlAttributes.isEmpty());
 
-    tester = new LoadSaveTester<>( getActionClass(), commonAttributes, xmlAttributes, getters, setters,
-      attributeValidators, typeValidators );
+    tester =
+        new LoadSaveTester<>(
+            getActionClass(),
+            commonAttributes,
+            xmlAttributes,
+            getters,
+            setters,
+            attributeValidators,
+            typeValidators);
   }
 
   @Test
@@ -67,7 +72,6 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
   protected abstract Class<T> getActionClass();
 
   protected abstract List<String> listCommonAttributes();
-
 
   protected List<String> listXmlAttributes() {
     return Collections.emptyList();
@@ -89,14 +93,13 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
     return Collections.emptyMap();
   }
 
-
-  @SuppressWarnings( "unchecked" )
-  protected static <T1, T2> Map<T1, T2> toMap( Object... pairs ) {
-    Map<T1, T2> result = new HashMap<>( pairs.length );
-    for ( int i = 0; i < pairs.length; i += 2 ) {
-      T1 key = (T1) pairs[ i ];
-      T2 value = (T2) pairs[ i + 1 ];
-      result.put( key, value );
+  @SuppressWarnings("unchecked")
+  protected static <T1, T2> Map<T1, T2> toMap(Object... pairs) {
+    Map<T1, T2> result = new HashMap<>(pairs.length);
+    for (int i = 0; i < pairs.length; i += 2) {
+      T1 key = (T1) pairs[i];
+      T2 value = (T2) pairs[i + 1];
+      result.put(key, value);
     }
     return result;
   }

@@ -38,13 +38,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "WorkflowLogging",
-  name = "i18n::WorkflowLogging.Transform.Name",
-  description = "i18n::WorkflowLogging.Transform.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-  documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
-  image = "workflow-log.svg",
-  keywords = "audit,log,metrics")
+    id = "WorkflowLogging",
+    name = "i18n::WorkflowLogging.Transform.Name",
+    description = "i18n::WorkflowLogging.Transform.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
+    image = "workflow-log.svg",
+    keywords = "audit,log,metrics")
 public class WorkflowLoggingMeta extends BaseTransformMeta
     implements ITransformMeta<WorkflowLogging, WorkflowLoggingData> {
 
@@ -104,7 +104,7 @@ public class WorkflowLoggingMeta extends BaseTransformMeta
     // Workflow status description
     inputRowMeta.addValueMeta(new ValueMetaString("workflowStatusDescription", 32, -1));
 
-    if ( loggingActionResults ) {
+    if (loggingActionResults) {
       // Name of the action
       inputRowMeta.addValueMeta(new ValueMetaString("actionName"));
 
@@ -143,20 +143,22 @@ public class WorkflowLoggingMeta extends BaseTransformMeta
 
       // Action reason
       inputRowMeta.addValueMeta(new ValueMetaString("actionReason", 255, -1));
-
     }
   }
 
-  @Override public String getXml() throws HopException {
+  @Override
+  public String getXml() throws HopException {
     StringBuffer xml = new StringBuffer();
-    xml.append( XmlHandler.addTagValue( "log_transforms", loggingActionResults ) );
+    xml.append(XmlHandler.addTagValue("log_transforms", loggingActionResults));
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
 
-    loggingActionResults ="Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "log_transforms" ) );
-
+    loggingActionResults =
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
   }
 
   @Override
@@ -184,7 +186,7 @@ public class WorkflowLoggingMeta extends BaseTransformMeta
   }
 
   /** @param loggingActionResults The loggingTransforms to set */
-  public void setLoggingActionResults( boolean loggingActionResults ) {
+  public void setLoggingActionResults(boolean loggingActionResults) {
     this.loggingActionResults = loggingActionResults;
   }
 }

@@ -100,8 +100,7 @@ public class WebServiceGuiPlugin {
                   transformMeta.getName(),
                   fieldName,
                   "text/plain",
-                  false
-              );
+                  false);
           manager.newMetadata(webService);
           return;
         } else {

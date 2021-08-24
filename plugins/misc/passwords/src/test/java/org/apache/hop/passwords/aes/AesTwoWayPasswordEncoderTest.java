@@ -20,7 +20,6 @@ package org.apache.hop.passwords.aes;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
@@ -39,17 +38,14 @@ public class AesTwoWayPasswordEncoderTest {
   private ITwoWayPasswordEncoder encoder;
 
   private static final String[] TEST_PASSWORDS = {
-    "MySillyButGoodPassword!",
-    "",
-    null,
-    "abcd",
-    "${DB_PASSWORD}"
+    "MySillyButGoodPassword!", "", null, "abcd", "${DB_PASSWORD}"
   };
 
   @Before
   public void setup() throws Exception {
-    System.setProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN, "AES" );
-    System.setProperty( AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "<TheKeyForTheseTestsHere!!>" );
+    System.setProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN, "AES");
+    System.setProperty(
+        AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "<TheKeyForTheseTestsHere!!>");
     HopEnvironment.init();
     encoder = Encr.getEncoder();
   }
@@ -58,16 +54,16 @@ public class AesTwoWayPasswordEncoderTest {
   public void testInit() {
     // See if we've picked up the plugin
     //
-    assertEquals( AesTwoWayPasswordEncoder.class, encoder.getClass() );
+    assertEquals(AesTwoWayPasswordEncoder.class, encoder.getClass());
   }
 
   @Test
   public void testEncodeDecode() {
 
-    for (String password : TEST_PASSWORDS ) {
+    for (String password : TEST_PASSWORDS) {
       String encoded = Encr.encryptPassword(password);
-      String decoded = Encr.decryptPassword( encoded );
-      assertEquals( password, decoded );
+      String decoded = Encr.decryptPassword(encoded);
+      assertEquals(password, decoded);
     }
   }
 
@@ -77,8 +73,8 @@ public class AesTwoWayPasswordEncoderTest {
       // This is used in Hop
       //
       String encoded = Encr.encryptPasswordIfNotUsingVariables(password);
-      String decoded = Encr.decryptPasswordOptionallyEncrypted( encoded );
-      assertEquals( password, decoded );
+      String decoded = Encr.decryptPasswordOptionallyEncrypted(encoded);
+      assertEquals(password, decoded);
 
       if (StringUtils.isNotEmpty(password)) {
         if (password.contains("${")) {
@@ -99,26 +95,27 @@ public class AesTwoWayPasswordEncoderTest {
 
     MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
     ITwoWayPasswordEncoder twoWayPasswordEncoder = metadataProvider.getTwoWayPasswordEncoder();
-    assertNotNull( twoWayPasswordEncoder );
-    assertEquals( AesTwoWayPasswordEncoder.class, twoWayPasswordEncoder.getClass() );
+    assertNotNull(twoWayPasswordEncoder);
+    assertEquals(AesTwoWayPasswordEncoder.class, twoWayPasswordEncoder.getClass());
 
     // Store something in there...
     //
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setName( "test" );
-    databaseMeta.setDatabaseType( "None" );
-    databaseMeta.setUsername( "user" );
-    databaseMeta.setPassword( "password" );
+    databaseMeta.setName("test");
+    databaseMeta.setDatabaseType("None");
+    databaseMeta.setUsername("user");
+    databaseMeta.setPassword("password");
 
-    IHopMetadataSerializer<DatabaseMeta> serializer = metadataProvider.getSerializer( DatabaseMeta.class );
-    serializer.save( databaseMeta );
+    IHopMetadataSerializer<DatabaseMeta> serializer =
+        metadataProvider.getSerializer(DatabaseMeta.class);
+    serializer.save(databaseMeta);
 
     String json = new SerializableMetadataProvider(metadataProvider).toJson();
 
     assertTrue(json.contains("\"password\":\"AES 86lpAqp+Xpa\\/zp6m3SYcFQ==\""));
 
-    databaseMeta.setPassword( "${DB_PASSWORD}" );
-    serializer.save( databaseMeta );
+    databaseMeta.setPassword("${DB_PASSWORD}");
+    serializer.save(databaseMeta);
 
     json = new SerializableMetadataProvider(metadataProvider).toJson();
     assertTrue(json.contains("\"password\":\"${DB_PASSWORD}\""));
@@ -128,21 +125,22 @@ public class AesTwoWayPasswordEncoderTest {
   public void testDifferentKeyDifferentEncoding() throws Exception {
     String password = "My Password";
 
-    String encoded1 = Encr.encryptPasswordIfNotUsingVariables( password );
-    String decoded1 = Encr.decryptPasswordOptionallyEncrypted( password );
+    String encoded1 = Encr.encryptPasswordIfNotUsingVariables(password);
+    String decoded1 = Encr.decryptPasswordOptionallyEncrypted(password);
 
-    assertEquals( password, decoded1 );
+    assertEquals(password, decoded1);
 
     // Change the Key
-    System.setProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN, "AES" );
-    System.setProperty( AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "A completely different key" );
+    System.setProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN, "AES");
+    System.setProperty(
+        AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "A completely different key");
     Encr.init("AES");
 
-    String encoded2 = Encr.encryptPasswordIfNotUsingVariables( password );
-    String decoded2 = Encr.decryptPasswordOptionallyEncrypted( password );
+    String encoded2 = Encr.encryptPasswordIfNotUsingVariables(password);
+    String decoded2 = Encr.decryptPasswordOptionallyEncrypted(password);
 
     assertEquals(password, decoded2);
 
-    assertNotEquals( encoded1, encoded2 );
+    assertNotEquals(encoded1, encoded2);
   }
 }

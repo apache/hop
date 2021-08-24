@@ -20,6 +20,5 @@ package org.apache.hop.www;
 public class DefaultWebServerShutdownHandler implements IWebServerShutdownHandler {
 
   @Override
-  public void shutdownWebServer() throws Exception {
-  }
+  public void shutdownWebServer() throws Exception {}
 }

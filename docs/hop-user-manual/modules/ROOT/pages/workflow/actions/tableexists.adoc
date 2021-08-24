@@ -21,17 +21,21 @@ under the License.
 
 == Description
 
-The Table Exists action can be used to verify that a specified table exists on a database. You must provide a connection and the table name. Hop returns a True or False value depending on whether or not the table exists.
+The Table Exists action can be used to verify that a specified table exists on a database.
+You must provide a connection and the table name.
+Hop returns a True or False value depending on whether or not the table exists.
 
-Suppose you have an external system that creates a summary table or yesterday's data extract. The external system may not have performed the action yet, so you set up a polling piece that waits for the staged data to arrive in the database. There is no point in processing the workflow until the data is available, so you can use this workflow action as a semaphore that polls the database to determine whether or not the table exists.
+Suppose you have an external system that creates a summary table or yesterday's data extract.
+The external system may not have performed the action yet, so you set up a polling piece that waits for the staged data to arrive in the database.
+There is no point in processing the workflow until the data is available, so you can use this workflow action as a semaphore that polls the database to determine whether or not the table exists.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
 |Connection|The connection to use
 |Schema name|The schema name if applicable to your database
-|Table name|The name of the database table to check 
+|Table name|The name of the database table to check
 |===

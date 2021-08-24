@@ -52,7 +52,7 @@
             <includes>
                 <include>com.googlecode.jsendnsca:jsendnsca:jar</include>
             </includes>
-        </dependencySet>        
+        </dependencySet>
     </dependencySets>
 </assembly>
 

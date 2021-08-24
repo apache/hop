@@ -23,7 +23,8 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A simplified rowset for transforms for single threaded execution. This row set has no limited size.
+ * A simplified rowset for transforms for single threaded execution. This row set has no limited
+ * size.
  *
  * @author matt
  */
@@ -47,20 +48,20 @@ public class QueueRowSet extends BaseRowSet implements Comparable<IRowSet>, IRow
   }
 
   @Override
-  public Object[] getRowWait( long timeout, TimeUnit tu ) {
+  public Object[] getRowWait(long timeout, TimeUnit tu) {
     return getRow();
   }
 
   @Override
-  public boolean putRow( IRowMeta rowMeta, Object[] rowData ) {
+  public boolean putRow(IRowMeta rowMeta, Object[] rowData) {
     this.rowMeta = rowMeta;
-    buffer.add( rowData );
+    buffer.add(rowData);
     return true;
   }
 
   @Override
-  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
-    return putRow( rowMeta, rowData );
+  public boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu) {
+    return putRow(rowMeta, rowData);
   }
 
   @Override
@@ -71,7 +72,6 @@ public class QueueRowSet extends BaseRowSet implements Comparable<IRowSet>, IRow
   @Override
   public void clear() {
     buffer.clear();
-    done.set( false );
+    done.set(false);
   }
-
 }

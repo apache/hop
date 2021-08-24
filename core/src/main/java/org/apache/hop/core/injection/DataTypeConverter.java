@@ -18,16 +18,13 @@
 package org.apache.hop.core.injection;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 
-/**
- * Converter for field types.
- */
+/** Converter for field types. */
 public class DataTypeConverter extends InjectionTypeConverter {
 
   @Override
-  public int string2intPrimitive( String v ) throws HopValueException {
-    return ValueMetaFactory.getIdForValueMeta( v );
+  public int string2intPrimitive(String v) throws HopValueException {
+    return ValueMetaFactory.getIdForValueMeta(v);
   }
 }

@@ -20,21 +20,20 @@ package org.apache.hop.pipeline.transforms.csvinput;
 public class MultiByteLittleCrLfMatcher implements ICrLfMatcher {
 
   @Override
-  public boolean isReturn( byte[] source, int location ) {
-    if ( location >= 1 ) {
-      return source[ location ] == 0x0d && source[ location + 1 ] == 0x00;
+  public boolean isReturn(byte[] source, int location) {
+    if (location >= 1) {
+      return source[location] == 0x0d && source[location + 1] == 0x00;
     } else {
       return false;
     }
   }
 
   @Override
-  public boolean isLineFeed( byte[] source, int location ) {
-    if ( location >= 1 ) {
-      return source[ location ] == 0x0a && source[ location + 1 ] == 0x00;
+  public boolean isLineFeed(byte[] source, int location) {
+    if (location >= 1) {
+      return source[location] == 0x0a && source[location + 1] == 0x00;
     } else {
       return false;
     }
   }
-
 }

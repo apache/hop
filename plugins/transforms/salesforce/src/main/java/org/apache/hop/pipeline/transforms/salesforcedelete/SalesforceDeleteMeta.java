@@ -38,23 +38,21 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Transform(
-  id = "SalesforceDelete",
-  name = "i18n::SalesforceDelete.TypeLongDesc.SalesforceDelete",
-  description = "i18n::SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-  image = "SFD.svg",
-  documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/salesforcedelete.html" )
-public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
+    id = "SalesforceDelete",
+    name = "i18n::SalesforceDelete.TypeLongDesc.SalesforceDelete",
+    description = "i18n::SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    image = "SFD.svg",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/salesforcedelete.html")
+public class SalesforceDeleteMeta
+    extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
   private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
-  /**
-   * Deletefield
-   */
+  /** Deletefield */
   private String DeleteField;
 
-  /**
-   * Batch size
-   */
+  /** Batch size */
   private String batchSize;
 
   private boolean rollbackAllChangesOnError;
@@ -63,55 +61,44 @@ public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDele
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the rollbackAllChangesOnError.
-   */
+  /** @return Returns the rollbackAllChangesOnError. */
   public boolean isRollbackAllChangesOnError() {
     return rollbackAllChangesOnError;
   }
 
-  /**
-   * @param rollbackAllChangesOnError The rollbackAllChangesOnError to set.
-   */
-  public void setRollbackAllChangesOnError( boolean rollbackAllChangesOnError ) {
+  /** @param rollbackAllChangesOnError The rollbackAllChangesOnError to set. */
+  public void setRollbackAllChangesOnError(boolean rollbackAllChangesOnError) {
     this.rollbackAllChangesOnError = rollbackAllChangesOnError;
   }
 
-  /**
-   * @param DeleteField The DeleteField to set.
-   */
-  public void setDeleteField( String DeleteField ) {
+  /** @param DeleteField The DeleteField to set. */
+  public void setDeleteField(String DeleteField) {
     this.DeleteField = DeleteField;
   }
 
-  /**
-   * @return Returns the DeleteField.
-   */
+  /** @return Returns the DeleteField. */
   public String getDeleteField() {
     return this.DeleteField;
   }
 
-  /**
-   * @param batchSize
-   */
-  public void setBatchSize( String batchSize ) {
+  /** @param batchSize */
+  public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
 
-  /**
-   * @return Returns the batchSize.
-   */
+  /** @return Returns the batchSize. */
   public String getBatchSize() {
     return this.batchSize;
   }
 
   public int getBatchSizeInt() {
-    return Const.toInt( this.batchSize, 10 );
+    return Const.toInt(this.batchSize, 10);
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    super.loadXml( transformNode, metadataProvider );
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
+    readData(transformNode);
   }
 
   public Object clone() {
@@ -121,71 +108,102 @@ public class SalesforceDeleteMeta extends SalesforceTransformMeta<SalesforceDele
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( super.getXml() );
-    retval.append( "    " + XmlHandler.addTagValue( "DeleteField", getDeleteField() ) );
-    retval.append( "    " + XmlHandler.addTagValue( "batchSize", getBatchSize() ) );
-    retval.append( "    " + XmlHandler.addTagValue( "rollbackAllChangesOnError", isRollbackAllChangesOnError() ) );
+    StringBuilder retval = new StringBuilder(super.getXml());
+    retval.append("    " + XmlHandler.addTagValue("DeleteField", getDeleteField()));
+    retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
+    retval.append(
+        "    "
+            + XmlHandler.addTagValue("rollbackAllChangesOnError", isRollbackAllChangesOnError()));
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
-      setDeleteField( XmlHandler.getTagValue( transformNode, "DeleteField" ) );
+      setDeleteField(XmlHandler.getTagValue(transformNode, "DeleteField"));
 
-      setBatchSize( XmlHandler.getTagValue( transformNode, "batchSize" ) );
+      setBatchSize(XmlHandler.getTagValue(transformNode, "batchSize"));
       setRollbackAllChangesOnError(
-        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rollbackAllChangesOnError" ) ) );
-    } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load transform info from XML", e );
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rollbackAllChangesOnError")));
+    } catch (Exception e) {
+      throw new HopXmlException("Unable to load transform info from XML", e);
     }
   }
 
   public void setDefault() {
     super.setDefault();
-    setModule( "Account" );
-    setDeleteField( null );
-    setBatchSize( "10" );
-    setRollbackAllChangesOnError( false );
+    setModule("Account");
+    setDeleteField(null);
+    setBatchSize("10");
+    setRollbackAllChangesOnError(false);
   }
 
   /* This function adds meta data to the rows being pushed out */
-  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields(
+      IRowMeta r,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {}
 
-  }
-
-  @Override public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta,
-                               TransformMeta transformMeta, IRowMeta prev,
-                               String[] input, String[] output, IRowMeta info,
-                               IVariables variables,
-                               IHopMetadataProvider metadataProvider ) {
-    super.check( remarks, pipelineMeta, transformMeta, prev, input, output, info, variables, metadataProvider );
+  @Override
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    super.check(
+        remarks,
+        pipelineMeta,
+        transformMeta,
+        prev,
+        input,
+        output,
+        info,
+        variables,
+        metadataProvider);
     CheckResult cr;
 
     // See if we get input...
-    if ( input != null && input.length > 0 ) {
+    if (input != null && input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceDeleteMeta.CheckResult.NoInputExpected" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInputExpected"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceDeleteMeta.CheckResult.NoInput" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInput"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
   }
 
-  @Override public ITransform createTransform( TransformMeta transformMeta, SalesforceDeleteData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-     return new SalesforceDelete( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  @Override
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      SalesforceDeleteData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new SalesforceDelete(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  @Override public SalesforceDeleteData getTransformData() {
+  @Override
+  public SalesforceDeleteData getTransformData() {
     return new SalesforceDeleteData();
   }
 
   public boolean supportsErrorHandling() {
     return true;
   }
-
 }

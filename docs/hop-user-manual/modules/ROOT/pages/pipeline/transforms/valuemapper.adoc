@@ -21,7 +21,9 @@ under the License.
 
 == Description
 
-The Value Mapper transform maps string values from one value to another. Mapping is usually solved by storing the conversion table in a database. The Value Mapper provides you with a simple alternative.
+The Value Mapper transform maps string values from one value to another.
+Mapping is usually solved by storing the conversion table in a database.
+The Value Mapper provides you with a simple alternative.
 
 For example, if you want to replace language codes:
 
@@ -36,16 +38,17 @@ Source/Target: EN/English, FR/French, NL/Dutch, ES/Spanish, DE/German, ...
 
 The following properties are used to define the mappings:
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
 |Fieldname to use|Field to use as the mapping source
 |Target field name|Field to use as the mapping Target
 |Default upon non-matching|Defines a default value for situations where the source value is not empty, but there is no match
-|Field values table|Contains the mapping of source value to converted target value 
+|Field values table|Contains the mapping of source value to converted target value
 |===
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

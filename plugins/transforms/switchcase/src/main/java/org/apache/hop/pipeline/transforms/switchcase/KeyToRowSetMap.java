@@ -37,25 +37,25 @@ public class KeyToRowSetMap {
    *
    * @param map
    */
-  protected KeyToRowSetMap( Map<Object, Set<IRowSet>> map ) {
+  protected KeyToRowSetMap(Map<Object, Set<IRowSet>> map) {
     this.map = map;
   }
 
-  protected Set<IRowSet> get( Object key ) {
-    return map.get( key );
+  protected Set<IRowSet> get(Object key) {
+    return map.get(key);
   }
 
-  protected void put( Object key, IRowSet rowSet ) {
-    Set<IRowSet> existing = map.get( key );
-    if ( existing == null ) {
+  protected void put(Object key, IRowSet rowSet) {
+    Set<IRowSet> existing = map.get(key);
+    if (existing == null) {
       existing = new HashSet<>();
-      map.put( key, existing );
+      map.put(key, existing);
     }
-    existing.add( rowSet );
+    existing.add(rowSet);
   }
 
-  public boolean containsKey( Object key ) {
-    return map.containsKey( key );
+  public boolean containsKey(Object key) {
+    return map.containsKey(key);
   }
 
   public boolean isEmpty() {

@@ -17,8 +17,8 @@
 
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,28 +29,27 @@ public abstract class BaseGuiContextHandler {
 
   public static final String CONTEXT_ID = "HopGuiPipelineTransformContext";
 
-  public BaseGuiContextHandler() {
-  }
+  public BaseGuiContextHandler() {}
 
   public abstract String getContextId();
 
   /**
-   * Create a list of supported actions from the plugin GUI registry.
-   * If this is indicated as such the actions will be sorted by ID to deliver a consistent user experience.
-   * The actions are picked up from GuiContextAction annotations in the GuiPlugin classes.
+   * Create a list of supported actions from the plugin GUI registry. If this is indicated as such
+   * the actions will be sorted by ID to deliver a consistent user experience. The actions are
+   * picked up from GuiContextAction annotations in the GuiPlugin classes.
    *
    * @param sortActionsById true if the actions need to be sorted by ID
    * @return The list of supported actions
    */
-  protected List<GuiAction> getPluginActions( boolean sortActionsById ) {
+  protected List<GuiAction> getPluginActions(boolean sortActionsById) {
     List<GuiAction> actions = new ArrayList<>();
 
     // Get the actions from the plugins...
     //
-    List<GuiAction> pluginActions = GuiRegistry.getInstance().getGuiContextActions( getContextId() );
-    if ( pluginActions != null && sortActionsById ) {
-      Collections.sort( pluginActions, Comparator.comparing( GuiAction::getId ) );
-      actions.addAll( pluginActions );
+    List<GuiAction> pluginActions = GuiRegistry.getInstance().getGuiContextActions(getContextId());
+    if (pluginActions != null && sortActionsById) {
+      Collections.sort(pluginActions, Comparator.comparing(GuiAction::getId));
+      actions.addAll(pluginActions);
     }
 
     return actions;

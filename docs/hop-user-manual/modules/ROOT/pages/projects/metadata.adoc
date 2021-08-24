@@ -22,11 +22,13 @@ under the License.
 
 = Project Metadata
 
-A project's metadata typically contains a number of database connections (relational or NoSQL), logging configurations and so on. This metadata is stored on a project level and is available through the metadata perspective.
+A project's metadata typically contains a number of database connections (relational or NoSQL), logging configurations and so on.
+This metadata is stored on a project level and is available through the metadata perspective.
 
 The way metadata typically is handled is:
 
-* metadata objects (connections, logging, ...) are defined on a project level. E.g. a `CRM` database connection is created in the project, using a number of variables for hostname (`{openvar}CRM_HOST{closevar}`) and database name (`{openvar}CRM_DBNAME{closevar}`), with corresponding variables for the port, username, password and so on.
+* metadata objects (connections, logging, ...) are defined on a project level.
+E.g. a `CRM` database connection is created in the project, using a number of variables for hostname (`{openvar}CRM_HOST{closevar}`) and database name (`{openvar}CRM_DBNAME{closevar}`), with corresponding variables for the port, username, password and so on.
 * the metadata object _configuration_ is defined on an environment level, where a number of variable _values_ are created the contain the ip address for `{openvar}CRM_HOST{closevar}` etc.
 
 A project's metadata is stored in `{openvar}PROJECT_HOME{closevar}/metadata`, but can be overruled by setting the project's `metadata base folder {openvar}HOP_METADATA_FOLDER{closevar}` property in the project configuration dialog or directly in the `project-config.json` file.
@@ -35,6 +37,7 @@ A basic project metadata folder will look similar to the one below:
 
 [source,bash]
 ---
+
 .
 ├── cassandra-connection
 ├── dataset

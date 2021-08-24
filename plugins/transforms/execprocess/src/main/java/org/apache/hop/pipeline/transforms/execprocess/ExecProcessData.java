@@ -37,5 +37,4 @@ public class ExecProcessData extends BaseTransformData implements ITransformData
     super();
     indexOfProcess = -1;
   }
-
 }

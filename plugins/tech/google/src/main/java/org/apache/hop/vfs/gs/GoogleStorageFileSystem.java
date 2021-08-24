@@ -23,11 +23,7 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.Capability;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
@@ -70,13 +66,12 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
 
     // If we don't have a setting for a service account key file we try the default
     //
-    if ( StringUtils.isEmpty( config.getServiceAccountKeyFile() ) ) {
+    if (StringUtils.isEmpty(config.getServiceAccountKeyFile())) {
       credentials = ServiceAccountCredentials.getApplicationDefault();
     } else {
       credentials =
-        ServiceAccountCredentials.fromStream(
-          new FileInputStream( config.getServiceAccountKeyFile() )
-        );
+          ServiceAccountCredentials.fromStream(
+              new FileInputStream(config.getServiceAccountKeyFile()));
     }
 
     StorageOptions.Builder optionsBuilder = StorageOptions.newBuilder();

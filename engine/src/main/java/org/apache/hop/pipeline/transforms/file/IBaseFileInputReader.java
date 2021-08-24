@@ -21,9 +21,7 @@ import org.apache.hop.core.exception.HopException;
 
 import java.io.Closeable;
 
-/**
- * Content-based reader for file.
- */
+/** Content-based reader for file. */
 public interface IBaseFileInputReader extends Closeable {
   boolean readRow() throws HopException;
 }

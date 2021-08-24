@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.pipeline.dialog;
 
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,10 +31,8 @@ import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;

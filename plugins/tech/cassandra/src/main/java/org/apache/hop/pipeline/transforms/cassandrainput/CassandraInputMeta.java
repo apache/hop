@@ -37,11 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Node;
 
@@ -54,7 +50,8 @@ import java.util.List;
     image = "Cassandrain.svg",
     name = "Cassandra input",
     description = "Reads data from a Cassandra table",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cassandra-input.html",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/cassandra-input.html",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraInput.Injection.")
 public class CassandraInputMeta extends BaseTransformMeta

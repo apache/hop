@@ -34,10 +34,12 @@ import org.json.simple.parser.ParseException;
 import java.io.ByteArrayInputStream;
 
 /**
- * This metadata implementation is an in-memory metadata which serializes using JSON.
- * In other words, JSON is read into memory as a MetaStore and then you can ask to serialize that information to and from JSON.
+ * This metadata implementation is an in-memory metadata which serializes using JSON. In other
+ * words, JSON is read into memory as a MetaStore and then you can ask to serialize that information
+ * to and from JSON.
  */
-public class SerializableMetadataProvider extends MemoryMetadataProvider implements IHopMetadataProvider {
+public class SerializableMetadataProvider extends MemoryMetadataProvider
+    implements IHopMetadataProvider {
   public SerializableMetadataProvider() {
     super();
   }
@@ -47,18 +49,18 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider impleme
    *
    * @param source the source store to copy over
    */
-  public SerializableMetadataProvider( IHopMetadataProvider source) throws HopException {
+  public SerializableMetadataProvider(IHopMetadataProvider source) throws HopException {
 
     // What is the list of available classes?
     //
     for (Class<IHopMetadata> metadataClass : source.getMetadataClasses()) {
-      IHopMetadataSerializer<IHopMetadata> sourceSerializer = source.getSerializer( metadataClass );
-      IHopMetadataSerializer<IHopMetadata> targetSerializer = getSerializer( metadataClass );
+      IHopMetadataSerializer<IHopMetadata> sourceSerializer = source.getSerializer(metadataClass);
+      IHopMetadataSerializer<IHopMetadata> targetSerializer = getSerializer(metadataClass);
 
       // Loop over the available objects of the class and copy the information over.
       //
       for (String name : sourceSerializer.listObjectNames()) {
-        targetSerializer.save( sourceSerializer.load( name ) );
+        targetSerializer.save(sourceSerializer.load(name));
       }
     }
   }
@@ -70,73 +72,76 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider impleme
     // What is the list of available classes?
     //
     for (Class<IHopMetadata> metadataClass : getMetadataClasses()) {
-      IHopMetadataSerializer<IHopMetadata> serializer = getSerializer( metadataClass );
-      HopMetadata hopMetadata = metadataClass.getAnnotation( HopMetadata.class );
-      if (hopMetadata==null) {
-        throw new HopException("Error: class "+metadataClass+" is not annotated with "+HopMetadata.class.getName());
+      IHopMetadataSerializer<IHopMetadata> serializer = getSerializer(metadataClass);
+      HopMetadata hopMetadata = metadataClass.getAnnotation(HopMetadata.class);
+      if (hopMetadata == null) {
+        throw new HopException(
+            "Error: class "
+                + metadataClass
+                + " is not annotated with "
+                + HopMetadata.class.getName());
       }
       String classKey = hopMetadata.key();
 
       JSONArray jClass = new JSONArray();
 
-      JsonMetadataParser parser = new JsonMetadataParser( metadataClass, this );
+      JsonMetadataParser parser = new JsonMetadataParser(metadataClass, this);
 
-      // Loop over the available objects of the class and copy the information over to the JSON store.
+      // Loop over the available objects of the class and copy the information over to the JSON
+      // store.
       // They are stored under plugin IDs...
       //
       for (String name : serializer.listObjectNames()) {
-        Object object = serializer.load( name );
-        JSONObject jObject = parser.getJsonObject( (IHopMetadata) object );
+        Object object = serializer.load(name);
+        JSONObject jObject = parser.getJsonObject((IHopMetadata) object);
         jClass.add(jObject);
       }
 
-      jStore.put( classKey, jClass );
-
+      jStore.put(classKey, jClass);
     }
     return jStore.toJSONString();
   }
 
-  public SerializableMetadataProvider( String storeJson) throws ParseException, HopException {
+  public SerializableMetadataProvider(String storeJson) throws ParseException, HopException {
     this();
 
     try {
 
       ByteArrayInputStream inputStream = null;
       try {
-        inputStream = new ByteArrayInputStream( storeJson.getBytes( Const.XML_ENCODING ) );
+        inputStream = new ByteArrayInputStream(storeJson.getBytes(Const.XML_ENCODING));
 
         JsonFactory jsonFactory = new JsonFactory();
-        com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser( inputStream );
+        com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser(inputStream);
 
         // Loop over the classes until there's no more left
         //
         jsonParser.nextToken(); // skip {
-        while ( jsonParser.nextToken() != JsonToken.END_OBJECT ) {
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
 
           String classKey = jsonParser.getText();
-          Class<IHopMetadata> managedClass = getMetadataClassForKey( classKey );
+          Class<IHopMetadata> managedClass = getMetadataClassForKey(classKey);
 
-          JsonMetadataParser<IHopMetadata> metadataParser = new JsonMetadataParser<>( managedClass, this );
+          JsonMetadataParser<IHopMetadata> metadataParser =
+              new JsonMetadataParser<>(managedClass, this);
 
-          IHopMetadataSerializer<IHopMetadata> serializer = getSerializer( managedClass );
+          IHopMetadataSerializer<IHopMetadata> serializer = getSerializer(managedClass);
 
           // Loop over the metadata objects in the JSON for the given class...
           //
           jsonParser.nextToken(); // skip {
-          while ( jsonParser.nextToken() != JsonToken.END_ARRAY ) {
-            IHopMetadata object = metadataParser.loadJsonObject( managedClass, jsonParser );
-            serializer.save( object );
+          while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            IHopMetadata object = metadataParser.loadJsonObject(managedClass, jsonParser);
+            serializer.save(object);
           }
         }
       } finally {
-        if (inputStream!=null) {
+        if (inputStream != null) {
           inputStream.close();
         }
       }
-    } catch(Exception e) {
+    } catch (Exception e) {
       throw new HopException("Error reading metadata from JSON", e);
     }
   }
-  
-
 }

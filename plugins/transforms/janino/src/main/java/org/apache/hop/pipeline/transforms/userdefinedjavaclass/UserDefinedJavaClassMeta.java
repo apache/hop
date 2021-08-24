@@ -27,11 +27,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.DataTypeConverter;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.injection.NullNumberConverter;
+import org.apache.hop.core.injection.*;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -410,8 +406,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       for (int i = 0; i < nrDefinitions; i++) {
         Node fnode = XmlHandler.getSubNodeByNr(definitionsNode, ElementNames.definition.name(), i);
 
-        UserDefinedJavaClassDef.ClassType classType = UserDefinedJavaClassDef.ClassType.valueOf(
-          XmlHandler.getTagValue( fnode, ElementNames.class_type.name() ) );
+        UserDefinedJavaClassDef.ClassType classType =
+            UserDefinedJavaClassDef.ClassType.valueOf(
+                XmlHandler.getTagValue(fnode, ElementNames.class_type.name()));
 
         definitions.add(
             new UserDefinedJavaClassDef(
@@ -608,7 +605,8 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       retval.append(String.format("\n        <%s>", ElementNames.definition.name()));
       retval
           .append("\n        ")
-          .append(XmlHandler.addTagValue(ElementNames.class_type.name(), def.getClassType().name()));
+          .append(
+              XmlHandler.addTagValue(ElementNames.class_type.name(), def.getClassType().name()));
       retval
           .append("\n        ")
           .append(XmlHandler.addTagValue(ElementNames.class_name.name(), def.getClassName()));

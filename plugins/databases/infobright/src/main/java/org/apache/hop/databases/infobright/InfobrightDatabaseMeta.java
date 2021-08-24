@@ -22,16 +22,13 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 
-@DatabaseMetaPlugin(
-  type = "INFOBRIGHT",
-  typeDescription = "Infobright"
-)
-@GuiPlugin( id = "GUI-InfobrightDatabaseMeta" )
+@DatabaseMetaPlugin(type = "INFOBRIGHT", typeDescription = "Infobright")
+@GuiPlugin(id = "GUI-InfobrightDatabaseMeta")
 public class InfobrightDatabaseMeta extends MySqlDatabaseMeta {
 
   @Override
   public int getDefaultDatabasePort() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
+    if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
       return 5029;
     }
     return -1;
@@ -39,7 +36,6 @@ public class InfobrightDatabaseMeta extends MySqlDatabaseMeta {
 
   @Override
   public void addDefaultOptions() {
-    addExtraOption( getPluginId(), "characterEncoding", "UTF-8" );
+    addExtraOption(getPluginId(), "characterEncoding", "UTF-8");
   }
-
 }

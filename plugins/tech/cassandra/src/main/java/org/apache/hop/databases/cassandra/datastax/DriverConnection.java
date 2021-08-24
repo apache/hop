@@ -17,14 +17,7 @@
  */
 package org.apache.hop.databases.cassandra.datastax;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.CodecRegistry;
-import com.datastax.driver.core.KeyspaceMetadata;
-import com.datastax.driver.core.ProtocolOptions;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SocketOptions;
-import com.datastax.driver.core.TypeCodec;
+import com.datastax.driver.core.*;
 import com.datastax.driver.core.schemabuilder.CreateKeyspace;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import com.datastax.driver.extras.codecs.MappingCodec;

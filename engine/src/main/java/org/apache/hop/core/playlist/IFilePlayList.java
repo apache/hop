@@ -22,6 +22,5 @@ import org.apache.hop.core.exception.HopException;
 
 public interface IFilePlayList {
 
-  boolean isProcessingNeeded( FileObject file, long lineNr, String filePart ) throws HopException;
-
+  boolean isProcessingNeeded(FileObject file, long lineNr, String filePart) throws HopException;
 }

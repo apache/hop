@@ -28,13 +28,13 @@ public class WorkflowActionDelayTest {
   @Test
   public void testGetRealMaximumTimeout() {
     ActionDelay entry = new ActionDelay();
-    assertTrue( Utils.isEmpty( entry.getRealMaximumTimeout() ) );
+    assertTrue(Utils.isEmpty(entry.getRealMaximumTimeout()));
 
-    entry.setMaximumTimeout( " 1" );
-    assertEquals( "1", entry.getRealMaximumTimeout() );
+    entry.setMaximumTimeout(" 1");
+    assertEquals("1", entry.getRealMaximumTimeout());
 
-    entry.setVariable( "testValue", " 20" );
-    entry.setMaximumTimeout( "${testValue}" );
-    assertEquals( "20", entry.getRealMaximumTimeout() );
+    entry.setVariable("testValue", " 20");
+    entry.setMaximumTimeout("${testValue}");
+    assertEquals("20", entry.getRealMaximumTimeout());
   }
 }

@@ -26,15 +26,15 @@ As always, the row layout for the input data coming from both transforms has to 
 
 *Important*: If you don't care about the order in which the output rows occur, you can use any transform to create a union of 2 or more data streams.
 
-
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Transform name|Name of the transform.
+Note: This name has to be unique in a single pipeline.
 |Head hop|The name of the transform from which will be read from first.
-|Tail hop|The name of the transform from which will be read from last. 
+|Tail hop|The name of the transform from which will be read from last.
 |===
 
 == Metadata Injection Support

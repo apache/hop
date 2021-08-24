@@ -21,15 +21,14 @@ import org.apache.hop.core.util.Utils;
 import java.util.Locale;
 import java.util.Random;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class LocaleLoadSaveValidator implements IFieldLoadSaveValidator<Locale> {
-  @Override public Locale getTestObject() {
+  @Override
+  public Locale getTestObject() {
     Locale[] availableLocales = Locale.getAvailableLocales();
 
-    Locale random = availableLocales[ new Random().nextInt( availableLocales.length ) ];
-    if ( Utils.isEmpty( random.toString() ) || random.toString().matches( "(\\w)*#.*" ) ) {
+    Locale random = availableLocales[new Random().nextInt(availableLocales.length)];
+    if (Utils.isEmpty(random.toString()) || random.toString().matches("(\\w)*#.*")) {
       // locales with '#', like 'sr_rs_#latn', are not restored properly
       return Locale.US;
     } else {
@@ -37,7 +36,8 @@ public class LocaleLoadSaveValidator implements IFieldLoadSaveValidator<Locale> 
     }
   }
 
-  @Override public boolean validateTestObject( Locale testObject, Object actual ) {
-    return testObject.equals( actual );
+  @Override
+  public boolean validateTestObject(Locale testObject, Object actual) {
+    return testObject.equals(actual);
   }
 }

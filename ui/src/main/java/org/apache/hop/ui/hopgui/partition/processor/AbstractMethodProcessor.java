@@ -23,27 +23,23 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * @author Evgeniy_Lyakhov@epam.com
- */
+/** @author Evgeniy_Lyakhov@epam.com */
 public abstract class AbstractMethodProcessor implements IMethodProcessor {
 
-  public String askForSchema( String[] schemaNames, Shell shell, int defaultSelectedSchemaIndex ) {
+  public String askForSchema(String[] schemaNames, Shell shell, int defaultSelectedSchemaIndex) {
     EnterSelectionDialog askSchema =
-      new EnterSelectionDialog(
-        shell, schemaNames, "Select a partition schema", "Select the partition schema to use:" );
-    return askSchema.open( defaultSelectedSchemaIndex );
-
+        new EnterSelectionDialog(
+            shell, schemaNames, "Select a partition schema", "Select the partition schema to use:");
+    return askSchema.open(defaultSelectedSchemaIndex);
   }
 
-  public void processForKnownSchema( String schemaName, PartitionSettings settings ) throws HopPluginException {
-    if ( schemaName != null ) {
-      int idx = Const.indexOfString( schemaName, settings.getSchemaNames() );
-      settings.updateSchema( settings.getSchemas().get( idx ) );
+  public void processForKnownSchema(String schemaName, PartitionSettings settings)
+      throws HopPluginException {
+    if (schemaName != null) {
+      int idx = Const.indexOfString(schemaName, settings.getSchemaNames());
+      settings.updateSchema(settings.getSchemas().get(idx));
     } else {
-      settings.rollback( settings.getBefore() );
+      settings.rollback(settings.getBefore());
     }
   }
-
-
 }

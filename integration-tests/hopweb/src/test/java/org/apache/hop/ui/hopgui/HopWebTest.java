@@ -42,36 +42,34 @@ public class HopWebTest {
 
   @Before
   public void setUp() throws Exception {
-    boolean isHeadless = Boolean.parseBoolean( System.getProperty( "headless.unittest", "true" ) );
+    boolean isHeadless = Boolean.parseBoolean(System.getProperty("headless.unittest", "true"));
     ChromeOptions options = new ChromeOptions();
-    if ( isHeadless ) {
-      options.addArguments( "headless" );
+    if (isHeadless) {
+      options.addArguments("headless");
     }
-    options.addArguments( "--window-size=1280,800" );
-    driver = new ChromeDriver( options );
-    actions = new Actions( driver );
-    wait = new WebDriverWait( driver, 5 );
-    baseUrl = System.getProperty( "test.baseurl", "http://localhost:8080" );
-    driver.get( baseUrl );
-    driver.manage().timeouts().implicitlyWait( 5, TimeUnit.SECONDS );
+    options.addArguments("--window-size=1280,800");
+    driver = new ChromeDriver(options);
+    actions = new Actions(driver);
+    wait = new WebDriverWait(driver, 5);
+    baseUrl = System.getProperty("test.baseurl", "http://localhost:8080");
+    driver.get(baseUrl);
+    driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
   }
 
   @Test
   public void testAppLoading() {
-    assertEquals( driver.getTitle(), "Hop" );
+    assertEquals(driver.getTitle(), "Hop");
   }
 
   @Test
   public void testContextDialog() {
-    By xpath = By.xpath(
-        "//div[starts-with(text(), 'Search') and not(contains(text(), 'string'))]"
-      );
+    By xpath = By.xpath("//div[starts-with(text(), 'Search') and not(contains(text(), 'string'))]");
     assertEquals(0, driver.findElements(xpath).size());
 
     clickElement("//div[text() = 'File']");
     clickElement("//div[text() = 'New']");
     // TODO: driver.findElements(xpath).size() is now 2 for some reason, but should be 1.
-    assertTrue( 1 <= driver.findElements(xpath).size());
+    assertTrue(1 <= driver.findElements(xpath).size());
   }
 
   @Test
@@ -79,26 +77,24 @@ public class HopWebTest {
     // Create a new pipeline
     createNewPipeline();
 
-    assertEquals(1, driver.findElements(
-      By.xpath(
-        "//div[text()='New pipeline']"
-      )
-    ).size());
+    assertEquals(1, driver.findElements(By.xpath("//div[text()='New pipeline']")).size());
   }
 
   private void createNewPipeline() {
     // Create a new Pipeline
     clickElement("//div[text() = 'File']");
     clickElement("//div[text() = 'New']");
-    element = driver.findElement(By.xpath("//div[starts-with(text(), 'Search') and not(contains(text(), 'string'))]"));
+    element =
+        driver.findElement(
+            By.xpath("//div[starts-with(text(), 'Search') and not(contains(text(), 'string'))]"));
     element = element.findElement(By.xpath("./../..//input"));
     element.sendKeys(Keys.UP);
     element.sendKeys(Keys.LEFT);
     element.sendKeys(Keys.RETURN);
   }
 
-  private void clickElement( String xpath ) {
-    element = wait.until( ExpectedConditions.elementToBeClickable( By.xpath( xpath ) ) );
+  private void clickElement(String xpath) {
+    element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
     element.click();
   }
 

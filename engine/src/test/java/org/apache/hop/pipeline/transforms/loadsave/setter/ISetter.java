@@ -18,5 +18,5 @@
 package org.apache.hop.pipeline.transforms.loadsave.setter;
 
 public interface ISetter<T> {
-  void set( Object obj, T value );
+  void set(Object obj, T value);
 }

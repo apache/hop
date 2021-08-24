@@ -24,17 +24,17 @@ site:
 
 content:
   sources:
-  - url: ../
-    branches: 
-      - HEAD
-    start_path: /docs/hop-user-manual/
-  - url: ../
-    branches: HEAD
-    start_path: /docs/hop-tech-manual/
-  - url: ../
-    branches: HEAD
-    start_path: /docs/hop-dev-manual/
-    
+    - url: ../
+      branches:
+        - HEAD
+      start_path: /docs/hop-user-manual/
+    - url: ../
+      branches: HEAD
+      start_path: /docs/hop-tech-manual/
+    - url: ../
+      branches: HEAD
+      start_path: /docs/hop-dev-manual/
+
 ui:
   bundle:
     url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable
@@ -42,8 +42,8 @@ ui:
 urls:
   redirect_facility: disabled
 
-runtime: 
-  fetch: true 
+runtime:
+  fetch: true
 
 output:
   dir: ./content

@@ -18,7 +18,6 @@ package org.apache.hop.pipeline.transforms.xml.addxml;
 
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -45,7 +44,9 @@ public class AddXmlTest {
 
     transformMockHelper =
         new TransformMockHelper<>("ADDXML_TEST", AddXmlMeta.class, AddXmlData.class);
-    Mockito.doReturn( transformMockHelper.iLogChannel ).when( transformMockHelper.logChannelFactory ).create( any(), any( ILoggingObject.class )  );
+    Mockito.doReturn(transformMockHelper.iLogChannel)
+        .when(transformMockHelper.logChannelFactory)
+        .create(any(), any(ILoggingObject.class));
 
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
     when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(new XmlField[] {field});

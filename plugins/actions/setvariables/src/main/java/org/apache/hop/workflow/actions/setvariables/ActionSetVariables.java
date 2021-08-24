@@ -346,7 +346,8 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     this.replaceVars = replaceVars;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 

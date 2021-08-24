@@ -17,13 +17,7 @@
 
 package org.apache.hop.mongo.wrapper.field;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.Cursor;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.*;
 import com.mongodb.util.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -38,21 +32,9 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.transforms.mongodbinput.DiscoverFieldsCallback;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputDiscoverFields;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
-import org.bson.types.BSONTimestamp;
-import org.bson.types.Binary;
-import org.bson.types.Code;
-import org.bson.types.MaxKey;
-import org.bson.types.MinKey;
-import org.bson.types.ObjectId;
-import org.bson.types.Symbol;
+import org.bson.types.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /** Created by bryan on 8/7/14. */
 public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverFields {
@@ -79,7 +61,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     try {
       return clientWrapper.perform(
           databaseName,
-          db -> getMongoFields( collection, query, fields, isPipeline, docsToSample, db ) );
+          db -> getMongoFields(collection, query, fields, isPipeline, docsToSample, db));
     } catch (Exception ex) {
       throw new HopException(
           BaseMessages.getString(PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToDiscoverFields"),
@@ -93,7 +75,14 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     }
   }
 
-  private List<MongoField> getMongoFields( String collection, String query, String fields, boolean isPipeline, int docsToSample, com.mongodb.DB db ) throws MongoDbException {
+  private List<MongoField> getMongoFields(
+      String collection,
+      String query,
+      String fields,
+      boolean isPipeline,
+      int docsToSample,
+      com.mongodb.DB db)
+      throws MongoDbException {
     DBCursor cursor = null;
     int numDocsToSample = docsToSample;
     if (numDocsToSample < 1) {
@@ -103,24 +92,22 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     List<MongoField> discoveredFields = new ArrayList<>();
     Map<String, MongoField> fieldLookup = new HashMap<>();
     try {
-      if (StringUtils.isEmpty( collection )) {
+      if (StringUtils.isEmpty(collection)) {
         throw new HopException(
-            BaseMessages.getString(
-                PKG, "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
+            BaseMessages.getString(PKG, "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
       }
-      DBCollection dbcollection = db.getCollection( collection );
+      DBCollection dbcollection = db.getCollection(collection);
 
       Iterator<DBObject> pipeSample = null;
 
-      if ( isPipeline ) {
-        pipeSample = setUpPipelineSample( query, numDocsToSample, dbcollection);
+      if (isPipeline) {
+        pipeSample = setUpPipelineSample(query, numDocsToSample, dbcollection);
       } else {
-        if (StringUtils.isEmpty( query ) && StringUtils.isEmpty( fields )) {
+        if (StringUtils.isEmpty(query) && StringUtils.isEmpty(fields)) {
           cursor = dbcollection.find().limit(numDocsToSample);
         } else {
-          DBObject dbObject =
-              (DBObject) JSON.parse(StringUtils.isEmpty( query ) ? "{}" : query );
-          DBObject dbObject2 = (DBObject) JSON.parse( fields );
+          DBObject dbObject = (DBObject) JSON.parse(StringUtils.isEmpty(query) ? "{}" : query);
+          DBObject dbObject2 = (DBObject) JSON.parse(fields);
           cursor = dbcollection.find(dbObject, dbObject2).limit(numDocsToSample);
         }
       }
@@ -157,22 +144,23 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       final DiscoverFieldsCallback discoverFieldsCallback)
       throws HopException {
     new Thread(
-      () -> {
-        try {
-          discoverFieldsCallback.notifyFields(
-            discoverFields(
-              variables,
-              connection,
-              collection,
-              query,
-              fields,
-              isPipeline,
-              docsToSample,
-              transform ) );
-        } catch ( HopException e ) {
-          discoverFieldsCallback.notifyException( e );
-        }
-      } ).start();
+            () -> {
+              try {
+                discoverFieldsCallback.notifyFields(
+                    discoverFields(
+                        variables,
+                        connection,
+                        collection,
+                        query,
+                        fields,
+                        isPipeline,
+                        docsToSample,
+                        transform));
+              } catch (HopException e) {
+                discoverFieldsCallback.notifyException(e);
+              }
+            })
+        .start();
   }
 
   protected static void postProcessPaths(

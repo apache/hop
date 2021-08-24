@@ -28,12 +28,12 @@ public class AppendMetaInjectionTest extends BaseMetadataInjectionTest<AppendMet
 
   @Before
   public void setup() throws Exception {
-    setup( new AppendMeta() );
+    setup(new AppendMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "HEAD_TRANSFORM", () -> meta.headTransformName );
-    check( "TAIL_TRANSFORM", () -> meta.tailTransformName );
+    check("HEAD_TRANSFORM", () -> meta.headTransformName);
+    check("TAIL_TRANSFORM", () -> meta.tailTransformName);
   }
 }

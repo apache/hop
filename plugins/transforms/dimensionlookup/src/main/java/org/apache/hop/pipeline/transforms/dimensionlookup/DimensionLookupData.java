@@ -88,9 +88,7 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
 
   public List<Integer> lazyList;
 
-  /**
-   * The input row metadata, but converted to normal storage type
-   */
+  /** The input row metadata, but converted to normal storage type */
   public IRowMeta inputRowMeta;
 
   public DimensionLookupData() {
@@ -102,5 +100,4 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
     realTableName = null;
     realSchemaName = null;
   }
-
 }

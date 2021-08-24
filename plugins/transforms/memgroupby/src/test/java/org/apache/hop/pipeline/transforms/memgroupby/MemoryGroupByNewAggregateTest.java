@@ -47,21 +47,21 @@ public class MemoryGroupByNewAggregateTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-      new TransformMockHelper<>( "Memory Group By", MemoryGroupByMeta.class,
-        MemoryGroupByData.class );
-    when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.iLogChannel );
-    when( mockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>(
+            "Memory Group By", MemoryGroupByMeta.class, MemoryGroupByData.class);
+    when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(mockHelper.iLogChannel);
+    when(mockHelper.pipeline.isRunning()).thenReturn(true);
 
     // In this transform we will distinct String aggregations from numeric ones
     strings = new ArrayList<>();
-    strings.add( MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA );
-    strings.add( MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING );
+    strings.add(MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA);
+    strings.add(MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING);
 
     // Statistics will be initialized with collections...
     statistics = new ArrayList<>();
-    statistics.add( MemoryGroupByMeta.TYPE_GROUP_MEDIAN );
-    statistics.add( MemoryGroupByMeta.TYPE_GROUP_PERCENTILE );
+    statistics.add(MemoryGroupByMeta.TYPE_GROUP_MEDIAN);
+    statistics.add(MemoryGroupByMeta.TYPE_GROUP_PERCENTILE);
   }
 
   @AfterClass
@@ -73,52 +73,60 @@ public class MemoryGroupByNewAggregateTest {
   public void setUp() throws Exception {
     data = new MemoryGroupByData();
 
-    data.subjectnrs = new int[ 16 ];
-    int[] arr = new int[ 16 ];
-    String[] arrF = new String[ 16 ];
+    data.subjectnrs = new int[16];
+    int[] arr = new int[16];
+    String[] arrF = new String[16];
 
-    for ( int i = 0; i < arr.length; i++ ) {
+    for (int i = 0; i < arr.length; i++) {
       // set aggregation types (hardcoded integer values from 1 to 18)
-      arr[ i ] = i + 1;
-      data.subjectnrs[ i ] = i;
+      arr[i] = i + 1;
+      data.subjectnrs[i] = i;
     }
-    Arrays.fill( arrF, "x" );
+    Arrays.fill(arrF, "x");
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
-    meta.setAggregateType( arr );
-    meta.setAggregateField( arrF );
+    meta.setAggregateType(arr);
+    meta.setAggregateField(arrF);
 
     IValueMeta vmi = new ValueMetaInteger();
-    when( mockHelper.transformMeta.getTransform() ).thenReturn( meta );
-    IRowMeta rmi = Mockito.mock( IRowMeta.class );
+    when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
+    IRowMeta rmi = Mockito.mock(IRowMeta.class);
     data.inputRowMeta = rmi;
-    when( rmi.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
+    when(rmi.getValueMeta(Mockito.anyInt())).thenReturn(vmi);
     data.aggMeta = rmi;
 
-    transform = new MemoryGroupBy( mockHelper.transformMeta, mockHelper.iTransformMeta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
+    transform =
+        new MemoryGroupBy(
+            mockHelper.transformMeta,
+            mockHelper.iTransformMeta,
+            data,
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline);
   }
 
   @Test
   @Ignore
   public void testNewAggregate() throws HopException {
-    Object[] r = new Object[ 16 ];
-    Arrays.fill( r, null );
+    Object[] r = new Object[16];
+    Arrays.fill(r, null);
 
     Aggregate agg = new Aggregate();
 
-    transform.newAggregate( r, agg );
+    transform.newAggregate(r, agg);
 
-    Assert.assertEquals( "All possible aggregation cases considered", 16, agg.agg.length );
+    Assert.assertEquals("All possible aggregation cases considered", 16, agg.agg.length);
 
     // all aggregations types is int values, filled in ascending order in perconditions
-    for ( int i = 0; i < agg.agg.length; i++ ) {
+    for (int i = 0; i < agg.agg.length; i++) {
       int type = i + 1;
-      if ( strings.contains( type ) ) {
-        Assert.assertTrue( "This is appendable type, type=" + type, agg.agg[ i ] instanceof Appendable );
-      } else if ( statistics.contains( type ) ) {
-        Assert.assertTrue( "This is collection, type=" + type, agg.agg[ i ] instanceof Collection );
+      if (strings.contains(type)) {
+        Assert.assertTrue(
+            "This is appendable type, type=" + type, agg.agg[i] instanceof Appendable);
+      } else if (statistics.contains(type)) {
+        Assert.assertTrue("This is collection, type=" + type, agg.agg[i] instanceof Collection);
       } else {
-        Assert.assertNull( "Aggregation initialized with null, type=" + type, agg.agg[ i ] );
+        Assert.assertNull("Aggregation initialized with null, type=" + type, agg.agg[i]);
       }
     }
   }

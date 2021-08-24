@@ -27,8 +27,6 @@ import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.TransactionWork;
 
 import java.util.ArrayList;
 import java.util.List;

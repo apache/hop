@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.fileinput;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.file.IInputFileMeta;
@@ -34,10 +36,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
-import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.InputStreamReader;

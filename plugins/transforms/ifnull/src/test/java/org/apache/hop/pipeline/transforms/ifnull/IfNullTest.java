@@ -49,7 +49,7 @@ import static org.mockito.Mockito.*;
  * @author Ivan Pogodin
  * @see IfNull
  */
-@RunWith( PowerMockRunner.class )
+@RunWith(PowerMockRunner.class)
 public class IfNullTest {
   TransformMockHelper<IfNullMeta, IfNullData> smh;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -61,119 +61,146 @@ public class IfNullTest {
 
   @Before
   public void setUp() {
-    smh = new TransformMockHelper<>( "Field IfNull processor", IfNullMeta.class, IfNullData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.iLogChannel );
-    when( smh.pipeline.isRunning() ).thenReturn( true );
-
+    smh = new TransformMockHelper<>("Field IfNull processor", IfNullMeta.class, IfNullData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
+    when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
   @After
-  public void clean() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+  public void clean()
+      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+          IllegalAccessException {
     smh.cleanUp();
   }
 
-  private IRowSet buildInputRowSet( Object... row ) {
-    return smh.getMockInputRowSet( new Object[][] { row } );
+  private IRowSet buildInputRowSet(Object... row) {
+    return smh.getMockInputRowSet(new Object[][] {row});
   }
 
   private IfNullMeta mockProcessRowMeta() throws HopTransformException {
     IfNullMeta processRowMeta = smh.iTransformMeta;
-    doReturn( createFields( "null-field", "empty-field", "space-field" ) ).when( processRowMeta ).getFields();
-    doReturn( "replace-value" ).when( processRowMeta ).getReplaceAllByValue();
-    doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(), any(
-      IRowMeta[].class ), any( TransformMeta.class ), any( IVariables.class ), any(
-      IHopMetadataProvider.class ) );
+    doReturn(createFields("null-field", "empty-field", "space-field"))
+        .when(processRowMeta)
+        .getFields();
+    doReturn("replace-value").when(processRowMeta).getReplaceAllByValue();
+    doCallRealMethod()
+        .when(processRowMeta)
+        .getFields(
+            any(IRowMeta.class),
+            anyString(),
+            any(IRowMeta[].class),
+            any(TransformMeta.class),
+            any(IVariables.class),
+            any(IHopMetadataProvider.class));
     return processRowMeta;
   }
 
-  private static Fields[] createFields( String... fieldNames ) {
-    Fields[] fields = new Fields[ fieldNames.length ];
-    for ( int i = 0; i < fields.length; i++ ) {
+  private static Fields[] createFields(String... fieldNames) {
+    Fields[] fields = new Fields[fieldNames.length];
+    for (int i = 0; i < fields.length; i++) {
       Fields currentField = new Fields();
-      currentField.setFieldName( fieldNames[ i ] );
-      fields[ i ] = currentField;
+      currentField.setFieldName(fieldNames[i]);
+      fields[i] = currentField;
     }
     return fields;
   }
 
-  private RowMeta buildInputRowMeta( IValueMeta... iValueMeta ) {
+  private RowMeta buildInputRowMeta(IValueMeta... iValueMeta) {
     RowMeta inputRowMeta = new RowMeta();
-    for ( IValueMeta iValuMetaInterface : iValueMeta ) {
-      inputRowMeta.addValueMeta( iValuMetaInterface );
+    for (IValueMeta iValuMetaInterface : iValueMeta) {
+      inputRowMeta.addValueMeta(iValuMetaInterface);
     }
     return inputRowMeta;
   }
 
   @Test
   public void testStringEmptyIsNull() throws HopException {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    IfNull transform = new IfNull( smh.transformMeta,mockProcessRowMeta(), smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
+    IfNull transform =
+        new IfNull(
+            smh.transformMeta,
+            mockProcessRowMeta(),
+            smh.iTransformData,
+            0,
+            smh.pipelineMeta,
+            smh.pipeline);
     transform.init();
-    final RowMeta inputRowMeta = buildInputRowMeta( //
-      new ValueMetaString( "some-field" ), //
-      new ValueMetaString( "null-field" ), //
-      new ValueMetaString( "empty-field" ), //
-      new ValueMetaString( "space-field" ), //
-      new ValueMetaString( "another-field" ) //
-    );
-    transform.setInputRowMeta( inputRowMeta );
+    final RowMeta inputRowMeta =
+        buildInputRowMeta( //
+            new ValueMetaString("some-field"), //
+            new ValueMetaString("null-field"), //
+            new ValueMetaString("empty-field"), //
+            new ValueMetaString("space-field"), //
+            new ValueMetaString("another-field") //
+            );
+    transform.setInputRowMeta(inputRowMeta);
 
-    final Object[] inputRow = new Object[] { "value1", null, "", "    ", "value5" };
-    final Object[] expectedRow = new Object[] { "value1", "replace-value", "replace-value", "    ", "value5" };
+    final Object[] inputRow = new Object[] {"value1", null, "", "    ", "value5"};
+    final Object[] expectedRow =
+        new Object[] {"value1", "replace-value", "replace-value", "    ", "value5"};
 
-    transform.addRowSetToInputRowSets( buildInputRowSet( inputRow ) );
-    transform.addRowSetToOutputRowSets( new QueueRowSet() );
+    transform.addRowSetToInputRowSets(buildInputRowSet(inputRow));
+    transform.addRowSetToOutputRowSets(new QueueRowSet());
 
     boolean hasMoreRows;
     do {
       hasMoreRows = transform.processRow();
-    } while ( hasMoreRows );
+    } while (hasMoreRows);
 
-    IRowSet outputRowSet = transform.getOutputRowSets().get( 0 );
+    IRowSet outputRowSet = transform.getOutputRowSets().get(0);
 
-    assertRowSetMatches( "", expectedRow, outputRowSet );
-
+    assertRowSetMatches("", expectedRow, outputRowSet);
   }
 
   @Test
   public void testStringEmptyIsNotNull() throws HopException {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    IfNull transform = new IfNull( smh.transformMeta, mockProcessRowMeta(), smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
+    IfNull transform =
+        new IfNull(
+            smh.transformMeta,
+            mockProcessRowMeta(),
+            smh.iTransformData,
+            0,
+            smh.pipelineMeta,
+            smh.pipeline);
     transform.init();
-    final RowMeta inputRowMeta = buildInputRowMeta( //
-      new ValueMetaString( "some-field" ), //
-      new ValueMetaString( "null-field" ), //
-      new ValueMetaString( "empty-field" ), //
-      new ValueMetaString( "space-field" ), //
-      new ValueMetaString( "another-field" ) //
-    );
-    transform.setInputRowMeta( inputRowMeta );
+    final RowMeta inputRowMeta =
+        buildInputRowMeta( //
+            new ValueMetaString("some-field"), //
+            new ValueMetaString("null-field"), //
+            new ValueMetaString("empty-field"), //
+            new ValueMetaString("space-field"), //
+            new ValueMetaString("another-field") //
+            );
+    transform.setInputRowMeta(inputRowMeta);
 
-    final Object[] inputRow = new Object[] { "value1", null, "", "    ", "value5" };
-    final Object[] expectedRow = new Object[] { "value1", "replace-value", "", "    ", "value5" };
+    final Object[] inputRow = new Object[] {"value1", null, "", "    ", "value5"};
+    final Object[] expectedRow = new Object[] {"value1", "replace-value", "", "    ", "value5"};
 
-    transform.addRowSetToInputRowSets( buildInputRowSet( inputRow ) );
-    transform.addRowSetToOutputRowSets( new QueueRowSet() );
+    transform.addRowSetToInputRowSets(buildInputRowSet(inputRow));
+    transform.addRowSetToOutputRowSets(new QueueRowSet());
 
     boolean hasMoreRows;
     do {
       hasMoreRows = transform.processRow();
-    } while ( hasMoreRows );
+    } while (hasMoreRows);
 
-    IRowSet outputRowSet = transform.getOutputRowSets().get( 0 );
+    IRowSet outputRowSet = transform.getOutputRowSets().get(0);
 
-    assertRowSetMatches( "", expectedRow, outputRowSet );
-
+    assertRowSetMatches("", expectedRow, outputRowSet);
   }
 
-  private void assertRowSetMatches( String msg, Object[] expectedRow, IRowSet outputRowSet ) {
+  private void assertRowSetMatches(String msg, Object[] expectedRow, IRowSet outputRowSet) {
     Object[] actualRow = outputRowSet.getRow();
-    Assert.assertEquals( msg + ". Output row is of an unexpected length", expectedRow.length, outputRowSet.getRowMeta()
-      .size() );
+    Assert.assertEquals(
+        msg + ". Output row is of an unexpected length",
+        expectedRow.length,
+        outputRowSet.getRowMeta().size());
 
-    for ( int i = 0; i < expectedRow.length; i++ ) {
-      Assert.assertEquals( msg + ". Unexpected output value at index " + i, expectedRow[ i ], actualRow[ i ] );
+    for (int i = 0; i < expectedRow.length; i++) {
+      Assert.assertEquals(
+          msg + ". Unexpected output value at index " + i, expectedRow[i], actualRow[i]);
     }
   }
 }

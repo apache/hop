@@ -22,13 +22,15 @@ under the License.
 
 == Description
 
-The Get System Info transform retrieves system information from the Hop project. The transform includes a table where you can designate a name and assign it to any available system info type you want to retrieve. This transform generates a single row with the fields containing the requested information.
+The Get System Info transform retrieves system information from the Hop project.
+The transform includes a table where you can designate a name and assign it to any available system info type you want to retrieve.
+This transform generates a single row with the fields containing the requested information.
 
 It can also accept any number of input streams, aggregate any fields defined by this transform, and send the combined results to the output stream.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
@@ -38,15 +40,19 @@ It can also accept any number of input streams, aggregate any fields defined by 
 
 == Information Types
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Item|Description
 |system date (variable)|System time, changes every time you ask a date.
 |system date (fixed)|System time, determined at the start of the pipeline.
-|start date range (Pipeline)|Start of date range, based upon information in ETL log table. See, also .08 Pipeline Settings.
-|end date range (Pipeline)|End of date range, based upon information in ETL log table. See, also .08 Pipeline Settings.
-|start data range (Workflow)|Start of date range based upon information in the ETL log table. See also .08 Pipeline Settings.
-|End date range (Workflow)|End of date range based upon information in the ETL log table. See also .08 Pipeline Settings.
+|start date range (Pipeline)|Start of date range, based upon information in ETL log table.
+See, also .08 Pipeline Settings.
+|end date range (Pipeline)|End of date range, based upon information in ETL log table.
+See, also .08 Pipeline Settings.
+|start data range (Workflow)|Start of date range based upon information in the ETL log table.
+See also .08 Pipeline Settings.
+|End date range (Workflow)|End of date range based upon information in the ETL log table.
+See also .08 Pipeline Settings.
 |Yesterday 00:00:00|Start of yesterday.
 |Yesterday 23:59:59|End of yesterday.
 |Today 00:00:00|Start of today.
@@ -59,7 +65,8 @@ It can also accept any number of input streams, aggregate any fields defined by 
 |Last day of this month 23:59:59|End of this month.
 |First day of next month 00:00:00|Start of next month.
 |Last day of next month 23:59:59|End of next month.
-|copy of transform|Copy nr of the transform. See also Launching several copies of a transform.
+|copy of transform|Copy nr of the transform.
+See also Launching several copies of a transform.
 |Pipeline name|Name of the pipeline.
 |Pipeline file name|File name of the pipeline (XML only).
 |User that modified the pipeline last|

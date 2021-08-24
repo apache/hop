@@ -23,7 +23,8 @@ under the License.
 
 Hop initially (late 2019) started as a fork of the Kettle (Pentaho Data Integration).
 
-Hop and Kettle/PDI are independent projects, each with their own roadmap and priorities. Given these different roadmaps, architectural vision and development track, Hop and Kettle/PDI are incompatible.
+Hop and Kettle/PDI are independent projects, each with their own roadmap and priorities.
+Given these different roadmaps, architectural vision and development track, Hop and Kettle/PDI are incompatible.
 
 However, since Hop shares a common history with Kettle/PDI, we provide the Hop community a way to import existing PDI/Kettle projects into Hop as seamlessly as possible.
 

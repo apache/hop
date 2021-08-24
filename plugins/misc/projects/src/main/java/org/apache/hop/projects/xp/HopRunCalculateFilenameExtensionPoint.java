@@ -18,37 +18,39 @@
 package org.apache.hop.projects.xp;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.run.HopRun;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.run.HopRun;
 
-@ExtensionPoint( id = "HopRunCalculateFilenameExtensionPoint",
-  extensionPointId = "HopRunCalculateFilename",
-  description = "Resolves filenames specified relative to the given project"
-)
+@ExtensionPoint(
+    id = "HopRunCalculateFilenameExtensionPoint",
+    extensionPointId = "HopRunCalculateFilename",
+    description = "Resolves filenames specified relative to the given project")
 public class HopRunCalculateFilenameExtensionPoint implements IExtensionPoint<HopRun> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopRun hopRun ) throws HopException {
+  @Override
+  public void callExtensionPoint(ILogChannel log, IVariables variables, HopRun hopRun)
+      throws HopException {
 
     try {
-      Thread.sleep( 10000 );
-      FileObject fileObject = HopVfs.getFileObject( hopRun.getRealFilename() );
-      if ( !fileObject.exists() ) {
+      Thread.sleep(10000);
+      FileObject fileObject = HopVfs.getFileObject(hopRun.getRealFilename());
+      if (!fileObject.exists()) {
         // Try to prepend with ${PROJECT_HOME}
         //
-        String alternativeFilename = variables.resolve( "${PROJECT_HOME}/" + hopRun.getFilename() );
-        fileObject = HopVfs.getFileObject( alternativeFilename );
-        if ( fileObject.exists() ) {
+        String alternativeFilename = variables.resolve("${PROJECT_HOME}/" + hopRun.getFilename());
+        fileObject = HopVfs.getFileObject(alternativeFilename);
+        if (fileObject.exists()) {
           hopRun.setRealFilename(alternativeFilename);
-          log.logBasic( "Relative path filename specified: " + hopRun.getRealFilename() );
+          log.logBasic("Relative path filename specified: " + hopRun.getRealFilename());
         }
       }
-    } catch ( Exception e ) {
-      throw new HopException( "Error calculating filename", e );
+    } catch (Exception e) {
+      throw new HopException("Error calculating filename", e);
     }
   }
 }

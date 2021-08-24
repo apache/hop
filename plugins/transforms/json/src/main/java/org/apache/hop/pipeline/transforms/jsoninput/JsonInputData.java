@@ -39,18 +39,16 @@ public class JsonInputData extends BaseFileInputTransformData implements ITransf
 
   public int nrInputFields;
 
-  /**
-   * last row read
-   */
+  /** last row read */
   public Object[] readrow;
+
   public int totalpreviousfields;
 
   public int filenr;
 
-  /**
-   * output row counter
-   */
+  /** output row counter */
   public long rownr;
+
   public int indexSourceField;
 
   public Iterator<InputStream> inputs;
@@ -71,5 +69,4 @@ public class JsonInputData extends BaseFileInputTransformData implements ITransf
     readrow = null;
     totalpreviousfields = 0;
   }
-
 }

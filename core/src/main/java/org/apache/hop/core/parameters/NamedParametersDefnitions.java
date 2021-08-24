@@ -28,39 +28,35 @@ import java.util.Set;
  * @author Sven Boden
  */
 public class NamedParametersDefnitions implements INamedParameterDefinitions {
-  /**
-   * Map to store named parameters in.
-   */
+  /** Map to store named parameters in. */
   protected Map<String, NamedParameterDefinition> params = new HashMap<>();
 
-  /**
-   * Default constructor.
-   */
-  public NamedParametersDefnitions() {
-  }
+  /** Default constructor. */
+  public NamedParametersDefnitions() {}
 
   @Override
-  public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
+  public void addParameterDefinition(String key, String defValue, String description)
+      throws DuplicateParamException {
 
-    if ( params.get( key ) == null ) {
+    if (params.get(key) == null) {
       NamedParameterDefinition oneParam = new NamedParameterDefinition();
 
       oneParam.key = key;
       oneParam.defaultValue = defValue;
       oneParam.description = description;
 
-      params.put( key, oneParam );
+      params.put(key, oneParam);
     } else {
-      throw new DuplicateParamException( "Duplicate parameter '" + key + "' detected." );
+      throw new DuplicateParamException("Duplicate parameter '" + key + "' detected.");
     }
   }
 
   @Override
-  public String getParameterDescription( String key ) throws UnknownParamException {
+  public String getParameterDescription(String key) throws UnknownParamException {
     String description = null;
 
-    NamedParameterDefinition theParam = params.get( key );
-    if ( theParam != null ) {
+    NamedParameterDefinition theParam = params.get(key);
+    if (theParam != null) {
       description = theParam.description;
     }
 
@@ -68,11 +64,11 @@ public class NamedParametersDefnitions implements INamedParameterDefinitions {
   }
 
   @Override
-  public String getParameterDefault( String key ) throws UnknownParamException {
+  public String getParameterDefault(String key) throws UnknownParamException {
     String value = null;
 
-    NamedParameterDefinition theParam = params.get( key );
-    if ( theParam != null ) {
+    NamedParameterDefinition theParam = params.get(key);
+    if (theParam != null) {
       value = theParam.defaultValue;
     }
 
@@ -83,13 +79,14 @@ public class NamedParametersDefnitions implements INamedParameterDefinitions {
   public String[] listParameters() {
     Set<String> keySet = params.keySet();
 
-    String[] paramArray = keySet.toArray( new String[ 0 ] );
-    Arrays.sort( paramArray );
+    String[] paramArray = keySet.toArray(new String[0]);
+    Arrays.sort(paramArray);
 
     return paramArray;
   }
 
-  @Override public void removeAllParameters() {
+  @Override
+  public void removeAllParameters() {
     params.clear();
   }
 }

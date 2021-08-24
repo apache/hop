@@ -17,8 +17,8 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
@@ -31,15 +31,15 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -51,15 +51,14 @@ import java.util.List;
  * @author Samatar
  * @since 22-07-2008
  */
-
 @Action(
-		  id = "EVAL_TABLE_CONTENT",
-		  name = "i18n::ActionEvalTableContent.Name",
-		  description = "i18n::ActionEvalTableContent.Description",
-		  image = "EvalTableContent.svg",
-		  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-		  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/evaluatetablecontent.html"
-)
+    id = "EVAL_TABLE_CONTENT",
+    name = "i18n::ActionEvalTableContent.Name",
+    description = "i18n::ActionEvalTableContent.Description",
+    image = "EvalTableContent.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/workflow/actions/evaluatetablecontent.html")
 public class ActionEvalTableContent extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
 
@@ -76,18 +75,26 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
 
   private static final String selectCount = "SELECT count(*) FROM ";
 
-  public static final String[] successConditionsDesc = new String[] {
-    BaseMessages.getString( PKG, "ActionEvalTableContent.SuccessWhenRowCountEqual.Label" ),
-    BaseMessages.getString( PKG, "ActionEvalTableContent.SuccessWhenRowCountDifferent.Label" ),
-    BaseMessages.getString( PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerThan.Label" ),
-    BaseMessages.getString( PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerOrEqualThan.Label" ),
-    BaseMessages.getString( PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterThan.Label" ),
-    BaseMessages.getString( PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterOrEqual.Label" )
-
-  };
-  public static final String[] successConditionsCode = new String[] {
-    "rows_count_equal", "rows_count_different", "rows_count_smaller", "rows_count_smaller_equal",
-    "rows_count_greater", "rows_count_greater_equal" };
+  public static final String[] successConditionsDesc =
+      new String[] {
+        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountEqual.Label"),
+        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountDifferent.Label"),
+        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerThan.Label"),
+        BaseMessages.getString(
+            PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerOrEqualThan.Label"),
+        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterThan.Label"),
+        BaseMessages.getString(
+            PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterOrEqual.Label")
+      };
+  public static final String[] successConditionsCode =
+      new String[] {
+        "rows_count_equal",
+        "rows_count_different",
+        "rows_count_smaller",
+        "rows_count_smaller_equal",
+        "rows_count_greater",
+        "rows_count_greater_equal"
+      };
 
   public static final int SUCCESS_CONDITION_ROWS_COUNT_EQUAL = 0;
   public static final int SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT = 1;
@@ -96,8 +103,8 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   public static final int SUCCESS_CONDITION_ROWS_COUNT_GREATER = 4;
   public static final int SUCCESS_CONDITION_ROWS_COUNT_GREATER_EQUAL = 5;
 
-  public ActionEvalTableContent( String n ) {
-    super( n, "" );
+  public ActionEvalTableContent(String n) {
+    super(n, "");
     limit = "0";
     successCondition = SUCCESS_CONDITION_ROWS_COUNT_GREATER;
     useCustomSql = false;
@@ -111,7 +118,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   }
 
   public ActionEvalTableContent() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -119,109 +126,116 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return je;
   }
 
-  /**
-   * @return the successCondition
-   */
+  /** @return the successCondition */
   public int getSuccessCondition() {
     return successCondition;
   }
 
-  public static int getSuccessConditionByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getSuccessConditionByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < successConditionsDesc.length; i++ ) {
-      if ( successConditionsDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < successConditionsDesc.length; i++) {
+      if (successConditionsDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
 
     // If this fails, try to match using the code.
-    return getSuccessConditionByCode( tt );
+    return getSuccessConditionByCode(tt);
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
+    StringBuilder retval = new StringBuilder(200);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "limit", limit ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", useCustomSql) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "is_usevars", useVars ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSql) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_rows_result", addRowsResult ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "clear_result_rows", clearResultList ) );
+    retval.append(super.getXml());
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
+    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
+    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
+    retval
+        .append("      ")
+        .append(
+            XmlHandler.addTagValue("success_condition", getSuccessConditionCode(successCondition)));
+    retval.append("      ").append(XmlHandler.addTagValue("limit", limit));
+    retval.append("      ").append(XmlHandler.addTagValue("is_custom_sql", useCustomSql));
+    retval.append("      ").append(XmlHandler.addTagValue("is_usevars", useVars));
+    retval.append("      ").append(XmlHandler.addTagValue("custom_sql", customSql));
+    retval.append("      ").append(XmlHandler.addTagValue("add_rows_result", addRowsResult));
+    retval.append("      ").append(XmlHandler.addTagValue("clear_result_rows", clearResultList));
 
     return retval.toString();
   }
 
-  private static String getSuccessConditionCode( int i ) {
-    if ( i < 0 || i >= successConditionsCode.length ) {
-      return successConditionsCode[ 0 ];
+  private static String getSuccessConditionCode(int i) {
+    if (i < 0 || i >= successConditionsCode.length) {
+      return successConditionsCode[0];
     }
-    return successConditionsCode[ i ];
+    return successConditionsCode[i];
   }
 
-  private static int getSucessConditionByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getSucessConditionByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < successConditionsCode.length; i++ ) {
-      if ( successConditionsCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < successConditionsCode.length; i++) {
+      if (successConditionsCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static String getSuccessConditionDesc( int i ) {
-    if ( i < 0 || i >= successConditionsDesc.length ) {
-      return successConditionsDesc[ 0 ];
+  public static String getSuccessConditionDesc(int i) {
+    if (i < 0 || i >= successConditionsDesc.length) {
+      return successConditionsDesc[0];
     }
-    return successConditionsDesc[ i ];
+    return successConditionsDesc[i];
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
-      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
+      super.loadXml(entrynode);
+      String dbname = XmlHandler.getTagValue(entrynode, "connection");
+      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
+      schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
+      tableName = XmlHandler.getTagValue(entrynode, "tablename");
       successCondition =
-        getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
-      limit = Const.NVL( XmlHandler.getTagValue( entrynode, "limit" ), "0" );
-      useCustomSql = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
-      useVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_usevars" ) );
-      customSql = XmlHandler.getTagValue( entrynode, "custom_sql" );
-      addRowsResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_rows_result" ) );
-      clearResultList = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_result_rows" ) );
+          getSucessConditionByCode(
+              Const.NVL(XmlHandler.getTagValue(entrynode, "success_condition"), ""));
+      limit = Const.NVL(XmlHandler.getTagValue(entrynode, "limit"), "0");
+      useCustomSql = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "is_custom_sql"));
+      useVars = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "is_usevars"));
+      customSql = XmlHandler.getTagValue(entrynode, "custom_sql");
+      addRowsResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_rows_result"));
+      clearResultList =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "clear_result_rows"));
 
-    } catch ( HopException e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "ActionEvalTableContent.UnableLoadXML" ), e );
+    } catch (HopException e) {
+      throw new HopXmlException(
+          BaseMessages.getString(PKG, "ActionEvalTableContent.UnableLoadXML"), e);
     }
   }
 
-  private static int getSuccessConditionByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getSuccessConditionByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < successConditionsCode.length; i++ ) {
-      if ( successConditionsCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < successConditionsCode.length; i++) {
+      if (successConditionsCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public void setDatabase( DatabaseMeta database ) {
+  public void setDatabase(DatabaseMeta database) {
     this.connection = database;
   }
 
@@ -229,7 +243,8 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return connection;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
@@ -237,11 +252,14 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return false;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
+    result.setResult(false);
 
-    boolean oldBehavior = "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
+    boolean oldBehavior =
+        "Y"
+            .equalsIgnoreCase(
+                getVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N"));
 
     String countSqlStatement = null;
     long rowsCount = 0;
@@ -249,168 +267,191 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
 
     boolean successOK = false;
 
-    int nrRowsLimit = Const.toInt( resolve( limit ), 0 );
-    if ( log.isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.nrRowsLimit", "" + nrRowsLimit ) );
+    int nrRowsLimit = Const.toInt(resolve(limit), 0);
+    if (log.isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(PKG, "ActionEvalTableContent.Log.nrRowsLimit", "" + nrRowsLimit));
     }
 
-    if ( connection != null ) {
-      Database db = new Database( this, this, connection );
+    if (connection != null) {
+      Database db = new Database(this, this, connection);
       try {
         db.connect();
 
         if (useCustomSql) {
           String realCustomSql = customSql;
-          if ( useVars ) {
-            realCustomSql = resolve( realCustomSql );
+          if (useVars) {
+            realCustomSql = resolve(realCustomSql);
           }
-          if ( log.isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.EnteredCustomSQL", realCustomSql ) );
+          if (log.isDebug()) {
+            logDebug(
+                BaseMessages.getString(
+                    PKG, "ActionEvalTableContent.Log.EnteredCustomSQL", realCustomSql));
           }
 
-          if ( !Utils.isEmpty( realCustomSql ) ) {
+          if (!Utils.isEmpty(realCustomSql)) {
             countSqlStatement = realCustomSql;
           } else {
             errCount++;
-            logError( BaseMessages.getString( PKG, "ActionEvalTableContent.Error.NoCustomSQL" ) );
+            logError(BaseMessages.getString(PKG, "ActionEvalTableContent.Error.NoCustomSQL"));
           }
 
         } else {
-          String realTablename = resolve( tableName );
-          String realSchemaname = resolve( schemaname );
+          String realTablename = resolve(tableName);
+          String realSchemaname = resolve(schemaname);
 
-          if ( !Utils.isEmpty( realTablename ) ) {
-            if ( !Utils.isEmpty( realSchemaname ) ) {
+          if (!Utils.isEmpty(realTablename)) {
+            if (!Utils.isEmpty(realSchemaname)) {
               countSqlStatement =
-                selectCount
-                  + db.getDatabaseMeta().getQuotedSchemaTableCombination( this, realSchemaname, realTablename );
+                  selectCount
+                      + db.getDatabaseMeta()
+                          .getQuotedSchemaTableCombination(this, realSchemaname, realTablename);
             } else {
-              countSqlStatement = selectCount + db.getDatabaseMeta().quoteField( realTablename );
+              countSqlStatement = selectCount + db.getDatabaseMeta().quoteField(realTablename);
             }
           } else {
             errCount++;
-            logError( BaseMessages.getString( PKG, "ActionEvalTableContent.Error.NoTableName" ) );
+            logError(BaseMessages.getString(PKG, "ActionEvalTableContent.Error.NoTableName"));
           }
         }
 
-        if ( countSqlStatement != null ) {
-          if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString(
-              PKG, "ActionEvalTableContent.Log.RunSQLStatement", countSqlStatement ) );
+        if (countSqlStatement != null) {
+          if (log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "ActionEvalTableContent.Log.RunSQLStatement", countSqlStatement));
           }
 
           if (useCustomSql) {
-            if ( clearResultList ) {
+            if (clearResultList) {
               result.getRows().clear();
             }
 
-            List<Object[]> ar = db.getRows( countSqlStatement, 0 );
-            if ( ar != null ) {
+            List<Object[]> ar = db.getRows(countSqlStatement, 0);
+            if (ar != null) {
               rowsCount = ar.size();
 
               // ad rows to result
-              IRowMeta rowMeta = db.getQueryFields( countSqlStatement, false );
+              IRowMeta rowMeta = db.getQueryFields(countSqlStatement, false);
 
               List<RowMetaAndData> rows = new ArrayList<>();
-              for ( int i = 0; i < ar.size(); i++ ) {
-                rows.add( new RowMetaAndData( rowMeta, ar.get( i ) ) );
+              for (int i = 0; i < ar.size(); i++) {
+                rows.add(new RowMetaAndData(rowMeta, ar.get(i)));
               }
-              if ( addRowsResult && useCustomSql) {
-                if ( rows != null ) {
-                  result.getRows().addAll( rows );
+              if (addRowsResult && useCustomSql) {
+                if (rows != null) {
+                  result.getRows().addAll(rows);
                 }
               }
             } else {
-              if ( log.isDebug() ) {
-                logDebug( BaseMessages.getString(
-                  PKG, "ActionEvalTableContent.Log.customSQLreturnedNothing", countSqlStatement ) );
+              if (log.isDebug()) {
+                logDebug(
+                    BaseMessages.getString(
+                        PKG,
+                        "ActionEvalTableContent.Log.customSQLreturnedNothing",
+                        countSqlStatement));
               }
             }
 
           } else {
-            RowMetaAndData row = db.getOneRow( countSqlStatement );
-            if ( row != null ) {
-              rowsCount = row.getInteger( 0 );
+            RowMetaAndData row = db.getOneRow(countSqlStatement);
+            if (row != null) {
+              rowsCount = row.getInteger(0);
             }
           }
-          if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.NrRowsReturned", ""
-              + rowsCount ) );
+          if (log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "ActionEvalTableContent.Log.NrRowsReturned", "" + rowsCount));
           }
-          switch ( successCondition ) {
+          switch (successCondition) {
             case ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL:
-              successOK = ( rowsCount == nrRowsLimit );
+              successOK = (rowsCount == nrRowsLimit);
               break;
             case ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT:
-              successOK = ( rowsCount != nrRowsLimit );
+              successOK = (rowsCount != nrRowsLimit);
               break;
             case ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_SMALLER:
-              successOK = ( rowsCount < nrRowsLimit );
+              successOK = (rowsCount < nrRowsLimit);
               break;
             case ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_SMALLER_EQUAL:
-              successOK = ( rowsCount <= nrRowsLimit );
+              successOK = (rowsCount <= nrRowsLimit);
               break;
             case ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_GREATER:
-              successOK = ( rowsCount > nrRowsLimit );
+              successOK = (rowsCount > nrRowsLimit);
               break;
             case ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_GREATER_EQUAL:
-              successOK = ( rowsCount >= nrRowsLimit );
+              successOK = (rowsCount >= nrRowsLimit);
               break;
             default:
               break;
           }
 
-          if ( !successOK && oldBehavior ) {
+          if (!successOK && oldBehavior) {
             errCount++;
           }
         } // end if countSqlStatement!=null
-      } catch ( HopException dbe ) {
+      } catch (HopException dbe) {
         errCount++;
-        logError( BaseMessages.getString( PKG, "ActionEvalTableContent.Error.RunningEntry", dbe.getMessage() ) );
+        logError(
+            BaseMessages.getString(
+                PKG, "ActionEvalTableContent.Error.RunningEntry", dbe.getMessage()));
       } finally {
-        if ( db != null ) {
+        if (db != null) {
           db.disconnect();
         }
       }
     } else {
       errCount++;
-      logError( BaseMessages.getString( PKG, "ActionEvalTableContent.NoDbConnection" ) );
+      logError(BaseMessages.getString(PKG, "ActionEvalTableContent.NoDbConnection"));
     }
 
-    result.setResult( successOK );
-    result.setNrLinesRead( rowsCount );
-    result.setNrErrors( errCount );
+    result.setResult(successOK);
+    result.setNrLinesRead(rowsCount);
+    result.setNrErrors(errCount);
 
     return result;
   }
 
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] { connection, };
+    return new DatabaseMeta[] {
+      connection,
+    };
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( connection != null ) {
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );
-      reference.getEntries().add( new ResourceEntry( connection.getDatabaseName(), ResourceType.DATABASENAME ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (connection != null) {
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "WaitForSQL",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 
   public boolean isAddRowsResult() {
     return addRowsResult;
   }
 
-  public void setAddRowsResult( boolean addRowsResult ) {
+  public void setAddRowsResult(boolean addRowsResult) {
     this.addRowsResult = addRowsResult;
   }
 
@@ -418,7 +459,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return clearResultList;
   }
 
-  public void setClearResultList( boolean clearResultList ) {
+  public void setClearResultList(boolean clearResultList) {
     this.clearResultList = clearResultList;
   }
 
@@ -426,7 +467,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return useVars;
   }
 
-  public void setUseVars( boolean useVars ) {
+  public void setUseVars(boolean useVars) {
     this.useVars = useVars;
   }
 
@@ -450,7 +491,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return connection;
   }
 
-  public void setConnection( DatabaseMeta connection ) {
+  public void setConnection(DatabaseMeta connection) {
     this.connection = connection;
   }
 
@@ -458,7 +499,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return tableName;
   }
 
-  public void setTablename( String tableName ) {
+  public void setTablename(String tableName) {
     this.tableName = tableName;
   }
 
@@ -466,7 +507,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return schemaname;
   }
 
-  public void setSchemaname( String schemaname ) {
+  public void setSchemaname(String schemaname) {
     this.schemaname = schemaname;
   }
 
@@ -474,12 +515,11 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return limit;
   }
 
-  public void setLimit( String limit ) {
+  public void setLimit(String limit) {
     this.limit = limit;
   }
 
-  public void setSuccessCondition( int successCondition ) {
+  public void setSuccessCondition(int successCondition) {
     this.successCondition = successCondition;
   }
-
 }

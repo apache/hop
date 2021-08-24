@@ -27,17 +27,17 @@ import java.util.zip.ZipOutputStream;
 
 public class GzipCompressionOutputStream extends CompressionOutputStream {
 
-  public GzipCompressionOutputStream( OutputStream out, ICompressionProvider provider ) throws IOException {
-    super( getDelegate( out ), provider );
-
+  public GzipCompressionOutputStream(OutputStream out, ICompressionProvider provider)
+      throws IOException {
+    super(getDelegate(out), provider);
   }
 
-  protected static GZIPOutputStream getDelegate( OutputStream out ) throws IOException {
+  protected static GZIPOutputStream getDelegate(OutputStream out) throws IOException {
     GZIPOutputStream delegate = null;
-    if ( out instanceof ZipOutputStream ) {
+    if (out instanceof ZipOutputStream) {
       delegate = (GZIPOutputStream) out;
     } else {
-      delegate = new GZIPOutputStream( out );
+      delegate = new GZIPOutputStream(out);
     }
     return delegate;
   }

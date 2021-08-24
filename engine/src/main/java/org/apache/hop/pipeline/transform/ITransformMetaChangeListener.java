@@ -24,9 +24,8 @@ public interface ITransformMetaChangeListener {
    * This method is called when a transform was changed
    *
    * @param pipelineMeta PipelineMeta which include this transforms
-   * @param oldMeta   the previous meta, which changed
-   * @param newMeta   the updated meta with new variables values
+   * @param oldMeta the previous meta, which changed
+   * @param newMeta the updated meta with new variables values
    */
-  void onTransformChange( PipelineMeta pipelineMeta, TransformMeta oldMeta, TransformMeta newMeta );
-
+  void onTransformChange(PipelineMeta pipelineMeta, TransformMeta oldMeta, TransformMeta newMeta);
 }

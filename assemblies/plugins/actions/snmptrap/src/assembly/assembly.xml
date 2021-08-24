@@ -46,12 +46,12 @@
                 <include>org.apache.hop:hop-action-snmptrap:jar</include>
             </includes>
         </dependencySet>
-     <dependencySet>
+        <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.snmp4j:snmp4j:jar</include>
             </includes>
-        </dependencySet>         
+        </dependencySet>
     </dependencySets>
 </assembly>

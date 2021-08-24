@@ -20,11 +20,7 @@ package org.apache.hop.pipeline.transforms.sortedmerge;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -39,29 +35,33 @@ public class SortedMergeMetaTest {
 
   @Test
   public void testRoundTrips() throws HopException {
-    List<String> attributes = Arrays.asList( "name", "ascending" );
+    List<String> attributes = Arrays.asList("name", "ascending");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "name", "getFieldName" );
-    getterMap.put( "ascending", "getAscending" );
+    getterMap.put("name", "getFieldName");
+    getterMap.put("ascending", "getAscending");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "name", "setFieldName" );
-    setterMap.put( "ascending", "setAscending" );
+    setterMap.put("name", "setFieldName");
+    setterMap.put("ascending", "setAscending");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
-      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
+        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 25);
 
-    fieldLoadSaveValidatorAttributeMap.put( "name", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "ascending", booleanArrayLoadSaveValidator );
+    fieldLoadSaveValidatorAttributeMap.put("name", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("ascending", booleanArrayLoadSaveValidator);
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( SortedMergeMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+        new LoadSaveTester(
+            SortedMergeMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
 
     loadSaveTester.testSerialization();
   }
@@ -69,22 +69,22 @@ public class SortedMergeMetaTest {
   @Test
   public void testPDI16559() throws Exception {
     SortedMergeMeta sortedMerge = new SortedMergeMeta();
-    sortedMerge.setFieldName( new String[] { "field1", "field2", "field3", "field4", "field5" } );
-    sortedMerge.setAscending( new boolean[] { false, true } );
+    sortedMerge.setFieldName(new String[] {"field1", "field2", "field3", "field4", "field5"});
+    sortedMerge.setAscending(new boolean[] {false, true});
 
     try {
       String badXml = sortedMerge.getXml();
-      Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
-    } catch ( Exception expected ) {
+      Assert.fail(
+          "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
+    } catch (Exception expected) {
       // Do Nothing
     }
     sortedMerge.afterInjectionSynchronization();
-    //run without a exception
+    // run without a exception
     String ktrXml = sortedMerge.getXml();
 
     int targetSz = sortedMerge.getFieldName().length;
 
-    Assert.assertEquals( targetSz, sortedMerge.getAscending().length );
-
+    Assert.assertEquals(targetSz, sortedMerge.getAscending().length);
   }
 }

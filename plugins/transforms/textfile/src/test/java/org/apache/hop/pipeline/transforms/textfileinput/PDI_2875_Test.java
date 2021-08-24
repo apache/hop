@@ -30,8 +30,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /***
@@ -48,10 +46,10 @@ public class PDI_2875_Test {
   public static void setUp() throws HopException {
     HopEnvironment.init();
     smh =
-      new TransformMockHelper<>( "CsvInputTest", TextFileInputMeta.class, TextFileInputData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( smh.iLogChannel );
-    when( smh.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>("CsvInputTest", TextFileInputMeta.class, TextFileInputData.class);
+    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(smh.iLogChannel);
+    when(smh.pipeline.isRunning()).thenReturn(true);
   }
 
   @AfterClass
@@ -61,15 +59,15 @@ public class PDI_2875_Test {
 
   private TextFileInputMeta getMeta() {
     TextFileInputMeta meta = new TextFileInputMeta();
-    meta.allocateFiles( 2 );
-    meta.setFileName( new String[] { "file1.txt", "file2.txt" } );
-    meta.setIncludeSubFolders( new String[] { "n", "n" } );
-    meta.setFilter( new TextFileFilter[ 0 ] );
-    meta.setFileFormat( "unix" );
-    meta.setFileType( "CSV" );
-    meta.setLineNumberFilesDestinationDirectory( EXPRESSION );
-    meta.setErrorFilesDestinationDirectory( EXPRESSION );
-    meta.setWarningFilesDestinationDirectory( EXPRESSION );
+    meta.allocateFiles(2);
+    meta.setFileName(new String[] {"file1.txt", "file2.txt"});
+    meta.setIncludeSubFolders(new String[] {"n", "n"});
+    meta.setFilter(new TextFileFilter[0]);
+    meta.setFileFormat("unix");
+    meta.setFileType("CSV");
+    meta.setLineNumberFilesDestinationDirectory(EXPRESSION);
+    meta.setErrorFilesDestinationDirectory(EXPRESSION);
+    meta.setWarningFilesDestinationDirectory(EXPRESSION);
 
     return meta;
   }

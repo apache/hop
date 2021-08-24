@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.mailinput;
 import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.mail.Folder;
@@ -37,72 +36,74 @@ public class BatchFolderIteratorName {
 
   @BeforeClass
   public static void setUp() throws MessagingException {
-    folder = mock( Folder.class );
-    when( folder.getName() ).thenReturn( "INBOX" );
-    when( folder.getMessages( anyInt(), anyInt() ) ).thenAnswer( (Answer<Message[]>) invocation -> {
-      Object[] args = invocation.getArguments();
-      int start = ( (Integer) args[ 0 ] ).intValue();
-      int end = ( (Integer) args[ 1 ] ).intValue();
-      return new Message[ end - start + 1 ];
-    } );
+    folder = mock(Folder.class);
+    when(folder.getName()).thenReturn("INBOX");
+    when(folder.getMessages(anyInt(), anyInt()))
+        .thenAnswer(
+            (Answer<Message[]>)
+                invocation -> {
+                  Object[] args = invocation.getArguments();
+                  int start = ((Integer) args[0]).intValue();
+                  int end = ((Integer) args[1]).intValue();
+                  return new Message[end - start + 1];
+                });
   }
 
   @Test
   public void testBatchSize2() {
-    BatchFolderIterator bfi = new BatchFolderIterator( folder, 2, 1, 2 );
-    Assert.assertTrue( bfi.hasNext() );
+    BatchFolderIterator bfi = new BatchFolderIterator(folder, 2, 1, 2);
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertFalse( bfi.hasNext() );
+    Assert.assertFalse(bfi.hasNext());
   }
 
   @Test
   public void testBatchSize1x2() {
-    BatchFolderIterator bfi = new BatchFolderIterator( folder, 1, 1, 2 );
-    Assert.assertTrue( bfi.hasNext() );
+    BatchFolderIterator bfi = new BatchFolderIterator(folder, 1, 1, 2);
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertFalse( bfi.hasNext() );
+    Assert.assertFalse(bfi.hasNext());
   }
 
   @Test
   public void testBatchSize1() {
-    BatchFolderIterator bfi = new BatchFolderIterator( folder, 1, 1, 1 );
-    Assert.assertTrue( bfi.hasNext() );
+    BatchFolderIterator bfi = new BatchFolderIterator(folder, 1, 1, 1);
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertFalse( bfi.hasNext() );
+    Assert.assertFalse(bfi.hasNext());
   }
 
   @Test
   public void testBatchSize2x2() {
-    BatchFolderIterator bfi = new BatchFolderIterator( folder, 2, 1, 4 );
-    Assert.assertTrue( bfi.hasNext() );
+    BatchFolderIterator bfi = new BatchFolderIterator(folder, 2, 1, 4);
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertFalse( bfi.hasNext() );
+    Assert.assertFalse(bfi.hasNext());
   }
 
   @Test
   public void testBatchSize2x3() {
-    BatchFolderIterator bfi = new BatchFolderIterator( folder, 2, 1, 5 );
-    Assert.assertTrue( bfi.hasNext() );
+    BatchFolderIterator bfi = new BatchFolderIterator(folder, 2, 1, 5);
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertTrue( bfi.hasNext() );
+    Assert.assertTrue(bfi.hasNext());
     bfi.next();
-    Assert.assertFalse( bfi.hasNext() );
+    Assert.assertFalse(bfi.hasNext());
   }
-
 }
