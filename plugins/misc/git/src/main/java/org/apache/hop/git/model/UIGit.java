@@ -28,6 +28,7 @@ import org.apache.hop.git.model.revision.GitObjectRevision;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
@@ -64,6 +65,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class UIGit extends VCS {
+  protected static final Class<?> PKG = UIGit.class; // For Translator
 
   static {
     /**
@@ -118,8 +120,8 @@ public class UIGit extends VCS {
   public String getCommitMessage(String commitId) {
     if (commitId.equals(VCS.WORKINGTREE)) {
       try {
-        String merge_msg = git.getRepository().readMergeCommitMsg();
-        return merge_msg == null ? "" : merge_msg;
+        String mergeMsg = git.getRepository().readMergeCommitMsg();
+        return mergeMsg == null ? "" : mergeMsg;
       } catch (Exception e) {
         return e.getMessage();
       }
@@ -133,11 +135,7 @@ public class UIGit extends VCS {
     ObjectId id = null;
     try {
       id = git.getRepository().resolve(revstr);
-    } catch (RevisionSyntaxException e) {
-      e.printStackTrace();
-    } catch (AmbiguousObjectException e) {
-      e.printStackTrace();
-    } catch (IncorrectObjectTypeException e) {
+    } catch (RevisionSyntaxException | AmbiguousObjectException | IncorrectObjectTypeException e) {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
@@ -308,30 +306,10 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
-    status
-        .getUntracked()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.ADD, false));
-            });
-    status
-        .getModified()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.MODIFY, false));
-            });
-    status
-        .getConflicting()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.MODIFY, false));
-            });
-    status
-        .getMissing()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.DELETE, false));
-            });
+    status.getUntracked().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
+    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
+    status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
+    status.getMissing().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, false)));
     return files;
   }
 
@@ -344,24 +322,9 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
-    status
-        .getAdded()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.ADD, true));
-            });
-    status
-        .getChanged()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.MODIFY, true));
-            });
-    status
-        .getRemoved()
-        .forEach(
-            name -> {
-              files.add(new UIFile(name, ChangeType.DELETE, true));
-            });
+    status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
+    status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
+    status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
     return files;
   }
 
@@ -374,15 +337,14 @@ public class UIGit extends VCS {
       rd.addAll(diffs);
       diffs = rd.compute();
       diffs.forEach(
-          diff -> {
-            files.add(
-                new UIFile(
-                    diff.getChangeType() == ChangeType.DELETE
-                        ? diff.getOldPath()
-                        : diff.getNewPath(),
-                    diff.getChangeType(),
-                    false));
-          });
+          diff ->
+              files.add(
+                  new UIFile(
+                      diff.getChangeType() == ChangeType.DELETE
+                          ? diff.getOldPath()
+                          : diff.getNewPath(),
+                      diff.getChangeType(),
+                      false)));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -591,16 +553,15 @@ public class UIGit extends VCS {
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.OK)
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE)
               .forEach(
-                  update -> { // for each failed refspec
-                    sb.append(
-                        result.getURI().toString()
-                            + "\n"
-                            + update.getSrcRef().toString()
-                            + "\n"
-                            + update.getStatus().toString()
-                            + (update.getMessage() == null ? "" : "\n" + update.getMessage())
-                            + "\n\n");
-                  });
+                  update -> // for each failed refspec
+                  sb.append(
+                          result.getURI().toString()
+                              + "\n"
+                              + update.getSrcRef()
+                              + "\n"
+                              + update.getStatus().toString()
+                              + (update.getMessage() == null ? "" : "\n" + update.getMessage())
+                              + "\n\n"));
           if (sb.length() == 0) {
             showMessageBox(
                 BaseMessages.getString(PKG, "Dialog.Success"),
@@ -668,15 +629,15 @@ public class UIGit extends VCS {
     cmd.setURI(uri);
     cmd.setCredentialsProvider(credentialsProvider);
     try {
-      Git git = cmd.call();
-      git.close();
+      Git gitClone = cmd.call();
+      gitClone.close();
       return true;
     } catch (Exception e) {
       if ((e instanceof TransportException)
-          && ((e.getMessage()
+          && (e.getMessage()
                   .contains(
                       "Authentication is required but no CredentialsProvider has been registered")
-              || e.getMessage().contains("not authorized")))) {
+              || e.getMessage().contains("not authorized"))) {
         if (promptUsernamePassword()) {
           return cloneRepo(directory, uri);
         }
@@ -941,11 +902,7 @@ public class UIGit extends VCS {
     ObjectId id = null;
     try {
       id = git.getRepository().resolve(commitId);
-    } catch (RevisionSyntaxException e1) {
-      e1.printStackTrace();
-    } catch (AmbiguousObjectException e1) {
-      e1.printStackTrace();
-    } catch (IncorrectObjectTypeException e1) {
+    } catch (RevisionSyntaxException | AmbiguousObjectException | IncorrectObjectTypeException e1) {
       e1.printStackTrace();
     } catch (IOException e1) {
       e1.printStackTrace();
@@ -964,7 +921,7 @@ public class UIGit extends VCS {
 
   @VisibleForTesting
   EnterSelectionDialog getEnterSelectionDialog(String[] choices, String shellText, String message) {
-    return new EnterSelectionDialog(shell, choices, shellText, message);
+    return new EnterSelectionDialog(HopGui.getInstance().getShell(), choices, shellText, message);
   }
 
   public Set<String> getIgnored(String path) {
