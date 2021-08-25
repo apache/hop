@@ -50,7 +50,7 @@ public class TokenReplacementData extends BaseTransformData implements ITransfor
   public TokenReplacementData() {
     super();
 
-     daf = new SimpleDateFormat();
+    daf = new SimpleDateFormat();
     dafs = new DateFormatSymbols();
 
     defaultDateFormat = new SimpleDateFormat();

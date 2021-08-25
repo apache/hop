@@ -32,40 +32,32 @@ public class FieldnameLineage {
   /**
    * Create a new field lineage object
    *
-   * @param inputFieldname  The input field name
+   * @param inputFieldname The input field name
    * @param outputFieldname The output field name
    */
-  public FieldnameLineage( String inputFieldname, String outputFieldname ) {
+  public FieldnameLineage(String inputFieldname, String outputFieldname) {
     super();
     this.inputFieldname = inputFieldname;
     this.outputFieldname = outputFieldname;
   }
 
-  /**
-   * @return the input Field name
-   */
+  /** @return the input Field name */
   public String getInputFieldname() {
     return inputFieldname;
   }
 
-  /**
-   * @param inputFieldname the input Field name to set
-   */
-  public void setInputFieldname( String inputFieldname ) {
+  /** @param inputFieldname the input Field name to set */
+  public void setInputFieldname(String inputFieldname) {
     this.inputFieldname = inputFieldname;
   }
 
-  /**
-   * @return the output Field name
-   */
+  /** @return the output Field name */
   public String getOutputFieldname() {
     return outputFieldname;
   }
 
-  /**
-   * @param outputFieldname the output Field name to set
-   */
-  public void setOutputFieldname( String outputFieldname ) {
+  /** @param outputFieldname the output Field name to set */
+  public void setOutputFieldname(String outputFieldname) {
     this.outputFieldname = outputFieldname;
   }
 
@@ -73,13 +65,14 @@ public class FieldnameLineage {
    * Search for a field name lineage object in a list.
    *
    * @param lineages The list
-   * @param input    the input field name to look for
-   * @return The first encountered field name lineage object where the input field name matches. If nothing is found
-   * null is returned.
+   * @param input the input field name to look for
+   * @return The first encountered field name lineage object where the input field name matches. If
+   *     nothing is found null is returned.
    */
-  public static final FieldnameLineage findFieldnameLineageWithInput( List<FieldnameLineage> lineages, String input ) {
-    for ( FieldnameLineage lineage : lineages ) {
-      if ( lineage.getInputFieldname().equalsIgnoreCase( input ) ) {
+  public static final FieldnameLineage findFieldnameLineageWithInput(
+      List<FieldnameLineage> lineages, String input) {
+    for (FieldnameLineage lineage : lineages) {
+      if (lineage.getInputFieldname().equalsIgnoreCase(input)) {
         return lineage;
       }
     }

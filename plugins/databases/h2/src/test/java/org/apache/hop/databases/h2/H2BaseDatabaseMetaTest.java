@@ -40,8 +40,7 @@ public class H2BaseDatabaseMetaTest {
   @Test
   public void testShowIsTreatedAsAResultsQuery() throws Exception {
     List<SqlScriptStatement> sqlScriptStatements =
-      new H2DatabaseMeta().getSqlScriptStatements( "show annotations from service" );
-    assertTrue( sqlScriptStatements.get( 0 ).isQuery() );
+        new H2DatabaseMeta().getSqlScriptStatements("show annotations from service");
+    assertTrue(sqlScriptStatements.get(0).isQuery());
   }
-
 }

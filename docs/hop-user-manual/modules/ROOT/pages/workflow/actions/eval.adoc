@@ -21,20 +21,26 @@ under the License.
 
 == Description
 
-Use the JavaScript action to calculate a boolean expression. The result can be used to determine which action will be executed next. You can use functions, procedure calls, ANDs, ampersands, ORs, EQUALs, etc. The Javascript workflow action evaluates and returns a true or false.
+Use the JavaScript action to calculate a boolean expression.
+The result can be used to determine which action will be executed next.
+You can use functions, procedure calls, ANDs, ampersands, ORs, EQUALs, etc.
+The Javascript workflow action evaluates and returns a true or false.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |JavaScript|The JavaScript field.
 |===
 
 == Evaluation
 
-The result of a JavaScript action is either true or false. In other words, it needs to end with a boolean expression.
+The result of a JavaScript action is either true or false.
+In other words, it needs to end with a boolean expression.
 
 Here are a few possible evaluations to end your script with:
 
@@ -53,7 +59,7 @@ parent_workflow.getVariable("INPUT_DIRECTORY").equals("/tmp");
 
 The following variables are available for the expression:
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Variable|Description
 |```errors```|Number of errors in the previous workflow action (long).
@@ -99,9 +105,9 @@ true;
 
 == Previous result
 
-When a workflow action finishes, the result of the execution will be a Result object exposed as "previous_result" to the JavaScript engine: 
+When a workflow action finishes, the result of the execution will be a Result object exposed as "previous_result" to the JavaScript engine:
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Expression|Alternative|Data type|Meaning
 |```previous_result.getResult()```||boolean|true if the previous workflow action was executed successfully, false if there was some error.
@@ -120,7 +126,8 @@ When a workflow action finishes, the result of the execution will be a Result ob
 |```previous_result.getResultFilesList()```||List<ResultFile>|The list of all the files used in the previous workflow action (or actions).
 |```previous_result.getNrFilesRetrieved()```|files_retrieved|int|The number of files retrieved from FTP, SFTP, etc.
 |```previous_result.getLogText()```||String|The log text of the execution of the previous workflow action and its children.
-|```previous_result.getLogChannelId()```||String|The ID of the log channel of the previous workflow action. You can use this to look up information on the execution lineage in the log channel log table.
+|```previous_result.getLogChannelId()```||String|The ID of the log channel of the previous workflow action.
+You can use this to look up information on the execution lineage in the log channel log table.
 |===
 
 === Rows

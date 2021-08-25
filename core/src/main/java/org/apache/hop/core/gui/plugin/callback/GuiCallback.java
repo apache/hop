@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.gui.plugin.callback;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * When a @GuiPlugin has a method painted with this annotation it is possible for other code to call

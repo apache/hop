@@ -24,33 +24,29 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by mburgess on 10/13/15.
- */
+/** Created by mburgess on 10/13/15. */
 public class DuplicateParamExceptionTest {
   DuplicateParamException exception;
 
   @Before
-  public void setUp() throws Exception {
-
-  }
+  public void setUp() throws Exception {}
 
   @Test
   public void testConstructors() {
     exception = new DuplicateParamException();
-    assertNotNull( exception );
-    NamedParamsExceptionTest.assertMessage( "null", exception );
+    assertNotNull(exception);
+    NamedParamsExceptionTest.assertMessage("null", exception);
 
-    exception = new DuplicateParamException( "message" );
-    NamedParamsExceptionTest.assertMessage( "message", exception );
+    exception = new DuplicateParamException("message");
+    NamedParamsExceptionTest.assertMessage("message", exception);
 
-    Throwable t = mock( Throwable.class );
-    when( t.getStackTrace() ).thenReturn( new StackTraceElement[ 0 ] );
-    exception = new DuplicateParamException( t );
-    assertEquals( t, exception.getCause() );
+    Throwable t = mock(Throwable.class);
+    when(t.getStackTrace()).thenReturn(new StackTraceElement[0]);
+    exception = new DuplicateParamException(t);
+    assertEquals(t, exception.getCause());
 
-    exception = new DuplicateParamException( "message", t );
-    NamedParamsExceptionTest.assertMessage( "message", exception );
-    assertEquals( t, exception.getCause() );
+    exception = new DuplicateParamException("message", t);
+    NamedParamsExceptionTest.assertMessage("message", exception);
+    assertEquals(t, exception.getCause());
   }
 }

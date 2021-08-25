@@ -14,13 +14,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+
 [[Governance]]
 :imagesdir: ../../assets/images
 
 
 Here are some self-evident pieces of advice:
 
-* Version control your project folder.  Please consider using git.
+* Version control your project folder.
+Please consider using git.
 * Reference cases in commits
 * Make sure to have backups
 * Run continuous integration

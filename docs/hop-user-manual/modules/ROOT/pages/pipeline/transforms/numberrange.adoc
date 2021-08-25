@@ -26,7 +26,7 @@ Create ranges based on numeric fields.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
@@ -36,5 +36,5 @@ Create ranges based on numeric fields.
 |Ranges|Designated the upper and lower bound of a range.
 |Lower Bound|Designated the minimum value of a range.
 |Upper Bound|Designate the upper value of a range.
-|Value|Designated a name for the value. 
+|Value|Designated a name for the value.
 |===

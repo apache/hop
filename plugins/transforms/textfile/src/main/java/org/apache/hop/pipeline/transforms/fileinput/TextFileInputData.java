@@ -29,11 +29,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Matt
@@ -101,9 +97,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
 
   public IRowSet rowSet;
 
-  /**
-   * The separator (delimiter)
-   */
+  /** The separator (delimiter) */
   public String separator;
 
   public String enclosure;
@@ -147,7 +141,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
     in = null;
 
     filterProcessor = null;
-    lineStringBuilder = new StringBuilder( 256 );
+    lineStringBuilder = new StringBuilder(256);
 
     rejectedFiles = new HashMap<>();
   }
@@ -156,7 +150,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
     return files;
   }
 
-  public void setFiles( FileInputList files ) {
+  public void setFiles(FileInputList files) {
     this.files = files;
   }
 }

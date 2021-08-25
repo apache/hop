@@ -686,7 +686,6 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     }
   }
 
-
   private void ftpConnect(String realFtpDirectory) throws Exception {
 
     // Create ftp client to host:port ...
@@ -713,7 +712,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     nrFilesDeleted++;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 

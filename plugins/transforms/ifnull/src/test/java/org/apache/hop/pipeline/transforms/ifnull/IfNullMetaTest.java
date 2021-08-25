@@ -43,64 +43,76 @@ public class IfNullMetaTest {
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-      Arrays.asList( "fields", "valueTypes", "selectFields", "selectValuesType", "replaceAllByValue",
-        "replaceAllMask", "setEmptyStringAll" );
+        Arrays.asList(
+            "fields",
+            "valueTypes",
+            "selectFields",
+            "selectValuesType",
+            "replaceAllByValue",
+            "replaceAllMask",
+            "setEmptyStringAll");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "fields", "getFields" );
-        put( "valueTypes", "getValueTypes" );
-        put( "selectFields", "isSelectFields" );
-        put( "selectValuesType", "isSelectValuesType" );
-        put( "replaceAllByValue", "getReplaceAllByValue" );
-        put( "replaceAllMask", "getReplaceAllMask" );
-        put( "setEmptyStringAll", "isSetEmptyStringAll" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("fields", "getFields");
+            put("valueTypes", "getValueTypes");
+            put("selectFields", "isSelectFields");
+            put("selectValuesType", "isSelectValuesType");
+            put("replaceAllByValue", "getReplaceAllByValue");
+            put("replaceAllMask", "getReplaceAllMask");
+            put("setEmptyStringAll", "isSetEmptyStringAll");
+          }
+        };
 
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "fields", "setFields" );
-        put( "valueTypes", "setValueTypes" );
-        put( "selectFields", "setSelectFields" );
-        put( "selectValuesType", "setSelectValuesType" );
-        put( "replaceAllByValue", "setReplaceAllByValue" );
-        put( "replaceAllMask", "setReplaceAllMask" );
-        put( "setEmptyStringAll", "setEmptyStringAll" );
-      }
-    };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("fields", "setFields");
+            put("valueTypes", "setValueTypes");
+            put("selectFields", "setSelectFields");
+            put("selectValuesType", "setSelectValuesType");
+            put("replaceAllByValue", "setReplaceAllByValue");
+            put("replaceAllMask", "setReplaceAllMask");
+            put("setEmptyStringAll", "setEmptyStringAll");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 3 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 3);
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "replaceValue", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "typeName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "typereplaceValue", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "typereplaceMask", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "replaceMask", stringArrayLoadSaveValidator );
+    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("replaceValue", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("typeName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("typereplaceValue", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("typereplaceMask", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("replaceMask", stringArrayLoadSaveValidator);
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    typeValidatorMap.put( boolean[].class.getCanonicalName(), new PrimitiveBooleanArrayLoadSaveValidator(
-      new BooleanLoadSaveValidator(), 3 ) );
+    typeValidatorMap.put(
+        boolean[].class.getCanonicalName(),
+        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 3));
 
     Fields field = new Fields();
-    field.setFieldName( "fieldName" );
-    field.setReplaceValue( "replaceValue" );
-    field.setReplaceMask( "replaceMask" );
-    field.setEmptyString( true );
-    typeValidatorMap.put( Fields[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
-      new FieldsLoadSaveValidator( field ), 3 ) );
+    field.setFieldName("fieldName");
+    field.setReplaceValue("replaceValue");
+    field.setReplaceMask("replaceMask");
+    field.setEmptyString(true);
+    typeValidatorMap.put(
+        Fields[].class.getCanonicalName(),
+        new ArrayLoadSaveValidator<>(new FieldsLoadSaveValidator(field), 3));
 
     ValueTypes type = new ValueTypes();
-    type.setTypeName( "typeName" );
-    type.setTypereplaceValue( "typereplaceValue" );
-    type.setTypereplaceMask( "typereplaceMask" );
-    type.setTypeEmptyString( true );
-    typeValidatorMap.put( ValueTypes[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
-      new ValueTypesLoadSaveValidator( type ), 3 ) );
+    type.setTypeName("typeName");
+    type.setTypereplaceValue("typereplaceValue");
+    type.setTypereplaceMask("typereplaceMask");
+    type.setTypeEmptyString(true);
+    typeValidatorMap.put(
+        ValueTypes[].class.getCanonicalName(),
+        new ArrayLoadSaveValidator<>(new ValueTypesLoadSaveValidator(type), 3));
 
     loadSaveTester =
-      new LoadSaveTester( IfNullMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            IfNullMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -112,17 +124,17 @@ public class IfNullMetaTest {
   public void testSetDefault() throws Exception {
     IfNullMeta inm = new IfNullMeta();
     inm.setDefault();
-    assertTrue( ( inm.getValueTypes() != null ) && ( inm.getValueTypes().length == 0 ) );
-    assertTrue( ( inm.getFields() != null ) && ( inm.getFields().length == 0 ) );
-    assertFalse( inm.isSelectFields() );
-    assertFalse( inm.isSelectValuesType() );
+    assertTrue((inm.getValueTypes() != null) && (inm.getValueTypes().length == 0));
+    assertTrue((inm.getFields() != null) && (inm.getFields().length == 0));
+    assertFalse(inm.isSelectFields());
+    assertFalse(inm.isSelectValuesType());
   }
 
   public static class FieldsLoadSaveValidator implements IFieldLoadSaveValidator<Fields> {
 
     private final Fields defaultValue;
 
-    public FieldsLoadSaveValidator( Fields defaultValue ) {
+    public FieldsLoadSaveValidator(Fields defaultValue) {
       this.defaultValue = defaultValue;
     }
 
@@ -132,8 +144,8 @@ public class IfNullMetaTest {
     }
 
     @Override
-    public boolean validateTestObject( Fields testObject, Object actual ) {
-      return EqualsBuilder.reflectionEquals( testObject, actual );
+    public boolean validateTestObject(Fields testObject, Object actual) {
+      return EqualsBuilder.reflectionEquals(testObject, actual);
     }
   }
 
@@ -141,7 +153,7 @@ public class IfNullMetaTest {
 
     private final ValueTypes defaultValue;
 
-    public ValueTypesLoadSaveValidator( ValueTypes defaultValue ) {
+    public ValueTypesLoadSaveValidator(ValueTypes defaultValue) {
       this.defaultValue = defaultValue;
     }
 
@@ -151,8 +163,8 @@ public class IfNullMetaTest {
     }
 
     @Override
-    public boolean validateTestObject( ValueTypes testObject, Object actual ) {
-      return EqualsBuilder.reflectionEquals( testObject, actual );
+    public boolean validateTestObject(ValueTypes testObject, Object actual) {
+      return EqualsBuilder.reflectionEquals(testObject, actual);
     }
   }
 }

@@ -20,16 +20,14 @@ package org.apache.hop.pipeline.transforms.loadsave.initializer;
 public interface IInitializer<T> {
 
   /**
-   * Perform in-place modifications to the transformMeta before
-   * IFieldLoadSaveValidator classes are called on the transformMeta
+   * Perform in-place modifications to the transformMeta before IFieldLoadSaveValidator classes are
+   * called on the transformMeta
    *
    * @param object The transformMeta class
-   *
-   * @deprecated The transformMeta class should be updated so that
-   * developers can instantiate the transformMeta, and immediately
-   * call setter methods.  Commonly, this is used for transforms
-   * that define an allocate method, which pre-populate
-   * empty arrays
+   * @deprecated The transformMeta class should be updated so that developers can instantiate the
+   *     transformMeta, and immediately call setter methods. Commonly, this is used for transforms
+   *     that define an allocate method, which pre-populate empty arrays
    */
-  @Deprecated void modify( T object );
+  @Deprecated
+  void modify(T object);
 }

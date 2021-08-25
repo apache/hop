@@ -23,25 +23,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SearchableAnalyserPlugin(
-  id = "HopServerSearchableAnalyser",
-  name = "Search in hop server metadata"
-)
-public class HopServerSearchableAnalyser extends BaseMetadataSearchableAnalyser<HopServer> implements ISearchableAnalyser<HopServer> {
+    id = "HopServerSearchableAnalyser",
+    name = "Search in hop server metadata")
+public class HopServerSearchableAnalyser extends BaseMetadataSearchableAnalyser<HopServer>
+    implements ISearchableAnalyser<HopServer> {
 
-  @Override public Class<HopServer> getSearchableClass() {
+  @Override
+  public Class<HopServer> getSearchableClass() {
     return HopServer.class;
   }
 
-  @Override public List<ISearchResult> search( ISearchable<HopServer> searchable, ISearchQuery searchQuery ) {
+  @Override
+  public List<ISearchResult> search(ISearchable<HopServer> searchable, ISearchQuery searchQuery) {
     HopServer hopServer = searchable.getSearchableObject();
     String component = getMetadataComponent();
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Hop server name", hopServer.getName(), component );
-    matchProperty( searchable, results, searchQuery, "Hop server hostname", hopServer.getHostname(), component );
-    matchProperty( searchable, results, searchQuery, "Hop server port", hopServer.getPort(), component );
-    matchProperty( searchable, results, searchQuery, "Hop server username", hopServer.getUsername(), component );
-    matchProperty( searchable, results, searchQuery, "Hop server webapp", hopServer.getWebAppName(), component );
+    matchProperty(
+        searchable, results, searchQuery, "Hop server name", hopServer.getName(), component);
+    matchProperty(
+        searchable,
+        results,
+        searchQuery,
+        "Hop server hostname",
+        hopServer.getHostname(),
+        component);
+    matchProperty(
+        searchable, results, searchQuery, "Hop server port", hopServer.getPort(), component);
+    matchProperty(
+        searchable,
+        results,
+        searchQuery,
+        "Hop server username",
+        hopServer.getUsername(),
+        component);
+    matchProperty(
+        searchable,
+        results,
+        searchQuery,
+        "Hop server webapp",
+        hopServer.getWebAppName(),
+        component);
     return results;
   }
 }

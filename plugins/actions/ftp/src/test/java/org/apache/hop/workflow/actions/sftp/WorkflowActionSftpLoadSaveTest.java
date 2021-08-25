@@ -17,8 +17,8 @@
 
 package org.apache.hop.workflow.actions.sftp;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -34,10 +34,28 @@ public class WorkflowActionSftpLoadSaveTest extends WorkflowActionLoadSaveTestSu
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "serverName", "serverPort", "userName", "password", "scpDirectory",
-      "targetDirectory", "wildcard", "remove", "addToResult", "createTargetFolder", "copyPrevious",
-      "useKeyFile", "keyFilename", "keyPassPhrase", "compression", "proxyType", "proxyHost", "proxyPort",
-      "proxyUsername", "proxyPassword" } );
+    return Arrays.asList(
+        new String[] {
+          "serverName",
+          "serverPort",
+          "userName",
+          "password",
+          "scpDirectory",
+          "targetDirectory",
+          "wildcard",
+          "remove",
+          "addToResult",
+          "createTargetFolder",
+          "copyPrevious",
+          "useKeyFile",
+          "keyFilename",
+          "keyPassPhrase",
+          "compression",
+          "proxyType",
+          "proxyHost",
+          "proxyPort",
+          "proxyUsername",
+          "proxyPassword"
+        });
   }
-
 }

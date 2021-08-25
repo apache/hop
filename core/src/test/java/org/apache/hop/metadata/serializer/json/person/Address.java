@@ -23,39 +23,37 @@ import java.util.Objects;
 
 public class Address {
 
-  @HopMetadataProperty
-  private String street;
+  @HopMetadataProperty private String street;
 
-  @HopMetadataProperty
-  private String number;
+  @HopMetadataProperty private String number;
 
-  @HopMetadataProperty
-  private City city;
+  @HopMetadataProperty private City city;
 
-  public Address() {
-  }
+  public Address() {}
 
-  public Address( String street, String number, City city ) {
+  public Address(String street, String number, City city) {
     this.street = street;
     this.number = number;
     this.city = city;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     Address address = (Address) o;
-    return Objects.equals( street, address.street ) &&
-      Objects.equals( number, address.number ) &&
-      Objects.equals( city, address.city );
+    return Objects.equals(street, address.street)
+        && Objects.equals(number, address.number)
+        && Objects.equals(city, address.city);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( street, number, city );
+  @Override
+  public int hashCode() {
+    return Objects.hash(street, number, city);
   }
 
   /**
@@ -67,10 +65,8 @@ public class Address {
     return street;
   }
 
-  /**
-   * @param street The street to set
-   */
-  public void setStreet( String street ) {
+  /** @param street The street to set */
+  public void setStreet(String street) {
     this.street = street;
   }
 
@@ -83,10 +79,8 @@ public class Address {
     return number;
   }
 
-  /**
-   * @param number The number to set
-   */
-  public void setNumber( String number ) {
+  /** @param number The number to set */
+  public void setNumber(String number) {
     this.number = number;
   }
 
@@ -99,10 +93,8 @@ public class Address {
     return city;
   }
 
-  /**
-   * @param city The city to set
-   */
-  public void setCity( City city ) {
+  /** @param city The city to set */
+  public void setCity(City city) {
     this.city = city;
   }
 }

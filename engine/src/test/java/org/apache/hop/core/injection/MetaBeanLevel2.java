@@ -19,18 +19,18 @@ package org.apache.hop.core.injection;
 
 public class MetaBeanLevel2 extends MetaBeanLevel2Base {
 
-  @Injection( name = "SEPARATOR" )
+  @Injection(name = "SEPARATOR")
   private String separator;
 
-  @InjectionDeep
-  MetaBeanLevel3[] files;
+  @InjectionDeep MetaBeanLevel3[] files;
 
-  @InjectionDeep( prefix = "SECOND" )
+  @InjectionDeep(prefix = "SECOND")
   private MetaBeanLevel4 filesSecond;
-  @InjectionDeep( prefix = "THIRD" )
+
+  @InjectionDeep(prefix = "THIRD")
   private MetaBeanLevel4 filesThird;
 
-  @Injection( name = "FILENAME_ARRAY" )
+  @Injection(name = "FILENAME_ARRAY")
   String[] filenames;
 
   public String[] getFilenames() {

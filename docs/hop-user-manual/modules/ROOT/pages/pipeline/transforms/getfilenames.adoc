@@ -21,7 +21,8 @@ under the License.
 
 == Description
 
-The Get File Names transform allows you to get information associated with file names on the file system. The retrieved file names are added as rows onto the stream.
+The Get File Names transform allows you to get information associated with file names on the file system.
+The retrieved file names are added as rows onto the stream.
 
 The output fields for this transform are:
 
@@ -41,10 +42,11 @@ The output fields for this transform are:
 
 == File tab
 
-This tab defines the location of the files you want to retrieve filenames for. For more information about specifying file locations, see section "Selecting file using Regular Expressions" on the Text File Input transform.
+This tab defines the location of the files you want to retrieve filenames for.
+For more information about specifying file locations, see section "Selecting file using Regular Expressions" on the Text File Input transform.
 
-Example: You have a static directory of c:\temp where you expect files with an extension of .dat to be placed. Under file/directory you would specify c:\temp  and under Wildcard you would have a RegEx with something like .*\.dat$
-
+Example: You have a static directory of c:\temp where you expect files with an extension of .dat to be placed.
+Under file/directory you would specify c:\temp and under Wildcard you would have a RegEx with something like .*\.dat$
 
 == Filters
 

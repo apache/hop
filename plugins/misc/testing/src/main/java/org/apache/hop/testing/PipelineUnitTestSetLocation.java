@@ -29,16 +29,16 @@ import java.util.List;
  */
 public class PipelineUnitTestSetLocation {
 
-  @HopMetadataProperty( key = "transform_name" )
+  @HopMetadataProperty(key = "transform_name")
   protected String transformName;
 
-  @HopMetadataProperty( key = "data_set_name" )
+  @HopMetadataProperty(key = "data_set_name")
   protected String dataSetName;
 
-  @HopMetadataProperty( key = "field_mappings" )
+  @HopMetadataProperty(key = "field_mappings")
   protected List<PipelineUnitTestFieldMapping> fieldMappings;
 
-  @HopMetadataProperty( key = "field_order" )
+  @HopMetadataProperty(key = "field_order")
   protected List<String> fieldOrder;
 
   public PipelineUnitTestSetLocation() {
@@ -46,7 +46,11 @@ public class PipelineUnitTestSetLocation {
     fieldOrder = new ArrayList<>();
   }
 
-  public PipelineUnitTestSetLocation( String transformName, String dataSetName, List<PipelineUnitTestFieldMapping> fieldMappings, List<String> fieldOrder ) {
+  public PipelineUnitTestSetLocation(
+      String transformName,
+      String dataSetName,
+      List<PipelineUnitTestFieldMapping> fieldMappings,
+      List<String> fieldOrder) {
     this();
     this.transformName = transformName;
     this.dataSetName = dataSetName;
@@ -54,9 +58,9 @@ public class PipelineUnitTestSetLocation {
     this.fieldOrder = fieldOrder;
   }
 
-  public String findTransformField( String dataSetField ) {
-    for ( PipelineUnitTestFieldMapping fieldMapping : fieldMappings ) {
-      if ( fieldMapping.getDataSetFieldName().equalsIgnoreCase( dataSetField ) ) {
+  public String findTransformField(String dataSetField) {
+    for (PipelineUnitTestFieldMapping fieldMapping : fieldMappings) {
+      if (fieldMapping.getDataSetFieldName().equalsIgnoreCase(dataSetField)) {
         return fieldMapping.getTransformFieldName();
       }
     }
@@ -67,7 +71,7 @@ public class PipelineUnitTestSetLocation {
     return transformName;
   }
 
-  public void setTransformName( String transformName ) {
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -75,7 +79,7 @@ public class PipelineUnitTestSetLocation {
     return dataSetName;
   }
 
-  public void setDataSetName( String dataSetName ) {
+  public void setDataSetName(String dataSetName) {
     this.dataSetName = dataSetName;
   }
 
@@ -83,7 +87,7 @@ public class PipelineUnitTestSetLocation {
     return fieldMappings;
   }
 
-  public void setFieldMappings( List<PipelineUnitTestFieldMapping> fieldMappings ) {
+  public void setFieldMappings(List<PipelineUnitTestFieldMapping> fieldMappings) {
     this.fieldMappings = fieldMappings;
   }
 
@@ -91,8 +95,7 @@ public class PipelineUnitTestSetLocation {
     return fieldOrder;
   }
 
-  public void setFieldOrder( List<String> fieldOrder ) {
+  public void setFieldOrder(List<String> fieldOrder) {
     this.fieldOrder = fieldOrder;
   }
-
 }

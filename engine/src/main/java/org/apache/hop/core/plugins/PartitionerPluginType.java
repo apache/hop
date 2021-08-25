@@ -27,79 +27,79 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IPartitioner.class )
-@PluginAnnotationType( PartitionerPlugin.class )
+@PluginMainClassType(IPartitioner.class)
+@PluginAnnotationType(PartitionerPlugin.class)
 public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> {
 
   private static PartitionerPluginType pluginType;
 
   private PartitionerPluginType() {
-    super( PartitionerPlugin.class, "PARTITIONER", "Partitioner" );
+    super(PartitionerPlugin.class, "PARTITIONER", "Partitioner");
   }
 
   public static PartitionerPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new PartitionerPluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractCategory( PartitionerPlugin annotation ) {
+  protected String extractCategory(PartitionerPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( PartitionerPlugin annotation ) {
+  protected String extractDesc(PartitionerPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( PartitionerPlugin annotation ) {
+  protected String extractID(PartitionerPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( PartitionerPlugin annotation ) {
+  protected String extractName(PartitionerPlugin annotation) {
     return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( PartitionerPlugin annotation ) {
+  protected String extractImageFile(PartitionerPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( PartitionerPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(PartitionerPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, PartitionerPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, PartitionerPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( PartitionerPlugin annotation ) {
+  protected String extractDocumentationUrl(PartitionerPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( PartitionerPlugin annotation ) {
+  protected String extractCasesUrl(PartitionerPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( PartitionerPlugin annotation ) {
+  protected String extractForumUrl(PartitionerPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( PartitionerPlugin annotation ) {
+  protected String extractSuggestion(PartitionerPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( PartitionerPlugin annotation ) {
+  protected String extractClassLoaderGroup(PartitionerPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 }

@@ -19,7 +19,8 @@ under the License.
 
 = Hop Server
 
-Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additonally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
+Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration.
+Additonally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
 
 == Starting and Stopping Hop Server
 
@@ -27,7 +28,8 @@ Hop Server is a lightweight server to run workflows and pipelines in the xref:pi
 
 Hop Server is available as a script in your Hop installation directory.
 
-Run Hop Server without any parameters to display its usage options. On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
+Run Hop Server without any parameters to display its usage options.
+On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
 
 [source,bash]
 Usage: hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
@@ -50,15 +52,17 @@ Example: hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
 
 The available Hop Server options are:
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Short|Extended|Description
 |h|help|This help text
-|p|password|The administrator password. Required only if stopping the Hop Server server.
-|s|stop|Stop the running hopServer server. This is only allowed when using the hostname/port form of the command.
-|u|username|The administrator user name. Required only if stopping the Hop Server server.
+|p|password|The administrator password.
+Required only if stopping the Hop Server server.
+|s|stop|Stop the running hopServer server.
+This is only allowed when using the hostname/port form of the command.
+|u|username|The administrator user name.
+Required only if stopping the Hop Server server.
 |===
-
 
 === Start Hop Server with command line parameters
 
@@ -74,7 +78,6 @@ hop-server.sh 127.0.0.1 8080
 
 [source,shell]
 hop-server.sh 192.168.1.221 8081
-
 
 === Start Hop Server with a configuration file
 
@@ -156,18 +159,21 @@ The console output will look similar to what is listed below:
 
 To connect to the previously started server, point your browser to `http://localhost:8081`.
 
-You'll be prompted for your username and password. The default is `cluster` for both the username and password. The defaults obviously should be changed in any environment that goes beyond a simple local developer setup.
+You'll be prompted for your username and password.
+The default is `cluster` for both the username and password.
+The defaults obviously should be changed in any environment that goes beyond a simple local developer setup.
 
-TIP: on startup, the pipeline and workflow lists shown below will be empty. Run a workflow or pipeline through the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop Remote pipeline engine] run configuration or through the xref:metadata-types/web-service.adoc[REST api]. When pipelines or workflows are executed on the server, you'll be able to follow the logging output either from the terminal or a log file (e.g. piped from the startup command).
+TIP: on startup, the pipeline and workflow lists shown below will be empty.
+Run a workflow or pipeline through the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop Remote pipeline engine] run configuration or through the xref:metadata-types/web-service.adoc[REST api].
+When pipelines or workflows are executed on the server, you'll be able to follow the logging output either from the terminal or a log file (e.g. piped from the startup command).
 
-image::hop-server/hop-server-status.png[Hop Server Status, width="65%"]
+image::hop-server/hop-server-status.png[Hop Server Status,width="65%"]
 
 For each of the options in the pipeline and workflow dialogs described below, select a pipeline and workflow from the list and select the desired option.
 
 The header bar for workflows and pipelines is almost identical (from left to right).
 
-
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Run|
 |Stop the running pipeline/workflow|

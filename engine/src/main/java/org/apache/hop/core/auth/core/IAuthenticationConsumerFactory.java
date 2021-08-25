@@ -24,6 +24,5 @@ public interface IAuthenticationConsumerFactory<ReturnType, CreateArgType, Consu
 
   Class<CreateArgType> getCreateArgType();
 
-  IAuthenticationConsumer<ReturnType, ConsumedType> create( CreateArgType createArg );
-
+  IAuthenticationConsumer<ReturnType, ConsumedType> create(CreateArgType createArg);
 }

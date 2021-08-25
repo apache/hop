@@ -19,7 +19,6 @@ package org.apache.hop.core.gui.plugin;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.i18n.BaseMessages;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,9 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * This represents a list of GUI elements under a certain heading or ID
- */
+/** This represents a list of GUI elements under a certain heading or ID */
 public class GuiElements extends BaseGuiElements implements Comparable<GuiElements> {
 
   private String id;
@@ -69,7 +66,6 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private ClassLoader classLoader;
 
-
   // The singleton listener class to use
   private boolean singleTon;
   private Class<?> listenerClass;
@@ -79,14 +75,14 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     children = new ArrayList<>();
   }
 
-  public GuiElements( GuiWidgetElement guiElement, Field field ) {
+  public GuiElements(GuiWidgetElement guiElement, Field field) {
     this();
 
     String fieldName = field.getName();
     Class<?> fieldClass = field.getType();
     String fieldPackageName = field.getDeclaringClass().getPackage().getName();
-    
-    if (StringUtil.isEmpty( guiElement.id() )) {
+
+    if (StringUtil.isEmpty(guiElement.id())) {
       this.id = field.getName();
     } else {
       this.id = guiElement.id();
@@ -96,8 +92,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.parentId = guiElement.parentId();
     this.fieldName = fieldName;
     this.fieldClass = fieldClass;
-    this.getterMethod = calculateGetterMethod( guiElement, fieldName );
-    this.setterMethod = calculateSetterMethod( guiElement, fieldName );
+    this.getterMethod = calculateGetterMethod(guiElement, fieldName);
+    this.setterMethod = calculateSetterMethod(guiElement, fieldName);
     this.getComboValuesMethod = guiElement.comboValuesMethod();
     this.image = guiElement.image();
     this.disabledImage = null;
@@ -105,48 +101,48 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.password = guiElement.password();
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
-    this.label = getTranslation( guiElement.label(), fieldPackageName, field.getDeclaringClass() );
-    this.toolTip = getTranslation( guiElement.toolTip(), fieldPackageName, field.getDeclaringClass() );
+    this.label = getTranslation(guiElement.label(), fieldPackageName, field.getDeclaringClass());
+    this.toolTip =
+        getTranslation(guiElement.toolTip(), fieldPackageName, field.getDeclaringClass());
   }
 
-
-  /**
-   * Sort the children using the sort order.
-   * If no sort field is available we use the ID
-   */
+  /** Sort the children using the sort order. If no sort field is available we use the ID */
   public void sortChildren() {
-    Collections.sort( children );
+    Collections.sort(children);
   }
 
-  public GuiElements findChild( String id ) {
-    for ( GuiElements child : children ) {
-      if ( child.getId() != null && child.getId().equals( id ) ) {
+  public GuiElements findChild(String id) {
+    for (GuiElements child : children) {
+      if (child.getId() != null && child.getId().equals(id)) {
         return child;
       }
     }
     return null;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     GuiElements that = (GuiElements) o;
-    return id.equals( that.id );
+    return id.equals(that.id);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( id );
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 
-  @Override public int compareTo( GuiElements e ) {
-    if (StringUtils.isNotEmpty( order ) && StringUtils.isNotEmpty( e.id )) {
-      return order.compareTo( e.order );
+  @Override
+  public int compareTo(GuiElements e) {
+    if (StringUtils.isNotEmpty(order) && StringUtils.isNotEmpty(e.id)) {
+      return order.compareTo(e.order);
     } else {
-      return id.compareTo( e.id );
+      return id.compareTo(e.id);
     }
   }
 
@@ -159,10 +155,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return id;
   }
 
-  /**
-   * @param id The id to set
-   */
-  public void setId( String id ) {
+  /** @param id The id to set */
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -175,10 +169,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return order;
   }
 
-  /**
-   * @param order The order to set
-   */
-  public void setOrder( String order ) {
+  /** @param order The order to set */
+  public void setOrder(String order) {
     this.order = order;
   }
 
@@ -191,10 +183,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return parentId;
   }
 
-  /**
-   * @param parentId The parentId to set
-   */
-  public void setParentId( String parentId ) {
+  /** @param parentId The parentId to set */
+  public void setParentId(String parentId) {
     this.parentId = parentId;
   }
 
@@ -207,10 +197,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return label;
   }
 
-  /**
-   * @param label The label to set
-   */
-  public void setLabel( String label ) {
+  /** @param label The label to set */
+  public void setLabel(String label) {
     this.label = label;
   }
 
@@ -223,10 +211,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return toolTip;
   }
 
-  /**
-   * @param toolTip The toolTip to set
-   */
-  public void setToolTip( String toolTip ) {
+  /** @param toolTip The toolTip to set */
+  public void setToolTip(String toolTip) {
     this.toolTip = toolTip;
   }
 
@@ -239,10 +225,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( GuiElementType type ) {
+  /** @param type The type to set */
+  public void setType(GuiElementType type) {
     this.type = type;
   }
 
@@ -255,10 +239,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return image;
   }
 
-  /**
-   * @param image The image to set
-   */
-  public void setImage( String image ) {
+  /** @param image The image to set */
+  public void setImage(String image) {
     this.image = image;
   }
 
@@ -271,10 +253,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return disabledImage;
   }
 
-  /**
-   * @param disabledImage The disabledImage to set
-   */
-  public void setDisabledImage( String disabledImage ) {
+  /** @param disabledImage The disabledImage to set */
+  public void setDisabledImage(String disabledImage) {
     this.disabledImage = disabledImage;
   }
 
@@ -287,10 +267,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return children;
   }
 
-  /**
-   * @param children The children to set
-   */
-  public void setChildren( List<GuiElements> children ) {
+  /** @param children The children to set */
+  public void setChildren(List<GuiElements> children) {
     this.children = children;
   }
 
@@ -303,10 +281,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return variablesEnabled;
   }
 
-  /**
-   * @param variablesEnabled The variablesEnabled to set
-   */
-  public void setVariablesEnabled( boolean variablesEnabled ) {
+  /** @param variablesEnabled The variablesEnabled to set */
+  public void setVariablesEnabled(boolean variablesEnabled) {
     this.variablesEnabled = variablesEnabled;
   }
 
@@ -319,10 +295,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return password;
   }
 
-  /**
-   * @param password The password to set
-   */
-  public void setPassword( boolean password ) {
+  /** @param password The password to set */
+  public void setPassword(boolean password) {
     this.password = password;
   }
 
@@ -335,10 +309,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName The fieldName to set */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
@@ -351,10 +323,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return getterMethod;
   }
 
-  /**
-   * @param getterMethod The getterMethod to set
-   */
-  public void setGetterMethod( String getterMethod ) {
+  /** @param getterMethod The getterMethod to set */
+  public void setGetterMethod(String getterMethod) {
     this.getterMethod = getterMethod;
   }
 
@@ -367,10 +337,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return setterMethod;
   }
 
-  /**
-   * @param setterMethod The setterMethod to set
-   */
-  public void setSetterMethod( String setterMethod ) {
+  /** @param setterMethod The setterMethod to set */
+  public void setSetterMethod(String setterMethod) {
     this.setterMethod = setterMethod;
   }
 
@@ -383,10 +351,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return getComboValuesMethod;
   }
 
-  /**
-   * @param getComboValuesMethod The getComboValuesMethod to set
-   */
-  public void setGetComboValuesMethod( String getComboValuesMethod ) {
+  /** @param getComboValuesMethod The getComboValuesMethod to set */
+  public void setGetComboValuesMethod(String getComboValuesMethod) {
     this.getComboValuesMethod = getComboValuesMethod;
   }
 
@@ -399,10 +365,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return fieldClass;
   }
 
-  /**
-   * @param fieldClass The fieldClass to set
-   */
-  public void setFieldClass( Class<?> fieldClass ) {
+  /** @param fieldClass The fieldClass to set */
+  public void setFieldClass(Class<?> fieldClass) {
     this.fieldClass = fieldClass;
   }
 
@@ -415,10 +379,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return ignored;
   }
 
-  /**
-   * @param ignored The ignored to set
-   */
-  public void setIgnored( boolean ignored ) {
+  /** @param ignored The ignored to set */
+  public void setIgnored(boolean ignored) {
     this.ignored = ignored;
   }
 
@@ -431,10 +393,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return addingSeparator;
   }
 
-  /**
-   * @param addingSeparator The addingSeparator to set
-   */
-  public void setAddingSeparator( boolean addingSeparator ) {
+  /** @param addingSeparator The addingSeparator to set */
+  public void setAddingSeparator(boolean addingSeparator) {
     this.addingSeparator = addingSeparator;
   }
 
@@ -447,10 +407,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return listenerClass;
   }
 
-  /**
-   * @param listenerClass The listenerClass to set
-   */
-  public void setListenerClass( Class<?> listenerClass ) {
+  /** @param listenerClass The listenerClass to set */
+  public void setListenerClass(Class<?> listenerClass) {
     this.listenerClass = listenerClass;
   }
 
@@ -463,10 +421,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return listenerMethod;
   }
 
-  /**
-   * @param listenerMethod The menuMethod to set
-   */
-  public void setListenerMethod( String listenerMethod ) {
+  /** @param listenerMethod The menuMethod to set */
+  public void setListenerMethod(String listenerMethod) {
     this.listenerMethod = listenerMethod;
   }
 
@@ -479,10 +435,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return singleTon;
   }
 
-  /**
-   * @param singleTon The singleTon to set
-   */
-  public void setSingleTon( boolean singleTon ) {
+  /** @param singleTon The singleTon to set */
+  public void setSingleTon(boolean singleTon) {
     this.singleTon = singleTon;
   }
 
@@ -495,12 +449,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return classLoader;
   }
 
-  /**
-   * @param classLoader The classLoader to set
-   */
-  public void setClassLoader( ClassLoader classLoader ) {
+  /** @param classLoader The classLoader to set */
+  public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
-
-
 }

@@ -31,16 +31,17 @@ public class MetadataContext implements IActionContextHandlersProvider {
   private HopGui hopGui;
   private IHopMetadataProvider metadataProvider;
 
-  public MetadataContext( HopGui hopGui, IHopMetadataProvider metadataProvider ) {
+  public MetadataContext(HopGui hopGui, IHopMetadataProvider metadataProvider) {
     this.hopGui = hopGui;
     this.metadataProvider = metadataProvider;
   }
 
-  @Override public List<IGuiContextHandler> getContextHandlers() {
+  @Override
+  public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     List<Class<IHopMetadata>> metaClasses = metadataProvider.getMetadataClasses();
     for (Class<IHopMetadata> metaClass : metaClasses) {
-      handlers.add( new MetadataContextHandler( hopGui, metadataProvider, metaClass));
+      handlers.add(new MetadataContextHandler(hopGui, metadataProvider, metaClass));
     }
 
     return handlers;

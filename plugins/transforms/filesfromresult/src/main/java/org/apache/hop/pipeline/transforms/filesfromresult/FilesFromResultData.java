@@ -36,5 +36,4 @@ public class FilesFromResultData extends BaseTransformData implements ITransform
   public FilesFromResultData() {
     super();
   }
-
 }

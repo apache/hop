@@ -24,17 +24,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.*;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -44,18 +35,9 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Groups data based on aggregation rules. (sum, count, ...)

@@ -25,7 +25,7 @@ The Wait for SQL action scans a database and checks if the database meets user-d
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -36,7 +36,8 @@ The Wait for SQL action scans a database and checks if the database meets user-d
 |Value|Defines the value used for the evaluation
 |Maximum timeout|After this timeout period, the workflow action continues with a fail, by default, or success, if the Success on timeout option is checked.
 |Check cycle time|Sets the amount time between evaluations.
-|Success on timeout|Defines workflow action success behavior when timeout is reached---when checked, reaching the maximum timeout limit causes the workflow action to succeed. When left unchecked, reaching the maximum timeout limit causes the workflow action to fail.
+|Success on timeout|Defines workflow action success behavior when timeout is reached---when checked, reaching the maximum timeout limit causes the workflow action to succeed.
+When left unchecked, reaching the maximum timeout limit causes the workflow action to fail.
 |Custom SQL|Enables the use of custom SQL queries.
 |Use variable substitution|Replaces environment variables in the SQL script with their actual value.
 |Clear list of result rows before execution|Clears the list of result rows before running this workflow action.

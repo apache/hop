@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -25,6 +24,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.server.HttpUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -45,14 +45,13 @@ public class HopServerWorkflowStatus {
 
   private Result result;
 
-  public HopServerWorkflowStatus() {
-  }
+  public HopServerWorkflowStatus() {}
 
   /**
    * @param pipelineName
    * @param statusDescription
    */
-  public HopServerWorkflowStatus( String pipelineName, String id, String statusDescription ) {
+  public HopServerWorkflowStatus(String pipelineName, String id, String statusDescription) {
     this();
     this.workflowName = pipelineName;
     this.id = id;
@@ -60,51 +59,62 @@ public class HopServerWorkflowStatus {
   }
 
   public String getXml() throws HopException {
-    boolean sendResultXmlWithStatus = EnvUtil.getSystemProperty( "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N" ).equalsIgnoreCase( "Y" );
+    boolean sendResultXmlWithStatus =
+        EnvUtil.getSystemProperty("HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N")
+            .equalsIgnoreCase("Y");
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "workflowname", workflowName ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "id", id ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "status_desc", statusDescription ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "error_desc", errorDescription ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "log_date", XmlHandler.date2string( logDate ) ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "logging_string", XmlHandler.buildCDATA( loggingString ) ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "first_log_line_nr", firstLoggingLineNr ) );
-    xml.append( "  " ).append( XmlHandler.addTagValue( "last_log_line_nr", lastLoggingLineNr ) );
+    xml.append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+    xml.append("  ").append(XmlHandler.addTagValue("workflowname", workflowName));
+    xml.append("  ").append(XmlHandler.addTagValue("id", id));
+    xml.append("  ").append(XmlHandler.addTagValue("status_desc", statusDescription));
+    xml.append("  ").append(XmlHandler.addTagValue("error_desc", errorDescription));
+    xml.append("  ").append(XmlHandler.addTagValue("log_date", XmlHandler.date2string(logDate)));
+    xml.append("  ")
+        .append(XmlHandler.addTagValue("logging_string", XmlHandler.buildCDATA(loggingString)));
+    xml.append("  ").append(XmlHandler.addTagValue("first_log_line_nr", firstLoggingLineNr));
+    xml.append("  ").append(XmlHandler.addTagValue("last_log_line_nr", lastLoggingLineNr));
 
-    if ( result != null ) {
+    if (result != null) {
       String resultXML = sendResultXmlWithStatus ? result.getXml() : result.getBasicXml();
-      xml.append( resultXML );
+      xml.append(resultXML);
     }
 
-    xml.append( XmlHandler.closeTag( XML_TAG ) );
+    xml.append(XmlHandler.closeTag(XML_TAG));
 
     return xml.toString();
   }
 
-  public HopServerWorkflowStatus( Node workflowStatusNode ) throws HopException {
+  public HopServerWorkflowStatus(Node workflowStatusNode) throws HopException {
     this();
-    workflowName = XmlHandler.getTagValue( workflowStatusNode, "workflowname" );
-    id = XmlHandler.getTagValue( workflowStatusNode, "id" );
-    statusDescription = XmlHandler.getTagValue( workflowStatusNode, "status_desc" );
-    errorDescription = XmlHandler.getTagValue( workflowStatusNode, "error_desc" );
-    logDate = XmlHandler.stringToDate( XmlHandler.getTagValue( workflowStatusNode, "log_date" ) );
-    firstLoggingLineNr = Const.toInt( XmlHandler.getTagValue( workflowStatusNode, "first_log_line_nr" ), 0 );
-    lastLoggingLineNr = Const.toInt( XmlHandler.getTagValue( workflowStatusNode, "last_log_line_nr" ), 0 );
+    workflowName = XmlHandler.getTagValue(workflowStatusNode, "workflowname");
+    id = XmlHandler.getTagValue(workflowStatusNode, "id");
+    statusDescription = XmlHandler.getTagValue(workflowStatusNode, "status_desc");
+    errorDescription = XmlHandler.getTagValue(workflowStatusNode, "error_desc");
+    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "log_date"));
+    firstLoggingLineNr =
+        Const.toInt(XmlHandler.getTagValue(workflowStatusNode, "first_log_line_nr"), 0);
+    lastLoggingLineNr =
+        Const.toInt(XmlHandler.getTagValue(workflowStatusNode, "last_log_line_nr"), 0);
 
-    String loggingString64 = XmlHandler.getTagValue( workflowStatusNode, "logging_string" );
+    String loggingString64 = XmlHandler.getTagValue(workflowStatusNode, "logging_string");
 
-    if ( !Utils.isEmpty( loggingString64 ) ) {
+    if (!Utils.isEmpty(loggingString64)) {
       // This is a CDATA block with a Base64 encoded GZIP compressed stream of data.
       //
       String dataString64 =
-        loggingString64.substring( "<![CDATA[".length(), loggingString64.length() - "]]>".length() );
+          loggingString64.substring(
+              "<![CDATA[".length(), loggingString64.length() - "]]>".length());
       try {
-        loggingString = HttpUtil.decodeBase64ZippedString( dataString64 );
-      } catch ( IOException e ) {
+        loggingString = HttpUtil.decodeBase64ZippedString(dataString64);
+      } catch (IOException e) {
         loggingString =
-          "Unable to decode logging from remote server : " + e.toString() + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e );
+            "Unable to decode logging from remote server : "
+                + e.toString()
+                + Const.CR
+                + Const.getSimpleStackTrace(e)
+                + Const.CR
+                + Const.getStackTracker(e);
       }
     } else {
       loggingString = "";
@@ -112,179 +122,149 @@ public class HopServerWorkflowStatus {
 
     // get the result object, if there is any...
     //
-    Node resultNode = XmlHandler.getSubNode( workflowStatusNode, Result.XML_TAG );
-    if ( resultNode != null ) {
+    Node resultNode = XmlHandler.getSubNode(workflowStatusNode, Result.XML_TAG);
+    if (resultNode != null) {
       try {
-        result = new Result( resultNode );
-      } catch ( HopException e ) {
+        result = new Result(resultNode);
+      } catch (HopException e) {
         loggingString +=
-          "Unable to serialize result object as XML" + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) + Const.CR;
+            "Unable to serialize result object as XML"
+                + Const.CR
+                + Const.getSimpleStackTrace(e)
+                + Const.CR
+                + Const.getStackTracker(e)
+                + Const.CR;
       }
     }
   }
 
-  public static HopServerWorkflowStatus fromXml(String xml ) throws HopException {
-    Document document = XmlHandler.loadXmlString( xml );
-    HopServerWorkflowStatus status = new HopServerWorkflowStatus( XmlHandler.getSubNode( document, XML_TAG ) );
+  public static HopServerWorkflowStatus fromXml(String xml) throws HopException {
+    Document document = XmlHandler.loadXmlString(xml);
+    HopServerWorkflowStatus status =
+        new HopServerWorkflowStatus(XmlHandler.getSubNode(document, XML_TAG));
     return status;
   }
 
-  /**
-   * @return the statusDescription
-   */
+  /** @return the statusDescription */
   public String getStatusDescription() {
     return statusDescription;
   }
 
-  /**
-   * @param statusDescription the statusDescription to set
-   */
-  public void setStatusDescription( String statusDescription ) {
+  /** @param statusDescription the statusDescription to set */
+  public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /**
-   * @return the workflow name
-   */
+  /** @return the workflow name */
   public String getWorkflowName() {
     return workflowName;
   }
 
-  /**
-   * @param workflowName the workflow name to set
-   */
-  public void setWorkflowName( String workflowName ) {
+  /** @param workflowName the workflow name to set */
+  public void setWorkflowName(String workflowName) {
     this.workflowName = workflowName;
   }
 
-  /**
-   * @return the errorDescription
-   */
+  /** @return the errorDescription */
   public String getErrorDescription() {
     return errorDescription;
   }
 
-  /**
-   * @param errorDescription the errorDescription to set
-   */
-  public void setErrorDescription( String errorDescription ) {
+  /** @param errorDescription the errorDescription to set */
+  public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
   }
 
-  /**
-   * @return the loggingString
-   */
+  /** @return the loggingString */
   public String getLoggingString() {
     return loggingString;
   }
 
-  /**
-   * @param loggingString the loggingString to set
-   */
-  public void setLoggingString( String loggingString ) {
+  /** @param loggingString the loggingString to set */
+  public void setLoggingString(String loggingString) {
     this.loggingString = loggingString;
   }
 
   public boolean isRunning() {
-    if (getStatusDescription()==null) {
+    if (getStatusDescription() == null) {
       return false;
     }
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_RUNNING )
-      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_INITIALIZING );
+    return getStatusDescription().equalsIgnoreCase(Pipeline.STRING_RUNNING)
+        || getStatusDescription().equalsIgnoreCase(Pipeline.STRING_INITIALIZING);
   }
 
   public boolean isWaiting() {
-    if (getStatusDescription()==null) {
+    if (getStatusDescription() == null) {
       return false;
     }
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_WAITING );
+    return getStatusDescription().equalsIgnoreCase(Pipeline.STRING_WAITING);
   }
 
   public boolean isFinished() {
-    if (getStatusDescription()==null) {
+    if (getStatusDescription() == null) {
       return false;
     }
 
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED )
-      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED_WITH_ERRORS );
+    return getStatusDescription().equalsIgnoreCase(Pipeline.STRING_FINISHED)
+        || getStatusDescription().equalsIgnoreCase(Pipeline.STRING_FINISHED_WITH_ERRORS);
   }
 
   public boolean isStopped() {
-    if (getStatusDescription()==null) {
+    if (getStatusDescription() == null) {
       return false;
     }
 
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED )
-      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED_WITH_ERRORS );
+    return getStatusDescription().equalsIgnoreCase(Pipeline.STRING_STOPPED)
+        || getStatusDescription().equalsIgnoreCase(Pipeline.STRING_STOPPED_WITH_ERRORS);
   }
 
-  /**
-   * @return the result
-   */
+  /** @return the result */
   public Result getResult() {
     return result;
   }
 
-  /**
-   * @param result the result to set
-   */
-  public void setResult( Result result ) {
+  /** @param result the result to set */
+  public void setResult(Result result) {
     this.result = result;
   }
 
-  /**
-   * @return the firstLoggingLineNr
-   */
+  /** @return the firstLoggingLineNr */
   public int getFirstLoggingLineNr() {
     return firstLoggingLineNr;
   }
 
-  /**
-   * @param firstLoggingLineNr the firstLoggingLineNr to set
-   */
-  public void setFirstLoggingLineNr( int firstLoggingLineNr ) {
+  /** @param firstLoggingLineNr the firstLoggingLineNr to set */
+  public void setFirstLoggingLineNr(int firstLoggingLineNr) {
     this.firstLoggingLineNr = firstLoggingLineNr;
   }
 
-  /**
-   * @return the lastLoggingLineNr
-   */
+  /** @return the lastLoggingLineNr */
   public int getLastLoggingLineNr() {
     return lastLoggingLineNr;
   }
 
-  /**
-   * @param lastLoggingLineNr the lastLoggingLineNr to set
-   */
-  public void setLastLoggingLineNr( int lastLoggingLineNr ) {
+  /** @param lastLoggingLineNr the lastLoggingLineNr to set */
+  public void setLastLoggingLineNr(int lastLoggingLineNr) {
     this.lastLoggingLineNr = lastLoggingLineNr;
   }
 
-  /**
-   * @return the logDate
-   */
+  /** @return the logDate */
   public Date getLogDate() {
     return logDate;
   }
 
-  /**
-   * @param the logDate
-   */
-  public void setLogDate( Date logDate ) {
+  /** @param the logDate */
+  public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }
 
-  /**
-   * @return the id
-   */
+  /** @return the id */
   public String getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
-  public void setId( String id ) {
+  /** @param id the id to set */
+  public void setId(String id) {
     this.id = id;
   }
 }

@@ -42,5 +42,4 @@ public class NormaliserData extends BaseTransformData implements ITransformData 
 
     type_occ = null;
   }
-
 }

@@ -18,19 +18,19 @@
 package org.apache.hop.core.logging;
 
 public class LogChannelFactory implements ILogChannelFactory {
-  public LogChannel create( Object subject ) {
-    return new LogChannel( subject );
+  public LogChannel create(Object subject) {
+    return new LogChannel(subject);
   }
 
-  public LogChannel create( Object subject, boolean gatheringMetrics ) {
-    return new LogChannel( subject, gatheringMetrics );
+  public LogChannel create(Object subject, boolean gatheringMetrics) {
+    return new LogChannel(subject, gatheringMetrics);
   }
 
-  public LogChannel create( Object subject, ILoggingObject parentObject ) {
-    return new LogChannel( subject, parentObject );
+  public LogChannel create(Object subject, ILoggingObject parentObject) {
+    return new LogChannel(subject, parentObject);
   }
 
-  public LogChannel create( Object subject, ILoggingObject parentObject, boolean gatheringMetrics ) {
-    return new LogChannel( subject, parentObject, gatheringMetrics );
+  public LogChannel create(Object subject, ILoggingObject parentObject, boolean gatheringMetrics) {
+    return new LogChannel(subject, parentObject, gatheringMetrics);
   }
 }

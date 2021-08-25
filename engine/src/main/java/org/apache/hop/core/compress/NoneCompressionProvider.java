@@ -21,16 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@CompressionPlugin(
-  id = "None",
-  name = "None",
-  description = "None"
-)
+@CompressionPlugin(id = "None", name = "None", description = "None")
 public class NoneCompressionProvider implements ICompressionProvider {
 
   @Override
-  public CompressionInputStream createInputStream( InputStream in ) throws IOException {
-    return new NoneCompressionInputStream( in, this );
+  public CompressionInputStream createInputStream(InputStream in) throws IOException {
+    return new NoneCompressionInputStream(in, this);
   }
 
   @Override
@@ -39,8 +35,8 @@ public class NoneCompressionProvider implements ICompressionProvider {
   }
 
   @Override
-  public CompressionOutputStream createOutputStream( OutputStream out ) throws IOException {
-    return new NoneCompressionOutputStream( out, this );
+  public CompressionOutputStream createOutputStream(OutputStream out) throws IOException {
+    return new NoneCompressionOutputStream(out, this);
   }
 
   @Override
@@ -51,7 +47,8 @@ public class NoneCompressionProvider implements ICompressionProvider {
   /**
    * Gets the description for the compression provider.
    *
-   * @return a description of the provider. For core plugins this needs to match what's in the XML file
+   * @return a description of the provider. For core plugins this needs to match what's in the XML
+   *     file
    */
   @Override
   public String getDescription() {
@@ -75,16 +72,15 @@ public class NoneCompressionProvider implements ICompressionProvider {
 
   public static class NoneCompressionInputStream extends CompressionInputStream {
 
-    public NoneCompressionInputStream( InputStream in, ICompressionProvider provider ) {
-      super( in, provider );
+    public NoneCompressionInputStream(InputStream in, ICompressionProvider provider) {
+      super(in, provider);
     }
-
   }
 
   public static class NoneCompressionOutputStream extends CompressionOutputStream {
 
-    public NoneCompressionOutputStream( OutputStream out, ICompressionProvider provider ) {
-      super( out, provider );
+    public NoneCompressionOutputStream(OutputStream out, ICompressionProvider provider) {
+      super(out, provider);
     }
   }
 }

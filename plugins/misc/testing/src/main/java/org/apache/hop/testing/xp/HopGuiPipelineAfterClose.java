@@ -22,8 +22,8 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 
 import java.util.Map;

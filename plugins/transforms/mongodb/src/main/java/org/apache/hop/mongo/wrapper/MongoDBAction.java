@@ -21,5 +21,5 @@ import com.mongodb.DB;
 import org.apache.hop.mongo.MongoDbException;
 
 public interface MongoDBAction<ReturnType> {
-  ReturnType perform( DB db ) throws MongoDbException;
+  ReturnType perform(DB db) throws MongoDbException;
 }

@@ -25,12 +25,14 @@ This workflow action allows you to verify connectivity with one or several datab
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |Connection|List of connections.
 |Wait|After the connection was opened, wait x (s, min, hrs).
 |Units of Time|Specify the unit of measurement for the length of time to remain connected.
-|Get connections|Get available connects. 
+|Get connections|Get available connects.
 |===

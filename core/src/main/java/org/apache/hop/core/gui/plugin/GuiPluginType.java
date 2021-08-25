@@ -27,81 +27,81 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginAnnotationType( GuiPlugin.class )
+@PluginAnnotationType(GuiPlugin.class)
 public class GuiPluginType extends BasePluginType<GuiPlugin> {
   private static GuiPluginType pluginType;
 
   private GuiPluginType() {
-    super( GuiPlugin.class, "GUI", "GUI" );
+    super(GuiPlugin.class, "GUI", "GUI");
   }
 
   public static GuiPluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new GuiPluginType();
     }
     return pluginType;
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( GuiPlugin annotation ) {
+  protected String extractCategory(GuiPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( GuiPlugin annotation ) {
+  protected String extractDesc(GuiPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( GuiPlugin annotation ) {
+  protected String extractID(GuiPlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( GuiPlugin annotation ) {
+  protected String extractName(GuiPlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractImageFile( GuiPlugin annotation ) {
+  protected String extractImageFile(GuiPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( GuiPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(GuiPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, GuiPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, GuiPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( GuiPlugin annotation ) {
+  protected String extractDocumentationUrl(GuiPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( GuiPlugin annotation ) {
+  protected String extractCasesUrl(GuiPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( GuiPlugin annotation ) {
+  protected String extractForumUrl(GuiPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( GuiPlugin annotation ) {
+  protected String extractSuggestion(GuiPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( GuiPlugin annotation ) {
+  protected String extractClassLoaderGroup(GuiPlugin annotation) {
     return null;
   }
 }

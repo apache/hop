@@ -16,11 +16,7 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.UserAuthenticationData;
-import org.apache.commons.vfs2.UserAuthenticator;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.util.StorageUnitConverter;

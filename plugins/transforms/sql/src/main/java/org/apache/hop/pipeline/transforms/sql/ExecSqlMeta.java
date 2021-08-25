@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -324,7 +320,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
               transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // keep track of it for
       // cancelling purposes...
 

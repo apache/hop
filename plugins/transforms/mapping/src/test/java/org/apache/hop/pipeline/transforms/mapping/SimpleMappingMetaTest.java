@@ -39,26 +39,27 @@ public class SimpleMappingMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "filename", "inputMapping", "outputMapping", "mappingParameters" );
+        Arrays.asList("filename", "inputMapping", "outputMapping", "mappingParameters");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "inputMapping", new MappingIODefinitionLoadSaveValidator() );
-    attrValidatorMap.put( "outputMapping", new MappingIODefinitionLoadSaveValidator() );
-    attrValidatorMap.put( "mappingParameters", new MappingParametersLoadSaveValidator() );
+    attrValidatorMap.put("inputMapping", new MappingIODefinitionLoadSaveValidator());
+    attrValidatorMap.put("outputMapping", new MappingIODefinitionLoadSaveValidator());
+    attrValidatorMap.put("mappingParameters", new MappingParametersLoadSaveValidator());
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
-    loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+    loadSaveTester =
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }

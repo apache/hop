@@ -19,20 +19,13 @@ package org.apache.hop.core.compress;
 
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.spy;
@@ -49,47 +42,45 @@ public class CompressionInputStreamTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    PluginRegistry.addPluginType( CompressionPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(CompressionPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayInputStream in = createTestInputStream();
-    inStream = new DummyCompressionIS( in, provider );
+    inStream = new DummyCompressionIS(in, provider);
   }
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testCtor() {
-    assertNotNull( inStream );
+    assertNotNull(inStream);
   }
 
   @Test
   public void getCompressionProvider() {
     ICompressionProvider provider = inStream.getCompressionProvider();
-    assertEquals( provider.getName(), PROVIDER_NAME );
+    assertEquals(provider.getName(), PROVIDER_NAME);
   }
 
   @Test
   public void testNextEntry() throws IOException {
-    assertNull( inStream.nextEntry() );
+    assertNull(inStream.nextEntry());
   }
 
   @Test
   public void testClose() throws IOException {
     ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = createTestInputStream();
-    inStream = new DummyCompressionIS( in, provider );
+    inStream = new DummyCompressionIS(in, provider);
     inStream.close();
   }
 
@@ -97,36 +88,35 @@ public class CompressionInputStreamTest {
   public void testRead() throws IOException {
     ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = createTestInputStream();
-    inStream = new DummyCompressionIS( in, provider );
-    assertEquals( inStream.available(), inStream.read( new byte[ 100 ], 0, inStream.available() ) );
+    inStream = new DummyCompressionIS(in, provider);
+    assertEquals(inStream.available(), inStream.read(new byte[100], 0, inStream.available()));
   }
 
   @Test
   public void delegatesReadBuffer() throws Exception {
     ByteArrayInputStream in = createTestInputStream();
-    in = spy( in );
-    inStream = new DummyCompressionIS( in, inStream.getCompressionProvider() );
-    inStream.read( new byte[ 16 ] );
-    verify( in ).read( any( byte[].class ) );
+    in = spy(in);
+    inStream = new DummyCompressionIS(in, inStream.getCompressionProvider());
+    inStream.read(new byte[16]);
+    verify(in).read(any(byte[].class));
   }
 
   @Test
   public void delegatesReadBufferWithParams() throws Exception {
     ByteArrayInputStream in = createTestInputStream();
-    in = spy( in );
-    inStream = new DummyCompressionIS( in, inStream.getCompressionProvider() );
-    inStream.read( new byte[ 16 ], 0, 16 );
-    verify( in ).read( any( byte[].class ), anyInt(), anyInt() );
+    in = spy(in);
+    inStream = new DummyCompressionIS(in, inStream.getCompressionProvider());
+    inStream.read(new byte[16], 0, 16);
+    verify(in).read(any(byte[].class), anyInt(), anyInt());
   }
 
-
   private static ByteArrayInputStream createTestInputStream() {
-    return new ByteArrayInputStream( "Test".getBytes() );
+    return new ByteArrayInputStream("Test".getBytes());
   }
 
   private static class DummyCompressionIS extends CompressionInputStream {
-    public DummyCompressionIS( InputStream in, ICompressionProvider provider ) {
-      super( in, provider );
+    public DummyCompressionIS(InputStream in, ICompressionProvider provider) {
+      super(in, provider);
     }
   }
 }

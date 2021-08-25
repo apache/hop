@@ -43,7 +43,8 @@ import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
     name = "MongoDB Connection",
     description = "Describes a MongoDB connection",
     image = "MongoDB_Leaf_FullColor_RGB.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/mongodb-connection.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/mongodb-connection.html")
 public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
 
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";
@@ -295,7 +296,7 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     setIfNotNullOrEmpty(
         variables, propertiesBuilder, MongoProp.readPreference, readPreference.getName());
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.writeConcern, writeConcern);
-    setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.wTimeout, replicationTimeoutMs );
+    setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.wTimeout, replicationTimeoutMs);
     setIfNotNullOrEmpty(
         variables, propertiesBuilder, MongoProp.JOURNALED, Boolean.toString(journaled));
     setIfNotNullOrEmpty(
@@ -544,10 +545,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return replicationTimeoutMs;
   }
 
-  /**
-   * @param replicationTimeoutMs The replicationTimeoutMs to set
-   */
-  public void setReplicationTimeoutMs( String replicationTimeoutMs ) {
+  /** @param replicationTimeoutMs The replicationTimeoutMs to set */
+  public void setReplicationTimeoutMs(String replicationTimeoutMs) {
     this.replicationTimeoutMs = replicationTimeoutMs;
   }
 

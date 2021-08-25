@@ -24,10 +24,9 @@ public class VariableValue implements Serializable {
   private String variable;
   private String value;
 
-  public VariableValue() {
-  }
+  public VariableValue() {}
 
-  public VariableValue( String variable, String value ) {
+  public VariableValue(String variable, String value) {
     this.variable = variable;
     this.value = value;
   }
@@ -41,10 +40,8 @@ public class VariableValue implements Serializable {
     return variable;
   }
 
-  /**
-   * @param variable The variable to set
-   */
-  public void setVariable( String variable ) {
+  /** @param variable The variable to set */
+  public void setVariable(String variable) {
     this.variable = variable;
   }
 
@@ -57,10 +54,8 @@ public class VariableValue implements Serializable {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 }

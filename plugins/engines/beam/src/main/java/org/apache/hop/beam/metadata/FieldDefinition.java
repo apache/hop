@@ -26,32 +26,27 @@ import java.io.Serializable;
 
 public class FieldDefinition implements Serializable {
 
-  @HopMetadataProperty
-  private String name;
+  @HopMetadataProperty private String name;
 
-  @HopMetadataProperty
-  private String hopType;
+  @HopMetadataProperty private String hopType;
 
-  @HopMetadataProperty
-  private int length;
+  @HopMetadataProperty private int length;
 
-  @HopMetadataProperty
-  private int precision;
+  @HopMetadataProperty private int precision;
 
-  @HopMetadataProperty
-  private String formatMask;
+  @HopMetadataProperty private String formatMask;
 
-  public FieldDefinition( ) {
-  }
+  public FieldDefinition() {}
 
-  public FieldDefinition( String name, String hopType, int length, int precision ) {
+  public FieldDefinition(String name, String hopType, int length, int precision) {
     this.name = name;
     this.hopType = hopType;
     this.length = length;
     this.precision = precision;
   }
 
-  public FieldDefinition( String name, String hopType, int length, int precision, String formatMask ) {
+  public FieldDefinition(
+      String name, String hopType, int length, int precision, String formatMask) {
     this.name = name;
     this.hopType = hopType;
     this.length = length;
@@ -60,9 +55,9 @@ public class FieldDefinition implements Serializable {
   }
 
   public IValueMeta getValueMeta() throws HopPluginException {
-    int type = ValueMetaFactory.getIdForValueMeta( hopType );
-    IValueMeta valueMeta = ValueMetaFactory.createValueMeta( name, type, length, precision );
-    valueMeta.setConversionMask( formatMask );
+    int type = ValueMetaFactory.getIdForValueMeta(hopType);
+    IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, type, length, precision);
+    valueMeta.setConversionMask(formatMask);
     return valueMeta;
   }
 
@@ -75,10 +70,8 @@ public class FieldDefinition implements Serializable {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -91,10 +84,8 @@ public class FieldDefinition implements Serializable {
     return hopType;
   }
 
-  /**
-   * @param hopType The hopType to set
-   */
-  public void setHopType( String hopType ) {
+  /** @param hopType The hopType to set */
+  public void setHopType(String hopType) {
     this.hopType = hopType;
   }
 
@@ -107,10 +98,8 @@ public class FieldDefinition implements Serializable {
     return length;
   }
 
-  /**
-   * @param length The length to set
-   */
-  public void setLength( int length ) {
+  /** @param length The length to set */
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -123,10 +112,8 @@ public class FieldDefinition implements Serializable {
     return precision;
   }
 
-  /**
-   * @param precision The precision to set
-   */
-  public void setPrecision( int precision ) {
+  /** @param precision The precision to set */
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -139,10 +126,8 @@ public class FieldDefinition implements Serializable {
     return formatMask;
   }
 
-  /**
-   * @param formatMask The formatMask to set
-   */
-  public void setFormatMask( String formatMask ) {
+  /** @param formatMask The formatMask to set */
+  public void setFormatMask(String formatMask) {
     this.formatMask = formatMask;
   }
 }

@@ -21,40 +21,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ListLoadSaveValidator<ObjectType> implements
-  IFieldLoadSaveValidator<List<ObjectType>> {
+public class ListLoadSaveValidator<ObjectType>
+    implements IFieldLoadSaveValidator<List<ObjectType>> {
   private final IFieldLoadSaveValidator<ObjectType> validator;
   private final Integer elements;
 
-  public ListLoadSaveValidator( IFieldLoadSaveValidator<ObjectType> fieldValidator ) {
+  public ListLoadSaveValidator(IFieldLoadSaveValidator<ObjectType> fieldValidator) {
     validator = fieldValidator;
     elements = null;
   }
 
-  public ListLoadSaveValidator( IFieldLoadSaveValidator<ObjectType> fieldValidator, Integer elements ) {
+  public ListLoadSaveValidator(
+      IFieldLoadSaveValidator<ObjectType> fieldValidator, Integer elements) {
     validator = fieldValidator;
     this.elements = elements;
   }
 
   @Override
   public List<ObjectType> getTestObject() {
-    int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
-    List<ObjectType> result = new ArrayList<>( max );
-    for ( int i = 0; i < max; i++ ) {
-      result.add( validator.getTestObject() );
+    int max = elements == null ? new Random().nextInt(100) + 50 : elements;
+    List<ObjectType> result = new ArrayList<>(max);
+    for (int i = 0; i < max; i++) {
+      result.add(validator.getTestObject());
     }
     return result;
   }
 
   @Override
-  public boolean validateTestObject( List<ObjectType> original, Object actual ) {
-    if ( actual instanceof List ) {
+  public boolean validateTestObject(List<ObjectType> original, Object actual) {
+    if (actual instanceof List) {
       List<?> otherList = (List<?>) actual;
-      if ( original.size() != otherList.size() ) {
+      if (original.size() != otherList.size()) {
         return false;
       }
-      for ( int i = 0; i < original.size(); i++ ) {
-        if ( !this.validator.validateTestObject( original.get( i ), otherList.get( i ) ) ) {
+      for (int i = 0; i < original.size(); i++) {
+        if (!this.validator.validateTestObject(original.get(i), otherList.get(i))) {
           return false;
         }
       }
@@ -62,5 +63,4 @@ public class ListLoadSaveValidator<ObjectType> implements
     }
     return false;
   }
-
 }

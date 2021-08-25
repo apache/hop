@@ -27,9 +27,7 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * WsdlOpFaultList represents the list of parameters for a WSDL operaton.
- */
+/** WsdlOpFaultList represents the list of parameters for a WSDL operaton. */
 public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
 
   private static final long serialVersionUID = 1L;
@@ -41,7 +39,7 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
    *
    * @param wsdlTypes Type information from the WSDL.
    */
-  protected WsdlOpFaultList( WsdlTypes wsdlTypes ) {
+  protected WsdlOpFaultList(WsdlTypes wsdlTypes) {
     _wsdlTypes = wsdlTypes;
   }
 
@@ -51,8 +49,8 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
    * @param fault Fault to add.
    * @return true if this collection was modified as a result of this call.
    */
-  protected boolean add( Fault fault ) throws HopTransformException {
-    return add( getFault( fault ) );
+  protected boolean add(Fault fault) throws HopTransformException {
+    return add(getFault(fault));
   }
 
   /**
@@ -61,26 +59,26 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
    * @param fault Fault to process.
    * @return WsdlOpFault Result of processing.
    */
-  @SuppressWarnings( "unchecked" )
-  private WsdlOpFault getFault( Fault fault ) throws HopTransformException {
+  @SuppressWarnings("unchecked")
+  private WsdlOpFault getFault(Fault fault) throws HopTransformException {
     Message m = fault.getMessage();
 
     // a fault should only have one message part.
     Map<?, Part> partMap = m.getParts();
-    if ( partMap.size() != 1 ) {
-      throw new IllegalArgumentException( "Invalid part count for fault!!" );
+    if (partMap.size() != 1) {
+      throw new IllegalArgumentException("Invalid part count for fault!!");
     }
     Part faultPart = partMap.values().iterator().next();
     boolean complexType = false;
 
     // type of fault is specified either in Part's type or element attribute.
     QName type = faultPart.getTypeName();
-    if ( type == null ) {
+    if (type == null) {
       type = faultPart.getElementName();
-      Element schemaElement = _wsdlTypes.findNamedElement( type );
-      type = _wsdlTypes.getTypeQName( schemaElement.getAttribute( "type" ) );
+      Element schemaElement = _wsdlTypes.findNamedElement(type);
+      type = _wsdlTypes.getTypeQName(schemaElement.getAttribute("type"));
       complexType = true;
     }
-    return new WsdlOpFault( fault.getName(), type, complexType, _wsdlTypes );
+    return new WsdlOpFault(fault.getName(), type, complexType, _wsdlTypes);
   }
 }

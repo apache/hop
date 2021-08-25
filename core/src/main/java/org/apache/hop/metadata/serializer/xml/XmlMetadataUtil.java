@@ -33,12 +33,7 @@ import org.w3c.dom.Node;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class XmlMetadataUtil {
   /**
@@ -121,7 +116,8 @@ public class XmlMetadataUtil {
         // Hang on, is this a password?
         //
         if (password) {
-          xml += XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables((String) value));
+          xml +=
+              XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables((String) value));
         } else {
           xml += XmlHandler.addTagValue(tag, (String) value);
         }

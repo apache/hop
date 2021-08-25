@@ -26,12 +26,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class is an implementation of IVariables
@@ -48,20 +43,20 @@ public class Variables implements IVariables {
   private boolean initialized;
 
   public Variables() {
-    properties = Collections.synchronizedMap(new HashMap<>() );
+    properties = Collections.synchronizedMap(new HashMap<>());
     parent = null;
     injection = null;
     initialized = false;
   }
 
   @Override
-  public void copyFrom( IVariables variables ) {
-    if ( variables != null && this != variables ) {
+  public void copyFrom(IVariables variables) {
+    if (variables != null && this != variables) {
       // If variables is not null and this variable is not already
       // the same object as the argument.
       String[] variableNames = variables.getVariableNames();
-      for ( int idx = 0; idx < variableNames.length; idx++ ) {
-        properties.put( variableNames[ idx ], variables.getVariable( variableNames[ idx ] ) );
+      for (int idx = 0; idx < variableNames.length; idx++) {
+        properties.put(variableNames[idx], variables.getVariable(variableNames[idx]));
       }
     }
   }
@@ -72,57 +67,57 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public void setParentVariables( IVariables parent ) {
+  public void setParentVariables(IVariables parent) {
     this.parent = parent;
   }
 
   @Override
-  public String getVariable( String variableName, String defaultValue ) {
-    String var = properties.get( variableName );
-    if ( var == null ) {
+  public String getVariable(String variableName, String defaultValue) {
+    String var = properties.get(variableName);
+    if (var == null) {
       return defaultValue;
     }
     return var;
   }
 
   @Override
-  public String getVariable( String variableName ) {
-    return properties.get( variableName );
+  public String getVariable(String variableName) {
+    return properties.get(variableName);
   }
 
   @Override
-  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
-    if ( !Utils.isEmpty( variableName ) ) {
-      String value = resolve( variableName );
-      if ( !Utils.isEmpty( value ) ) {
-        return ValueMetaBase.convertStringToBoolean( value );
+  public boolean getVariableBoolean(String variableName, boolean defaultValue) {
+    if (!Utils.isEmpty(variableName)) {
+      String value = resolve(variableName);
+      if (!Utils.isEmpty(value)) {
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return defaultValue;
   }
 
   @Override
-  public void initializeFrom( IVariables parent ) {
+  public void initializeFrom(IVariables parent) {
     this.parent = parent;
 
     // Clone the system properties to avoid ConcurrentModificationException while iterating
     // and then add all of them to properties variable.
     //
     Set<String> systemPropertiesNames = System.getProperties().stringPropertyNames();
-    for ( String key : systemPropertiesNames ) {
-      getProperties().put( key, System.getProperties().getProperty( key ) );
+    for (String key : systemPropertiesNames) {
+      getProperties().put(key, System.getProperties().getProperty(key));
     }
 
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
-    for ( DescribedVariable describedVariable : describedVariables ) {
-      getProperties().put( describedVariable.getName(), describedVariable.getValue());
+    for (DescribedVariable describedVariable : describedVariables) {
+      getProperties().put(describedVariable.getName(), describedVariable.getValue());
     }
 
-    if ( parent != null ) {
-      copyFrom( parent );
+    if (parent != null) {
+      copyFrom(parent);
     }
-    if ( injection != null ) {
-      getProperties().putAll( injection );
+    if (injection != null) {
+      getProperties().putAll(injection);
       injection = null;
     }
     initialized = true;
@@ -131,31 +126,31 @@ public class Variables implements IVariables {
   @Override
   public String[] getVariableNames() {
     Set<String> keySet = properties.keySet();
-    return keySet.toArray( new String[ 0 ] );
+    return keySet.toArray(new String[0]);
   }
 
   @Override
-  public synchronized void setVariable( String variableName, String variableValue ) {
-    if ( variableValue != null ) {
-      properties.put( variableName, variableValue );
+  public synchronized void setVariable(String variableName, String variableValue) {
+    if (variableValue != null) {
+      properties.put(variableName, variableValue);
     } else {
-      properties.remove( variableName );
+      properties.remove(variableName);
     }
   }
 
   @Override
-  public synchronized String resolve( String aString ) {
-    if ( aString == null || aString.length() == 0 ) {
+  public synchronized String resolve(String aString) {
+    if (aString == null || aString.length() == 0) {
       return aString;
     }
 
-    return StringUtil.environmentSubstitute( aString, properties );
+    return StringUtil.environmentSubstitute(aString, properties);
   }
 
   /**
-   * Substitutes field values in <code>aString</code>. Field values are of the form "?{<field name>}". The values are
-   * retrieved from the specified row. Please note that the getString() method is used to convert to a String, for all
-   * values in the row.
+   * Substitutes field values in <code>aString</code>. Field values are of the form "?{<field
+   * name>}". The values are retrieved from the specified row. Please note that the getString()
+   * method is used to convert to a String, for all values in the row.
    *
    * @param aString the string on which to apply the substitution.
    * @param rowMeta The row metadata to use.
@@ -164,39 +159,39 @@ public class Variables implements IVariables {
    * @throws HopValueException In case there is a String conversion error
    */
   @Override
-  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData )
-    throws HopValueException {
-    if ( aString == null || aString.length() == 0 ) {
+  public String resolve(String aString, IRowMeta rowMeta, Object[] rowData)
+      throws HopValueException {
+    if (aString == null || aString.length() == 0) {
       return aString;
     }
 
-    return StringUtil.substituteField( aString, rowMeta, rowData );
+    return StringUtil.substituteField(aString, rowMeta, rowData);
   }
 
   @Override
-  public String[] resolve( String[] string ) {
-    String[] retval = new String[ string.length ];
-    for ( int i = 0; i < string.length; i++ ) {
-      retval[ i ] = resolve( string[ i ] );
+  public String[] resolve(String[] string) {
+    String[] retval = new String[string.length];
+    for (int i = 0; i < string.length; i++) {
+      retval[i] = resolve(string[i]);
     }
     return retval;
   }
 
   @Override
-  public void shareWith( IVariables variables ) {
+  public void shareWith(IVariables variables) {
     // not implemented in here... done by pointing to the same IVariables
     // implementation
   }
 
   @Override
-  public void setVariables( Map<String, String> map ) {
-    if ( initialized ) {
+  public void setVariables(Map<String, String> map) {
+    if (initialized) {
       // variables are already initialized
-      if ( map != null ) {
-        for ( String key : map.keySet() ) {
-          String value = map.get( key );
-          if ( !Utils.isEmpty( key ) ) {
-            properties.put( key, Const.NVL( value, "" ) );
+      if (map != null) {
+        for (String key : map.keySet()) {
+          String value = map.get(key);
+          if (!Utils.isEmpty(key)) {
+            properties.put(key, Const.NVL(value, ""));
           }
         }
         injection = null;
@@ -205,10 +200,10 @@ public class Variables implements IVariables {
       // We have our own personal copy, so changes afterwards
       // to the input properties don't affect us.
       injection = new Hashtable<>();
-      for ( String key : map.keySet() ) {
-        String value = map.get( key );
-        if ( !Utils.isEmpty( key ) ) {
-          injection.put( key, Const.NVL( value, "" ) );
+      for (String key : map.keySet()) {
+        String value = map.get(key);
+        if (!Utils.isEmpty(key)) {
+          injection.put(key, Const.NVL(value, ""));
         }
       }
     }
@@ -222,7 +217,7 @@ public class Variables implements IVariables {
   public static synchronized IVariables getADefaultVariableSpace() {
     IVariables variables = new Variables();
 
-    variables.initializeFrom( null );
+    variables.initializeFrom(null);
 
     return variables;
   }
@@ -231,5 +226,4 @@ public class Variables implements IVariables {
   Map<String, String> getProperties() {
     return properties;
   }
-
 }

@@ -19,7 +19,6 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 

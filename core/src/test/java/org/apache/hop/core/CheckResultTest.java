@@ -18,10 +18,7 @@ package org.apache.hop.core;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,33 +28,33 @@ public class CheckResultTest {
     final int type = ICheckResult.TYPE_RESULT_ERROR;
     final String text = "some text";
     final String sourceMetaName = "meta name";
-    final ICheckResultSource sourceMeta = mock( ICheckResultSource.class );
+    final ICheckResultSource sourceMeta = mock(ICheckResultSource.class);
     final String errorCode = "error code";
 
     CheckResult cr = new CheckResult();
-    assertEquals( ICheckResult.TYPE_RESULT_NONE, cr.getType() );
-    assertTrue( cr.getTypeDesc() != null && cr.getTypeDesc().isEmpty() );
-    cr.setType( type );
-    assertEquals( type, cr.getType() );
+    assertEquals(ICheckResult.TYPE_RESULT_NONE, cr.getType());
+    assertTrue(cr.getTypeDesc() != null && cr.getTypeDesc().isEmpty());
+    cr.setType(type);
+    assertEquals(type, cr.getType());
 
-    assertTrue( cr.getText().isEmpty() );
-    cr.setText( text );
-    assertSame( text, cr.getText() );
+    assertTrue(cr.getText().isEmpty());
+    cr.setText(text);
+    assertSame(text, cr.getText());
 
-    assertNull( null, cr.getSourceInfo() );
+    assertNull(null, cr.getSourceInfo());
 
-    assertNull( cr.getErrorCode() );
-    cr.setErrorCode( errorCode );
-    assertSame( errorCode, cr.getErrorCode() );
+    assertNull(cr.getErrorCode());
+    cr.setErrorCode(errorCode);
+    assertSame(errorCode, cr.getErrorCode());
 
-    when( sourceMeta.getName() ).thenReturn( sourceMetaName );
-    cr = new CheckResult( type, text, sourceMeta );
-    assertSame( sourceMeta, cr.getSourceInfo() );
-    assertTrue( cr.getTypeDesc() != null && !cr.getTypeDesc().isEmpty() );
-    final String stringValue = String.format( "%s: %s (%s)", cr.getTypeDesc(), text, sourceMetaName );
-    assertEquals( stringValue, cr.toString() );
+    when(sourceMeta.getName()).thenReturn(sourceMetaName);
+    cr = new CheckResult(type, text, sourceMeta);
+    assertSame(sourceMeta, cr.getSourceInfo());
+    assertTrue(cr.getTypeDesc() != null && !cr.getTypeDesc().isEmpty());
+    final String stringValue = String.format("%s: %s (%s)", cr.getTypeDesc(), text, sourceMetaName);
+    assertEquals(stringValue, cr.toString());
 
-    cr = new CheckResult( type, errorCode, text, sourceMeta );
-    assertSame( errorCode, cr.getErrorCode() );
+    cr = new CheckResult(type, errorCode, text, sourceMeta);
+    assertSame(errorCode, cr.getErrorCode());
   }
 }

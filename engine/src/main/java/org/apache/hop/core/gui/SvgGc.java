@@ -41,7 +41,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class SvgGc implements IGc {
 
   private static SvgFile imageLocked;
@@ -83,7 +82,7 @@ public class SvgGc implements IGc {
   private static SvgFile imageBusy;
 
   private static SvgFile imageMissing;
-  
+
   private static SvgFile imageDeprecated;
 
   private static SvgFile imageInject;
@@ -143,7 +142,8 @@ public class SvgGc implements IGc {
 
   private AffineTransform originalTransform;
 
-  public SvgGc( HopSvgGraphics2D gc, Point area, int iconSize, int xOffset, int yOffset ) throws HopException {
+  public SvgGc(HopSvgGraphics2D gc, Point area, int iconSize, int xOffset, int yOffset)
+      throws HopException {
     this.gc = gc;
     this.transformImages = getTransformImageFilenames();
     this.actionImages = getActionImageFilenames();
@@ -154,7 +154,7 @@ public class SvgGc implements IGc {
     this.yOffset = yOffset;
     this.originalTransform = this.gc.getTransform();
 
-    gc.setSVGCanvasSize( new Dimension(area.x, area.y) );
+    gc.setSVGCanvasSize(new Dimension(area.x, area.y));
 
     init();
   }
@@ -162,9 +162,9 @@ public class SvgGc implements IGc {
   private Map<String, SvgFile> getTransformImageFilenames() throws HopPluginException {
     Map<String, SvgFile> map = new HashMap<>();
     PluginRegistry registry = PluginRegistry.getInstance();
-    for ( IPlugin plugin : registry.getPlugins( TransformPluginType.class ) ) {
-      for ( String id : plugin.getIds() ) {
-        map.put( id, new SvgFile( plugin.getImageFile(), registry.getClassLoader( plugin ) ) );
+    for (IPlugin plugin : registry.getPlugins(TransformPluginType.class)) {
+      for (String id : plugin.getIds()) {
+        map.put(id, new SvgFile(plugin.getImageFile(), registry.getClassLoader(plugin)));
       }
     }
     return map;
@@ -174,163 +174,168 @@ public class SvgGc implements IGc {
     Map<String, SvgFile> map = new HashMap<>();
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    for ( IPlugin plugin : registry.getPlugins( ActionPluginType.class ) ) {
-      for ( String id : plugin.getIds() ) {
-        map.put( id, new SvgFile( plugin.getImageFile(), registry.getClassLoader( plugin ) ) );
+    for (IPlugin plugin : registry.getPlugins(ActionPluginType.class)) {
+      for (String id : plugin.getIds()) {
+        map.put(id, new SvgFile(plugin.getImageFile(), registry.getClassLoader(plugin)));
       }
     }
     return map;
   }
-
 
   private void init() throws HopException {
     this.lineStyle = ELineStyle.SOLID;
     this.lineWidth = 1;
     this.alpha = 255;
 
-    this.background = new Color( 255, 255, 255 );
-    this.black = new Color( 0, 0, 0 );
-    this.red = new Color( 255, 0, 0 );
-    this.yellow = new Color( 255, 255, 0 );
-    this.green = new Color( 0, 255, 0 );
-    this.blue = new Color( 0, 0, 255 );
-    this.magenta = new Color( 255, 0, 255 );
-    this.purpule = new Color( 128, 0, 128 );
-    this.indigo = new Color( 75, 0, 130 );
-    this.gray = new Color( 215, 215, 215 );    
-    this.lightGray = new Color( 225, 225, 225 );
-    this.darkGray = new Color( 100, 100, 100 );
-    this.lightBlue = new Color( 135, 206, 250 ); // light sky blue
-    this.crystal = new Color( 61, 99, 128 );
-    this.hopDefault = new Color( 61, 99, 128 );
-    this.hopTrue = new Color( 12, 178, 15 );
-    this.hopFalse = new Color( 255, 165, 0 );
-    this.deprecated = new Color( 246, 196, 56 );
-    
-    imageLocked = new SvgFile("ui/images/lock.svg", this.getClass().getClassLoader() );
-    imageFailure = new SvgFile("ui/images/failure.svg", this.getClass().getClassLoader() );
-    imageEdit = new SvgFile("ui/images/edit.svg", this.getClass().getClassLoader() );
-    imageContextMenu = new SvgFile("ui/images/settings.svg", this.getClass().getClassLoader() ); // Used ?
-    imageTrue = new SvgFile("ui/images/true.svg", this.getClass().getClassLoader() );
-    imageFalse = new SvgFile("ui/images/false.svg", this.getClass().getClassLoader() );
-    imageError = new SvgFile( "ui/images/error.svg", this.getClass().getClassLoader() );
-    imageInfo = new SvgFile("ui/images/info.svg", this.getClass().getClassLoader() );
-    imageTarget = new SvgFile("ui/images/target.svg", this.getClass().getClassLoader() );
-    imageInput = new SvgFile("ui/images/input.svg", this.getClass().getClassLoader() );
-    imageOutput = new SvgFile("ui/images/output.svg", this.getClass().getClassLoader() );
-    imageArrow = new SvgFile("ui/images/arrow.svg", this.getClass().getClassLoader() );
-    imageCopyRows = new SvgFile("ui/images/copy-rows.svg", this.getClass().getClassLoader() );
-    imageLoadBalance = new SvgFile("ui/images/scales.svg", this.getClass().getClassLoader() );
-    imageCheckpoint = new SvgFile("ui/images/checkpoint.svg" , this.getClass().getClassLoader() );
-    imageDatabase = new SvgFile("ui/images/database.svg", this.getClass().getClassLoader() );
-    imageParallel = new SvgFile("ui/images/parallel-hop.svg", this.getClass().getClassLoader() );
-    imageUnconditional = new SvgFile("ui/images/unconditional-hop.svg", this.getClass().getClassLoader() );
-    imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader() );
-    imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader() );
-    imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader() );
-    imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader() );
-       
+    this.background = new Color(255, 255, 255);
+    this.black = new Color(0, 0, 0);
+    this.red = new Color(255, 0, 0);
+    this.yellow = new Color(255, 255, 0);
+    this.green = new Color(0, 255, 0);
+    this.blue = new Color(0, 0, 255);
+    this.magenta = new Color(255, 0, 255);
+    this.purpule = new Color(128, 0, 128);
+    this.indigo = new Color(75, 0, 130);
+    this.gray = new Color(215, 215, 215);
+    this.lightGray = new Color(225, 225, 225);
+    this.darkGray = new Color(100, 100, 100);
+    this.lightBlue = new Color(135, 206, 250); // light sky blue
+    this.crystal = new Color(61, 99, 128);
+    this.hopDefault = new Color(61, 99, 128);
+    this.hopTrue = new Color(12, 178, 15);
+    this.hopFalse = new Color(255, 165, 0);
+    this.deprecated = new Color(246, 196, 56);
+
+    imageLocked = new SvgFile("ui/images/lock.svg", this.getClass().getClassLoader());
+    imageFailure = new SvgFile("ui/images/failure.svg", this.getClass().getClassLoader());
+    imageEdit = new SvgFile("ui/images/edit.svg", this.getClass().getClassLoader());
+    imageContextMenu =
+        new SvgFile("ui/images/settings.svg", this.getClass().getClassLoader()); // Used ?
+    imageTrue = new SvgFile("ui/images/true.svg", this.getClass().getClassLoader());
+    imageFalse = new SvgFile("ui/images/false.svg", this.getClass().getClassLoader());
+    imageError = new SvgFile("ui/images/error.svg", this.getClass().getClassLoader());
+    imageInfo = new SvgFile("ui/images/info.svg", this.getClass().getClassLoader());
+    imageTarget = new SvgFile("ui/images/target.svg", this.getClass().getClassLoader());
+    imageInput = new SvgFile("ui/images/input.svg", this.getClass().getClassLoader());
+    imageOutput = new SvgFile("ui/images/output.svg", this.getClass().getClassLoader());
+    imageArrow = new SvgFile("ui/images/arrow.svg", this.getClass().getClassLoader());
+    imageCopyRows = new SvgFile("ui/images/copy-rows.svg", this.getClass().getClassLoader());
+    imageLoadBalance = new SvgFile("ui/images/scales.svg", this.getClass().getClassLoader());
+    imageCheckpoint = new SvgFile("ui/images/checkpoint.svg", this.getClass().getClassLoader());
+    imageDatabase = new SvgFile("ui/images/database.svg", this.getClass().getClassLoader());
+    imageParallel = new SvgFile("ui/images/parallel-hop.svg", this.getClass().getClassLoader());
+    imageUnconditional =
+        new SvgFile("ui/images/unconditional-hop.svg", this.getClass().getClassLoader());
+    imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader());
+    imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader());
+    imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader());
+    imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader());
+
     // Hop arrow
     //
-    imageArrowDefault = new SvgFile("ui/images/hop-arrow-default.svg", this.getClass().getClassLoader() );
-    imageArrowFalse = new SvgFile("ui/images/hop-arrow-false.svg", this.getClass().getClassLoader() );
-    imageArrowTrue = new SvgFile("ui/images/hop-arrow-true.svg", this.getClass().getClassLoader() );
-    imageArrowError = new SvgFile("ui/images/hop-arrow-error.svg", this.getClass().getClassLoader() );
-    imageArrowDisabled = new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader() );
-   
-    
-    fontGraph = new Font( "FreeSans", Font.PLAIN, 10 );
-    fontNote = new Font( "FreeSans", Font.PLAIN, 10 );
-    fontSmall = new Font( "FreeSans", Font.PLAIN, 8 );
+    imageArrowDefault =
+        new SvgFile("ui/images/hop-arrow-default.svg", this.getClass().getClassLoader());
+    imageArrowFalse =
+        new SvgFile("ui/images/hop-arrow-false.svg", this.getClass().getClassLoader());
+    imageArrowTrue = new SvgFile("ui/images/hop-arrow-true.svg", this.getClass().getClassLoader());
+    imageArrowError =
+        new SvgFile("ui/images/hop-arrow-error.svg", this.getClass().getClassLoader());
+    imageArrowDisabled =
+        new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader());
 
-    gc.setFont( fontGraph );
+    fontGraph = new Font("FreeSans", Font.PLAIN, 10);
+    fontNote = new Font("FreeSans", Font.PLAIN, 10);
+    fontSmall = new Font("FreeSans", Font.PLAIN, 8);
 
-    gc.setColor( background );
-    gc.fillRect( 0, 0, area.x, area.y );
+    gc.setFont(fontGraph);
+
+    gc.setColor(background);
+    gc.fillRect(0, 0, area.x, area.y);
   }
 
-  public void dispose() {
+  public void dispose() {}
+
+  public void drawLine(int x, int y, int x2, int y2) {
+    gc.drawLine(x + xOffset, y + yOffset, x2 + xOffset, y2 + yOffset);
   }
 
-  public void drawLine( int x, int y, int x2, int y2 ) {
-    gc.drawLine( x + xOffset, y + yOffset, x2 + xOffset, y2 + yOffset );
+  public void drawPoint(int x, int y) {
+    gc.drawLine(x + xOffset, y + yOffset, x + xOffset, y + yOffset);
   }
 
-  public void drawPoint( int x, int y ) {
-    gc.drawLine( x + xOffset, y + yOffset, x + xOffset, y + yOffset );
+  public void drawPolygon(int[] polygon) {
+    gc.drawPolygon(getSwingPolygon(polygon));
   }
 
-  public void drawPolygon( int[] polygon ) {
-    gc.drawPolygon( getSwingPolygon( polygon ) );
-  }
-
-  private Polygon getSwingPolygon( int[] polygon ) {
+  private Polygon getSwingPolygon(int[] polygon) {
     int nPoints = polygon.length / 2;
-    int[] xPoints = new int[ polygon.length / 2 ];
-    int[] yPoints = new int[ polygon.length / 2 ];
-    for ( int i = 0; i < nPoints; i++ ) {
-      xPoints[ i ] = polygon[ 2 * i + 0 ] + xOffset;
-      yPoints[ i ] = polygon[ 2 * i + 1 ] + yOffset;
+    int[] xPoints = new int[polygon.length / 2];
+    int[] yPoints = new int[polygon.length / 2];
+    for (int i = 0; i < nPoints; i++) {
+      xPoints[i] = polygon[2 * i + 0] + xOffset;
+      yPoints[i] = polygon[2 * i + 1] + yOffset;
     }
 
-    return new Polygon( xPoints, yPoints, nPoints );
+    return new Polygon(xPoints, yPoints, nPoints);
   }
 
-  public void drawPolyline( int[] polyline ) {
+  public void drawPolyline(int[] polyline) {
     int nPoints = polyline.length / 2;
-    int[] xPoints = new int[ polyline.length / 2 ];
-    int[] yPoints = new int[ polyline.length / 2 ];
-    for ( int i = 0; i < nPoints; i++ ) {
-      xPoints[ i ] = polyline[ 2 * i + 0 ] + xOffset;
-      yPoints[ i ] = polyline[ 2 * i + 1 ] + yOffset;
+    int[] xPoints = new int[polyline.length / 2];
+    int[] yPoints = new int[polyline.length / 2];
+    for (int i = 0; i < nPoints; i++) {
+      xPoints[i] = polyline[2 * i + 0] + xOffset;
+      yPoints[i] = polyline[2 * i + 1] + yOffset;
     }
-    gc.drawPolyline( xPoints, yPoints, nPoints );
+    gc.drawPolyline(xPoints, yPoints, nPoints);
   }
 
-  public void drawRectangle( int x, int y, int width, int height ) {
-    gc.drawRect( x + xOffset, y + yOffset, width, height );
+  public void drawRectangle(int x, int y, int width, int height) {
+    gc.drawRect(x + xOffset, y + yOffset, width, height);
   }
 
-  public void drawRoundRectangle( int x, int y, int width, int height, int circleWidth, int circleHeight ) {
-    gc.drawRoundRect( x + xOffset, y + yOffset, width, height, circleWidth, circleHeight );
+  public void drawRoundRectangle(
+      int x, int y, int width, int height, int circleWidth, int circleHeight) {
+    gc.drawRoundRect(x + xOffset, y + yOffset, width, height, circleWidth, circleHeight);
   }
 
-  public void drawText( String text, int x, int y ) {
+  public void drawText(String text, int x, int y) {
 
     int height = gc.getFontMetrics().getHeight();
     int descent = gc.getFontMetrics().getDescent();
 
-    String[] lines = text.split( "\n" );
-    for ( String line : lines ) {
-      gc.drawString( line, x + xOffset, y + height + yOffset - descent );
+    String[] lines = text.split("\n");
+    for (String line : lines) {
+      gc.drawString(line, x + xOffset, y + height + yOffset - descent);
       y += height;
     }
   }
 
-  public void drawText( String text, int x, int y, boolean transparent ) {
-    drawText( text, x, y );
+  public void drawText(String text, int x, int y, boolean transparent) {
+    drawText(text, x, y);
   }
 
-  public void fillPolygon( int[] polygon ) {
+  public void fillPolygon(int[] polygon) {
     switchForegroundBackgroundColors();
-    gc.fillPolygon( getSwingPolygon( polygon ) );
+    gc.fillPolygon(getSwingPolygon(polygon));
     switchForegroundBackgroundColors();
   }
 
-  public void fillRectangle( int x, int y, int width, int height ) {
+  public void fillRectangle(int x, int y, int width, int height) {
     switchForegroundBackgroundColors();
-    gc.fillRect( x + xOffset, y + yOffset, width, height );
+    gc.fillRect(x + xOffset, y + yOffset, width, height);
     switchForegroundBackgroundColors();
   }
 
   // TODO: complete code
-  public void fillGradientRectangle( int x, int y, int width, int height, boolean vertical ) {
-    fillRectangle( x, y, width, height );
+  public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {
+    fillRectangle(x, y, width, height);
   }
 
-  public void fillRoundRectangle( int x, int y, int width, int height, int circleWidth, int circleHeight ) {
+  public void fillRoundRectangle(
+      int x, int y, int width, int height, int circleWidth, int circleHeight) {
     switchForegroundBackgroundColors();
-    gc.fillRoundRect( x + xOffset, y + yOffset, width, height, circleWidth, circleHeight );
+    gc.fillRoundRect(x + xOffset, y + yOffset, width, height, circleWidth, circleHeight);
     switchForegroundBackgroundColors();
   }
 
@@ -338,22 +343,23 @@ public class SvgGc implements IGc {
     return area;
   }
 
-  public void setAlpha( int alpha ) {
+  public void setAlpha(int alpha) {
     this.alpha = alpha;
-    AlphaComposite alphaComposite = AlphaComposite.getInstance( AlphaComposite.SRC_OVER, alpha / 255 );
-    gc.setComposite( alphaComposite );
+    AlphaComposite alphaComposite =
+        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 255);
+    gc.setComposite(alphaComposite);
   }
 
   public int getAlpha() {
     return alpha;
   }
 
-  public void setBackground( EColor color ) {
-    gc.setBackground( getColor( color ) );
+  public void setBackground(EColor color) {
+    gc.setBackground(getColor(color));
   }
 
-  private Color getColor( EColor color ) {
-    switch ( color ) {
+  private Color getColor(EColor color) {
+    switch (color) {
       case BACKGROUND:
         return background;
       case BLACK:
@@ -396,69 +402,82 @@ public class SvgGc implements IGc {
     return null;
   }
 
-  public void setFont( EFont font ) {
-    switch ( font ) {
+  public void setFont(EFont font) {
+    switch (font) {
       case GRAPH:
-        gc.setFont( fontGraph );
+        gc.setFont(fontGraph);
         break;
       case NOTE:
-        gc.setFont( fontNote );
+        gc.setFont(fontNote);
         break;
       case SMALL:
-        gc.setFont( fontSmall );
+        gc.setFont(fontSmall);
         break;
       default:
         break;
     }
   }
 
-  public void setForeground( EColor color ) {
-    gc.setColor( getColor( color ) );
+  public void setForeground(EColor color) {
+    gc.setColor(getColor(color));
   }
 
-  public void setLineStyle( ELineStyle lineStyle ) {
+  public void setLineStyle(ELineStyle lineStyle) {
     this.lineStyle = lineStyle;
-    gc.setStroke( createStroke() );
+    gc.setStroke(createStroke());
   }
 
   private Stroke createStroke() {
     float[] dash;
-    switch ( lineStyle ) {
+    switch (lineStyle) {
       case SOLID:
         dash = null;
         break;
       case DOT:
-        dash = new float[] { 5, };
+        dash =
+            new float[] {
+              5,
+            };
         break;
       case DASHDOT:
-        dash = new float[] { 10, 5, 5, 5, };
+        dash =
+            new float[] {
+              10, 5, 5, 5,
+            };
         break;
       case PARALLEL:
-        dash = new float[] { 10, 5, 10, 5, };
+        dash =
+            new float[] {
+              10, 5, 10, 5,
+            };
         break;
       case DASH:
-        dash = new float[] { 6, 2, };
+        dash =
+            new float[] {
+              6, 2,
+            };
         break;
       default:
-        throw new RuntimeException( "Unhandled line style!" );
+        throw new RuntimeException("Unhandled line style!");
     }
-    return new BasicStroke( lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2, dash, 0 );
+    return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2, dash, 0);
   }
 
-  public void setLineWidth( int width ) {
+  public void setLineWidth(int width) {
     this.lineWidth = width;
-    gc.setStroke( createStroke() );
+    gc.setStroke(createStroke());
   }
 
-  public void setTransform( float translationX, float translationY, float magnification ) {
+  public void setTransform(float translationX, float translationY, float magnification) {
     // always use original GC's transform.
     AffineTransform transform = (AffineTransform) originalTransform.clone();
-    transform.translate( translationX, translationY );
-    transform.scale( magnification, magnification );
-    gc.setTransform( transform );
+    transform.translate(translationX, translationY);
+    transform.scale(magnification, magnification);
+    gc.setTransform(transform);
   }
 
-  @Override public float getMagnification() {
+  @Override
+  public float getMagnification() {
     return (float) gc.getTransform().getScaleX();
   }
 
@@ -466,56 +485,59 @@ public class SvgGc implements IGc {
     return gc.getTransform();
   }
 
-  public Point textExtent( String text ) {
+  public Point textExtent(String text) {
 
-    String[] lines = text.split( Const.CR );
+    String[] lines = text.split(Const.CR);
     int maxWidth = 0;
-    for ( String line : lines ) {
-      Rectangle2D bounds = gc.getFontMetrics().getStringBounds( line, gc );
-      if ( bounds.getWidth() > maxWidth ) {
+    for (String line : lines) {
+      Rectangle2D bounds = gc.getFontMetrics().getStringBounds(line, gc);
+      if (bounds.getWidth() > maxWidth) {
         maxWidth = (int) bounds.getWidth();
       }
     }
     int height = gc.getFontMetrics().getHeight() * lines.length;
 
-    return new Point( maxWidth, height );
+    return new Point(maxWidth, height);
   }
 
-
-  public void setAntialias( boolean antiAlias ) {
-    if ( antiAlias ) {
-      RenderingHints hints = new RenderingHints( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
-      hints.add( new RenderingHints( RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY ) );
-      hints.add( new RenderingHints( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON ) );
-      gc.setRenderingHints( hints );
+  public void setAntialias(boolean antiAlias) {
+    if (antiAlias) {
+      RenderingHints hints =
+          new RenderingHints(
+              RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      hints.add(
+          new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+      hints.add(
+          new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+      gc.setRenderingHints(hints);
     }
   }
 
-  public void setBackground( int r, int g, int b ) {
-    Color color = getColor( r, g, b );
-    gc.setBackground( color );
+  public void setBackground(int r, int g, int b) {
+    Color color = getColor(r, g, b);
+    gc.setBackground(color);
   }
 
-  public void setForeground( int r, int g, int b ) {
-    Color color = getColor( r, g, b );
-    gc.setColor( color );
+  public void setForeground(int r, int g, int b) {
+    Color color = getColor(r, g, b);
+    gc.setColor(color);
   }
 
-  private Color getColor( int r, int g, int b ) {
-    return new Color( r, g, b );
+  private Color getColor(int r, int g, int b) {
+    return new Color(r, g, b);
   }
 
-  public void setFont( String fontName, int fontSize, boolean fontBold, boolean fontItalic ) {
+  public void setFont(String fontName, int fontSize, boolean fontBold, boolean fontItalic) {
     int style = Font.PLAIN;
-    if ( fontBold ) {
+    if (fontBold) {
       style = Font.BOLD;
     }
-    if ( fontItalic ) {
+    if (fontItalic) {
       style = style | Font.ITALIC;
     }
 
-    Font font = new Font( fontName, style, fontSize );
-    gc.setFont( font );
+    Font font = new Font(fontName, style, fontSize);
+    gc.setFont(font);
   }
 
   public Object getImage() {
@@ -526,17 +548,16 @@ public class SvgGc implements IGc {
     Color fg = gc.getColor();
     Color bg = gc.getBackground();
 
-    gc.setColor( bg );
-    gc.setBackground( fg );
+    gc.setColor(bg);
+    gc.setBackground(fg);
   }
 
   public Point getArea() {
     return area;
   }
 
-
-  public static final SvgFile getNativeImage( EImage image ) {
-    switch ( image ) {
+  public static final SvgFile getNativeImage(EImage image) {
+    switch (image) {
       case LOCK:
         return imageLocked;
       case FAILURE:
@@ -596,68 +617,86 @@ public class SvgGc implements IGc {
   }
 
   @Override
-  public void drawImage( EImage image, int x, int y, float magnification ) throws HopException {
-    SvgFile svgFile = getNativeImage( image );
-    drawImage( svgFile, x+xOffset, y+yOffset, miniIconSize, miniIconSize, magnification, 0 );
+  public void drawImage(EImage image, int x, int y, float magnification) throws HopException {
+    SvgFile svgFile = getNativeImage(image);
+    drawImage(svgFile, x + xOffset, y + yOffset, miniIconSize, miniIconSize, magnification, 0);
   }
 
   @Override
-  public void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException {
-    SvgFile svgFile = getNativeImage( image );
-    drawImage( svgFile, x + xOffset - miniIconSize / 2, y + yOffset - miniIconSize / 2, miniIconSize, miniIconSize, magnification, angle );
+  public void drawImage(EImage image, int x, int y, float magnification, double angle)
+      throws HopException {
+    SvgFile svgFile = getNativeImage(image);
+    drawImage(
+        svgFile,
+        x + xOffset - miniIconSize / 2,
+        y + yOffset - miniIconSize / 2,
+        miniIconSize,
+        miniIconSize,
+        magnification,
+        angle);
   }
 
-  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException {
+  public void drawTransformIcon(int x, int y, TransformMeta transformMeta, float magnification)
+      throws HopException {
 
-    SvgFile svgFile;    
-    if ( transformMeta.isMissing() ) {
+    SvgFile svgFile;
+    if (transformMeta.isMissing()) {
       svgFile = imageMissing;
-    } else if ( transformMeta.isDeprecated() ) {
+    } else if (transformMeta.isDeprecated()) {
       svgFile = imageDeprecated;
-    }
-    else {
+    } else {
       String transformType = transformMeta.getTransformPluginId();
-      svgFile = transformImages.get( transformType );
+      svgFile = transformImages.get(transformType);
     }
-    
-    if ( svgFile != null ) { // Draw the icon!
-      drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
+
+    if (svgFile != null) { // Draw the icon!
+      drawImage(svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0);
     }
   }
 
-  public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) throws HopException {
-    
-    SvgFile svgFile;    
-    if ( actionMeta.isMissing() ) {
+  public void drawActionIcon(int x, int y, ActionMeta actionMeta, float magnification)
+      throws HopException {
+
+    SvgFile svgFile;
+    if (actionMeta.isMissing()) {
       svgFile = imageMissing;
-    } else if ( actionMeta.isDeprecated() ) {
+    } else if (actionMeta.isDeprecated()) {
       svgFile = imageDeprecated;
-    }
-    else {
+    } else {
       String actionType = actionMeta.getAction().getPluginId();
-      svgFile = actionImages.get( actionType );
+      svgFile = actionImages.get(actionType);
     }
 
-    if ( svgFile != null ) { // Draw the icon!
-      drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
+    if (svgFile != null) { // Draw the icon!
+      drawImage(svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0);
     }
   }
 
-
-  @Override public void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException {
+  @Override
+  public void drawImage(
+      SvgFile svgFile,
+      int x,
+      int y,
+      int desiredWidth,
+      int desiredHeight,
+      float magnification,
+      double angle)
+      throws HopException {
 
     // Load the SVG XML document
     // Simply embed the SVG into the parent document (HopSvgGraphics2D)
-    // This doesn't actually render anything, it delays that until the rendering of the whole document is done.
+    // This doesn't actually render anything, it delays that until the rendering of the whole
+    // document is done.
     //
     try {
       // Let's not hammer the file system all the time, keep the SVGDocument in memory
       //
-      SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
+      SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
       SVGDocument svgDocument = cacheEntry.getSvgDocument();
 
       // How much more do we need to scale the image.
-      // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
+      // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the
+      // magnification
       //
       float xScaleFactor = magnification * desiredWidth / cacheEntry.getWidth();
       float yScaleFactor = magnification * desiredHeight / cacheEntry.getHeight();
@@ -668,41 +707,40 @@ public class SvgGc implements IGc {
       yScaleFactor = Math.min(xScaleFactor, yScaleFactor);
 
       gc.embedSvg(
-        svgDocument.getRootElement(),
-        svgFile.getFilename(),
-        x-cacheEntry.getX(),        
-        y-cacheEntry.getY(),
-        cacheEntry.getWidth(),
-        cacheEntry.getHeight(),
-        xScaleFactor,
-        yScaleFactor,
-        Math.toDegrees( angle )
-      );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to load SVG file '" + svgFile.getFilename() + "'", e );
+          svgDocument.getRootElement(),
+          svgFile.getFilename(),
+          x - cacheEntry.getX(),
+          y - cacheEntry.getY(),
+          cacheEntry.getWidth(),
+          cacheEntry.getHeight(),
+          xScaleFactor,
+          yScaleFactor,
+          Math.toDegrees(angle));
+    } catch (Exception e) {
+      throw new HopException("Unable to load SVG file '" + svgFile.getFilename() + "'", e);
     }
   }
 
-  private void copyChildren( Document domFactory, Node target, Node svgImage ) {
+  private void copyChildren(Document domFactory, Node target, Node svgImage) {
 
     NodeList childNodes = svgImage.getChildNodes();
-    for ( int c = 0; c < childNodes.getLength(); c++ ) {
-      Node childNode = childNodes.item( c );
+    for (int c = 0; c < childNodes.getLength(); c++) {
+      Node childNode = childNodes.item(c);
 
-      if ( "metadata".equals( childNode.getNodeName() ) ) {
+      if ("metadata".equals(childNode.getNodeName())) {
         continue; // skip some junk
       }
-      if ( "defs".equals( childNode.getNodeName() ) ) {
+      if ("defs".equals(childNode.getNodeName())) {
         continue; // skip some junk
       }
-      if ( "sodipodi:namedview".equals( childNode.getNodeName() ) ) {
+      if ("sodipodi:namedview".equals(childNode.getNodeName())) {
         continue; // skip some junk
       }
 
       // Copy this node over to the svgSvg element
       //
-      Node childNodeCopy = domFactory.importNode( childNode, true );
-      target.appendChild( childNodeCopy );
+      Node childNodeCopy = domFactory.importNode(childNode, true);
+      target.appendChild(childNodeCopy);
     }
   }
 }

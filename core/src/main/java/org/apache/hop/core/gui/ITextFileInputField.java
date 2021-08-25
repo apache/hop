@@ -24,7 +24,7 @@ public interface ITextFileInputField extends Comparable<ITextFileInputField> {
 
   String getName();
 
-  void setLength( int i );
+  void setLength(int i);
 
-  ITextFileInputField createNewInstance( String newFieldname, int x, int newlength );
+  ITextFileInputField createNewInstance(String newFieldname, int x, int newlength);
 }

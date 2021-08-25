@@ -16,160 +16,161 @@
   ~ limitations under the License.
   -->
 
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.hop</groupId>
-  <artifactId>hop-plugins-tech</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <modules>
-  </modules>
-  <packaging>pom</packaging>
-
-  <name>Hop Plugins Technology</name>
-
-  <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins</artifactId>
+    <artifactId>hop-plugins-tech</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <modules>
+    </modules>
+    <packaging>pom</packaging>
 
-  <properties>
-    <!-- Test running configuration -->
-    <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
-    <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
-    <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
-    <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-  </properties>
+    <name>Hop Plugins Technology</name>
 
-  <profiles>
-    <profile>
-      <id>highdeps</id>
-      <activation>
-        <property>
-          <name>!skipDefault</name>
-        </property>
-      </activation>
-      <modules>
-        <module>azure</module>
-        <module>avro</module>
-        <module>cassandra</module>
-        <module>dropbox</module>
-        <module>google</module>
-        <module>neo4j</module>
-        <module>parquet</module>
-      </modules>
-    </profile>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  </profiles>
+    <properties>
+        <!-- Test running configuration -->
+        <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
+        <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+        <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
+        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>${mockito-all.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-ui</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-engine</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${javax.servlet-api.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>${spring.framework.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+    <profiles>
+        <profile>
+            <id>highdeps</id>
+            <activation>
+                <property>
+                    <name>!skipDefault</name>
+                </property>
+            </activation>
+            <modules>
+                <module>azure</module>
+                <module>avro</module>
+                <module>cassandra</module>
+                <module>dropbox</module>
+                <module>google</module>
+                <module>neo4j</module>
+                <module>parquet</module>
+            </modules>
+        </profile>
 
-  <dependencyManagement>
+    </profiles>
+
     <dependencies>
-      <dependency>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <!-- test dependencies -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <classifier>test</classifier>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-engine</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-core</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-        <scope>test</scope>
-      </dependency>
-
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito-all.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.framework.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.svg</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.svg</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-core</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- test dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-core</artifactId>
+                <version>${project.version}</version>
+                <classifier>test</classifier>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-engine</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-core</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>

@@ -25,7 +25,7 @@ This action is for executing a AS/400 CL Commands.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Action name|The name of the workflow action.

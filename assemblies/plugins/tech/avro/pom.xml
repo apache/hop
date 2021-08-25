@@ -19,36 +19,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-tech</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-tech</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-tech-avro</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Technology Avro</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-tech-avro</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Hop Assemblies Plugins Technology Avro</name>
-  <description></description>
+    <properties>
+        <avro.version>1.8.2</avro.version>
+    </properties>
 
-  <properties>
-    <avro.version>1.8.2</avro.version>
-  </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-tech-avro</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-plugins-tech-avro</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avro</groupId>
-      <artifactId>avro</artifactId>
-      <version>${avro.version}</version>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 
 </project>

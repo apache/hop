@@ -17,9 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.output;
 
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
@@ -31,5 +29,4 @@ public class MappingOutputData extends BaseTransformData implements ITransformDa
   public MappingOutputData() {
     super();
   }
-
 }

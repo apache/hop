@@ -21,13 +21,15 @@ under the License.
 
 == Description
 
-The De-normalizer transform allows you de-normalize data by looking up key-value pairs. It also allows you to immediately convert data types.
+The De-normalizer transform allows you de-normalize data by looking up key-value pairs.
+It also allows you to immediately convert data types.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
-|Transform name|Name of the transform. This name has to be unique in a single pipeline.
+|Transform name|Name of the transform.
+This name has to be unique in a single pipeline.
 |Key field|The field that defined the key of the output row.
 |Group fields|Specify the fields that make up the grouping here.
 |Target fields|Select the fields to de-normalize by specifying the String value for the key field (see above).
@@ -37,7 +39,9 @@ If you get key-value pair collisions (key is not unique for the group specified)
 |===
 
 == Metadata Injection Support
-You can use the Metadata Injection supported fields with ETL Metadata Injection transform to pass metadata to your pipeline at runtime. All fields can be injected, the values used for the aggregation field are the following
+
+You can use the Metadata Injection supported fields with ETL Metadata Injection transform to pass metadata to your pipeline at runtime.
+All fields can be injected, the values used for the aggregation field are the following
 
 |===
 |key|value
@@ -52,7 +56,7 @@ You can use the Metadata Injection supported fields with ETL Metadata Injection 
 
 == Example
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |CustomerId|Key|Value
 |101|COUSINS_FIRST_NAME|Mary

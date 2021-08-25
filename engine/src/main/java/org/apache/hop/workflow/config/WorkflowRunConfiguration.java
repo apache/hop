@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.workflow.config;
 
 import org.apache.hop.metadata.api.HopMetadata;
@@ -24,26 +23,25 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
-  key = "workflow-run-configuration",
-  name = "Workflow Run Configuration",
-  description = "Describes how to execute a workflow",
-  image = "ui/images/workflow_run_config.svg",
-  documentationUrl="https://hop.apache.org/manual/latest/metadata-types/workflow-run-config.html"
-)
+    key = "workflow-run-configuration",
+    name = "Workflow Run Configuration",
+    description = "Describes how to execute a workflow",
+    image = "ui/images/workflow_run_config.svg",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/workflow-run-config.html")
 public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
-  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "WorkflowRunConfiguration-PluginSpecific-Options";
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =
+      "WorkflowRunConfiguration-PluginSpecific-Options";
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  @HopMetadataProperty
-  private IWorkflowEngineRunConfiguration engineRunConfiguration;
+  @HopMetadataProperty private IWorkflowEngineRunConfiguration engineRunConfiguration;
 
-  public WorkflowRunConfiguration() {
-  }
+  public WorkflowRunConfiguration() {}
 
-  public WorkflowRunConfiguration( String name, String description, IWorkflowEngineRunConfiguration engineRunConfiguration ) {
+  public WorkflowRunConfiguration(
+      String name, String description, IWorkflowEngineRunConfiguration engineRunConfiguration) {
     this();
     this.name = name;
     this.description = description;
@@ -53,13 +51,14 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
   public WorkflowRunConfiguration(WorkflowRunConfiguration c) {
     this.name = c.name;
     this.description = c.description;
-    if (c.engineRunConfiguration!=null) {
+    if (c.engineRunConfiguration != null) {
       this.engineRunConfiguration = c.engineRunConfiguration.clone();
     }
   }
 
-  @Override protected WorkflowRunConfiguration clone() {
-    return new WorkflowRunConfiguration( this );
+  @Override
+  protected WorkflowRunConfiguration clone() {
+    return new WorkflowRunConfiguration(this);
   }
 
   /**
@@ -71,10 +70,8 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -87,10 +84,8 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
     return engineRunConfiguration;
   }
 
-  /**
-   * @param engineRunConfiguration The engineRunConfiguration to set
-   */
-  public void setEngineRunConfiguration( IWorkflowEngineRunConfiguration engineRunConfiguration ) {
+  /** @param engineRunConfiguration The engineRunConfiguration to set */
+  public void setEngineRunConfiguration(IWorkflowEngineRunConfiguration engineRunConfiguration) {
     this.engineRunConfiguration = engineRunConfiguration;
   }
 }

@@ -31,16 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.ComplexType;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.*;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter.ParameterMode;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterContainer;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterList;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperation;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperationContainer;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlParamContainer;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.XsdType;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -59,25 +51,13 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class; // For Translator

@@ -24,5 +24,4 @@ public class Aggregate {
   public long[] counts;
   public Set<Object>[] distinctObjs;
   public double[] mean;
-
 }

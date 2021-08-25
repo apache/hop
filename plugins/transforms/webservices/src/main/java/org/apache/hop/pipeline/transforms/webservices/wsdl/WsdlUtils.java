@@ -20,18 +20,10 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 import com.ibm.wsdl.extensions.soap12.SOAP12BodyImpl;
 import org.apache.hop.core.exception.HopException;
 
-import javax.wsdl.Binding;
-import javax.wsdl.BindingInput;
-import javax.wsdl.BindingOperation;
-import javax.wsdl.BindingOutput;
-import javax.wsdl.Port;
+import javax.wsdl.*;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPHeader;
-import javax.wsdl.extensions.soap.SOAPOperation;
+import javax.wsdl.extensions.soap.*;
 import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.wsdl.extensions.soap12.SOAP12Header;
@@ -40,9 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Utilities for getting extensibility elements.
- */
+/** Utilities for getting extensibility elements. */
 final class WsdlUtils {
 
   // extensibility element names
@@ -77,12 +67,13 @@ final class WsdlUtils {
    * @param p A WSDL Port instance.
    * @return The SOAP address URI.
    */
-  protected static String getSOAPAddress( Port p ) {
-    ExtensibilityElement e = findExtensibilityElement( (ElementExtensible) p, SOAP_PORT_ADDRESS_NAME );
-    if ( e instanceof SOAP12Address ) {
-      return ( (SOAP12Address) e ).getLocationURI();
-    } else if ( e instanceof SOAPAddress ) {
-      return ( (SOAPAddress) e ).getLocationURI();
+  protected static String getSOAPAddress(Port p) {
+    ExtensibilityElement e =
+        findExtensibilityElement((ElementExtensible) p, SOAP_PORT_ADDRESS_NAME);
+    if (e instanceof SOAP12Address) {
+      return ((SOAP12Address) e).getLocationURI();
+    } else if (e instanceof SOAPAddress) {
+      return ((SOAPAddress) e).getLocationURI();
     }
 
     return null;
@@ -94,18 +85,21 @@ final class WsdlUtils {
    * @param binding A WSDL Binding instance.
    * @return String either 'document' or 'rpc', if not found in WSDL defaults to 'document'.
    */
-  protected static String getSOAPBindingStyle( Binding binding ) throws HopException {
+  protected static String getSOAPBindingStyle(Binding binding) throws HopException {
     String style = SOAP_BINDING_DEFAULT;
-    ExtensibilityElement soapBindingElem = findExtensibilityElement( (ElementExtensible) binding, SOAP_BINDING_ELEMENT_NAME );
+    ExtensibilityElement soapBindingElem =
+        findExtensibilityElement((ElementExtensible) binding, SOAP_BINDING_ELEMENT_NAME);
 
-    if ( soapBindingElem != null ) {
-      if ( soapBindingElem instanceof SOAP12Binding ) {
-        style = ( (SOAP12Binding) soapBindingElem ).getStyle();
-      } else if ( soapBindingElem instanceof SOAPBinding ) {
-        style = ( (SOAPBinding) soapBindingElem ).getStyle();
+    if (soapBindingElem != null) {
+      if (soapBindingElem instanceof SOAP12Binding) {
+        style = ((SOAP12Binding) soapBindingElem).getStyle();
+      } else if (soapBindingElem instanceof SOAPBinding) {
+        style = ((SOAPBinding) soapBindingElem).getStyle();
       } else {
-        throw new HopException( "Binding type "
-          + soapBindingElem + " encountered. The Web Service Lookup transform only supports SOAP Bindings!" );
+        throw new HopException(
+            "Binding type "
+                + soapBindingElem
+                + " encountered. The Web Service Lookup transform only supports SOAP Bindings!");
       }
     }
     return style;
@@ -114,48 +108,50 @@ final class WsdlUtils {
   /**
    * Get the SOAP Use type for the specified operation.
    *
-   * @param binding       A WSDL Binding instance.
+   * @param binding A WSDL Binding instance.
    * @param operationName The name of the operation.
    * @return Either 'literal' or 'encoded'.
    * @throws RuntimeException If the use type cannot be determined.
    */
-  protected static String getSOAPBindingUse( Binding binding, String operationName ) {
+  protected static String getSOAPBindingUse(Binding binding, String operationName) {
 
-    BindingOperation bindingOperation = binding.getBindingOperation( operationName, null, null );
+    BindingOperation bindingOperation = binding.getBindingOperation(operationName, null, null);
 
-    if ( bindingOperation == null ) {
-      throw new IllegalArgumentException( "Can not find operation: " + operationName );
+    if (bindingOperation == null) {
+      throw new IllegalArgumentException("Can not find operation: " + operationName);
     }
 
     // first try getting the use setting from the input message
     BindingInput bindingInput = bindingOperation.getBindingInput();
-    if ( bindingInput != null ) {
+    if (bindingInput != null) {
       ExtensibilityElement soapBodyElem =
-        WsdlUtils.findExtensibilityElement( (ElementExtensible) bindingInput, SOAP_BODY_ELEMENT_NAME );
-      if ( soapBodyElem != null ) {
-        if ( soapBodyElem instanceof SOAP12BodyImpl ) {
-          return ( (SOAP12BodyImpl) soapBodyElem ).getUse();
+          WsdlUtils.findExtensibilityElement(
+              (ElementExtensible) bindingInput, SOAP_BODY_ELEMENT_NAME);
+      if (soapBodyElem != null) {
+        if (soapBodyElem instanceof SOAP12BodyImpl) {
+          return ((SOAP12BodyImpl) soapBodyElem).getUse();
         } else {
-          return ( (SOAPBody) soapBodyElem ).getUse();
+          return ((SOAPBody) soapBodyElem).getUse();
         }
       }
     }
 
     // if there was no input message try getting the use from the output message
     BindingOutput bindingOutput = bindingOperation.getBindingOutput();
-    if ( bindingOutput != null ) {
+    if (bindingOutput != null) {
       ExtensibilityElement soapBodyElem =
-        WsdlUtils.findExtensibilityElement( (ElementExtensible) bindingOutput, SOAP_BODY_ELEMENT_NAME );
-      if ( soapBodyElem != null ) {
-        if ( soapBodyElem instanceof SOAP12BodyImpl ) {
-          return ( (SOAP12BodyImpl) soapBodyElem ).getUse();
+          WsdlUtils.findExtensibilityElement(
+              (ElementExtensible) bindingOutput, SOAP_BODY_ELEMENT_NAME);
+      if (soapBodyElem != null) {
+        if (soapBodyElem instanceof SOAP12BodyImpl) {
+          return ((SOAP12BodyImpl) soapBodyElem).getUse();
         } else {
-          return ( (SOAPBody) soapBodyElem ).getUse();
+          return ((SOAPBody) soapBodyElem).getUse();
         }
       }
     }
 
-    throw new RuntimeException( "Unable to determine SOAP use for operation: " + operationName );
+    throw new RuntimeException("Unable to determine SOAP use for operation: " + operationName);
   }
 
   /**
@@ -164,36 +160,37 @@ final class WsdlUtils {
    * @param operation A WSDL Operation.
    * @return Soap action URI as string, null if not defined.
    */
-  protected static String getSOAPAction( BindingOperation operation ) {
-    ExtensibilityElement e = findExtensibilityElement( (ElementExtensible) operation, SOAP_OPERATION_ELEMENT_NAME );
-    if ( e != null ) {
-      if ( e instanceof SOAP12Operation ) {
-        return ( (SOAP12Operation) e ).getSoapActionURI();
+  protected static String getSOAPAction(BindingOperation operation) {
+    ExtensibilityElement e =
+        findExtensibilityElement((ElementExtensible) operation, SOAP_OPERATION_ELEMENT_NAME);
+    if (e != null) {
+      if (e instanceof SOAP12Operation) {
+        return ((SOAP12Operation) e).getSoapActionURI();
       } else {
-        return ( (SOAPOperation) e ).getSoapActionURI();
+        return ((SOAPOperation) e).getSoapActionURI();
       }
     }
     return null;
   }
 
   /**
-   * Determine if this parameter has a parameter style of WRAPPED. It does if the <tt>name</tt> attribute of the part is
-   * NOT the same as its operation name.
+   * Determine if this parameter has a parameter style of WRAPPED. It does if the <tt>name</tt>
+   * attribute of the part is NOT the same as its operation name.
    *
-   * @param operationName   Name of the part's operation.
-   * @param outputParam     true if this is an output parameter.
+   * @param operationName Name of the part's operation.
+   * @param outputParam true if this is an output parameter.
    * @param messagePartName Name of the message part.
    * @return true if parameter style is wrapped.
    */
-  protected static boolean isWrappedParameterStyle( String operationName, boolean outputParam,
-                                                    String messagePartName ) {
+  protected static boolean isWrappedParameterStyle(
+      String operationName, boolean outputParam, String messagePartName) {
 
-    if ( outputParam ) {
-      if ( messagePartName.equals( operationName + "Response" ) ) {
+    if (outputParam) {
+      if (messagePartName.equals(operationName + "Response")) {
         return false;
       }
     } else {
-      if ( messagePartName.equals( operationName ) ) {
+      if (messagePartName.equals(operationName)) {
         return false;
       }
     }
@@ -203,34 +200,38 @@ final class WsdlUtils {
   /**
    * Build a HashSet of SOAP header names for the specified operation and binding.
    *
-   * @param binding       WSDL Binding instance.
+   * @param binding WSDL Binding instance.
    * @param operationName Name of the operation.
    * @return HashSet of soap header names, empty set if no headers present.
    */
-  protected static HashSet<String> getSOAPHeaders( Binding binding, String operationName ) {
+  protected static HashSet<String> getSOAPHeaders(Binding binding, String operationName) {
 
     List<ExtensibilityElement> headers = new ArrayList<>();
-    BindingOperation bindingOperation = binding.getBindingOperation( operationName, null, null );
-    if ( bindingOperation == null ) {
-      throw new IllegalArgumentException( "Can not find operation: " + operationName );
+    BindingOperation bindingOperation = binding.getBindingOperation(operationName, null, null);
+    if (bindingOperation == null) {
+      throw new IllegalArgumentException("Can not find operation: " + operationName);
     }
 
     BindingInput bindingInput = bindingOperation.getBindingInput();
-    if ( bindingInput != null ) {
-      headers.addAll( WsdlUtils.findExtensibilityElements( (ElementExtensible) bindingInput, SOAP_HEADER_ELEMENT_NAME ) );
+    if (bindingInput != null) {
+      headers.addAll(
+          WsdlUtils.findExtensibilityElements(
+              (ElementExtensible) bindingInput, SOAP_HEADER_ELEMENT_NAME));
     }
 
     BindingOutput bindingOutput = bindingOperation.getBindingOutput();
-    if ( bindingOutput != null ) {
-      headers.addAll( WsdlUtils.findExtensibilityElements( (ElementExtensible) bindingOutput, SOAP_HEADER_ELEMENT_NAME ) );
+    if (bindingOutput != null) {
+      headers.addAll(
+          WsdlUtils.findExtensibilityElements(
+              (ElementExtensible) bindingOutput, SOAP_HEADER_ELEMENT_NAME));
     }
 
-    HashSet<String> headerSet = new HashSet<>( headers.size() );
-    for ( ExtensibilityElement element : headers ) {
-      if ( element instanceof SOAP12Header ) {
-        headerSet.add( ( (SOAP12Header) element ).getPart() );
+    HashSet<String> headerSet = new HashSet<>(headers.size());
+    for (ExtensibilityElement element : headers) {
+      if (element instanceof SOAP12Header) {
+        headerSet.add(((SOAP12Header) element).getPart());
       } else {
-        headerSet.add( ( (SOAPHeader) element ).getPart() );
+        headerSet.add(((SOAPHeader) element).getPart());
       }
     }
 
@@ -238,21 +239,21 @@ final class WsdlUtils {
   }
 
   /**
-   * Find the specified extensibility element, if more than one with the specified name exists in the list, return the
-   * first one found.
+   * Find the specified extensibility element, if more than one with the specified name exists in
+   * the list, return the first one found.
    *
    * @param extensibleElement WSDL type which extends ElementExtensible.
-   * @param elementType       Name of the extensiblity element to find.
+   * @param elementType Name of the extensiblity element to find.
    * @return ExtensibilityElement The ExtensiblityElement, if not found return null.
    */
-  @SuppressWarnings( "unchecked" )
-  protected static ExtensibilityElement findExtensibilityElement( ElementExtensible extensibleElement,
-                                                                  String elementType ) {
+  @SuppressWarnings("unchecked")
+  protected static ExtensibilityElement findExtensibilityElement(
+      ElementExtensible extensibleElement, String elementType) {
 
     List<ExtensibilityElement> extensibilityElements = extensibleElement.getExtensibilityElements();
-    if ( extensibilityElements != null ) {
-      for ( ExtensibilityElement element : extensibilityElements ) {
-        if ( element.getElementType().getLocalPart().equalsIgnoreCase( elementType ) ) {
+    if (extensibilityElements != null) {
+      for (ExtensibilityElement element : extensibilityElements) {
+        if (element.getElementType().getLocalPart().equalsIgnoreCase(elementType)) {
           return element;
         }
       }
@@ -264,20 +265,20 @@ final class WsdlUtils {
    * Find all of the extensibility elements with the specified name.
    *
    * @param extensibleElement WSDL type which extends ElementExtensible.
-   * @param elementType       Name of the extensibility element to find.
+   * @param elementType Name of the extensibility element to find.
    * @return List of ExtensibilityElements, may be empty.
    */
-  @SuppressWarnings( "unchecked" )
-  protected static List<ExtensibilityElement> findExtensibilityElements( ElementExtensible extensibleElement,
-                                                                         String elementType ) {
+  @SuppressWarnings("unchecked")
+  protected static List<ExtensibilityElement> findExtensibilityElements(
+      ElementExtensible extensibleElement, String elementType) {
 
     List<ExtensibilityElement> elements = new ArrayList<>();
     List<ExtensibilityElement> extensibilityElements = extensibleElement.getExtensibilityElements();
 
-    if ( extensibilityElements != null ) {
-      for ( ExtensibilityElement element : extensibilityElements ) {
-        if ( element.getElementType().getLocalPart().equalsIgnoreCase( elementType ) ) {
-          elements.add( element );
+    if (extensibilityElements != null) {
+      for (ExtensibilityElement element : extensibilityElements) {
+        if (element.getElementType().getLocalPart().equalsIgnoreCase(elementType)) {
+          elements.add(element);
         }
       }
     }
@@ -288,8 +289,7 @@ final class WsdlUtils {
    * @param port
    * @return
    */
-  protected static boolean isSoapPort( Port port ) {
-    return getSOAPAddress( port ) != null;
+  protected static boolean isSoapPort(Port port) {
+    return getSOAPAddress(port) != null;
   }
-
 }

@@ -1,33 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
-	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
-]>
+        <!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+        ]>
 <svg version="1.1"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
-	 x="0px" y="0px" width="24px" height="24px" viewBox="-1 -1 24 24" enable-background="new -1 -1 24 24" xml:space="preserve">
+     xmlns="http://www.w3.org/2000/svg"
+     x="0px" y="0px" width="24px" height="24px" viewBox="-1 -1 24 24" enable-background="new -1 -1 24 24"
+     xml:space="preserve">
 <defs>
 </defs>
-<rect id="rect1408_28_" x="2" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_27_" x="7" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_26_" x="12" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_25_" x="17" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_24_" x="2" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_23_" x="7" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_22_" x="12" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_21_" x="17" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_20_" x="2" y="2" transform="matrix(-0.7072 0.707 -0.707 -0.7072 8.4493 3.5007)" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_18_" x="12" y="2" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_15_" x="17" y="2" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_3_" x="7" y="7" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_2_" x="12" y="7" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<rect id="rect1408_1_" x="17" y="7" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
-<polygon id="remove_1_" display="none" fill="#E91D2D" points="15,20.847 16.153,22 18.541,19.613 20.929,22 22,20.847 
+    <rect id="rect1408_28_" x="2" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_27_" x="7" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_26_" x="12" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_25_" x="17" y="12" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_24_" x="2" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_23_" x="7" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_22_" x="12" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_21_" x="17" y="17" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_20_" x="2" y="2" transform="matrix(-0.7072 0.707 -0.707 -0.7072 8.4493 3.5007)" fill="#F9C940"
+          stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round" width="3" height="3"/>
+    <rect id="rect1408_18_" x="12" y="2" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_15_" x="17" y="2" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_3_" x="7" y="7" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_2_" x="12" y="7" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <rect id="rect1408_1_" x="17" y="7" fill="#F9C940" stroke="#F9C940" stroke-linecap="round" stroke-linejoin="round"
+          width="3" height="3"/>
+    <polygon id="remove_1_" display="none" fill="#E91D2D" points="15,20.847 16.153,22 18.541,19.613 20.929,22 22,20.847
 	19.612,18.459 22,16.071 20.929,15 18.541,17.388 16.153,15 15,16.071 17.388,18.459 "/>
-<polygon id="polygon6_3_" display="none" fill="#0F3B5A" points="22,18.982 22,18.02 18.98,18.02 18.98,15 18.02,15 18.02,18.02 
+    <polygon id="polygon6_3_" display="none" fill="#0F3B5A" points="22,18.982 22,18.02 18.98,18.02 18.98,15 18.02,15 18.02,18.02
 	15,18.02 15,18.982 18.02,18.982 18.02,22 18.98,22 18.98,18.982 "/>
-<polygon id="polygon6_2_" display="none" fill="#0F3B5A" points="22,18.982 22,18.02 18.98,18.02 18.98,15 18.02,15 18.02,18.02 
+    <polygon id="polygon6_2_" display="none" fill="#0F3B5A" points="22,18.982 22,18.02 18.98,18.02 18.98,15 18.02,15 18.02,18.02
 	15,18.02 15,18.982 18.02,18.982 18.02,22 18.98,22 18.98,18.982 "/>
-<polygon id="input_1_" display="none" fill="#0F3B5A" points="1.719,5.43 1.719,7 7,6.997 7,1.771 5.429,1.771 5.429,4.318 1.11,0 
+    <polygon id="input_1_" display="none" fill="#0F3B5A" points="1.719,5.43 1.719,7 7,6.997 7,1.771 5.429,1.771 5.429,4.318 1.11,0
 	0,1.111 4.319,5.43 "/>
 </svg>

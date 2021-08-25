@@ -28,15 +28,15 @@ public class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTest<Valu
 
   @Before
   public void setup() throws Exception {
-    setup( new ValueMapperMeta() );
+    setup(new ValueMapperMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELDNAME", () -> meta.getFieldToUse() );
-    check( "TARGET_FIELDNAME", () -> meta.getTargetField() );
-    check( "NON_MATCH_DEFAULT", () -> meta.getNonMatchDefault() );
-    check( "SOURCE", () -> meta.getSourceValue()[ 0 ] );
-    check( "TARGET", () -> meta.getTargetValue()[ 0 ] );
+    check("FIELDNAME", () -> meta.getFieldToUse());
+    check("TARGET_FIELDNAME", () -> meta.getTargetField());
+    check("NON_MATCH_DEFAULT", () -> meta.getNonMatchDefault());
+    check("SOURCE", () -> meta.getSourceValue()[0]);
+    check("TARGET", () -> meta.getTargetValue()[0]);
   }
 }

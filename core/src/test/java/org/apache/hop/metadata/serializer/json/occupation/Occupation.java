@@ -24,42 +24,38 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 import java.util.Objects;
 
-@HopMetadata(
-  name = "Occupation",
-  key = "occupation"
-)
+@HopMetadata(name = "Occupation", key = "occupation")
 public class Occupation extends HopMetadataBase implements IHopMetadata {
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  @HopMetadataProperty
-  private int startYear;
+  @HopMetadataProperty private int startYear;
 
-  public Occupation() {
-  }
+  public Occupation() {}
 
-  public Occupation( String name, String description, int startYear ) {
+  public Occupation(String name, String description, int startYear) {
     this.name = name;
     this.description = description;
     this.startYear = startYear;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     Occupation that = (Occupation) o;
-    return startYear == that.startYear &&
-      Objects.equals( name, that.name ) &&
-      Objects.equals( description, that.description );
+    return startYear == that.startYear
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( name, description, startYear );
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, description, startYear);
   }
 
   /**
@@ -71,10 +67,8 @@ public class Occupation extends HopMetadataBase implements IHopMetadata {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -87,10 +81,8 @@ public class Occupation extends HopMetadataBase implements IHopMetadata {
     return startYear;
   }
 
-  /**
-   * @param startYear The startYear to set
-   */
-  public void setStartYear( int startYear ) {
+  /** @param startYear The startYear to set */
+  public void setStartYear(int startYear) {
     this.startYear = startYear;
   }
 }

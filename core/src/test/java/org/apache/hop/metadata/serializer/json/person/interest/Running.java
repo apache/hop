@@ -22,39 +22,37 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.Objects;
 
 public class Running implements IInterest {
-  @HopMetadataProperty
-  private InterestType type;
+  @HopMetadataProperty private InterestType type;
 
-  @HopMetadataProperty
-  private String name;
+  @HopMetadataProperty private String name;
 
-  @HopMetadataProperty
-  private String description;
+  @HopMetadataProperty private String description;
 
-  public Running() {
-  }
+  public Running() {}
 
-  public Running( String name, String description ) {
+  public Running(String name, String description) {
     this.type = InterestType.Sport;
     this.name = name;
     this.description = description;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     Running running = (Running) o;
-    return type == running.type &&
-      Objects.equals( name, running.name ) &&
-      Objects.equals( description, running.description );
+    return type == running.type
+        && Objects.equals(name, running.name)
+        && Objects.equals(description, running.description);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( type, name, description );
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, name, description);
   }
 
   /**
@@ -62,14 +60,13 @@ public class Running implements IInterest {
    *
    * @return value of name
    */
-  @Override public String getName() {
+  @Override
+  public String getName() {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -78,14 +75,13 @@ public class Running implements IInterest {
    *
    * @return value of description
    */
-  @Override public String getDescription() {
+  @Override
+  public String getDescription() {
     return description;
   }
 
-  /**
-   * @param description The description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description The description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -98,10 +94,8 @@ public class Running implements IInterest {
     return type;
   }
 
-  /**
-   * @param type The type to set
-   */
-  public void setType( InterestType type ) {
+  /** @param type The type to set */
+  public void setType(InterestType type) {
     this.type = type;
   }
 }

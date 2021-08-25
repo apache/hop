@@ -25,7 +25,7 @@ This transform performs a Web Services lookup using the Web Services Description
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
@@ -36,8 +36,8 @@ NOTE: If this doesn't work, you can still try to manually specify the input and 
 The number of rows to send with each WSDL call
 |Pass input data to output|
 If you disable this, the input will be eaten and only the WSDL output will be passed along to the next steps.
-v2.x/3.x compatibility mode
-We improved the parsing engine of the 3.x engine dramatically.  For compatibility reasons, we kept the old engine around to make sure older steps would still work OK.
+v2.x/3.x compatibility mode We improved the parsing engine of the 3.x engine dramatically.
+For compatibility reasons, we kept the old engine around to make sure older steps would still work OK.
 |Repeating element name|
 Specify the name of the repeating element in the output XML (if any).
 |HTTP authentication|

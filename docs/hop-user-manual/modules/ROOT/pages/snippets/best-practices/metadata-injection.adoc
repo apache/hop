@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+
 [[MetadataInjection]]
 :imagesdir: ../../assets/images
 
@@ -24,5 +25,4 @@ If you find that you need to create 'almost' the same pipeline a lot of times, c
 * Supports data streaming
 
 Example use cases include:
-* Load 50 different file formats into a database with one pipeline template
-* Automatically normalize and load property sets
+* Load 50 different file formats into a database with one pipeline template * Automatically normalize and load property sets

@@ -18,11 +18,11 @@
 package org.apache.hop.core.logging;
 
 public interface ILogChannelFactory {
-  ILogChannel create( Object subject );
+  ILogChannel create(Object subject);
 
-  ILogChannel create( Object subject, boolean gatheringMetrics );
+  ILogChannel create(Object subject, boolean gatheringMetrics);
 
-  ILogChannel create( Object subject, ILoggingObject parentObject );
+  ILogChannel create(Object subject, ILoggingObject parentObject);
 
-  ILogChannel create( Object subject, ILoggingObject parentObject, boolean gatheringMetrics );
+  ILogChannel create(Object subject, ILoggingObject parentObject, boolean gatheringMetrics);
 }

@@ -23,22 +23,14 @@ import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 public class PluginWidgetFactory {
 
-  /**
-   * The margin.
-   */
+  /** The margin. */
   public static final int DEFAULT_MARGIN = PropsUi.getInstance().getMargin();
 
-  /**
-   * The default middle.
-   */
+  /** The default middle. */
   public static final int DEFAULT_MIDDLE = 35;
 
   public static final int DEFAULT_RIGHT_OFFSET = 100;
@@ -56,43 +48,36 @@ public class PluginWidgetFactory {
   /**
    * Constructor.
    *
-   * @param shell    the shell to set.
+   * @param shell the shell to set.
    * @param varSpace the variables to be used. e.g. for TextVar
    * @throws IllegalArgumentException if shell is null.
    */
-  public PluginWidgetFactory( final Shell shell, final IVariables varSpace ) throws IllegalArgumentException {
-    Assert.assertNotNull( shell, "Shell cannot be null" );
-    Assert.assertNotNull( varSpace, "pipelineMeta cannot be null" );
+  public PluginWidgetFactory(final Shell shell, final IVariables varSpace)
+      throws IllegalArgumentException {
+    Assert.assertNotNull(shell, "Shell cannot be null");
+    Assert.assertNotNull(varSpace, "pipelineMeta cannot be null");
 
     this.shell = shell;
     this.varSpace = varSpace;
   }
 
-  /**
-   * @return the margin
-   */
+  /** @return the margin */
   public int getMargin() {
     return this.margin;
   }
 
-  /**
-   * @param margin the margin to set
-   */
-  public void setMargin( final int margin ) {
+  /** @param margin the margin to set */
+  public void setMargin(final int margin) {
     this.margin = margin;
   }
 
-  /**
-   * @return the middle
-   */
+  /** @return the middle */
   public int getMiddle() {
     return this.middle;
   }
 
-  /**
-   * @param middle the middle to set
-   */
-  public void setMiddle( final int middle ) {
+  /** @param middle the middle to set */
+  public void setMiddle(final int middle) {
     this.middle = middle;
   }
 
@@ -102,20 +87,20 @@ public class PluginWidgetFactory {
    * @param text text to set.
    * @return new label.
    */
-  public Label createRightLabel( final String text ) {
-    return this.createLabel( SWT.RIGHT, text );
+  public Label createRightLabel(final String text) {
+    return this.createLabel(SWT.RIGHT, text);
   }
 
   /**
    * Create label.
    *
    * @param style style to use.
-   * @param text  text to set.
+   * @param text text to set.
    * @return new label.
    */
-  public Label createLabel( final int style, final String text ) {
-    final Label label = new Label( this.shell, style );
-    label.setText( text );
+  public Label createLabel(final int style, final String text) {
+    final Label label = new Label(this.shell, style);
+    label.setText(text);
     return label;
   }
 
@@ -125,15 +110,15 @@ public class PluginWidgetFactory {
    * @param topControl the control which is above the current label, or null if none above.
    * @return layoutData.
    */
-  public FormData createLabelLayoutData( final Control topControl ) {
+  public FormData createLabelLayoutData(final Control topControl) {
     FormData formData = new FormData();
 
-    formData.left = new FormAttachment( 0, 0 );
-    formData.right = new FormAttachment( this.middle, -this.margin );
-    if ( topControl != null ) {
-      formData.top = new FormAttachment( topControl, this.margin );
+    formData.left = new FormAttachment(0, 0);
+    formData.right = new FormAttachment(this.middle, -this.margin);
+    if (topControl != null) {
+      formData.top = new FormAttachment(topControl, this.margin);
     } else {
-      formData.top = new FormAttachment( 0, this.margin );
+      formData.top = new FormAttachment(0, this.margin);
     }
     return formData;
   }
@@ -144,16 +129,16 @@ public class PluginWidgetFactory {
    * @param topControl the control which is above the current label, or null if none above.
    * @return layoutData.
    */
-  public FormData createControlLayoutData( final Control topControl ) {
+  public FormData createControlLayoutData(final Control topControl) {
     FormData formData = new FormData();
 
-    formData.left = new FormAttachment( this.middle, 0 );
-    if ( topControl != null ) {
-      formData.top = new FormAttachment( topControl, this.margin );
+    formData.left = new FormAttachment(this.middle, 0);
+    if (topControl != null) {
+      formData.top = new FormAttachment(topControl, this.margin);
     } else {
-      formData.top = new FormAttachment( 0, this.margin );
+      formData.top = new FormAttachment(0, this.margin);
     }
-    formData.right = new FormAttachment( this.rightOffset, 0 );
+    formData.right = new FormAttachment(this.rightOffset, 0);
 
     return formData;
   }
@@ -164,51 +149,48 @@ public class PluginWidgetFactory {
    * @param labelControl the label which is to the left.
    * @return layoutData.
    */
-  public FormData createButtonLayoutData( final Control labelControl ) {
+  public FormData createButtonLayoutData(final Control labelControl) {
     FormData formData = new FormData();
 
-    formData.left = new FormAttachment( this.middle, 0 );
-    formData.top = new FormAttachment( labelControl, 0, SWT.CENTER );
-    formData.right = new FormAttachment( this.rightOffset, 0 );
+    formData.left = new FormAttachment(this.middle, 0);
+    formData.top = new FormAttachment(labelControl, 0, SWT.CENTER);
+    formData.right = new FormAttachment(this.rightOffset, 0);
 
     return formData;
   }
-
 
   /**
    * @param text text to set.
    * @return text widget.
    */
-  public Text createSingleTextLeft( final String text ) {
-    return this.createText( SWT.SINGLE | SWT.LEFT | SWT.BORDER, text );
+  public Text createSingleTextLeft(final String text) {
+    return this.createText(SWT.SINGLE | SWT.LEFT | SWT.BORDER, text);
   }
 
   /**
    * @param style style to use.
-   * @param text  text to set.
+   * @param text text to set.
    * @return text widget.
    */
-  public Text createText( final int style, final String text ) {
-    final Text textWidget = new Text( this.shell, style );
-    textWidget.setText( text );
+  public Text createText(final int style, final String text) {
+    final Text textWidget = new Text(this.shell, style);
+    textWidget.setText(text);
     return textWidget;
   }
 
-  /**
-   * @return new ...
-   */
+  /** @return new ... */
   public TextVar createSingleTextVarLeft() {
-    return new TextVar( this.varSpace, this.shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    return new TextVar(this.varSpace, this.shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
   }
 
   /**
    * @param style style to use.
-   * @param text  text to set.
+   * @param text text to set.
    * @return new button.
    */
-  public Button createButton( final int style, final String text ) {
-    final Button button = new Button( this.shell, style );
-    button.setText( text );
+  public Button createButton(final int style, final String text) {
+    final Button button = new Button(this.shell, style);
+    button.setText(text);
     return button;
   }
 
@@ -216,8 +198,7 @@ public class PluginWidgetFactory {
    * @param text text to set.
    * @return new button.
    */
-  public Button createPushButton( final String text ) {
-    return this.createButton( SWT.PUSH, text );
+  public Button createPushButton(final String text) {
+    return this.createButton(SWT.PUSH, text);
   }
-
 }

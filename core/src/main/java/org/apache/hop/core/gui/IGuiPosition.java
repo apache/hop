@@ -20,11 +20,11 @@ package org.apache.hop.core.gui;
 public interface IGuiPosition {
   Point getLocation();
 
-  void setLocation( Point p );
+  void setLocation(Point p);
 
-  void setLocation( int x, int y );
+  void setLocation(int x, int y);
 
   boolean isSelected();
 
-  void setSelected( boolean selected );
+  void setSelected(boolean selected);
 }

@@ -29,37 +29,37 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
- * This class resolve and update system variables
- * {@link Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER}
- * {@link Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER}
- * {@link Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
- * {@link Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
+ * This class resolve and update system variables {@link
+ * Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER} {@link
+ * Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER} {@link
+ * Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY} {@link
+ * Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
  */
 public class CurrentDirectoryResolver {
 
-  public CurrentDirectoryResolver() {
-  }
+  public CurrentDirectoryResolver() {}
 
   /**
    * The logic of this method:
-   * <p>
-   * We return the child var variables with directory extracted from filename
-   * if we do not have a filename we will return the child var variables without updates
+   *
+   * <p>We return the child var variables with directory extracted from filename if we do not have a
+   * filename we will return the child var variables without updates
    *
    * @param parentVariables - parent variable variables which can be inherited
-   * @param filename        - is file which we use at this moment
-   * @return new var variables if inherit was set false or child var variables with updated system variables
+   * @param filename - is file which we use at this moment
+   * @return new var variables if inherit was set false or child var variables with updated system
+   *     variables
    */
-  public IVariables resolveCurrentDirectory( IVariables parentVariables, String filename ) {
+  public IVariables resolveCurrentDirectory(IVariables parentVariables, String filename) {
     Variables tmpSpace = new Variables();
-    tmpSpace.setParentVariables( parentVariables );
-    tmpSpace.initializeFrom( parentVariables );
+    tmpSpace.setParentVariables(parentVariables);
+    tmpSpace.initializeFrom(parentVariables);
 
-    if ( filename != null ) {
+    if (filename != null) {
       try {
-        FileObject fileObject = HopVfs.getFileObject( filename );
+        FileObject fileObject = HopVfs.getFileObject(filename);
 
-        if ( !fileObject.exists() ) {
+        if (!fileObject.exists()) {
           // don't set variables if the file doesn't exist
           return tmpSpace;
         }
@@ -67,52 +67,56 @@ public class CurrentDirectoryResolver {
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName() );
+        tmpSpace.setVariable(
+            Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName());
 
         // The directory of the pipeline
         FileName fileDir = fileName.getParent();
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI() );
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI() );
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, fileDir.getURI() );
-      } catch ( Exception e ) {
-        throw new RuntimeException( "Unable to figure out the current directory", e );
+        tmpSpace.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI());
+        tmpSpace.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI());
+        tmpSpace.setVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, fileDir.getURI());
+      } catch (Exception e) {
+        throw new RuntimeException("Unable to figure out the current directory", e);
       }
     }
     return tmpSpace;
   }
 
-  public IVariables resolveCurrentDirectory( IVariables parentVariables, TransformMeta transformMeta, String filename ) {
-    if ( transformMeta != null && transformMeta.getParentPipelineMeta() != null ) {
+  public IVariables resolveCurrentDirectory(
+      IVariables parentVariables, TransformMeta transformMeta, String filename) {
+    if (transformMeta != null && transformMeta.getParentPipelineMeta() != null) {
       filename = transformMeta.getParentPipelineMeta().getFilename();
-    } else if ( transformMeta != null && transformMeta.getParentPipelineMeta() != null && filename == null ) {
+    } else if (transformMeta != null
+        && transformMeta.getParentPipelineMeta() != null
+        && filename == null) {
       filename = transformMeta.getParentPipelineMeta().getFilename();
     }
-    return resolveCurrentDirectory( parentVariables, filename );
+    return resolveCurrentDirectory(parentVariables, filename);
   }
 
-  public IVariables resolveCurrentDirectory( IVariables parentVariables, IWorkflowEngine<WorkflowMeta> workflow, String filename ) {
-    if ( workflow != null && filename == null ) {
+  public IVariables resolveCurrentDirectory(
+      IVariables parentVariables, IWorkflowEngine<WorkflowMeta> workflow, String filename) {
+    if (workflow != null && filename == null) {
       filename = workflow.getFilename();
-    } else if ( WorkflowMeta.class.isAssignableFrom( parentVariables.getClass() ) ) {
+    } else if (WorkflowMeta.class.isAssignableFrom(parentVariables.getClass())) {
       // additional fallback protection for design mode
       WorkflowMeta realParent = null;
       realParent = (WorkflowMeta) parentVariables;
       filename = realParent.getFilename();
     }
-    return resolveCurrentDirectory( parentVariables, filename );
+    return resolveCurrentDirectory(parentVariables, filename);
   }
 
-  public String normalizeSlashes( String str ) {
-    if ( StringUtils.isBlank( str ) ) {
+  public String normalizeSlashes(String str) {
+    if (StringUtils.isBlank(str)) {
       return str;
     }
-    while ( str.contains( "\\" ) ) {
-      str = str.replace( "\\", "/" );
+    while (str.contains("\\")) {
+      str = str.replace("\\", "/");
     }
-    while ( str.contains( "//" ) ) {
-      str = str.replace( "//", "/" );
+    while (str.contains("//")) {
+      str = str.replace("//", "/");
     }
     return str;
   }
-
 }

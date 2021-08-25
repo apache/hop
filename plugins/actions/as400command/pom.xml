@@ -18,27 +18,27 @@
   -->
 
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.apache.hop</groupId>
-		<artifactId>hop-plugins-actions</artifactId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-actions</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>hop-action-as400command</artifactId>
-	<packaging>jar</packaging>
-	<name>Hop Plugins AS/400 Command</name>
+    <artifactId>hop-action-as400command</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins AS/400 Command</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>net.sf.jt400</groupId>
-			<artifactId>jt400</artifactId>
-			<version>10.5</version>
-			<scope>compile</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.jt400</groupId>
+            <artifactId>jt400</artifactId>
+            <version>10.5</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

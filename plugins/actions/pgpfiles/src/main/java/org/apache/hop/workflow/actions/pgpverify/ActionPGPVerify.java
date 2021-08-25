@@ -17,9 +17,6 @@
 
 package org.apache.hop.workflow.actions.pgpverify;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -45,21 +42,22 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 import org.w3c.dom.Node;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * This defines a PGP verify action.
  *
  * @author Samatar
  * @since 25-02-2011
  */
-
 @Action(
-  id = "PGP_VERIFY_FILES",
-  name = "i18n::ActionPGPVerify.Name",
-  description = "i18n::ActionPGPVerify.Description",
-  image = "PGPVerify.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-  documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pgpverify.html"
-)
+    id = "PGP_VERIFY_FILES",
+    name = "i18n::ActionPGPVerify.Name",
+    description = "i18n::ActionPGPVerify.Description",
+    image = "PGPVerify.svg",
+    categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
+    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pgpverify.html")
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
 
@@ -68,8 +66,8 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private String detachedfilename;
   private boolean useDetachedSignature;
 
-  public ActionPGPVerify( String n ) {
-    super( n, "" );
+  public ActionPGPVerify(String n) {
+    super(n, "");
     gpgLocation = null;
     filename = null;
     detachedfilename = null;
@@ -77,7 +75,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionPGPVerify() {
-    this( "" );
+    this("");
   }
 
   public Object clone() {
@@ -86,32 +84,37 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 100 );
+    StringBuilder retval = new StringBuilder(100);
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpgLocation ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "detachedfilename", detachedfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "useDetachedSignature", useDetachedSignature ) );
+    retval.append(super.getXml());
+    retval.append("      ").append(XmlHandler.addTagValue("gpglocation", gpgLocation));
+    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
+    retval.append("      ").append(XmlHandler.addTagValue("detachedfilename", detachedfilename));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("useDetachedSignature", useDetachedSignature));
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     try {
-      super.loadXml( entrynode );
-      gpgLocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
-      filename = XmlHandler.getTagValue( entrynode, "filename" );
-      detachedfilename = XmlHandler.getTagValue( entrynode, "detachedfilename" );
-      useDetachedSignature = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "useDetachedSignature" ) );
+      super.loadXml(entrynode);
+      gpgLocation = XmlHandler.getTagValue(entrynode, "gpglocation");
+      filename = XmlHandler.getTagValue(entrynode, "filename");
+      detachedfilename = XmlHandler.getTagValue(entrynode, "detachedfilename");
+      useDetachedSignature =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "useDetachedSignature"));
 
-    } catch ( HopXmlException xe ) {
-      throw new HopXmlException( BaseMessages.getString(
-        PKG, "ActionPGPVerify.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node" ), xe );
+    } catch (HopXmlException xe) {
+      throw new HopXmlException(
+          BaseMessages.getString(
+              PKG, "ActionPGPVerify.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node"),
+          xe);
     }
   }
 
-  public void setGPGLocation( String gpgLocation ) {
+  public void setGPGLocation(String gpgLocation) {
     this.gpgLocation = gpgLocation;
   }
 
@@ -119,7 +122,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return gpgLocation;
   }
 
-  public void setFilename( String filename ) {
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -127,7 +130,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return filename;
   }
 
-  public void setDetachedfilename( String detachedfilename ) {
+  public void setDetachedfilename(String detachedfilename) {
     this.detachedfilename = detachedfilename;
   }
 
@@ -135,7 +138,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return detachedfilename;
   }
 
-  public void setUseDetachedfilename( boolean useDetachedSignature ) {
+  public void setUseDetachedfilename(boolean useDetachedSignature) {
     this.useDetachedSignature = useDetachedSignature;
   }
 
@@ -143,118 +146,133 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return useDetachedSignature;
   }
 
-  public Result execute( Result previousResult, int nr ) {
+  public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
-    result.setResult( false );
-    result.setNrErrors( 1 );
+    result.setResult(false);
+    result.setNrErrors(1);
 
     FileObject file = null;
     FileObject detachedSignature = null;
     try {
 
-      String realFilename = resolve( getFilename() );
-      if ( Utils.isEmpty( realFilename ) ) {
-        logError( BaseMessages.getString( PKG, "ActionPGPVerify.FilenameMissing" ) );
+      String realFilename = resolve(getFilename());
+      if (Utils.isEmpty(realFilename)) {
+        logError(BaseMessages.getString(PKG, "ActionPGPVerify.FilenameMissing"));
         return result;
       }
-      file = HopVfs.getFileObject( realFilename );
+      file = HopVfs.getFileObject(realFilename);
 
-      GPG gpg = new GPG( resolve( getGPGLocation() ), log );
+      GPG gpg = new GPG(resolve(getGPGLocation()), log);
 
-      if ( useDetachedfilename() ) {
-        String signature = resolve( getDetachedfilename() );
+      if (useDetachedfilename()) {
+        String signature = resolve(getDetachedfilename());
 
-        if ( Utils.isEmpty( signature ) ) {
-          logError( BaseMessages.getString( PKG, "ActionPGPVerify.DetachedSignatureMissing" ) );
+        if (Utils.isEmpty(signature)) {
+          logError(BaseMessages.getString(PKG, "ActionPGPVerify.DetachedSignatureMissing"));
           return result;
         }
-        detachedSignature = HopVfs.getFileObject( signature );
+        detachedSignature = HopVfs.getFileObject(signature);
 
-        gpg.verifyDetachedSignature( detachedSignature, file );
+        gpg.verifyDetachedSignature(detachedSignature, file);
       } else {
-        gpg.verifySignature( file );
+        gpg.verifySignature(file);
       }
 
-      result.setNrErrors( 0 );
-      result.setResult( true );
+      result.setNrErrors(0);
+      result.setResult(true);
 
-    } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "ActionPGPVerify.Error" ), e );
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "ActionPGPVerify.Error"), e);
     } finally {
       try {
-        if ( file != null ) {
+        if (file != null) {
           file.close();
         }
-        if ( detachedSignature != null ) {
+        if (detachedSignature != null) {
           detachedSignature.close();
         }
-      } catch ( Exception e ) { /* Ignore */
+      } catch (Exception e) {
+        /* Ignore */
       }
     }
 
     return result;
   }
 
-  @Override public boolean isEvaluation() {
+  @Override
+  public boolean isEvaluation() {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    if ( !Utils.isEmpty( gpgLocation ) ) {
-      String realFileName = resolve( gpgLocation );
-      ResourceReference reference = new ResourceReference( this );
-      reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
-      references.add( reference );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, WorkflowMeta workflowMeta) {
+    List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+    if (!Utils.isEmpty(gpgLocation)) {
+      String realFileName = resolve(gpgLocation);
+      ResourceReference reference = new ResourceReference(this);
+      reference.getEntries().add(new ResourceEntry(realFileName, ResourceType.FILE));
+      references.add(reference);
     }
     return references;
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
-    ActionValidatorUtils.andValidator().validate( this, "gpglocation", remarks,
-      AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    ActionValidatorUtils.andValidator()
+        .validate(
+            this,
+            "gpglocation",
+            remarks,
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
 
   /**
-   * Exports the object to a flat-file system, adding content with filename keys to a set of definitions. The supplied
-   * resource naming interface allows the object to name appropriately without worrying about those parts of the
-   * implementation specific details.
+   * Exports the object to a flat-file system, adding content with filename keys to a set of
+   * definitions. The supplied resource naming interface allows the object to name appropriately
+   * without worrying about those parts of the implementation specific details.
    *
-   * @param variables           The variable variables to resolve (environment) variables with.
-   * @param definitions     The map containing the filenames and content
-   * @param namingInterface The resource naming interface allows the object to be named appropriately
-   * @param metadataProvider       the metadataProvider to load external metadata from
+   * @param variables The variable variables to resolve (environment) variables with.
+   * @param definitions The map containing the filenames and content
+   * @param namingInterface The resource naming interface allows the object to be named
+   *     appropriately
+   * @param metadataProvider the metadataProvider to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
-  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming namingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
+  public String exportResources(
+      IVariables variables,
+      Map<String, ResourceDefinition> definitions,
+      IResourceNaming namingInterface,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the gpglocation from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      if ( !Utils.isEmpty( gpgLocation ) ) {
+      if (!Utils.isEmpty(gpgLocation)) {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.resolve( gpgLocation ) );
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(gpgLocation));
 
         // If the file doesn't exist, forget about this effort too!
         //
-        if ( fileObject.exists() ) {
+        if (fileObject.exists()) {
           // Convert to an absolute path...
           //
-          gpgLocation = namingInterface.nameResource( fileObject, variables, true );
+          gpgLocation = namingInterface.nameResource(fileObject, variables, true);
 
           return gpgLocation;
         }
       }
       return null;
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 }

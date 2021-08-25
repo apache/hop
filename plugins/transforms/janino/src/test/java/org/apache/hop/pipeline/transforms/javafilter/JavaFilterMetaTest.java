@@ -39,9 +39,8 @@ public class JavaFilterMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "condition" );
+    PluginRegistry.init(false);
+    List<String> attributes = Arrays.asList("condition");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
@@ -50,7 +49,8 @@ public class JavaFilterMetaTest {
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,29 +25,29 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 
 @PipelineEnginePlugin(
-  id = "BeamDirectPipelineEngine",
-  name = "Beam Direct pipeline engine",
-  description = "This is a local pipeline engine provided by the Apache Beam community as a way of testing pipelines"
-)
-public class BeamDirectPipelineEngine extends BeamPipelineEngine implements IPipelineEngine<PipelineMeta> {
+    id = "BeamDirectPipelineEngine",
+    name = "Beam Direct pipeline engine",
+    description =
+        "This is a local pipeline engine provided by the Apache Beam community as a way of testing pipelines")
+public class BeamDirectPipelineEngine extends BeamPipelineEngine
+    implements IPipelineEngine<PipelineMeta> {
 
-  public BeamDirectPipelineEngine() {
-  }
+  public BeamDirectPipelineEngine() {}
 
-  public BeamDirectPipelineEngine( PipelineMeta pipelineMeta ) {
-    super( pipelineMeta );
-  }
-
-  @Override public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
+  @Override
+  public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
     BeamDirectPipelineRunConfiguration runConfiguration = new BeamDirectPipelineRunConfiguration();
-    runConfiguration.setUserAgent( "Hop" );
+    runConfiguration.setUserAgent("Hop");
     return runConfiguration;
   }
 
-  @Override public void validatePipelineRunConfigurationClass( IPipelineEngineRunConfiguration engineRunConfiguration ) throws HopException {
+  @Override
+  public void validatePipelineRunConfigurationClass(
+      IPipelineEngineRunConfiguration engineRunConfiguration) throws HopException {
     if (!(engineRunConfiguration instanceof BeamDirectPipelineRunConfiguration)) {
-      throw new HopException("A Beam Direct pipeline engine needs a direct run configuration, not of class "+engineRunConfiguration.getClass().getName());
+      throw new HopException(
+          "A Beam Direct pipeline engine needs a direct run configuration, not of class "
+              + engineRunConfiguration.getClass().getName());
     }
   }
-
 }

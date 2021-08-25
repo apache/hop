@@ -21,11 +21,12 @@ under the License.
 
 == Description
 
-This tranform type allows you to generate fake data using the Java Faker library which can be found link:https://github.com/DiUS/java-faker[here] for full documentation. It can be used to generate pretty data for development, testing or showcasing a project.
+This tranform type allows you to generate fake data using the Java Faker library which can be found link:https://github.com/DiUS/java-faker[here] for full documentation.
+It can be used to generate pretty data for development, testing or showcasing a project.
 
 For instance we could generate some random Pokémon data.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |name|location
 |Krabby|Snowpoint City
@@ -37,7 +38,7 @@ For instance we could generate some random Pokémon data.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -49,7 +50,7 @@ For instance we could generate some random Pokémon data.
 
 == Types of categories
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Type|Topics
 |Address a|
@@ -380,7 +381,6 @@ For instance we could generate some random Pokémon data.
 - game
 - character
 |===
-
 
 == Locales
 

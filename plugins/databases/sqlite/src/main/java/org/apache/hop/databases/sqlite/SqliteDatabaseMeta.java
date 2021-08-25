@@ -19,9 +19,9 @@ package org.apache.hop.databases.sqlite;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -31,27 +31,21 @@ import org.apache.hop.core.row.IValueMeta;
  * @author Matt
  * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(
-  type = "SQLITE",
-  typeDescription = "SQLite"
-)
-@GuiPlugin( id = "GUI-SQLiteDatabaseMeta" )
+@DatabaseMetaPlugin(type = "SQLITE", typeDescription = "SQLite")
+@GuiPlugin(id = "GUI-SQLiteDatabaseMeta")
 public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE };
+    return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /**
-   * @see IDatabase#getNotFoundTK(boolean)
-   */
+  /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
-  public int getNotFoundTK( boolean useAutoinc ) {
-    if ( supportsAutoInc() && useAutoinc ) {
+  public int getNotFoundTK(boolean useAutoinc) {
+    if (supportsAutoInc() && useAutoinc) {
       return 1;
     }
-    return super.getNotFoundTK( useAutoinc );
+    return super.getNotFoundTK(useAutoinc);
   }
 
   @Override
@@ -60,7 +54,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
+  public String getURL(String hostname, String port, String databaseName) {
     return "jdbc:sqlite:" + databaseName;
   }
 
@@ -74,9 +68,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /**
-   * @return true if the database supports bitmap indexes
-   */
+  /** @return true if the database supports bitmap indexes */
   @Override
   public boolean supportsBitmapIndex() {
     return false;
@@ -87,60 +79,66 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
-  public String getTruncateTableStatement( String tableName ) {
+  public String getTruncateTableStatement(String tableName) {
     return "DELETE FROM " + tableName;
   }
 
   /**
-   * Generates the SQL statement to add a column to the specified table For this generic type, i set it to the most
-   * common possibility.
+   * Generates the SQL statement to add a column to the specified table For this generic type, i set
+   * it to the most common possibility.
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                       String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  public String getAddColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
+    return "ALTER TABLE "
+        + tableName
+        + " ADD "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tableName   The table to add
-   * @param v           The column defined as a value
-   * @param tk          the name of the technical key field
+   * @param tableName The table to add
+   * @param v The column defined as a value
+   * @param tk the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
-   * @param pk          the name of the primary key field
-   * @param semicolon   whether or not to add a semi-colon behind the statement.
+   * @param pk the name of the primary key field
+   * @param semicolon whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
-                                          String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tableName + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  public String getModifyColumnStatement(
+      String tableName, IValueMeta v, String tk, boolean useAutoinc, String pk, boolean semicolon) {
+    return "ALTER TABLE "
+        + tableName
+        + " MODIFY "
+        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
   }
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldName, boolean addCr ) {
+  public String getFieldDefinition(
+      IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
     String retval = "";
 
     String fieldname = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( addFieldName ) {
+    if (addFieldName) {
       retval += fieldname + " ";
     }
 
     int type = v.getType();
-    switch ( type ) {
+    switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
       case IValueMeta.TYPE_DATE:
         retval += "DATETIME";
@@ -151,12 +149,13 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_NUMBER:
       case IValueMeta.TYPE_INTEGER:
       case IValueMeta.TYPE_BIGNUMBER:
-        if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
-          fieldname.equalsIgnoreCase( pk ) // Primary key
+        if (fieldname.equalsIgnoreCase(tk)
+            || // Technical key
+            fieldname.equalsIgnoreCase(pk) // Primary key
         ) {
           retval += "INTEGER PRIMARY KEY AUTOINCREMENT";
         } else {
-          if ( precision != 0 || length < 0 || length > 18 ) {
+          if (precision != 0 || length < 0 || length > 18) {
             retval += "NUMERIC";
           } else {
             retval += "INTEGER";
@@ -164,7 +163,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         }
         break;
       case IValueMeta.TYPE_STRING:
-        if ( length >= DatabaseMeta.CLOB_LENGTH ) {
+        if (length >= DatabaseMeta.CLOB_LENGTH) {
           retval += "BLOB";
         } else {
           retval += "TEXT";
@@ -178,7 +177,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         break;
     }
 
-    if ( addCr ) {
+    if (addCr) {
       retval += Const.CR;
     }
 
@@ -186,8 +185,9 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * @return true if the database supports error handling (the default). Returns false for certain databases (SQLite)
-   * that invalidate a prepared statement or even the complete connection when an error occurs.
+   * @return true if the database supports error handling (the default). Returns false for certain
+   *     databases (SQLite) that invalidate a prepared statement or even the complete connection
+   *     when an error occurs.
    */
   @Override
   public boolean supportsErrorHandling() {
@@ -198,5 +198,4 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public boolean isSqliteVariant() {
     return true;
   }
-
 }

@@ -21,12 +21,12 @@ under the License.
 
 == Description
 
-The LDAP Output transform allows you to write information like users, roles and other data to an LDAP server. The following sections describe the available options for the LDAP Output transform.
-
+The LDAP Output transform allows you to write information like users, roles and other data to an LDAP server.
+The following sections describe the available options for the LDAP Output transform.
 
 == General Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline.
@@ -35,7 +35,7 @@ The LDAP Output transform allows you to write information like users, roles and 
 |Referral a|Determines how to handle referrals.
 
 * Ignore: Ignore referrals.
-* Follow: 	Automatically follow any referrals.
+* Follow: Automatically follow any referrals.
 
 |Derefalias a|Determines how aliases are dereferenced.
 
@@ -62,7 +62,7 @@ The LDAP Output transform allows you to write information like users, roles and 
 
 == Settings
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Operation|Insert, Update, Upsert, Add atribute, Delete, Rename DN (distinguished name).
@@ -76,7 +76,7 @@ The LDAP Output transform allows you to write information like users, roles and 
 
 == Fields Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Search base for fields|Where to start looking for fields

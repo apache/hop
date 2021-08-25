@@ -20,7 +20,6 @@ package org.apache.hop.pipeline;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.TransformMeta;

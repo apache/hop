@@ -20,13 +20,7 @@ package org.apache.hop.vfs.azure;
 
 import com.microsoft.azure.storage.Constants;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlob;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlobDirectory;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.CloudPageBlob;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.microsoft.azure.storage.blob.*;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -44,12 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   public static final int DEFAULT_BLOB_SIZE = 1024;

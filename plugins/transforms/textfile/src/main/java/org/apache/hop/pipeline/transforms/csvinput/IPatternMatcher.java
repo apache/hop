@@ -18,5 +18,5 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 public interface IPatternMatcher {
-  boolean matchesPattern( byte[] source, int location, byte[] pattern );
+  boolean matchesPattern(byte[] source, int location, byte[] pattern);
 }

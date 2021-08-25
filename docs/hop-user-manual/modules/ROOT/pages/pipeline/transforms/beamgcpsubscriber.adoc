@@ -25,14 +25,14 @@ The Beam GCP Pub/Sub : Subscribe transform gets messages from a link:https://clo
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
 |Subscription name|Name of the Google Cloud Pub/Sub subscription.
 |Topic to subscribe to|The Google Cloud Pub/Sub topic.
 |The type of message to read a|
- 
+
 * String
 * PubsubMessage
 |The output field name|The field containing the result message.

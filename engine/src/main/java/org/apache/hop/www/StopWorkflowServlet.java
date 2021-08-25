@@ -33,115 +33,130 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-@HopServerServlet(id="stopWorkflow", name = "Stop a workflow")
+@HopServerServlet(id = "stopWorkflow", name = "Stop a workflow")
 public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = StopWorkflowServlet.class; // For Translator
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/stopWorkflow";
 
-  public StopWorkflowServlet() {
+  public StopWorkflowServlet() {}
+
+  public StopWorkflowServlet(WorkflowMap workflowMap) {
+    super(workflowMap);
   }
 
-  public StopWorkflowServlet( WorkflowMap workflowMap ) {
-    super( workflowMap );
-  }
-
-  public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
-    IOException {
-    if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
 
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "StopWorkflowServlet.log.StopWorkflowRequested" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "StopWorkflowServlet.log.StopWorkflowRequested"));
     }
 
-    String workflowName = request.getParameter( "name" );
-    String id = request.getParameter( "id" );
-    boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
+    String workflowName = request.getParameter("name");
+    String id = request.getParameter("id");
+    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
     PrintWriter out = response.getWriter();
     try {
-      if ( useXML ) {
-        response.setContentType( "text/xml" );
-        response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
+      if (useXML) {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding(Const.XML_ENCODING);
+        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
       } else {
-        response.setContentType( "text/html;charset=UTF-8" );
-        out.println( "<HTML>" );
-        out.println( "<HEAD>" );
-        out.println( "<TITLE>Stop workflow</TITLE>" );
-        out.println( "<META http-equiv=\"Refresh\" content=\"2;url="
-          + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name="
-          + URLEncoder.encode( workflowName, "UTF-8" ) + "\">" );
-        out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
-        out.println( "</HEAD>" );
-        out.println( "<BODY>" );
+        response.setContentType("text/html;charset=UTF-8");
+        out.println("<HTML>");
+        out.println("<HEAD>");
+        out.println("<TITLE>Stop workflow</TITLE>");
+        out.println(
+            "<META http-equiv=\"Refresh\" content=\"2;url="
+                + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
+                + "?name="
+                + URLEncoder.encode(workflowName, "UTF-8")
+                + "\">");
+        out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+        out.println("</HEAD>");
+        out.println("<BODY>");
       }
 
       // ID is optional...
       //
       IWorkflowEngine<WorkflowMeta> workflow;
       HopServerObjectEntry entry;
-      if ( Utils.isEmpty( id ) ) {
+      if (Utils.isEmpty(id)) {
         // get the first workflow that matches...
         //
-        entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
-        if ( entry == null ) {
+        entry = getWorkflowMap().getFirstHopServerObjectEntry(workflowName);
+        if (entry == null) {
           workflow = null;
         } else {
           id = entry.getId();
-          workflow = getWorkflowMap().getWorkflow( entry );
+          workflow = getWorkflowMap().getWorkflow(entry);
         }
       } else {
         // Take the ID into account!
         //
-        entry = new HopServerObjectEntry( workflowName, id );
-        workflow = getWorkflowMap().getWorkflow( entry );
+        entry = new HopServerObjectEntry(workflowName, id);
+        workflow = getWorkflowMap().getWorkflow(entry);
       }
 
-      if ( workflow != null ) {
+      if (workflow != null) {
         workflow.stopExecution();
 
-        String message = BaseMessages.getString( PKG, "WorkflowStatusServlet.Log.WorkflowStopRequested", workflowName );
-        if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_OK, message ).getXml() );
+        String message =
+            BaseMessages.getString(
+                PKG, "WorkflowStatusServlet.Log.WorkflowStopRequested", workflowName);
+        if (useXML) {
+          out.println(new WebResult(WebResult.STRING_OK, message).getXml());
         } else {
-          out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
-          out.println( "<a href=\""
-            + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name="
-            + URLEncoder.encode( workflowName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">"
-            + BaseMessages.getString( PKG, "WorkflowStatusServlet.BackToWorkflowStatusPage" ) + "</a><p>" );
+          out.println("<H1>" + Encode.forHtml(message) + "</H1>");
+          out.println(
+              "<a href=\""
+                  + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
+                  + "?name="
+                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + "&id="
+                  + URLEncoder.encode(id, "UTF-8")
+                  + "\">"
+                  + BaseMessages.getString(PKG, "WorkflowStatusServlet.BackToWorkflowStatusPage")
+                  + "</a><p>");
         }
       } else {
-        String message = BaseMessages.getString( PKG, "StopWorkflowServlet.Log.CoundNotFindWorkflow", workflowName );
-        if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_ERROR, message ).getXml() );
+        String message =
+            BaseMessages.getString(
+                PKG, "StopWorkflowServlet.Log.CoundNotFindWorkflow", workflowName);
+        if (useXML) {
+          out.println(new WebResult(WebResult.STRING_ERROR, message).getXml());
         } else {
-          out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
-          out.println( "<a href=\""
-            + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + ">"
-            + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );
-          response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+          out.println("<H1>" + Encode.forHtml(message) + "</H1>");
+          out.println(
+              "<a href=\""
+                  + convertContextPath(GetStatusServlet.CONTEXT_PATH)
+                  + ">"
+                  + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
+                  + "</a><p>");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
       }
-    } catch ( Exception ex ) {
-      if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ).getXml() );
+    } catch (Exception ex) {
+      if (useXML) {
+        out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)).getXml());
       } else {
-        out.println( "<p>" );
-        out.println( "<pre>" );
-        out.println( Encode.forHtml( Const.getStackTracker( ex ) ) );
-        out.println( "</pre>" );
-        response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+        out.println("<p>");
+        out.println("<pre>");
+        out.println(Encode.forHtml(Const.getStackTracker(ex)));
+        out.println("</pre>");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       }
     }
 
-    if ( !useXML ) {
-      out.println( "<p>" );
-      out.println( "</BODY>" );
-      out.println( "</HTML>" );
+    if (!useXML) {
+      out.println("<p>");
+      out.println("</BODY>");
+      out.println("</HTML>");
     }
   }
 
@@ -156,5 +171,4 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
   public String getContextPath() {
     return CONTEXT_PATH;
   }
-
 }

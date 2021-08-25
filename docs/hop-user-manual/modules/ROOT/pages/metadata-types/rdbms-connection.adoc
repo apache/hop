@@ -62,7 +62,8 @@ Transforms:
 
 The options describe below are for the Generic database connection.
 
-The options for your selected database depend on the database vendor and/or engine. Check the list of xref:database/databases.adoc[databases] for more details.
+The options for your selected database depend on the database vendor and/or engine.
+Check the list of xref:database/databases.adoc[databases] for more details.
 
 === General
 
@@ -73,8 +74,11 @@ The options for your selected database depend on the database vendor and/or engi
 |Connection type|the description to use for this connection
 |Username|
 |Password|
-|Driver class|classname to use for this connection. This is usually only needed for generic connections. There shouldn't be a need to specify if your select a specific database engine.
-|Manual Connection URL|This is usually only needed for generic connections. There shouldn't be a need to specify if your select a specific database engine.
+|Driver class|classname to use for this connection.
+This is usually only needed for generic connections.
+There shouldn't be a need to specify if your select a specific database engine.
+|Manual Connection URL|This is usually only needed for generic connections.
+There shouldn't be a need to specify if your select a specific database engine.
 |===
 
 === Advanced

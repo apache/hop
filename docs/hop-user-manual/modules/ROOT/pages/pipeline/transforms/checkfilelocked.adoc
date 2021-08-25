@@ -21,10 +21,10 @@ under the License.
 
 == Description
 
-This transform tries to determine if a file is locked by an other process.  It does this by trying to move it to itself.  
+This transform tries to determine if a file is locked by an other process.
+It does this by trying to move it to itself.
 
 == Options
-
 
 * transform name: the transform name, unique in a pipeline
 * Filename field: the name of the input field that will contain the names of the files during execution.

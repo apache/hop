@@ -23,7 +23,11 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public interface IDelegationListener {
-  void workflowDelegationStarted( IWorkflowEngine<WorkflowMeta> delegatedWorkflow, WorkflowExecutionConfiguration workflowExecutionConfiguration );
+  void workflowDelegationStarted(
+      IWorkflowEngine<WorkflowMeta> delegatedWorkflow,
+      WorkflowExecutionConfiguration workflowExecutionConfiguration);
 
-  void pipelineDelegationStarted( IPipelineEngine<PipelineMeta> delegatedPipeline, PipelineExecutionConfiguration pipelineExecutionConfiguration );
+  void pipelineDelegationStarted(
+      IPipelineEngine<PipelineMeta> delegatedPipeline,
+      PipelineExecutionConfiguration pipelineExecutionConfiguration);
 }

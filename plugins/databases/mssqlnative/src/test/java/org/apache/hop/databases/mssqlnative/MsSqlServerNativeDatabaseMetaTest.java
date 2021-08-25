@@ -17,8 +17,8 @@
 
 package org.apache.hop.databases.mssqlnative;
 
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
@@ -26,53 +26,60 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-
 public class MsSqlServerNativeDatabaseMetaTest {
-  @ClassRule
-  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
   public void testMsSqlOverrides() throws Exception {
     MsSqlServerNativeDatabaseMeta localNativeMeta = new MsSqlServerNativeDatabaseMeta();
-    localNativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
+    localNativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
-    assertEquals( "com.microsoft.sqlserver.jdbc.SQLServerDriver", localNativeMeta.getDriverClass() );
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+    assertEquals("com.microsoft.sqlserver.jdbc.SQLServerDriver", localNativeMeta.getDriverClass());
+    assertEquals(
+        "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE",
+        localNativeMeta.getURL("FOO", "1234", "WIBBLE"));
 
-    
     localNativeMeta.setUsingIntegratedSecurity(false);
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
-    
+    assertEquals(
+        "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE",
+        localNativeMeta.getURL("FOO", "1234", "WIBBLE"));
+
     localNativeMeta.setUsingIntegratedSecurity(true);
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+    assertEquals(
+        "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true",
+        localNativeMeta.getURL("FOO", "1234", "WIBBLE"));
 
     localNativeMeta.setInstanceName("TEST");
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+    assertEquals(
+        "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true",
+        localNativeMeta.getURL("FOO", "1234", "WIBBLE"));
 
     localNativeMeta.setPort("");
-    assertEquals( "jdbc:sqlserver://FOO\\TEST;databaseName=WIBBLE;integratedSecurity=true", localNativeMeta.getURL( "FOO", "", "WIBBLE" ) );    
+    assertEquals(
+        "jdbc:sqlserver://FOO\\TEST;databaseName=WIBBLE;integratedSecurity=true",
+        localNativeMeta.getURL("FOO", "", "WIBBLE"));
   }
 
   @Test
   public void setSqlServerInstanceTest() {
     DatabaseMeta dbmeta = new DatabaseMeta();
     IDatabase mssqlServerDatabaseMeta = new MsSqlServerDatabaseMeta();
-    mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
+    mssqlServerDatabaseMeta.setPluginId("MSSQL");
     IDatabase mssqlServerNativeDatabaseMeta = new MsSqlServerNativeDatabaseMeta();
-    mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
-    dbmeta.setIDatabase( mssqlServerDatabaseMeta );
-    dbmeta.setSqlServerInstance( "" );
-    assertEquals( null , dbmeta.getSqlServerInstance());
-    dbmeta.setSqlServerInstance( "instance1" );
-    assertEquals(  "instance1" , dbmeta.getSqlServerInstance());
-    dbmeta.setIDatabase( mssqlServerNativeDatabaseMeta );
-    dbmeta.setSqlServerInstance( "" );
-    assertEquals( null , dbmeta.getSqlServerInstance());
-    dbmeta.setSqlServerInstance( "instance1" );
-    assertEquals("instance1" , dbmeta.getSqlServerInstance());
+    mssqlServerNativeDatabaseMeta.setPluginId("MSSQLNATIVE");
+    dbmeta.setIDatabase(mssqlServerDatabaseMeta);
+    dbmeta.setSqlServerInstance("");
+    assertEquals(null, dbmeta.getSqlServerInstance());
+    dbmeta.setSqlServerInstance("instance1");
+    assertEquals("instance1", dbmeta.getSqlServerInstance());
+    dbmeta.setIDatabase(mssqlServerNativeDatabaseMeta);
+    dbmeta.setSqlServerInstance("");
+    assertEquals(null, dbmeta.getSqlServerInstance());
+    dbmeta.setSqlServerInstance("instance1");
+    assertEquals("instance1", dbmeta.getSqlServerInstance());
   }
 
-/*  @Ignore
+  /*  @Ignore
   @Test
   public void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();

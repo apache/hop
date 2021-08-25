@@ -28,18 +28,15 @@ public interface IKSheet {
    *
    * @param rownr The row number to get
    * @return the cells of the row
-   * @throws ArrayIndexOutOfBoundsException in case you try to read beyond the last row. (never returns null as such)
+   * @throws ArrayIndexOutOfBoundsException in case you try to read beyond the last row. (never
+   *     returns null as such)
    */
-  IKCell[] getRow( int rownr );
+  IKCell[] getRow(int rownr);
 
-  /**
-   * @return The name of the cell
-   */
+  /** @return The name of the cell */
   String getName();
 
-  /**
-   * @return The number of rows in the sheet
-   */
+  /** @return The number of rows in the sheet */
   int getRows();
 
   /**
@@ -49,5 +46,5 @@ public interface IKSheet {
    * @param rownr The row number
    * @return The cell at the specified coordinates.
    */
-  IKCell getCell( int colnr, int rownr );
+  IKCell getCell(int colnr, int rownr);
 }

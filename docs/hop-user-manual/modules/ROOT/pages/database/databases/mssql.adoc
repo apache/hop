@@ -20,9 +20,10 @@ under the License.
 
 = MS SqlServer
 
-This database type uses, the JTDS driver. When creating new database connections it is recommended to use the native connection type.
+This database type uses, the JTDS driver.
+When creating new database connections it is recommended to use the native connection type.
 
-[width="90%", cols="2*", options="header"]
+[width="90%",cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational

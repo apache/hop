@@ -29,16 +29,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.verification.VerificationMode;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-/**
- * @author Christopher Songer
- */
+/** @author Christopher Songer */
 public class WorkflowActionWriteToLogTest {
 
   private IWorkflowEngine<WorkflowMeta> parentWorkflow;
@@ -51,39 +44,40 @@ public class WorkflowActionWriteToLogTest {
 
   @Before
   public void setUp() throws Exception {
-    parentWorkflow = mock( Workflow.class );
-    doReturn( false ).when( parentWorkflow ).isStopped();
+    parentWorkflow = mock(Workflow.class);
+    doReturn(false).when(parentWorkflow).isStopped();
 
     action = new ActionWriteToLog();
-    action = spy( action );
+    action = spy(action);
   }
 
   @Test
   public void errorMessageIsNotLoggedWhenParentJobLogLevelIsNothing() {
-    verifyErrorMessageForParentJobLogLevel( LogLevel.NOTHING, never() );
+    verifyErrorMessageForParentJobLogLevel(LogLevel.NOTHING, never());
   }
 
   @Test
   public void errorMessageIsLoggedWhenParentJobLogLevelIsError() {
-    verifyErrorMessageForParentJobLogLevel( LogLevel.ERROR, times( 1 ) );
+    verifyErrorMessageForParentJobLogLevel(LogLevel.ERROR, times(1));
   }
 
   @Test
   public void errorMessageIsLoggedWhenParentJobLogLevelIsMinimal() {
-    verifyErrorMessageForParentJobLogLevel( LogLevel.MINIMAL, times( 1 ) );
+    verifyErrorMessageForParentJobLogLevel(LogLevel.MINIMAL, times(1));
   }
 
-  private void verifyErrorMessageForParentJobLogLevel( LogLevel parentJobLogLevel, VerificationMode mode ) {
-    action.setLogMessage( "TEST" );
-    action.setActionLogLevel( LogLevel.ERROR );
+  private void verifyErrorMessageForParentJobLogLevel(
+      LogLevel parentJobLogLevel, VerificationMode mode) {
+    action.setLogMessage("TEST");
+    action.setActionLogLevel(LogLevel.ERROR);
 
-    doReturn( parentJobLogLevel ).when( parentWorkflow ).getLogLevel();
-    action.setParentWorkflow( parentWorkflow );
+    doReturn(parentJobLogLevel).when(parentWorkflow).getLogLevel();
+    action.setParentWorkflow(parentWorkflow);
 
-    ILogChannel logChannel = spy( action.createLogChannel() );
-    doReturn( logChannel ).when( action ).createLogChannel();
+    ILogChannel logChannel = spy(action.createLogChannel());
+    doReturn(logChannel).when(action).createLogChannel();
 
-    action.evaluate( new Result() );
-    verify( logChannel, mode ).logError( "TEST" + Const.CR );
+    action.evaluate(new Result());
+    verify(logChannel, mode).logError("TEST" + Const.CR);
   }
 }

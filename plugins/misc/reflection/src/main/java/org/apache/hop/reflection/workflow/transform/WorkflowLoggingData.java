@@ -21,5 +21,4 @@ package org.apache.hop.reflection.workflow.transform;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-public class WorkflowLoggingData extends BaseTransformData implements ITransformData {
-}
+public class WorkflowLoggingData extends BaseTransformData implements ITransformData {}

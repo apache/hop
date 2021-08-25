@@ -19,8 +19,6 @@ package org.apache.hop.ui.hopgui.perspective.dataorch;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
@@ -32,12 +30,7 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolTip;
+import org.eclipse.swt.widgets.*;
 
 import java.util.HashMap;
 import java.util.Map;

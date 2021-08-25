@@ -23,34 +23,32 @@ import java.util.Objects;
 
 public class City {
 
-  @HopMetadataProperty
-  private String zipCode;
+  @HopMetadataProperty private String zipCode;
 
-  @HopMetadataProperty
-  private String cityName;
+  @HopMetadataProperty private String cityName;
 
-  public City() {
-  }
+  public City() {}
 
-  public City( String zipCode, String cityName ) {
+  public City(String zipCode, String cityName) {
     this.zipCode = zipCode;
     this.cityName = cityName;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     City city = (City) o;
-    return Objects.equals( zipCode, city.zipCode ) &&
-      Objects.equals( cityName, city.cityName );
+    return Objects.equals(zipCode, city.zipCode) && Objects.equals(cityName, city.cityName);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( zipCode, cityName );
+  @Override
+  public int hashCode() {
+    return Objects.hash(zipCode, cityName);
   }
 
   /**
@@ -62,10 +60,8 @@ public class City {
     return zipCode;
   }
 
-  /**
-   * @param zipCode The zipCode to set
-   */
-  public void setZipCode( String zipCode ) {
+  /** @param zipCode The zipCode to set */
+  public void setZipCode(String zipCode) {
     this.zipCode = zipCode;
   }
 
@@ -78,10 +74,8 @@ public class City {
     return cityName;
   }
 
-  /**
-   * @param cityName The cityName to set
-   */
-  public void setCityName( String cityName ) {
+  /** @param cityName The cityName to set */
+  public void setCityName(String cityName) {
     this.cityName = cityName;
   }
 }

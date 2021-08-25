@@ -26,16 +26,17 @@ import java.util.zip.ZipInputStream;
 
 public class ZipCompressionInputStream extends CompressionInputStream {
 
-  public ZipCompressionInputStream( InputStream in, ICompressionProvider provider ) throws IOException {
-    super( getDelegate( in ), provider );
+  public ZipCompressionInputStream(InputStream in, ICompressionProvider provider)
+      throws IOException {
+    super(getDelegate(in), provider);
   }
 
-  protected static ZipInputStream getDelegate( InputStream in ) throws IOException {
+  protected static ZipInputStream getDelegate(InputStream in) throws IOException {
     ZipInputStream delegate = null;
-    if ( in instanceof ZipInputStream ) {
+    if (in instanceof ZipInputStream) {
       delegate = (ZipInputStream) in;
     } else {
-      delegate = new ZipInputStream( in );
+      delegate = new ZipInputStream(in);
     }
     return delegate;
   }
@@ -43,8 +44,8 @@ public class ZipCompressionInputStream extends CompressionInputStream {
   @Override
   public void close() throws IOException {
     ZipInputStream zis = (ZipInputStream) delegate;
-    if ( zis == null ) {
-      throw new IOException( "Not a valid input stream!" );
+    if (zis == null) {
+      throw new IOException("Not a valid input stream!");
     }
     zis.close();
   }
@@ -52,8 +53,8 @@ public class ZipCompressionInputStream extends CompressionInputStream {
   @Override
   public int read() throws IOException {
     ZipInputStream zis = (ZipInputStream) delegate;
-    if ( zis == null ) {
-      throw new IOException( "Not a valid input stream!" );
+    if (zis == null) {
+      throw new IOException("Not a valid input stream!");
     }
     return zis.read();
   }
@@ -61,10 +62,9 @@ public class ZipCompressionInputStream extends CompressionInputStream {
   @Override
   public Object nextEntry() throws IOException {
     ZipInputStream zis = (ZipInputStream) delegate;
-    if ( zis == null ) {
-      throw new IOException( "Not a valid input stream!" );
+    if (zis == null) {
+      throw new IOException("Not a valid input stream!");
     }
     return zis.getNextEntry();
   }
-
 }

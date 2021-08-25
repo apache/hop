@@ -24,6 +24,5 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 public interface IPipelineResultEvaluator {
 
-  void evaluatePipelineResults( IPipelineEngine pipeline, Result result ) throws HopException;
-
+  void evaluatePipelineResults(IPipelineEngine pipeline, Result result) throws HopException;
 }

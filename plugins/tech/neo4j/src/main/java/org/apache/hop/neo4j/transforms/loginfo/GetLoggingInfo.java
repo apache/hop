@@ -37,11 +37,7 @@ import org.neo4j.driver.Result;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Get information from the System or the supervising pipeline.

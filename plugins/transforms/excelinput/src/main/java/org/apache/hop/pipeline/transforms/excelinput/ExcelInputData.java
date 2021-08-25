@@ -39,63 +39,41 @@ import java.util.Date;
  * @since 24-jan-2005
  */
 public class ExcelInputData extends BaseTransformData implements ITransformData {
-  /**
-   * The previous row in case we want to repeat values...
-   */
+  /** The previous row in case we want to repeat values... */
   public Object[] previousRow;
 
-  /**
-   * The maximum length of all filenames...
-   */
+  /** The maximum length of all filenames... */
   public int maxfilelength;
 
-  /**
-   * The maximum length of all sheets...
-   */
+  /** The maximum length of all sheets... */
   public int maxsheetlength;
 
-  /**
-   * The Excel files to read
-   */
+  /** The Excel files to read */
   public FileInputList files;
 
-  /**
-   * The file number that's being handled...
-   */
+  /** The file number that's being handled... */
   public int filenr;
 
   public String filename;
 
   public FileObject file;
 
-  /**
-   * The openFile that's being processed...
-   */
+  /** The openFile that's being processed... */
   public IKWorkbook workbook;
 
-  /**
-   * The sheet number that's being processed...
-   */
+  /** The sheet number that's being processed... */
   public int sheetnr;
 
-  /**
-   * The sheet that's being processed...
-   */
+  /** The sheet that's being processed... */
   public IKSheet sheet;
 
-  /**
-   * The row where we left off the previous time...
-   */
+  /** The row where we left off the previous time... */
   public int rownr;
 
-  /**
-   * The column where we left off previous time...
-   */
+  /** The column where we left off previous time... */
   public int colnr;
 
-  /**
-   * The error handler when processing of a row fails.
-   */
+  /** The error handler when processing of a row fails. */
   public IFileErrorHandler errorHandler;
 
   public IFilePlayList filePlayList;
@@ -133,9 +111,9 @@ public class ExcelInputData extends BaseTransformData implements ITransformData 
     rownr = -1;
     colnr = -1;
 
-    valueMetaString = new ValueMetaString( "v" );
-    valueMetaNumber = new ValueMetaNumber( "v" );
-    valueMetaDate = new ValueMetaDate( "v" );
-    valueMetaBoolean = new ValueMetaBoolean( "v" );
+    valueMetaString = new ValueMetaString("v");
+    valueMetaNumber = new ValueMetaNumber("v");
+    valueMetaDate = new ValueMetaDate("v");
+    valueMetaBoolean = new ValueMetaBoolean("v");
   }
 }

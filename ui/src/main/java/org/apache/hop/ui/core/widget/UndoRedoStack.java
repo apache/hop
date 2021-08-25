@@ -28,7 +28,8 @@ public class UndoRedoStack {
   private int iEventLength;
   private int iType;
 
-  public UndoRedoStack( int iCursorPosition, String strNewText, String strReplacedText, int iEventLength, int iType ) {
+  public UndoRedoStack(
+      int iCursorPosition, String strNewText, String strReplacedText, int iEventLength, int iType) {
     this.iCursorPosition = iCursorPosition;
     this.strNewText = strNewText;
     this.strReplacedText = strReplacedText;
@@ -55,5 +56,4 @@ public class UndoRedoStack {
   public int getType() {
     return iType;
   }
-
 }

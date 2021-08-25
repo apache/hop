@@ -35,7 +35,8 @@ public class StringSearchResult {
    * @param string
    * @param parentObject
    */
-  public StringSearchResult( String string, Object parentObject, Object grandParentObject, String fieldName ) {
+  public StringSearchResult(
+      String string, Object parentObject, Object grandParentObject, String fieldName) {
     super();
 
     this.string = string;
@@ -48,7 +49,7 @@ public class StringSearchResult {
     return parentObject;
   }
 
-  public void setParentObject( Object parentObject ) {
+  public void setParentObject(Object parentObject) {
     this.parentObject = parentObject;
   }
 
@@ -56,59 +57,52 @@ public class StringSearchResult {
     return string;
   }
 
-  public void setString( String string ) {
+  public void setString(String string) {
     this.string = string;
   }
 
   public static final IRowMeta getResultRowMeta() {
     IRowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.PipelineOrWorkflow" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.TransformDatabaseNotice" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.String" ) ) );
-    rowMeta.addValueMeta( new ValueMetaString(
-      BaseMessages.getString( PKG, "SearchResult.FieldName" ) ) );
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "SearchResult.PipelineOrWorkflow")));
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "SearchResult.TransformDatabaseNotice")));
+    rowMeta.addValueMeta(new ValueMetaString(BaseMessages.getString(PKG, "SearchResult.String")));
+    rowMeta.addValueMeta(
+        new ValueMetaString(BaseMessages.getString(PKG, "SearchResult.FieldName")));
     return rowMeta;
   }
 
   public Object[] toRow() {
-    return new Object[] { grandParentObject.toString(), parentObject.toString(), string, fieldName, };
+    return new Object[] {
+      grandParentObject.toString(), parentObject.toString(), string, fieldName,
+    };
   }
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append( parentObject.toString() ).append( " : " ).append( string );
-    sb.append( " (" ).append( fieldName ).append( ")" );
+    sb.append(parentObject.toString()).append(" : ").append(string);
+    sb.append(" (").append(fieldName).append(")");
     return sb.toString();
   }
 
-  /**
-   * @return Returns the fieldName.
-   */
+  /** @return Returns the fieldName. */
   public String getFieldName() {
     return fieldName;
   }
 
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName( String fieldName ) {
+  /** @param fieldName The fieldName to set. */
+  public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
-  /**
-   * @return the grandParentObject
-   */
+  /** @return the grandParentObject */
   public Object getGrandParentObject() {
     return grandParentObject;
   }
 
-  /**
-   * @param grandParentObject the grandParentObject to set
-   */
-  public void setGrandParentObject( Object grandParentObject ) {
+  /** @param grandParentObject the grandParentObject to set */
+  public void setGrandParentObject(Object grandParentObject) {
     this.grandParentObject = grandParentObject;
   }
 }

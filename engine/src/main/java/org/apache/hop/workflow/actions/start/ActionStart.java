@@ -120,11 +120,7 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
             .getLogChannel()
             .logBasic(
                 parentWorkflow.getWorkflowName(),
-                "Sleeping: "
-                    + (sleepTime / 1000 / 60)
-                    + " minutes (sleep time="
-                    + sleepTime
-                    + ")");
+                "Sleeping: " + (sleepTime / 1000 / 60) + " minutes (sleep time=" + sleepTime + ")");
         long totalSleep = 0L;
         while (totalSleep < sleepTime && !parentWorkflow.isStopped()) {
           Thread.sleep(1000L);

@@ -19,33 +19,33 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.hop</groupId>
-  <artifactId>hop-assemblies</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-
-  <name>Hop Assemblies</name>
-
-  <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop</artifactId>
+    <artifactId>hop-assemblies</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
 
-  <properties>
-    <assembly.dir>${project.build.directory}/assembly</assembly.dir>
-  </properties>
+    <name>Hop Assemblies</name>
 
-  <modules>
-    <module>plugins</module>
-    <module>static</module>
-    <module>lib</module>
-    <module>client</module>
-    <module>web</module>
-    <module>core</module>
-    <module>debug</module>
-    <module>samples</module>
-  </modules>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+    </properties>
+
+    <modules>
+        <module>plugins</module>
+        <module>static</module>
+        <module>lib</module>
+        <module>client</module>
+        <module>web</module>
+        <module>core</module>
+        <module>debug</module>
+        <module>samples</module>
+    </modules>
 </project>

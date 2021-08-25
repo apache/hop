@@ -19,11 +19,7 @@ package org.apache.hop.core.auth;
 
 import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
-@AuthenticationProviderPlugin (
-  id = "Kerberos", 
-  name = "Kerberos",
-  description = "Kerberos"
-)
+@AuthenticationProviderPlugin(id = "Kerberos", name = "Kerberos", description = "Kerberos")
 public class KerberosAuthenticationProvider implements IAuthenticationProvider {
   public static class KerberosAuthenticationProviderType implements IAuthenticationProviderType {
 
@@ -45,12 +41,15 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
   private String keytabLocation;
   private String id;
 
-  public KerberosAuthenticationProvider() {
+  public KerberosAuthenticationProvider() {}
 
-  }
-
-  public KerberosAuthenticationProvider( String id, String principal, boolean useExternalCredentials, String password,
-                                         boolean useKeytab, String keytabLocation ) {
+  public KerberosAuthenticationProvider(
+      String id,
+      String principal,
+      boolean useExternalCredentials,
+      String password,
+      boolean useKeytab,
+      String keytabLocation) {
     this.id = id;
     this.principal = principal;
     this.useExternalCredentials = useExternalCredentials;
@@ -63,7 +62,7 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
     return principal;
   }
 
-  public void setPrincipal( String principal ) {
+  public void setPrincipal(String principal) {
     this.principal = principal;
   }
 
@@ -71,7 +70,7 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
     return useExternalCredentials;
   }
 
-  public void setUseExternalCredentials( boolean useExternalCredentials ) {
+  public void setUseExternalCredentials(boolean useExternalCredentials) {
     this.useExternalCredentials = useExternalCredentials;
   }
 
@@ -79,7 +78,7 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
     return password;
   }
 
-  public void setPassword( String password ) {
+  public void setPassword(String password) {
     this.password = password;
   }
 
@@ -87,7 +86,7 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
     return useKeytab;
   }
 
-  public void setUseKeytab( boolean useKeytab ) {
+  public void setUseKeytab(boolean useKeytab) {
     this.useKeytab = useKeytab;
   }
 
@@ -95,7 +94,7 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
     return keytabLocation;
   }
 
-  public void setKeytabLocation( String keytabLocation ) {
+  public void setKeytabLocation(String keytabLocation) {
     this.keytabLocation = keytabLocation;
   }
 
@@ -109,7 +108,7 @@ public class KerberosAuthenticationProvider implements IAuthenticationProvider {
     return id;
   }
 
-  public void setId( String id ) {
+  public void setId(String id) {
     this.id = id;
   }
 }

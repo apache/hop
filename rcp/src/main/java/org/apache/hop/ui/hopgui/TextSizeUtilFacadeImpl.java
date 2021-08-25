@@ -34,5 +34,4 @@ public class TextSizeUtilFacadeImpl extends TextSizeUtilFacade {
     dummyGC.dispose();
     return point;
   }
-
 }

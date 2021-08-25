@@ -32,16 +32,12 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
   public IRowMeta previousRowMeta;
   public IRowMeta outputRowMeta;
 
-  /**
-   * used to store values in used to look up things
-   */
+  /** used to store values in used to look up things */
   public HashSet<Object[]> look;
 
   public boolean readLookupValues;
 
-  /**
-   * index of main stream field
-   **/
+  /** index of main stream field */
   public int indexOfMainField;
 
   public int minimalDistance;
@@ -61,10 +57,9 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
   public boolean addValueFieldName;
   public boolean addAdditionalFields;
 
-  /**
-   * index of return fields from lookup stream
-   **/
+  /** index of return fields from lookup stream */
   public int[] indexOfCachedFields;
+
   public int nrCachedFields;
   public IRowMeta infoCache;
 
@@ -77,5 +72,4 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
     this.nrCachedFields = 1;
     this.addAdditionalFields = false;
   }
-
 }

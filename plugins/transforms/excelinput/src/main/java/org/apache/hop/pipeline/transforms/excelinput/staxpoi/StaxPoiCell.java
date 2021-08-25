@@ -15,10 +15,7 @@
  * limitations under the License.
  */
 
-/**
- * Author = Shailesh Ahuja
- */
-
+/** Author = Shailesh Ahuja */
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import org.apache.hop.core.spreadsheet.IKCell;
@@ -30,13 +27,13 @@ public class StaxPoiCell implements IKCell {
   private Object value;
   private int row;
 
-  public StaxPoiCell( String value, int row ) {
+  public StaxPoiCell(String value, int row) {
     this.value = value;
     this.row = row;
     type = KCellType.STRING_FORMULA;
   }
 
-  public StaxPoiCell( Object value, KCellType type, int row ) {
+  public StaxPoiCell(Object value, KCellType type, int row) {
     this.value = value;
     this.type = type;
     this.row = row;
@@ -61,5 +58,4 @@ public class StaxPoiCell implements IKCell {
   public int getRow() {
     return row;
   }
-
 }

@@ -48,9 +48,10 @@ import java.util.List;
 @Transform(
     id = "MongoDbOutput",
     image = "mongodb-output.svg",
-        name = "i18n::MongoDbOutput.Name",
-        description = "i18n::MongoDbOutput.Description",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mongodboutput.html",
+    name = "i18n::MongoDbOutput.Name",
+    description = "i18n::MongoDbOutput.Description",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/mongodboutput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(
     localizationPrefix = "MongoDbOutput.Injection.",
@@ -161,9 +162,9 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
     public void init(IVariables variables, boolean updateFromEnv) {
       if (updateFromEnv) {
-        environUpdatedFieldName = variables.resolve( incomingFieldName );
-        environUpdateMongoDocPath = variables.resolve( mongoDocPath );
-        environUpdateModifierOperation = variables.resolve( modifierUpdateOperation );
+        environUpdatedFieldName = variables.resolve(incomingFieldName);
+        environUpdateMongoDocPath = variables.resolve(mongoDocPath);
+        environUpdateModifierOperation = variables.resolve(modifierUpdateOperation);
       }
       pathList = new ArrayList<>();
 
@@ -173,15 +174,15 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
           pathList.add(p);
         }
       }
-      tempPathList = new ArrayList<>( pathList );
+      tempPathList = new ArrayList<>(pathList);
     }
 
     public void reset() {
-      if ( tempPathList != null && tempPathList.size() > 0) {
+      if (tempPathList != null && tempPathList.size() > 0) {
         tempPathList.clear();
       }
-      if ( tempPathList != null) {
-        tempPathList.addAll( pathList );
+      if (tempPathList != null) {
+        tempPathList.addAll(pathList);
       }
     }
   }
@@ -216,9 +217,9 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       buff.append(
           pathToFields
               + " (unique = "
-              + new Boolean( unique ).toString()
+              + new Boolean(unique).toString()
               + " sparse = "
-              + new Boolean( sparse ).toString()
+              + new Boolean(sparse).toString()
               + ")");
 
       return buff.toString();
@@ -529,49 +530,47 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append(XmlHandler.addTagValue("connection", connectionName ));
+    xml.append(XmlHandler.addTagValue("connection", connectionName));
 
     if (!StringUtils.isEmpty(getCollection())) {
       xml.append("\n    ").append(XmlHandler.addTagValue("mongo_collection", getCollection()));
     }
-    if (!StringUtils.isEmpty( batchInsertSize )) {
-      xml.append("\n    ").append(XmlHandler.addTagValue("batch_insert_size", batchInsertSize ));
+    if (!StringUtils.isEmpty(batchInsertSize)) {
+      xml.append("\n    ").append(XmlHandler.addTagValue("batch_insert_size", batchInsertSize));
     }
 
-    xml.append("\n    ").append(XmlHandler.addTagValue("truncate", truncate ));
-    xml.append("\n    ").append(XmlHandler.addTagValue("update", update ));
-    xml.append("\n    ").append(XmlHandler.addTagValue("upsert", upsert ));
-    xml.append("\n    ").append(XmlHandler.addTagValue("multi", multi ));
-    xml.append("\n    ").append(XmlHandler.addTagValue("modifier_update", modifierUpdate ));
+    xml.append("\n    ").append(XmlHandler.addTagValue("truncate", truncate));
+    xml.append("\n    ").append(XmlHandler.addTagValue("update", update));
+    xml.append("\n    ").append(XmlHandler.addTagValue("upsert", upsert));
+    xml.append("\n    ").append(XmlHandler.addTagValue("multi", multi));
+    xml.append("\n    ").append(XmlHandler.addTagValue("modifier_update", modifierUpdate));
 
-    xml.append("    ").append(XmlHandler.addTagValue("write_retries", writeRetries ));
-    xml.append("    ").append(XmlHandler.addTagValue("write_retry_delay", writeRetryDelay ));
+    xml.append("    ").append(XmlHandler.addTagValue("write_retries", writeRetries));
+    xml.append("    ").append(XmlHandler.addTagValue("write_retry_delay", writeRetryDelay));
 
-    if ( mongoFields != null && mongoFields.size() > 0) {
+    if (mongoFields != null && mongoFields.size() > 0) {
       xml.append("\n    ").append(XmlHandler.openTag("mongo_fields"));
 
-      for (MongoField field : mongoFields ) {
+      for (MongoField field : mongoFields) {
         xml.append("\n      ").append(XmlHandler.openTag("mongo_field"));
 
         xml.append("\n         ")
-            .append(XmlHandler.addTagValue("incoming_field_name", field.incomingFieldName ));
+            .append(XmlHandler.addTagValue("incoming_field_name", field.incomingFieldName));
         xml.append("\n         ")
-            .append(XmlHandler.addTagValue("mongo_doc_path", field.mongoDocPath ));
+            .append(XmlHandler.addTagValue("mongo_doc_path", field.mongoDocPath));
         xml.append("\n         ")
             .append(
                 XmlHandler.addTagValue(
                     "use_incoming_field_name_as_mongo_field_name",
-                    field.useIncomingFieldNameAsMongoFieldName ));
+                    field.useIncomingFieldNameAsMongoFieldName));
         xml.append("\n         ")
-            .append(XmlHandler.addTagValue("update_match_field", field.updateMatchField ));
-        xml.append("\n         ")
-            .append(
-                XmlHandler.addTagValue(
-                    "modifier_update_operation", field.modifierUpdateOperation ));
+            .append(XmlHandler.addTagValue("update_match_field", field.updateMatchField));
         xml.append("\n         ")
             .append(
-                XmlHandler.addTagValue("modifier_policy", field.modifierOperationApplyPolicy ));
-        xml.append("\n         ").append(XmlHandler.addTagValue("json_field", field.inputJson ));
+                XmlHandler.addTagValue("modifier_update_operation", field.modifierUpdateOperation));
+        xml.append("\n         ")
+            .append(XmlHandler.addTagValue("modifier_policy", field.modifierOperationApplyPolicy));
+        xml.append("\n         ").append(XmlHandler.addTagValue("json_field", field.inputJson));
         xml.append("\n         ").append(XmlHandler.addTagValue("allow_null", field.insertNull));
 
         xml.append("\n      ").append(XmlHandler.closeTag("mongo_field"));
@@ -580,17 +579,17 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       xml.append("\n    ").append(XmlHandler.closeTag("mongo_fields"));
     }
 
-    if ( mongoIndexes != null && mongoIndexes.size() > 0) {
+    if (mongoIndexes != null && mongoIndexes.size() > 0) {
       xml.append("\n    ").append(XmlHandler.openTag("mongo_indexes"));
 
-      for (MongoIndex index : mongoIndexes ) {
+      for (MongoIndex index : mongoIndexes) {
         xml.append("\n      ").append(XmlHandler.openTag("mongo_index"));
 
         xml.append("\n         ")
-            .append(XmlHandler.addTagValue("path_to_fields", index.pathToFields ));
-        xml.append("\n         ").append(XmlHandler.addTagValue("drop", index.drop ));
-        xml.append("\n         ").append(XmlHandler.addTagValue("unique", index.unique ));
-        xml.append("\n         ").append(XmlHandler.addTagValue("sparse", index.sparse ));
+            .append(XmlHandler.addTagValue("path_to_fields", index.pathToFields));
+        xml.append("\n         ").append(XmlHandler.addTagValue("drop", index.drop));
+        xml.append("\n         ").append(XmlHandler.addTagValue("unique", index.unique));
+        xml.append("\n         ").append(XmlHandler.addTagValue("sparse", index.sparse));
 
         xml.append("\n      ").append(XmlHandler.closeTag("mongo_index"));
       }
@@ -621,7 +620,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
     // for backwards compatibility with older ktrs (to maintain correct
     // operation)
-    if ( upsert || multi ) {
+    if (upsert || multi) {
       this.update = true;
     }
 

@@ -20,6 +20,6 @@ import org.apache.hop.core.injection.Injection;
 
 public class MetaBeanChildItem extends MetaBeanParentItem {
 
-  @Injection( name = "ITEM_CHILD_NAME" )
+  @Injection(name = "ITEM_CHILD_NAME")
   public String nameChild;
 }

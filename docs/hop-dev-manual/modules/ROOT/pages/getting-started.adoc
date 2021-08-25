@@ -17,7 +17,8 @@ under the License.
 [[GettingStarted-GettingStarted]]
 = Getting Started
 
-Welcome to the Hop project! The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*!
+Welcome to the Hop project!
+The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*!
 
 When it comes down to it the codebase is fairly simple in structure.
 
@@ -25,7 +26,8 @@ Let's go over the main modules in the source code:
 
 == Core
 
-Like the name suggests this module contains the essentials to bootstrap Hop. It has the following types of things on board:
+Like the name suggests this module contains the essentials to bootstrap Hop.
+It has the following types of things on board:
 
 - Tools: *hop-encrypt*
 - The plugin registry which keeps track of all the plugins: *PluginRegistry*
@@ -67,7 +69,8 @@ This module contains the core metadata serialization API for every shared object
 
 == Plugins
 
-The plugins module contains all the functionality in Hop which is not absolutely strictly essential.  This means that you will find a lot of transforms and actions in this module.
+The plugins module contains all the functionality in Hop which is not absolutely strictly essential.
+This means that you will find a lot of transforms and actions in this module.
 You can use this collection as a series of examples on how to build plugins for Hop.
 
 

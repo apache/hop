@@ -33,9 +33,7 @@ public class SourceStore {
 
   private Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences;
 
-  /**
-   * message package - MessageStore
-   */
+  /** message package - MessageStore */
   private Map<String, MessagesStore> messagesMap;
 
   private String locale;
@@ -43,8 +41,11 @@ public class SourceStore {
 
   private String sourceFolder;
 
-  public SourceStore( ILogChannel log, String locale, String sourceFolder,
-                      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+  public SourceStore(
+      ILogChannel log,
+      String locale,
+      String sourceFolder,
+      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences) {
     this.log = log;
     this.locale = locale;
     this.sourceFolder = sourceFolder;
@@ -53,15 +54,15 @@ public class SourceStore {
     messagesMap = new HashMap<>();
   }
 
-  public void read( List<String> directories ) throws HopException {
-    Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
-    for ( String messagesPackage : po.keySet() ) {
+  public void read(List<String> directories) throws HopException {
+    Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get(sourceFolder);
+    for (String messagesPackage : po.keySet()) {
       MessagesStore messagesStore =
-        new MessagesStore( locale, sourceFolder, messagesPackage, sourcePackageOccurrences );
+          new MessagesStore(locale, sourceFolder, messagesPackage, sourcePackageOccurrences);
       try {
-        messagesStore.read( directories );
-        messagesMap.put( messagesPackage, messagesStore );
-      } catch ( Exception e ) {
+        messagesStore.read(directories);
+        messagesMap.put(messagesPackage, messagesStore);
+      } catch (Exception e) {
         // e.printStackTrace();
       }
     }

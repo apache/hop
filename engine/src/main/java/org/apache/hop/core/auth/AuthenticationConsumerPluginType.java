@@ -23,16 +23,15 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This class represents the authentication plugin type.
- */
-@PluginMainClassType( IAuthenticationConsumerType.class )
-@PluginAnnotationType( AuthenticationConsumerPlugin.class )
+/** This class represents the authentication plugin type. */
+@PluginMainClassType(IAuthenticationConsumerType.class)
+@PluginAnnotationType(AuthenticationConsumerPlugin.class)
 public class AuthenticationConsumerPluginType extends BasePluginType<AuthenticationConsumerPlugin> {
-  protected static AuthenticationConsumerPluginType pluginType = new AuthenticationConsumerPluginType();
+  protected static AuthenticationConsumerPluginType pluginType =
+      new AuthenticationConsumerPluginType();
 
   private AuthenticationConsumerPluginType() {
-    super( AuthenticationConsumerPlugin.class, "AUTHENTICATION_CONSUMER", "Authentication Consumer" );
+    super(AuthenticationConsumerPlugin.class, "AUTHENTICATION_CONSUMER", "Authentication Consumer");
   }
 
   public static AuthenticationConsumerPluginType getInstance() {
@@ -40,56 +39,56 @@ public class AuthenticationConsumerPluginType extends BasePluginType<Authenticat
   }
 
   @Override
-  protected String extractCategory( AuthenticationConsumerPlugin annotation ) {
+  protected String extractCategory(AuthenticationConsumerPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).description();
+  protected String extractDesc(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).description();
   }
 
   @Override
-  protected String extractID( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).id();
+  protected String extractID(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).id();
   }
 
   @Override
-  protected String extractName( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).name();
+  protected String extractName(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).name();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).isSeparateClassLoaderNeeded();
+  protected boolean extractSeparateClassLoader(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationConsumerPlugin annotation ) {
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationConsumerPlugin annotation) {}
+
+  @Override
+  protected String extractDocumentationUrl(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).documentationUrl();
   }
 
   @Override
-  protected String extractDocumentationUrl( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).documentationUrl();
+  protected String extractCasesUrl(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).casesUrl();
   }
 
   @Override
-  protected String extractCasesUrl( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).casesUrl();
+  protected String extractForumUrl(AuthenticationConsumerPlugin annotation) {
+    return ((AuthenticationConsumerPlugin) annotation).forumUrl();
   }
 
   @Override
-  protected String extractForumUrl( AuthenticationConsumerPlugin annotation ) {
-    return ( (AuthenticationConsumerPlugin) annotation ).forumUrl();
-  }
-
-  @Override
-  protected String extractSuggestion( AuthenticationConsumerPlugin annotation ) {
+  protected String extractSuggestion(AuthenticationConsumerPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractImageFile( AuthenticationConsumerPlugin annotation ) {
+  protected String extractImageFile(AuthenticationConsumerPlugin annotation) {
     return "";
   }
 }

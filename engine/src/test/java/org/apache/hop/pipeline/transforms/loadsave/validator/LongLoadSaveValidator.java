@@ -18,9 +18,7 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 public class LongLoadSaveValidator implements IFieldLoadSaveValidator<Long> {
   private final Long sample = new Random().nextLong();
 
@@ -30,7 +28,7 @@ public class LongLoadSaveValidator implements IFieldLoadSaveValidator<Long> {
   }
 
   @Override
-  public boolean validateTestObject( Long original, Object actual ) {
-    return original.equals( actual );
+  public boolean validateTestObject(Long original, Object actual) {
+    return original.equals(actual);
   }
 }

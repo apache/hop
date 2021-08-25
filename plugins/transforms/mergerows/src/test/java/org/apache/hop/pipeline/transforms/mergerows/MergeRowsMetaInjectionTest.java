@@ -28,13 +28,13 @@ public class MergeRowsMetaInjectionTest extends BaseMetadataInjectionTest<MergeR
 
   @Before
   public void setup() throws Exception {
-    setup( new MergeRowsMeta() );
+    setup(new MergeRowsMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FLAG_FIELD", () -> meta.getFlagField() );
-    check( "KEY_FIELDS", () -> meta.getKeyFields()[ 0 ] );
-    check( "VALUE_FIELDS", () -> meta.getValueFields()[ 0 ] );
+    check("FLAG_FIELD", () -> meta.getFlagField());
+    check("KEY_FIELDS", () -> meta.getKeyFields()[0]);
+    check("VALUE_FIELDS", () -> meta.getValueFields()[0]);
   }
 }

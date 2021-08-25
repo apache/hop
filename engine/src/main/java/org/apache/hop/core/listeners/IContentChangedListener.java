@@ -25,16 +25,18 @@ package org.apache.hop.core.listeners;
 public interface IContentChangedListener {
 
   /**
-   * This method will be called when the parent object to which this listener is added, has been changed.
+   * This method will be called when the parent object to which this listener is added, has been
+   * changed.
    *
    * @param parentObject The changed object.
    */
-  void contentChanged( Object parentObject );
+  void contentChanged(Object parentObject);
 
   /**
-   * This method will be called when the parent object has been declared safe (or saved, persisted, ...)
+   * This method will be called when the parent object has been declared safe (or saved, persisted,
+   * ...)
    *
    * @param parentObject The safe object.
    */
-  void contentSafe( Object parentObject );
+  void contentSafe(Object parentObject);
 }

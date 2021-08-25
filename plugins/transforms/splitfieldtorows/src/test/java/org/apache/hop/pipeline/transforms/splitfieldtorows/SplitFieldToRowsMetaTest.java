@@ -41,24 +41,35 @@ public class SplitFieldToRowsMetaTest {
 
   @Test
   public void loadSaveTest() throws HopException {
-    List<String> attributes = Arrays.asList( "splitField", "delimiter", "newFieldname", "includeRowNumber",
-      "rowNumberField", "resetRowNumber", "delimiterRegex" );
+    List<String> attributes =
+        Arrays.asList(
+            "splitField",
+            "delimiter",
+            "newFieldname",
+            "includeRowNumber",
+            "rowNumberField",
+            "resetRowNumber",
+            "delimiterRegex");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "includeRowNumber", "isIncludeRowNumber" );
-    getterMap.put( "resetRowNumber", "isResetRowNumber" );
-    getterMap.put( "delimiterRegex", "isIsDelimiterRegex" );
+    getterMap.put("includeRowNumber", "isIncludeRowNumber");
+    getterMap.put("resetRowNumber", "isResetRowNumber");
+    getterMap.put("delimiterRegex", "isIsDelimiterRegex");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "delimiterRegex", "setIsDelimiterRegex" );
+    setterMap.put("delimiterRegex", "setIsDelimiterRegex");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
-    
-    LoadSaveTester loadSaveTester = new LoadSaveTester(
-      SplitFieldToRowsMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
-    
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
+
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(
+            SplitFieldToRowsMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
+
     loadSaveTester.testSerialization();
   }
 }

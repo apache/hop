@@ -17,32 +17,31 @@
 
 package org.apache.hop.core.util;
 
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 
 public class TranslateUtil {
 
-    public static String translate(String name, Class<?> parentObjectClass) {
-        if (name.startsWith(Const.I18N_PREFIX)) {
-            String[] parts = name.split(":");
-            if (parts.length != 3) {
-                return name;
-            }
+  public static String translate(String name, Class<?> parentObjectClass) {
+    if (name.startsWith(Const.I18N_PREFIX)) {
+      String[] parts = name.split(":");
+      if (parts.length != 3) {
+        return name;
+      }
 
-            String packageName = parts[1];
-            String key = parts[2];
+      String packageName = parts[1];
+      String key = parts[2];
 
-            String translation;
-            if (StringUtils.isEmpty(packageName)) {
-                translation = BaseMessages.getString(parentObjectClass, key);
-            } else {
-                translation = BaseMessages.getString(packageName, key);
-            }
-            return translation;
-        } else {
-            return name;
-        }
+      String translation;
+      if (StringUtils.isEmpty(packageName)) {
+        translation = BaseMessages.getString(parentObjectClass, key);
+      } else {
+        translation = BaseMessages.getString(packageName, key);
+      }
+      return translation;
+    } else {
+      return name;
     }
+  }
 }

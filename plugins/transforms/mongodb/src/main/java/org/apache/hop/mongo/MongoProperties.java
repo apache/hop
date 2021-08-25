@@ -20,13 +20,7 @@ package org.apache.hop.mongo;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A container for all properties associated with a MongoClientWrapper, including properties for
@@ -82,7 +76,7 @@ public class MongoProperties {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("MongoProperties:\n");
-    List<MongoProp> propList = new ArrayList<>( props.keySet() );
+    List<MongoProp> propList = new ArrayList<>(props.keySet());
     Collections.sort(
         propList,
         new Comparator<MongoProp>() {
@@ -120,7 +114,7 @@ public class MongoProperties {
     }
 
     public MongoProperties build() {
-      return new MongoProperties( new HashMap<>( props ));
+      return new MongoProperties(new HashMap<>(props));
     }
   }
 }

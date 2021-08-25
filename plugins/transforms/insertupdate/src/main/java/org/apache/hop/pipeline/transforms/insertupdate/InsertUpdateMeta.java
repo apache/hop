@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -449,7 +445,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -692,7 +688,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
                 prev, keyLookup, keyStream, updateLookup, updateStream);
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 
@@ -830,7 +826,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     String realTableName = variables.resolve(tableName);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -878,7 +874,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
   }
 
   @Override
-  public RowMeta getRowMeta( IVariables variables, ITransformData transformData ) {
+  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
     return (RowMeta) ((InsertUpdateData) transformData).insertRowMeta;
   }
 

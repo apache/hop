@@ -18,10 +18,8 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Created by saslan on 12/18/2014.
- */
+/** Created by saslan on 12/18/2014. */
 public interface ISelectedTransformListener {
 
-  void onSelect( TransformMeta selectedTransform );
+  void onSelect(TransformMeta selectedTransform);
 }

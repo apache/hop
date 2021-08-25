@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.core.logging;
 
 import junit.framework.Assert;
@@ -25,20 +24,19 @@ public class LoggingObjectTest {
 
   @Test
   public void testEquals() throws Exception {
-    ILoggingObject parent = new LoggingObject( new SimpleLoggingObject( "parent", LoggingObjectType.WORKFLOW, null ) );
+    ILoggingObject parent =
+        new LoggingObject(new SimpleLoggingObject("parent", LoggingObjectType.WORKFLOW, null));
 
-    LoggingObject loggingObject1 = new LoggingObject( "test" );
-    loggingObject1.setFilename( "fileName" );
-    loggingObject1.setParent( parent );
-    loggingObject1.setObjectName( "job1" );
+    LoggingObject loggingObject1 = new LoggingObject("test");
+    loggingObject1.setFilename("fileName");
+    loggingObject1.setParent(parent);
+    loggingObject1.setObjectName("job1");
 
+    LoggingObject loggingObject2 = new LoggingObject("test");
+    loggingObject2.setFilename("fileName");
+    loggingObject2.setParent(parent);
+    loggingObject2.setObjectName("job2");
 
-    LoggingObject loggingObject2 = new LoggingObject( "test" );
-    loggingObject2.setFilename( "fileName" );
-    loggingObject2.setParent( parent );
-    loggingObject2.setObjectName( "job2" );
-
-    Assert.assertFalse( loggingObject1.equals( loggingObject2 ) );
+    Assert.assertFalse(loggingObject1.equals(loggingObject2));
   }
-
 }

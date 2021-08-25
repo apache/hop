@@ -38,5 +38,4 @@ public class FilterRowsData extends BaseTransformData implements ITransformData 
   public FilterRowsData() {
     super();
   }
-
 }

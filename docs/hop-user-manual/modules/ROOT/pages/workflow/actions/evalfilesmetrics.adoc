@@ -27,10 +27,12 @@ The Evaluate File Metrics action can be used to evaluate the size or count of fi
 
 === General
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |Source files a|The source type.
 
 * Files/Folders
@@ -58,7 +60,7 @@ The Evaluate File Metrics action can be used to evaluate the size or count of fi
 
 === Advanced
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Scale a|

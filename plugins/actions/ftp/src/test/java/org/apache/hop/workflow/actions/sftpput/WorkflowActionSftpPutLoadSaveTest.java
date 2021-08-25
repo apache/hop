@@ -17,10 +17,10 @@
 
 package org.apache.hop.workflow.actions.sftpput;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionSftpPutLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionSftpPut> {
+public class WorkflowActionSftpPutLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionSftpPut> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -38,17 +39,40 @@ public class WorkflowActionSftpPutLoadSaveTest extends WorkflowActionLoadSaveTes
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "serverName", "serverPort", "userName", "password", "scpDirectory",
-      "localDirectory", "wildcard", "copyPrevious", "copyPreviousFiles", "addFilenameResut", "useKeyFile",
-      "keyFilename", "keyPassPhrase", "compression", "proxyType", "proxyHost", "proxyPort", "proxyUsername",
-      "proxyPassword", "createRemoteFolder", "afterFtps", "destinationFolder", "createDestinationFolder",
-      "successWhenNoFile" } );
+    return Arrays.asList(
+        new String[] {
+          "serverName",
+          "serverPort",
+          "userName",
+          "password",
+          "scpDirectory",
+          "localDirectory",
+          "wildcard",
+          "copyPrevious",
+          "copyPreviousFiles",
+          "addFilenameResut",
+          "useKeyFile",
+          "keyFilename",
+          "keyPassPhrase",
+          "compression",
+          "proxyType",
+          "proxyHost",
+          "proxyPort",
+          "proxyUsername",
+          "proxyPassword",
+          "createRemoteFolder",
+          "afterFtps",
+          "destinationFolder",
+          "createDestinationFolder",
+          "successWhenNoFile"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "afterFtps", new IntLoadSaveValidator( ActionSftpPut.afterFtpsCode.length ) );
+    Map<String, IFieldLoadSaveValidator<?>> validators =
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
+    validators.put("afterFtps", new IntLoadSaveValidator(ActionSftpPut.afterFtpsCode.length));
 
     return validators;
   }

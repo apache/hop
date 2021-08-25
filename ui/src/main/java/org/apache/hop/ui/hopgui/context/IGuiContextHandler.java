@@ -22,17 +22,13 @@ import org.apache.hop.core.gui.plugin.action.GuiAction;
 import java.util.List;
 
 /**
- * This class handles actions for a certain context.
- * For example, the main HopGui dialog registers a bunch of context handlers for MetaStore objects, asks the various perspectives, ...
+ * This class handles actions for a certain context. For example, the main HopGui dialog registers a
+ * bunch of context handlers for MetaStore objects, asks the various perspectives, ...
  */
 public interface IGuiContextHandler {
-  /**
-   * @return Get a list of all the supported actions by this context handler
-   */
+  /** @return Get a list of all the supported actions by this context handler */
   List<GuiAction> getSupportedActions();
 
-  /**
-   * @return The name of the context handler
-   */
+  /** @return The name of the context handler */
   String getContextId();
 }

@@ -26,18 +26,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.tools.FileObject;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for LoadFileInputMeta class
@@ -48,27 +43,39 @@ import static org.mockito.Mockito.when;
 public class PDI_6976_Test {
   @Test
   public void testVerifyNoPreviousTransform() {
-    LoadFileInputMeta spy = spy( new LoadFileInputMeta() );
+    LoadFileInputMeta spy = spy(new LoadFileInputMeta());
 
-    FileInputList fileInputList = mock( FileInputList.class );
-    List<FileObject> files = when( mock( List.class ).size() ).thenReturn( 1 ).getMock();
-    doReturn( files ).when( fileInputList ).getFiles();
-    doReturn( fileInputList ).when( spy ).getFiles( any( IVariables.class ) );
+    FileInputList fileInputList = mock(FileInputList.class);
+    List<FileObject> files = when(mock(List.class).size()).thenReturn(1).getMock();
+    doReturn(files).when(fileInputList).getFiles();
+    doReturn(fileInputList).when(spy).getFiles(any(IVariables.class));
 
-    @SuppressWarnings( "unchecked" )
-    List<ICheckResult> validationResults = mock( List.class );
+    @SuppressWarnings("unchecked")
+    List<ICheckResult> validationResults = mock(List.class);
 
     // Check we do not get validation errors
-    doAnswer( (Answer<Object>) invocation -> {
-      if ( ( (ICheckResult) invocation.getArguments()[ 0 ] ).getType() != ICheckResult.TYPE_RESULT_OK ) {
-        TestCase.fail( "We've got validation error" );
-      }
+    doAnswer(
+            (Answer<Object>)
+                invocation -> {
+                  if (((ICheckResult) invocation.getArguments()[0]).getType()
+                      != ICheckResult.TYPE_RESULT_OK) {
+                    TestCase.fail("We've got validation error");
+                  }
 
-      return null;
-    } ).when( validationResults ).add( any( ICheckResult.class ) );
+                  return null;
+                })
+        .when(validationResults)
+        .add(any(ICheckResult.class));
 
-    spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( IRowMeta.class ),
-      new String[] {}, new String[] { "File content", "File size" }, mock( IRowMeta.class ),
-      mock( IVariables.class ), mock( IHopMetadataProvider.class ) );
+    spy.check(
+        validationResults,
+        mock(PipelineMeta.class),
+        mock(TransformMeta.class),
+        mock(IRowMeta.class),
+        new String[] {},
+        new String[] {"File content", "File size"},
+        mock(IRowMeta.class),
+        mock(IVariables.class),
+        mock(IHopMetadataProvider.class));
   }
 }

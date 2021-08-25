@@ -28,9 +28,7 @@ public class TransformMetaStructureData extends BaseTransformData implements ITr
 
   public int rowCount;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public TransformMetaStructureData() {
     super();
   }

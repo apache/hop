@@ -35,86 +35,93 @@ public class JavaBeanManipulator<T> {
   private final Map<String, String> setterMap;
   private final Map<String, ISetter<?>> setterMethodMap;
 
-  public JavaBeanManipulator( Class<? extends T> clazz, List<String> attributes, Map<String, String> getterMap,
-                              Map<String, String> setterMap ) {
+  public JavaBeanManipulator(
+      Class<? extends T> clazz,
+      List<String> attributes,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap) {
     this.clazz = clazz;
-    this.getterMap = new HashMap<>( getterMap );
-    this.setterMap = new HashMap<>( setterMap );
+    this.getterMap = new HashMap<>(getterMap);
+    this.setterMap = new HashMap<>(setterMap);
     this.getterMethodMap = new HashMap<>();
     this.setterMethodMap = new HashMap<>();
-    populateGetters( attributes );
-    populateSetters( attributes );
+    populateGetters(attributes);
+    populateSetters(attributes);
   }
 
-  private String getPrefixedName( String prefix, String name ) {
-    String[] underScoreSplit = name.split( "_" );
+  private String getPrefixedName(String prefix, String name) {
+    String[] underScoreSplit = name.split("_");
     name = "";
-    for ( String part : underScoreSplit ) {
-      if ( part.length() > 0 ) {
-        name += part.substring( 0, 1 ).toUpperCase();
-        if ( part.length() > 1 ) {
-          name += part.substring( 1 );
+    for (String part : underScoreSplit) {
+      if (part.length() > 0) {
+        name += part.substring(0, 1).toUpperCase();
+        if (part.length() > 1) {
+          name += part.substring(1);
         }
       }
     }
     return prefix + name;
   }
 
-  @SuppressWarnings( "rawtypes" )
-  private void populateGetters( List<String> attributes ) {
-    for ( String attribute : attributes ) {
-      String getterMethodName = getterMap.get( attribute );
+  @SuppressWarnings("rawtypes")
+  private void populateGetters(List<String> attributes) {
+    for (String attribute : attributes) {
+      String getterMethodName = getterMap.get(attribute);
       try {
         IGetter<?> getter;
-        if ( getterMethodName != null ) {
-          getter = new MethodGetter( clazz.getMethod( getterMethodName ) );
+        if (getterMethodName != null) {
+          getter = new MethodGetter(clazz.getMethod(getterMethodName));
         } else {
           try {
-            getter = new MethodGetter( clazz.getMethod( getPrefixedName( "get", attribute ) ) );
-          } catch ( NoSuchMethodException e ) {
+            getter = new MethodGetter(clazz.getMethod(getPrefixedName("get", attribute)));
+          } catch (NoSuchMethodException e) {
             try {
-              getter = new MethodGetter( clazz.getMethod( getPrefixedName( "is", attribute ) ) );
-            } catch ( NoSuchMethodException e2 ) {
-              getter = new FieldGetter( clazz.getField( attribute ) );
+              getter = new MethodGetter(clazz.getMethod(getPrefixedName("is", attribute)));
+            } catch (NoSuchMethodException e2) {
+              getter = new FieldGetter(clazz.getField(attribute));
             }
           }
         }
-        getterMethodMap.put( attribute, getter );
-      } catch ( Exception e ) {
-        throw new RuntimeException( "Unable to find getter for " + attribute, e );
+        getterMethodMap.put(attribute, getter);
+      } catch (Exception e) {
+        throw new RuntimeException("Unable to find getter for " + attribute, e);
       }
     }
   }
 
-  @SuppressWarnings( "rawtypes" )
-  private void populateSetters( List<String> attributes ) {
-    for ( String attribute : attributes ) {
-      String setterMethodName = setterMap.get( attribute );
+  @SuppressWarnings("rawtypes")
+  private void populateSetters(List<String> attributes) {
+    for (String attribute : attributes) {
+      String setterMethodName = setterMap.get(attribute);
       try {
         ISetter<?> setter;
-        if ( setterMethodName != null ) {
-          setter = new MethodSetter( clazz.getMethod( setterMethodName, getterMethodMap.get( attribute ).getType() ) );
+        if (setterMethodName != null) {
+          setter =
+              new MethodSetter(
+                  clazz.getMethod(setterMethodName, getterMethodMap.get(attribute).getType()));
         } else {
           try {
             setter =
-              new MethodSetter( clazz.getMethod( getPrefixedName( "set", attribute ), getterMethodMap.get( attribute )
-                .getType() ) );
-          } catch ( NoSuchMethodException e ) {
-            setter = new FieldSetter( clazz.getField( attribute ) );
+                new MethodSetter(
+                    clazz.getMethod(
+                        getPrefixedName("set", attribute),
+                        getterMethodMap.get(attribute).getType()));
+          } catch (NoSuchMethodException e) {
+            setter = new FieldSetter(clazz.getField(attribute));
           }
         }
-        setterMethodMap.put( attribute, setter );
-      } catch ( Exception e ) {
-        throw new RuntimeException( "Unable to find setter for " + attribute, e );
+        setterMethodMap.put(attribute, setter);
+      } catch (Exception e) {
+        throw new RuntimeException("Unable to find setter for " + attribute, e);
       }
     }
   }
 
-  public IGetter<?> getGetter( String attribute ) {
-    return getterMethodMap.get( attribute );
+  public IGetter<?> getGetter(String attribute) {
+    return getterMethodMap.get(attribute);
   }
 
-  public ISetter<?> getSetter( String attribute ) {
-    return setterMethodMap.get( attribute );
+  public ISetter<?> getSetter(String attribute) {
+    return setterMethodMap.get(attribute);
   }
 }

@@ -19,24 +19,24 @@ package org.apache.hop.core.util;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecutorUtil {
   public static final String SIMPLE_NAME = ExecutorUtil.class.getSimpleName();
-  private static final AtomicInteger threadNum = new AtomicInteger( 1 );
+  private static final AtomicInteger threadNum = new AtomicInteger(1);
   private static final ExecutorService executor = init();
 
-  private ExecutorUtil() {
-  }
+  private ExecutorUtil() {}
 
   private static ExecutorService init() {
-    ExecutorService executorService = Executors.newCachedThreadPool( r -> {
-      Thread thread = Executors.defaultThreadFactory().newThread( r );
-      thread.setDaemon( true );
-      thread.setName( SIMPLE_NAME + " thread " + threadNum.getAndIncrement() );
-      return thread;
-    } );
+    ExecutorService executorService =
+        Executors.newCachedThreadPool(
+            r -> {
+              Thread thread = Executors.defaultThreadFactory().newThread(r);
+              thread.setDaemon(true);
+              thread.setName(SIMPLE_NAME + " thread " + threadNum.getAndIncrement());
+              return thread;
+            });
     return executorService;
   }
 

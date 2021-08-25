@@ -18,23 +18,16 @@
 package org.apache.hop.core.compress.gzip;
 
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class GzipCompressionOutputStreamTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,49 +39,46 @@ public class GzipCompressionOutputStreamTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    PluginRegistry.addPluginType( CompressionPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(CompressionPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
+  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
-    ICompressionProvider provider = factory.getCompressionProviderByName( PROVIDER_NAME );
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream in = new ByteArrayOutputStream();
-    outStream = new GzipCompressionOutputStream( in, provider );
+    outStream = new GzipCompressionOutputStream(in, provider);
   }
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testCtor() {
-    assertNotNull( outStream );
+    assertNotNull(outStream);
   }
 
   @Test
   public void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
-    assertEquals( provider.getName(), PROVIDER_NAME );
+    assertEquals(provider.getName(), PROVIDER_NAME);
   }
 
   @Test
   public void testClose() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new GzipCompressionOutputStream( out, provider ) {
-    };
+    outStream = new GzipCompressionOutputStream(out, provider) {};
     outStream.close();
     try {
-      outStream.write( "This will throw an Exception if the stream is already closed".getBytes() );
+      outStream.write("This will throw an Exception if the stream is already closed".getBytes());
       fail();
-    } catch ( IOException e ) {
-      //Success, The Output Stream was already closed
+    } catch (IOException e) {
+      // Success, The Output Stream was already closed
     }
   }
 
@@ -96,15 +86,15 @@ public class GzipCompressionOutputStreamTest {
   public void testWrite() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new GzipCompressionOutputStream( out, provider );
-    outStream.write( "Test".getBytes() );
+    outStream = new GzipCompressionOutputStream(out, provider);
+    outStream.write("Test".getBytes());
   }
 
   @Test
   public void testAddEntry() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    outStream = new GzipCompressionOutputStream( out, provider );
-    outStream.addEntry( null, null );
+    outStream = new GzipCompressionOutputStream(out, provider);
+    outStream.addEntry(null, null);
   }
 }

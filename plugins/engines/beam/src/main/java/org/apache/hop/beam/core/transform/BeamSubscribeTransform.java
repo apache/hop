@@ -40,9 +40,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 
-/**
- * A transform to read data from a Google Cloud Platform PubSub topic
- */
+/** A transform to read data from a Google Cloud Platform PubSub topic */
 public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRow>> {
 
   // These non-transient privates get serialized to spread across nodes
@@ -56,7 +54,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
   private List<String> xpPluginClasses;
 
   // Log and count errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BeamSubscribeTransform.class );
+  private static final Logger LOG = LoggerFactory.getLogger(BeamSubscribeTransform.class);
 
   private transient IRowMeta rowMeta;
   private transient Counter initCounter;
@@ -64,12 +62,18 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
   private transient Counter writtenCounter;
   private transient Counter errorCounter;
 
-  public BeamSubscribeTransform() {
-  }
+  public BeamSubscribeTransform() {}
 
-  public BeamSubscribeTransform( @Nullable String name, String transformName, String subscription, String topic, String messageType, String rowMetaJson, List<String> transformPluginClasses,
-                                 List<String> xpPluginClasses ) {
-    super( name );
+  public BeamSubscribeTransform(
+      @Nullable String name,
+      String transformName,
+      String subscription,
+      String topic,
+      String messageType,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
+    super(name);
     this.transformName = transformName;
     this.subscription = subscription;
     this.topic = topic;
@@ -80,20 +84,20 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
   }
 
   @Override
-  public PCollection<HopRow> expand( PBegin input ) {
+  public PCollection<HopRow> expand(PBegin input) {
 
     try {
-      if ( rowMeta == null ) {
+      if (rowMeta == null) {
         // Only initialize once on this node/vm
         //
-        BeamHop.init( transformPluginClasses, xpPluginClasses );
+        BeamHop.init(transformPluginClasses, xpPluginClasses);
 
-        rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+        rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
-        inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
-        writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+        inputCounter = Metrics.counter(Pipeline.METRIC_NAME_INPUT, transformName);
+        writtenCounter = Metrics.counter(Pipeline.METRIC_NAME_WRITTEN, transformName);
 
-        Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
+        Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
       }
 
       // This stuff only outputs a single field.
@@ -101,41 +105,47 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
       //
       PCollection<HopRow> output;
 
-      if ( BeamDefaults.PUBSUB_MESSAGE_TYPE_STRING.equalsIgnoreCase( messageType ) ) {
+      if (BeamDefaults.PUBSUB_MESSAGE_TYPE_STRING.equalsIgnoreCase(messageType)) {
 
         PubsubIO.Read<String> stringRead = PubsubIO.readStrings();
-        if ( StringUtils.isNotEmpty(subscription)) {
-          stringRead = stringRead.fromSubscription( subscription );
+        if (StringUtils.isNotEmpty(subscription)) {
+          stringRead = stringRead.fromSubscription(subscription);
         } else {
-          stringRead = stringRead.fromTopic( topic);
+          stringRead = stringRead.fromTopic(topic);
         }
-        PCollection<String> stringPCollection = stringRead.expand( input );
-        output = stringPCollection.apply( transformName, ParDo.of(
-          new StringToHopRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses )
-        ) );
+        PCollection<String> stringPCollection = stringRead.expand(input);
+        output =
+            stringPCollection.apply(
+                transformName,
+                ParDo.of(
+                    new StringToHopRowFn(
+                        transformName, rowMetaJson, transformPluginClasses, xpPluginClasses)));
 
-      } else if ( BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase( messageType ) ) {
+      } else if (BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase(messageType)) {
 
         PubsubIO.Read<PubsubMessage> messageRead = PubsubIO.readMessages();
-        if (StringUtils.isNotEmpty( subscription )) {
-          messageRead = messageRead.fromSubscription( subscription );
+        if (StringUtils.isNotEmpty(subscription)) {
+          messageRead = messageRead.fromSubscription(subscription);
         } else {
-          messageRead = messageRead.fromTopic( topic );
+          messageRead = messageRead.fromTopic(topic);
         }
-        PCollection<PubsubMessage> messagesPCollection = messageRead.expand( input );
-        output = messagesPCollection.apply( transformName, ParDo.of(
-          new PubsubMessageToHopRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses )
-        ) );
+        PCollection<PubsubMessage> messagesPCollection = messageRead.expand(input);
+        output =
+            messagesPCollection.apply(
+                transformName,
+                ParDo.of(
+                    new PubsubMessageToHopRowFn(
+                        transformName, rowMetaJson, transformPluginClasses, xpPluginClasses)));
 
       } else {
-        throw new RuntimeException( "Unsupported message type: " + messageType );
+        throw new RuntimeException("Unsupported message type: " + messageType);
       }
 
       return output;
-    } catch ( Exception e ) {
-      Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName ).inc();
-      LOG.error( "Error in beam subscribe transform", e );
-      throw new RuntimeException( "Error in beam subscribe transform", e );
+    } catch (Exception e) {
+      Metrics.counter(Pipeline.METRIC_NAME_ERROR, transformName).inc();
+      LOG.error("Error in beam subscribe transform", e);
+      throw new RuntimeException("Error in beam subscribe transform", e);
     }
   }
 
@@ -148,10 +158,8 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     return transformName;
   }
 
-  /**
-   * @param transformName The transformName to set
-   */
-  public void setTransformName( String transformName ) {
+  /** @param transformName The transformName to set */
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -164,10 +172,8 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     return topic;
   }
 
-  /**
-   * @param topic The topic to set
-   */
-  public void setTopic( String topic ) {
+  /** @param topic The topic to set */
+  public void setTopic(String topic) {
     this.topic = topic;
   }
 
@@ -180,10 +186,8 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     return messageType;
   }
 
-  /**
-   * @param messageType The messageType to set
-   */
-  public void setMessageType( String messageType ) {
+  /** @param messageType The messageType to set */
+  public void setMessageType(String messageType) {
     this.messageType = messageType;
   }
 }

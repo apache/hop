@@ -21,7 +21,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A convenient class to derive from as it takes care of handling crashes during execution of callable
+ * A convenient class to derive from as it takes care of handling crashes during execution of
+ * callable
  *
  * @author Andrey Khayrutdinov
  */
@@ -29,7 +30,7 @@ abstract class StopOnErrorCallable<T> implements Callable<T> {
 
   final AtomicBoolean condition;
 
-  StopOnErrorCallable( AtomicBoolean condition ) {
+  StopOnErrorCallable(AtomicBoolean condition) {
     this.condition = condition;
   }
 
@@ -37,8 +38,8 @@ abstract class StopOnErrorCallable<T> implements Callable<T> {
   public T call() throws Exception {
     try {
       return doCall();
-    } catch ( Exception e ) {
-      condition.set( false );
+    } catch (Exception e) {
+      condition.set(false);
       throw e;
     }
   }

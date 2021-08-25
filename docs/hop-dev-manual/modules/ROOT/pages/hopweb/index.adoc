@@ -16,12 +16,12 @@ under the License.
 ////
 = Hop Web Development Guide
 
-
 == Building or customizing Hop Web
 
 Building and setting up your own Hop Web environment is straightforward.
 
-The steps to set up the default Docker image are included in a helper script `docker/create_hop_web_container.sh` in the Hop code base. This should get you started to make modifications or create your own version entirely.
+The steps to set up the default Docker image are included in a helper script `docker/create_hop_web_container.sh` in the Hop code base.
+This should get you started to make modifications or create your own version entirely.
 
 [source,bash]
 ----

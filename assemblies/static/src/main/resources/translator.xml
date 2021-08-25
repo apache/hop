@@ -17,33 +17,33 @@
   -->
 
 <translator-config>
-  <reference-locale>en_US</reference-locale>
-  <locale-list>
-    <locale>en_US</locale>
-    <locale>de_DE</locale>
-    <locale>fr_FR</locale>
-    <locale>it_IT</locale>
-    <locale>zh_CN</locale>
-    <locale>ja_JP</locale>
-    <locale>ko_KR</locale>
-    <locale>nl_NL</locale>
-    <locale>pt_PT</locale>
-    <locale>pt_BR</locale>
-    <locale>no_NO</locale>
-    <locale>es_ES</locale>
-    <locale>es_AR</locale>
-  </locale-list>
+    <reference-locale>en_US</reference-locale>
+    <locale-list>
+        <locale>en_US</locale>
+        <locale>de_DE</locale>
+        <locale>fr_FR</locale>
+        <locale>it_IT</locale>
+        <locale>zh_CN</locale>
+        <locale>ja_JP</locale>
+        <locale>ko_KR</locale>
+        <locale>nl_NL</locale>
+        <locale>pt_PT</locale>
+        <locale>pt_BR</locale>
+        <locale>no_NO</locale>
+        <locale>es_ES</locale>
+        <locale>es_AR</locale>
+    </locale-list>
 
-  <root-folder>../../../</root-folder>
-  <folders-to-avoid>.*archive.*</folders-to-avoid>
+    <root-folder>../../../</root-folder>
+    <folders-to-avoid>.*archive.*</folders-to-avoid>
 
-  <files-to-avoid>
-    <filename>MessagesSourceCrawler.java</filename>
-    <filename>BaseTransformMeta.java</filename>
-    <filename>BasePluginType.java</filename>
-    <filename>ConfigurationDialog.java</filename>
-    <filename>Const.java</filename>
-    <filename>DatabaseFactory.java</filename>
-  </files-to-avoid>
+    <files-to-avoid>
+        <filename>MessagesSourceCrawler.java</filename>
+        <filename>BaseTransformMeta.java</filename>
+        <filename>BasePluginType.java</filename>
+        <filename>ConfigurationDialog.java</filename>
+        <filename>Const.java</filename>
+        <filename>DatabaseFactory.java</filename>
+    </files-to-avoid>
 
 </translator-config>

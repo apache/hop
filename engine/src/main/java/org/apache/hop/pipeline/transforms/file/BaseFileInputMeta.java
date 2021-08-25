@@ -17,18 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
-
 import com.google.common.base.Preconditions;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.resource.ResourceReference;
 
 import java.util.List;
@@ -38,45 +33,55 @@ import java.util.List;
  *
  * @author Alexander Buloichik
  */
-public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField, Main extends ITransform, Data extends ITransformData>
-  extends BaseTransformMeta implements
-  ITransformMeta<Main, Data> {
+public abstract class BaseFileInputMeta<
+        A extends BaseFileInputAdditionalField,
+        I extends BaseFileInputFiles,
+        F extends BaseFileField,
+        Main extends ITransform,
+        Data extends ITransformData>
+    extends BaseTransformMeta implements ITransformMeta<Main, Data> {
   private static final Class<?> PKG = BaseFileInputMeta.class; // For Translator
 
-  public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
+  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
 
   public static final String NO = "N";
 
   public static final String YES = "Y";
 
   public static final String[] RequiredFilesDesc =
-    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
-        "System.Combo.Yes" ) };
+      new String[] {
+        BaseMessages.getString(PKG, "System.Combo.No"),
+        BaseMessages.getString(PKG, "System.Combo.Yes")
+      };
 
-  @InjectionDeep
-  public I inputFiles;
+  @InjectionDeep public I inputFiles;
 
-  /**
-   * The fields to import...
-   */
-  @InjectionDeep
-  public F[] inputFields;
+  /** The fields to import... */
+  @InjectionDeep public F[] inputFields;
 
-  /**
-   * @return the input fields.
-   */
+  /** @return the input fields. */
   public F[] getInputFields() {
     return inputFields;
   }
 
-  @InjectionDeep
-  public BaseFileErrorHandling errorHandling = new BaseFileErrorHandling();
-  @InjectionDeep
-  public A additionalOutputFields;
+  @InjectionDeep public BaseFileErrorHandling errorHandling = new BaseFileErrorHandling();
+  @InjectionDeep public A additionalOutputFields;
 
   public Object clone() {
-    BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField, BaseFileInputTransform, BaseFileInputTransformData> retval =
-      (BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField, BaseFileInputTransform, BaseFileInputTransformData>) super.clone();
+    BaseFileInputMeta<
+            BaseFileInputAdditionalField,
+            BaseFileInputFiles,
+            BaseFileField,
+            BaseFileInputTransform,
+            BaseFileInputTransformData>
+        retval =
+            (BaseFileInputMeta<
+                    BaseFileInputAdditionalField,
+                    BaseFileInputFiles,
+                    BaseFileField,
+                    BaseFileInputTransform,
+                    BaseFileInputTransformData>)
+                super.clone();
 
     retval.inputFiles = (BaseFileInputFiles) inputFiles.clone();
     retval.errorHandling = (BaseFileErrorHandling) errorHandling.clone();
@@ -85,12 +90,10 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
     return retval;
   }
 
-  /**
-   * @param fileRequiredin The fileRequired to set.
-   */
-  public void inputFiles_fileRequired( String[] fileRequiredin ) {
-    for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      inputFiles.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
+  /** @param fileRequiredin The fileRequired to set. */
+  public void inputFiles_fileRequired(String[] fileRequiredin) {
+    for (int i = 0; i < fileRequiredin.length; i++) {
+      inputFiles.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
     }
   }
 
@@ -98,38 +101,44 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
     return inputFiles.includeSubFolders;
   }
 
-  public void inputFiles_includeSubFolders( String[] includeSubFoldersin ) {
-    for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      inputFiles.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
+  public void inputFiles_includeSubFolders(String[] includeSubFoldersin) {
+    for (int i = 0; i < includeSubFoldersin.length; i++) {
+      inputFiles.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
     }
   }
 
-  public static String getRequiredFilesCode( String tt ) {
-    if ( tt == null ) {
-      return RequiredFilesCode[ 0 ];
+  public static String getRequiredFilesCode(String tt) {
+    if (tt == null) {
+      return RequiredFilesCode[0];
     }
-    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
-      return RequiredFilesCode[ 1 ];
+    if (tt.equals(RequiredFilesDesc[1])) {
+      return RequiredFilesCode[1];
     } else {
-      return RequiredFilesCode[ 0 ];
+      return RequiredFilesCode[0];
     }
   }
 
-  public FileInputList getFileInputList( IVariables variables ) {
-    inputFiles.normalizeAllocation( inputFiles.fileName.length );
-    return FileInputList.createFileList( variables, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
-      inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
+  public FileInputList getFileInputList(IVariables variables) {
+    inputFiles.normalizeAllocation(inputFiles.fileName.length);
+    return FileInputList.createFileList(
+        variables,
+        inputFiles.fileName,
+        inputFiles.fileMask,
+        inputFiles.excludeFileMask,
+        inputFiles.fileRequired,
+        inputFiles.includeSubFolderBoolean());
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
-    return inputFiles.getResourceDependencies( variables, transformMeta );
+  public List<ResourceReference> getResourceDependencies(
+      IVariables variables, TransformMeta transformMeta) {
+    return inputFiles.getResourceDependencies(variables, transformMeta);
   }
 
   public abstract String getEncoding();
 
   public boolean isAcceptingFilenames() {
-    Preconditions.checkNotNull( inputFiles );
+    Preconditions.checkNotNull(inputFiles);
     return inputFiles.acceptingFilenames;
   }
 
@@ -141,13 +150,13 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
     return inputFiles == null ? null : inputFiles.acceptingField;
   }
 
-  public String[] getFilePaths( IVariables variables, final boolean showSamples ) {
+  public String[] getFilePaths(IVariables variables, final boolean showSamples) {
     final TransformMeta parentTransformMeta = getParentTransformMeta();
-    if ( parentTransformMeta != null ) {
+    if (parentTransformMeta != null) {
       final PipelineMeta parentPipelineMeta = parentTransformMeta.getParentPipelineMeta();
-      if ( parentPipelineMeta != null ) {
-        final FileInputList inputList = getFileInputList( variables );
-        if ( inputList != null ) {
+      if (parentPipelineMeta != null) {
+        final FileInputList inputList = getFileInputList(variables);
+        if (inputList != null) {
           return inputList.getFileStrings();
         }
       }

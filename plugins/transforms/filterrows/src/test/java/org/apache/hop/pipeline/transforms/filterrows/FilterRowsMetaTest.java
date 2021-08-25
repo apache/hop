@@ -48,26 +48,27 @@ public class FilterRowsMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "condition", "send_true_to", "send_false_to" );
+    PluginRegistry.init(false);
+    List<String> attributes = Arrays.asList("condition", "send_true_to", "send_false_to");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "condition", new ConditionLoadSaveValidator() );
-    attrValidatorMap.put( "trueTransformName", new StringLoadSaveValidator() );
-    attrValidatorMap.put( "falseTransformName", new StringLoadSaveValidator() );
+    attrValidatorMap.put("condition", new ConditionLoadSaveValidator());
+    attrValidatorMap.put("trueTransformName", new StringLoadSaveValidator());
+    attrValidatorMap.put("falseTransformName", new StringLoadSaveValidator());
 
-    getterMap.put( "send_true_to", "getTrueTransformName" );
-    setterMap.put( "send_true_to", "setTrueTransformName" );
-    getterMap.put( "send_false_to", "getFalseTransformName" );
-    setterMap.put( "send_false_to", "setFalseTransformName" );
+    getterMap.put("send_true_to", "getTrueTransformName");
+    setterMap.put("send_true_to", "setTrueTransformName");
+    getterMap.put("send_false_to", "getFalseTransformName");
+    setterMap.put("send_false_to", "setFalseTransformName");
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
-    loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+    loadSaveTester =
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
@@ -78,31 +79,31 @@ public class FilterRowsMetaTest {
   @Test
   public void testClone() {
     FilterRowsMeta filterRowsMeta = new FilterRowsMeta();
-    filterRowsMeta.setCondition( new Condition() );
-    filterRowsMeta.setTrueTransformName( "true" );
-    filterRowsMeta.setFalseTransformName( "false" );
+    filterRowsMeta.setCondition(new Condition());
+    filterRowsMeta.setTrueTransformName("true");
+    filterRowsMeta.setFalseTransformName("false");
 
     FilterRowsMeta clone = (FilterRowsMeta) filterRowsMeta.clone();
-    assertNotNull( clone.getCondition() );
-    assertEquals( "true", clone.getTrueTransformName() );
-    assertEquals( "false", clone.getFalseTransformName() );
+    assertNotNull(clone.getCondition());
+    assertEquals("true", clone.getTrueTransformName());
+    assertEquals("false", clone.getFalseTransformName());
   }
 
   @Test
   public void modifiedTarget() throws Exception {
     FilterRowsMeta filterRowsMeta = new FilterRowsMeta();
-    TransformMeta trueOutput = new TransformMeta( "true", new DummyMeta() );
-    TransformMeta falseOutput = new TransformMeta( "false", new DummyMeta() );
+    TransformMeta trueOutput = new TransformMeta("true", new DummyMeta());
+    TransformMeta falseOutput = new TransformMeta("false", new DummyMeta());
 
-    filterRowsMeta.setCondition( new Condition() );
-    filterRowsMeta.setTrueTransformName( trueOutput.getName() );
-    filterRowsMeta.setFalseTransformName( falseOutput.getName() );
-    filterRowsMeta.searchInfoAndTargetTransforms( ImmutableList.of( trueOutput, falseOutput ) );
+    filterRowsMeta.setCondition(new Condition());
+    filterRowsMeta.setTrueTransformName(trueOutput.getName());
+    filterRowsMeta.setFalseTransformName(falseOutput.getName());
+    filterRowsMeta.searchInfoAndTargetTransforms(ImmutableList.of(trueOutput, falseOutput));
 
-    trueOutput.setName( "true renamed" );
-    falseOutput.setName( "false renamed" );
+    trueOutput.setName("true renamed");
+    falseOutput.setName("false renamed");
 
-    assertEquals( "true renamed", filterRowsMeta.getTrueTransformName() );
-    assertEquals( "false renamed", filterRowsMeta.getFalseTransformName() );
+    assertEquals("true renamed", filterRowsMeta.getTrueTransformName());
+    assertEquals("false renamed", filterRowsMeta.getFalseTransformName());
   }
 }

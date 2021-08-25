@@ -34,22 +34,22 @@
     <name>Hop Assemblies Plugins Actions Send SNMP trap</name>
     <description></description>
 
-	<properties>
-		<snmp4j.version>1.9.1f</snmp4j.version>
-	</properties>
+    <properties>
+        <snmp4j.version>1.9.1f</snmp4j.version>
+    </properties>
 
-	<dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-snmptrap</artifactId>
             <version>${project.version}</version>
-        </dependency>	
-		<dependency>
-			<groupId>org.snmp4j</groupId>
-			<artifactId>snmp4j</artifactId>
-			<version>${snmp4j.version}</version>
-		</dependency>
-	</dependencies>
+        </dependency>
+        <dependency>
+            <groupId>org.snmp4j</groupId>
+            <artifactId>snmp4j</artifactId>
+            <version>${snmp4j.version}</version>
+        </dependency>
+    </dependencies>
 
-    
+
 </project>

@@ -39,12 +39,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
@@ -58,24 +53,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 /** @author Andrey Khayrutdinov */
 public class DatabaseLookupUTest {
@@ -149,7 +129,15 @@ public class DatabaseLookupUTest {
     lookup.setSchemaName("VirtualSchema");
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", ID_FIELD));
-    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "returned value", "", "Binary", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                BINARY_FIELD,
+                "returned value",
+                "",
+                "Binary",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
 
     meta = spy(meta);
     doAnswer(
@@ -245,8 +233,24 @@ public class DatabaseLookupUTest {
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", "ID1"));
     lookup.getKeyFields().add(new KeyField("", "", "IS NULL", "ID2"));
-    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "val1", "", "Binary", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
-    lookup.getReturnValues().add(new ReturnValue(BINARY_FIELD, "val2", "", "Binary", ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                BINARY_FIELD,
+                "val1",
+                "",
+                "Binary",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                BINARY_FIELD,
+                "val2",
+                "",
+                "Binary",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
 
     meta = spy(meta);
     doAnswer(

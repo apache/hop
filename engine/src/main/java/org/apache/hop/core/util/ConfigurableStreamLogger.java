@@ -26,10 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-/**
- * <p>
- * Provides the ability to specify the desired logLevel on which the StreamLogger should write.
- */
+/** Provides the ability to specify the desired logLevel on which the StreamLogger should write. */
 public class ConfigurableStreamLogger implements Runnable {
 
   private InputStream is;
@@ -38,12 +35,12 @@ public class ConfigurableStreamLogger implements Runnable {
   private ILogChannel log;
 
   /**
-   * @param in       the InputStream
+   * @param in the InputStream
    * @param logLevel the logLevel. Refer to org.apache.hop.core.logging.LogWriter for constants
-   * @param type     the label for logger entries.
+   * @param type the label for logger entries.
    */
-  public ConfigurableStreamLogger( ILogChannel logChannel, final InputStream in, final LogLevel logLevel,
-                                   final String type ) {
+  public ConfigurableStreamLogger(
+      ILogChannel logChannel, final InputStream in, final LogLevel logLevel, final String type) {
     this.log = logChannel;
     this.is = in;
     this.type = type;
@@ -57,39 +54,38 @@ public class ConfigurableStreamLogger implements Runnable {
    */
   public void run() {
     try {
-      InputStreamReader isr = new InputStreamReader( this.is );
-      BufferedReader br = new BufferedReader( isr );
+      InputStreamReader isr = new InputStreamReader(this.is);
+      BufferedReader br = new BufferedReader(isr);
       String line = null;
-      while ( ( line = br.readLine() ) != null ) {
+      while ((line = br.readLine()) != null) {
         String logEntry = this.type + " " + line;
-        switch ( this.logLevel ) {
+        switch (this.logLevel) {
           case MINIMAL:
-            log.logMinimal( logEntry );
+            log.logMinimal(logEntry);
             break;
           case BASIC:
-            log.logBasic( logEntry );
+            log.logBasic(logEntry);
             break;
           case DETAILED:
-            log.logDetailed( logEntry );
+            log.logDetailed(logEntry);
             break;
           case DEBUG:
-            log.logDebug( logEntry );
+            log.logDebug(logEntry);
             break;
           case ROWLEVEL:
-            log.logRowlevel( logEntry );
+            log.logRowlevel(logEntry);
             break;
           case ERROR:
-            log.logError( logEntry );
+            log.logError(logEntry);
             break;
           default: // NONE
             break;
         }
       }
-    } catch ( IOException ioe ) {
-      if ( log.isError() ) {
-        log.logError( this.type + " " + Const.getStackTracker( ioe ) );
+    } catch (IOException ioe) {
+      if (log.isError()) {
+        log.logError(this.type + " " + Const.getStackTracker(ioe));
       }
     }
   }
-
 }

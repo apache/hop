@@ -17,15 +17,7 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -36,11 +28,7 @@ import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;

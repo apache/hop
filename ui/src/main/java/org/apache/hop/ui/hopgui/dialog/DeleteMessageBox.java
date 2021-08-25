@@ -35,7 +35,7 @@ public class DeleteMessageBox extends MessageBox {
   private static final Class<?> PKG = DeleteMessageBox.class; // For Translator
 
   // The title for the message box
-  private static final String title = BaseMessages.getString( PKG, "DeleteMessageBox.Title" );
+  private static final String title = BaseMessages.getString(PKG, "DeleteMessageBox.Title");
 
   // The text to display in the dialog
   private String text = null;
@@ -46,12 +46,12 @@ public class DeleteMessageBox extends MessageBox {
   /**
    * Creates a message box to confirm the deletion of the items
    *
-   * @param shell    the shell which will be the parent of the new instance
-   * @param text     the title for the dialog
+   * @param shell the shell which will be the parent of the new instance
+   * @param text the title for the dialog
    * @param transformList the text list of proposed transforms to be deleted
    */
-  public DeleteMessageBox( Shell shell, String text, List<String> transformList ) {
-    super( shell, SWT.YES | SWT.NO | SWT.ICON_WARNING );
+  public DeleteMessageBox(Shell shell, String text, List<String> transformList) {
+    super(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
     this.text = text;
     this.transformList = transformList;
   }
@@ -63,10 +63,10 @@ public class DeleteMessageBox extends MessageBox {
    */
   public int open() {
     // Set the title
-    setText( title );
+    setText(title);
 
     // Set the message
-    setMessage( buildMessage() );
+    setMessage(buildMessage());
 
     // Perform the normal open operation
     return super.open();
@@ -79,18 +79,15 @@ public class DeleteMessageBox extends MessageBox {
    */
   protected String buildMessage() {
     StringBuilder sb = new StringBuilder();
-    sb.append( text ).append( Const.CR );
-    if ( transformList != null ) {
-      for ( Iterator<String> it = transformList.iterator(); it.hasNext(); ) {
-        sb.append( "  - " ).append( it.next() ).append( Const.CR );
+    sb.append(text).append(Const.CR);
+    if (transformList != null) {
+      for (Iterator<String> it = transformList.iterator(); it.hasNext(); ) {
+        sb.append("  - ").append(it.next()).append(Const.CR);
       }
     }
     return sb.toString();
   }
 
-  /**
-   * Allow this class to subclass MessageBox
-   */
-  protected void checkSubclass() {
-  }
+  /** Allow this class to subclass MessageBox */
+  protected void checkSubclass() {}
 }

@@ -50,33 +50,34 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 @GuiPlugin
-public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfiguration implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
+public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfiguration
+    implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
 
   @GuiWidgetElement(
-    order = "20000-direct-options",
-    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.TEXT,
-    label = "Number of workers",
-    toolTip =  "Controls the amount of target parallelism the DirectRunner will use. Defaults to"
-      + " the greater of the number of available processors and 3. Must be a value greater"
-      + " than zero."
-  )
-  @HopMetadataProperty(key="number_of_workers")
+      order = "20000-direct-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Number of workers",
+      toolTip =
+          "Controls the amount of target parallelism the DirectRunner will use. Defaults to"
+              + " the greater of the number of available processors and 3. Must be a value greater"
+              + " than zero.")
+  @HopMetadataProperty(key = "number_of_workers")
   private String numberOfWorkers;
 
-  public BeamDirectPipelineRunConfiguration( String numberOfWorkers ) {
+  public BeamDirectPipelineRunConfiguration(String numberOfWorkers) {
     this();
     this.numberOfWorkers = numberOfWorkers;
   }
 
   public BeamDirectPipelineRunConfiguration() {
     super();
-    this.tempLocation = "file://"+System.getProperty( "java.io.tmpdir" );
+    this.tempLocation = "file://" + System.getProperty("java.io.tmpdir");
     this.numberOfWorkers = "";
   }
 
-  public BeamDirectPipelineRunConfiguration( BeamDirectPipelineRunConfiguration config ) {
-    super( config );
+  public BeamDirectPipelineRunConfiguration(BeamDirectPipelineRunConfiguration config) {
+    super(config);
     this.numberOfWorkers = config.numberOfWorkers;
   }
 
@@ -84,22 +85,25 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
     return new BeamDirectPipelineRunConfiguration(this);
   }
 
-  @Override public RunnerType getRunnerType() {
+  @Override
+  public RunnerType getRunnerType() {
     return RunnerType.Direct;
   }
 
-  @Override public PipelineOptions getPipelineOptions() {
-    DirectOptions options = PipelineOptionsFactory.as( DirectOptions.class );
-    options.setBlockOnRun( !isRunningAsynchronous() );
-    if ( StringUtils.isNotEmpty(numberOfWorkers)) {
-      int targetParallelism = Const.toInt( resolve( numberOfWorkers),  1);
+  @Override
+  public PipelineOptions getPipelineOptions() {
+    DirectOptions options = PipelineOptionsFactory.as(DirectOptions.class);
+    options.setBlockOnRun(!isRunningAsynchronous());
+    if (StringUtils.isNotEmpty(numberOfWorkers)) {
+      int targetParallelism = Const.toInt(resolve(numberOfWorkers), 1);
       options.setTargetParallelism(targetParallelism);
     }
 
     return options;
   }
 
-  @Override public boolean isRunningAsynchronous() {
+  @Override
+  public boolean isRunningAsynchronous() {
     return false;
   }
 
@@ -112,10 +116,8 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
     return numberOfWorkers;
   }
 
-  /**
-   * @param numberOfWorkers The numberOfWorkers to set
-   */
-  public void setNumberOfWorkers( String numberOfWorkers ) {
+  /** @param numberOfWorkers The numberOfWorkers to set */
+  public void setNumberOfWorkers(String numberOfWorkers) {
     this.numberOfWorkers = numberOfWorkers;
   }
 }

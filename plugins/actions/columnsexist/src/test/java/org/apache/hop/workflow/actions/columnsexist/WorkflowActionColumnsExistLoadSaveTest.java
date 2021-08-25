@@ -17,14 +17,15 @@
 
 package org.apache.hop.workflow.actions.columnsexist;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionColumnsExistLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionColumnsExist> {
+public class WorkflowActionColumnsExistLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionColumnsExist> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,6 +35,6 @@ public class WorkflowActionColumnsExistLoadSaveTest extends WorkflowActionLoadSa
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "database", "tablename", "schemaname", "arguments" } );
+    return Arrays.asList(new String[] {"database", "tablename", "schemaname", "arguments"});
   }
 }

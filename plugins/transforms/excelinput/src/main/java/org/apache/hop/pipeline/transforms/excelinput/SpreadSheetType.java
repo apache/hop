@@ -18,16 +18,14 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 public enum SpreadSheetType {
-  POI( "Excel XLSX, XLS" ),
-  SAX_POI( "Excel XLSX (Streaming)" ),
-  ODS( "Open Office ODS" );
+  POI("Excel XLSX, XLS"),
+  SAX_POI("Excel XLSX (Streaming)"),
+  ODS("Open Office ODS");
 
   private String description;
 
-  /**
-   * @param description
-   */
-  private SpreadSheetType( String description ) {
+  /** @param description */
+  private SpreadSheetType(String description) {
     this.description = description;
   }
 
@@ -35,9 +33,9 @@ public enum SpreadSheetType {
     return description;
   }
 
-  public static SpreadSheetType getStpreadSheetTypeByDescription( String description ) {
-    for ( SpreadSheetType type : values() ) {
-      if ( type.getDescription().equalsIgnoreCase( description ) ) {
+  public static SpreadSheetType getStpreadSheetTypeByDescription(String description) {
+    for (SpreadSheetType type : values()) {
+      if (type.getDescription().equalsIgnoreCase(description)) {
         return type;
       }
     }

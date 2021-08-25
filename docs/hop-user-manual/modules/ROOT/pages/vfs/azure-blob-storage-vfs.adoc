@@ -66,7 +66,10 @@ Once done you will see an `azure` entry in the central `hop-config.json` file:
 
 == Usage and testing
 
-To test if the configuration works you can simply upload a small CSV file in an Azure Storage folder and then use File/Open in Hop GUI.  Then you type in `azure://` as a file location and hit enter (or click the refresh button).  Browse to the CSV file you uploaded and open it.  If all is configured correctly you should be able to see the content in the Hop GUI.
+To test if the configuration works you can simply upload a small CSV file in an Azure Storage folder and then use File/Open in Hop GUI.
+Then you type in `azure://` as a file location and hit enter (or click the refresh button).
+Browse to the CSV file you uploaded and open it.
+If all is configured correctly you should be able to see the content in the Hop GUI.
 
 
 

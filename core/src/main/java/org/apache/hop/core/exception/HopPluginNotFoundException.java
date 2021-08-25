@@ -30,14 +30,12 @@ public class HopPluginNotFoundException extends HopPluginException {
    * @param message
    * @param cause
    */
-  public HopPluginNotFoundException( String message, Throwable cause ) {
-    super( message, cause );
+  public HopPluginNotFoundException(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  /**
-   * @param message
-   */
-  public HopPluginNotFoundException( String message ) {
-    super( message );
+  /** @param message */
+  public HopPluginNotFoundException(String message) {
+    super(message);
   }
 }

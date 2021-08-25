@@ -121,8 +121,7 @@ class MongoPropToOption {
 
   private String getPrettyListOfValidPreferences() {
     // [primary, primaryPreferred, secondary, secondaryPreferred, nearest]
-    return Arrays.toString(
-      new ArrayList<>( NamedReadPreference.getPreferenceNames() ).toArray());
+    return Arrays.toString(new ArrayList<>(NamedReadPreference.getPreferenceNames()).toArray());
   }
 
   DBObject[] getTagSets(MongoProperties props) throws MongoDbException {

@@ -22,7 +22,7 @@ name: Hop PR Build (Documentation)
 on:
   push:
   pull_request:
-    branches: ['master']
+    branches: [ 'master' ]
     paths:
       - 'docs/**'
 

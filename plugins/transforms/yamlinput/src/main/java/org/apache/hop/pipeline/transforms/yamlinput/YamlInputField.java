@@ -26,7 +26,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
 /**
- * Read YAML files, parse them and convert them to rows and writes these to one or more output streams.
+ * Read YAML files, parse them and convert them to rows and writes these to one or more output
+ * streams.
  *
  * @author Samatar
  * @since 20-06-2007
@@ -39,13 +40,14 @@ public class YamlInputField implements Cloneable {
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
   public static final String[] trimTypeDesc = {
-    BaseMessages.getString( PKG, "YamlInputField.TrimType.None" ),
-    BaseMessages.getString( PKG, "YamlInputField.TrimType.Left" ),
-    BaseMessages.getString( PKG, "YamlInputField.TrimType.Right" ),
-    BaseMessages.getString( PKG, "YamlInputField.TrimType.Both" ) };
+    BaseMessages.getString(PKG, "YamlInputField.TrimType.None"),
+    BaseMessages.getString(PKG, "YamlInputField.TrimType.Left"),
+    BaseMessages.getString(PKG, "YamlInputField.TrimType.Right"),
+    BaseMessages.getString(PKG, "YamlInputField.TrimType.Both")
+  };
 
   private String name;
   private String path;
@@ -58,7 +60,7 @@ public class YamlInputField implements Cloneable {
   private String decimalSymbol;
   private String groupSymbol;
 
-  public YamlInputField( String fieldname ) {
+  public YamlInputField(String fieldname) {
     this.name = fieldname;
     this.path = "";
     this.length = -1;
@@ -72,80 +74,80 @@ public class YamlInputField implements Cloneable {
   }
 
   public YamlInputField() {
-    this( "" );
+    this("");
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 400 );
+    StringBuilder retval = new StringBuilder(400);
 
-    retval.append( "      <field>" ).append( Const.CR );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "name", getName() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "path", getPath() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "format", getFormat() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "currency", getCurrencySymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", getDecimalSymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "group", getGroupSymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "length", getLength() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "precision", getPrecision() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
+    retval.append("      <field>").append(Const.CR);
+    retval.append("        ").append(XmlHandler.addTagValue("name", getName()));
+    retval.append("        ").append(XmlHandler.addTagValue("path", getPath()));
+    retval.append("        ").append(XmlHandler.addTagValue("type", getTypeDesc()));
+    retval.append("        ").append(XmlHandler.addTagValue("format", getFormat()));
+    retval.append("        ").append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
+    retval.append("        ").append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
+    retval.append("        ").append(XmlHandler.addTagValue("group", getGroupSymbol()));
+    retval.append("        ").append(XmlHandler.addTagValue("length", getLength()));
+    retval.append("        ").append(XmlHandler.addTagValue("precision", getPrecision()));
+    retval.append("        ").append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
 
-    retval.append( "      </field>" ).append( Const.CR );
+    retval.append("      </field>").append(Const.CR);
 
     return retval.toString();
   }
 
-  public YamlInputField( Node fnode ) throws HopValueException {
-    setName( XmlHandler.getTagValue( fnode, "name" ) );
-    setPath( XmlHandler.getTagValue( fnode, "path" ) );
-    setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
-    setFormat( XmlHandler.getTagValue( fnode, "format" ) );
-    setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
-    setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
-    setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
-    setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
-    setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
-    setTrimType( getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
+  public YamlInputField(Node fnode) throws HopValueException {
+    setName(XmlHandler.getTagValue(fnode, "name"));
+    setPath(XmlHandler.getTagValue(fnode, "path"));
+    setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
+    setFormat(XmlHandler.getTagValue(fnode, "format"));
+    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
+    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
+    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
+    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
+    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
+    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
   }
 
-  public static final int getTrimTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeCode.length; i++) {
+      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getTrimTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeDesc.length; i++) {
+      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[ 0 ];
+  public static final String getTrimTypeCode(int i) {
+    if (i < 0 || i >= trimTypeCode.length) {
+      return trimTypeCode[0];
     }
-    return trimTypeCode[ i ];
+    return trimTypeCode[i];
   }
 
-  public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[ 0 ];
+  public static final String getTrimTypeDesc(int i) {
+    if (i < 0 || i >= trimTypeDesc.length) {
+      return trimTypeDesc[0];
     }
-    return trimTypeDesc[ i ];
+    return trimTypeDesc[i];
   }
 
   public Object clone() {
@@ -153,7 +155,7 @@ public class YamlInputField implements Cloneable {
       YamlInputField retval = (YamlInputField) super.clone();
 
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -162,7 +164,7 @@ public class YamlInputField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -174,11 +176,11 @@ public class YamlInputField implements Cloneable {
     return path;
   }
 
-  public void setPath( String fieldpath ) {
+  public void setPath(String fieldpath) {
     this.path = fieldpath;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -187,10 +189,10 @@ public class YamlInputField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -198,7 +200,7 @@ public class YamlInputField implements Cloneable {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -207,14 +209,14 @@ public class YamlInputField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return getTrimTypeCode( trimtype );
+    return getTrimTypeCode(trimtype);
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc( trimtype );
+    return getTrimTypeDesc(trimtype);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
@@ -222,7 +224,7 @@ public class YamlInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String group_symbol ) {
+  public void setGroupSymbol(String group_symbol) {
     this.groupSymbol = group_symbol;
   }
 
@@ -230,7 +232,7 @@ public class YamlInputField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
+  public void setDecimalSymbol(String decimal_symbol) {
     this.decimalSymbol = decimal_symbol;
   }
 
@@ -238,7 +240,7 @@ public class YamlInputField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
+  public void setCurrencySymbol(String currency_symbol) {
     this.currencySymbol = currency_symbol;
   }
 
@@ -246,8 +248,7 @@ public class YamlInputField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
-
 }

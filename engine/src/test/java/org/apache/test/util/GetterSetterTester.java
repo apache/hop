@@ -30,34 +30,36 @@ public class GetterSetterTester<T> {
   private final Map<String, String> getterMap;
   private final Map<String, String> setterMap;
 
-  public GetterSetterTester( Class<? extends T> clazz ) {
-    this( clazz, new HashMap<>(), new HashMap<>() );
+  public GetterSetterTester(Class<? extends T> clazz) {
+    this(clazz, new HashMap<>(), new HashMap<>());
   }
 
-  public GetterSetterTester( Class<? extends T> clazz, Map<String, String> getterMap, Map<String, String> setterMap ) {
+  public GetterSetterTester(
+      Class<? extends T> clazz, Map<String, String> getterMap, Map<String, String> setterMap) {
     this.clazz = clazz;
     this.getterMap = getterMap;
     this.setterMap = setterMap;
     objectTesterMap = new HashMap<>();
   }
 
-  public void test( Object objectUnderTest ) {
+  public void test(Object objectUnderTest) {
     JavaBeanManipulator<T> manipulator =
-      new JavaBeanManipulator<>( clazz, new ArrayList<>( objectTesterMap.keySet() ), getterMap, setterMap );
-    for ( Entry<String, IObjectTester<?>> entry : objectTesterMap.entrySet() ) {
+        new JavaBeanManipulator<>(
+            clazz, new ArrayList<>(objectTesterMap.keySet()), getterMap, setterMap);
+    for (Entry<String, IObjectTester<?>> entry : objectTesterMap.entrySet()) {
       String attribute = entry.getKey();
-      @SuppressWarnings( "unchecked" )
+      @SuppressWarnings("unchecked")
       IObjectTester<Object> tester = (IObjectTester<Object>) entry.getValue();
-      for ( Object testObject : tester.getTestObjects() ) {
-        @SuppressWarnings( "unchecked" )
-        ISetter<Object> setter = (ISetter<Object>) manipulator.getSetter( attribute );
-        setter.set( objectUnderTest, testObject );
-        tester.validate( testObject, manipulator.getGetter( attribute ).get( objectUnderTest ) );
+      for (Object testObject : tester.getTestObjects()) {
+        @SuppressWarnings("unchecked")
+        ISetter<Object> setter = (ISetter<Object>) manipulator.getSetter(attribute);
+        setter.set(objectUnderTest, testObject);
+        tester.validate(testObject, manipulator.getGetter(attribute).get(objectUnderTest));
       }
     }
   }
 
-  public void addObjectTester( String attribute, IObjectTester<?> objectTester ) {
-    objectTesterMap.put( attribute, objectTester );
+  public void addObjectTester(String attribute, IObjectTester<?> objectTester) {
+    objectTesterMap.put(attribute, objectTester);
   }
 }

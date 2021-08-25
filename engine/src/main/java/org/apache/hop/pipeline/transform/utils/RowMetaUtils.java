@@ -18,45 +18,51 @@
 package org.apache.hop.pipeline.transform.utils;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 
 public class RowMetaUtils {
 
-  public static IRowMeta getRowMetaForUpdate( IRowMeta prev, String[] keyLookup, String[] keyStream,
-                                              String[] updateLookup, String[] updateStream ) throws HopTransformException {
+  public static IRowMeta getRowMetaForUpdate(
+      IRowMeta prev,
+      String[] keyLookup,
+      String[] keyStream,
+      String[] updateLookup,
+      String[] updateStream)
+      throws HopTransformException {
     IRowMeta tableFields = new RowMeta();
 
     // Now change the field names
     // the key fields
-    if ( keyLookup != null ) {
-      for ( int i = 0; i < keyLookup.length; i++ ) {
-        IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
-        if ( v != null ) {
+    if (keyLookup != null) {
+      for (int i = 0; i < keyLookup.length; i++) {
+        IValueMeta v = prev.searchValueMeta(keyStream[i]);
+        if (v != null) {
           IValueMeta tableField = v.clone();
-          tableField.setName( keyLookup[ i ] );
-          tableFields.addValueMeta( tableField );
+          tableField.setName(keyLookup[i]);
+          tableFields.addValueMeta(tableField);
         } else {
-          throw new HopTransformException( "Unable to find field [" + keyStream[ i ] + "] in the input rows" );
+          throw new HopTransformException(
+              "Unable to find field [" + keyStream[i] + "] in the input rows");
         }
       }
     }
     // the lookup fields
-    for ( int i = 0; i < updateLookup.length; i++ ) {
-      IValueMeta v = prev.searchValueMeta( updateStream[ i ] );
-      if ( v != null ) {
-        IValueMeta vk = tableFields.searchValueMeta( updateLookup[ i ] );
-        if ( vk == null ) { // do not add again when already added as key fields
+    for (int i = 0; i < updateLookup.length; i++) {
+      IValueMeta v = prev.searchValueMeta(updateStream[i]);
+      if (v != null) {
+        IValueMeta vk = tableFields.searchValueMeta(updateLookup[i]);
+        if (vk == null) { // do not add again when already added as key fields
           IValueMeta tableField = v.clone();
-          tableField.setName( updateLookup[ i ] );
-          tableFields.addValueMeta( tableField );
+          tableField.setName(updateLookup[i]);
+          tableFields.addValueMeta(tableField);
         }
       } else {
-        throw new HopTransformException( "Unable to find field [" + updateStream[ i ] + "] in the input rows" );
+        throw new HopTransformException(
+            "Unable to find field [" + updateStream[i] + "] in the input rows");
       }
     }
     return tableFields;
   }
-
 }

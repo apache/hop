@@ -30,35 +30,35 @@ public class PoiCell implements IKCell {
 
   private Cell cell;
 
-  public PoiCell( Cell cell ) {
+  public PoiCell(Cell cell) {
     this.cell = cell;
   }
 
   public KCellType getType() {
     // For POI version 4.1.2
     // switch ( cell.getCellType() ) {
-      
-    switch ( cell.getCellTypeEnum() ) {
+
+    switch (cell.getCellTypeEnum()) {
       case BOOLEAN:
         return KCellType.BOOLEAN;
-        
+
       case NUMERIC:
-        if ( DateUtil.isCellDateFormatted( cell ) ) {
+        if (DateUtil.isCellDateFormatted(cell)) {
           return KCellType.DATE;
         }
         return KCellType.NUMBER;
-              
+
       case STRING:
         return KCellType.LABEL;
-        
+
       case BLANK:
       case ERROR:
         return KCellType.EMPTY;
-      
-      case FORMULA: 
-       // For POI version 4.1.2
-       // switch ( cell.getCachedFormulaResultType() ) {
-        switch ( cell.getCachedFormulaResultTypeEnum() ) {
+
+      case FORMULA:
+        // For POI version 4.1.2
+        // switch ( cell.getCachedFormulaResultType() ) {
+        switch (cell.getCachedFormulaResultTypeEnum()) {
           case BLANK:
           case ERROR:
             return KCellType.EMPTY;
@@ -67,7 +67,7 @@ public class PoiCell implements IKCell {
           case STRING:
             return KCellType.STRING_FORMULA;
           case NUMERIC:
-            if ( DateUtil.isCellDateFormatted( cell ) ) {
+            if (DateUtil.isCellDateFormatted(cell)) {
               return KCellType.DATE_FORMULA;
             } else {
               return KCellType.NUMBER_FORMULA;
@@ -78,26 +78,25 @@ public class PoiCell implements IKCell {
       default:
         return null;
     }
-        
   }
 
   public Object getValue() {
     try {
-      switch ( getType() ) {
+      switch (getType()) {
         case BOOLEAN_FORMULA:
         case BOOLEAN:
-          return Boolean.valueOf( cell.getBooleanCellValue() );
+          return Boolean.valueOf(cell.getBooleanCellValue());
         case DATE_FORMULA:
         case DATE:
           // Timezone conversion needed since POI doesn't support this apparently
           //
           long time = cell.getDateCellValue().getTime();
-          long tzOffset = TimeZone.getDefault().getOffset( time );
+          long tzOffset = TimeZone.getDefault().getOffset(time);
 
-          return new Date( time + tzOffset );
+          return new Date(time + tzOffset);
         case NUMBER_FORMULA:
         case NUMBER:
-          return Double.valueOf( cell.getNumericCellValue() );
+          return Double.valueOf(cell.getNumericCellValue());
         case STRING_FORMULA:
         case LABEL:
           return cell.getStringCellValue();
@@ -105,22 +104,28 @@ public class PoiCell implements IKCell {
         default:
           return null;
       }
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Unable to get value of cell ("
-        + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")", e );
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to get value of cell (" + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")",
+          e);
     }
   }
 
   public String getContents() {
     try {
       Object value = getValue();
-      if ( value == null ) {
+      if (value == null) {
         return null;
       }
       return value.toString();
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Unable to get string content of cell ("
-        + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")", e );
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to get string content of cell ("
+              + cell.getColumnIndex()
+              + ", "
+              + cell.getRowIndex()
+              + ")",
+          e);
     }
   }
 

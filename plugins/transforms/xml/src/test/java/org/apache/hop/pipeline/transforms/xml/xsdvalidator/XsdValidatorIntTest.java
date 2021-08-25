@@ -40,10 +40,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.Assert.*;
 
 public class XsdValidatorIntTest {
 
@@ -55,120 +52,137 @@ public class XsdValidatorIntTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init(  );
+    HopEnvironment.init();
   }
 
   @AfterClass
   public static void tearDownAfterClass() {
     try {
-      if ( schemaRamFile != null && schemaRamFile.exists() ) {
+      if (schemaRamFile != null && schemaRamFile.exists()) {
         schemaRamFile.delete();
       }
-      if ( dataRamFile != null && dataRamFile.exists() ) {
+      if (dataRamFile != null && dataRamFile.exists()) {
         dataRamFile.delete();
       }
-    } catch ( Exception ignore ) {
+    } catch (Exception ignore) {
       // Ignore
     }
   }
 
   @Test
   public void testVfsInputFiles() throws Exception {
-    testVfsFileTypes( getDataRamFile().getURL().toString(), getSchemaRamFile().getURL().toString(), true );
-    testVfsFileTypes( getDataRamFile().getURL().toString(), getSchemaFileUrl( TEST_FILES_DIR + "schema.xsd" ), true );
-    testVfsFileTypes( getDataFileUrl( TEST_FILES_DIR + "data.xml" ), getSchemaRamFile().getURL().toString(), true );
-    testVfsFileTypes( getDataFileUrl( TEST_FILES_DIR + "data.xml" ), getSchemaFileUrl( TEST_FILES_DIR + "schema.xsd" ), true );
-    testVfsFileTypes( getDataFileUrl( TEST_FILES_DIR + "xsd_issue/bad.xml" ),
-      getSchemaFileUrl( TEST_FILES_DIR + "xsd_issue/cbc-xml-schema-v1.0/CbcXML_v1.0.xsd" ), true );
-
+    testVfsFileTypes(
+        getDataRamFile().getURL().toString(), getSchemaRamFile().getURL().toString(), true);
+    testVfsFileTypes(
+        getDataRamFile().getURL().toString(),
+        getSchemaFileUrl(TEST_FILES_DIR + "schema.xsd"),
+        true);
+    testVfsFileTypes(
+        getDataFileUrl(TEST_FILES_DIR + "data.xml"), getSchemaRamFile().getURL().toString(), true);
+    testVfsFileTypes(
+        getDataFileUrl(TEST_FILES_DIR + "data.xml"),
+        getSchemaFileUrl(TEST_FILES_DIR + "schema.xsd"),
+        true);
+    testVfsFileTypes(
+        getDataFileUrl(TEST_FILES_DIR + "xsd_issue/bad.xml"),
+        getSchemaFileUrl(TEST_FILES_DIR + "xsd_issue/cbc-xml-schema-v1.0/CbcXML_v1.0.xsd"),
+        true);
   }
 
   private FileObject getSchemaRamFile() throws Exception {
-    if ( schemaRamFile != null && schemaRamFile.exists() && schemaRamFile.getContent().getSize() > 0 ) {
+    if (schemaRamFile != null
+        && schemaRamFile.exists()
+        && schemaRamFile.getContent().getSize() > 0) {
       return schemaRamFile;
     }
-    schemaRamFile = loadRamFile( "schema.xsd" );
+    schemaRamFile = loadRamFile("schema.xsd");
     return schemaRamFile;
   }
 
   private FileObject getDataRamFile() throws Exception {
-    if ( dataRamFile != null && dataRamFile.exists() && dataRamFile.getContent().getSize() > 0 ) {
+    if (dataRamFile != null && dataRamFile.exists() && dataRamFile.getContent().getSize() > 0) {
       return dataRamFile;
     }
-    dataRamFile = loadRamFile( "data.xml" );
+    dataRamFile = loadRamFile("data.xml");
     return dataRamFile;
   }
 
-  private String getFileUrl( String filename ) throws Exception {
-    File file = new File( filename );
+  private String getFileUrl(String filename) throws Exception {
+    File file = new File(filename);
     return file.toURI().toURL().toExternalForm();
   }
 
-  private InputStream getFileInputStream( String filename ) throws Exception {
-    File file = new File( TEST_FILES_DIR + filename );
-    return new FileInputStream( file );
+  private InputStream getFileInputStream(String filename) throws Exception {
+    File file = new File(TEST_FILES_DIR + filename);
+    return new FileInputStream(file);
   }
 
-  private String getSchemaFileUrl( String filename ) throws Exception {
-    return getFileUrl( filename );
+  private String getSchemaFileUrl(String filename) throws Exception {
+    return getFileUrl(filename);
   }
 
-  private String getDataFileUrl( String filename ) throws Exception {
-    return getFileUrl( filename );
+  private String getDataFileUrl(String filename) throws Exception {
+    return getFileUrl(filename);
   }
 
-  private FileObject loadRamFile( String filename ) throws Exception {
+  private FileObject loadRamFile(String filename) throws Exception {
     String targetUrl = RAMDIR + "/" + filename;
-    try ( InputStream source = getFileInputStream( filename ) ) {
-      FileObject fileObject = HopVfs.getFileObject( targetUrl );
-      try ( OutputStream targetStream = fileObject.getContent().getOutputStream() ) {
-        IOUtils.copy( source, targetStream );
+    try (InputStream source = getFileInputStream(filename)) {
+      FileObject fileObject = HopVfs.getFileObject(targetUrl);
+      try (OutputStream targetStream = fileObject.getContent().getOutputStream()) {
+        IOUtils.copy(source, targetStream);
       }
       return fileObject;
     }
   }
 
-  private void testVfsFileTypes( String dataFilename, String schemaFilename, boolean expected ) throws Exception {
-    assertNotNull( dataFilename );
-    assertNotNull( schemaFilename );
-    assertTrue( HopVfs.getFileObject( dataFilename ).exists() );
-    assertTrue( HopVfs.getFileObject( schemaFilename ).exists() );
+  private void testVfsFileTypes(String dataFilename, String schemaFilename, boolean expected)
+      throws Exception {
+    assertNotNull(dataFilename);
+    assertNotNull(schemaFilename);
+    assertTrue(HopVfs.getFileObject(dataFilename).exists());
+    assertTrue(HopVfs.getFileObject(schemaFilename).exists());
 
     IRowMeta inputRowMeta = new RowMeta();
-    inputRowMeta.addValueMeta( new ValueMetaString( "DataFile" ) );
-    inputRowMeta.addValueMeta( new ValueMetaString( "SchemaFile" ) );
+    inputRowMeta.addValueMeta(new ValueMetaString("DataFile"));
+    inputRowMeta.addValueMeta(new ValueMetaString("SchemaFile"));
     List<RowMetaAndData> inputData = new ArrayList<>();
-    inputData.add( new RowMetaAndData( inputRowMeta, new Object[] { dataFilename, schemaFilename } ) );
+    inputData.add(new RowMetaAndData(inputRowMeta, new Object[] {dataFilename, schemaFilename}));
 
     String TransformName = "XSD Validator";
     XsdValidatorMeta meta = new XsdValidatorMeta();
     meta.setDefault();
-    meta.setXMLSourceFile( true );
-    meta.setXMLStream( "DataFile" );
-    meta.setXSDSource( meta.SPECIFY_FIELDNAME );
-    meta.setXSDDefinedField( "SchemaFile" );
-    meta.setAddValidationMessage( true );
-    PipelineMeta pipelineMeta = PipelineTestFactory.generateTestTransformation( null, meta, TransformName );
+    meta.setXMLSourceFile(true);
+    meta.setXMLStream("DataFile");
+    meta.setXSDSource(meta.SPECIFY_FIELDNAME);
+    meta.setXSDDefinedField("SchemaFile");
+    meta.setAddValidationMessage(true);
+    PipelineMeta pipelineMeta =
+        PipelineTestFactory.generateTestTransformation(null, meta, TransformName);
 
     List<RowMetaAndData> result = null;
     result =
-        PipelineTestFactory.executeTestTransformation( pipelineMeta, PipelineTestFactory.INJECTOR_TRANSFORMNAME, TransformName,
-            PipelineTestFactory.DUMMY_TRANSFORMNAME, inputData );
+        PipelineTestFactory.executeTestTransformation(
+            pipelineMeta,
+            PipelineTestFactory.INJECTOR_TRANSFORMNAME,
+            TransformName,
+            PipelineTestFactory.DUMMY_TRANSFORMNAME,
+            inputData);
 
-    assertNotNull( result );
-    assertEquals( 1, result.size() );
+    assertNotNull(result);
+    assertEquals(1, result.size());
 
     // Check Metadata
-    assertEquals( IValueMeta.TYPE_STRING, result.get( 0 ).getValueMeta( 0 ).getType() );
-    assertEquals( IValueMeta.TYPE_STRING, result.get( 0 ).getValueMeta( 1 ).getType() );
-    assertEquals( IValueMeta.TYPE_BOOLEAN, result.get( 0 ).getValueMeta( 2 ).getType() );
-    assertEquals( "DataFile", result.get( 0 ).getValueMeta( 0 ).getName() );
-    assertEquals( "SchemaFile", result.get( 0 ).getValueMeta( 1 ).getName() );
-    assertEquals( "result", result.get( 0 ).getValueMeta( 2 ).getName() );
+    assertEquals(IValueMeta.TYPE_STRING, result.get(0).getValueMeta(0).getType());
+    assertEquals(IValueMeta.TYPE_STRING, result.get(0).getValueMeta(1).getType());
+    assertEquals(IValueMeta.TYPE_BOOLEAN, result.get(0).getValueMeta(2).getType());
+    assertEquals("DataFile", result.get(0).getValueMeta(0).getName());
+    assertEquals("SchemaFile", result.get(0).getValueMeta(1).getName());
+    assertEquals("result", result.get(0).getValueMeta(2).getName());
 
     // Check result
-    assertEquals( dataFilename, result.get( 0 ).getString( 0, "default" ) );
-    assertEquals( schemaFilename, result.get( 0 ).getString( 1, "default" ) );
-    assertEquals( expected, result.get( 0 ).getBoolean( 2, !expected ) );
+    assertEquals(dataFilename, result.get(0).getString(0, "default"));
+    assertEquals(schemaFilename, result.get(0).getString(1, "default"));
+    assertEquals(expected, result.get(0).getBoolean(2, !expected));
   }
 }

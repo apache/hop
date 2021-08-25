@@ -23,11 +23,12 @@ under the License.
 
 The Blocking transform blocks all output until the very last row is received from the previous transform.
 
-At that point, the last row is sent to the next transform or the complete input is sent off to the next transform. Use the Blocking transform for triggering plugins, stored procedures, Java scripts, ... or for synchronization purposes.
+At that point, the last row is sent to the next transform or the complete input is sent off to the next transform.
+Use the Blocking transform for triggering plugins, stored procedures, Java scripts, ... or for synchronization purposes.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline.
@@ -35,5 +36,5 @@ At that point, the last row is sent to the next transform or the complete input 
 |Spool directory|The directory in which the temporary files are stored if needed; the default is the standard temporary directory for the system
 |Spool-file prefix|Choose a recognizable prefix to identify the files when they appear in the temp directory
 |Cache size|The more rows you can store in memory, the faster the transform works
-|Compress spool files?|Compresses temporary files when they are needed 
+|Compress spool files?|Compresses temporary files when they are needed
 |===

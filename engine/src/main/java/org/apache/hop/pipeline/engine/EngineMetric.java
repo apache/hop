@@ -26,10 +26,10 @@ public class EngineMetric implements IEngineMetric {
   private String displayPriority;
   private boolean numeric;
 
-  public EngineMetric() {
-  }
+  public EngineMetric() {}
 
-  public EngineMetric( String code, String header, String tooltip, String displayPriority, boolean numeric ) {
+  public EngineMetric(
+      String code, String header, String tooltip, String displayPriority, boolean numeric) {
     this.code = code;
     this.header = header;
     this.tooltip = tooltip;
@@ -37,19 +37,21 @@ public class EngineMetric implements IEngineMetric {
     this.numeric = numeric;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     EngineMetric that = (EngineMetric) o;
-    return Objects.equals( code, that.code );
+    return Objects.equals(code, that.code);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( code );
+  @Override
+  public int hashCode() {
+    return Objects.hash(code);
   }
 
   /**
@@ -57,14 +59,13 @@ public class EngineMetric implements IEngineMetric {
    *
    * @return value of code
    */
-  @Override public String getCode() {
+  @Override
+  public String getCode() {
     return code;
   }
 
-  /**
-   * @param code The code to set
-   */
-  public void setCode( String code ) {
+  /** @param code The code to set */
+  public void setCode(String code) {
     this.code = code;
   }
 
@@ -73,14 +74,13 @@ public class EngineMetric implements IEngineMetric {
    *
    * @return value of header
    */
-  @Override public String getHeader() {
+  @Override
+  public String getHeader() {
     return header;
   }
 
-  /**
-   * @param header The header to set
-   */
-  public void setHeader( String header ) {
+  /** @param header The header to set */
+  public void setHeader(String header) {
     this.header = header;
   }
 
@@ -89,14 +89,13 @@ public class EngineMetric implements IEngineMetric {
    *
    * @return value of tooltip
    */
-  @Override public String getTooltip() {
+  @Override
+  public String getTooltip() {
     return tooltip;
   }
 
-  /**
-   * @param tooltip The tooltip to set
-   */
-  public void setTooltip( String tooltip ) {
+  /** @param tooltip The tooltip to set */
+  public void setTooltip(String tooltip) {
     this.tooltip = tooltip;
   }
 
@@ -105,14 +104,13 @@ public class EngineMetric implements IEngineMetric {
    *
    * @return value of displayPriority
    */
-  @Override public String getDisplayPriority() {
+  @Override
+  public String getDisplayPriority() {
     return displayPriority;
   }
 
-  /**
-   * @param displayPriority The displayPriority to set
-   */
-  public void setDisplayPriority( String displayPriority ) {
+  /** @param displayPriority The displayPriority to set */
+  public void setDisplayPriority(String displayPriority) {
     this.displayPriority = displayPriority;
   }
 
@@ -121,14 +119,13 @@ public class EngineMetric implements IEngineMetric {
    *
    * @return value of numeric
    */
-  @Override public boolean isNumeric() {
+  @Override
+  public boolean isNumeric() {
     return numeric;
   }
 
-  /**
-   * @param numeric The numeric to set
-   */
-  public void setNumeric( boolean numeric ) {
+  /** @param numeric The numeric to set */
+  public void setNumeric(boolean numeric) {
     this.numeric = numeric;
   }
 }

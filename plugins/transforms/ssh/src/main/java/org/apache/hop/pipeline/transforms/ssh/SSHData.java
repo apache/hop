@@ -63,77 +63,93 @@ public class SSHData extends BaseTransformData implements ITransformData {
     this.stdTypeField = null;
   }
 
-  public static Connection OpenConnection( String serveur, int port, String username, String password,
-                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, IVariables variables, String proxyhost,
-                                           int proxyport, String proxyusername, String proxypassword ) throws HopException {
+  public static Connection OpenConnection(
+      String serveur,
+      int port,
+      String username,
+      String password,
+      boolean useKey,
+      String keyFilename,
+      String passPhrase,
+      int timeOut,
+      IVariables variables,
+      String proxyhost,
+      int proxyport,
+      String proxyusername,
+      String proxypassword)
+      throws HopException {
     Connection conn = null;
     char[] content = null;
     boolean isAuthenticated = false;
     try {
       // perform some checks
-      if ( useKey ) {
-        if ( Utils.isEmpty( keyFilename ) ) {
-          throw new HopException( BaseMessages.getString( SSHMeta.PKG, "SSH.Error.PrivateKeyFileMissing" ) );
+      if (useKey) {
+        if (Utils.isEmpty(keyFilename)) {
+          throw new HopException(
+              BaseMessages.getString(SSHMeta.PKG, "SSH.Error.PrivateKeyFileMissing"));
         }
-        FileObject keyFileObject = HopVfs.getFileObject( keyFilename );
+        FileObject keyFileObject = HopVfs.getFileObject(keyFilename);
 
-        if ( !keyFileObject.exists() ) {
-          throw new HopException( BaseMessages.getString( SSHMeta.PKG, "SSH.Error.PrivateKeyNotExist", keyFilename ) );
+        if (!keyFileObject.exists()) {
+          throw new HopException(
+              BaseMessages.getString(SSHMeta.PKG, "SSH.Error.PrivateKeyNotExist", keyFilename));
         }
 
         FileContent keyFileContent = keyFileObject.getContent();
 
-        CharArrayWriter charArrayWriter = new CharArrayWriter( (int) keyFileContent.getSize() );
+        CharArrayWriter charArrayWriter = new CharArrayWriter((int) keyFileContent.getSize());
 
-        try ( InputStream in = keyFileContent.getInputStream() ) {
-          IOUtils.copy( in, charArrayWriter );
+        try (InputStream in = keyFileContent.getInputStream()) {
+          IOUtils.copy(in, charArrayWriter);
         }
 
         content = charArrayWriter.toCharArray();
       }
       // Create a new connection
-      conn = createConnection( serveur, port );
+      conn = createConnection(serveur, port);
 
       /* We want to connect through a HTTP proxy */
-      if ( !Utils.isEmpty( proxyhost ) ) {
+      if (!Utils.isEmpty(proxyhost)) {
         /* Now connect */
         // if the proxy requires basic authentication:
-        if ( !Utils.isEmpty( proxyusername ) ) {
-          conn.setProxyData( new HTTPProxyData( proxyhost, proxyport, proxyusername, proxypassword ) );
+        if (!Utils.isEmpty(proxyusername)) {
+          conn.setProxyData(new HTTPProxyData(proxyhost, proxyport, proxyusername, proxypassword));
         } else {
-          conn.setProxyData( new HTTPProxyData( proxyhost, proxyport ) );
+          conn.setProxyData(new HTTPProxyData(proxyhost, proxyport));
         }
       }
 
       // and connect
-      if ( timeOut == 0 ) {
+      if (timeOut == 0) {
         conn.connect();
       } else {
-        conn.connect( null, 0, timeOut * 1000 );
+        conn.connect(null, 0, timeOut * 1000);
       }
       // authenticate
-      if ( useKey ) {
+      if (useKey) {
         isAuthenticated =
-          conn.authenticateWithPublicKey( username, content, variables.resolve( passPhrase ) );
+            conn.authenticateWithPublicKey(username, content, variables.resolve(passPhrase));
       } else {
-        isAuthenticated = conn.authenticateWithPassword( username, password );
+        isAuthenticated = conn.authenticateWithPassword(username, password);
       }
-      if ( isAuthenticated == false ) {
-        throw new HopException( BaseMessages.getString( SSHMeta.PKG, "SSH.Error.AuthenticationFailed", username ) );
+      if (isAuthenticated == false) {
+        throw new HopException(
+            BaseMessages.getString(SSHMeta.PKG, "SSH.Error.AuthenticationFailed", username));
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // Something wrong happened
       // do not forget to disconnect if connected
-      if ( conn != null ) {
+      if (conn != null) {
         conn.close();
       }
-      throw new HopException( BaseMessages.getString( SSHMeta.PKG, "SSH.Error.ErrorConnecting", serveur, username ), e );
+      throw new HopException(
+          BaseMessages.getString(SSHMeta.PKG, "SSH.Error.ErrorConnecting", serveur, username), e);
     }
     return conn;
   }
 
   @VisibleForTesting
-  static Connection createConnection( String serveur, int port ) {
-    return new Connection( serveur, port );
+  static Connection createConnection(String serveur, int port) {
+    return new Connection(serveur, port);
   }
 }

@@ -31,8 +31,7 @@ public class PartitionDatabaseMeta {
   String username;
   String password;
 
-  public PartitionDatabaseMeta() {
-  }
+  public PartitionDatabaseMeta() {}
 
   /**
    * @param partitionId
@@ -40,7 +39,7 @@ public class PartitionDatabaseMeta {
    * @param port
    * @param database
    */
-  public PartitionDatabaseMeta( String partitionId, String hostname, String port, String database ) {
+  public PartitionDatabaseMeta(String partitionId, String hostname, String port, String database) {
     super();
 
     this.partitionId = partitionId;
@@ -49,88 +48,63 @@ public class PartitionDatabaseMeta {
     this.databaseName = database;
   }
 
-  /**
-   * @return the partitionId
-   */
+  /** @return the partitionId */
   public String getPartitionId() {
     return partitionId;
   }
 
-  /**
-   * @param partitionId the partitionId to set
-   */
-  public void setPartitionId( String partitionId ) {
+  /** @param partitionId the partitionId to set */
+  public void setPartitionId(String partitionId) {
     this.partitionId = partitionId;
   }
 
-  /**
-   * @return the database
-   */
+  /** @return the database */
   public String getDatabaseName() {
     return databaseName;
   }
 
-  /**
-   * @param database the database to set
-   */
-  public void setDatabaseName( String database ) {
+  /** @param database the database to set */
+  public void setDatabaseName(String database) {
     this.databaseName = database;
   }
 
-  /**
-   * @return the hostname
-   */
+  /** @return the hostname */
   public String getHostname() {
     return hostname;
   }
 
-  /**
-   * @param hostname the hostname to set
-   */
-  public void setHostname( String hostname ) {
+  /** @param hostname the hostname to set */
+  public void setHostname(String hostname) {
     this.hostname = hostname;
   }
 
-  /**
-   * @return the port
-   */
+  /** @return the port */
   public String getPort() {
     return port;
   }
 
-  /**
-   * @param port the port to set
-   */
-  public void setPort( String port ) {
+  /** @param port the port to set */
+  public void setPort(String port) {
     this.port = port;
   }
 
-  /**
-   * @return the password
-   */
+  /** @return the password */
   public String getPassword() {
     return password;
   }
 
-  /**
-   * @param password the password to set
-   */
-  public void setPassword( String password ) {
+  /** @param password the password to set */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  /**
-   * @return the username
-   */
+  /** @return the username */
   public String getUsername() {
     return username;
   }
 
-  /**
-   * @param username the username to set
-   */
-  public void setUsername( String username ) {
+  /** @param username the username to set */
+  public void setUsername(String username) {
     this.username = username;
   }
-
 }

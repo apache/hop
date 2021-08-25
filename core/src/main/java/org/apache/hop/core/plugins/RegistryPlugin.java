@@ -22,11 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * User: nbaker Date: 3/14/11
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
+/** User: nbaker Date: 3/14/11 */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface RegistryPlugin {
 
   String id();

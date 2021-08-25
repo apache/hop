@@ -21,16 +21,17 @@ under the License.
 
 == Description
 
-The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms. Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
+The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms.
+Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |First Transform | The first transform to read data from (left hand side of the join)
 |Second Transform | The second transform to read data from (right hand side of the join)
 |Join type | The join type that should be used; INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER
-|Key Field | The fields used for the join key, this only supports equal joins (key first transform  = key second transform)
+|Key Field | The fields used for the join key, this only supports equal joins (key first transform = key second transform)
 |===
 

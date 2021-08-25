@@ -9,7 +9,8 @@
         "projectName": "default",
         "projectHome": "config/projects/default",
         "configFilename": "project-config.json"
-      }, {
+      },
+      {
         "projectName": "samples",
         "projectHome": "config/projects/samples",
         "configFilename": "project-config.json"

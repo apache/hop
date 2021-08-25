@@ -16,8 +16,8 @@
  */
 package org.apache.hop.ui.util;
 
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
@@ -33,13 +33,13 @@ import java.util.regex.Pattern;
 public class EnvironmentUtils {
 
   private static final EnvironmentUtils ENVIRONMENT_UTILS = new EnvironmentUtils();
-  private static final Pattern MSIE_PATTERN = Pattern.compile( "MSIE (\\d+)" );
-  private static final Pattern SAFARI_PATTERN = Pattern.compile( "AppleWebKit\\/(\\d+)" );
+  private static final Pattern MSIE_PATTERN = Pattern.compile("MSIE (\\d+)");
+  private static final Pattern SAFARI_PATTERN = Pattern.compile("AppleWebKit\\/(\\d+)");
   private static final String SUPPORTED_DISTRIBUTION_NAME = "ubuntu";
   public static final String UBUNTU_BROWSER = "Midori";
   public static final String MAC_BROWSER = "Safari";
   public static final String WINDOWS_BROWSER = "MSIE";
-  private final ILogChannel log = new LogChannel( this );
+  private final ILogChannel log = new LogChannel(this);
 
   public static synchronized EnvironmentUtils getInstance() {
     return ENVIRONMENT_UTILS;
@@ -51,19 +51,21 @@ public class EnvironmentUtils {
    * @return 'true' if in a unSupported browser environment 'false' otherwise.
    */
   public synchronized boolean isUnsupportedBrowserEnvironment() {
-    if ( getEnvironmentName().contains( "linux" ) ) {
+    if (getEnvironmentName().contains("linux")) {
       return false;
     }
     final String userAgent = getUserAgent();
-    if ( userAgent == null ) {
+    if (userAgent == null) {
       return true;
     }
-    return checkUserAgent( MSIE_PATTERN.matcher( userAgent ), getSupportedVersion( "min.windows.browser.supported" ) )
-      || checkUserAgent( SAFARI_PATTERN.matcher( userAgent ), getSupportedVersion( "min.mac.browser.supported" ) );
+    return checkUserAgent(
+            MSIE_PATTERN.matcher(userAgent), getSupportedVersion("min.windows.browser.supported"))
+        || checkUserAgent(
+            SAFARI_PATTERN.matcher(userAgent), getSupportedVersion("min.mac.browser.supported"));
   }
 
-  private boolean checkUserAgent( Matcher matcher, int version ) {
-    return ( matcher.find() && Integer.parseInt( matcher.group( 1 ) ) < version );
+  private boolean checkUserAgent(Matcher matcher, int version) {
+    return (matcher.find() && Integer.parseInt(matcher.group(1)) < version);
   }
 
   /**
@@ -74,12 +76,12 @@ public class EnvironmentUtils {
   protected String getUserAgent() {
     Browser browser;
     try {
-      browser = new Browser( new Shell(), SWT.NONE );
-    } catch ( SWTError e ) {
-      log.logError( "Could not open a browser", e );
+      browser = new Browser(new Shell(), SWT.NONE);
+    } catch (SWTError e) {
+      log.logError("Could not open a browser", e);
       return "";
     }
-    String userAgent = browser.evaluate( "return window.navigator.userAgent;" ).toString();
+    String userAgent = browser.evaluate("return window.navigator.userAgent;").toString();
     browser.close();
     return userAgent;
   }
@@ -87,16 +89,21 @@ public class EnvironmentUtils {
   /**
    * Checks the existence of the webkit library on ubuntu 16 or ubuntu 14 .
    *
-   * @return 'true' if the webkit library is not present in ubuntu 16 or ubuntu 14 , 'false' otherwise.
+   * @return 'true' if the webkit library is not present in ubuntu 16 or ubuntu 14 , 'false'
+   *     otherwise.
    */
   public synchronized boolean isWebkitUnavailable() {
     String path = getWebkitPath();
     String osName = getEnvironmentName();
-    return ( ( path == null || path.length() < 1 || !path.contains( "webkit" ) )
-      &&
-      ( osName.contains( SUPPORTED_DISTRIBUTION_NAME + " " + getSupportedVersion( "max.ubuntu.os.distribution.supported" ) )
-        ||
-        osName.contains( SUPPORTED_DISTRIBUTION_NAME + " " + getSupportedVersion( "min.ubuntu.os.distribution.supported" ) ) ) );
+    return ((path == null || path.length() < 1 || !path.contains("webkit"))
+        && (osName.contains(
+                SUPPORTED_DISTRIBUTION_NAME
+                    + " "
+                    + getSupportedVersion("max.ubuntu.os.distribution.supported"))
+            || osName.contains(
+                SUPPORTED_DISTRIBUTION_NAME
+                    + " "
+                    + getSupportedVersion("min.ubuntu.os.distribution.supported"))));
   }
 
   /**
@@ -105,7 +112,7 @@ public class EnvironmentUtils {
    * @return a string that contains the path or 'null' if not found.
    */
   protected String getWebkitPath() {
-    return System.getenv( "LIBWEBKITGTK" );
+    return System.getenv("LIBWEBKITGTK");
   }
 
   /**
@@ -115,14 +122,14 @@ public class EnvironmentUtils {
    */
   private String getEnvironmentName() {
     String osName = getOsName();
-    if ( osName.contentEquals( "linux" ) ) {
+    if (osName.contentEquals("linux")) {
       return osName + " " + getLinuxDistribution().toLowerCase();
     }
     return osName;
   }
 
   protected String getOsName() {
-    return System.getProperty( "os.name" ).toLowerCase();
+    return System.getProperty("os.name").toLowerCase();
   }
 
   /**
@@ -131,8 +138,8 @@ public class EnvironmentUtils {
    * @param property a string with the required property.
    * @return the value of the requiredProperty.
    */
-  protected int getSupportedVersion( String property ) {
-    return PropsUi.getInstance().getSupportedVersion( property );
+  protected int getSupportedVersion(String property) {
+    return PropsUi.getInstance().getSupportedVersion(property);
   }
 
   /**
@@ -147,31 +154,32 @@ public class EnvironmentUtils {
   /**
    * Ask for the running linux distribution.
    *
-   * @return a string that contains the distribution name or a empty string if it could not find the name.
+   * @return a string that contains the distribution name or a empty string if it could not find the
+   *     name.
    */
   private String getLinuxDistribution() {
     Process p = null;
     try {
-      p = ExecuteCommand( "lsb_release -d" );
-    } catch ( IOException e ) {
-      log.logError( "Could not execute command", e );
+      p = ExecuteCommand("lsb_release -d");
+    } catch (IOException e) {
+      log.logError("Could not execute command", e);
       return "";
     }
-    BufferedReader in = getBufferedReaderFromProcess( p );
+    BufferedReader in = getBufferedReaderFromProcess(p);
     try {
       return in.readLine();
-    } catch ( IOException e ) {
-      log.logError( "Could not read the distribution name", e );
+    } catch (IOException e) {
+      log.logError("Could not read the distribution name", e);
       return "";
     }
   }
 
-  protected Process ExecuteCommand( String command ) throws IOException {
-    return Runtime.getRuntime().exec( command );
+  protected Process ExecuteCommand(String command) throws IOException {
+    return Runtime.getRuntime().exec(command);
   }
 
-  protected BufferedReader getBufferedReaderFromProcess( Process p ) {
-    return new BufferedReader( new InputStreamReader( p.getInputStream() ) );
+  protected BufferedReader getBufferedReaderFromProcess(Process p) {
+    return new BufferedReader(new InputStreamReader(p.getInputStream()));
   }
 
   /**
@@ -181,14 +189,14 @@ public class EnvironmentUtils {
    */
   public synchronized String getBrowserName() {
     final String userAgent = getUserAgent();
-    if ( userAgent == null ) {
+    if (userAgent == null) {
       return "";
     }
-    if ( userAgent.contains( WINDOWS_BROWSER ) ) {
+    if (userAgent.contains(WINDOWS_BROWSER)) {
       return WINDOWS_BROWSER;
-    } else if ( userAgent.contains( UBUNTU_BROWSER ) ) {
+    } else if (userAgent.contains(UBUNTU_BROWSER)) {
       return UBUNTU_BROWSER;
-    } else if ( userAgent.contains( MAC_BROWSER ) ) {
+    } else if (userAgent.contains(MAC_BROWSER)) {
       return MAC_BROWSER;
     }
     return "";
@@ -196,10 +204,10 @@ public class EnvironmentUtils {
 
   /**
    * Ask if the client is Hop Web.
+   *
    * @return 'true' if Hop Web 'false' otherwise.
    */
   public boolean isWeb() {
-    return SWT.getPlatform().equals( "rap" );
+    return SWT.getPlatform().equals("rap");
   }
-
 }

@@ -21,14 +21,17 @@ under the License.
 
 == Useful Variables
 
-A lot of Hop's default behavior can be customized through global variables. Check xref:variables.adoc[full list of variables] to check them all.
+A lot of Hop's default behavior can be customized through global variables.
+Check xref:variables.adoc[full list of variables] to check them all.
 A couple of useful and often overlooked environment variables can be set (outside of Hop):
 
 HOP_AUDIT_FOLDER::
-Set this variable to a valid path on your machine to store Hop's audit information. This information includes last opened files per project, zoom size and lots more.
+Set this variable to a valid path on your machine to store Hop's audit information.
+This information includes last opened files per project, zoom size and lots more.
 
 HOP_CONFIG_FOLDER::
-Hop stores your configuration in the `config` folder by default. Set this environment variable to point to a folder outside of your Hop installation to keep your configuration, projects and environment list etc, no matter which Hop version or installation you use.
+Hop stores your configuration in the `config` folder by default.
+Set this environment variable to point to a folder outside of your Hop installation to keep your configuration, projects and environment list etc, no matter which Hop version or installation you use.
 
 HOP_PLUGIN_BASE_FOLDERS::
 Set this variable to point Hop to a comma separated list of folders where you want Hop to look for additional plugins.
@@ -43,7 +46,8 @@ Hover your mouse pointer over any pipeline action in a workflow, pipeline or wor
 The same behavior can be triggered by hovering over an item and hitting the `Z` key.
 
 Copy as pipeline action::
-In any pipeline or workflow, click anywhere on the canvas and choose 'Copy as pipeline action' or 'Copy as workflow action'. The selected pipeline or workflow can now be pasted (CTRL-V) as a fully configured workflow or pipeline action in any workflow.
+In any pipeline or workflow, click anywhere on the canvas and choose 'Copy as pipeline action' or 'Copy as workflow action'.
+The selected pipeline or workflow can now be pasted (CTRL-V) as a fully configured workflow or pipeline action in any workflow.
 
 Transform hover + SPACE::
 In a pipeline, hover over any transform and hit `SPACE` to show the list of output fields for the selected transform.
@@ -52,11 +56,12 @@ Action or transform hover + `Z`::
 Hover your mouse pointer over any pipeline action in a workflow, pipeline or workflow executor transform etc and hit the `Z` key to open that item in a new tab.
 The same behavior can be triggered by hovering over an item and hitting the use `CTRL-SHIFT-Click` key combination.
 
-
 == Projects and Environments
 
-* Projects can inherit metadata items (e.g. database connections) from parent projects. Use parent projects to reuse metadata items across multiple projects.
-* a best practice rather than a pro tip: use project variables only for variables that are valid across all environments. Variable that have different values in different environments should be created on the environment level.
+* Projects can inherit metadata items (e.g. database connections) from parent projects.
+Use parent projects to reuse metadata items across multiple projects.
+* a best practice rather than a pro tip: use project variables only for variables that are valid across all environments.
+Variable that have different values in different environments should be created on the environment level.
 
 
 

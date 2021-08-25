@@ -19,9 +19,7 @@ package org.apache.hop.i18n;
 
 import org.apache.hop.laf.BasePropertyHandler;
 
-/**
- * @author dhushon
- */
+/** @author dhushon */
 public class LafMessageHandler extends GlobalMessages {
 
   private static String replace = "org.apache.hop";
@@ -30,10 +28,11 @@ public class LafMessageHandler extends GlobalMessages {
   private static String replaceSysBundle = null;
 
   static {
-    replaceWith = BasePropertyHandler.getProperty( "LAFpackage" );
+    replaceWith = BasePropertyHandler.getProperty("LAFpackage");
   }
 
-  // TODO: modify base class to include a mandatory accessor so that this singleton instantiation can be
+  // TODO: modify base class to include a mandatory accessor so that this singleton instantiation
+  // can be
   // TODO: better controlled
   public LafMessageHandler() {
     super();
@@ -41,50 +40,52 @@ public class LafMessageHandler extends GlobalMessages {
   }
 
   public static synchronized IMessageHandler getInstance() {
-    if ( GMinstance == null ) {
+    if (GMinstance == null) {
       GMinstance = new LafMessageHandler();
     }
     return GMinstance;
   }
 
   protected void reinit() {
-    replaceWith = BasePropertyHandler.getProperty( "LAFpackage" );
-    replaceSysBundle = replacePackage( SYSTEM_BUNDLE_PACKAGE );
+    replaceWith = BasePropertyHandler.getProperty("LAFpackage");
+    replaceSysBundle = replacePackage(SYSTEM_BUNDLE_PACKAGE);
     offset = -1;
   }
 
   /**
-   * replace the application packagename target with ours for proper resolution e.g. replace org.apache.hop.* with
-   * pointers to new package structure
+   * replace the application packagename target with ours for proper resolution e.g. replace
+   * org.apache.hop.* with pointers to new package structure
    *
    * @param packageName
    * @return
    */
-  private String replacePackage( String packageName ) {
+  private String replacePackage(String packageName) {
     // we haven't yet discovered the offset for the trim
-    if ( offset < 0 ) {
-      offset = packageName.indexOf( replace );
-      if ( offset >= 0 ) {
+    if (offset < 0) {
+      offset = packageName.indexOf(replace);
+      if (offset >= 0) {
         offset = replace.length();
       }
     }
-    if ( replaceWith != null ) {
-      return new String( replaceWith + packageName.substring( offset ) );
+    if (replaceWith != null) {
+      return new String(replaceWith + packageName.substring(offset));
     }
     return packageName;
   }
 
   @Override
-  protected String calculateString( String packageName, String key, Object[] parameters, Class<?> resourceClass ) {
-    if ( replaceWith != null ) {
-      final String[] pkgNames = new String[] { replacePackage( packageName ), replaceSysBundle };
-      final String string = super.calculateString( pkgNames, key, parameters, resourceClass );
-      if ( !GlobalMessageUtil.isMissingKey( string ) ) {
+  protected String calculateString(
+      String packageName, String key, Object[] parameters, Class<?> resourceClass) {
+    if (replaceWith != null) {
+      final String[] pkgNames = new String[] {replacePackage(packageName), replaceSysBundle};
+      final String string = super.calculateString(pkgNames, key, parameters, resourceClass);
+      if (!GlobalMessageUtil.isMissingKey(string)) {
         return string;
       }
     }
 
-    final String[] pkgNames = new String[] { packageName, SYSTEM_BUNDLE_PACKAGE };
-    return GlobalMessageUtil.calculateString( pkgNames, key, parameters, resourceClass, BUNDLE_NAME, false );
+    final String[] pkgNames = new String[] {packageName, SYSTEM_BUNDLE_PACKAGE};
+    return GlobalMessageUtil.calculateString(
+        pkgNames, key, parameters, resourceClass, BUNDLE_NAME, false);
   }
 }

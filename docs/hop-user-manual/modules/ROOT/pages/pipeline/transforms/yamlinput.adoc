@@ -27,7 +27,7 @@ The Yaml Input transform
 
 === File Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -46,7 +46,7 @@ The Yaml Input transform
 
 === Content Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Ignore empty file|Whether or not to ignore empty files.
@@ -61,7 +61,7 @@ The Yaml Input transform
 
 === Fields Tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Name|The name of the output field.

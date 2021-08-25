@@ -32,7 +32,7 @@ public class MailValidationResult {
     return this.isvalide;
   }
 
-  public void setValide( boolean valid ) {
+  public void setValide(boolean valid) {
     this.isvalide = valid;
   }
 
@@ -40,8 +40,7 @@ public class MailValidationResult {
     return this.errMsg;
   }
 
-  public void setErrorMessage( String errMsg ) {
+  public void setErrorMessage(String errMsg) {
     this.errMsg = errMsg;
   }
-
 }

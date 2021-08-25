@@ -24,13 +24,10 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-public class WorkflowActionPGPDecryptFilesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionPGPDecryptFiles> {
+public class WorkflowActionPGPDecryptFilesLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionPGPDecryptFiles> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -40,46 +37,51 @@ public class WorkflowActionPGPDecryptFilesLoadSaveTest extends WorkflowActionLoa
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] {
-      "gpgLocation",
-      "argFromPrevious",
-      "includeSubFolders",
-      "addResultFilenames",
-      "destinationIsAFile",
-      "createDestinationFolder",
-      "addDate",
-      "addTime",
-      "specifyFormat",
-      "dateTimeFormat",
-      "nrErrorsLessThan",
-      "successCondition",
-      "addDateBeforeExtension",
-      "doNotKeepFolderStructure",
-      "ifFileExists",
-      "destinationFolder",
-      "ifMovedFileExists",
-      "movedDateTimeFormat",
-      "createMoveToFolder",
-      "addMovedDate",
-      "addMovedTime",
-      "specifyMoveFormat",
-      "addMovedDateBeforeExtension",
-      "sourceFileFolder",
-      "passphrase",
-      "destinationFileFolder",
-      "wildcard" } );
+    return Arrays.asList(
+        new String[] {
+          "gpgLocation",
+          "argFromPrevious",
+          "includeSubFolders",
+          "addResultFilenames",
+          "destinationIsAFile",
+          "createDestinationFolder",
+          "addDate",
+          "addTime",
+          "specifyFormat",
+          "dateTimeFormat",
+          "nrErrorsLessThan",
+          "successCondition",
+          "addDateBeforeExtension",
+          "doNotKeepFolderStructure",
+          "ifFileExists",
+          "destinationFolder",
+          "ifMovedFileExists",
+          "movedDateTimeFormat",
+          "createMoveToFolder",
+          "addMovedDate",
+          "addMovedTime",
+          "specifyMoveFormat",
+          "addMovedDateBeforeExtension",
+          "sourceFileFolder",
+          "passphrase",
+          "destinationFileFolder",
+          "wildcard"
+        });
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
-    int count = new Random().nextInt( 50 ) + 1;
-    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
-    validators.put( "passphrase", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
-    validators.put( "destinationFileFolder", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
-    validators.put( "wildcard", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    int count = new Random().nextInt(50) + 1;
+    validators.put(
+        "sourceFileFolder", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), count));
+    validators.put(
+        "passphrase", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), count));
+    validators.put(
+        "destinationFileFolder",
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), count));
+    validators.put("wildcard", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), count));
 
     return validators;
   }
-
 }

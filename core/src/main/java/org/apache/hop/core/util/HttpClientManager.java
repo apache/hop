@@ -30,10 +30,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 /**
- * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages in Hop projects.
- * Contains {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager Connection pool} of 200 connections.
- * Maximum connections per one route is 100.
- * Provides inner builder class for creating {@link org.apache.http.client.HttpClient HttpClients}.
+ * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages
+ * in Hop projects. Contains {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+ * Connection pool} of 200 connections. Maximum connections per one route is 100. Provides inner
+ * builder class for creating {@link org.apache.http.client.HttpClient HttpClients}.
  *
  * @author Yury_Bakhmutski
  * @since 06-23-2017
@@ -47,20 +47,19 @@ public class HttpClientManager {
 
   private HttpClientManager() {
     manager = new PoolingHttpClientConnectionManager();
-    manager.setDefaultMaxPerRoute( CONNECTIONS_PER_ROUTE );
-    manager.setMaxTotal( TOTAL_CONNECTIONS );
+    manager.setDefaultMaxPerRoute(CONNECTIONS_PER_ROUTE);
+    manager.setMaxTotal(TOTAL_CONNECTIONS);
   }
 
   public static HttpClientManager getInstance() {
-    if ( httpClientManager == null ) {
+    if (httpClientManager == null) {
       httpClientManager = new HttpClientManager();
     }
     return httpClientManager;
   }
 
   public CloseableHttpClient createDefaultClient() {
-    return HttpClients.custom().setConnectionManager( manager )
-      .build();
+    return HttpClients.custom().setConnectionManager(manager).build();
   }
 
   public HttpClientBuilderFacade createBuilder() {
@@ -74,64 +73,65 @@ public class HttpClientManager {
     private int socketTimeout;
     private HttpHost proxy;
 
-    public HttpClientBuilderFacade setConnectionTimeout( int connectionTimeout ) {
+    public HttpClientBuilderFacade setConnectionTimeout(int connectionTimeout) {
       this.connectionTimeout = connectionTimeout;
       return this;
     }
 
-    public HttpClientBuilderFacade setSocketTimeout( int socketTimeout ) {
+    public HttpClientBuilderFacade setSocketTimeout(int socketTimeout) {
       this.socketTimeout = socketTimeout;
       return this;
     }
 
-    public HttpClientBuilderFacade setCredentials( String user, String password, AuthScope authScope ) {
+    public HttpClientBuilderFacade setCredentials(
+        String user, String password, AuthScope authScope) {
       CredentialsProvider provider = new BasicCredentialsProvider();
-      UsernamePasswordCredentials credentials = new UsernamePasswordCredentials( user, password );
-      provider.setCredentials( authScope, credentials );
+      UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
+      provider.setCredentials(authScope, credentials);
       this.provider = provider;
       return this;
     }
 
-    public HttpClientBuilderFacade setCredentials( String user, String password ) {
-      return setCredentials( user, password, AuthScope.ANY );
+    public HttpClientBuilderFacade setCredentials(String user, String password) {
+      return setCredentials(user, password, AuthScope.ANY);
     }
 
-    public HttpClientBuilderFacade setProxy( String proxyHost, int proxyPort ) {
-      setProxy( proxyHost, proxyPort, "http" );
+    public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort) {
+      setProxy(proxyHost, proxyPort, "http");
       return this;
     }
 
-    public HttpClientBuilderFacade setProxy( String proxyHost, int proxyPort, String scheme ) {
-      this.proxy = new HttpHost( proxyHost, proxyPort, scheme );
+    public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort, String scheme) {
+      this.proxy = new HttpHost(proxyHost, proxyPort, scheme);
       return this;
     }
 
-    public HttpClientBuilderFacade setRedirect( RedirectStrategy redirectStrategy ) {
+    public HttpClientBuilderFacade setRedirect(RedirectStrategy redirectStrategy) {
       this.redirectStrategy = redirectStrategy;
       return this;
     }
 
     public CloseableHttpClient build() {
       HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-      httpClientBuilder.setConnectionManager( manager );
+      httpClientBuilder.setConnectionManager(manager);
 
       RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
-      if ( socketTimeout > 0 ) {
-        requestConfigBuilder.setSocketTimeout( socketTimeout );
+      if (socketTimeout > 0) {
+        requestConfigBuilder.setSocketTimeout(socketTimeout);
       }
-      if ( connectionTimeout > 0 ) {
-        requestConfigBuilder.setConnectTimeout( socketTimeout );
+      if (connectionTimeout > 0) {
+        requestConfigBuilder.setConnectTimeout(socketTimeout);
       }
-      if ( proxy != null ) {
-        requestConfigBuilder.setProxy( proxy );
+      if (proxy != null) {
+        requestConfigBuilder.setProxy(proxy);
       }
-      httpClientBuilder.setDefaultRequestConfig( requestConfigBuilder.build() );
+      httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
 
-      if ( provider != null ) {
-        httpClientBuilder.setDefaultCredentialsProvider( provider );
+      if (provider != null) {
+        httpClientBuilder.setDefaultCredentialsProvider(provider);
       }
-      if ( redirectStrategy != null ) {
-        httpClientBuilder.setRedirectStrategy( redirectStrategy );
+      if (redirectStrategy != null) {
+        httpClientBuilder.setRedirectStrategy(redirectStrategy);
       }
 
       return httpClientBuilder.build();

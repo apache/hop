@@ -29,36 +29,37 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
 
   @Before
   public void setup() throws Exception {
-    setup( new ExcelInputMeta() );
+    setup(new ExcelInputMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "NAME", () -> meta.getField()[ 0 ].getName() );
-    check( "LENGTH", () -> meta.getField()[ 0 ].getLength() );
-    check( "PRECISION", () -> meta.getField()[ 0 ].getPrecision() );
-    int[] trimInts = new int[ ValueMetaBase.trimTypeCode.length ];
-    for ( int i = 0; i < trimInts.length; i++ ) {
-      trimInts[ i ] = i;
+    check("NAME", () -> meta.getField()[0].getName());
+    check("LENGTH", () -> meta.getField()[0].getLength());
+    check("PRECISION", () -> meta.getField()[0].getPrecision());
+    int[] trimInts = new int[ValueMetaBase.trimTypeCode.length];
+    for (int i = 0; i < trimInts.length; i++) {
+      trimInts[i] = i;
     }
-    checkStringToInt( "TRIM_TYPE", () -> meta.getField()[ 0 ].getTrimType(), ValueMetaBase.trimTypeCode, trimInts );
-    check( "FORMAT", () -> meta.getField()[ 0 ].getFormat() );
-    check( "CURRENCY", () -> meta.getField()[ 0 ].getCurrencySymbol() );
-    check( "DECIMAL", () -> meta.getField()[ 0 ].getDecimalSymbol() );
-    check( "GROUP", () -> meta.getField()[ 0 ].getGroupSymbol() );
-    check( "REPEAT", () -> meta.getField()[ 0 ].isRepeated() );
+    checkStringToInt(
+        "TRIM_TYPE", () -> meta.getField()[0].getTrimType(), ValueMetaBase.trimTypeCode, trimInts);
+    check("FORMAT", () -> meta.getField()[0].getFormat());
+    check("CURRENCY", () -> meta.getField()[0].getCurrencySymbol());
+    check("DECIMAL", () -> meta.getField()[0].getDecimalSymbol());
+    check("GROUP", () -> meta.getField()[0].getGroupSymbol());
+    check("REPEAT", () -> meta.getField()[0].isRepeated());
 
     // TODO check field type plugins
-    skipPropertyTest( "TYPE" );
+    skipPropertyTest("TYPE");
 
-    check( "SHEET_NAME", () -> meta.getSheetName()[ 0 ] );
-    check( "SHEET_START_ROW", () -> meta.getStartRow()[ 0 ] );
-    check( "SHEET_START_COL", () -> meta.getStartColumn()[ 0 ] );
-    check( "FILENAME", () -> meta.getFileName()[ 0 ] );
-    check( "FILEMASK", () -> meta.getFileMask()[ 0 ] );
-    check( "EXCLUDE_FILEMASK", () -> meta.getExcludeFileMask()[ 0 ] );
-    check( "FILE_REQUIRED", () -> meta.getFileRequired()[ 0 ] );
-    check( "INCLUDE_SUBFOLDERS", () -> meta.getIncludeSubFolders()[ 0 ] );
-    check( "SPREADSHEET_TYPE", () -> meta.getSpreadSheetType(), SpreadSheetType.class );
+    check("SHEET_NAME", () -> meta.getSheetName()[0]);
+    check("SHEET_START_ROW", () -> meta.getStartRow()[0]);
+    check("SHEET_START_COL", () -> meta.getStartColumn()[0]);
+    check("FILENAME", () -> meta.getFileName()[0]);
+    check("FILEMASK", () -> meta.getFileMask()[0]);
+    check("EXCLUDE_FILEMASK", () -> meta.getExcludeFileMask()[0]);
+    check("FILE_REQUIRED", () -> meta.getFileRequired()[0]);
+    check("INCLUDE_SUBFOLDERS", () -> meta.getIncludeSubFolders()[0]);
+    check("SPREADSHEET_TYPE", () -> meta.getSpreadSheetType(), SpreadSheetType.class);
   }
 }

@@ -31,34 +31,37 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 @ExtensionPoint(
-  id = "EditActionDebugLevelExtensionPoint",
-  extensionPointId = "WorkflowGraphMouseUp",
-  description = "Edit the custom action debug level with a single click"
-)
-public class EditActionDebugLevelExtensionPoint implements IExtensionPoint<HopGuiWorkflowGraphExtension> {
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiWorkflowGraphExtension ext ) throws HopException {
+    id = "EditActionDebugLevelExtensionPoint",
+    extensionPointId = "WorkflowGraphMouseUp",
+    description = "Edit the custom action debug level with a single click")
+public class EditActionDebugLevelExtensionPoint
+    implements IExtensionPoint<HopGuiWorkflowGraphExtension> {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiWorkflowGraphExtension ext) throws HopException {
     try {
-      if ( ext.getAreaOwner() == null || ext.getAreaOwner().getOwner() == null ) {
+      if (ext.getAreaOwner() == null || ext.getAreaOwner().getOwner() == null) {
         return;
       }
-      if ( !( ext.getAreaOwner().getOwner() instanceof ActionDebugLevel ) ) {
+      if (!(ext.getAreaOwner().getOwner() instanceof ActionDebugLevel)) {
         return;
       }
       ActionDebugLevel debugLevel = (ActionDebugLevel) ext.getAreaOwner().getOwner();
-      ActionDebugLevelDialog dialog = new ActionDebugLevelDialog( HopGui.getInstance().getShell(), debugLevel );
-      if ( dialog.open() ) {
+      ActionDebugLevelDialog dialog =
+          new ActionDebugLevelDialog(HopGui.getInstance().getShell(), debugLevel);
+      if (dialog.open()) {
         WorkflowMeta workflowMeta = ext.getWorkflowGraph().getWorkflowMeta();
         ActionMeta actionCopy = (ActionMeta) ext.getAreaOwner().getParent();
 
         DebugLevelUtil.storeActionDebugLevel(
-          workflowMeta.getAttributesMap().get( Defaults.DEBUG_GROUP ),
-          actionCopy.getName(),
-          debugLevel
-        );
+            workflowMeta.getAttributesMap().get(Defaults.DEBUG_GROUP),
+            actionCopy.getName(),
+            debugLevel);
         ext.getWorkflowGraph().redraw();
       }
-    } catch(Exception e) {
-      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing action debug level", e );
+    } catch (Exception e) {
+      new ErrorDialog(
+          HopGui.getInstance().getShell(), "Error", "Error editing action debug level", e);
     }
   }
 }

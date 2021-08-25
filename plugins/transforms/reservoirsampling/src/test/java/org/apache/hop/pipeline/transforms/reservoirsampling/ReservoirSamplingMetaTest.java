@@ -34,17 +34,18 @@ public class ReservoirSamplingMetaTest {
   @Test
   public void testLoadSaveMeta() throws HopException {
 
-    List<String> attributes = Arrays.asList( "sample_size", "seed" );
+    List<String> attributes = Arrays.asList("sample_size", "seed");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "sample_size", "getSampleSize" );
-    getterMap.put( "seed", "getSeed" );
+    getterMap.put("sample_size", "getSampleSize");
+    getterMap.put("seed", "getSeed");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "sample_size", "setSampleSize" );
-    setterMap.put( "seed", "setSeed" );
+    setterMap.put("sample_size", "setSampleSize");
+    setterMap.put("seed", "setSeed");
 
-    LoadSaveTester tester = new LoadSaveTester( ReservoirSamplingMeta.class, attributes, getterMap, setterMap );
+    LoadSaveTester tester =
+        new LoadSaveTester(ReservoirSamplingMeta.class, attributes, getterMap, setterMap);
     tester.testSerialization();
   }
 }

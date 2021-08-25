@@ -21,6 +21,6 @@ import org.eclipse.rap.rwt.SingletonUtil;
 
 public class HopGuiImpl implements ISingletonProvider {
   public Object getInstanceInternal() {
-    return SingletonUtil.getSessionInstance( HopGui.class );
+    return SingletonUtil.getSessionInstance(HopGui.class);
   }
 }

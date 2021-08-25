@@ -30,57 +30,57 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class JaninoMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopPluginException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.init( false );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.init(false);
   }
 
   @Test
   public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList( "formula" );
+    List<String> attributes = Arrays.asList("formula");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
     IFieldLoadSaveValidator<JaninoMetaFunction[]> janinoMetaFunctionArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new JaninoMetaFunctionFieldLoadSaveValidator(), 25 );
+        new ArrayLoadSaveValidator<>(new JaninoMetaFunctionFieldLoadSaveValidator(), 25);
 
-    fieldLoadSaveValidatorAttributeMap.put( "formula", janinoMetaFunctionArrayLoadSaveValidator );
+    fieldLoadSaveValidatorAttributeMap.put("formula", janinoMetaFunctionArrayLoadSaveValidator);
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( JaninoMeta.class, attributes, new HashMap<>(), new HashMap<>(),
-        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
+        new LoadSaveTester(
+            JaninoMeta.class,
+            attributes,
+            new HashMap<>(),
+            new HashMap<>(),
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
 
     loadSaveTester.testSerialization();
   }
 
-  public class JaninoMetaFunctionFieldLoadSaveValidator implements IFieldLoadSaveValidator<JaninoMetaFunction> {
+  public class JaninoMetaFunctionFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<JaninoMetaFunction> {
     @Override
     public JaninoMetaFunction getTestObject() {
       Random random = new Random();
       return new JaninoMetaFunction(
-        UUID.randomUUID().toString(),
-        UUID.randomUUID().toString(),
-        random.nextInt( ValueMetaFactory.getAllValueMetaNames().length ),
-        random.nextInt( Integer.MAX_VALUE ),
-        random.nextInt( Integer.MAX_VALUE ),
-        UUID.randomUUID().toString() );
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          random.nextInt(ValueMetaFactory.getAllValueMetaNames().length),
+          random.nextInt(Integer.MAX_VALUE),
+          random.nextInt(Integer.MAX_VALUE),
+          UUID.randomUUID().toString());
     }
 
     @Override
-    public boolean validateTestObject( JaninoMetaFunction testObject, Object actual ) {
-      return testObject.equals( actual );
+    public boolean validateTestObject(JaninoMetaFunction testObject, Object actual) {
+      return testObject.equals(actual);
     }
   }
 }

@@ -17,59 +17,61 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
-import javax.xml.stream.XMLInputFactory;
 import org.apache.poi.ss.SpreadsheetVersion;
 
+import javax.xml.stream.XMLInputFactory;
+
 public class StaxUtil {
-  private static final SpreadsheetVersion DEFAULT_SPREADSHEET_VERSION = SpreadsheetVersion.EXCEL2007;
+  private static final SpreadsheetVersion DEFAULT_SPREADSHEET_VERSION =
+      SpreadsheetVersion.EXCEL2007;
   public static final int MAX_ROWS = DEFAULT_SPREADSHEET_VERSION.getMaxRows();
   public static final int MAX_COLUMNS = DEFAULT_SPREADSHEET_VERSION.getMaxColumns();
 
   private StaxUtil() {
     throw new IllegalStateException("Utility class");
   }
-  
-  public static int extractRowNumber( String position ) {
+
+  public static int extractRowNumber(String position) {
     int startIndex = 0;
-    while ( !Character.isDigit( position.charAt( startIndex ) ) && startIndex < position.length() ) {
+    while (!Character.isDigit(position.charAt(startIndex)) && startIndex < position.length()) {
       startIndex++;
     }
-    String rowPart = position.substring( startIndex );
-    return Integer.parseInt( rowPart );
+    String rowPart = position.substring(startIndex);
+    return Integer.parseInt(rowPart);
   }
 
-  public static int extractColumnNumber( String position ) {
+  public static int extractColumnNumber(String position) {
     int startIndex = 0;
-    while ( !Character.isDigit( position.charAt( startIndex ) ) && startIndex < position.length() ) {
+    while (!Character.isDigit(position.charAt(startIndex)) && startIndex < position.length()) {
       startIndex++;
     }
-    String colPart = position.substring( 0, startIndex );
-    return parseColumnNumber( colPart );
+    String colPart = position.substring(0, startIndex);
+    return parseColumnNumber(colPart);
   }
 
   /**
-   * Convert the column indicator in Excel like A, B, C, AE, CX and so on to a 1-based column number.
+   * Convert the column indicator in Excel like A, B, C, AE, CX and so on to a 1-based column
+   * number.
    *
    * @param columnIndicator The indicator to convert
    * @return The 1-based column number
    */
-  public static final int parseColumnNumber( String columnIndicator ) {
+  public static final int parseColumnNumber(String columnIndicator) {
     int col = 0;
-    for ( int i = columnIndicator.length() - 1; i >= 0; i-- ) {
-      char c = columnIndicator.charAt( i );
-      int offset = 1 + Character.getNumericValue( c ) - Character.getNumericValue( 'A' );
-      col += Math.pow( 26, columnIndicator.length() - i - 1.0D ) * offset;
+    for (int i = columnIndicator.length() - 1; i >= 0; i--) {
+      char c = columnIndicator.charAt(i);
+      int offset = 1 + Character.getNumericValue(c) - Character.getNumericValue('A');
+      col += Math.pow(26, columnIndicator.length() - i - 1.0D) * offset;
     }
 
     return col;
   }
-  
+
   public static final XMLInputFactory safeXMLInputFactory() {
     XMLInputFactory factory = XMLInputFactory.newInstance();
-    // To prevent from XXE attacks   
+    // To prevent from XXE attacks
     factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);    
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
     return factory;
   }
-
 }

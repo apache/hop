@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.pipeline;
 
-import org.apache.hop.workflow.actions.pipeline.ActionPipelineDialog;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

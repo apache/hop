@@ -19,7 +19,8 @@ under the License.
 
 = Salesforce Delete
 
-The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service. You can delete a batch of records by indicating a starting point (Fieldname id) and the amount of records (Batch Size) to delete.
+The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service.
+You can delete a batch of records by indicating a starting point (Fieldname id) and the amount of records (Batch Size) to delete.
 
 You can also use the following other transforms to modify your Salesforce database:
 
@@ -32,16 +33,18 @@ You can also use the following other transforms to modify your Salesforce databa
 
 Enter the following information in the transform name field:
 
-* Transform name: Specifies the unique name of the Salesforce Delete transform on the canvas. You can customize the name or leave it as the default.
+* Transform name: Specifies the unique name of the Salesforce Delete transform on the canvas.
+You can customize the name or leave it as the default.
 
 include::salesforce-connection.adoc[]
 
 include::salesforce-settings.adoc[]
 
-[options="noheader", width="90%"]
+[options="noheader",width="90%"]
 |===
 |Fieldname id a| Select the name of the field containing the Salesforce ID of the first record in the set of records (batch) you want to delete. +
 
-NOTE: This list is populated with field names received from the previous transform in a pipeline. For example, you can use the Salesforce Input transform to get field names.
+NOTE: This list is populated with field names received from the previous transform in a pipeline.
+For example, you can use the Salesforce Input transform to get field names.
 
 |===

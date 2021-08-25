@@ -34,7 +34,5 @@ public class WriteToLogData extends BaseTransformData implements ITransformData 
 
   public WriteToLogData() {
     super();
-
   }
-
 }

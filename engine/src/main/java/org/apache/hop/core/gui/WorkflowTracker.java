@@ -37,19 +37,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class WorkflowTracker<T extends WorkflowMeta> {
   /**
-   * The trackers for each individual action.
-   * Since we invoke LinkedList.removeFirst() there is no sense in lurking the field behind the interface
+   * The trackers for each individual action. Since we invoke LinkedList.removeFirst() there is no
+   * sense in lurking the field behind the interface
    */
   private LinkedList<WorkflowTracker> workflowTrackers;
 
-  /**
-   * If the workflowTrackers list is empty, then this is the result
-   */
+  /** If the workflowTrackers list is empty, then this is the result */
   private ActionResult result;
 
-  /**
-   * The parent workflow tracker, null if this is the root
-   */
+  /** The parent workflow tracker, null if this is the root */
   private WorkflowTracker parentWorkflowTracker;
 
   private String workflowName;
@@ -60,19 +56,19 @@ public class WorkflowTracker<T extends WorkflowMeta> {
 
   private final ReentrantReadWriteLock lock;
 
-  /**
-   * @param workflowMeta the workflow metadata to keep track of (with maximum 5000 children)
-   */
-  public WorkflowTracker( T workflowMeta ) {
-    this( workflowMeta, Const.toInt( EnvUtil.getSystemProperty( Const.HOP_MAX_WORKFLOW_TRACKER_SIZE ), 5000 ) );
+  /** @param workflowMeta the workflow metadata to keep track of (with maximum 5000 children) */
+  public WorkflowTracker(T workflowMeta) {
+    this(
+        workflowMeta,
+        Const.toInt(EnvUtil.getSystemProperty(Const.HOP_MAX_WORKFLOW_TRACKER_SIZE), 5000));
   }
 
   /**
-   * @param workflowMeta     The workflow metadata to track
+   * @param workflowMeta The workflow metadata to track
    * @param maxChildren The maximum number of children to keep track of (1000 is the default)
    */
-  public WorkflowTracker( T workflowMeta, int maxChildren ) {
-    if ( workflowMeta != null ) {
+  public WorkflowTracker(T workflowMeta, int maxChildren) {
+    if (workflowMeta != null) {
       this.workflowName = workflowMeta.getName();
       this.workflowFilename = workflowMeta.getFilename();
     }
@@ -86,30 +82,30 @@ public class WorkflowTracker<T extends WorkflowMeta> {
    * Creates a workflow tracker with a single result (maxChildren children are kept)
    *
    * @param workflowMeta the workflow metadata to keep track of
-   * @param result  the action result to track.
+   * @param result the action result to track.
    */
-  public WorkflowTracker( T workflowMeta, ActionResult result ) {
-    this( workflowMeta );
+  public WorkflowTracker(T workflowMeta, ActionResult result) {
+    this(workflowMeta);
     this.result = result;
   }
 
   /**
    * Creates a workflow tracker with a single result
    *
-   * @param workflowMeta     the workflow metadata to keep track of
+   * @param workflowMeta the workflow metadata to keep track of
    * @param maxChildren The maximum number of children to keep track of
-   * @param result      the action result to track.
+   * @param result the action result to track.
    */
-  public WorkflowTracker( T workflowMeta, int maxChildren, ActionResult result ) {
-    this( workflowMeta, maxChildren );
+  public WorkflowTracker(T workflowMeta, int maxChildren, ActionResult result) {
+    this(workflowMeta, maxChildren);
     this.result = result;
   }
 
-  public void addWorkflowTracker( WorkflowTracker workflowTracker ) {
+  public void addWorkflowTracker(WorkflowTracker workflowTracker) {
     lock.writeLock().lock();
     try {
-      workflowTrackers.add( workflowTracker );
-      while ( workflowTrackers.size() > maxChildren ) {
+      workflowTrackers.add(workflowTracker);
+      while (workflowTrackers.size() > maxChildren) {
         // Use remove instead of subList
         workflowTrackers.removeFirst();
       }
@@ -118,10 +114,10 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     }
   }
 
-  public WorkflowTracker getWorkflowTracker( int i ) {
+  public WorkflowTracker getWorkflowTracker(int i) {
     lock.readLock().lock();
     try {
-      return workflowTrackers.get( i );
+      return workflowTrackers.get(i);
     } finally {
       lock.readLock().unlock();
     }
@@ -137,44 +133,38 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   }
 
   /**
-   * Returns a list that contains all workflow trackers. The list is created as a defensive copy of internal trackers'
-   * storage.
+   * Returns a list that contains all workflow trackers. The list is created as a defensive copy of
+   * internal trackers' storage.
    *
    * @return list of workflow trackers
    */
   public List<WorkflowTracker> getWorkflowTrackers() {
     lock.readLock().lock();
     try {
-      return new ArrayList<>( workflowTrackers );
+      return new ArrayList<>(workflowTrackers);
     } finally {
       lock.readLock().unlock();
     }
   }
 
-  /**
-   * @param workflowTrackers The workflowTrackers to set.
-   */
-  public void setWorkflowTrackers( List<WorkflowTracker> workflowTrackers ) {
+  /** @param workflowTrackers The workflowTrackers to set. */
+  public void setWorkflowTrackers(List<WorkflowTracker> workflowTrackers) {
     lock.writeLock().lock();
     try {
       this.workflowTrackers.clear();
-      this.workflowTrackers.addAll( workflowTrackers );
+      this.workflowTrackers.addAll(workflowTrackers);
     } finally {
       lock.writeLock().unlock();
     }
   }
 
-  /**
-   * @return Returns the result.
-   */
+  /** @return Returns the result. */
   public ActionResult getActionResult() {
     return result;
   }
 
-  /**
-   * @param result The result to set.
-   */
-  public void setActionResult( ActionResult result ) {
+  /** @param result The result to set. */
+  public void setActionResult(ActionResult result) {
     this.result = result;
   }
 
@@ -194,19 +184,19 @@ public class WorkflowTracker<T extends WorkflowMeta> {
    * @param actionMeta The action to search the workflow tracker for
    * @return The WorkflowTracker of null if none could be found...
    */
-  public WorkflowTracker findWorkflowTracker( ActionMeta actionMeta ) {
-    if ( actionMeta.getName() == null ) {
+  public WorkflowTracker findWorkflowTracker(ActionMeta actionMeta) {
+    if (actionMeta.getName() == null) {
       return null;
     }
 
     lock.readLock().lock();
     try {
-      ListIterator<WorkflowTracker> it = workflowTrackers.listIterator( workflowTrackers.size() );
-      while ( it.hasPrevious() ) {
+      ListIterator<WorkflowTracker> it = workflowTrackers.listIterator(workflowTrackers.size());
+      while (it.hasPrevious()) {
         WorkflowTracker tracker = it.previous();
         ActionResult result = tracker.getActionResult();
-        if ( result != null ) {
-          if ( actionMeta.getName().equals( result.getActionName() ) ) {
+        if (result != null) {
+          if (actionMeta.getName().equals(result.getActionName())) {
             return tracker;
           }
         }
@@ -217,17 +207,13 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     return null;
   }
 
-  /**
-   * @return Returns the parentWorkflowTracker.
-   */
+  /** @return Returns the parentWorkflowTracker. */
   public WorkflowTracker getParentWorkflowTracker() {
     return parentWorkflowTracker;
   }
 
-  /**
-   * @param parentWorkflowTracker The parentWorkflowTracker to set.
-   */
-  public void setParentWorkflowTracker( WorkflowTracker parentWorkflowTracker ) {
+  /** @param parentWorkflowTracker The parentWorkflowTracker to set. */
+  public void setParentWorkflowTracker(WorkflowTracker parentWorkflowTracker) {
     this.parentWorkflowTracker = parentWorkflowTracker;
   }
 
@@ -236,7 +222,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     try {
       int total = 1; // 1 = this one
 
-      for ( WorkflowTracker workflowTracker : workflowTrackers ) {
+      for (WorkflowTracker workflowTracker : workflowTrackers) {
         total += workflowTracker.getTotalNumberOfItems();
       }
 
@@ -246,45 +232,33 @@ public class WorkflowTracker<T extends WorkflowMeta> {
     }
   }
 
-  /**
-   * @return the workflowFilename
-   */
+  /** @return the workflowFilename */
   public String getWorfkflowFilename() {
     return workflowFilename;
   }
 
-  /**
-   * @param workflowFilename the workflowFilename to set
-   */
-  public void setWorkflowFilename( String workflowFilename ) {
+  /** @param workflowFilename the workflowFilename to set */
+  public void setWorkflowFilename(String workflowFilename) {
     this.workflowFilename = workflowFilename;
   }
 
-  /**
-   * @return the workflowName
-   */
+  /** @return the workflowName */
   public String getWorkflowName() {
     return workflowName;
   }
 
-  /**
-   * @param workflowName the workflowName to set
-   */
-  public void setWorkflowName( String workflowName ) {
+  /** @param workflowName the workflowName to set */
+  public void setWorkflowName(String workflowName) {
     this.workflowName = workflowName;
   }
 
-  /**
-   * @return the maxChildren
-   */
+  /** @return the maxChildren */
   public int getMaxChildren() {
     return maxChildren;
   }
 
-  /**
-   * @param maxChildren the maxChildren to set
-   */
-  public void setMaxChildren( int maxChildren ) {
+  /** @param maxChildren the maxChildren to set */
+  public void setMaxChildren(int maxChildren) {
     this.maxChildren = maxChildren;
   }
 }

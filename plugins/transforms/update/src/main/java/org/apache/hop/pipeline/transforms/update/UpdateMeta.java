@@ -477,7 +477,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta );
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -715,7 +715,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
           String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
 
-          Database db = new Database(loggingObject, variables, databaseMeta );
+          Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 

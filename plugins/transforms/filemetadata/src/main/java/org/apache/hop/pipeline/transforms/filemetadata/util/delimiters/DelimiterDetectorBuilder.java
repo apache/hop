@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata.util.delimiters;
 
-
 import org.apache.hop.core.logging.ILogChannel;
 
 import java.io.BufferedReader;
@@ -36,10 +35,9 @@ public class DelimiterDetectorBuilder {
 
   private long rowLimit = 0;
 
-  public DelimiterDetectorBuilder() {
-  }
+  public DelimiterDetectorBuilder() {}
 
-  public DelimiterDetectorBuilder withDelimiterCandidates(char ... candidates){
+  public DelimiterDetectorBuilder withDelimiterCandidates(char... candidates) {
     delimiterCandidates.clear();
     for (char c : candidates) {
       delimiterCandidates.add(c);
@@ -47,7 +45,7 @@ public class DelimiterDetectorBuilder {
     return this;
   }
 
-  public DelimiterDetectorBuilder withDelimiterCandidates(List<Character> candidates){
+  public DelimiterDetectorBuilder withDelimiterCandidates(List<Character> candidates) {
     delimiterCandidates.clear();
     for (char c : candidates) {
       delimiterCandidates.add(c);
@@ -55,8 +53,7 @@ public class DelimiterDetectorBuilder {
     return this;
   }
 
-
-  public DelimiterDetectorBuilder withEnclosureCandidates(char ... candidates){
+  public DelimiterDetectorBuilder withEnclosureCandidates(char... candidates) {
     enclosureCandidates.clear();
     for (char c : candidates) {
       enclosureCandidates.add(c);
@@ -64,7 +61,7 @@ public class DelimiterDetectorBuilder {
     return this;
   }
 
-  public DelimiterDetectorBuilder withEnclosureCandidates(List<Character> candidates){
+  public DelimiterDetectorBuilder withEnclosureCandidates(List<Character> candidates) {
     enclosureCandidates.clear();
     for (char c : candidates) {
       enclosureCandidates.add(c);
@@ -72,23 +69,23 @@ public class DelimiterDetectorBuilder {
     return this;
   }
 
-  public DelimiterDetectorBuilder withInput(BufferedReader input){
+  public DelimiterDetectorBuilder withInput(BufferedReader input) {
     this.input = input;
     return this;
   }
 
-  public DelimiterDetectorBuilder withLogger(ILogChannel log){
+  public DelimiterDetectorBuilder withLogger(ILogChannel log) {
     this.log = log;
     return this;
   }
 
-  public DelimiterDetectorBuilder withMaxBadLines(long header, long footer){
+  public DelimiterDetectorBuilder withMaxBadLines(long header, long footer) {
     maxBadHeaderLines = header;
     maxBadFooterLines = footer;
     return this;
   }
 
-  public DelimiterDetector build(){
+  public DelimiterDetector build() {
     DelimiterDetector d = new DelimiterDetector();
     d.setDelimiterCandidates(delimiterCandidates);
     d.setEnclosureCandidates(enclosureCandidates);
@@ -99,7 +96,6 @@ public class DelimiterDetectorBuilder {
     d.setRowLimit(rowLimit);
     return d;
   }
-
 
   public DelimiterDetectorBuilder withRowLimit(long limitRows) {
     rowLimit = limitRows;

@@ -20,7 +20,7 @@ Hop Search is a command line tool to search for metadata in Hop or a Hop project
 
 == Usage
 
-[source, bash]
+[source,bash]
 ----
 Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
                     <searchString>
@@ -38,7 +38,7 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
 
 == Options
 
-[options="header", width="90%"]
+[options="header",width="90%"]
 |===
 |Option|Description
 |<searchString>|The string to search for
@@ -58,7 +58,7 @@ Command: `./hop-search.sh -j hop-samples -i json `
 
 Output:
 
-[source, bash]
+[source,bash]
 ----
 <PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : null : matching property value: Enhanced JSON - Generate complex nested structure from table
 <PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : matching property value: EnhancedJsonOutput

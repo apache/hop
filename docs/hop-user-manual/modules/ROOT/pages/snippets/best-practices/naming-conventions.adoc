@@ -21,7 +21,7 @@ under the License.
 
 When looking at a pipeline or workflow it's so much easier to see what's going on if you give meaningful names to the transforms and workflows.
 
-image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name, width="65%"]
+image::best-practices-naming.png[Showing the differences when giving transforms a descriptive name,width="65%"]
 
 For input and output files, why not use the filename you're using?
 
@@ -42,8 +42,11 @@ Here are some examples to avoid and possible alternatives:
 What you can see in larger projects is that projects can become quite cluttered after a while.
 Here is some advice on how to keep things tidy and clean...
 
-* Folders can have sub-folders: organize your work with sub-folders in a project.  It's just hard to work with hundreds of pipelines and workflows in a single folder.
+* Folders can have sub-folders: organize your work with sub-folders in a project.
+It's just hard to work with hundreds of pipelines and workflows in a single folder.
 * Use a naming convention for any object that you need to give a name: pipelines, workflows, folders, names, tables, fields, ...
-* For larger projects you should consider setting up a naming standard.  It's just a document in which you specify how you want to name things.
-* Make sure to adjust, verify and enforce your naming standard periodically.  If you don't plan to do this you might was well not set up a corporate standard.
+* For larger projects you should consider setting up a naming standard.
+It's just a document in which you specify how you want to name things.
+* Make sure to adjust, verify and enforce your naming standard periodically.
+If you don't plan to do this you might was well not set up a corporate standard.
 * Consider scripts and commit hooks or a nightly run on your build server (Jenkins) to validate your naming standard.

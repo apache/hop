@@ -25,7 +25,7 @@ public class HopGuiFileDialogExtension {
   public AtomicBoolean doIt;
   public IFileDialog fileDialog;
 
-  public HopGuiFileDialogExtension( AtomicBoolean doIt, IFileDialog fileDialog ) {
+  public HopGuiFileDialogExtension(AtomicBoolean doIt, IFileDialog fileDialog) {
     this.doIt = doIt;
     this.fileDialog = fileDialog;
   }
@@ -39,10 +39,8 @@ public class HopGuiFileDialogExtension {
     return doIt;
   }
 
-  /**
-   * @param doIt The doIt to set
-   */
-  public void setDoIt( AtomicBoolean doIt ) {
+  /** @param doIt The doIt to set */
+  public void setDoIt(AtomicBoolean doIt) {
     this.doIt = doIt;
   }
 
@@ -55,10 +53,8 @@ public class HopGuiFileDialogExtension {
     return fileDialog;
   }
 
-  /**
-   * @param fileDialog The fileDialog to set
-   */
-  public void setFileDialog( IFileDialog fileDialog ) {
+  /** @param fileDialog The fileDialog to set */
+  public void setFileDialog(IFileDialog fileDialog) {
     this.fileDialog = fileDialog;
   }
 }

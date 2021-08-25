@@ -31,8 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of WSDLLocator for Beehive controls. This WSDLLocator implementation may open multiple input streams,
- * its <tt>cleanup()</tt> method should always be called once the WSDL file has been parsed.
+ * Implementation of WSDLLocator for Beehive controls. This WSDLLocator implementation may open
+ * multiple input streams, its <tt>cleanup()</tt> method should always be called once the WSDL file
+ * has been parsed.
  */
 public final class ControlWsdlLocator implements WSDLLocator {
   private final String _wsdlName;
@@ -42,39 +43,39 @@ public final class ControlWsdlLocator implements WSDLLocator {
   /**
    * Create a new wsdl locator for the wsdl file with the specified name.
    *
-   * @param wsdlName    Name of the WSDL file to try to load. Name may include file path elements.
+   * @param wsdlName Name of the WSDL file to try to load. Name may include file path elements.
    * @param beanContext The ControlBeanContext of the control which wants to load a WSDL file.
    */
-  public ControlWsdlLocator( String wsdlName, BeanContext beanContext ) {
+  public ControlWsdlLocator(String wsdlName, BeanContext beanContext) {
 
-    if ( wsdlName == null ) {
-      throw new IllegalArgumentException( "ERROR: WSDL path is null!" );
+    if (wsdlName == null) {
+      throw new IllegalArgumentException("ERROR: WSDL path is null!");
     }
 
     _wsdlName = wsdlName;
     _beanContext = beanContext;
   }
 
-  /**
-   * Close any InputStreams opened by this locator.
-   */
+  /** Close any InputStreams opened by this locator. */
   public void cleanup() {
 
-    for ( InputStream inputStream : OpenStreams ) {
+    for (InputStream inputStream : OpenStreams) {
       try {
         inputStream.close();
-      } catch ( IOException ioe ) {
+      } catch (IOException ioe) {
         // TODO: log a warning!!
       }
     }
   }
 
   /**
-   * Find the InputSource for the WSDL file stored in _wsdlName. This method attempts to find a WSDL file by:
+   * Find the InputSource for the WSDL file stored in _wsdlName. This method attempts to find a WSDL
+   * file by:
+   *
    * <ol>
-   * <li>If the _wsdlName can be converted to a URL, use url.openStream()</li>
-   * <li>Attempt to locate _wsdlName using the bean context's getResourceAsStream()</li>
-   * <li>Attempt to locate _wsdlName using the current class loader's getResourceAsStream()</li>
+   *   <li>If the _wsdlName can be converted to a URL, use url.openStream()
+   *   <li>Attempt to locate _wsdlName using the bean context's getResourceAsStream()
+   *   <li>Attempt to locate _wsdlName using the current class loader's getResourceAsStream()
    * </ol>
    *
    * @return An InputSource for the WSDL file.
@@ -85,29 +86,29 @@ public final class ControlWsdlLocator implements WSDLLocator {
 
     // try to open as URL first --
     try {
-      URL url = new URL( _wsdlName );
+      URL url = new URL(_wsdlName);
       wsdlStream = url.openStream();
-    } catch ( MalformedURLException e ) {
+    } catch (MalformedURLException e) {
       // not fatal keep trying
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       // fatal - abort
-      throw new RuntimeException( "Cannot load WSDL file: " + _wsdlName, e );
+      throw new RuntimeException("Cannot load WSDL file: " + _wsdlName, e);
     }
 
-    if ( wsdlStream == null ) {
-      wsdlStream = _beanContext.getBeanContext().getResourceAsStream( _wsdlName, _beanContext );
+    if (wsdlStream == null) {
+      wsdlStream = _beanContext.getBeanContext().getResourceAsStream(_wsdlName, _beanContext);
     }
 
-    if ( wsdlStream == null ) {
-      wsdlStream = this.getClass().getClassLoader().getResourceAsStream( _wsdlName );
+    if (wsdlStream == null) {
+      wsdlStream = this.getClass().getClassLoader().getResourceAsStream(_wsdlName);
     }
 
-    if ( wsdlStream == null ) {
-      throw new RuntimeException( "Cannot find WSDL file: " + _wsdlName, null );
+    if (wsdlStream == null) {
+      throw new RuntimeException("Cannot find WSDL file: " + _wsdlName, null);
     }
 
-    OpenStreams.add( wsdlStream );
-    return new InputSource( wsdlStream );
+    OpenStreams.add(wsdlStream);
+    return new InputSource(wsdlStream);
   }
 
   /**
@@ -118,9 +119,9 @@ public final class ControlWsdlLocator implements WSDLLocator {
   public String getBaseURI() {
 
     try {
-      URI uri = new URI( _wsdlName );
+      URI uri = new URI(_wsdlName);
       return uri.toString();
-    } catch ( URISyntaxException e ) {
+    } catch (URISyntaxException e) {
       return null;
     }
   }
@@ -132,7 +133,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
    * @param string1
    * @return null
    */
-  public InputSource getImportInputSource( String string, String string1 ) {
+  public InputSource getImportInputSource(String string, String string1) {
     return null;
   }
 
@@ -148,5 +149,4 @@ public final class ControlWsdlLocator implements WSDLLocator {
   public void close() {
     cleanup();
   }
-
 }

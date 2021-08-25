@@ -54,7 +54,6 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;

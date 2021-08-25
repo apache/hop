@@ -16,15 +16,16 @@
  */
 package org.apache.hop.workflow.actions.filecompare;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionFileCompareTest extends WorkflowActionLoadSaveTestSupport<ActionFileCompare> {
+public class WorkflowActionFileCompareTest
+    extends WorkflowActionLoadSaveTestSupport<ActionFileCompare> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,26 +35,22 @@ public class WorkflowActionFileCompareTest extends WorkflowActionLoadSaveTestSup
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList(
-      "filename1",
-      "filename2",
-      "addFilenameToResult" );
+    return Arrays.asList("filename1", "filename2", "addFilenameToResult");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "filename1", "getFilename1",
-      "filename2", "getFilename2",
-      "addFilenameToResult", "isAddFilenameToResult" );
+        "filename1", "getFilename1",
+        "filename2", "getFilename2",
+        "addFilenameToResult", "isAddFilenameToResult");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "filename1", "setFilename1",
-      "filename2", "setFilename2",
-      "addFilenameToResult", "setAddFilenameToResult" );
+        "filename1", "setFilename1",
+        "filename2", "setFilename2",
+        "addFilenameToResult", "setAddFilenameToResult");
   }
-
 }

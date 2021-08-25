@@ -18,14 +18,13 @@
 package org.apache.hop.pipeline.transforms.rest;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
@@ -42,11 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
@@ -57,39 +52,63 @@ public class RestMetaTest {
 
   @BeforeClass
   public static void beforeClass() throws HopException {
-    PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
-      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
-    Encr.init( passwordEncoderPluginID );
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
   }
 
   @Test
   public void testLoadSaveRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "applicationType", "method", "url", "urlInField", "dynamicMethod", "methodFieldName",
-        "urlField", "bodyField", "httpLogin", "httpPassword", "proxyHost", "proxyPort", "preemptive",
-        "trustStoreFile", "trustStorePassword", "headerField", "headerName", "parameterField", "parameterName",
-        "matrixParameterField", "matrixParameterName", "fieldName", "resultCodeFieldName", "responseTimeFieldName",
-        "responseHeaderFieldName" );
+        Arrays.asList(
+            "applicationType",
+            "method",
+            "url",
+            "urlInField",
+            "dynamicMethod",
+            "methodFieldName",
+            "urlField",
+            "bodyField",
+            "httpLogin",
+            "httpPassword",
+            "proxyHost",
+            "proxyPort",
+            "preemptive",
+            "trustStoreFile",
+            "trustStorePassword",
+            "headerField",
+            "headerName",
+            "parameterField",
+            "parameterName",
+            "matrixParameterField",
+            "matrixParameterName",
+            "fieldName",
+            "resultCodeFieldName",
+            "responseTimeFieldName",
+            "responseHeaderFieldName");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
     // Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
-    fieldLoadSaveValidatorAttributeMap.put( "headerField", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "headerName", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "parameterField", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "parameterName", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "matrixParameterField", stringArrayLoadSaveValidator );
-    fieldLoadSaveValidatorAttributeMap.put( "matrixParameterName", stringArrayLoadSaveValidator );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
+    fieldLoadSaveValidatorAttributeMap.put("headerField", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("headerName", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("parameterField", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("parameterName", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("matrixParameterField", stringArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("matrixParameterName", stringArrayLoadSaveValidator);
 
     LoadSaveTester<RestMeta> loadSaveTester =
-      new LoadSaveTester<>( RestMeta.class, attributes, new HashMap<>(),
-        new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
-        new HashMap<>() );
+        new LoadSaveTester<>(
+            RestMeta.class,
+            attributes,
+            new HashMap<>(),
+            new HashMap<>(),
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<>());
 
     loadSaveTester.testSerialization();
   }
@@ -102,8 +121,8 @@ public class RestMetaTest {
     TransformMeta transform = new TransformMeta();
     IRowMeta prev = new RowMeta();
     IRowMeta info = new RowMeta();
-    String[] input = new String[ 0 ];
-    String[] output = new String[ 0 ];
+    String[] input = new String[0];
+    String[] output = new String[0];
     IVariables variables = new Variables();
     IHopMetadataProvider metadataProvider = null;
 
@@ -111,35 +130,38 @@ public class RestMetaTest {
     // For this, we'll grab a baseline count of the number of errors
     // as the error count should decrease as we change configuration settings to proper values.
     remarks.clear();
-    meta.check( remarks, pipelineMeta, transform, prev, input, output, info, variables, metadataProvider );
-    final int errorsDefault = getCheckResultErrorCount( remarks );
-    assertTrue( errorsDefault > 0 );
+    meta.check(
+        remarks, pipelineMeta, transform, prev, input, output, info, variables, metadataProvider);
+    final int errorsDefault = getCheckResultErrorCount(remarks);
+    assertTrue(errorsDefault > 0);
 
     // Setting the transform to read the URL from a field should fix one of the check() errors
-    meta.setUrlInField( true );
-    meta.setUrlField( "urlField" );
-    prev.addValueMeta( new ValueMetaString( "urlField" ) );
+    meta.setUrlInField(true);
+    meta.setUrlField("urlField");
+    prev.addValueMeta(new ValueMetaString("urlField"));
     remarks.clear();
-    meta.check( remarks, pipelineMeta, transform, prev, input, output, info, variables, metadataProvider );
-    int errorsCurrent = getCheckResultErrorCount( remarks );
-    assertTrue( errorsDefault > errorsCurrent );
+    meta.check(
+        remarks, pipelineMeta, transform, prev, input, output, info, variables, metadataProvider);
+    int errorsCurrent = getCheckResultErrorCount(remarks);
+    assertTrue(errorsDefault > errorsCurrent);
   }
 
-  private static int getCheckResultErrorCount( List<ICheckResult> remarks ) {
+  private static int getCheckResultErrorCount(List<ICheckResult> remarks) {
     return remarks.stream()
-      .filter( p -> p.getType() == ICheckResult.TYPE_RESULT_ERROR )
-      .collect( Collectors.toList() ).size();
+        .filter(p -> p.getType() == ICheckResult.TYPE_RESULT_ERROR)
+        .collect(Collectors.toList())
+        .size();
   }
 
   @Test
   public void testEntityEnclosingMethods() {
-    assertTrue( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_POST ) );
-    assertTrue( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_PUT ) );
-    assertTrue( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_PATCH ) );
+    assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_POST));
+    assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_PUT));
+    assertTrue(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_PATCH));
 
-    assertFalse( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_GET ) );
-    assertFalse( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_DELETE ) );
-    assertFalse( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_HEAD ) );
-    assertFalse( RestMeta.isActiveBody( RestMeta.HTTP_METHOD_OPTIONS ) );
+    assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_GET));
+    assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_DELETE));
+    assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_HEAD));
+    assertFalse(RestMeta.isActiveBody(RestMeta.HTTP_METHOD_OPTIONS));
   }
 }

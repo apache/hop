@@ -28,7 +28,7 @@ The Get Subfolder Names transform gets subfolders from a directory.
 
 === Folder tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
@@ -41,10 +41,9 @@ The Get Subfolder Names transform gets subfolders from a directory.
 |Edit|Change the path
 |===
 
-
 === Settings tab
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Include rownum in output?|Allows the row number to be added to the output.

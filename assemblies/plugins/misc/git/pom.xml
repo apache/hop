@@ -20,65 +20,65 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-assemblies-plugins-misc</artifactId>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-misc</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-misc-git</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins Miscellaneous Git</name>
+    <description></description>
 
-  <artifactId>hop-assemblies-plugins-misc-git</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Hop Assemblies Plugins Miscellaneous Git</name>
-  <description></description>
+    <properties>
+        <dependency.jgit.revision>5.1.13.202002110435-r</dependency.jgit.revision>
+    </properties>
 
-  <properties>
-    <dependency.jgit.revision>5.1.13.202002110435-r</dependency.jgit.revision>
-  </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-misc-git</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.hop</groupId>
-      <artifactId>hop-plugins-misc-git</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${dependency.jgit.revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.http.apache</artifactId>
+            <version>${dependency.jgit.revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.12</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${dependency.jgit.revision}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit.http.apache</artifactId>
-      <version>${dependency.jgit.revision}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.5.12</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.2</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>4.4.13</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.2</version>
-      <scope>provided</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.junit</artifactId>
+            <version>${dependency.jgit.revision}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit.junit</artifactId>
-      <version>${dependency.jgit.revision}</version>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 </project>

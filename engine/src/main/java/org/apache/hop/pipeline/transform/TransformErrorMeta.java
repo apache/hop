@@ -27,7 +27,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.core.xml.IXml;
 import org.w3c.dom.Node;
 
 import java.util.List;

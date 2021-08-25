@@ -30,34 +30,30 @@ public class LanguageChoice {
   private Locale defaultLocale;
 
   private LanguageChoice() {
-    String defaultLocaleString = HopConfig.readOptionString( STRING_DEFAULT_LOCALE, null );
-    if ( defaultLocaleString == null ) {
+    String defaultLocaleString = HopConfig.readOptionString(STRING_DEFAULT_LOCALE, null);
+    if (defaultLocaleString == null) {
       defaultLocale = Locale.getDefault();
-      HopConfig.getInstance().saveOption( STRING_DEFAULT_LOCALE, defaultLocale.toString() );
+      HopConfig.getInstance().saveOption(STRING_DEFAULT_LOCALE, defaultLocale.toString());
     } else {
-      defaultLocale = EnvUtil.createLocale( defaultLocaleString );
+      defaultLocale = EnvUtil.createLocale(defaultLocaleString);
     }
   }
 
-  public static final LanguageChoice getInstance()  {
-    if ( choice == null ) {
+  public static final LanguageChoice getInstance() {
+    if (choice == null) {
       choice = new LanguageChoice();
     }
     return choice;
   }
 
-  /**
-   * @return Returns the defaultLocale.
-   */
+  /** @return Returns the defaultLocale. */
   public Locale getDefaultLocale() {
     return defaultLocale;
   }
 
-  /**
-   * @param defaultLocale The defaultLocale to set.
-   */
-  public void setDefaultLocale( Locale defaultLocale ) {
+  /** @param defaultLocale The defaultLocale to set. */
+  public void setDefaultLocale(Locale defaultLocale) {
     this.defaultLocale = defaultLocale;
-    HopConfig.getInstance().saveOption( STRING_DEFAULT_LOCALE, defaultLocale.toString() );
+    HopConfig.getInstance().saveOption(STRING_DEFAULT_LOCALE, defaultLocale.toString());
   }
 }

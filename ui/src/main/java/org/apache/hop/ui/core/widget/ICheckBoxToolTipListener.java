@@ -18,5 +18,5 @@
 package org.apache.hop.ui.core.widget;
 
 public interface ICheckBoxToolTipListener {
-  void checkBoxSelected( boolean enabled );
+  void checkBoxSelected(boolean enabled);
 }

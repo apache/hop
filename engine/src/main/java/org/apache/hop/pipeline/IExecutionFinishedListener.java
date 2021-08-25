@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /**
  * A finished listener for executions of a pipeline or workflow
@@ -33,5 +32,5 @@ public interface IExecutionFinishedListener<T> {
    * @param engine
    * @throws HopException
    */
-  void finished( T engine ) throws HopException;
+  void finished(T engine) throws HopException;
 }

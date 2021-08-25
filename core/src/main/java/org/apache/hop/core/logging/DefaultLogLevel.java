@@ -32,26 +32,21 @@ public class DefaultLogLevel {
   }
 
   private static DefaultLogLevel getInstance() {
-    if ( defaultLogLevel == null ) {
+    if (defaultLogLevel == null) {
       defaultLogLevel = new DefaultLogLevel();
     }
     return defaultLogLevel;
   }
 
-  /**
-   * @return The default log level for this application
-   */
+  /** @return The default log level for this application */
   public static LogLevel getLogLevel() {
     DefaultLogLevel instance = getInstance();
     return instance.logLevel;
   }
 
-  /**
-   * @param logLevel Set the default log level for this application
-   */
-  public static void setLogLevel( LogLevel logLevel ) {
+  /** @param logLevel Set the default log level for this application */
+  public static void setLogLevel(LogLevel logLevel) {
     DefaultLogLevel instance = getInstance();
     instance.logLevel = logLevel;
   }
-
 }

@@ -18,16 +18,20 @@ under the License.
 
 = Hop Web (Experimental)
 
-Hop Web is a web based Hop Gui version. Hop Gui was designed from the ground up to be web-ready. You'll barely notice any difference between working in the Hop Gui _fat client_ or Hop Web.
+Hop Web is a web based Hop Gui version.
+Hop Gui was designed from the ground up to be web-ready.
+You'll barely notice any difference between working in the Hop Gui _fat client_ or Hop Web.
 
-WARNING: Even though Hop Web is largely functional, there still are a couple of bugs that need to be ironed out before it is ready for prime time. The most important issues are:
+WARNING: Even though Hop Web is largely functional, there still are a couple of bugs that need to be ironed out before it is ready for prime time.
+The most important issues are:
 
 * copy/paste does not work
 * keyboard shortcuts do not work, do not overrule your browser's default etc.
 
 == Getting Hop Web
 
-Hop Web is included in the default Hop build. With each build, an update is pushed to https://hub.docker.com/r/apache/incubator-hop-web[Docker Hub].
+Hop Web is included in the default Hop build.
+With each build, an update is pushed to https://hub.docker.com/r/apache/incubator-hop-web[Docker Hub].
 
 This continously updated docker image is by far the easiest way to try out Hop Web:
 
@@ -37,9 +41,10 @@ TIP: Given Hop Web's experimental status, you're strongly encouraged to test wit
 
 Once the image has been pulled, start Hop Web with `docker run -p 8080:8080 apache/incubator-hop-web:latest`
 
-The Hop Web container should only take a couple of seconds to start. Your container logs should output similar to the example below:
+The Hop Web container should only take a couple of seconds to start.
+Your container logs should output similar to the example below:
 
-[source, bash]
+[source,bash]
 ----
 22-Apr-2021 18:13:39.786 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory [/usr/local/tomcat/webapps/ROOT] has finished in [8,274] ms
 22-Apr-2021 18:13:39.790 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
@@ -48,7 +53,8 @@ The Hop Web container should only take a couple of seconds to start. Your contai
 2021/04/22 18:14:37 - Hop - Enabling project : 'default'
 ----
 
-Once your container has started, Hop Web is available at http://localhost:8080/ui. You'll feel right at home!
+Once your container has started, Hop Web is available at http://localhost:8080/ui.
+You'll feel right at home!
 
-image:hop-web.png[Hop Web, width="90%"]
+image:hop-web.png[Hop Web,width="90%"]
 

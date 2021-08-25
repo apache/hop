@@ -28,24 +28,23 @@ public class IfNullMetaInjectionTest extends BaseMetadataInjectionTest<IfNullMet
 
   @Before
   public void setup() throws Exception {
-    setup( new IfNullMeta() );
+    setup(new IfNullMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", () -> meta.getFields()[ 0 ].getFieldName() );
-    check( "REPLACE_VALUE", () -> meta.getFields()[ 0 ].getReplaceValue() );
-    check( "TYPE_NAME", () -> meta.getValueTypes()[ 0 ].getTypeName() );
-    check( "TYPE_REPLACE_VALUE", () -> meta.getValueTypes()[ 0 ].getTypereplaceValue() );
-    check( "TYPE_REPLACE_MASK", () -> meta.getValueTypes()[ 0 ].getTypereplaceMask() );
-    check( "REPLACE_MASK", () -> meta.getFields()[ 0 ].getReplaceMask() );
-    check( "SET_TYPE_EMPTY_STRING", () -> meta.getValueTypes()[ 0 ].isSetTypeEmptyString() );
-    check( "SET_EMPTY_STRING", () -> meta.getFields()[ 0 ].isSetEmptyString() );
-    check( "SELECT_FIELDS", () -> meta.isSelectFields() );
-    check( "SELECT_VALUES_TYPE", () -> meta.isSelectValuesType() );
-    check( "REPLACE_ALL_BY_VALUE", () -> meta.getReplaceAllByValue() );
-    check( "REPLACE_ALL_MASK", () -> meta.getReplaceAllMask() );
-    check( "SET_EMPTY_STRING_ALL", () -> meta.isSetEmptyStringAll() );
+    check("FIELD_NAME", () -> meta.getFields()[0].getFieldName());
+    check("REPLACE_VALUE", () -> meta.getFields()[0].getReplaceValue());
+    check("TYPE_NAME", () -> meta.getValueTypes()[0].getTypeName());
+    check("TYPE_REPLACE_VALUE", () -> meta.getValueTypes()[0].getTypereplaceValue());
+    check("TYPE_REPLACE_MASK", () -> meta.getValueTypes()[0].getTypereplaceMask());
+    check("REPLACE_MASK", () -> meta.getFields()[0].getReplaceMask());
+    check("SET_TYPE_EMPTY_STRING", () -> meta.getValueTypes()[0].isSetTypeEmptyString());
+    check("SET_EMPTY_STRING", () -> meta.getFields()[0].isSetEmptyString());
+    check("SELECT_FIELDS", () -> meta.isSelectFields());
+    check("SELECT_VALUES_TYPE", () -> meta.isSelectValuesType());
+    check("REPLACE_ALL_BY_VALUE", () -> meta.getReplaceAllByValue());
+    check("REPLACE_ALL_MASK", () -> meta.getReplaceAllMask());
+    check("SET_EMPTY_STRING_ALL", () -> meta.isSetEmptyStringAll());
   }
-
 }

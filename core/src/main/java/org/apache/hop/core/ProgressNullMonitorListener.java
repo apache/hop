@@ -1,4 +1,4 @@
-//CHECKSTYLE:EmptyBlock:OFF
+// CHECKSTYLE:EmptyBlock:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -21,13 +21,13 @@ package org.apache.hop.core;
 public class ProgressNullMonitorListener implements IProgressMonitor {
 
   @Override
-  public void beginTask( String message, int nrWorks ) {
-      // Do nothing because of beginTask( "", 0 ).
+  public void beginTask(String message, int nrWorks) {
+    // Do nothing because of beginTask( "", 0 ).
   }
 
   @Override
-  public void subTask( String message ) {
-      // Do nothing because of subTask( "" ).
+  public void subTask(String message) {
+    // Do nothing because of subTask( "" ).
   }
 
   @Override
@@ -36,17 +36,17 @@ public class ProgressNullMonitorListener implements IProgressMonitor {
   }
 
   @Override
-  public void worked( int nrWorks ) {
-      // Do nothing because of worked( 0 ).
+  public void worked(int nrWorks) {
+    // Do nothing because of worked( 0 ).
   }
 
   @Override
   public void done() {
-      // Do nothing because of done().
+    // Do nothing because of done().
   }
 
   @Override
-  public void setTaskName( String taskName ) {
-      // Do nothing because of setTaskName( "" ).
+  public void setTaskName(String taskName) {
+    // Do nothing because of setTaskName( "" ).
   }
 }

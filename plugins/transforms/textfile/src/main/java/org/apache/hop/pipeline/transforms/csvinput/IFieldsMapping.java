@@ -24,5 +24,4 @@ public interface IFieldsMapping {
   int fieldMetaIndex(int index);
 
   int size();
-
 }

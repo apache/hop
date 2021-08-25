@@ -26,10 +26,10 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @HopMetadata(
     key = "pipeline-log",
     name = "Pipeline Log",
-    description = "This metadata object type allows you to log activity of a pipeline with another pipeline",
+    description =
+        "This metadata object type allows you to log activity of a pipeline with another pipeline",
     image = "pipeline-log.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/pipeline-log.html"
-)
+    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/pipeline-log.html")
 public class PipelineLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
@@ -49,12 +49,20 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
     executingAtEnd = true;
   }
 
-  public PipelineLog( String name) {
+  public PipelineLog(String name) {
     super(name);
   }
 
-  public PipelineLog( String name, boolean enabled, boolean loggingParentsOnly, String pipelineFilename, boolean executingAtStart, boolean executingPeriodically, String intervalInSeconds, boolean executingAtEnd ) {
-    super( name );
+  public PipelineLog(
+      String name,
+      boolean enabled,
+      boolean loggingParentsOnly,
+      String pipelineFilename,
+      boolean executingAtStart,
+      boolean executingPeriodically,
+      String intervalInSeconds,
+      boolean executingAtEnd) {
+    super(name);
     this.enabled = enabled;
     this.loggingParentsOnly = loggingParentsOnly;
     this.pipelineFilename = pipelineFilename;
@@ -73,10 +81,8 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /**
-   * @param enabled The enabled to set
-   */
-  public void setEnabled( boolean enabled ) {
+  /** @param enabled The enabled to set */
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
@@ -89,10 +95,8 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
     return loggingParentsOnly;
   }
 
-  /**
-   * @param loggingParentsOnly The loggingParentsOnly to set
-   */
-  public void setLoggingParentsOnly( boolean loggingParentsOnly ) {
+  /** @param loggingParentsOnly The loggingParentsOnly to set */
+  public void setLoggingParentsOnly(boolean loggingParentsOnly) {
     this.loggingParentsOnly = loggingParentsOnly;
   }
 
@@ -165,6 +169,4 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
   public void setExecutingAtEnd(boolean executingAtEnd) {
     this.executingAtEnd = executingAtEnd;
   }
-
-
 }

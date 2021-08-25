@@ -33,14 +33,10 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-/**
- * @author Andrey Khayrutdinov
- */
-@RunWith( PowerMockRunner.class )
+/** @author Andrey Khayrutdinov */
+@RunWith(PowerMockRunner.class)
 public class EditRowsDialog_EmptyStringVsNull_Test {
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -52,39 +48,38 @@ public class EditRowsDialog_EmptyStringVsNull_Test {
 
   @Test
   public void emptyAndNullsAreNotDifferent() throws Exception {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    executeAndAssertResults( new String[] { "", null, null } );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
+    executeAndAssertResults(new String[] {"", null, null});
   }
-
 
   @Test
   public void emptyAndNullsAreDifferent() throws Exception {
-    System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    executeAndAssertResults( new String[] { "", "", "" } );
+    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
+    executeAndAssertResults(new String[] {"", "", ""});
   }
 
-  private void executeAndAssertResults( String[] expected ) throws Exception {
-    EditRowsDialog dialog = mock( EditRowsDialog.class );
+  private void executeAndAssertResults(String[] expected) throws Exception {
+    EditRowsDialog dialog = mock(EditRowsDialog.class);
 
-    when( dialog.getRowForData( any( TableItem.class ), anyInt() ) ).thenCallRealMethod();
-    doCallRealMethod().when( dialog ).setRowMeta( any( IRowMeta.class ) );
-    doCallRealMethod().when( dialog ).setStringRowMeta( any( IRowMeta.class ) );
+    when(dialog.getRowForData(any(TableItem.class), anyInt())).thenCallRealMethod();
+    doCallRealMethod().when(dialog).setRowMeta(any(IRowMeta.class));
+    doCallRealMethod().when(dialog).setStringRowMeta(any(IRowMeta.class));
 
-    when( dialog.isDisplayingNullValue( any( TableItem.class ), anyInt() ) ).thenReturn( false );
+    when(dialog.isDisplayingNullValue(any(TableItem.class), anyInt())).thenReturn(false);
 
     RowMeta meta = new RowMeta();
-    meta.addValueMeta( new ValueMetaString( "s1" ) );
-    meta.addValueMeta( new ValueMetaString( "s2" ) );
-    meta.addValueMeta( new ValueMetaString( "s3" ) );
-    dialog.setRowMeta( meta );
-    dialog.setStringRowMeta( meta );
+    meta.addValueMeta(new ValueMetaString("s1"));
+    meta.addValueMeta(new ValueMetaString("s2"));
+    meta.addValueMeta(new ValueMetaString("s3"));
+    dialog.setRowMeta(meta);
+    dialog.setStringRowMeta(meta);
 
-    TableItem item = mock( TableItem.class );
-    when( item.getText( 1 ) ).thenReturn( " " );
-    when( item.getText( 2 ) ).thenReturn( "" );
-    when( item.getText( 3 ) ).thenReturn( null );
+    TableItem item = mock(TableItem.class);
+    when(item.getText(1)).thenReturn(" ");
+    when(item.getText(2)).thenReturn("");
+    when(item.getText(3)).thenReturn(null);
 
-    Object[] data = dialog.getRowForData( item, 0 );
-    PipelineTestingUtil.assertResult( expected, data );
+    Object[] data = dialog.getRowForData(item, 0);
+    PipelineTestingUtil.assertResult(expected, data);
   }
 }

@@ -23,9 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by ccaspanello on 6/5/17.
- */
+/** Created by ccaspanello on 6/5/17. */
 public class FileInputListTest {
 
   @Test
@@ -34,18 +32,18 @@ public class FileInputListTest {
     String sFileA = "hdfs://myfolderA/myfileA.txt";
     String sFileB = "file:///myfolderB/myfileB.txt";
 
-    FileObject fileA = mock( FileObject.class );
-    FileObject fileB = mock( FileObject.class );
+    FileObject fileA = mock(FileObject.class);
+    FileObject fileB = mock(FileObject.class);
 
-    when( fileA.getPublicURIString() ).thenReturn( sFileA );
-    when( fileB.getPublicURIString() ).thenReturn( sFileB );
+    when(fileA.getPublicURIString()).thenReturn(sFileA);
+    when(fileB.getPublicURIString()).thenReturn(sFileB);
 
     FileInputList fileInputList = new FileInputList();
-    fileInputList.addFile( fileA );
-    fileInputList.addFile( fileB );
+    fileInputList.addFile(fileA);
+    fileInputList.addFile(fileB);
     String[] result = fileInputList.getUrlStrings();
-    assertEquals( 2, result.length );
-    assertEquals( sFileA, result[ 0 ] );
-    assertEquals( sFileB, result[ 1 ] );
+    assertEquals(2, result.length);
+    assertEquals(sFileA, result[0]);
+    assertEquals(sFileB, result[1]);
   }
 }

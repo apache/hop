@@ -21,11 +21,8 @@ package org.apache.hop.ui.hopgui.perspective.explorer;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-/**
- * This interface allows you to adjust the painting of a Tree Item in the explorer perspective
- */
+/** This interface allows you to adjust the painting of a Tree Item in the explorer perspective */
 public interface IExplorerFilePaintListener {
 
-  void filePainted( Tree tree, TreeItem treeItem, String path, String name );
-
+  void filePainted(Tree tree, TreeItem treeItem, String path, String name);
 }

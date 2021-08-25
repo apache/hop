@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.loadsave.getter;
 import java.lang.reflect.Type;
 
 public interface IGetter<T> {
-  T get( Object obj );
+  T get(Object obj);
 
   Class<T> getType();
 

@@ -26,11 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class FuzzyMatchMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,54 +36,74 @@ public class FuzzyMatchMetaTest {
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-      Arrays.asList( "value", "valueName", "algorithm", "lookupfield", "mainstreamfield",
-        "outputmatchfield", "outputvaluefield", "caseSensitive", "minimalValue",
-        "maximalValue", "separator", "closervalue" );
+        Arrays.asList(
+            "value",
+            "valueName",
+            "algorithm",
+            "lookupfield",
+            "mainstreamfield",
+            "outputmatchfield",
+            "outputvaluefield",
+            "caseSensitive",
+            "minimalValue",
+            "maximalValue",
+            "separator",
+            "closervalue");
 
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "value", "getValue" );
-        put( "valueName", "getValueName" );
-        put( "algorithm", "getAlgorithmType" );
-        put( "lookupfield", "getLookupField" );
-        put( "mainstreamfield", "getMainStreamField" );
-        put( "outputmatchfield", "getOutputMatchField" );
-        put( "outputvaluefield", "getOutputValueField" );
-        put( "caseSensitive", "isCaseSensitive" );
-        put( "minimalValue", "getMinimalValue" );
-        put( "maximalValue", "getMaximalValue" );
-        put( "separator", "getSeparator" );
-        put( "closervalue", "isGetCloserValue" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("value", "getValue");
+            put("valueName", "getValueName");
+            put("algorithm", "getAlgorithmType");
+            put("lookupfield", "getLookupField");
+            put("mainstreamfield", "getMainStreamField");
+            put("outputmatchfield", "getOutputMatchField");
+            put("outputvaluefield", "getOutputValueField");
+            put("caseSensitive", "isCaseSensitive");
+            put("minimalValue", "getMinimalValue");
+            put("maximalValue", "getMaximalValue");
+            put("separator", "getSeparator");
+            put("closervalue", "isGetCloserValue");
+          }
+        };
 
-    Map<String, String> setterMap = new HashMap<String, String>() {
-      {
-        put( "value", "setValue" );
-        put( "valueName", "setValueName" );
-        put( "algorithm", "setAlgorithmType" );
-        put( "lookupfield", "setLookupField" );
-        put( "mainstreamfield", "setMainStreamField" );
-        put( "outputmatchfield", "setOutputMatchField" );
-        put( "outputvaluefield", "setOutputValueField" );
-        put( "caseSensitive", "setCaseSensitive" );
-        put( "minimalValue", "setMinimalValue" );
-        put( "maximalValue", "setMaximalValue" );
-        put( "separator", "setSeparator" );
-        put( "closervalue", "setGetCloserValue" );
-      }
-    };
+    Map<String, String> setterMap =
+        new HashMap<String, String>() {
+          {
+            put("value", "setValue");
+            put("valueName", "setValueName");
+            put("algorithm", "setAlgorithmType");
+            put("lookupfield", "setLookupField");
+            put("mainstreamfield", "setMainStreamField");
+            put("outputmatchfield", "setOutputMatchField");
+            put("outputvaluefield", "setOutputValueField");
+            put("caseSensitive", "setCaseSensitive");
+            put("minimalValue", "setMinimalValue");
+            put("maximalValue", "setMaximalValue");
+            put("separator", "setSeparator");
+            put("closervalue", "setGetCloserValue");
+          }
+        };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 3 );
+        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 3);
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "value", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "valueName", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "algorithm", new AlgorithmLoadSaveValidator() );
+    attrValidatorMap.put("value", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("valueName", stringArrayLoadSaveValidator);
+    attrValidatorMap.put("algorithm", new AlgorithmLoadSaveValidator());
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 3 ) );
+    // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
+    // new IntLoadSaveValidator(), 3 ) );
 
-    loadSaveTester = new LoadSaveTester( FuzzyMatchMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+    loadSaveTester =
+        new LoadSaveTester(
+            FuzzyMatchMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap);
   }
 
   @Test
@@ -102,17 +118,16 @@ public class FuzzyMatchMetaTest {
 
     @Override
     public Integer getTestObject() {
-      return rand.nextInt( 10 );
+      return rand.nextInt(10);
     }
 
     @Override
-    public boolean validateTestObject( Integer testObject, Object actual ) {
-      if ( !( actual instanceof Integer ) ) {
+    public boolean validateTestObject(Integer testObject, Object actual) {
+      if (!(actual instanceof Integer)) {
         return false;
       }
       Integer actualInt = (Integer) actual;
-      return actualInt.equals( testObject );
+      return actualInt.equals(testObject);
     }
   }
-
 }

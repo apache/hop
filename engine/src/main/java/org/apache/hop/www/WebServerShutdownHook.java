@@ -20,18 +20,18 @@ package org.apache.hop.www;
 public class WebServerShutdownHook extends Thread {
 
   WebServer webServer;
-  boolean shuttingDown; //Set when shutting down so we only stop the server once.
+  boolean shuttingDown; // Set when shutting down so we only stop the server once.
 
-  WebServerShutdownHook( WebServer webServer ) {
+  WebServerShutdownHook(WebServer webServer) {
     this.webServer = webServer;
   }
 
   @Override
   public void run() {
-    if ( !shuttingDown ) {
+    if (!shuttingDown) {
       try {
         webServer.stopServer();
-      } catch ( Exception e ) {
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }
@@ -41,8 +41,7 @@ public class WebServerShutdownHook extends Thread {
     return shuttingDown;
   }
 
-  public void setShuttingDown( boolean shuttingDown ) {
+  public void setShuttingDown(boolean shuttingDown) {
     this.shuttingDown = shuttingDown;
   }
-
 }

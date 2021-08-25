@@ -49,12 +49,12 @@ public class XmlHandlerCache {
   private AtomicInteger cacheHits;
 
   private XmlHandlerCache() {
-    cache = Collections.synchronizedMap( new WeakHashMap<>() );
+    cache = Collections.synchronizedMap(new WeakHashMap<>());
     cacheHits = new AtomicInteger();
   }
 
   public static synchronized XmlHandlerCache getInstance() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new XmlHandlerCache();
     }
     return instance;
@@ -65,8 +65,8 @@ public class XmlHandlerCache {
    *
    * @param entry The cache entry to store
    */
-  public void storeCache( XMlHandlerCacheEntry entry, int lastChildNr ) {
-    cache.put( entry, lastChildNr );
+  public void storeCache(XMlHandlerCacheEntry entry, int lastChildNr) {
+    cache.put(entry, lastChildNr);
   }
 
   /**
@@ -75,18 +75,16 @@ public class XmlHandlerCache {
    * @param entry The cache entry to look for.
    * @return the last child position or -1 if nothing was found.
    */
-  public int getLastChildNr( XMlHandlerCacheEntry entry ) {
-    Integer lastChildNr = cache.get( entry );
-    if ( lastChildNr != null ) {
+  public int getLastChildNr(XMlHandlerCacheEntry entry) {
+    Integer lastChildNr = cache.get(entry);
+    if (lastChildNr != null) {
       cacheHits.incrementAndGet();
       return lastChildNr;
     }
     return -1;
   }
 
-  /**
-   * @return the number of cache hits for your statistical pleasure.
-   */
+  /** @return the number of cache hits for your statistical pleasure. */
   public int getCacheHits() {
     return cacheHits.get();
   }
@@ -96,13 +94,11 @@ public class XmlHandlerCache {
    *
    * @param cacheHits the number of cache hits.
    */
-  public void setCacheHits( int cacheHits ) {
+  public void setCacheHits(int cacheHits) {
     this.cacheHits.set(cacheHits);
   }
 
-  /**
-   * Clears the cache
-   */
+  /** Clears the cache */
   public void clear() {
     cache.clear();
   }

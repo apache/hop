@@ -19,13 +19,11 @@ package org.apache.hop.core.svg;
 
 import org.w3c.dom.Document;
 
-/**
- * Container for SVG image.
- */
+/** Container for SVG image. */
 public class SvgImage {
   private final Document document;
 
-  public SvgImage( Document doc ) {
+  public SvgImage(Document doc) {
     this.document = doc;
   }
 

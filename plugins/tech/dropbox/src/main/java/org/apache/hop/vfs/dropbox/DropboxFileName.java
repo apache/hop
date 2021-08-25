@@ -22,9 +22,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 
-/**
- * An dropbox file name.
- */
+/** An dropbox file name. */
 public class DropboxFileName extends AbstractFileName {
 
   protected DropboxFileName(final String path, final FileType type) {

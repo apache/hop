@@ -29,19 +29,18 @@ public class DatabaseMetaLoadSaveValidator implements IFieldLoadSaveValidator<Da
   @Override
   public DatabaseMeta getTestObject() {
     DatabaseMeta db = new DatabaseMeta();
-    db.setName( UUID.randomUUID().toString() );
-    db.setHostname( UUID.randomUUID().toString() );
-    db.setUsername( UUID.randomUUID().toString() );
-    db.setPassword( UUID.randomUUID().toString() );
+    db.setName(UUID.randomUUID().toString());
+    db.setHostname(UUID.randomUUID().toString());
+    db.setUsername(UUID.randomUUID().toString());
+    db.setPassword(UUID.randomUUID().toString());
     return db;
   }
 
   @Override
-  public boolean validateTestObject( DatabaseMeta testObject, Object actual ) {
-    if ( actual instanceof DatabaseMeta ) {
-      return testObject.equals( actual );
+  public boolean validateTestObject(DatabaseMeta testObject, Object actual) {
+    if (actual instanceof DatabaseMeta) {
+      return testObject.equals(actual);
     }
     return false;
   }
-
 }

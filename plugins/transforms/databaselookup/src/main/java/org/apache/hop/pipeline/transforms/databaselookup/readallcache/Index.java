@@ -24,80 +24,78 @@ import org.apache.hop.core.row.IValueMeta;
 import java.util.Arrays;
 import java.util.Comparator;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 abstract class Index {
 
   final int column;
   final IValueMeta valueMeta;
   final IndexedValue[] values;
 
-  Index( int column, IValueMeta valueMeta, int rowsAmount ) {
+  Index(int column, IValueMeta valueMeta, int rowsAmount) {
     this.column = column;
     this.valueMeta = valueMeta;
-    this.values = new IndexedValue[ rowsAmount ];
+    this.values = new IndexedValue[rowsAmount];
   }
 
   Comparator<IndexedValue> createComparator() {
-    return new IndexValueComparator( valueMeta );
+    return new IndexValueComparator(valueMeta);
   }
 
-  void performIndexingOf( Object[][] rows ) {
-    for ( int i = 0, len = rows.length; i < len; i++ ) {
-      values[ i ] = new IndexedValue( rows[ i ][ column ], i );
+  void performIndexingOf(Object[][] rows) {
+    for (int i = 0, len = rows.length; i < len; i++) {
+      values[i] = new IndexedValue(rows[i][column], i);
     }
     // sort values using meta to compare and row number as seconds dimension
-    Arrays.sort( values, createComparator() );
+    Arrays.sort(values, createComparator());
   }
 
   /**
-   * Performs binary search algorithm looking for {@code value} in the sorted array and returns decoded index of
-   * insertion (decoded index returned by Arrays.binarySearch())
+   * Performs binary search algorithm looking for {@code value} in the sorted array and returns
+   * decoded index of insertion (decoded index returned by Arrays.binarySearch())
    *
    * @param value value to look for
    * @return decoded index
    */
-  int findInsertionPointOf( IndexedValue value ) {
-    int index = Arrays.binarySearch( values, value, createComparator() );
+  int findInsertionPointOf(IndexedValue value) {
+    int index = Arrays.binarySearch(values, value, createComparator());
     // index == ( -insertion_point - 1)
-    return -( index + 1 );
+    return -(index + 1);
   }
-
 
   public int getColumn() {
     return column;
   }
 
-  public void applyRestrictionsTo( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) {
+  public void applyRestrictionsTo(
+      SearchingContext context, IValueMeta lookupMeta, Object lookupValue) {
     try {
-      doApply( context, lookupMeta, lookupValue );
-    } catch ( HopException e ) {
-      throw new RuntimeException( e );
+      doApply(context, lookupMeta, lookupValue);
+    } catch (HopException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  abstract void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue )
-    throws HopException;
+  abstract void doApply(SearchingContext context, IValueMeta lookupMeta, Object lookupValue)
+      throws HopException;
 
   /**
-   * Return the "anti-strength" of the restriction of the index. It is a heuristic weight of the restriction, needed
-   * to push more "powerful" filters before less "powerful" to cut as much values as possible at the beginning.
+   * Return the "anti-strength" of the restriction of the index. It is a heuristic weight of the
+   * restriction, needed to push more "powerful" filters before less "powerful" to cut as much
+   * values as possible at the beginning.
    *
    * @return integer number, the less it is, the more "powerful" restriction is presumed to be
    */
   abstract int getRestrictionPower();
 
   static Comparator<Index> restrictionComparator() {
-    return ( o1, o2 ) -> Integer.compare( o1.getRestrictionPower(), o2.getRestrictionPower() );
+    return (o1, o2) -> Integer.compare(o1.getRestrictionPower(), o2.getRestrictionPower());
   }
-
 
   static class IndexedValue {
     final Object key;
     final int row;
 
-    public IndexedValue( Object key, int row ) {
+    public IndexedValue(Object key, int row) {
       this.key = key;
       this.row = row;
     }
@@ -107,21 +105,21 @@ abstract class Index {
 
     private final IValueMeta meta;
 
-    public IndexValueComparator( IValueMeta meta ) {
+    public IndexValueComparator(IValueMeta meta) {
       this.meta = meta;
     }
 
     @Override
-    public int compare( IndexedValue o1, IndexedValue o2 ) {
+    public int compare(IndexedValue o1, IndexedValue o2) {
       // does not expect nulls here!
       int c;
       try {
-        c = meta.compare( o1.key, o2.key );
-      } catch ( HopValueException e ) {
-        throw new RuntimeException( e );
+        c = meta.compare(o1.key, o2.key);
+      } catch (HopValueException e) {
+        throw new RuntimeException(e);
       }
 
-      return ( c == 0 ) ? Integer.compare( o1.row, o2.row ) : c;
+      return (c == 0) ? Integer.compare(o1.row, o2.row) : c;
     }
   }
 }

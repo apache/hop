@@ -18,10 +18,10 @@
 package org.apache.hop.version;
 
 public class EnvironmentVariableGetter {
-  public String getEnvVarible( String name ) throws Exception {
-    String result = System.getenv( name );
-    if ( result == null ) {
-      throw new RuntimeException( name + " undefined" );
+  public String getEnvVarible(String name) throws Exception {
+    String result = System.getenv(name);
+    if (result == null) {
+      throw new RuntimeException(name + " undefined");
     }
     return result;
   }

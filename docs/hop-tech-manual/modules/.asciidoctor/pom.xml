@@ -51,7 +51,7 @@
 
     <build>
         <plugins>
-        <!--Use resources plugin to grab images from other module for PDF build-->
+            <!--Use resources plugin to grab images from other module for PDF build-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
@@ -135,7 +135,8 @@
                             <backend>pdf</backend>
                             <doctype>book</doctype>
                             <attributes>
-                                <pdf-stylesdir>${project.basedir}/target/maven-shared-archive-resources/themes</pdf-stylesdir>
+                                <pdf-stylesdir>${project.basedir}/target/maven-shared-archive-resources/themes
+                                </pdf-stylesdir>
                                 <pdf-style>hop</pdf-style>
                             </attributes>
                         </configuration>

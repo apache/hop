@@ -49,7 +49,7 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-excelinput</artifactId>
             <version>${project.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.odftoolkit</groupId>
             <artifactId>odfdom-java</artifactId>

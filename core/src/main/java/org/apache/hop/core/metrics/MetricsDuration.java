@@ -38,8 +38,9 @@ public class MetricsDuration {
    * @param logChannelId
    * @param duration
    */
-  public MetricsDuration( Date date, String description, String subject, String logChannelId, Long duration ) {
-    this( date, description, subject, logChannelId, duration, 1L );
+  public MetricsDuration(
+      Date date, String description, String subject, String logChannelId, Long duration) {
+    this(date, description, subject, logChannelId, duration, 1L);
   }
 
   /**
@@ -49,97 +50,90 @@ public class MetricsDuration {
    * @param logChannelId
    * @param duration
    */
-  public MetricsDuration( Date date, String description, String subject, String logChannelId, Long duration,
-                          Long count ) {
+  public MetricsDuration(
+      Date date,
+      String description,
+      String subject,
+      String logChannelId,
+      Long duration,
+      Long count) {
     this.date = date;
     this.description = description;
     this.subject = subject;
     this.logChannelId = logChannelId;
     this.duration = duration;
     this.count = count;
-    this.endDate = new Date( date.getTime() + duration );
+    this.endDate = new Date(date.getTime() + duration);
   }
 
   @Override
   public String toString() {
-    if ( Utils.isEmpty( subject ) ) {
+    if (Utils.isEmpty(subject)) {
       return description
-        + " @ " + StringUtil.getFormattedDateTime( date, true ) + " : "
-        + ( duration == null ? "-" : duration.toString() ) + ( count == null ? "" : " (x" + count + ")" );
+          + " @ "
+          + StringUtil.getFormattedDateTime(date, true)
+          + " : "
+          + (duration == null ? "-" : duration.toString())
+          + (count == null ? "" : " (x" + count + ")");
     } else {
       return description
-        + " / " + subject + " @ " + StringUtil.getFormattedDateTime( date, true ) + " : "
-        + ( duration == null ? "-" : duration.toString() ) + ( count == null ? "" : " (x" + count + ")" );
+          + " / "
+          + subject
+          + " @ "
+          + StringUtil.getFormattedDateTime(date, true)
+          + " : "
+          + (duration == null ? "-" : duration.toString())
+          + (count == null ? "" : " (x" + count + ")");
     }
   }
 
-  /**
-   * @return the date
-   */
+  /** @return the date */
   public Date getDate() {
     return date;
   }
 
-  /**
-   * @param date the date to set
-   */
-  public void setDate( Date date ) {
+  /** @param date the date to set */
+  public void setDate(Date date) {
     this.date = date;
   }
 
-  /**
-   * @return the description
-   */
+  /** @return the description */
   public String getDescription() {
     return description;
   }
 
-  /**
-   * @param description the description to set
-   */
-  public void setDescription( String description ) {
+  /** @param description the description to set */
+  public void setDescription(String description) {
     this.description = description;
   }
 
-  /**
-   * @return the duration
-   */
+  /** @return the duration */
   public Long getDuration() {
     return duration;
   }
 
-  /**
-   * @param duration the duration to set
-   */
-  public void setDuration( Long duration ) {
+  /** @param duration the duration to set */
+  public void setDuration(Long duration) {
     this.duration = duration;
   }
 
-  /**
-   * @return the subject
-   */
+  /** @return the subject */
   public String getSubject() {
     return subject;
   }
 
-  /**
-   * @param subject the subject to set
-   */
-  public void setSubject( String subject ) {
+  /** @param subject the subject to set */
+  public void setSubject(String subject) {
     this.subject = subject;
   }
 
-  /**
-   * @return the logChannelId
-   */
+  /** @return the logChannelId */
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /**
-   * @param logChannelId the logChannelId to set
-   */
-  public void setLogChannelId( String logChannelId ) {
+  /** @param logChannelId the logChannelId to set */
+  public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
 
@@ -147,29 +141,25 @@ public class MetricsDuration {
     return count;
   }
 
-  public void setCount( Long count ) {
+  public void setCount(Long count) {
     this.count = count;
   }
 
   public void incrementCount() {
-    if ( count == null ) {
-      count = Long.valueOf( 1L );
+    if (count == null) {
+      count = Long.valueOf(1L);
     } else {
-      count = Long.valueOf( count + 1 );
+      count = Long.valueOf(count + 1);
     }
   }
 
-  /**
-   * @return the endDate
-   */
+  /** @return the endDate */
   public Date getEndDate() {
     return endDate;
   }
 
-  /**
-   * @param endDate the endDate to set
-   */
-  public void setEndDate( Date endDate ) {
+  /** @param endDate the endDate to set */
+  public void setEndDate(Date endDate) {
     this.endDate = endDate;
   }
 }

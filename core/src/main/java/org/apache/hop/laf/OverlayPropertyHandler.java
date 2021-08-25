@@ -38,7 +38,7 @@ public class OverlayPropertyHandler implements IPropertyHandler {
   }
 
   public static IPropertyHandler getInstance() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new OverlayPropertyHandler();
     }
     return instance;
@@ -46,76 +46,75 @@ public class OverlayPropertyHandler implements IPropertyHandler {
 
   protected boolean loadAltProps() {
     // check the -D switch... something like -Dorg.apache.hop.laf.alt="somefile.properties"
-    String altFile = Const.getEnvironmentVariable( "org.apache.hop.laf.alt", null );
-    if ( altFile != null ) {
-      return loadProps( altFile );
+    String altFile = Const.getEnvironmentVariable("org.apache.hop.laf.alt", null);
+    if (altFile != null) {
+      return loadProps(altFile);
     }
     return false;
   }
 
   private boolean initProps() {
-    boolean flag = loadProps( propFile );
-    return ( loadAltProps() || flag );
+    boolean flag = loadProps(propFile);
+    return (loadAltProps() || flag);
   }
 
   @Override
-  public String getProperty( String key ) {
+  public String getProperty(String key) {
     // go through linked list from front to back to find the property
     String s = null;
     Iterator<OverlayProperties> i = propList.iterator();
-    while ( i.hasNext() ) {
-      s = i.next().getProperty( key );
-      if ( s != null ) {
+    while (i.hasNext()) {
+      s = i.next().getProperty(key);
+      if (s != null) {
         return s;
       }
     }
     return s;
   }
 
-  public static String getLAFProp( String key ) {
-    return getInstance().getProperty( key );
+  public static String getLAFProp(String key) {
+    return getInstance().getProperty(key);
   }
 
   @Override
-  public boolean loadProps( String filename ) {
+  public boolean loadProps(String filename) {
     try {
-      OverlayProperties ph = new OverlayProperties( filename );
-      propList.addFirst( ph );
+      OverlayProperties ph = new OverlayProperties(filename);
+      propList.addFirst(ph);
       return true;
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       e.printStackTrace();
       return false;
     }
   }
 
   @Override
-  public String getProperty( String key, String defValue ) {
-    String s = getProperty( key );
-    if ( s != null ) {
+  public String getProperty(String key, String defValue) {
+    String s = getProperty(key);
+    if (s != null) {
       return s;
     }
     return defValue;
   }
 
-  private URL getURL( String filename ) throws MalformedURLException {
+  private URL getURL(String filename) throws MalformedURLException {
     URL url;
-    File file = new File( filename );
-    if ( file.exists() ) {
+    File file = new File(filename);
+    if (file.exists()) {
       url = file.toURI().toURL();
     } else {
       ClassLoader classLoader = getClass().getClassLoader();
-      url = classLoader.getResource( filename );
+      url = classLoader.getResource(filename);
     }
     return url;
   }
 
   @Override
-  public boolean exists( String filename ) {
+  public boolean exists(String filename) {
     try {
-      return ( getURL( filename ) != null );
-    } catch ( MalformedURLException e ) {
+      return (getURL(filename) != null);
+    } catch (MalformedURLException e) {
       return false;
     }
   }
-
 }

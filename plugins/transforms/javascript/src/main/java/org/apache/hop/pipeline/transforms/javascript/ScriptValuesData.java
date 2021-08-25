@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
-//import org.apache.hop.compatibility.Value;
+// import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -35,7 +35,7 @@ public class ScriptValuesData extends BaseTransformData implements ITransformDat
   public Script script;
 
   public int[] fieldsUsed;
-//  public Value[] values_used;
+  //  public Value[] values_used;
 
   public IRowMeta outputRowMeta;
   public int[] replaceIndex;
@@ -46,7 +46,7 @@ public class ScriptValuesData extends BaseTransformData implements ITransformDat
     fieldsUsed = null;
   }
 
-  public void check( int i ) {
-    System.out.println( i );
+  public void check(int i) {
+    System.out.println(i);
   }
 }

@@ -34,20 +34,10 @@ import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
-/**
- * @author Tatsiana_Kasiankova
- */
+/** @author Tatsiana_Kasiankova */
 public class SimpleMappingTest {
 
   private static final String MAPPING_INPUT_TRANSFORM_NAME = "MAPPING_INPUT_TRANSFORM_NAME";
@@ -64,32 +54,32 @@ public class SimpleMappingTest {
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
-        SimpleMappingData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      transformMockHelper.iLogChannel );
-    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
+        new TransformMockHelper<>(
+            "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class, SimpleMappingData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
 
     // Mock for MappingInput
-    MappingInput mpInputMock = mock( MappingInput.class );
-    when( mpInputMock.getTransformName() ).thenReturn( MAPPING_INPUT_TRANSFORM_NAME );
+    MappingInput mpInputMock = mock(MappingInput.class);
+    when(mpInputMock.getTransformName()).thenReturn(MAPPING_INPUT_TRANSFORM_NAME);
 
     // Mock for MappingOutput
-    MappingOutput mpOutputMock = mock( MappingOutput.class );
-    when( mpOutputMock.getTransformName() ).thenReturn( MAPPING_OUTPUT_TRANSFORM_NAME );
+    MappingOutput mpOutputMock = mock(MappingOutput.class);
+    when(mpOutputMock.getTransformName()).thenReturn(MAPPING_OUTPUT_TRANSFORM_NAME);
 
     // Mock for RowDataInputMapper
-    RowDataInputMapper rdInputMpMock = mock( RowDataInputMapper.class );
-    IRowMeta rwMetaInMock = mock( RowMeta.class );
-    doReturn( Boolean.TRUE ).when( rdInputMpMock ).putRow( rwMetaInMock, new Object[] {} );
+    RowDataInputMapper rdInputMpMock = mock(RowDataInputMapper.class);
+    IRowMeta rwMetaInMock = mock(RowMeta.class);
+    doReturn(Boolean.TRUE).when(rdInputMpMock).putRow(rwMetaInMock, new Object[] {});
 
     // Mock for RowProducer
-    RowProducer rProducerMock = mock( RowProducer.class );
-    when( rProducerMock.putRow( any( IRowMeta.class ), any( Object[].class ), anyBoolean() ) )
-      .thenReturn( true );
+    RowProducer rProducerMock = mock(RowProducer.class);
+    when(rProducerMock.putRow(any(IRowMeta.class), any(Object[].class), anyBoolean()))
+        .thenReturn(true);
 
     // Mock for MappingIODefinition
-    MappingIODefinition mpIODefMock = mock( MappingIODefinition.class );
+    MappingIODefinition mpIODefMock = mock(MappingIODefinition.class);
 
     // Set up real SimpleMappingData with some mocked elements
     simpleMpData.mappingInput = mpInputMock;
@@ -97,10 +87,14 @@ public class SimpleMappingTest {
     simpleMpData.rowDataInputMapper = rdInputMpMock;
     simpleMpData.mappingPipeline = transformMockHelper.pipeline;
 
-    Mockito.doReturn( mpOutputMock ).when( transformMockHelper.pipeline ).findTransformInterface( MAPPING_OUTPUT_TRANSFORM_NAME, 0 );
-    Mockito.doReturn(rProducerMock).when( transformMockHelper.pipeline).addRowProducer( MAPPING_INPUT_TRANSFORM_NAME, 0 );
+    Mockito.doReturn(mpOutputMock)
+        .when(transformMockHelper.pipeline)
+        .findTransformInterface(MAPPING_OUTPUT_TRANSFORM_NAME, 0);
+    Mockito.doReturn(rProducerMock)
+        .when(transformMockHelper.pipeline)
+        .addRowProducer(MAPPING_INPUT_TRANSFORM_NAME, 0);
 
-    when( transformMockHelper.iTransformMeta.getInputMapping() ).thenReturn( mpIODefMock );
+    when(transformMockHelper.iTransformMeta.getInputMapping()).thenReturn(mpIODefMock);
   }
 
   @After
@@ -111,13 +105,20 @@ public class SimpleMappingTest {
   @Ignore
   public void testTransformSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
 
-    smp = new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta, transformMockHelper.pipeline );
+    smp =
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
     smp.processRow();
-    smp.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
-    assertTrue( "The transform is processing in first", smp.first );
-    assertTrue( smp.processRow() );
-    assertFalse( "The transform is processing not in first", smp.first );
-    assertTrue( "The transform was started", smp.getData().wasStarted );
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+    assertTrue("The transform is processing in first", smp.first);
+    assertTrue(smp.processRow());
+    assertFalse("The transform is processing not in first", smp.first);
+    assertTrue("The transform was started", smp.getData().wasStarted);
   }
 
   @Ignore
@@ -125,61 +126,72 @@ public class SimpleMappingTest {
 
     // Set Up TransMock to return the error
     int errorCount = 1;
-    when( transformMockHelper.pipeline.getErrors() ).thenReturn( errorCount );
+    when(transformMockHelper.pipeline.getErrors()).thenReturn(errorCount);
 
     // The transform has been already finished
-    when( transformMockHelper.pipeline.isFinished() ).thenReturn( Boolean.TRUE );
+    when(transformMockHelper.pipeline.isFinished()).thenReturn(Boolean.TRUE);
     // The transform was started
     simpleMpData.wasStarted = true;
 
     smp =
-      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
     smp.init();
 
     smp.dispose();
-    verify( transformMockHelper.pipeline, times( 1 ) ).isFinished();
-    verify( transformMockHelper.pipeline, never() ).waitUntilFinished();
-    verify( transformMockHelper.pipeline, never() ).addActiveSubPipeline( anyString(), any( Pipeline.class ) );
+    verify(transformMockHelper.pipeline, times(1)).isFinished();
+    verify(transformMockHelper.pipeline, never()).waitUntilFinished();
+    verify(transformMockHelper.pipeline, never())
+        .addActiveSubPipeline(anyString(), any(Pipeline.class));
     // verify( transformMockHelper.pipeline, times( 1 ) ).removeActiveSubPipeline( anyString() );
-    verify( transformMockHelper.pipeline, never() ).getActiveSubPipeline( anyString() );
-    verify( transformMockHelper.pipeline, times( 1 ) ).getErrors();
-    assertTrue( "The transform contains the errors", smp.getErrors() == errorCount );
-
+    verify(transformMockHelper.pipeline, never()).getActiveSubPipeline(anyString());
+    verify(transformMockHelper.pipeline, times(1)).getErrors();
+    assertTrue("The transform contains the errors", smp.getErrors() == errorCount);
   }
 
   @Test
-  public void testTransformShouldStopProcessingInput_IfUnderlyingTransitionIsStopped() throws Exception {
+  public void testTransformShouldStopProcessingInput_IfUnderlyingTransitionIsStopped()
+      throws Exception {
 
-    MappingInput mappingInput = mock( MappingInput.class );
-    when( mappingInput.getTransformName() ).thenReturn( MAPPING_INPUT_TRANSFORM_NAME );
+    MappingInput mappingInput = mock(MappingInput.class);
+    when(mappingInput.getTransformName()).thenReturn(MAPPING_INPUT_TRANSFORM_NAME);
     transformMockHelper.iTransformData.mappingInput = mappingInput;
 
-    RowProducer rowProducer = mock( RowProducer.class );
-    when( rowProducer.putRow( any( IRowMeta.class ), any( Object[].class ), anyBoolean() ) )
-      .thenReturn( true );
+    RowProducer rowProducer = mock(RowProducer.class);
+    when(rowProducer.putRow(any(IRowMeta.class), any(Object[].class), anyBoolean()))
+        .thenReturn(true);
 
-    ITransform iTransform = mock( ITransform.class );
+    ITransform iTransform = mock(ITransform.class);
 
-    Pipeline mappingPipeline = mock( Pipeline.class );
-    when( mappingPipeline.addRowProducer( anyString(), anyInt() ) ).thenReturn( rowProducer );
-    when( mappingPipeline.findTransformInterface( anyString(), anyInt() ) ).thenReturn( iTransform );
-    when( mappingPipeline.isFinishedOrStopped() ).thenReturn( Boolean.FALSE ).thenReturn( Boolean.TRUE );
+    Pipeline mappingPipeline = mock(Pipeline.class);
+    when(mappingPipeline.addRowProducer(anyString(), anyInt())).thenReturn(rowProducer);
+    when(mappingPipeline.findTransformInterface(anyString(), anyInt())).thenReturn(iTransform);
+    when(mappingPipeline.isFinishedOrStopped()).thenReturn(Boolean.FALSE).thenReturn(Boolean.TRUE);
     transformMockHelper.iTransformData.mappingPipeline = mappingPipeline;
 
-    MappingOutput mappingOutput = mock( MappingOutput.class );
-    when( mappingOutput.getTransformName() ).thenReturn( MAPPING_OUTPUT_TRANSFORM_NAME );
+    MappingOutput mappingOutput = mock(MappingOutput.class);
+    when(mappingOutput.getTransformName()).thenReturn(MAPPING_OUTPUT_TRANSFORM_NAME);
     transformMockHelper.iTransformData.mappingOutput = mappingOutput;
 
-    smp = new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-      transformMockHelper.pipeline );
+    smp =
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
     smp.init();
-    smp.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
-    smp.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
 
-    assertTrue( smp.processRow() );
-    assertFalse( smp.processRow() );
-
+    assertTrue(smp.processRow());
+    assertFalse(smp.processRow());
   }
 
   @After
@@ -191,23 +203,28 @@ public class SimpleMappingTest {
   public void testDispose() throws HopException {
 
     // Set Up TransMock to return the error
-    when( transformMockHelper.pipeline.getErrors() ).thenReturn( 0 );
+    when(transformMockHelper.pipeline.getErrors()).thenReturn(0);
 
     // The transform has been already finished
-    when( transformMockHelper.pipeline.isFinished() ).thenReturn( Boolean.FALSE );
+    when(transformMockHelper.pipeline.isFinished()).thenReturn(Boolean.FALSE);
     // The transform was started
     simpleMpData.wasStarted = true;
 
     smp =
-      new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
     smp.init();
 
     smp.dispose();
-    verify( transformMockHelper.pipeline, times( 1 ) ).isFinished();
-    verify( transformMockHelper.pipeline, times( 1 ) ).waitUntilFinished();
-    // verify( transformMockHelper.pipeline, times( 1 ) ).removeActiveSubPipelineformation( anyString() );
+    verify(transformMockHelper.pipeline, times(1)).isFinished();
+    verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
+    // verify( transformMockHelper.pipeline, times( 1 ) ).removeActiveSubPipelineformation(
+    // anyString() );
 
   }
-
 }

@@ -36,21 +36,16 @@ public class BaseFileInputTransformData extends BaseTransformData {
 
   public IFileErrorHandler dataErrorLineHandler;
 
-  /**
-   * Files for process.
-   */
+  /** Files for process. */
   public FileInputList files;
 
-  /**
-   * Current file info.
-   */
+  /** Current file info. */
   public String filename;
+
   public int currentFileIndex;
   public FileObject file;
 
-  /**
-   * Reader for current file.
-   */
+  /** Reader for current file. */
   public IBaseFileInputReader reader;
 
   public IRowMeta outputRowMeta;
@@ -68,10 +63,9 @@ public class BaseFileInputTransformData extends BaseTransformData {
 
   public Map<String, Boolean> rejectedFiles = new HashMap<>();
 
-  /**
-   * File-dependent data for fill additional fields.
-   */
+  /** File-dependent data for fill additional fields. */
   public String shortFilename;
+
   public String path;
   public String extension;
   public boolean hidden;

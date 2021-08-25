@@ -17,12 +17,6 @@
 
 package org.apache.hop.ui.pipeline.config;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -52,12 +46,13 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(
     description = "This dialog allows you to configure the various pipeline run configurations")
@@ -345,13 +340,13 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   }
 
   private void addGuiCompositeWidgets() {
-    
+
     // Remove existing children
     //
-    for ( Control child : wPluginSpecificComp.getChildren() ) {
+    for (Control child : wPluginSpecificComp.getChildren()) {
       child.dispose();
     }
-    
+
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 25); // max 8 lines
       guiCompositeWidgets.createCompositeWidgets(
@@ -359,13 +354,15 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
           null,
           wPluginSpecificComp,
           PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-          null);    
-      guiCompositeWidgets.setWidgetsListener(new GuiCompositeWidgetsAdapter() {
-         @Override
-         public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-           setChanged(); 
-         }        
-       });      
+          null);
+      guiCompositeWidgets.setWidgetsListener(
+          new GuiCompositeWidgetsAdapter() {
+            @Override
+            public void widgetModified(
+                GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+              setChanged();
+            }
+          });
     }
   }
 

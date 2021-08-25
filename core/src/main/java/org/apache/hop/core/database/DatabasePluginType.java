@@ -32,81 +32,81 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
   private static DatabasePluginType pluginType;
 
   private DatabasePluginType() {
-    super( DatabaseMetaPlugin.class, "DATABASE", "Database" );
+    super(DatabaseMetaPlugin.class, "DATABASE", "Database");
 
-    String sharedJdbcDirectory = System.getProperty( Const.HOP_SHARED_JDBC_FOLDER );
-    if ( StringUtils.isNotEmpty(sharedJdbcDirectory)) {
+    String sharedJdbcDirectory = System.getProperty(Const.HOP_SHARED_JDBC_FOLDER);
+    if (StringUtils.isNotEmpty(sharedJdbcDirectory)) {
       getExtraLibraryFolders().add(sharedJdbcDirectory);
     }
   }
 
   public static DatabasePluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new DatabasePluginType();
     }
     return pluginType;
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
+    return new String[0];
   }
 
   @Override
-  protected String extractCategory( DatabaseMetaPlugin annotation ) {
+  protected String extractCategory(DatabaseMetaPlugin annotation) {
     return "";
   }
 
   @Override
-  protected String extractDesc( DatabaseMetaPlugin annotation ) {
+  protected String extractDesc(DatabaseMetaPlugin annotation) {
     return annotation.typeDescription();
   }
 
   @Override
-  protected String extractID( DatabaseMetaPlugin annotation ) {
+  protected String extractID(DatabaseMetaPlugin annotation) {
     return annotation.type();
   }
 
   @Override
-  protected String extractName( DatabaseMetaPlugin annotation ) {
+  protected String extractName(DatabaseMetaPlugin annotation) {
     return annotation.typeDescription();
   }
 
   @Override
-  protected String extractImageFile( DatabaseMetaPlugin annotation ) {
+  protected String extractImageFile(DatabaseMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( DatabaseMetaPlugin annotation ) {
+  protected boolean extractSeparateClassLoader(DatabaseMetaPlugin annotation) {
     return false;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, DatabaseMetaPlugin annotation ) {
-  }
+  protected void addExtraClasses(
+      Map<Class<?>, String> classMap, Class<?> clazz, DatabaseMetaPlugin annotation) {}
 
   @Override
-  protected String extractDocumentationUrl( DatabaseMetaPlugin annotation ) {
+  protected String extractDocumentationUrl(DatabaseMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( DatabaseMetaPlugin annotation ) {
+  protected String extractCasesUrl(DatabaseMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( DatabaseMetaPlugin annotation ) {
+  protected String extractForumUrl(DatabaseMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( DatabaseMetaPlugin annotation ) {
+  protected String extractSuggestion(DatabaseMetaPlugin annotation) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( DatabaseMetaPlugin annotation ) {
+  protected String extractClassLoaderGroup(DatabaseMetaPlugin annotation) {
     return annotation.classLoaderGroup();
   }
 }

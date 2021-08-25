@@ -30,7 +30,8 @@ public class HopGuiPipelinePreviewExtension {
    * @param previewTab
    * @param previewToolbar
    */
-  public HopGuiPipelinePreviewExtension( Composite previewTab, Control previewToolbar, Composite preview ) {
+  public HopGuiPipelinePreviewExtension(
+      Composite previewTab, Control previewToolbar, Composite preview) {
     this.preview = preview;
     this.previewTab = previewTab;
     this.previewToolbar = previewToolbar;

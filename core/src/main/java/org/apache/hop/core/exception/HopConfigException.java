@@ -20,9 +20,7 @@ package org.apache.hop.core.exception;
 public class HopConfigException extends HopException {
   private static final long serialVersionUID = -5576046720306675340L;
 
-  /**
-   * Constructs a new throwable with null as its detail message.
-   */
+  /** Constructs a new throwable with null as its detail message. */
   public HopConfigException() {
     super();
   }
@@ -30,32 +28,33 @@ public class HopConfigException extends HopException {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the
+   *     getMessage() method.
    */
-  public HopConfigException( String message ) {
-    super( message );
+  public HopConfigException(String message) {
+    super(message);
   }
 
   /**
-   * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null : cause.toString())
-   * (which typically contains the class and detail message of cause).
+   * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null
+   * : cause.toString()) (which typically contains the class and detail message of cause).
    *
-   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *              indicates that the cause is nonexistent or unknown.)
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null
+   *     value is permitted, and indicates that the cause is nonexistent or unknown.)
    */
-  public HopConfigException( Throwable cause ) {
-    super( cause );
+  public HopConfigException(Throwable cause) {
+    super(cause);
   }
 
   /**
    * Constructs a new throwable with the specified detail message and cause.
    *
-   * @param message the detail message (which is saved for later retrieval by the getMessage() method).
-   * @param cause   the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *                indicates that the cause is nonexistent or unknown.)
+   * @param message the detail message (which is saved for later retrieval by the getMessage()
+   *     method).
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null
+   *     value is permitted, and indicates that the cause is nonexistent or unknown.)
    */
-  public HopConfigException( String message, Throwable cause ) {
-    super( message, cause );
+  public HopConfigException(String message, Throwable cause) {
+    super(message, cause);
   }
-
 }

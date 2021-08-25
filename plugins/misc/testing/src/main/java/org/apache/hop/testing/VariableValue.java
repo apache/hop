@@ -20,16 +20,13 @@ package org.apache.hop.testing;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class VariableValue {
-  @HopMetadataProperty
-  private String key;
+  @HopMetadataProperty private String key;
 
-  @HopMetadataProperty
-  private String value;
+  @HopMetadataProperty private String value;
 
-  public VariableValue() {
-  }
+  public VariableValue() {}
 
-  public VariableValue( String key, String value ) {
+  public VariableValue(String key, String value) {
     this.key = key;
     this.value = value;
   }
@@ -43,10 +40,8 @@ public class VariableValue {
     return key;
   }
 
-  /**
-   * @param key The key to set
-   */
-  public void setKey( String key ) {
+  /** @param key The key to set */
+  public void setKey(String key) {
     this.key = key;
   }
 
@@ -59,10 +54,8 @@ public class VariableValue {
     return value;
   }
 
-  /**
-   * @param value The value to set
-   */
-  public void setValue( String value ) {
+  /** @param value The value to set */
+  public void setValue(String value) {
     this.value = value;
   }
 }

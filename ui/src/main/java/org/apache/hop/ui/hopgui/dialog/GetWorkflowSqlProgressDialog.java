@@ -17,15 +17,15 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
-import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;

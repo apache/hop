@@ -82,5 +82,4 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
 
     previous = null; // Heroic
   }
-
 }

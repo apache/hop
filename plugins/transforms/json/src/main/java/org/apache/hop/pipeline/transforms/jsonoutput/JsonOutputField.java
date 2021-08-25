@@ -22,39 +22,47 @@ package org.apache.hop.pipeline.transforms.jsonoutput;
  *
  * @author Samatar
  * @since 14-june-2010
- *
  */
 public class JsonOutputField implements Cloneable {
   private String fieldName;
   private String elementName;
 
-  public JsonOutputField( String fieldName, String elementName, int type, String format, int length,
-    int precision, String currencySymbol, String decimalSymbol, String groupSymbol, String nullString,
-    boolean attribute, String attributeParentName ) {
+  public JsonOutputField(
+      String fieldName,
+      String elementName,
+      int type,
+      String format,
+      int length,
+      int precision,
+      String currencySymbol,
+      String decimalSymbol,
+      String groupSymbol,
+      String nullString,
+      boolean attribute,
+      String attributeParentName) {
     this.fieldName = fieldName;
     this.elementName = elementName;
   }
 
-  public JsonOutputField() {
-  }
+  public JsonOutputField() {}
 
-  public int compare( Object obj ) {
+  public int compare(Object obj) {
     JsonOutputField field = (JsonOutputField) obj;
 
-    return fieldName.compareTo( field.getFieldName() );
+    return fieldName.compareTo(field.getFieldName());
   }
 
-  public boolean equal( Object obj ) {
+  public boolean equal(Object obj) {
     JsonOutputField field = (JsonOutputField) obj;
 
-    return fieldName.equals( field.getFieldName() );
+    return fieldName.equals(field.getFieldName());
   }
 
   public Object clone() {
     try {
       Object retval = super.clone();
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -63,22 +71,17 @@ public class JsonOutputField implements Cloneable {
     return fieldName;
   }
 
-  public void setFieldName( String fieldname ) {
+  public void setFieldName(String fieldname) {
     this.fieldName = fieldname;
   }
 
-  /**
-   * @return Returns the elementName.
-   */
+  /** @return Returns the elementName. */
   public String getElementName() {
     return elementName;
   }
 
-  /**
-   * @param elementName
-   *          The elementName to set.
-   */
-  public void setElementName( String elementName ) {
+  /** @param elementName The elementName to set. */
+  public void setElementName(String elementName) {
     this.elementName = elementName;
   }
 }

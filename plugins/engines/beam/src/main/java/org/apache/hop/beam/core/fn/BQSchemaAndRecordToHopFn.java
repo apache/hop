@@ -28,9 +28,9 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-/**
- * BigQuery Avro SchemaRecord to HopRow
- */
+/** BigQuery Avro SchemaRecord to HopRow */
 public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndRecord, HopRow> {
 
   private String transformName;
@@ -54,107 +52,115 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
   private transient Counter errorCounter;
 
   // Log and count parse errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BQSchemaAndRecordToHopFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger(BQSchemaAndRecordToHopFn.class);
 
   private transient IRowMeta rowMeta;
   private transient SimpleDateFormat simpleDateTimeFormat;
   private transient SimpleDateFormat simpleDateFormat;
 
-  public BQSchemaAndRecordToHopFn( String transformName, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BQSchemaAndRecordToHopFn(
+      String transformName,
+      String rowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
-  public HopRow apply( SchemaAndRecord schemaAndRecord ) {
+  public HopRow apply(SchemaAndRecord schemaAndRecord) {
 
     try {
 
       GenericRecord record = schemaAndRecord.getRecord();
       TableSchema tableSchema = schemaAndRecord.getTableSchema();
 
-      if ( rowMeta == null ) {
+      if (rowMeta == null) {
 
-        inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
-        writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
-        errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
+        inputCounter = Metrics.counter(Pipeline.METRIC_NAME_INPUT, transformName);
+        writtenCounter = Metrics.counter(Pipeline.METRIC_NAME_WRITTEN, transformName);
+        errorCounter = Metrics.counter(Pipeline.METRIC_NAME_ERROR, transformName);
 
         // Initialize Hop
         //
-        BeamHop.init( transformPluginClasses, xpPluginClasses );
-        rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         int[] valueTypes = new int[rowMeta.size()];
 
         List<TableFieldSchema> fields = tableSchema.getFields();
-        for (int i=0;i<fields.size();i++) {
-          TableFieldSchema fieldSchema = fields.get( i );
+        for (int i = 0; i < fields.size(); i++) {
+          TableFieldSchema fieldSchema = fields.get(i);
           String name = fieldSchema.getName();
-          int index = rowMeta.indexOfValue( name );
+          int index = rowMeta.indexOfValue(name);
           // Ignore everything we didn't ask for.
           //
-          if (index>=0) {
+          if (index >= 0) {
             String avroTypeString = fieldSchema.getType();
             try {
-              AvroType avroType = AvroType.valueOf( avroTypeString );
+              AvroType avroType = AvroType.valueOf(avroTypeString);
               valueTypes[index] = avroType.getHopType();
-            } catch(IllegalArgumentException e) {
-              throw new RuntimeException( "Unable to recognize data type '"+avroTypeString+"'", e );
+            } catch (IllegalArgumentException e) {
+              throw new RuntimeException(
+                  "Unable to recognize data type '" + avroTypeString + "'", e);
             }
           }
         }
 
         // See that we got all the fields covered...
         //
-        for (int i = 0;i<rowMeta.size();i++) {
-          if (valueTypes[i]==0) {
-            IValueMeta valueMeta = rowMeta.getValueMeta( i );
-            throw new RuntimeException( "Unable to find field '"+valueMeta.getName()+"'" );
+        for (int i = 0; i < rowMeta.size(); i++) {
+          if (valueTypes[i] == 0) {
+            IValueMeta valueMeta = rowMeta.getValueMeta(i);
+            throw new RuntimeException("Unable to find field '" + valueMeta.getName() + "'");
           }
         }
 
-        simpleDateTimeFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
-        simpleDateTimeFormat.setLenient( true );
-        simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
-        simpleDateFormat.setLenient( true );
-        Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
+        simpleDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        simpleDateTimeFormat.setLenient(true);
+        simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        simpleDateFormat.setLenient(true);
+        Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
       }
 
       inputCounter.inc();
 
       // Convert to the requested Hop Data types
       //
-      Object[] row = RowDataUtil.allocateRowData( rowMeta.size() );
-      for (int index=0; index < rowMeta.size() ; index++) {
-        IValueMeta valueMeta = rowMeta.getValueMeta( index );
+      Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+      for (int index = 0; index < rowMeta.size(); index++) {
+        IValueMeta valueMeta = rowMeta.getValueMeta(index);
         Object srcData = record.get(valueMeta.getName());
-        if (srcData!=null) {
-          switch(valueMeta.getType()) {
+        if (srcData != null) {
+          switch (valueMeta.getType()) {
             case IValueMeta.TYPE_STRING:
               row[index] = srcData.toString();
               break;
             case IValueMeta.TYPE_INTEGER:
-              row[index] = (Long)srcData;
+              row[index] = (Long) srcData;
               break;
             case IValueMeta.TYPE_NUMBER:
-              row[index] = (Double)srcData;
+              row[index] = (Double) srcData;
               break;
             case IValueMeta.TYPE_BOOLEAN:
-              row[index] = (Boolean)srcData;
+              row[index] = (Boolean) srcData;
               break;
             case IValueMeta.TYPE_DATE:
               // We get a Long back
               //
               String datetimeString = ((Utf8) srcData).toString();
-              if (datetimeString.length()==10) {
-                row[index] = simpleDateFormat.parse( datetimeString );
+              if (datetimeString.length() == 10) {
+                row[index] = simpleDateFormat.parse(datetimeString);
               } else {
-                row[ index ] = simpleDateTimeFormat.parse( datetimeString );
+                row[index] = simpleDateTimeFormat.parse(datetimeString);
               }
               break;
             default:
-              throw new RuntimeException("Conversion from Avro JSON to Hop is not yet supported for Hop data type '"+valueMeta.getTypeDesc()+"'");
+              throw new RuntimeException(
+                  "Conversion from Avro JSON to Hop is not yet supported for Hop data type '"
+                      + valueMeta.getTypeDesc()
+                      + "'");
           }
         }
       }
@@ -162,13 +168,12 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
       // Pass the row to the process context
       //
       writtenCounter.inc();
-      return new HopRow( row );
+      return new HopRow(row);
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       errorCounter.inc();
-      LOG.error( "Error converting BQ Avro data into Hop rows : " + e.getMessage() );
-      throw new RuntimeException( "Error converting BQ Avro data into Hop rows", e );
-
+      LOG.error("Error converting BQ Avro data into Hop rows : " + e.getMessage());
+      throw new RuntimeException("Error converting BQ Avro data into Hop rows", e);
     }
   }
 
@@ -205,5 +210,4 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
       return hopType;
     }
   }
-
 }

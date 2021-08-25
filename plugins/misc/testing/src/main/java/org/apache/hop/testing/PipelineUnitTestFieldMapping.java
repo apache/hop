@@ -20,22 +20,22 @@ package org.apache.hop.testing;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
- * This class simply describes a mapping between the transform fields we want to test and the data set fields you want to match with.
+ * This class simply describes a mapping between the transform fields we want to test and the data
+ * set fields you want to match with.
  *
  * @author matt
  */
 public class PipelineUnitTestFieldMapping {
 
-  @HopMetadataProperty( key = "transform_field" )
+  @HopMetadataProperty(key = "transform_field")
   private String transformFieldName;
 
-  @HopMetadataProperty( key = "data_set_field" )
+  @HopMetadataProperty(key = "data_set_field")
   private String dataSetFieldName;
 
-  public PipelineUnitTestFieldMapping() {
-  }
+  public PipelineUnitTestFieldMapping() {}
 
-  public PipelineUnitTestFieldMapping( String transformFieldName, String dataSetFieldName ) {
+  public PipelineUnitTestFieldMapping(String transformFieldName, String dataSetFieldName) {
     this();
     this.transformFieldName = transformFieldName;
     this.dataSetFieldName = dataSetFieldName;
@@ -45,7 +45,7 @@ public class PipelineUnitTestFieldMapping {
     return transformFieldName;
   }
 
-  public void setTransformFieldName( String transformFieldName ) {
+  public void setTransformFieldName(String transformFieldName) {
     this.transformFieldName = transformFieldName;
   }
 
@@ -53,7 +53,7 @@ public class PipelineUnitTestFieldMapping {
     return dataSetFieldName;
   }
 
-  public void setDataSetFieldName( String dataSetFieldName ) {
+  public void setDataSetFieldName(String dataSetFieldName) {
     this.dataSetFieldName = dataSetFieldName;
   }
 }

@@ -21,7 +21,9 @@ under the License.
 
 == Description
 
-The Display Msgbox info action allow you to display a message box in a workflow. You can easily see where you are in the process. This workflow action is only available using the Graphical User Interface to execute the workflow.
+The Display Msgbox info action allow you to display a message box in a workflow.
+You can easily see where you are in the process.
+This workflow action is only available using the Graphical User Interface to execute the workflow.
 
 The message box displays "OK" and "Cancel" buttons.
 
@@ -32,10 +34,10 @@ When the question cannot be asked (no Graphical User Interface), the action alwa
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
 |Message title|The title of the message
-|Message body|The message to display 
+|Message body|The message to display
 |===

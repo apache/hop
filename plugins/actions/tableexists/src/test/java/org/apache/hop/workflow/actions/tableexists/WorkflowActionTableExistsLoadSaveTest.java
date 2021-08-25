@@ -17,14 +17,15 @@
 
 package org.apache.hop.workflow.actions.tableexists;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionTableExistsLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionTableExists> {
+public class WorkflowActionTableExistsLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionTableExists> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,7 +35,6 @@ public class WorkflowActionTableExistsLoadSaveTest extends WorkflowActionLoadSav
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "tablename", "schemaname", "database" } );
+    return Arrays.asList(new String[] {"tablename", "schemaname", "database"});
   }
-
 }

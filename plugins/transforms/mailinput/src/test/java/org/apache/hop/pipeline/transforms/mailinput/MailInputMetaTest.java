@@ -28,26 +28,19 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class MailInputMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
@@ -57,38 +50,77 @@ public class MailInputMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "conditionReceivedDate", "valueimaplist", "serverName", "userName", "password", "useSSL", "port",
-        "firstMails", "retrievemails", "delete", "protocol", "firstIMAPMails", "IMAPFolder", "senderSearchTerm",
-        "notTermSenderSearch", "recipientSearch", "subjectSearch", "receivedDate1", "receivedDate2",
-        "notTermSubjectSearch", "notTermRecipientSearch", "notTermReceivedDateSearch", "includeSubFolders", "useProxy",
-        "proxyUsername", "folderField", "dynamicFolder", "rowLimit", "useBatch", "start", "end", "batchSize",
-        "stopOnError", "inputFields" );
+        Arrays.asList(
+            "conditionReceivedDate",
+            "valueimaplist",
+            "serverName",
+            "userName",
+            "password",
+            "useSSL",
+            "port",
+            "firstMails",
+            "retrievemails",
+            "delete",
+            "protocol",
+            "firstIMAPMails",
+            "IMAPFolder",
+            "senderSearchTerm",
+            "notTermSenderSearch",
+            "recipientSearch",
+            "subjectSearch",
+            "receivedDate1",
+            "receivedDate2",
+            "notTermSubjectSearch",
+            "notTermRecipientSearch",
+            "notTermReceivedDateSearch",
+            "includeSubFolders",
+            "useProxy",
+            "proxyUsername",
+            "folderField",
+            "dynamicFolder",
+            "rowLimit",
+            "useBatch",
+            "start",
+            "end",
+            "batchSize",
+            "stopOnError",
+            "inputFields");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "inputFields",
-      new ArrayLoadSaveValidator<>( new MailInputFieldLoadSaveValidator(), 5 ) );
-    attrValidatorMap.put( "batchSize", new IntLoadSaveValidator( 1000 ) );
-    attrValidatorMap.put( "conditionReceivedDate", new IntLoadSaveValidator( MailConnectionMeta.conditionDateCode.length ) );
-    attrValidatorMap.put( "valueimaplist", new IntLoadSaveValidator( MailConnectionMeta.valueIMAPListCode.length ) );
-    attrValidatorMap.put( "port", new StringIntLoadSaveValidator( 65534 ) );
+    attrValidatorMap.put(
+        "inputFields", new ArrayLoadSaveValidator<>(new MailInputFieldLoadSaveValidator(), 5));
+    attrValidatorMap.put("batchSize", new IntLoadSaveValidator(1000));
+    attrValidatorMap.put(
+        "conditionReceivedDate",
+        new IntLoadSaveValidator(MailConnectionMeta.conditionDateCode.length));
+    attrValidatorMap.put(
+        "valueimaplist", new IntLoadSaveValidator(MailConnectionMeta.valueIMAPListCode.length));
+    attrValidatorMap.put("port", new StringIntLoadSaveValidator(65534));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
-        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+        new LoadSaveTester(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransformMeta someMeta ) {
-    if ( someMeta instanceof MailInputMeta ) {
-      ( (MailInputMeta) someMeta ).allocate( 5 );
+  public void modify(ITransformMeta someMeta) {
+    if (someMeta instanceof MailInputMeta) {
+      ((MailInputMeta) someMeta).allocate(5);
     }
   }
 
@@ -103,21 +135,21 @@ public class MailInputMetaTest implements IInitializer<ITransformMeta> {
     @Override
     public MailInputField getTestObject() {
       MailInputField rtn = new MailInputField();
-      rtn.setName( UUID.randomUUID().toString() );
-      rtn.setColumn( rand.nextInt( MailInputField.ColumnDesc.length ) );
+      rtn.setName(UUID.randomUUID().toString());
+      rtn.setColumn(rand.nextInt(MailInputField.ColumnDesc.length));
       return rtn;
     }
 
     @Override
-    public boolean validateTestObject( MailInputField testObject, Object actual ) {
-      if ( !( actual instanceof MailInputField ) ) {
+    public boolean validateTestObject(MailInputField testObject, Object actual) {
+      if (!(actual instanceof MailInputField)) {
         return false;
       }
       MailInputField another = (MailInputField) actual;
       return new EqualsBuilder()
-        .append( testObject.getName(), another.getName() )
-        .append( testObject.getColumn(), another.getColumn() )
-        .isEquals();
+          .append(testObject.getName(), another.getName())
+          .append(testObject.getColumn(), another.getColumn())
+          .isEquals();
     }
   }
 
@@ -129,9 +161,9 @@ public class MailInputMetaTest implements IInitializer<ITransformMeta> {
       intBound = 0;
     }
 
-    public StringIntLoadSaveValidator( int bounds ) {
-      if ( bounds <= 0 ) {
-        throw new IllegalArgumentException( "Bad boundary for StringIntLoadSaveValidator" );
+    public StringIntLoadSaveValidator(int bounds) {
+      if (bounds <= 0) {
+        throw new IllegalArgumentException("Bad boundary for StringIntLoadSaveValidator");
       }
       this.intBound = bounds;
     }
@@ -139,17 +171,17 @@ public class MailInputMetaTest implements IInitializer<ITransformMeta> {
     @Override
     public String getTestObject() {
       int someInt = 0;
-      if ( intBound > 0 ) {
-        someInt = rand.nextInt( intBound );
+      if (intBound > 0) {
+        someInt = rand.nextInt(intBound);
       } else {
         someInt = rand.nextInt();
       }
-      return Integer.toString( someInt );
+      return Integer.toString(someInt);
     }
 
     @Override
-    public boolean validateTestObject( String testObject, Object actual ) {
-      return ( actual.equals( testObject ) );
+    public boolean validateTestObject(String testObject, Object actual) {
+      return (actual.equals(testObject));
     }
   }
 }

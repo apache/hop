@@ -38,19 +38,16 @@ public class SampleRowsMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
-    List<String> attributes =
-      Arrays.asList( "linesRange", "lineNumberField" );
+    PluginRegistry.init(false);
+    List<String> attributes = Arrays.asList("linesRange", "lineNumberField");
 
     Map<String, String> aMap = new HashMap<>();
 
-    loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, aMap, aMap );
+    loadSaveTester = new LoadSaveTester(testMetaClass, attributes, aMap, aMap);
   }
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }

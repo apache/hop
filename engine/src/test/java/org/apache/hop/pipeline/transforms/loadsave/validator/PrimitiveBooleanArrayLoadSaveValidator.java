@@ -23,34 +23,35 @@ public class PrimitiveBooleanArrayLoadSaveValidator implements IFieldLoadSaveVal
   private final IFieldLoadSaveValidator<Boolean> validator;
   private final Integer elements;
 
-  public PrimitiveBooleanArrayLoadSaveValidator( IFieldLoadSaveValidator<Boolean> fieldValidator ) {
-    this( fieldValidator, null );
+  public PrimitiveBooleanArrayLoadSaveValidator(IFieldLoadSaveValidator<Boolean> fieldValidator) {
+    this(fieldValidator, null);
   }
 
-  public PrimitiveBooleanArrayLoadSaveValidator( IFieldLoadSaveValidator<Boolean> fieldValidator, Integer elements ) {
+  public PrimitiveBooleanArrayLoadSaveValidator(
+      IFieldLoadSaveValidator<Boolean> fieldValidator, Integer elements) {
     validator = fieldValidator;
     this.elements = elements;
   }
 
   @Override
   public boolean[] getTestObject() {
-    int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
-    boolean[] result = new boolean[ max ];
-    for ( int i = 0; i < max; i++ ) {
-      result[ i ] = validator.getTestObject();
+    int max = elements == null ? new Random().nextInt(100) + 50 : elements;
+    boolean[] result = new boolean[max];
+    for (int i = 0; i < max; i++) {
+      result[i] = validator.getTestObject();
     }
     return result;
   }
 
   @Override
-  public boolean validateTestObject( boolean[] original, Object actual ) {
-    if ( original.getClass().isAssignableFrom( actual.getClass() ) ) {
+  public boolean validateTestObject(boolean[] original, Object actual) {
+    if (original.getClass().isAssignableFrom(actual.getClass())) {
       boolean[] otherList = (boolean[]) actual;
-      if ( original.length != otherList.length ) {
+      if (original.length != otherList.length) {
         return false;
       }
-      for ( int i = 0; i < original.length; i++ ) {
-        if ( !this.validator.validateTestObject( original[ i ], otherList[ i ] ) ) {
+      for (int i = 0; i < original.length; i++) {
+        if (!this.validator.validateTestObject(original[i], otherList[i])) {
           return false;
         }
       }

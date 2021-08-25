@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
-import java.util.Arrays;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -28,26 +27,31 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.program.Program;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.util.Arrays;
 
 /** A dialog to display version information. */
 public class AboutDialog extends Dialog {
   private static final Class<?> PKG = AboutDialog.class; // For Translator
 
-  private static final String[] PROPERTIES =  new String[] { "os.name","os.version","os.arch", "java.version", "java.vm.vendor", "java.specification.version","java.class.path","file.encoding", "HOP_CONFIG_FOLDER", Const.HOP_PLATFORM_RUNTIME, Const.HOP_PLUGIN_BASE_FOLDERS, Const.HOP_SHARED_JDBC_FOLDER}; 
+  private static final String[] PROPERTIES =
+      new String[] {
+        "os.name",
+        "os.version",
+        "os.arch",
+        "java.version",
+        "java.vm.vendor",
+        "java.specification.version",
+        "java.class.path",
+        "file.encoding",
+        "HOP_CONFIG_FOLDER",
+        Const.HOP_PLATFORM_RUNTIME,
+        Const.HOP_PLUGIN_BASE_FOLDERS,
+        Const.HOP_SHARED_JDBC_FOLDER
+      };
 
   private Shell shell;
 
@@ -62,7 +66,7 @@ public class AboutDialog extends Dialog {
     PropsUi props = PropsUi.getInstance();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE);
-    shell.setText(BaseMessages.getString(PKG, "AboutDialog.Title"));   
+    shell.setText(BaseMessages.getString(PKG, "AboutDialog.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setSize(700, 500);
     shell.setMinimumSize(450, 300);
@@ -72,7 +76,7 @@ public class AboutDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
     shell.setLayout(formLayout);
     props.setLook(shell);
-    
+
     // Composite for logo, app name & version, and centering link
     Composite composite = new Composite(shell, SWT.NONE);
     FormData fdLink = new FormData();
@@ -118,7 +122,9 @@ public class AboutDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, Const.MARGIN, null);
 
     // Widget system properties
-    Text wText = new Text(shell, SWT.READ_ONLY | SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    Text wText =
+        new Text(
+            shell, SWT.READ_ONLY | SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     wText.setText(getProperties());
     FormData fdText = new FormData();
     fdText.top = new FormAttachment(composite, Const.MARGIN);
@@ -148,14 +154,14 @@ public class AboutDialog extends Dialog {
   private String getProperties() {
 
     StringBuilder builder = new StringBuilder();
-    Arrays.sort(PROPERTIES);      
+    Arrays.sort(PROPERTIES);
     for (String name : PROPERTIES) {
       builder.append(name);
-      builder.append('=');      
-      builder.append(System.getProperty(name,""));
+      builder.append('=');
+      builder.append(System.getProperty(name, ""));
       builder.append('\n');
     }
-    
+
     return builder.toString();
   }
 

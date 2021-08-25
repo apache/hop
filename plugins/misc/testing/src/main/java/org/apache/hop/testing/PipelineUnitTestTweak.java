@@ -21,34 +21,32 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PipelineUnitTestTweak {
 
-  @HopMetadataProperty
-  private PipelineTweak tweak;
+  @HopMetadataProperty private PipelineTweak tweak;
 
-  @HopMetadataProperty
-  private String transformName;
+  @HopMetadataProperty private String transformName;
 
   public PipelineUnitTestTweak() {
     tweak = PipelineTweak.NONE;
   }
 
-  public PipelineUnitTestTweak( PipelineTweak tweak, String transformName ) {
+  public PipelineUnitTestTweak(PipelineTweak tweak, String transformName) {
     super();
     this.tweak = tweak;
     this.transformName = transformName;
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( !( obj instanceof PipelineUnitTestTweak ) ) {
+  public boolean equals(Object obj) {
+    if (!(obj instanceof PipelineUnitTestTweak)) {
       return false;
     }
-    if ( obj == this ) {
+    if (obj == this) {
       return true;
     }
 
     PipelineUnitTestTweak other = (PipelineUnitTestTweak) obj;
 
-    return transformName == null ? false : transformName.equals( other.transformName );
+    return transformName == null ? false : transformName.equals(other.transformName);
   }
 
   @Override
@@ -60,7 +58,7 @@ public class PipelineUnitTestTweak {
     return tweak;
   }
 
-  public void setTweak( PipelineTweak tweak ) {
+  public void setTweak(PipelineTweak tweak) {
     this.tweak = tweak;
   }
 
@@ -68,7 +66,7 @@ public class PipelineUnitTestTweak {
     return transformName;
   }
 
-  public void setTransformName( String transformName ) {
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 }

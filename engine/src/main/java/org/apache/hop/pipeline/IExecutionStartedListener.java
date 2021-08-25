@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /**
  * A started listener for pipeline engines
@@ -33,6 +32,5 @@ public interface IExecutionStartedListener<T> {
    * @param subject The subject of the execution (workflow, pipeline, ...)
    * @throws HopException
    */
-  void started( T subject ) throws HopException;
-
+  void started(T subject) throws HopException;
 }

@@ -14,9 +14,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+
 [[Mappings]]
 :imagesdir: ../../assets/images
 
-If you have recurring logic in various pipelines, consider writing Mapping.  It is a pipeline reading from a xref:pipeline/transforms/mapping-input.adoc[Mapping Input] and writing to a xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform.  You can re-use the work in other pipelines using the xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] transform.
+If you have recurring logic in various pipelines, consider writing Mapping.
+It is a pipeline reading from a xref:pipeline/transforms/mapping-input.adoc[Mapping Input] and writing to a xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform.
+You can re-use the work in other pipelines using the xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] transform.
 
 

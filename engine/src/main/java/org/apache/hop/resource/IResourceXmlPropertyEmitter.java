@@ -22,10 +22,10 @@ public interface IResourceXmlPropertyEmitter {
   /**
    * Allows injection of additional relevant properties in the to-xml of the Resource Reference.
    *
-   * @param ref       The Resource Reference Holder (a transform, or a action)
-   * @param indention If -1, then no indenting, otherwise, it's the indent level to indent the XML strings
+   * @param ref The Resource Reference Holder (a transform, or a action)
+   * @param indention If -1, then no indenting, otherwise, it's the indent level to indent the XML
+   *     strings
    * @return String of injected XML
    */
-  String getExtraResourceProperties( IResourceHolder ref, int indention );
-
+  String getExtraResourceProperties(IResourceHolder ref, int indention);
 }

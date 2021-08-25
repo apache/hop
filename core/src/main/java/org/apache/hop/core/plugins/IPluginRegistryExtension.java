@@ -19,13 +19,13 @@ package org.apache.hop.core.plugins;
 
 /**
  * Implementations of this class extend the built-in functionality of the plugin registry.
- * <p>
- * User: nbaker Date: 3/14/11
+ *
+ * <p>User: nbaker Date: 3/14/11
  */
 public interface IPluginRegistryExtension {
-  void init( PluginRegistry registry );
+  void init(PluginRegistry registry);
 
-  void searchForType( IPluginType pluginType );
+  void searchForType(IPluginType pluginType);
 
-  String getPluginId( Class<? extends IPluginType> pluginType, Object pluginClass );
+  String getPluginId(Class<? extends IPluginType> pluginType, Object pluginClass);
 }

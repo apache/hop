@@ -29,5 +29,4 @@ public class DummyData extends BaseTransformData implements ITransformData {
   public DummyData() {
     super();
   }
-
 }

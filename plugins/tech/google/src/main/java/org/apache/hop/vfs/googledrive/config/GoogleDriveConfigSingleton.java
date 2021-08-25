@@ -32,8 +32,11 @@ public class GoogleDriveConfigSingleton {
   private GoogleDriveConfigSingleton() {
     // Load from the HopConfig store
     //
-    Object configObject = HopConfig.getInstance().getConfigMap().get( GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY );
-    if ( configObject == null ) {
+    Object configObject =
+        HopConfig.getInstance()
+            .getConfigMap()
+            .get(GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY);
+    if (configObject == null) {
       googleDriveConfig = new GoogleDriveConfig();
     } else {
       // The way Jackson stores these simple POJO is with a map per default...
@@ -42,13 +45,20 @@ public class GoogleDriveConfigSingleton {
       //
       try {
         ObjectMapper mapper = new ObjectMapper();
-        googleDriveConfig = mapper.readValue( new Gson().toJson( configObject ), GoogleDriveConfig.class );
-      } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Error reading Google Drive configuration, check property '" + GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY + "' in the Hop config json file", e );
+        googleDriveConfig =
+            mapper.readValue(new Gson().toJson(configObject), GoogleDriveConfig.class);
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError(
+            "Error reading Google Drive configuration, check property '"
+                + GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY
+                + "' in the Hop config json file",
+            e);
         googleDriveConfig = new GoogleDriveConfig();
       }
     }
-    HopConfig.getInstance().getConfigMap().put( GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY, googleDriveConfig );
+    HopConfig.getInstance()
+        .getConfigMap()
+        .put(GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY, googleDriveConfig);
   }
 
   public static GoogleDriveConfigSingleton getInstance() {
@@ -56,15 +66,17 @@ public class GoogleDriveConfigSingleton {
   }
 
   public static GoogleDriveConfig getConfig() {
-    if ( configSingleton == null ) {
+    if (configSingleton == null) {
       configSingleton = new GoogleDriveConfigSingleton();
     }
     return configSingleton.googleDriveConfig;
   }
 
   public static void saveConfig() throws HopException {
-    HopConfig.getInstance().saveOption( GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY, configSingleton.googleDriveConfig );
+    HopConfig.getInstance()
+        .saveOption(
+            GoogleDriveConfig.HOP_CONFIG_GOOGLE_DRIVE_CONFIG_KEY,
+            configSingleton.googleDriveConfig);
     HopConfig.getInstance().saveToFile();
   }
 }
-

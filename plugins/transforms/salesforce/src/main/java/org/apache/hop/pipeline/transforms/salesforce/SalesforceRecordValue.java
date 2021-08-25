@@ -35,7 +35,7 @@ public class SalesforceRecordValue {
   private boolean allRecordsProcessed;
   private Date deletionDate;
 
-  public SalesforceRecordValue( int index ) {
+  public SalesforceRecordValue(int index) {
     this.recordIndex = index;
     this.record = null;
     this.recordIndexChanged = false;
@@ -47,7 +47,7 @@ public class SalesforceRecordValue {
     return this.allRecordsProcessed;
   }
 
-  public void setAllRecordsProcessed( boolean value ) {
+  public void setAllRecordsProcessed(boolean value) {
     this.allRecordsProcessed = value;
   }
 
@@ -55,7 +55,7 @@ public class SalesforceRecordValue {
     return this.recordIndexChanged;
   }
 
-  public void setRecordIndexChanges( boolean value ) {
+  public void setRecordIndexChanges(boolean value) {
     this.recordIndexChanged = value;
   }
 
@@ -63,7 +63,7 @@ public class SalesforceRecordValue {
     return this.recordIndex;
   }
 
-  public void setRecordIndex( int index ) {
+  public void setRecordIndex(int index) {
     this.recordIndex = index;
   }
 
@@ -71,11 +71,11 @@ public class SalesforceRecordValue {
     return this.record;
   }
 
-  public void setRecordValue( SObject value ) {
+  public void setRecordValue(SObject value) {
     this.record = value;
   }
 
-  public void setDeletionDate( Date value ) {
+  public void setDeletionDate(Date value) {
     this.deletionDate = value;
   }
 

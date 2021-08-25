@@ -40,8 +40,9 @@ import java.util.List;
     key = "neo4j-graph-model",
     name = "Neo4j Graph Model",
     description = "Description of the nodes, relationships, indexes... of a Neo4j graph",
-    image = "neo4j_logo.svg",    
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/neo4j/neo4j-graphmodel.html")
+    image = "neo4j_logo.svg",
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/neo4j/neo4j-graphmodel.html")
 public class GraphModel extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty protected String description;

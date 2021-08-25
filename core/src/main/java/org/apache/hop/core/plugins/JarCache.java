@@ -17,21 +17,6 @@
 
 package org.apache.hop.core.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
@@ -40,8 +25,17 @@ import org.apache.hop.core.variables.Variables;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.IndexReader;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
 public class JarCache {
-  
+
   public static final String ANNOTATION_INDEX_LOCATION = "META-INF/jandex.idx";
 
   private static JarCache instance;
@@ -50,7 +44,7 @@ public class JarCache {
   private final Map<File, Set<File>> jarFiles;
   private final Set<File> nativeFiles;
   private final Set<File> pluginFiles;
-  
+
   private JarCache() {
     nativeFiles = new HashSet<>();
     pluginFiles = new HashSet<>();
@@ -64,82 +58,84 @@ public class JarCache {
     }
     return instance;
   }
-    
+
   /**
    * Create a list of plugin folders based on the default or variable HOP_PLUGIN_BASE_FOLDERS
    *
    * @return The list of plugin folders found
    */
-  public  List<String> getPluginFolders() {
+  public List<String> getPluginFolders() {
     List<String> pluginFolders = new ArrayList<>();
 
-    String folderPaths = Const.NVL( Variables.getADefaultVariableSpace().getVariable( Const.HOP_PLUGIN_BASE_FOLDERS ), EnvUtil.getSystemProperty( Const.HOP_PLUGIN_BASE_FOLDERS ) );
-    if ( folderPaths == null ) {
+    String folderPaths =
+        Const.NVL(
+            Variables.getADefaultVariableSpace().getVariable(Const.HOP_PLUGIN_BASE_FOLDERS),
+            EnvUtil.getSystemProperty(Const.HOP_PLUGIN_BASE_FOLDERS));
+    if (folderPaths == null) {
       folderPaths = Const.DEFAULT_PLUGIN_BASE_FOLDERS;
     }
 
     // for each folder in the list of plugin base folders
-    String[] folders = folderPaths.split( "," );
-    for ( String folder : folders ) {
-     // trim the folder - we don't need leading and trailing spaces
-      pluginFolders.add( folder.trim() );
+    String[] folders = folderPaths.split(",");
+    for (String folder : folders) {
+      // trim the folder - we don't need leading and trailing spaces
+      pluginFolders.add(folder.trim());
     }
     return pluginFolders;
   }
 
-  
   public Set<File> getNativeJars() throws HopFileException {
 
-      // Scan native jars only once
-      //
-      if (nativeFiles.isEmpty()) {
-        try {
-          Enumeration<URL> indexFiles  = getClass().getClassLoader().getResources(JarCache.ANNOTATION_INDEX_LOCATION);
-          while (indexFiles.hasMoreElements()) {
-            URL url = indexFiles.nextElement();          
-            
-            // Relative path
-            String path = url.getFile();            
+    // Scan native jars only once
+    //
+    if (nativeFiles.isEmpty()) {
+      try {
+        Enumeration<URL> indexFiles =
+            getClass().getClassLoader().getResources(JarCache.ANNOTATION_INDEX_LOCATION);
+        while (indexFiles.hasMoreElements()) {
+          URL url = indexFiles.nextElement();
 
-            File file = new File(StringUtils.substringBefore(path,  "!/"));            
-            
-            nativeFiles.add(file);
-            
-            // Read annotation index from resource
-            //
-            try (InputStream stream = url.openStream()) {
-                IndexReader reader = new IndexReader(stream);
-                Index index = reader.read();                
-                indexCache.put(file, index);
-              } catch (IOException e) {
-                throw new HopFileException(
-                    MessageFormat.format("Error reading annotation index from url ''{0}''", url), e);
-              }
-            
+          // Relative path
+          String path = url.getFile();
+
+          File file = new File(StringUtils.substringBefore(path, "!/"));
+
+          nativeFiles.add(file);
+
+          // Read annotation index from resource
+          //
+          try (InputStream stream = url.openStream()) {
+            IndexReader reader = new IndexReader(stream);
+            Index index = reader.read();
+            indexCache.put(file, index);
+          } catch (IOException e) {
+            throw new HopFileException(
+                MessageFormat.format("Error reading annotation index from url ''{0}''", url), e);
           }
-        } catch (Exception e) {
-          throw new HopFileException("Error finding native plugin jar", e);
         }
+      } catch (Exception e) {
+        throw new HopFileException("Error finding native plugin jar", e);
       }
-
-      return nativeFiles;
     }
+
+    return nativeFiles;
+  }
 
   /**
    * Get all the jar files with annotation index
-   * 
+   *
    * @return list of jar files
    * @throws HopFileException
-   */  
+   */
   public Set<File> getPluginJars() throws HopFileException {
     // Scan plugin jars only once
     //
     if (pluginFiles.isEmpty()) {
-            
+
       for (String pluginFolder : getPluginFolders()) {
-        
+
         // System.out.println("Search plugin in folder: " + pluginFolder );
-        
+
         for (File file : this.findJarFiles(new File(pluginFolder))) {
           Index index = this.getIndex(file);
           if (index != null) {
@@ -152,11 +148,11 @@ public class JarCache {
   }
 
   public Index getIndex(File jarFile) throws HopFileException {
-    
+
     // Search annotation index from cache
     //
     Index index = indexCache.get(jarFile);
-    
+
     if (index == null) {
 
       try (JarFile jar = new JarFile(jarFile)) {
@@ -214,24 +210,22 @@ public class JarCache {
 
   /**
    * Find all the jar files in the folder and sub-folders exception for lib folder.
-   * 
+   *
    * @param folder
-   * 
    * @return the list of jar files
    */
-  private  static Set<File> findFiles(final File folder ) {
+  private static Set<File> findFiles(final File folder) {
     Set<File> files = new HashSet<>();
     File[] children = folder.listFiles();
-    if (children!=null) {
-      for ( File child : children ) {
-        if ( child.isFile() ) {
-          if ( child.getName().endsWith( ".jar" ) ) {
-            files.add( child );
+    if (children != null) {
+      for (File child : children) {
+        if (child.isFile()) {
+          if (child.getName().endsWith(".jar")) {
+            files.add(child);
           }
-        }
-        else if ( child.isDirectory() ) {
-          if ( !"lib".equals( child.getName() ) ) {
-            files.addAll( findFiles( child ) );
+        } else if (child.isDirectory()) {
+          if (!"lib".equals(child.getName())) {
+            files.addAll(findFiles(child));
           }
         }
       }
@@ -239,5 +233,4 @@ public class JarCache {
 
     return files;
   }
-
 }

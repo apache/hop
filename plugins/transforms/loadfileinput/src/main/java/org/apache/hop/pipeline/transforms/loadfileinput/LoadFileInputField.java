@@ -39,22 +39,24 @@ public class LoadFileInputField implements Cloneable {
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
   public static final String[] trimTypeDesc = {
-    BaseMessages.getString( PKG, "LoadFileInputField.TrimType.None" ),
-    BaseMessages.getString( PKG, "LoadFileInputField.TrimType.Left" ),
-    BaseMessages.getString( PKG, "LoadFileInputField.TrimType.Right" ),
-    BaseMessages.getString( PKG, "LoadFileInputField.TrimType.Both" ) };
+    BaseMessages.getString(PKG, "LoadFileInputField.TrimType.None"),
+    BaseMessages.getString(PKG, "LoadFileInputField.TrimType.Left"),
+    BaseMessages.getString(PKG, "LoadFileInputField.TrimType.Right"),
+    BaseMessages.getString(PKG, "LoadFileInputField.TrimType.Both")
+  };
 
   public static final int ELEMENT_TYPE_FILECONTENT = 0;
   public static final int ELEMENT_TYPE_FILESIZE = 1;
 
-  public static final String[] ElementTypeCode = { "content", "size" };
+  public static final String[] ElementTypeCode = {"content", "size"};
 
   public static final String[] ElementTypeDesc = {
-    BaseMessages.getString( PKG, "LoadFileInputField.ElementType.FileContent" ),
-    BaseMessages.getString( PKG, "LoadFileInputField.ElementType.FileSize" ), };
+    BaseMessages.getString(PKG, "LoadFileInputField.ElementType.FileContent"),
+    BaseMessages.getString(PKG, "LoadFileInputField.ElementType.FileSize"),
+  };
 
   private String name;
   private int type;
@@ -68,7 +70,7 @@ public class LoadFileInputField implements Cloneable {
   private String groupSymbol;
   private boolean repeat;
 
-  public LoadFileInputField( String fieldname ) {
+  public LoadFileInputField(String fieldname) {
     this.name = fieldname;
     this.elementtype = ELEMENT_TYPE_FILECONTENT;
     this.length = -1;
@@ -83,123 +85,122 @@ public class LoadFileInputField implements Cloneable {
   }
 
   public LoadFileInputField() {
-    this( "" );
+    this("");
   }
 
   public String getXml() {
     String retval = "";
 
     retval += "      <field>" + Const.CR;
-    retval += "        " + XmlHandler.addTagValue( "name", getName() );
-    retval += "        " + XmlHandler.addTagValue( "element_type", getElementTypeCode() );
-    retval += "        " + XmlHandler.addTagValue( "type", getTypeDesc() );
-    retval += "        " + XmlHandler.addTagValue( "format", getFormat() );
-    retval += "        " + XmlHandler.addTagValue( "currency", getCurrencySymbol() );
-    retval += "        " + XmlHandler.addTagValue( "decimal", getDecimalSymbol() );
-    retval += "        " + XmlHandler.addTagValue( "group", getGroupSymbol() );
-    retval += "        " + XmlHandler.addTagValue( "length", getLength() );
-    retval += "        " + XmlHandler.addTagValue( "precision", getPrecision() );
-    retval += "        " + XmlHandler.addTagValue( "trim_type", getTrimTypeCode() );
-    retval += "        " + XmlHandler.addTagValue( "repeat", isRepeated() );
+    retval += "        " + XmlHandler.addTagValue("name", getName());
+    retval += "        " + XmlHandler.addTagValue("element_type", getElementTypeCode());
+    retval += "        " + XmlHandler.addTagValue("type", getTypeDesc());
+    retval += "        " + XmlHandler.addTagValue("format", getFormat());
+    retval += "        " + XmlHandler.addTagValue("currency", getCurrencySymbol());
+    retval += "        " + XmlHandler.addTagValue("decimal", getDecimalSymbol());
+    retval += "        " + XmlHandler.addTagValue("group", getGroupSymbol());
+    retval += "        " + XmlHandler.addTagValue("length", getLength());
+    retval += "        " + XmlHandler.addTagValue("precision", getPrecision());
+    retval += "        " + XmlHandler.addTagValue("trim_type", getTrimTypeCode());
+    retval += "        " + XmlHandler.addTagValue("repeat", isRepeated());
 
     retval += "        </field>" + Const.CR;
 
     return retval;
   }
 
-  public LoadFileInputField( Node fnode ) throws HopValueException {
-    setName( XmlHandler.getTagValue( fnode, "name" ) );
-    setElementType( getElementTypeByCode( XmlHandler.getTagValue( fnode, "element_type" ) ) );
-    setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
-    setFormat( XmlHandler.getTagValue( fnode, "format" ) );
-    setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
-    setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
-    setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
-    setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
-    setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
-    setTrimType( getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
-    setRepeated( !"N".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "repeat" ) ) );
-
+  public LoadFileInputField(Node fnode) throws HopValueException {
+    setName(XmlHandler.getTagValue(fnode, "name"));
+    setElementType(getElementTypeByCode(XmlHandler.getTagValue(fnode, "element_type")));
+    setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
+    setFormat(XmlHandler.getTagValue(fnode, "format"));
+    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
+    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
+    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
+    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
+    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
+    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+    setRepeated(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
   }
 
-  public static final int getTrimTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeCode.length; i++) {
+      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getElementTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getElementTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ElementTypeCode.length; i++ ) {
-      if ( ElementTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ElementTypeCode.length; i++) {
+      if (ElementTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getTrimTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeDesc.length; i++) {
+      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getElementTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getElementTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < ElementTypeDesc.length; i++ ) {
-      if ( ElementTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < ElementTypeDesc.length; i++) {
+      if (ElementTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[ 0 ];
+  public static final String getTrimTypeCode(int i) {
+    if (i < 0 || i >= trimTypeCode.length) {
+      return trimTypeCode[0];
     }
-    return trimTypeCode[ i ];
+    return trimTypeCode[i];
   }
 
-  public static final String getElementTypeCode( int i ) {
-    if ( i < 0 || i >= ElementTypeCode.length ) {
-      return ElementTypeCode[ 0 ];
+  public static final String getElementTypeCode(int i) {
+    if (i < 0 || i >= ElementTypeCode.length) {
+      return ElementTypeCode[0];
     }
-    return ElementTypeCode[ i ];
+    return ElementTypeCode[i];
   }
 
-  public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[ 0 ];
+  public static final String getTrimTypeDesc(int i) {
+    if (i < 0 || i >= trimTypeDesc.length) {
+      return trimTypeDesc[0];
     }
-    return trimTypeDesc[ i ];
+    return trimTypeDesc[i];
   }
 
-  public static final String getElementTypeDesc( int i ) {
-    if ( i < 0 || i >= ElementTypeDesc.length ) {
-      return ElementTypeDesc[ 0 ];
+  public static final String getElementTypeDesc(int i) {
+    if (i < 0 || i >= ElementTypeDesc.length) {
+      return ElementTypeDesc[0];
     }
-    return ElementTypeDesc[ i ];
+    return ElementTypeDesc[i];
   }
 
   public Object clone() {
@@ -207,7 +208,7 @@ public class LoadFileInputField implements Cloneable {
       LoadFileInputField retval = (LoadFileInputField) super.clone();
 
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -216,7 +217,7 @@ public class LoadFileInputField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -224,7 +225,7 @@ public class LoadFileInputField implements Cloneable {
     return name;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -233,10 +234,10 @@ public class LoadFileInputField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -244,7 +245,7 @@ public class LoadFileInputField implements Cloneable {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -257,26 +258,26 @@ public class LoadFileInputField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return getTrimTypeCode( trimtype );
+    return getTrimTypeCode(trimtype);
   }
 
   public String getElementTypeCode() {
-    return getElementTypeCode( elementtype );
+    return getElementTypeCode(elementtype);
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc( trimtype );
+    return getTrimTypeDesc(trimtype);
   }
 
   public String getElementTypeDesc() {
-    return getElementTypeDesc( elementtype );
+    return getElementTypeDesc(elementtype);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
-  public void setElementType( int elementType ) {
+  public void setElementType(int elementType) {
     this.elementtype = elementType;
   }
 
@@ -284,7 +285,7 @@ public class LoadFileInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String group_symbol ) {
+  public void setGroupSymbol(String group_symbol) {
     this.groupSymbol = group_symbol;
   }
 
@@ -292,7 +293,7 @@ public class LoadFileInputField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
+  public void setDecimalSymbol(String decimal_symbol) {
     this.decimalSymbol = decimal_symbol;
   }
 
@@ -300,7 +301,7 @@ public class LoadFileInputField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
+  public void setCurrencySymbol(String currency_symbol) {
     this.currencySymbol = currency_symbol;
   }
 
@@ -308,7 +309,7 @@ public class LoadFileInputField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -316,7 +317,7 @@ public class LoadFileInputField implements Cloneable {
     return repeat;
   }
 
-  public void setRepeated( boolean repeat ) {
+  public void setRepeated(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -330,7 +331,5 @@ public class LoadFileInputField implements Cloneable {
     return enc;
   }
 
-  public void guess() {
-  }
-
+  public void guess() {}
 }

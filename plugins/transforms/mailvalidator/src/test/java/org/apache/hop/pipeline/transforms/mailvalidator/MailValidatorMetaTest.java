@@ -31,12 +31,23 @@ public class MailValidatorMetaTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList( "EmailField", "ResultFieldName", "ResultAsString", "SMTPCheck",
-      "EmailValideMsg", "EmailNotValideMsg", "ErrorsField", "TimeOut", "DefaultSMTP", "EmailSender",
-      "DefaultSMTPField", "DynamicDefaultSMTP" );
+    List<String> attributes =
+        Arrays.asList(
+            "EmailField",
+            "ResultFieldName",
+            "ResultAsString",
+            "SMTPCheck",
+            "EmailValideMsg",
+            "EmailNotValideMsg",
+            "ErrorsField",
+            "TimeOut",
+            "DefaultSMTP",
+            "EmailSender",
+            "DefaultSMTPField",
+            "DynamicDefaultSMTP");
 
     LoadSaveTester<MailValidatorMeta> loadSaveTester =
-      new LoadSaveTester<>( MailValidatorMeta.class, attributes );
+        new LoadSaveTester<>(MailValidatorMeta.class, attributes);
 
     loadSaveTester.testSerialization();
   }

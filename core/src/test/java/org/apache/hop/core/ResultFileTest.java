@@ -33,9 +33,7 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ResultFileTest {
 
@@ -48,29 +46,31 @@ public class ResultFileTest {
 
   @Test
   public void testGetRow() throws HopFileException, FileSystemException {
-    File tempDir = new File( new TemporaryFolder().toString() );
-    FileObject tempFile = HopVfs.createTempFile( "prefix", "suffix", tempDir.toString() );
+    File tempDir = new File(new TemporaryFolder().toString());
+    FileObject tempFile = HopVfs.createTempFile("prefix", "suffix", tempDir.toString());
     Date timeBeforeFile = Calendar.getInstance().getTime();
-    ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, tempFile, "myOriginParent", "myOrigin" );
+    ResultFile resultFile =
+        new ResultFile(ResultFile.FILE_TYPE_GENERAL, tempFile, "myOriginParent", "myOrigin");
     Date timeAfterFile = Calendar.getInstance().getTime();
 
-    assertNotNull( resultFile );
+    assertNotNull(resultFile);
     IRowMeta rm = resultFile.getRow().getRowMeta();
-    assertEquals( 7, rm.getValueMetaList().size() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 0 ).getType() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 1 ).getType() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 2 ).getType() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 3 ).getType() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 4 ).getType() );
-    assertEquals( IValueMeta.TYPE_STRING, rm.getValueMeta( 5 ).getType() );
-    assertEquals( IValueMeta.TYPE_DATE, rm.getValueMeta( 6 ).getType() );
+    assertEquals(7, rm.getValueMetaList().size());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(0).getType());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(1).getType());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(2).getType());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(3).getType());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(4).getType());
+    assertEquals(IValueMeta.TYPE_STRING, rm.getValueMeta(5).getType());
+    assertEquals(IValueMeta.TYPE_DATE, rm.getValueMeta(6).getType());
 
-    assertEquals( ResultFile.FILE_TYPE_GENERAL, resultFile.getType() );
-    assertEquals( "myOrigin", resultFile.getOrigin() );
-    assertEquals( "myOriginParent", resultFile.getOriginParent() );
-    assertTrue( "ResultFile timestamp is created in the expected window",
-      timeBeforeFile.compareTo( resultFile.getTimestamp() ) <= 0
-        && timeAfterFile.compareTo( resultFile.getTimestamp() ) >= 0 );
+    assertEquals(ResultFile.FILE_TYPE_GENERAL, resultFile.getType());
+    assertEquals("myOrigin", resultFile.getOrigin());
+    assertEquals("myOriginParent", resultFile.getOriginParent());
+    assertTrue(
+        "ResultFile timestamp is created in the expected window",
+        timeBeforeFile.compareTo(resultFile.getTimestamp()) <= 0
+            && timeAfterFile.compareTo(resultFile.getTimestamp()) >= 0);
 
     tempFile.delete();
     tempDir.delete();

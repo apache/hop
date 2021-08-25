@@ -32,35 +32,40 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 
 @ExtensionPoint(
-  id = "HopGuiDirectoryOpenSetDefaultFolder",
-  extensionPointId = "HopGuiFileDirectoryDialog",
-  description = "When HopGui asks for a folder a directory dialog is shown. We want to set the default folder to the project home folder"
-)
-public class HopGuiDirectoryOpenSetDefaultFolder implements IExtensionPoint<HopGuiDirectoryDialogExtension> {
+    id = "HopGuiDirectoryOpenSetDefaultFolder",
+    extensionPointId = "HopGuiFileDirectoryDialog",
+    description =
+        "When HopGui asks for a folder a directory dialog is shown. We want to set the default folder to the project home folder")
+public class HopGuiDirectoryOpenSetDefaultFolder
+    implements IExtensionPoint<HopGuiDirectoryDialogExtension> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiDirectoryDialogExtension ext ) throws HopException {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, HopGuiDirectoryDialogExtension ext)
+      throws HopException {
     String projectName = HopNamespace.getNamespace();
-    if ( StringUtil.isEmpty(projectName)) {
+    if (StringUtil.isEmpty(projectName)) {
       return;
     }
     // Keep the proposed filter path...
     //
-    if ( ext.directoryDialog!=null && StringUtils.isNotEmpty( ext.directoryDialog.getFilterPath() )) {
+    if (ext.directoryDialog != null
+        && StringUtils.isNotEmpty(ext.directoryDialog.getFilterPath())) {
       return;
     }
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      ProjectConfig projectConfig = config.findProjectConfig( projectName );
-      if (projectConfig==null) {
+      ProjectConfig projectConfig = config.findProjectConfig(projectName);
+      if (projectConfig == null) {
         return;
       }
       String homeFolder = projectConfig.getProjectHome();
-      if (homeFolder!=null) {
+      if (homeFolder != null) {
         IDirectoryDialog dialog = ext.getDirectoryDialog();
         dialog.setFilterPath(homeFolder);
       }
-    } catch(Exception e) {
-      log.logError( "Error setting default folder for project "+projectName, e );
+    } catch (Exception e) {
+      log.logError("Error setting default folder for project " + projectName, e);
     }
   }
 }

@@ -25,50 +25,48 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-
 public class KingbaseESSequenceAndReleaseSavePointTest {
-  @ClassRule
-  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
 
-  //Set these parameters for the test
+  // Set these parameters for the test
   IDatabase db = new KingbaseESDatabaseMeta();
   Boolean sequenceSupport = true;
   Boolean savepointSupport = true;
 
-
   @Test
   public void testSequenceSupport() {
-    assertSupports( db, sequenceSupport );
-    assertEquals( "SELECT nextval('sequence_name')", db.getSqlNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT currval('sequence_name')", db.getSqlCurrentSequenceValue( sequenceName ) );
+    assertSupports(db, sequenceSupport);
+    assertEquals("SELECT nextval('sequence_name')", db.getSqlNextSequenceValue(sequenceName));
+    assertEquals("SELECT currval('sequence_name')", db.getSqlCurrentSequenceValue(sequenceName));
   }
 
   @Test
   public void testSavepointSuport() {
-    if ( savepointSupport ) {
-      assertTrue( db.releaseSavepoint() );
+    if (savepointSupport) {
+      assertTrue(db.releaseSavepoint());
     } else {
-      assertFalse( db.releaseSavepoint() );
+      assertFalse(db.releaseSavepoint());
     }
   }
 
-
-  public static void assertSupports( IDatabase db, boolean expected ) {
+  public static void assertSupports(IDatabase db, boolean expected) {
     String dbType = db.getClass().getSimpleName();
-    if ( expected ) {
-      assertTrue( dbType, db.supportsSequences() );
-      assertFalse( dbType + ": List of Sequences", Utils.isEmpty( db.getSqlListOfSequences() ) );
-      assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( db.getSqlSequenceExists( "testSeq" ) ) );
-      assertFalse( dbType + ": Current Value", Utils.isEmpty( db.getSqlCurrentSequenceValue( "testSeq" ) ) );
-      assertFalse( dbType + ": Next Value", Utils.isEmpty( db.getSqlNextSequenceValue( "testSeq" ) ) );
+    if (expected) {
+      assertTrue(dbType, db.supportsSequences());
+      assertFalse(dbType + ": List of Sequences", Utils.isEmpty(db.getSqlListOfSequences()));
+      assertFalse(dbType + ": Sequence Exists", Utils.isEmpty(db.getSqlSequenceExists("testSeq")));
+      assertFalse(
+          dbType + ": Current Value", Utils.isEmpty(db.getSqlCurrentSequenceValue("testSeq")));
+      assertFalse(dbType + ": Next Value", Utils.isEmpty(db.getSqlNextSequenceValue("testSeq")));
     } else {
-      assertFalse( db.getClass().getSimpleName(), db.supportsSequences() );
-      assertTrue( dbType + ": List of Sequences", Utils.isEmpty( db.getSqlListOfSequences() ) );
-      assertTrue( dbType + ": Sequence Exists", Utils.isEmpty( db.getSqlSequenceExists( "testSeq" ) ) );
-      assertTrue( dbType + ": Current Value", Utils.isEmpty( db.getSqlCurrentSequenceValue( "testSeq" ) ) );
-      assertTrue( dbType + ": Next Value", Utils.isEmpty( db.getSqlNextSequenceValue( "testSeq" ) ) );
+      assertFalse(db.getClass().getSimpleName(), db.supportsSequences());
+      assertTrue(dbType + ": List of Sequences", Utils.isEmpty(db.getSqlListOfSequences()));
+      assertTrue(dbType + ": Sequence Exists", Utils.isEmpty(db.getSqlSequenceExists("testSeq")));
+      assertTrue(
+          dbType + ": Current Value", Utils.isEmpty(db.getSqlCurrentSequenceValue("testSeq")));
+      assertTrue(dbType + ": Next Value", Utils.isEmpty(db.getSqlNextSequenceValue("testSeq")));
     }
   }
 }

@@ -25,46 +25,29 @@ import org.apache.commons.vfs2.FileObject;
  * @author matt
  * @since 2007-09-29
  */
-
 public class KeyOccurrence implements Comparable<KeyOccurrence> {
-  /**
-   * The java source file
-   */
+  /** The java source file */
   private FileObject fileObject;
 
-  /**
-   * The source folder the messages and java file live in
-   */
+  /** The source folder the messages and java file live in */
   private String sourceFolder;
 
-  /**
-   * The location of the messages file, derived from "^import .*Messages;"
-   */
+  /** The location of the messages file, derived from "^import .*Messages;" */
   private String messagesPackage;
 
-  /**
-   * The index in the file on which the occurrence takes place
-   */
+  /** The index in the file on which the occurrence takes place */
   private int fileIndex;
 
-  /**
-   * The i18n key
-   */
+  /** The i18n key */
   private String key;
 
-  /**
-   * The arguments from the source code
-   */
+  /** The arguments from the source code */
   private String arguments;
 
-  /**
-   * The number of occurrences
-   */
+  /** The number of occurrences */
   private int occurrences;
 
-  /**
-   * line of source code on which the key occurs.
-   */
+  /** line of source code on which the key occurs. */
   private String sourceLine;
 
   public KeyOccurrence() {
@@ -72,20 +55,27 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param fileObject      The java source file
+   * @param fileObject The java source file
    * @param messagesPackage The location of the messages file, derived from "^import .*Messages;"
-   * @param fileIndex       The position in the file
-   * @param key             The i18n key
-   * @param arguments       The arguments from the source code
+   * @param fileIndex The position in the file
+   * @param key The i18n key
+   * @param arguments The arguments from the source code
    */
-  public KeyOccurrence( FileObject fileObject, String sourceFolder, String messagesPackage, int fileIndex,
-                        String key, String arguments, String sourceLine ) {
+  public KeyOccurrence(
+      FileObject fileObject,
+      String sourceFolder,
+      String messagesPackage,
+      int fileIndex,
+      String key,
+      String arguments,
+      String sourceLine) {
     this();
     if (fileObject == null) {
       throw new RuntimeException("A key occurrence needs to have a file in which it occurs");
     }
     if (messagesPackage == null) {
-      throw new RuntimeException("A key occurrence needs to have a messages package in file '"+fileObject+"'");
+      throw new RuntimeException(
+          "A key occurrence needs to have a messages package in file '" + fileObject + "'");
     }
 
     this.fileObject = fileObject;
@@ -99,56 +89,54 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   public String toString() {
-    return "[source=" + sourceFolder + ", key=" + key + ", messages package=" + messagesPackage + "]";
+    return "[source="
+        + sourceFolder
+        + ", key="
+        + key
+        + ", messages package="
+        + messagesPackage
+        + "]";
   }
 
-  public boolean equals( Object occ ) {
-    if ( occ == null ) {
+  public boolean equals(Object occ) {
+    if (occ == null) {
       return false;
     }
-    if ( this == occ ) {
+    if (this == occ) {
       return true;
     }
-    return sourceFolder.equals( ( (KeyOccurrence) occ ).sourceFolder )
-      && key.equals( ( (KeyOccurrence) occ ).key )
-      && messagesPackage.equals( ( (KeyOccurrence) occ ).messagesPackage );
+    return sourceFolder.equals(((KeyOccurrence) occ).sourceFolder)
+        && key.equals(((KeyOccurrence) occ).key)
+        && messagesPackage.equals(((KeyOccurrence) occ).messagesPackage);
   }
 
-  public int compareTo( KeyOccurrence occ ) {
-    int cmp = key.compareTo( occ.key );
-    if ( cmp != 0 ) {
+  public int compareTo(KeyOccurrence occ) {
+    int cmp = key.compareTo(occ.key);
+    if (cmp != 0) {
       return cmp;
     }
 
-    cmp = messagesPackage.compareTo( occ.messagesPackage );
+    cmp = messagesPackage.compareTo(occ.messagesPackage);
     return cmp;
   }
 
-  /**
-   * @return The java source file
-   */
+  /** @return The java source file */
   public FileObject getFileObject() {
     return fileObject;
   }
 
-  /**
-   * @param fileObject The java source file
-   */
-  public void setFileObject( FileObject fileObject ) {
+  /** @param fileObject The java source file */
+  public void setFileObject(FileObject fileObject) {
     this.fileObject = fileObject;
   }
 
-  /**
-   * @return The location of the messages file
-   */
+  /** @return The location of the messages file */
   public String getMessagesPackage() {
     return messagesPackage;
   }
 
-  /**
-   * @param messagesPackage The location of the messages file
-   */
-  public void setMessagesPackage( String messagesPackage ) {
+  /** @param messagesPackage The location of the messages file */
+  public void setMessagesPackage(String messagesPackage) {
     this.messagesPackage = messagesPackage;
   }
 
@@ -156,7 +144,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
     return sourceFolder;
   }
 
-  public void setSourceFolder( String sourceFolder ) {
+  public void setSourceFolder(String sourceFolder) {
     this.sourceFolder = sourceFolder;
   }
 
@@ -169,73 +157,53 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
     return fileIndex;
   }
 
-  /**
-   * @param fileIndex The fileIndex to set
-   */
-  public void setFileIndex( int fileIndex ) {
+  /** @param fileIndex The fileIndex to set */
+  public void setFileIndex(int fileIndex) {
     this.fileIndex = fileIndex;
   }
 
-  /**
-   * @return The i18n key
-   */
+  /** @return The i18n key */
   public String getKey() {
     return key;
   }
 
-  /**
-   * @param key The i18n key
-   */
-  public void setKey( String key ) {
+  /** @param key The i18n key */
+  public void setKey(String key) {
     this.key = key;
   }
 
-  /**
-   * @return The arguments from the source code
-   */
+  /** @return The arguments from the source code */
   public String getArguments() {
     return arguments;
   }
 
-  /**
-   * @param arguments The arguments from the source code
-   */
-  public void setArguments( String arguments ) {
+  /** @param arguments The arguments from the source code */
+  public void setArguments(String arguments) {
     this.arguments = arguments;
   }
 
-  /**
-   * @return The number of occurrences
-   */
+  /** @return The number of occurrences */
   public int getOccurrences() {
     return occurrences;
   }
 
-  /**
-   * @param occurrences The number of occurrences
-   */
-  public void setOccurrences( int occurrences ) {
+  /** @param occurrences The number of occurrences */
+  public void setOccurrences(int occurrences) {
     this.occurrences = occurrences;
   }
 
-  /**
-   * Increment the number of occurrences with one.
-   */
+  /** Increment the number of occurrences with one. */
   public void incrementOccurrences() {
     this.occurrences++;
   }
 
-  /**
-   * @return the line of source code on which the key occurs.
-   */
+  /** @return the line of source code on which the key occurs. */
   public String getSourceLine() {
     return sourceLine;
   }
 
-  /**
-   * @param sourceLine the line of source code on which the key occurs.
-   */
-  public void setSourceLine( String sourceLine ) {
+  /** @param sourceLine the line of source code on which the key occurs. */
+  public void setSourceLine(String sourceLine) {
     this.sourceLine = sourceLine;
   }
 }

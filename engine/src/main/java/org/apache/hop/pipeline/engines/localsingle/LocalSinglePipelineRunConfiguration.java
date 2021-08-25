@@ -22,21 +22,23 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 
 @GuiPlugin
-public class LocalSinglePipelineRunConfiguration extends EmptyPipelineRunConfiguration implements IPipelineEngineRunConfiguration {
+public class LocalSinglePipelineRunConfiguration extends EmptyPipelineRunConfiguration
+    implements IPipelineEngineRunConfiguration {
 
   public LocalSinglePipelineRunConfiguration() {
     super();
   }
 
-  public LocalSinglePipelineRunConfiguration( String pluginId, String pluginName, String rowSetSize ) {
-    super( pluginId, pluginName );
+  public LocalSinglePipelineRunConfiguration(
+      String pluginId, String pluginName, String rowSetSize) {
+    super(pluginId, pluginName);
   }
 
-  public LocalSinglePipelineRunConfiguration( LocalSinglePipelineRunConfiguration config ) {
-    super( config );
+  public LocalSinglePipelineRunConfiguration(LocalSinglePipelineRunConfiguration config) {
+    super(config);
   }
 
   public LocalSinglePipelineRunConfiguration clone() {
-    return new LocalSinglePipelineRunConfiguration( this );
+    return new LocalSinglePipelineRunConfiguration(this);
   }
 }

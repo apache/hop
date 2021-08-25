@@ -24,21 +24,15 @@ public interface IKWorkbook extends AutoCloseable {
    * @param sheetName The name of the sheet.
    * @return The sheet or null if the sheet was not found.
    */
-  IKSheet getSheet( String sheetName );
+  IKSheet getSheet(String sheetName);
 
-  /**
-   * @return The array of sheet names in the workbook
-   */
+  /** @return The array of sheet names in the workbook */
   String[] getSheetNames();
 
-  /**
-   * Close the workbook file
-   */
+  /** Close the workbook file */
   void close();
 
-  /**
-   * @return The number of sheets in the workbook
-   */
+  /** @return The number of sheets in the workbook */
   int getNumberOfSheets();
 
   /**
@@ -47,7 +41,7 @@ public interface IKWorkbook extends AutoCloseable {
    * @param sheetNr The sheet number to get
    * @return The selected sheet
    */
-  IKSheet getSheet( int sheetNr );
+  IKSheet getSheet(int sheetNr);
 
   /**
    * Get a sheet name in the workbook by index
@@ -55,5 +49,5 @@ public interface IKWorkbook extends AutoCloseable {
    * @param sheetNr The sheet number to get
    * @return The selected sheet's name
    */
-  String getSheetName( int sheetNr );
+  String getSheetName(int sheetNr);
 }

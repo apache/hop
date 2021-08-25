@@ -35,120 +35,117 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BaseHopServerPluginTest {
 
-  HttpServletRequest req = mock( HttpServletRequest.class );
-  HttpServletResponse resp = mock( HttpServletResponse.class );
-  ILogChannel log = mock( ILogChannel.class );
-  IHopServerRequestHandler.IWriterResponse writerResponse = mock( IHopServerRequestHandler.IWriterResponse.class );
-  IHopServerRequestHandler.IOutputStreamResponse outputStreamResponse = mock( IHopServerRequestHandler.IOutputStreamResponse.class );
-  PrintWriter printWriter = mock( PrintWriter.class );
-  javax.servlet.ServletOutputStream outputStream = mock( javax.servlet.ServletOutputStream.class );
+  HttpServletRequest req = mock(HttpServletRequest.class);
+  HttpServletResponse resp = mock(HttpServletResponse.class);
+  ILogChannel log = mock(ILogChannel.class);
+  IHopServerRequestHandler.IWriterResponse writerResponse =
+      mock(IHopServerRequestHandler.IWriterResponse.class);
+  IHopServerRequestHandler.IOutputStreamResponse outputStreamResponse =
+      mock(IHopServerRequestHandler.IOutputStreamResponse.class);
+  PrintWriter printWriter = mock(PrintWriter.class);
+  javax.servlet.ServletOutputStream outputStream = mock(javax.servlet.ServletOutputStream.class);
 
-  ArgumentCaptor<IHopServerRequestHandler.IHopServerRequest> carteReqCaptor = ArgumentCaptor.forClass( IHopServerRequestHandler.IHopServerRequest.class );
+  ArgumentCaptor<IHopServerRequestHandler.IHopServerRequest> carteReqCaptor =
+      ArgumentCaptor.forClass(IHopServerRequestHandler.IHopServerRequest.class);
 
   BaseHopServerPlugin baseHopServerPlugin;
 
   @Before
   public void before() {
-    baseHopServerPlugin = spy( new BaseHopServerPlugin() {
-      @Override
-      public void handleRequest( IHopServerRequest request ) throws IOException {
-      }
+    baseHopServerPlugin =
+        spy(
+            new BaseHopServerPlugin() {
+              @Override
+              public void handleRequest(IHopServerRequest request) throws IOException {}
 
-      @Override
-      public String getContextPath() {
-        return null;
-      }
-    } );
+              @Override
+              public String getContextPath() {
+                return null;
+              }
+            });
     baseHopServerPlugin.log = log;
   }
 
   @Test
-  @SuppressWarnings( "deprecation" )
+  @SuppressWarnings("deprecation")
   public void testDoGet() throws Exception {
-    baseHopServerPlugin.doGet( req, resp );
+    baseHopServerPlugin.doGet(req, resp);
     // doGet should delegate to .service
-    verify( baseHopServerPlugin ).service( req, resp );
+    verify(baseHopServerPlugin).service(req, resp);
   }
 
   @Test
   public void testService() throws Exception {
-    when( req.getContextPath() ).thenReturn( "/Path" );
-    when( baseHopServerPlugin.getContextPath() ).thenReturn( "/Path" );
-    when( log.isDebug() ).thenReturn( true );
+    when(req.getContextPath()).thenReturn("/Path");
+    when(baseHopServerPlugin.getContextPath()).thenReturn("/Path");
+    when(log.isDebug()).thenReturn(true);
 
-    baseHopServerPlugin.service( req, resp );
+    baseHopServerPlugin.service(req, resp);
 
-    verify( log ).logDebug( baseHopServerPlugin.getService() );
-    verify( baseHopServerPlugin ).handleRequest( carteReqCaptor.capture() );
+    verify(log).logDebug(baseHopServerPlugin.getService());
+    verify(baseHopServerPlugin).handleRequest(carteReqCaptor.capture());
 
     IHopServerRequestHandler.IHopServerRequest carteRequest = carteReqCaptor.getValue();
 
-    testHopServerRequest( carteRequest );
-    testHopServerResponse( carteRequest.respond( 200 ) );
+    testHopServerRequest(carteRequest);
+    testHopServerResponse(carteRequest.respond(200));
   }
 
-  private void testHopServerResponse( IHopServerRequestHandler.IHopServerResponse response ) throws IOException {
-    when( resp.getWriter() ).thenReturn( printWriter );
-    when( resp.getOutputStream() ).thenReturn( outputStream );
+  private void testHopServerResponse(IHopServerRequestHandler.IHopServerResponse response)
+      throws IOException {
+    when(resp.getWriter()).thenReturn(printWriter);
+    when(resp.getOutputStream()).thenReturn(outputStream);
 
-    response.with( "text/xml", writerResponse );
+    response.with("text/xml", writerResponse);
 
-    verify( resp ).setContentType( "text/xml" );
-    verify( writerResponse ).write( printWriter );
+    verify(resp).setContentType("text/xml");
+    verify(writerResponse).write(printWriter);
 
-    response.with( "text/sgml", outputStreamResponse );
+    response.with("text/sgml", outputStreamResponse);
 
-    verify( resp ).setContentType( "text/sgml" );
-    verify( outputStreamResponse ).write( outputStream );
+    verify(resp).setContentType("text/sgml");
+    verify(outputStreamResponse).write(outputStream);
 
-    response.withMessage( "Message" );
-    verify( resp ).setContentType( "text/plain" );
-    verify( printWriter ).println( "Message" );
+    response.withMessage("Message");
+    verify(resp).setContentType("text/plain");
+    verify(printWriter).println("Message");
   }
 
-  private void testHopServerRequest( IHopServerRequestHandler.IHopServerRequest carteRequest ) {
-    when( req.getMethod() ).thenReturn( "POST" );
-    when( req.getHeader( "Connection" ) ).thenReturn( "Keep-Alive" );
-    when( req.getParameter( "param1" ) ).thenReturn( "val1" );
-    when( req.getParameterNames() ).thenReturn( Collections.enumeration(
-      Arrays.asList( "name1", "name2" ) ) );
-    when( req.getParameterValues( any( String.class ) ) )
-      .thenReturn( new String[] { "val" } );
-    when( req.getHeaderNames() ).thenReturn( Collections.enumeration(
-      Arrays.asList( "name1", "name2" ) ) );
-    when( req.getHeaders( "name1" ) ).thenReturn(
-      Collections.enumeration( ImmutableList.of( "val" ) ) );
-    when( req.getHeaders( "name2" ) ).thenReturn(
-      Collections.enumeration( ImmutableList.of( "val" ) ) );
+  private void testHopServerRequest(IHopServerRequestHandler.IHopServerRequest carteRequest) {
+    when(req.getMethod()).thenReturn("POST");
+    when(req.getHeader("Connection")).thenReturn("Keep-Alive");
+    when(req.getParameter("param1")).thenReturn("val1");
+    when(req.getParameterNames())
+        .thenReturn(Collections.enumeration(Arrays.asList("name1", "name2")));
+    when(req.getParameterValues(any(String.class))).thenReturn(new String[] {"val"});
+    when(req.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList("name1", "name2")));
+    when(req.getHeaders("name1")).thenReturn(Collections.enumeration(ImmutableList.of("val")));
+    when(req.getHeaders("name2")).thenReturn(Collections.enumeration(ImmutableList.of("val")));
 
-    assertThat( carteRequest.getMethod(), is( "POST" ) );
-    assertThat( carteRequest.getHeader( "Connection" ), is( "Keep-Alive" ) );
-    assertThat( carteRequest.getParameter( "param1" ), is( "val1" ) );
+    assertThat(carteRequest.getMethod(), is("POST"));
+    assertThat(carteRequest.getHeader("Connection"), is("Keep-Alive"));
+    assertThat(carteRequest.getParameter("param1"), is("val1"));
 
-    checkMappedVals( carteRequest.getParameters() );
-    checkMappedVals( carteRequest.getHeaders() );
+    checkMappedVals(carteRequest.getParameters());
+    checkMappedVals(carteRequest.getHeaders());
   }
 
-  private void checkMappedVals( Map<String, Collection<String>> map ) {
-    assertThat( map.size(), is( 2 ) );
-    Collection<String> name1Params = map.get( "name1" );
-    Collection<String> name2Params = map.get( "name2" );
-    assertThat( name1Params.contains( "val" ), is( true ) );
-    assertThat( name2Params.contains( "val" ), is( true ) );
-    assertThat( name1Params.size() == 1 && name2Params.size() == 1, is( true ) );
+  private void checkMappedVals(Map<String, Collection<String>> map) {
+    assertThat(map.size(), is(2));
+    Collection<String> name1Params = map.get("name1");
+    Collection<String> name2Params = map.get("name2");
+    assertThat(name1Params.contains("val"), is(true));
+    assertThat(name2Params.contains("val"), is(true));
+    assertThat(name1Params.size() == 1 && name2Params.size() == 1, is(true));
   }
 
   @Test
   public void testGetService() throws Exception {
-    when( baseHopServerPlugin.getContextPath() )
-      .thenReturn( "/Path" );
-    assertThat( baseHopServerPlugin.getService().startsWith( "/Path" ), is( true ) );
+    when(baseHopServerPlugin.getContextPath()).thenReturn("/Path");
+    assertThat(baseHopServerPlugin.getService().startsWith("/Path"), is(true));
   }
 }

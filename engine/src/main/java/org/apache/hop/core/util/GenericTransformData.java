@@ -20,6 +20,4 @@ package org.apache.hop.core.util;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-public class GenericTransformData extends BaseTransformData implements ITransformData {
-
-}
+public class GenericTransformData extends BaseTransformData implements ITransformData {}

@@ -20,9 +20,7 @@ package org.apache.hop.core.logging;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
-import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.metadata.api.HopMetadata;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -37,30 +35,28 @@ public class LogMessage implements ILogMessage {
   private String copy;
   private boolean simplified;
 
-  /**
-   * Backward compatibility : no registry used, just log the subject as part of the message
-   *
-   */
-  public LogMessage( String subject, LogLevel level ) {
+  /** Backward compatibility : no registry used, just log the subject as part of the message */
+  public LogMessage(String subject, LogLevel level) {
     this.subject = subject;
     this.level = level;
     this.message = null;
     this.logChannelId = null;
   }
 
-  public LogMessage( String message, String logChannelId, LogLevel level ) {
+  public LogMessage(String message, String logChannelId, LogLevel level) {
     this(message, logChannelId, null, level, false);
   }
 
-  public LogMessage( String message, String logChannelId, LogLevel level, boolean simplified ) {
+  public LogMessage(String message, String logChannelId, LogLevel level, boolean simplified) {
     this(message, logChannelId, null, level, simplified);
   }
 
-  public LogMessage( String message, String logChannelId, Object[] arguments, LogLevel level ) {
+  public LogMessage(String message, String logChannelId, Object[] arguments, LogLevel level) {
     this(message, logChannelId, arguments, level, false);
   }
 
-  public LogMessage( String message, String logChannelId, Object[] arguments, LogLevel level, boolean simplified ) {
+  public LogMessage(
+      String message, String logChannelId, Object[] arguments, LogLevel level, boolean simplified) {
     this.message = message;
     this.logChannelId = logChannelId;
     this.arguments = arguments;
@@ -72,15 +68,17 @@ public class LogMessage implements ILogMessage {
   private void lookupSubject() {
     // Derive the subject from the registry
     //
-    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( logChannelId );
+    ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject(logChannelId);
 
-    // boolean detailedLogTurnOn = "Y".equals( EnvUtil.getSystemProperty( Const.HOP_LOG_MARK_MAPPINGS ) ) ? true : false;
-    boolean detailedLogTurnOn = "Y".equals( HopConfig.readStringVariable( Const.HOP_LOG_MARK_MAPPINGS, "N" ) ) ? true : false;
-    if ( loggingObject != null ) {
-      if ( !detailedLogTurnOn ) {
+    // boolean detailedLogTurnOn = "Y".equals( EnvUtil.getSystemProperty(
+    // Const.HOP_LOG_MARK_MAPPINGS ) ) ? true : false;
+    boolean detailedLogTurnOn =
+        "Y".equals(HopConfig.readStringVariable(Const.HOP_LOG_MARK_MAPPINGS, "N")) ? true : false;
+    if (loggingObject != null) {
+      if (!detailedLogTurnOn) {
         subject = loggingObject.getObjectName();
       } else {
-        subject = getDetailedSubject( loggingObject );
+        subject = getDetailedSubject(loggingObject);
       }
       copy = loggingObject.getObjectCopy();
     }
@@ -90,35 +88,33 @@ public class LogMessage implements ILogMessage {
    * @param loggingObject
    * @return
    */
-  private String getDetailedSubject( ILoggingObject loggingObject ) {
+  private String getDetailedSubject(ILoggingObject loggingObject) {
 
-    List<String> subjects = getSubjectTree( loggingObject );
-    return subjects.size() > 1 ? formatDetailedSubject( subjects ) : subjects.get( 0 );
+    List<String> subjects = getSubjectTree(loggingObject);
+    return subjects.size() > 1 ? formatDetailedSubject(subjects) : subjects.get(0);
   }
 
-  /**
-   * @param loggingObject
-   */
-  private List<String> getSubjectTree( ILoggingObject loggingObject ) {
+  /** @param loggingObject */
+  private List<String> getSubjectTree(ILoggingObject loggingObject) {
     List<String> subjects = new ArrayList<>();
-    while ( loggingObject != null ) {
-      subjects.add( loggingObject.getObjectName() );
+    while (loggingObject != null) {
+      subjects.add(loggingObject.getObjectName());
       loggingObject = loggingObject.getParent();
     }
     return subjects;
   }
 
-  private String formatDetailedSubject( List<String> subjects ) {
+  private String formatDetailedSubject(List<String> subjects) {
 
     StringBuilder string = new StringBuilder();
 
     int currentTransform = 0;
     int rootTransform = subjects.size() - 1;
 
-    for ( int i = rootTransform - 1; i > currentTransform; i-- ) {
-      string.append( "[" ).append( subjects.get( i ) ).append( "]" ).append( "." );
+    for (int i = rootTransform - 1; i > currentTransform; i--) {
+      string.append("[").append(subjects.get(i)).append("]").append(".");
     }
-    string.append( subjects.get( currentTransform ) );
+    string.append(subjects.get(currentTransform));
     return string.toString();
   }
 
@@ -128,12 +124,12 @@ public class LogMessage implements ILogMessage {
     if (simplified) {
       return getMessage();
     } else {
-      if ( StringUtils.isBlank( message ) ) {
+      if (StringUtils.isBlank(message)) {
         return subject;
-      } else if ( StringUtils.isBlank( subject ) ) {
+      } else if (StringUtils.isBlank(subject)) {
         return getMessage();
       }
-      return String.format( "%s - %s", subject, getMessage() );
+      return String.format("%s - %s", subject, getMessage());
     }
   }
 
@@ -142,51 +138,46 @@ public class LogMessage implements ILogMessage {
     return level;
   }
 
-  /**
-   * @return The formatted message.
-   */
+  /** @return The formatted message. */
   @Override
   public String getMessage() {
     String formatted = message;
-    if ( arguments != null ) {
+    if (arguments != null) {
       // get all "tokens" enclosed by curly brackets within the message
       final List<String> tokens = new ArrayList<>();
-      StringUtil.getUsedVariables( formatted, "{", "}", tokens, true );
-      // perform MessageFormat.format( ... ) on each token, if we get an exception, we'll know that we have a
-      // segment that isn't parsable by MessageFormat, likely a pdi variable name (${foo}) - in this case, we need to
+      StringUtil.getUsedVariables(formatted, "{", "}", tokens, true);
+      // perform MessageFormat.format( ... ) on each token, if we get an exception, we'll know that
+      // we have a
+      // segment that isn't parsable by MessageFormat, likely a pdi variable name (${foo}) - in this
+      // case, we need to
       // escape the curly brackets in the message, so that MessageFormat does not complain
-      for ( final String token : tokens ) {
+      for (final String token : tokens) {
         try {
-          MessageFormat.format( "{" + token + "}", arguments );
-        } catch ( final IllegalArgumentException iar ) {
-          formatted = formatted.replaceAll( "\\{" + token + "\\}", "\\'{'" + token + "\\'}'" );
+          MessageFormat.format("{" + token + "}", arguments);
+        } catch (final IllegalArgumentException iar) {
+          formatted = formatted.replaceAll("\\{" + token + "\\}", "\\'{'" + token + "\\'}'");
         }
       }
-      // now that we have escaped curly brackets in all invalid tokens, we can attempt to format the entire message
-      formatted = MessageFormat.format( formatted, arguments );
+      // now that we have escaped curly brackets in all invalid tokens, we can attempt to format the
+      // entire message
+      formatted = MessageFormat.format(formatted, arguments);
     }
     return formatted;
   }
 
-  /**
-   * @return the subject
-   */
+  /** @return the subject */
   @Override
   public String getSubject() {
     return subject;
   }
 
-  /**
-   * @return the logChannelId
-   */
+  /** @return the logChannelId */
   @Override
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /**
-   * @return the arguments
-   */
+  /** @return the arguments */
   @Override
   public Object[] getArguments() {
     return arguments;
@@ -206,14 +197,13 @@ public class LogMessage implements ILogMessage {
    *
    * @return value of simplified
    */
-  @Override public boolean isSimplified() {
+  @Override
+  public boolean isSimplified() {
     return simplified;
   }
 
-  /**
-   * @param simplified The simplified to set
-   */
-  public void setSimplified( boolean simplified ) {
+  /** @param simplified The simplified to set */
+  public void setSimplified(boolean simplified) {
     this.simplified = simplified;
   }
 }

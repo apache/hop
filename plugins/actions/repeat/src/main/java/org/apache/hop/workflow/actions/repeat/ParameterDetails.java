@@ -21,10 +21,9 @@ public class ParameterDetails {
   private String name;
   private String field;
 
-  public ParameterDetails() {
-  }
+  public ParameterDetails() {}
 
-  public ParameterDetails( String name, String field ) {
+  public ParameterDetails(String name, String field) {
     this.name = name;
     this.field = field;
   }
@@ -38,10 +37,8 @@ public class ParameterDetails {
     return name;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
+  /** @param name The name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
@@ -54,10 +51,8 @@ public class ParameterDetails {
     return field;
   }
 
-  /**
-   * @param field The field to set
-   */
-  public void setField( String field ) {
+  /** @param field The field to set */
+  public void setField(String field) {
     this.field = field;
   }
 }

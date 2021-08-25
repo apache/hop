@@ -25,13 +25,15 @@ The Unique rows transform removes duplicate rows from the input stream(s), input
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
 |Add counter to output?|Check this option to add a counter field to the stream.
 |Counter field|Define the counter field name.
-|Redirect duplicate row|Processes duplicate rows as an error and redirect rows to the error stream of the transform. Requires you to set error handling for this transform.
-|Error Description|Sets the error handling description to display when duplicate rows are detected. Only available when Redirect duplicate row is checked.
+|Redirect duplicate row|Processes duplicate rows as an error and redirect rows to the error stream of the transform.
+Requires you to set error handling for this transform.
+|Error Description|Sets the error handling description to display when duplicate rows are detected.
+Only available when Redirect duplicate row is checked.
 |Fields to compare table|Specify the field names on which you want to force uniqueness or click Get to insert all fields from the input stream(s) You can choose to ignore case by setting the Ignore case flag to Y.
 |===

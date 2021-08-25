@@ -21,8 +21,8 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -33,63 +33,76 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author matt
  * @since 26-may-2006
  */
-public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResultData> implements ITransform<FilesToResultMeta, FilesToResultData> {
+public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResultData>
+    implements ITransform<FilesToResultMeta, FilesToResultData> {
 
   private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
 
-  public FilesToResult( TransformMeta transformMeta, FilesToResultMeta meta, FilesToResultData data, int copyNr, PipelineMeta pipelineMeta,
-                        Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public FilesToResult(
+      TransformMeta transformMeta,
+      FilesToResultMeta meta,
+      FilesToResultData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
-      for ( ResultFile resultFile : data.filenames ) {
-        addResultFile( resultFile );
+      for (ResultFile resultFile : data.filenames) {
+        addResultFile(resultFile);
       }
-      logBasic( BaseMessages.getString( PKG, "FilesToResult.Log.AddedNrOfFiles", String.valueOf( data.filenames
-        .size() ) ) );
+      logBasic(
+          BaseMessages.getString(
+              PKG, "FilesToResult.Log.AddedNrOfFiles", String.valueOf(data.filenames.size())));
       setOutputDone();
       return false;
     }
 
-    if ( first ) {
+    if (first) {
       first = false;
 
-      data.filenameIndex = getInputRowMeta().indexOfValue( meta.getFilenameField() );
+      data.filenameIndex = getInputRowMeta().indexOfValue(meta.getFilenameField());
 
-      if ( data.filenameIndex < 0 ) {
-        logError( BaseMessages.getString( PKG, "FilesToResult.Log.CouldNotFindField", meta.getFilenameField() ) );
-        setErrors( 1 );
+      if (data.filenameIndex < 0) {
+        logError(
+            BaseMessages.getString(
+                PKG, "FilesToResult.Log.CouldNotFindField", meta.getFilenameField()));
+        setErrors(1);
         stopAll();
         return false;
       }
     }
 
     // OK, get the filename field from the row
-    String filename = getInputRowMeta().getString( r, data.filenameIndex );
+    String filename = getInputRowMeta().getString(r, data.filenameIndex);
 
     try {
       ResultFile resultFile =
-        new ResultFile( meta.getFileType(), HopVfs.getFileObject( filename ), getPipeline().getPipelineMeta().getName(), getTransformName() );
+          new ResultFile(
+              meta.getFileType(),
+              HopVfs.getFileObject(filename),
+              getPipeline().getPipelineMeta().getName(),
+              getTransformName());
 
       // Add all rows to rows buffer...
-      data.filenames.add( resultFile );
-    } catch ( Exception e ) {
-      throw new HopException( e );
+      data.filenames.add(resultFile);
+    } catch (Exception e) {
+      throw new HopException(e);
     }
 
     // Copy to any possible next transforms...
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
-    putRow( data.outputRowMeta, r ); // copy row to possible alternate
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    putRow(data.outputRowMeta, r); // copy row to possible alternate
     // rowset(s).
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "FilesToResult.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      logBasic(BaseMessages.getString(PKG, "FilesToResult.Log.LineNumber") + getLinesRead());
     }
 
     return true;

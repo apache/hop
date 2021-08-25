@@ -24,12 +24,11 @@ import static org.mockito.Mockito.mock;
 
 public class PDI_11948_PipelineTest {
 
-  @Test( expected = IllegalArgumentException.class )
+  @Test(expected = IllegalArgumentException.class)
   public void setServletReponseTest() {
-    Pipeline pipelineMock = mock( Pipeline.class );
+    Pipeline pipelineMock = mock(Pipeline.class);
 
-    doCallRealMethod().when( pipelineMock ).setServletReponse( null );
-    pipelineMock.setServletReponse( null );
+    doCallRealMethod().when(pipelineMock).setServletReponse(null);
+    pipelineMock.setServletReponse(null);
   }
-
 }

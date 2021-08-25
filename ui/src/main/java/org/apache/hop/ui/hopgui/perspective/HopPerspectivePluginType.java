@@ -21,45 +21,45 @@ import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-@PluginMainClassType( IHopPerspective.class )
-@PluginAnnotationType( HopPerspectivePlugin.class )
+@PluginMainClassType(IHopPerspective.class)
+@PluginAnnotationType(HopPerspectivePlugin.class)
 public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugin> {
 
   private HopPerspectivePluginType() {
-    super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective" );
+    super(HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective");
   }
 
   private static HopPerspectivePluginType pluginType;
 
   public static HopPerspectivePluginType getInstance() {
-    if ( pluginType == null ) {
+    if (pluginType == null) {
       pluginType = new HopPerspectivePluginType();
     }
     return pluginType;
   }
 
   @Override
-  protected String extractDesc( HopPerspectivePlugin annotation ) {
+  protected String extractDesc(HopPerspectivePlugin annotation) {
     return annotation.description();
   }
 
   @Override
-  protected String extractID( HopPerspectivePlugin annotation ) {
+  protected String extractID(HopPerspectivePlugin annotation) {
     return annotation.id();
   }
 
   @Override
-  protected String extractName( HopPerspectivePlugin annotation ) {
+  protected String extractName(HopPerspectivePlugin annotation) {
     return annotation.name();
   }
 
   @Override
   protected String extractImageFile(HopPerspectivePlugin annotation) {
-	return annotation.image();
+    return annotation.image();
   }
 
   @Override
-  protected String extractCategory(HopPerspectivePlugin annotation) {   
+  protected String extractCategory(HopPerspectivePlugin annotation) {
     return annotation.category();
   }
 }

@@ -68,15 +68,15 @@ public class AesTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
       MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
       byte[] digestKey = messageDigest.digest(key);
       byte[] copiedKey = Arrays.copyOf(digestKey, 16);
-      SecretKeySpec secretKeySpec = new SecretKeySpec( copiedKey, "AES" );
+      SecretKeySpec secretKeySpec = new SecretKeySpec(copiedKey, "AES");
 
       // Create the cyphers that will do the encoding/decoding below...
       //
       encryptCipher = Cipher.getInstance(AES_ALGORITHM);
-      encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec );
+      encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 
       decryptCipher = Cipher.getInstance(AES_ALGORITHM);
-      decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec );
+      decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
     } catch (Exception e) {
       throw new HopException("Error initializing AES password encoder plugin", e);
     }

@@ -17,8 +17,8 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
@@ -34,40 +34,41 @@ public class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSup
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] {
-      "serverPort",
-      "serverName",
-      "userName",
-      "password",
-      "remoteDirectory",
-      "targetDirectory",
-      "wildcard",
-      "binaryMode",
-      "timeout",
-      "remove",
-      "onlyGettingNewFiles",
-      "activeConnection",
-      "controlEncoding",
-      "moveFiles",
-      "moveToDirectory",
-      "addDate",
-      "addTime",
-      "specifyFormat",
-      "dateTimeFormat",
-      "addDateBeforeExtension",
-      "addResult",
-      "createMoveFolder",
-      "proxyHost",
-      "proxyPort",
-      "proxyUsername",
-      "proxyPassword",
-      "socksProxyHost",
-      "socksProxyPort",
-      "socksProxyUsername",
-      "socksProxyPassword",
-      "stringIfFileExists",
-      "nrLimit",
-      "successCondition" } );
+    return Arrays.asList(
+        new String[] {
+          "serverPort",
+          "serverName",
+          "userName",
+          "password",
+          "remoteDirectory",
+          "targetDirectory",
+          "wildcard",
+          "binaryMode",
+          "timeout",
+          "remove",
+          "onlyGettingNewFiles",
+          "activeConnection",
+          "controlEncoding",
+          "moveFiles",
+          "moveToDirectory",
+          "addDate",
+          "addTime",
+          "specifyFormat",
+          "dateTimeFormat",
+          "addDateBeforeExtension",
+          "addResult",
+          "createMoveFolder",
+          "proxyHost",
+          "proxyPort",
+          "proxyUsername",
+          "proxyPassword",
+          "socksProxyHost",
+          "socksProxyPort",
+          "socksProxyUsername",
+          "socksProxyPassword",
+          "stringIfFileExists",
+          "nrLimit",
+          "successCondition"
+        });
   }
-
 }

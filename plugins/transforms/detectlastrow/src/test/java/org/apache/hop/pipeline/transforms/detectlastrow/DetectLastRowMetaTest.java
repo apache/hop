@@ -39,9 +39,10 @@ public class DetectLastRowMetaTest {
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "ResultFieldName" );
+    List<String> attributes = Arrays.asList("ResultFieldName");
 
-    LoadSaveTester<DetectLastRowMeta> loadSaveTester = new LoadSaveTester<>( DetectLastRowMeta.class, attributes );
+    LoadSaveTester<DetectLastRowMeta> loadSaveTester =
+        new LoadSaveTester<>(DetectLastRowMeta.class, attributes);
     loadSaveTester.testSerialization();
   }
 
@@ -49,32 +50,32 @@ public class DetectLastRowMetaTest {
   public void testDefault() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     meta.setDefault();
-    assertEquals( "result", meta.getResultFieldName() );
+    assertEquals("result", meta.getResultFieldName());
   }
 
   @Test
   public void testGetData() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
-    assertTrue( meta.getTransformData() instanceof DetectLastRowData );
+    assertTrue(meta.getTransformData() instanceof DetectLastRowData);
   }
 
   @Test
   public void testGetFields() throws HopTransformException {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     meta.setDefault();
-    meta.setResultFieldName( "The Result" );
+    meta.setResultFieldName("The Result");
     RowMeta rowMeta = new RowMeta();
-    meta.getFields( rowMeta, "this transform", null, null, new Variables(), null );
+    meta.getFields(rowMeta, "this transform", null, null, new Variables(), null);
 
-    assertEquals( 1, rowMeta.size() );
-    assertEquals( "The Result", rowMeta.getValueMeta( 0 ).getName() );
-    assertEquals( IValueMeta.TYPE_BOOLEAN, rowMeta.getValueMeta( 0 ).getType() );
+    assertEquals(1, rowMeta.size());
+    assertEquals("The Result", rowMeta.getValueMeta(0).getName());
+    assertEquals(IValueMeta.TYPE_BOOLEAN, rowMeta.getValueMeta(0).getType());
   }
 
   @Test
   public void testSupportedPipelineTypes() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
-    assertEquals( 1, meta.getSupportedPipelineTypes().length );
-    assertEquals( PipelineType.Normal, meta.getSupportedPipelineTypes()[ 0 ] );
+    assertEquals(1, meta.getSupportedPipelineTypes().length);
+    assertEquals(PipelineType.Normal, meta.getSupportedPipelineTypes()[0]);
   }
 }

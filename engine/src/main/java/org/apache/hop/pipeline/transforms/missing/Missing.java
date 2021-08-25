@@ -29,7 +29,7 @@ public class Missing extends DummyMeta {
   private String transformName;
   private String missingPluginId;
 
-  public Missing( String transformName, String missingPluginId ) {
+  public Missing(String transformName, String missingPluginId) {
     this.transformName = transformName;
     this.missingPluginId = missingPluginId;
   }
@@ -38,7 +38,7 @@ public class Missing extends DummyMeta {
     return transformName;
   }
 
-  public void setTransformName( String transformName ) {
+  public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
@@ -46,12 +46,12 @@ public class Missing extends DummyMeta {
     return missingPluginId;
   }
 
-  public void setMissingPluginId( String missingPluginId ) {
+  public void setMissingPluginId(String missingPluginId) {
     this.missingPluginId = missingPluginId;
   }
 
-  public ITransform createTransform( TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr,
-                                     Pipeline pipeline ) {
-    return new MissingTransform( transformMeta, this, data, cnr, tr, pipeline );
+  public ITransform createTransform(
+      TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
+    return new MissingTransform(transformMeta, this, data, cnr, tr, pipeline);
   }
 }

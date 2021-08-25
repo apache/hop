@@ -35,67 +35,63 @@ import java.util.Map;
 public class ActionDebugGuiPlugin {
 
   @GuiContextAction(
-    id = "workflow-graph-action-11001-clear-logging",
-    parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
-    type = GuiActionType.Delete,
-    name = "Clear Custom Logging",
-    tooltip = "Clear custom log settings ",
-    image = "ui/images/debug.svg",
-    category = "Logging",
-    categoryOrder = "7"
-  )
-  public void clearCustomActionLogging( HopGuiWorkflowActionContext context ) {
+      id = "workflow-graph-action-11001-clear-logging",
+      parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+      type = GuiActionType.Delete,
+      name = "Clear Custom Logging",
+      tooltip = "Clear custom log settings ",
+      image = "ui/images/debug.svg",
+      category = "Logging",
+      categoryOrder = "7")
+  public void clearCustomActionLogging(HopGuiWorkflowActionContext context) {
     WorkflowMeta workflowMeta = context.getWorkflowMeta();
     ActionMeta action = context.getActionMeta();
 
     Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
-    Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
+    Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
 
-    DebugLevelUtil.clearDebugLevel( debugGroupAttributesMap, action.toString() );
+    DebugLevelUtil.clearDebugLevel(debugGroupAttributesMap, action.toString());
     workflowMeta.setChanged();
   }
 
   @GuiContextAction(
-    id = "workflow-graph-action-11000-clear-logging",
-    parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
-    type = GuiActionType.Modify,
-    name = "Edit Custom Logging",
-    tooltip = "Edit the custom log settings for this action",
-    image = "ui/images/debug.svg",
-    category = "Logging",
-    categoryOrder = "7"
-  )
-  public void applyCustomActionLogging( HopGuiWorkflowActionContext context ) {
+      id = "workflow-graph-action-11000-clear-logging",
+      parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "Edit Custom Logging",
+      tooltip = "Edit the custom log settings for this action",
+      image = "ui/images/debug.svg",
+      category = "Logging",
+      categoryOrder = "7")
+  public void applyCustomActionLogging(HopGuiWorkflowActionContext context) {
     HopGui hopGui = HopGui.getInstance();
     try {
       WorkflowMeta workflowMeta = context.getWorkflowMeta();
       ActionMeta action = context.getActionMeta();
 
       Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
-      Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
+      Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
 
-      if ( debugGroupAttributesMap == null ) {
+      if (debugGroupAttributesMap == null) {
         debugGroupAttributesMap = new HashMap<>();
-        attributesMap.put( Defaults.DEBUG_GROUP, debugGroupAttributesMap );
+        attributesMap.put(Defaults.DEBUG_GROUP, debugGroupAttributesMap);
       }
 
-      ActionDebugLevel debugLevel = DebugLevelUtil.getActionDebugLevel( debugGroupAttributesMap, action.toString() );
-      if ( debugLevel == null ) {
+      ActionDebugLevel debugLevel =
+          DebugLevelUtil.getActionDebugLevel(debugGroupAttributesMap, action.toString());
+      if (debugLevel == null) {
         debugLevel = new ActionDebugLevel();
       }
 
-      ActionDebugLevelDialog dialog = new ActionDebugLevelDialog( hopGui.getShell(), debugLevel );
-      if ( dialog.open() ) {
-        DebugLevelUtil.storeActionDebugLevel( debugGroupAttributesMap, action.toString(), debugLevel );
+      ActionDebugLevelDialog dialog = new ActionDebugLevelDialog(hopGui.getShell(), debugLevel);
+      if (dialog.open()) {
+        DebugLevelUtil.storeActionDebugLevel(
+            debugGroupAttributesMap, action.toString(), debugLevel);
       }
 
       workflowMeta.setChanged();
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error changing action log settings", e );
+    } catch (Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error changing action log settings", e);
     }
-
   }
-
-
 }
-

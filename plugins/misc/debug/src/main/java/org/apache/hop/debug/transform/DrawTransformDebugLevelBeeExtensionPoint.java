@@ -32,39 +32,49 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 
 @ExtensionPoint(
-  id = "DrawTransformDebugLevelBeeExtensionPoint",
-  description = "Draw a bee over a transform which has debug level information stored",
-  extensionPointId = "PipelinePainterTransform"
-)
-/**
- * Paint transforms that have a debug level set...
- */
-public class DrawTransformDebugLevelBeeExtensionPoint extends BeePainter implements IExtensionPoint<PipelinePainterExtension> {
+    id = "DrawTransformDebugLevelBeeExtensionPoint",
+    description = "Draw a bee over a transform which has debug level information stored",
+    extensionPointId = "PipelinePainterTransform")
+/** Paint transforms that have a debug level set... */
+public class DrawTransformDebugLevelBeeExtensionPoint extends BeePainter
+    implements IExtensionPoint<PipelinePainterExtension> {
 
   private static BufferedImage beeImage;
 
-  @Override public void callExtensionPoint( ILogChannel logChannelInterface, IVariables variables, PipelinePainterExtension ext ) {
+  @Override
+  public void callExtensionPoint(
+      ILogChannel logChannelInterface, IVariables variables, PipelinePainterExtension ext) {
     try {
       // The next statement sometimes causes an exception in WebSpoon
       // Keep it in the try/catch block
       //
-      Map<String, String> transformLevelMap = ext.pipelineMeta.getAttributesMap().get( Defaults.DEBUG_GROUP );
+      Map<String, String> transformLevelMap =
+          ext.pipelineMeta.getAttributesMap().get(Defaults.DEBUG_GROUP);
 
-      if ( transformLevelMap != null ) {
+      if (transformLevelMap != null) {
 
         String transformName = ext.transformMeta.getName();
 
-        final TransformDebugLevel debugLevel = DebugLevelUtil.getTransformDebugLevel( transformLevelMap, transformName );
-        if ( debugLevel != null ) {
-          Rectangle r = drawBee( ext.gc, ext.x1, ext.y1, ext.iconSize, this.getClass().getClassLoader() );
-          ext.areaOwners.add( new AreaOwner( AreaOwner.AreaType.CUSTOM, r.x, r.y, r.width, r.height, ext.offset, ext.transformMeta, debugLevel) );
+        final TransformDebugLevel debugLevel =
+            DebugLevelUtil.getTransformDebugLevel(transformLevelMap, transformName);
+        if (debugLevel != null) {
+          Rectangle r =
+              drawBee(ext.gc, ext.x1, ext.y1, ext.iconSize, this.getClass().getClassLoader());
+          ext.areaOwners.add(
+              new AreaOwner(
+                  AreaOwner.AreaType.CUSTOM,
+                  r.x,
+                  r.y,
+                  r.width,
+                  r.height,
+                  ext.offset,
+                  ext.transformMeta,
+                  debugLevel));
         }
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       // Ignore error, not that important
       // logChannelInterface.logError( "Unable to handle specific debug level", e );
     }
   }
-
-
 }

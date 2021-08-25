@@ -17,21 +17,16 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 
 public class TwoConstructorConsumer implements IAuthenticationConsumer<Object, Object> {
-  public TwoConstructorConsumer( String one ) {
+  public TwoConstructorConsumer(String one) {}
 
-  }
-
-  public TwoConstructorConsumer( Integer two ) {
-
-  }
+  public TwoConstructorConsumer(Integer two) {}
 
   @Override
-  public Object consume( Object authenticationProvider ) throws AuthenticationConsumptionException {
+  public Object consume(Object authenticationProvider) throws AuthenticationConsumptionException {
     return null;
   }
-
 }

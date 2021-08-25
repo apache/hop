@@ -17,14 +17,9 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-/**
- * Interface for listening to perspective activation.
- */
-public interface IHopPerspectiveListener  {
+/** Interface for listening to perspective activation. */
+public interface IHopPerspectiveListener {
 
-  /**
-   * Notifies this listener that a perspective has been activated.
-   */
+  /** Notifies this listener that a perspective has been activated. */
   void perspectiveActivated(IHopPerspective perspective);
-
 }

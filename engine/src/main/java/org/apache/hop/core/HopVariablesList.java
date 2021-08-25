@@ -28,10 +28,8 @@ import org.w3c.dom.Node;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class HopVariablesList {
@@ -56,42 +54,43 @@ public class HopVariablesList {
     try {
       HopVariablesList variablesList = getInstance();
 
-      inputStream = variablesList.getClass().getResourceAsStream( Const.HOP_VARIABLES_FILE );
+      inputStream = variablesList.getClass().getResourceAsStream(Const.HOP_VARIABLES_FILE);
 
-      if ( inputStream == null ) {
-        inputStream = variablesList.getClass().getResourceAsStream( "/" + Const.HOP_VARIABLES_FILE );
+      if (inputStream == null) {
+        inputStream = variablesList.getClass().getResourceAsStream("/" + Const.HOP_VARIABLES_FILE);
       }
-      if ( inputStream == null ) {
-        throw new HopPluginException( "Unable to find standard hop variables definition file: " + Const.HOP_VARIABLES_FILE );
+      if (inputStream == null) {
+        throw new HopPluginException(
+            "Unable to find standard hop variables definition file: " + Const.HOP_VARIABLES_FILE);
       }
-      Document doc = XmlHandler.loadXmlFile( inputStream, null, false, false );
-      Node varsNode = XmlHandler.getSubNode( doc, "hop-variables" );
-      int nrVars = XmlHandler.countNodes( varsNode, "hop-variable" );
-      for ( int i = 0; i < nrVars; i++ ) {
-        Node varNode = XmlHandler.getSubNodeByNr( varsNode, "hop-variable", i );
-        String description = XmlHandler.getTagValue( varNode, "description" );
-        String variable = XmlHandler.getTagValue( varNode, "variable" );
-        String defaultValue = XmlHandler.getTagValue( varNode, "default-value" );
+      Document doc = XmlHandler.loadXmlFile(inputStream, null, false, false);
+      Node varsNode = XmlHandler.getSubNode(doc, "hop-variables");
+      int nrVars = XmlHandler.countNodes(varsNode, "hop-variable");
+      for (int i = 0; i < nrVars; i++) {
+        Node varNode = XmlHandler.getSubNodeByNr(varsNode, "hop-variable", i);
+        String description = XmlHandler.getTagValue(varNode, "description");
+        String variable = XmlHandler.getTagValue(varNode, "variable");
+        String defaultValue = XmlHandler.getTagValue(varNode, "default-value");
 
         instance.defaultVariables.add(new DescribedVariable(variable, defaultValue, description));
       }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to read file '" + Const.HOP_VARIABLES_FILE + "'", e );
+    } catch (Exception e) {
+      throw new HopException("Unable to read file '" + Const.HOP_VARIABLES_FILE + "'", e);
     } finally {
-      if ( inputStream != null ) {
+      if (inputStream != null) {
         try {
           inputStream.close();
-        } catch ( IOException e ) {
+        } catch (IOException e) {
           // we do not able to close property file will log it
-          LogChannel.GENERAL.logDetailed( "Unable to close file hop variables definition file", e );
+          LogChannel.GENERAL.logDetailed("Unable to close file hop variables definition file", e);
         }
       }
     }
   }
 
-  public DescribedVariable findEnvironmentVariable( String name) {
-    for ( DescribedVariable describedVariable : defaultVariables) {
-      if ( describedVariable.getName().equals( name )) {
+  public DescribedVariable findEnvironmentVariable(String name) {
+    for (DescribedVariable describedVariable : defaultVariables) {
+      if (describedVariable.getName().equals(name)) {
         return describedVariable;
       }
     }
@@ -115,11 +114,8 @@ public class HopVariablesList {
     return defaultVariables;
   }
 
-  /**
-   * @param defaultVariables The defaultVariables to set
-   */
-  public void setDefaultVariables( List<DescribedVariable> defaultVariables ) {
+  /** @param defaultVariables The defaultVariables to set */
+  public void setDefaultVariables(List<DescribedVariable> defaultVariables) {
     this.defaultVariables = defaultVariables;
   }
-
 }

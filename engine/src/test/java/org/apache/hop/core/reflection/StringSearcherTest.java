@@ -21,7 +21,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
-//import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
+// import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 
 public class StringSearcherTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -31,8 +31,8 @@ public class StringSearcherTest {
     HopEnvironment.init();
   }
 
-  //TODO: Move Test
- /* @Test
+  // TODO: Move Test
+  /* @Test
   public void testSearchConditionCase() {
     String dummyTransformName = "Output";
     DummyMeta dummyMeta = new DummyMeta();

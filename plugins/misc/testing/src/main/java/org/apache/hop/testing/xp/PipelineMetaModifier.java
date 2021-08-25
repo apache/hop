@@ -33,11 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.apache.hop.testing.DataSet;
-import org.apache.hop.testing.PipelineUnitTest;
-import org.apache.hop.testing.PipelineUnitTestDatabaseReplacement;
-import org.apache.hop.testing.PipelineUnitTestSetLocation;
-import org.apache.hop.testing.PipelineUnitTestTweak;
+import org.apache.hop.testing.*;
 import org.apache.hop.testing.util.DataSetConst;
 
 import java.io.ByteArrayInputStream;

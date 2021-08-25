@@ -19,33 +19,21 @@ package org.apache.hop.core;
 
 public interface IHopAttribute {
 
-  /**
-   * @return the key for this attribute
-   */
+  /** @return the key for this attribute */
   String getKey();
 
-  /**
-   * @return the xmlCode
-   */
+  /** @return the xmlCode */
   String getXmlCode();
 
-  /**
-   * @return the description
-   */
+  /** @return the description */
   String getDescription();
 
-  /**
-   * @return the tooltip
-   */
+  /** @return the tooltip */
   String getTooltip();
 
-  /**
-   * @return the type
-   */
+  /** @return the type */
   int getType();
 
-  /**
-   * @return The parent interface.
-   */
+  /** @return The parent interface. */
   IHopAttribute getParent();
 }

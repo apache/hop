@@ -24,9 +24,7 @@ import javax.wsdl.extensions.schema.Schema;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Represents a map of all named complex types in the WSDL.
- */
+/** Represents a map of all named complex types in the WSDL. */
 public final class WsdlComplexTypes implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -37,16 +35,17 @@ public final class WsdlComplexTypes implements java.io.Serializable {
    *
    * @param wsdlTypes Name variables resolver.
    */
-  protected WsdlComplexTypes( WsdlTypes wsdlTypes ) {
+  protected WsdlComplexTypes(WsdlTypes wsdlTypes) {
 
     List<ExtensibilityElement> schemas = wsdlTypes.getSchemas();
-    for ( ExtensibilityElement schema : schemas ) {
-      Element schemaRoot = ( (Schema) schema ).getElement();
+    for (ExtensibilityElement schema : schemas) {
+      Element schemaRoot = ((Schema) schema).getElement();
 
-      List<Element> types = DomUtils.getChildElementsByName( schemaRoot, WsdlUtils.COMPLEX_TYPE_NAME );
-      for ( Element t : types ) {
-        String schemaTypeName = t.getAttribute( WsdlUtils.NAME_ATTR );
-        complexTypes.put( schemaTypeName, new ComplexType( t, wsdlTypes ) );
+      List<Element> types =
+          DomUtils.getChildElementsByName(schemaRoot, WsdlUtils.COMPLEX_TYPE_NAME);
+      for (Element t : types) {
+        String schemaTypeName = t.getAttribute(WsdlUtils.NAME_ATTR);
+        complexTypes.put(schemaTypeName, new ComplexType(t, wsdlTypes));
       }
     }
   }
@@ -57,7 +56,7 @@ public final class WsdlComplexTypes implements java.io.Serializable {
    * @param complexTypeName Name of complex type.
    * @return ComplexType instance, null if complex type was not defined in the wsdl file.
    */
-  public ComplexType getComplexType( String complexTypeName ) {
-    return complexTypes.get( complexTypeName );
+  public ComplexType getComplexType(String complexTypeName) {
+    return complexTypes.get(complexTypeName);
   }
 }

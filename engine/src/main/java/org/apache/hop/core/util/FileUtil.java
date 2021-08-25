@@ -25,45 +25,63 @@ import org.apache.hop.i18n.BaseMessages;
 import java.io.File;
 
 public class FileUtil {
-  public static boolean createParentFolder( Class<?> PKG, String filename, boolean createParentFolder,
-                                            ILogChannel log ) {
+  public static boolean createParentFolder(
+      Class<?> PKG, String filename, boolean createParentFolder, ILogChannel log) {
     // Check for parent folder
     FileObject parentfolder = null;
     boolean resultat = true;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject( filename ).getParent();
-      if ( !parentfolder.exists() ) {
-        if ( createParentFolder ) {
-          if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderNotExist", parentfolder
-              .getName().toString() ) );
+      parentfolder = HopVfs.getFileObject(filename).getParent();
+      if (!parentfolder.exists()) {
+        if (createParentFolder) {
+          if (log.isDebug()) {
+            log.logDebug(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionPipeline.Log.ParentLogFolderNotExist",
+                    parentfolder.getName().toString()));
           }
           parentfolder.createFolder();
-          if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderCreated", parentfolder
-              .getName().toString() ) );
+          if (log.isDebug()) {
+            log.logDebug(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionPipeline.Log.ParentLogFolderCreated",
+                    parentfolder.getName().toString()));
           }
         } else {
-          log.logError( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderNotExist", parentfolder
-            .getName().toString() ) );
+          log.logError(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionPipeline.Log.ParentLogFolderNotExist",
+                  parentfolder.getName().toString()));
           resultat = false;
         }
       } else {
-        if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderExists", parentfolder.getName().toString() ) );
+        if (log.isDebug()) {
+          log.logDebug(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionPipeline.Log.ParentLogFolderExists",
+                  parentfolder.getName().toString()));
         }
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       resultat = false;
-      log.logError( BaseMessages.getString( PKG, "ActionPipeline.Error.ChekingParentLogFolderTitle" ),
-        BaseMessages.getString( PKG, "ActionPipeline.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
+      log.logError(
+          BaseMessages.getString(PKG, "ActionPipeline.Error.ChekingParentLogFolderTitle"),
+          BaseMessages.getString(
+              PKG,
+              "ActionPipeline.Error.ChekingParentLogFolder",
+              parentfolder.getName().toString()),
+          e);
     } finally {
-      if ( parentfolder != null ) {
+      if (parentfolder != null) {
         try {
           parentfolder.close();
           parentfolder = null;
-        } catch ( Exception ex ) {
+        } catch (Exception ex) {
           // Ignore
         }
       }
@@ -74,12 +92,12 @@ public class FileUtil {
 
   /**
    * Tests whether this abstract pathname is absolute.
-   * <p>
-   * The pathname is absolute if its prefix is "/", "\" and on Microsoft Windows systems,
-   * a pathname is absolute if its prefix is a drive specifier followed by "\\", or if its prefix is "\\\\".
+   *
+   * <p>The pathname is absolute if its prefix is "/", "\" and on Microsoft Windows systems, a
+   * pathname is absolute if its prefix is a drive specifier followed by "\\", or if its prefix is
+   * "\\\\".
    */
-  public static boolean isFullyQualified( String pathname ) {
-    return new File( pathname ).isAbsolute() || pathname.startsWith( "/" ) || pathname.startsWith( "\\" );
+  public static boolean isFullyQualified(String pathname) {
+    return new File(pathname).isAbsolute() || pathname.startsWith("/") || pathname.startsWith("\\");
   }
-
 }

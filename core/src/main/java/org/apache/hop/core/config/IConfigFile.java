@@ -22,11 +22,16 @@ import java.util.List;
 public interface IConfigFile {
 
   String getConfigFilename();
-  void setConfigFilename( String filename );
+
+  void setConfigFilename(String filename);
 
   List<DescribedVariable> getDescribedVariables();
-  DescribedVariable findDescribedVariable( String name);
-  void setDescribedVariable( DescribedVariable variable );
-  String findDescribedVariableValue( String name);
-  void setDescribedVariables( List<DescribedVariable> describedVariables );
+
+  DescribedVariable findDescribedVariable(String name);
+
+  void setDescribedVariable(DescribedVariable variable);
+
+  String findDescribedVariableValue(String name);
+
+  void setDescribedVariables(List<DescribedVariable> describedVariables);
 }

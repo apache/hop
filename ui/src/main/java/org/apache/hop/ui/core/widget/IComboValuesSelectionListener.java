@@ -20,5 +20,5 @@ package org.apache.hop.ui.core.widget;
 import org.eclipse.swt.widgets.TableItem;
 
 public interface IComboValuesSelectionListener {
-  String[] getComboValues( TableItem tableItem, int rowNr, int colNr );
+  String[] getComboValues(TableItem tableItem, int rowNr, int colNr);
 }

@@ -36,71 +36,81 @@ public class ScriptValuesMetaInjectionTest extends BaseMetadataInjectionTest<Scr
 
   @Before
   public void setup() throws Exception {
-    setup( new ScriptValuesMeta() );
+    setup(new ScriptValuesMeta());
   }
 
   @Test
   public void test() throws Exception {
-/*
-    check( "COMPATIBILITY_MODE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isCompatible();
-      }
-    } );
-*/
-    check( "OPTIMIZATION_LEVEL", () -> meta.getOptimizationLevel() );
-    check( "FIELD_NAME", () -> meta.getFieldname()[ 0 ] );
-    check( "FIELD_RENAME_TO", () -> meta.getRename()[ 0 ] );
-    check( "FIELD_REPLACE", () -> meta.getReplace()[ 0 ] );
-    check( "SCRIPT_NAME", () -> meta.getJSScripts()[ 0 ].getScriptName() );
-    check( "SCRIPT", () -> meta.getJSScripts()[ 0 ].getScript() );
+    /*
+        check( "COMPATIBILITY_MODE", new IBooleanGetter() {
+          public boolean get() {
+            return meta.isCompatible();
+          }
+        } );
+    */
+    check("OPTIMIZATION_LEVEL", () -> meta.getOptimizationLevel());
+    check("FIELD_NAME", () -> meta.getFieldname()[0]);
+    check("FIELD_RENAME_TO", () -> meta.getRename()[0]);
+    check("FIELD_REPLACE", () -> meta.getReplace()[0]);
+    check("SCRIPT_NAME", () -> meta.getJSScripts()[0].getScriptName());
+    check("SCRIPT", () -> meta.getJSScripts()[0].getScript());
 
-    // field type requires special handling, since it's stored as an array of ints, but injected as strings
-    skipPropertyTest( "FIELD_TYPE" );
-    IValueMeta mftt = new ValueMetaString( "f" );
-    injector.setProperty( meta, "FIELD_TYPE", setValue( mftt, "String" ), "f" );
-    assertEquals( IValueMeta.TYPE_STRING, meta.getType()[ 0 ] );
+    // field type requires special handling, since it's stored as an array of ints, but injected as
+    // strings
+    skipPropertyTest("FIELD_TYPE");
+    IValueMeta mftt = new ValueMetaString("f");
+    injector.setProperty(meta, "FIELD_TYPE", setValue(mftt, "String"), "f");
+    assertEquals(IValueMeta.TYPE_STRING, meta.getType()[0]);
     // reset the types array, so we can set it again
-    meta.setType( new int[] {} );
-    injector.setProperty( meta, "FIELD_TYPE", setValue( mftt, "Integer" ), "f" );
-    assertEquals( IValueMeta.TYPE_INTEGER, meta.getType()[ 0 ] );
+    meta.setType(new int[] {});
+    injector.setProperty(meta, "FIELD_TYPE", setValue(mftt, "Integer"), "f");
+    assertEquals(IValueMeta.TYPE_INTEGER, meta.getType()[0]);
 
-    // length and precision fields also need special handing, to ensure that we get -1 when the injected string value
+    // length and precision fields also need special handing, to ensure that we get -1 when the
+    // injected string value
     // is empty or null
-    skipPropertyTest( "FIELD_LENGTH" );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaString( "" ), "" ), "" );
-    assertEquals( -1, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaString( " " ), " " ), " " );
-    assertEquals( -1, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaString( null ), null ), null );
-    assertEquals( -1, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaString( "5" ), "5" ), "5" );
-    assertEquals( 5, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaInteger( "5" ), new Long( 5 ) ), "5" );
-    assertEquals( 5, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaInteger( "5" ), (Long) null ), "5" );
-    assertEquals( -1, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaNumber( "5" ), new Double( 5 ) ), "5" );
-    assertEquals( 5, meta.getLength()[ 0 ] );
-    injector.setProperty( meta, "FIELD_LENGTH", setValue( new ValueMetaInteger( "5" ), (Double) null ), "5" );
-    assertEquals( -1, meta.getLength()[ 0 ] );
+    skipPropertyTest("FIELD_LENGTH");
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaString(""), ""), "");
+    assertEquals(-1, meta.getLength()[0]);
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaString(" "), " "), " ");
+    assertEquals(-1, meta.getLength()[0]);
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaString(null), null), null);
+    assertEquals(-1, meta.getLength()[0]);
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaString("5"), "5"), "5");
+    assertEquals(5, meta.getLength()[0]);
+    injector.setProperty(
+        meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), new Long(5)), "5");
+    assertEquals(5, meta.getLength()[0]);
+    injector.setProperty(
+        meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), (Long) null), "5");
+    assertEquals(-1, meta.getLength()[0]);
+    injector.setProperty(
+        meta, "FIELD_LENGTH", setValue(new ValueMetaNumber("5"), new Double(5)), "5");
+    assertEquals(5, meta.getLength()[0]);
+    injector.setProperty(
+        meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), (Double) null), "5");
+    assertEquals(-1, meta.getLength()[0]);
 
-    skipPropertyTest( "FIELD_PRECISION" );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaString( "" ), "" ), "" );
-    assertEquals( -1, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaString( " " ), " " ), " " );
-    assertEquals( -1, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaString( null ), null ), null );
-    assertEquals( -1, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaString( "5" ), "5" ), "5" );
-    assertEquals( 5, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaInteger( "5" ), new Long( 5 ) ), "5" );
-    assertEquals( 5, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaInteger( "5" ), (Long) null ), "5" );
-    assertEquals( -1, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaNumber( "5" ), new Double( 5 ) ), "5" );
-    assertEquals( 5, meta.getPrecision()[ 0 ] );
-    injector.setProperty( meta, "FIELD_PRECISION", setValue( new ValueMetaInteger( "5" ), (Double) null ), "5" );
-    assertEquals( -1, meta.getPrecision()[ 0 ] );
+    skipPropertyTest("FIELD_PRECISION");
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString(""), ""), "");
+    assertEquals(-1, meta.getPrecision()[0]);
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString(" "), " "), " ");
+    assertEquals(-1, meta.getPrecision()[0]);
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString(null), null), null);
+    assertEquals(-1, meta.getPrecision()[0]);
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString("5"), "5"), "5");
+    assertEquals(5, meta.getPrecision()[0]);
+    injector.setProperty(
+        meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), new Long(5)), "5");
+    assertEquals(5, meta.getPrecision()[0]);
+    injector.setProperty(
+        meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), (Long) null), "5");
+    assertEquals(-1, meta.getPrecision()[0]);
+    injector.setProperty(
+        meta, "FIELD_PRECISION", setValue(new ValueMetaNumber("5"), new Double(5)), "5");
+    assertEquals(5, meta.getPrecision()[0]);
+    injector.setProperty(
+        meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), (Double) null), "5");
+    assertEquals(-1, meta.getPrecision()[0]);
   }
 }

@@ -32,7 +32,7 @@ public class OdfSheet implements IKSheet {
   private int nrOfRows;
   private int roughNrOfCols;
 
-  public OdfSheet( OdfTable table ) {
+  public OdfSheet(OdfTable table) {
     this.table = table;
     nrOfRows = findNrRows();
     roughNrOfCols = table.getColumnCount();
@@ -50,11 +50,11 @@ public class OdfSheet implements IKSheet {
     // remove last empty rows from counter
     NodeList nodes = table.getOdfElement().getChildNodes();
     int nodesLen = nodes.getLength();
-    for ( int i = nodesLen - 1; i >= 0; i-- ) {
-      Node node = nodes.item( i );
-      if ( node instanceof TableTableRowElement ) {
+    for (int i = nodesLen - 1; i >= 0; i--) {
+      Node node = nodes.item(i);
+      if (node instanceof TableTableRowElement) {
         TableTableRowElement rowElement = (TableTableRowElement) node;
-        if ( isRowEmpty( rowElement ) ) {
+        if (isRowEmpty(rowElement)) {
           // remove this row from counter
           rowCount -= rowElement.getTableNumberRowsRepeatedAttribute();
         } else {
@@ -73,13 +73,13 @@ public class OdfSheet implements IKSheet {
    * @param rowElem
    * @return
    */
-  protected boolean isRowEmpty( TableTableRowElement rowElem ) {
+  protected boolean isRowEmpty(TableTableRowElement rowElem) {
     NodeList cells = rowElem.getChildNodes();
     int cellsLen = cells.getLength();
-    for ( int j = 0; j < cellsLen; j++ ) { // iterate over cells
-      Node cell = cells.item( j );
-      if ( cell instanceof TableTableCellElement ) {
-        if ( cell.hasChildNodes() ) {
+    for (int j = 0; j < cellsLen; j++) { // iterate over cells
+      Node cell = cells.item(j);
+      if (cell instanceof TableTableCellElement) {
+        if (cell.hasChildNodes()) {
           return false;
         }
       }
@@ -87,18 +87,18 @@ public class OdfSheet implements IKSheet {
     return true;
   }
 
-  protected int findNrColumns( OdfTableRow row ) {
+  protected int findNrColumns(OdfTableRow row) {
     int result = roughNrOfCols;
-    if ( row != null ) {
+    if (row != null) {
       NodeList cells = row.getOdfElement().getChildNodes();
-      if ( cells != null && cells.getLength() > 0 ) {
+      if (cells != null && cells.getLength() > 0) {
         int cellLen = cells.getLength();
-        for ( int i = cellLen - 1; i >= 0; i-- ) {
-          Node cell = cells.item( i );
-          if ( cell instanceof TableTableCellElement ) {
-            if ( !cell.hasChildNodes() ) {
+        for (int i = cellLen - 1; i >= 0; i--) {
+          Node cell = cells.item(i);
+          if (cell instanceof TableTableCellElement) {
+            if (!cell.hasChildNodes()) {
               // last cell is empty - remove it from counter
-              result -= ( (TableTableCellElement) cell ).getTableNumberColumnsRepeatedAttribute();
+              result -= ((TableTableCellElement) cell).getTableNumberColumnsRepeatedAttribute();
             } else {
               // get first non-empty cell from the end, break
               break;
@@ -114,17 +114,17 @@ public class OdfSheet implements IKSheet {
     return table.getTableName();
   }
 
-  public IKCell[] getRow( int rownr ) {
-    if ( rownr >= nrOfRows ) {
-      throw new ArrayIndexOutOfBoundsException( "Read beyond last row: " + rownr );
+  public IKCell[] getRow(int rownr) {
+    if (rownr >= nrOfRows) {
+      throw new ArrayIndexOutOfBoundsException("Read beyond last row: " + rownr);
     }
-    OdfTableRow row = table.getRowByIndex( rownr );
-    int cols = findNrColumns( row );
-    OdfCell[] xlsCells = new OdfCell[ cols ];
-    for ( int i = 0; i < cols; i++ ) {
-      OdfTableCell cell = row.getCellByIndex( i );
-      if ( cell != null ) {
-        xlsCells[ i ] = new OdfCell( cell );
+    OdfTableRow row = table.getRowByIndex(rownr);
+    int cols = findNrColumns(row);
+    OdfCell[] xlsCells = new OdfCell[cols];
+    for (int i = 0; i < cols; i++) {
+      OdfTableCell cell = row.getCellByIndex(i);
+      if (cell != null) {
+        xlsCells[i] = new OdfCell(cell);
       }
     }
     return xlsCells;
@@ -134,12 +134,11 @@ public class OdfSheet implements IKSheet {
     return nrOfRows;
   }
 
-  public IKCell getCell( int colnr, int rownr ) {
-    OdfTableCell cell = table.getCellByPosition( colnr, rownr );
-    if ( cell == null ) {
+  public IKCell getCell(int colnr, int rownr) {
+    OdfTableCell cell = table.getCellByPosition(colnr, rownr);
+    if (cell == null) {
       return null;
     }
-    return new OdfCell( cell );
+    return new OdfCell(cell);
   }
-
 }

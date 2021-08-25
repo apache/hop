@@ -21,23 +21,18 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
-/**
- * @author mbatchelor
- */
-@DatabaseMetaPlugin(
-  type = "REDSHIFT",
-  typeDescription = "Redshift"
-)
-@GuiPlugin( id = "GUI-RedshiftDatabaseMeta" )
+/** @author mbatchelor */
+@DatabaseMetaPlugin(type = "REDSHIFT", typeDescription = "Redshift")
+@GuiPlugin(id = "GUI-RedshiftDatabaseMeta")
 public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
 
   public RedshiftDatabaseMeta() {
-    addExtraOption( "REDSHIFT", "tcpKeepAlive", "true" );
+    addExtraOption("REDSHIFT", "tcpKeepAlive", "true");
   }
 
   @Override
   public int getDefaultDatabasePort() {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
+    if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
       return 5439;
     }
     return -1;
@@ -49,7 +44,7 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
+  public String getURL(String hostname, String port, String databaseName) {
     return "jdbc:redshift://" + hostname + ":" + port + "/" + databaseName;
   }
 
@@ -59,11 +54,12 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
   }
 
   /**
-   * The superclass method checks whether or not the command setFetchSize() is supported by the driver. In the case of
-   * Redshift, setFetchSize() is supported, but in the case of LIMIT, the Redshift driver will enforce that the value
-   * for fetch size is less than or equal to the value specified in the LIMIT clause.
-   * <p>
-   * To avoid these problems, this method (and supportsSetMaxRows()) returns false
+   * The superclass method checks whether or not the command setFetchSize() is supported by the
+   * driver. In the case of Redshift, setFetchSize() is supported, but in the case of LIMIT, the
+   * Redshift driver will enforce that the value for fetch size is less than or equal to the value
+   * specified in the LIMIT clause.
+   *
+   * <p>To avoid these problems, this method (and supportsSetMaxRows()) returns false
    *
    * @return false
    */

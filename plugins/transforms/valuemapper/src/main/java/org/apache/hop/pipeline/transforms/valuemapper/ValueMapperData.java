@@ -48,7 +48,6 @@ public class ValueMapperData extends BaseTransformData implements ITransformData
 
     hashtable = null;
 
-    stringMeta = new ValueMetaString( "string" );
+    stringMeta = new ValueMetaString("string");
   }
-
 }

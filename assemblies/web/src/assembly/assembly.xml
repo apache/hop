@@ -18,89 +18,89 @@
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>web</id>
-  <formats>
-    <format>war</format>
-  </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
-  <fileSets>
-    <!-- Project Root Files/Folders -->
-    <fileSet>
-      <directory>${project.basedir}/../../</directory>
-      <includes>
-        <include>LICENSE</include>
-        <include>NOTICE</include>
-        <include>DISCLAIMER</include>
-      </includes>
-      <outputDirectory>.</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${project.basedir}/../../licenses</directory>
-      <outputDirectory>./licenses</outputDirectory>
-    </fileSet>
-    <!-- Licenses added via static -->
-    <fileSet>
-      <directory>${project.basedir}/../static/src/main/resources/licenses</directory>
-      <outputDirectory>./licenses</outputDirectory>
-    </fileSet>
-    <!-- the staging dir -->
-    <fileSet>
-      <directory>${assembly.dir}</directory>
-      <outputDirectory>.</outputDirectory>
-    </fileSet>
-    <!-- filtered resources -->
-    <fileSet>
-      <directory>${project.basedir}/src/main/resources</directory>
-      <outputDirectory>.</outputDirectory>
-    </fileSet>
-  </fileSets>
-  <dependencySets>
-    <!-- hop components -->
-    <dependencySet>
-      <includes>
-        <!--<include>org.hop:hop-assemblies-demo:zip</include>-->
-        <include>org.apache.hop:hop-assemblies-libs:zip</include>
-      </includes>
-      <unpack>true</unpack>
-      <outputDirectory>WEB-INF</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.apache.hop:hop-assemblies-static:zip</include>
-      </includes>
-      <unpack>true</unpack>
-      <outputDirectory>.</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <!-- RAP -->
-    <dependencySet>
-      <includes>
-        <include>org.eclipse.rap:org.eclipse.rap.*</include>
-      </includes>
-      <outputDirectory>WEB-INF/lib</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.apache.hop:hop-ui-rap:jar</include>
-      </includes>
-      <outputDirectory>WEB-INF/lib</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <!-- samples -->
-    <dependencySet>
-      <includes>
-        <include>org.apache.hop:hop-assemblies-samples:zip</include>
-      </includes>
-      <unpack>true</unpack>
-      <outputDirectory>.</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-  </dependencySets>
+    <id>web</id>
+    <formats>
+        <format>war</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <!-- Project Root Files/Folders -->
+        <fileSet>
+            <directory>${project.basedir}/../../</directory>
+            <includes>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
+                <include>DISCLAIMER</include>
+            </includes>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../../licenses</directory>
+            <outputDirectory>./licenses</outputDirectory>
+        </fileSet>
+        <!-- Licenses added via static -->
+        <fileSet>
+            <directory>${project.basedir}/../static/src/main/resources/licenses</directory>
+            <outputDirectory>./licenses</outputDirectory>
+        </fileSet>
+        <!-- the staging dir -->
+        <fileSet>
+            <directory>${assembly.dir}</directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <!-- filtered resources -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources</directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <!-- hop components -->
+        <dependencySet>
+            <includes>
+                <!--<include>org.hop:hop-assemblies-demo:zip</include>-->
+                <include>org.apache.hop:hop-assemblies-libs:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>WEB-INF</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-static:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>.</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <!-- RAP -->
+        <dependencySet>
+            <includes>
+                <include>org.eclipse.rap:org.eclipse.rap.*</include>
+            </includes>
+            <outputDirectory>WEB-INF/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-ui-rap:jar</include>
+            </includes>
+            <outputDirectory>WEB-INF/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <!-- samples -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-samples:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>.</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+    </dependencySets>
 </assembly>

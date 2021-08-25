@@ -18,11 +18,10 @@
 package org.apache.hop.workflow.action;
 
 import org.apache.hop.base.IBaseMeta;
-import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.changed.IChanged;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
@@ -30,11 +29,10 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;

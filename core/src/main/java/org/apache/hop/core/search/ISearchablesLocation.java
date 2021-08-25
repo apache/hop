@@ -23,10 +23,10 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.Iterator;
 
-/**
- * A location where searchables can be found.
- */
+/** A location where searchables can be found. */
 public interface ISearchablesLocation {
   String getLocationDescription();
-  Iterator<ISearchable> getSearchables( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
+
+  Iterator<ISearchable> getSearchables(IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException;
 }

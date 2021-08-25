@@ -23,9 +23,9 @@ import org.apache.hop.core.ICheckResultSource;
 import java.util.List;
 
 /**
- * Boolean ANDs the results of all validators. If one validator fails, <code>false</code> is immediately returned. The
- * validators list (a <code>List&lt;IActionValidator></code>) should be stored under the <code>KEY_VALIDATORS</code>
- * key.
+ * Boolean ANDs the results of all validators. If one validator fails, <code>false</code> is
+ * immediately returned. The validators list (a <code>List&lt;IActionValidator></code>) should be
+ * stored under the <code>KEY_VALIDATORS</code> key.
  *
  * @author mlowery
  */
@@ -37,18 +37,21 @@ public class AndValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "and";
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
     // Object o = context.get(KEY_VALIDATORS);
 
-    Object[] validators = (Object[]) context.get( KEY_VALIDATORS );
-    for ( Object validator : validators ) {
-      if ( !( (IActionValidator) validator ).validate( source, propertyName, remarks, context ) ) {
+    Object[] validators = (Object[]) context.get(KEY_VALIDATORS);
+    for (Object validator : validators) {
+      if (!((IActionValidator) validator).validate(source, propertyName, remarks, context)) {
         // failure remarks have already been saved
         return false;
       }
     }
-    ActionValidatorUtils.addOkRemark( source, propertyName, remarks );
+    ActionValidatorUtils.addOkRemark(source, propertyName, remarks);
     return true;
   }
 
@@ -61,25 +64,24 @@ public class AndValidator implements IActionValidator {
   }
 
   /**
-   * Uses varargs to conveniently add validators to the list of validators consumed by <code>AndValidator</code>. This
-   * method creates and returns a new context.
+   * Uses varargs to conveniently add validators to the list of validators consumed by <code>
+   * AndValidator</code>. This method creates and returns a new context.
    *
    * @see #putValidators(ValidatorContext, IActionValidator[])
    */
-  public static ValidatorContext putValidators( IActionValidator... validators ) {
+  public static ValidatorContext putValidators(IActionValidator... validators) {
     ValidatorContext context = new ValidatorContext();
-    context.put( AndValidator.KEY_VALIDATORS, validators );
+    context.put(AndValidator.KEY_VALIDATORS, validators);
     return context;
   }
 
   /**
-   * Uses varargs to conveniently add validators to the list of validators consumed by <code>AndValidator</code>. This
-   * method adds to an existing map.
+   * Uses varargs to conveniently add validators to the list of validators consumed by <code>
+   * AndValidator</code>. This method adds to an existing map.
    *
    * @see #putValidators(IActionValidator[])
    */
-  public static void putValidators( ValidatorContext context, IActionValidator... validators ) {
-    context.put( AndValidator.KEY_VALIDATORS, validators );
+  public static void putValidators(ValidatorContext context, IActionValidator... validators) {
+    context.put(AndValidator.KEY_VALIDATORS, validators);
   }
-
 }

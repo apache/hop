@@ -46,7 +46,6 @@ public class DelimiterDetector {
     return rowLimit;
   }
 
-
   class LineResult {
     long streak;
     long frequency;
@@ -68,27 +67,26 @@ public class DelimiterDetector {
     private boolean consistentEnclosure = true;
     private boolean enclosureSeen = false;
 
-    void addLineResult(LineResult lineResult){
+    void addLineResult(LineResult lineResult) {
       // first line result?
-      if (lineResults.isEmpty()){
+      if (lineResults.isEmpty()) {
         lineResults.add(lineResult);
         return;
       }
 
       // following up, may merge with previous one
       LineResult prev = lineResults.peekLast();
-      if (prev.frequency == lineResult.frequency && (enclosure == null || (prev.consistentEnclosure && lineResult.consistentEnclosure))){
+      if (prev.frequency == lineResult.frequency
+          && (enclosure == null || (prev.consistentEnclosure && lineResult.consistentEnclosure))) {
         prev.streak += 1;
-        if (!prev.enclosureSeen){
+        if (!prev.enclosureSeen) {
           prev.enclosureSeen = lineResult.enclosureSeen;
         }
 
-      }
-      else{
+      } else {
         lineResults.add(lineResult);
       }
     }
-
 
     public void setDelimiter(Character delimiter) {
       this.delimiter = delimiter;
@@ -98,13 +96,13 @@ public class DelimiterDetector {
       this.enclosure = enclosure;
     }
 
-    int getStreaks(){
+    int getStreaks() {
       return lineResults.size();
     }
 
-    void evaluate(){
+    void evaluate() {
 
-      if (lineResults.isEmpty()){
+      if (lineResults.isEmpty()) {
         return;
       }
 
@@ -121,23 +119,21 @@ public class DelimiterDetector {
       int size = streaks.length;
 
       // note: skipping first item
-      for(int i=1;i<size;i++){
+      for (int i = 1; i < size; i++) {
         LineResult streak = streaks[i];
-        if (!enclosureSeen){
+        if (!enclosureSeen) {
           enclosureSeen = streak.enclosureSeen;
         }
-        if (streak.streak >= currentMaxStreak && streak.consistentEnclosure){
-          badHeaders += dataLines+badFooters;
+        if (streak.streak >= currentMaxStreak && streak.consistentEnclosure) {
+          badHeaders += dataLines + badFooters;
           badFooters = 0;
           dataLines = streak.streak;
           dataLineFrequency = streak.frequency;
           currentMaxStreak = streak.streak;
-        }
-        else{
+        } else {
           badFooters += streak.streak;
         }
       }
-
     }
 
     public Character getDelimiter() {
@@ -164,11 +160,11 @@ public class DelimiterDetector {
       return dataLineFrequency;
     }
 
-    public boolean isConsistentEnclosure(){
+    public boolean isConsistentEnclosure() {
       return consistentEnclosure;
     }
 
-    public boolean isEnclosureSeen(){
+    public boolean isEnclosureSeen() {
       return enclosureSeen;
     }
 
@@ -278,17 +274,16 @@ public class DelimiterDetector {
 
               if (sc == enc) {
                 enclosureSeen[j] = true;
-                enclosureConsistent[j] = enclosureConsistent[j] && (i == 0 && !enclosureOpen[j] ||
-                    i == s.length() - 1 && enclosureOpen[j] ||
-                    i > 0 && s.charAt(i - 1) == c && !enclosureOpen[j] ||
-                    i > 0 && s.charAt(i - 1) == enc && !enclosureOpen[j] ||
-                    s.length() > i + 1 && s.charAt(i + 1) == c && enclosureOpen[j] ||
-                    s.length() > i + 1 && s.charAt(i + 1) == enc && enclosureOpen[j]
+                enclosureConsistent[j] =
+                    enclosureConsistent[j]
+                        && (i == 0 && !enclosureOpen[j]
+                            || i == s.length() - 1 && enclosureOpen[j]
+                            || i > 0 && s.charAt(i - 1) == c && !enclosureOpen[j]
+                            || i > 0 && s.charAt(i - 1) == enc && !enclosureOpen[j]
+                            || s.length() > i + 1 && s.charAt(i + 1) == c && enclosureOpen[j]
+                            || s.length() > i + 1 && s.charAt(i + 1) == enc && enclosureOpen[j]);
 
-                );
                 enclosureOpen[j] = !enclosureOpen[j];
-
-
               }
 
             }
@@ -298,7 +293,6 @@ public class DelimiterDetector {
               if (sc == c) {
                 frequencies[j] += 1;
               }
-
             }
           }
         }
@@ -325,7 +319,6 @@ public class DelimiterDetector {
             // remove it, recheck index
             potentialResults.remove(j);
           }
-
         }
       }
 
@@ -341,43 +334,38 @@ public class DelimiterDetector {
       }
 
       if (potentialResults.isEmpty()) {
-        if(log != null)
+        if (log != null)
           log.logError("All possible configurations dismissed. Inconsistent fields?");
         return null;
       }
 
       return potentialResults.get(0);
-    }
-    catch(ArrayIndexOutOfBoundsException ex1){
-      if (log != null){
-        log.logError("Inconsistent separators on line "+lineNr+". Line breaks in fields?");
-        if(s != null){
-          log.logError("offending line: "+s);
+    } catch (ArrayIndexOutOfBoundsException ex1) {
+      if (log != null) {
+        log.logError("Inconsistent separators on line " + lineNr + ". Line breaks in fields?");
+        if (s != null) {
+          log.logError("offending line: " + s);
         }
-
       }
       ex1.printStackTrace();
       return null;
-    }
-    catch(IOException ex2){
-      if (log != null){
-        log.logError("Error reading around line "+lineNr+". Invalid charset?");
-        if(s != null){
-          log.logError("offending line: "+s);
+    } catch (IOException ex2) {
+      if (log != null) {
+        log.logError("Error reading around line " + lineNr + ". Invalid charset?");
+        if (s != null) {
+          log.logError("offending line: " + s);
         }
       }
       ex2.printStackTrace();
       return null;
     }
-
-
   }
 
   private boolean qualifies(DetectionResult d) {
-    return d.getDataLineFrequency() > 0 &&
-               d.getBadFooters() <= maxBadFooterLines &&
-               d.getBadHeaders() <= maxBadHeaderLines &&
-               (!d.hasEnclosure() || d.isConsistentEnclosure() && d.isEnclosureSeen());
+    return d.getDataLineFrequency() > 0
+        && d.getBadFooters() <= maxBadFooterLines
+        && d.getBadHeaders() <= maxBadHeaderLines
+        && (!d.hasEnclosure() || d.isConsistentEnclosure() && d.isEnclosureSeen());
   }
 
   // called before evaluation
@@ -394,6 +382,4 @@ public class DelimiterDetector {
   public ILogChannel getLog() {
     return log;
   }
-
-
 }

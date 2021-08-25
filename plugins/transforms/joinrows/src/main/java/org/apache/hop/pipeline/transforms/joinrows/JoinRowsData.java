@@ -22,11 +22,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -52,9 +48,7 @@ public class JoinRowsData extends BaseTransformData implements ITransformData {
 
   public Object[][] joinrow;
 
-  /**
-   * Keep track of which file temp file we're using...
-   */
+  /** Keep track of which file temp file we're using... */
   public int filenr;
 
   public IRowMeta outputRowMeta;
@@ -62,5 +56,4 @@ public class JoinRowsData extends BaseTransformData implements ITransformData {
   public JoinRowsData() {
     super();
   }
-
 }

@@ -26,8 +26,8 @@ import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
@@ -35,34 +35,30 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-public abstract class AbstractTransformMeta extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
+public abstract class AbstractTransformMeta extends BaseTransformMeta
+    implements ITransformMeta<ITransform, ITransformData> {
 
   private static final String CONNECTION_NAME = "connection";
 
-  private final PluginPropertyFactory propertyFactory = new PluginPropertyFactory( new KeyValueSet() );
+  private final PluginPropertyFactory propertyFactory =
+      new PluginPropertyFactory(new KeyValueSet());
 
   private DatabaseMeta dbMeta;
 
   private StringPluginProperty connectionName;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public AbstractTransformMeta() {
     super();
-    this.connectionName = this.propertyFactory.createString( CONNECTION_NAME );
+    this.connectionName = this.propertyFactory.createString(CONNECTION_NAME);
   }
 
-  /**
-   * @return the propertyFactory
-   */
+  /** @return the propertyFactory */
   public PluginPropertyFactory getPropertyFactory() {
     return this.propertyFactory;
   }
 
-  /**
-   * @return the properties
-   */
+  /** @return the properties */
   public KeyValueSet getProperties() {
     return this.propertyFactory.getProperties();
   }
@@ -73,30 +69,30 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
    * @throws BackingStoreException ...
    */
   public void saveAsPreferences() throws BackingStoreException {
-    final Preferences node = Preferences.userNodeForPackage( this.getClass() );
-    this.getProperties().walk( new SaveToPreferences( node ) );
+    final Preferences node = Preferences.userNodeForPackage(this.getClass());
+    this.getProperties().walk(new SaveToPreferences(node));
     node.flush();
   }
 
-  /**
-   * Read properties from preferences.
-   */
+  /** Read properties from preferences. */
   public void readFromPreferences() {
-    final Preferences node = Preferences.userNodeForPackage( this.getClass() );
-    this.getProperties().walk( new ReadFromPreferences( node ) );
+    final Preferences node = Preferences.userNodeForPackage(this.getClass());
+    this.getProperties().walk(new ReadFromPreferences(node));
   }
 
-  public void loadXml( final Node node, final List<DatabaseMeta> databaseMeta, final IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    this.getProperties().walk( new LoadXml( node ) );
-    initDbMeta( databaseMeta );
+  public void loadXml(
+      final Node node,
+      final List<DatabaseMeta> databaseMeta,
+      final IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    this.getProperties().walk(new LoadXml(node));
+    initDbMeta(databaseMeta);
   }
 
-  /**
-   * @param databaseList A list of available DatabaseMeta in this pipeline.
-   */
-  private void initDbMeta( final List<DatabaseMeta> databaseList ) {
-    if ( !StringUtils.isEmpty( this.connectionName.getValue() ) ) {
-      this.dbMeta = DatabaseMeta.findDatabase( databaseList, this.connectionName.getValue() );
+  /** @param databaseList A list of available DatabaseMeta in this pipeline. */
+  private void initDbMeta(final List<DatabaseMeta> databaseList) {
+    if (!StringUtils.isEmpty(this.connectionName.getValue())) {
+      this.dbMeta = DatabaseMeta.findDatabase(databaseList, this.connectionName.getValue());
     }
   }
 
@@ -107,34 +103,26 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
    */
   @Override
   public String getXml() throws HopException {
-    return PluginPropertyHandler.toXml( this.getProperties() );
+    return PluginPropertyHandler.toXml(this.getProperties());
   }
 
-  /**
-   * @return the connectionName
-   */
+  /** @return the connectionName */
   public StringPluginProperty getConnectionName() {
     return this.connectionName;
   }
 
-  /**
-   * @param connectionName the connectionName to set
-   */
-  public void setConnectionName( final StringPluginProperty connectionName ) {
+  /** @param connectionName the connectionName to set */
+  public void setConnectionName(final StringPluginProperty connectionName) {
     this.connectionName = connectionName;
   }
 
-  /**
-   * @return the dbMeta
-   */
+  /** @return the dbMeta */
   public DatabaseMeta getDbMeta() {
     return this.dbMeta;
   }
 
-  /**
-   * @param dbMeta the dbMeta to set
-   */
-  public void setDbMeta( final DatabaseMeta dbMeta ) {
+  /** @param dbMeta the dbMeta to set */
+  public void setDbMeta(final DatabaseMeta dbMeta) {
     this.dbMeta = dbMeta;
   }
 }

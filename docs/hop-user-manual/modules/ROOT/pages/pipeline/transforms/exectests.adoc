@@ -23,14 +23,14 @@ under the License.
 
 This transform fetches and executes the available unit tests for the current project.
 
-
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |transform name|name for this transform
-|Test name input field|name of a field to get the unit test name from to determine which transforms to execute. This option is only available when the transform receives input.
+|Test name input field|name of a field to get the unit test name from to determine which transforms to execute.
+This option is only available when the transform receives input.
 |Type of tests to run|Development or Unit Test
 |Pipeline output field name|the pipeline that is tested
 |Unit test output field name|the unit test that is executed

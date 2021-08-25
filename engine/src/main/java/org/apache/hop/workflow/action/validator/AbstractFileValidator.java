@@ -27,31 +27,37 @@ public abstract class AbstractFileValidator implements IActionValidator {
 
   private static final String KEY_VARIABLE_SPACE = "org.apache.hop.workflow.actions.file.variables";
 
-  public static ValidatorContext putVariableSpace( IVariables variables ) {
+  public static ValidatorContext putVariableSpace(IVariables variables) {
     ValidatorContext context = new ValidatorContext();
-    context.put( KEY_VARIABLE_SPACE, variables );
+    context.put(KEY_VARIABLE_SPACE, variables);
     return context;
   }
 
-  protected IVariables getVariableSpace( ICheckResultSource source, String propertyName,
-                                         List<ICheckResult> remarks, ValidatorContext context ) {
-    Object obj = context.get( KEY_VARIABLE_SPACE );
-    if ( obj instanceof IVariables ) {
+  protected IVariables getVariableSpace(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
+    Object obj = context.get(KEY_VARIABLE_SPACE);
+    if (obj instanceof IVariables) {
       return (IVariables) obj;
     } else {
       ActionValidatorUtils.addGeneralRemark(
-        source, propertyName, getName(), remarks, "messages.failed.missingKey",
-        ICheckResult.TYPE_RESULT_ERROR );
+          source,
+          propertyName,
+          getName(),
+          remarks,
+          "messages.failed.missingKey",
+          ICheckResult.TYPE_RESULT_ERROR);
       return null;
     }
   }
 
-  public static void putVariableSpace( ValidatorContext context, IVariables variables ) {
-    context.put( KEY_VARIABLE_SPACE, variables );
+  public static void putVariableSpace(ValidatorContext context, IVariables variables) {
+    context.put(KEY_VARIABLE_SPACE, variables);
   }
 
   public AbstractFileValidator() {
     super();
   }
-
 }

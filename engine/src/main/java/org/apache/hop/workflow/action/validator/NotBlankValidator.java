@@ -25,7 +25,8 @@ import org.apache.hop.core.ICheckResultSource;
 import java.util.List;
 
 /**
- * Fails if the field's value is either <code>null</code>, an empty string, or a string containing only whitespace.
+ * Fails if the field's value is either <code>null</code>, an empty string, or a string containing
+ * only whitespace.
  *
  * @author mlowery
  */
@@ -35,13 +36,19 @@ public class NotBlankValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "notBlank";
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
-    String value = ValidatorUtils.getValueAsString( source, propertyName );
-    if ( GenericValidator.isBlankOrNull( value ) ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
+    String value = ValidatorUtils.getValueAsString(source, propertyName);
+    if (GenericValidator.isBlankOrNull(value)) {
       ActionValidatorUtils.addFailureRemark(
-        source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(
-          context, VALIDATOR_NAME ) );
+          source,
+          propertyName,
+          VALIDATOR_NAME,
+          remarks,
+          ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
       return false;
     } else {
       return true;
@@ -51,5 +58,4 @@ public class NotBlankValidator implements IActionValidator {
   public String getName() {
     return VALIDATOR_NAME;
   }
-
 }

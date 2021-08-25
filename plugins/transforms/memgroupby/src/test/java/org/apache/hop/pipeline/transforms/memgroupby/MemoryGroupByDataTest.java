@@ -23,9 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 
@@ -34,45 +32,47 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bmorrise on 2/11/16.
- */
-@RunWith( MockitoJUnitRunner.class ) public class MemoryGroupByDataTest {
+/** Created by bmorrise on 2/11/16. */
+@RunWith(MockitoJUnitRunner.class)
+public class MemoryGroupByDataTest {
 
   private MemoryGroupByData data = new MemoryGroupByData();
 
   @Mock private IRowMeta groupMeta;
   @Mock private IValueMeta valueMeta;
 
-  @Before public void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     data.groupMeta = groupMeta;
-    when( groupMeta.size() ).thenReturn( 1 );
-    when( groupMeta.getValueMeta( anyInt() ) ).thenReturn( valueMeta );
-    when( valueMeta.convertToNormalStorageType( anyObject() ) ).then( invocation -> {
-      Object argument = invocation.getArguments()[ 0 ];
-      return new String( (byte[]) argument );
-    } );
+    when(groupMeta.size()).thenReturn(1);
+    when(groupMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
+    when(valueMeta.convertToNormalStorageType(anyObject()))
+        .then(
+            invocation -> {
+              Object argument = invocation.getArguments()[0];
+              return new String((byte[]) argument);
+            });
   }
 
-  @Test public void hashEntryTest() {
+  @Test
+  public void hashEntryTest() {
     HashMap<MemoryGroupByData.HashEntry, String> map = new HashMap<>();
 
     byte[] byteValue1 = "key".getBytes();
-    Object[] groupData1 = new Object[ 1 ];
-    groupData1[ 0 ] = byteValue1;
+    Object[] groupData1 = new Object[1];
+    groupData1[0] = byteValue1;
 
-    MemoryGroupByData.HashEntry hashEntry1 = data.getHashEntry( groupData1 );
-    map.put( hashEntry1, "value" );
+    MemoryGroupByData.HashEntry hashEntry1 = data.getHashEntry(groupData1);
+    map.put(hashEntry1, "value");
 
     byte[] byteValue2 = "key".getBytes();
-    Object[] groupData2 = new Object[ 1 ];
-    groupData2[ 0 ] = byteValue2;
+    Object[] groupData2 = new Object[1];
+    groupData2[0] = byteValue2;
 
-    MemoryGroupByData.HashEntry hashEntry2 = data.getHashEntry( groupData2 );
+    MemoryGroupByData.HashEntry hashEntry2 = data.getHashEntry(groupData2);
 
-    String value = map.get( hashEntry2 );
+    String value = map.get(hashEntry2);
 
-    assertEquals( "value", value );
+    assertEquals("value", value);
   }
-
 }

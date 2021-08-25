@@ -21,15 +21,17 @@ under the License.
 
 == Description
 
-The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.  In essence, this transform allows you to program your own plugin in a transform.
+The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
+In essence, this transform allows you to program your own plugin in a transform.
 
-The goal of this transform is not to allow a user to do full-scale Java development inside of a transform. Obviously we have a whole plugin system available to help with that part.
-The goal is to allow users to define methods and logic with as little as code as possible, executed as fast as possible.  For this we use the Janino project libraries that compile Java code in the form of classes at runtime. 
-
+The goal of this transform is not to allow a user to do full-scale Java development inside of a transform.
+Obviously we have a whole plugin system available to help with that part.
+The goal is to allow users to define methods and logic with as little as code as possible, executed as fast as possible.
+For this we use the Janino project libraries that compile Java code in the form of classes at runtime.
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -58,9 +60,10 @@ The goal is to allow users to define methods and logic with as little as code as
 
 === Process rows
 
-The Processor code defines the processRow() method, which is the heart of the transform. This method is called by the pipeline in a tight loop and will continue until false is returned.
+The Processor code defines the processRow() method, which is the heart of the transform.
+This method is called by the pipeline in a tight loop and will continue until false is returned.
 
-[source, java]
+[source,java]
 ----
 String firstnameField;
 String lastnameField;
@@ -110,9 +113,11 @@ public boolean processRow() throws HopException
 
 === Error handling
 
-If you want Hop to handle errors that may occur while running your class in a pipeline, you must implement for your own error handling code. Before adding any error handling code, right-click on the User Defined Java Class transform in the Hop client canvas and select Error Handling in the menu that appears. The resulting transform error handling settings dialog box contains options for specifying an error target transform and associated field names that you will use to implement error handling in your defined code.
+If you want Hop to handle errors that may occur while running your class in a pipeline, you must implement for your own error handling code.
+Before adding any error handling code, right-click on the User Defined Java Class transform in the Hop client canvas and select Error Handling in the menu that appears.
+The resulting transform error handling settings dialog box contains options for specifying an error target transform and associated field names that you will use to implement error handling in your defined code.
 
-[source, java]
+[source,java]
 ----
 try {
 
@@ -138,13 +143,16 @@ if ( !rowInError ) {
 }
 ----
 
-The try in the code sample above tests to see if numList contains valid numbers. If the list contains a number that is not valid, putError is used to handle the error and direct it to the wlog: ErrorPath transform in the sample pipeline. The ErrorPath transform is also specified in the Target transforms tab of the User Define Java Class transform.
+The try in the code sample above tests to see if numList contains valid numbers.
+If the list contains a number that is not valid, putError is used to handle the error and direct it to the wlog: ErrorPath transform in the sample pipeline.
+The ErrorPath transform is also specified in the Target transforms tab of the User Define Java Class transform.
 
 === Logging 
 
-You need to implement logging in your defined transform if you want Hop to log data actions from your class, such as read, write, output, or update data. The following code is an example of how to implement logging:
+You need to implement logging in your defined transform if you want Hop to log data actions from your class, such as read, write, output, or update data.
+The following code is an example of how to implement logging:
 
-[source, java]
+[source,java]
 ----
 putRow( data.outputMeta, r );
 
@@ -157,35 +165,43 @@ if ( checkFeedback( getLinesOutput() ) ) {
 
 === Class and code fragments
 
-You can navigate through your defined classes along with related code snippets and fields through the Classes and Code Fragments panel. You can right-click on any item in this tree to either Delete, Rename, or Show Sample.
+You can navigate through your defined classes along with related code snippets and fields through the Classes and Code Fragments panel.
+You can right-click on any item in this tree to either Delete, Rename, or Show Sample.
 
-**Classes** 
+**Classes**
 
 The Classes folder indicates what classes have corresponding code block tabs in the Class Code panel.
 
 **Code Snippits**
 
-The Code Snippits folder shows the internal Hop code related to the User Defined Java Class transform. These snippits are shown as reference for the code of your class.
+The Code Snippits folder shows the internal Hop code related to the User Defined Java Class transform.
+These snippits are shown as reference for the code of your class.
 
 **Input Fields**
 
-The Input fields folder contains any input fields you define in your code. While working with your defined code, you will be handling input and output fields. Many ways exist for handling input fields. For example, to start, examine the following description of an input row.
+The Input fields folder contains any input fields you define in your code.
+While working with your defined code, you will be handling input and output fields.
+Many ways exist for handling input fields.
+For example, to start, examine the following description of an input row.
 
-[source, java]
+[source,java]
 ----
 RowMetaInterface inputRowMeta = getInputRowMeta();
 ----
 
-The inputRowMeta object contains the metadata of the input row. It includes all the fields, their data types, lengths, names, format masks, and more. You can use this object to look up input fields. For example, if you want to look for a field called customer, you would use the following code.
+The inputRowMeta object contains the metadata of the input row.
+It includes all the fields, their data types, lengths, names, format masks, and more.
+You can use this object to look up input fields.
+For example, if you want to look for a field called customer, you would use the following code.
 
-[source, java]
+[source,java]
 ----
 ValueMetaInterface customer = inputRowMeta.searchValueMeta("year");
 ----
 
 Because looking up field names can be slow if you need to do it for every row that passes through a pipeline, you could look up field names in advance in a first block of code, as shown in the following example:
 
-[source, java]
+[source,java]
 ----
 if (first) {
  yearIndex = getInputRowMeta().indexOfValue(getParameter("YEAR"));
@@ -197,7 +213,7 @@ if (first) {
 
 To get the Integer value contained in the year field, you can then use the following construct.
 
-[source, java]
+[source,java]
 ----
 Object[] r = getRow();
 ...
@@ -206,7 +222,7 @@ Long year = inputRowMeta().getInteger(r, yearIndex);
 
 To make this process easier, you can use a shortcut in the following form.
 
-[source, java]
+[source,java]
 ----
 Long year = get(Fields.In, "year").getInteger(r);
 ----
@@ -215,4 +231,5 @@ This method also takes into account the index-based optimization mentioned above
 
 == Metadata Injection Support
 
-All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+All fields of this transform support metadata injection.
+You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

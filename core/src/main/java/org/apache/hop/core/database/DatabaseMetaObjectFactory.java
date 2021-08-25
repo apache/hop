@@ -22,20 +22,22 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 
-
 public class DatabaseMetaObjectFactory implements IHopMetadataObjectFactory {
 
-  @Override public Object createObject( String id, Object parentObject ) throws HopException {
+  @Override
+  public Object createObject(String id, Object parentObject) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
-    IPlugin plugin = registry.findPluginWithId( DatabasePluginType.class, id );
-    IDatabase iDatabase = (IDatabase) registry.loadClass( plugin );
+    IPlugin plugin = registry.findPluginWithId(DatabasePluginType.class, id);
+    IDatabase iDatabase = (IDatabase) registry.loadClass(plugin);
     return iDatabase;
   }
 
-  @Override public String getObjectId( Object object ) throws HopException {
+  @Override
+  public String getObjectId(Object object) throws HopException {
     if (!(object instanceof IDatabase)) {
-      throw new HopException("Object is not of class IDatabase but of "+object.getClass().getName()+"'");
+      throw new HopException(
+          "Object is not of class IDatabase but of " + object.getClass().getName() + "'");
     }
-    return ((IDatabase)object).getPluginId();
+    return ((IDatabase) object).getPluginId();
   }
 }

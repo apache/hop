@@ -26,15 +26,16 @@ import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 @ExtensionPoint(
-  id = "WorkflowStartCheckProjectExtensionPoint",
-  description = "At the start of a workflow, verify it lives in the active project",
-  extensionPointId = "WorkflowStart"
-)
+    id = "WorkflowStartCheckProjectExtensionPoint",
+    description = "At the start of a workflow, verify it lives in the active project",
+    extensionPointId = "WorkflowStart")
 public class WorkflowStartCheckProjectExtensionPoint implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
+  @Override
+  public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
+      throws HopException {
 
-    if ( !( object instanceof IWorkflowEngine ) ) {
+    if (!(object instanceof IWorkflowEngine)) {
       return;
     }
 
@@ -43,9 +44,10 @@ public class WorkflowStartCheckProjectExtensionPoint implements IExtensionPoint 
     String filename = workflow.getFilename();
 
     try {
-      ProjectsUtil.validateFileInProject( log, filename, workflow );
-    } catch ( Exception e ) {
-      throw new HopException( "Validation error against workflow '" + filename + "' in active project", e );
+      ProjectsUtil.validateFileInProject(log, filename, workflow);
+    } catch (Exception e) {
+      throw new HopException(
+          "Validation error against workflow '" + filename + "' in active project", e);
     }
   }
 }

@@ -23,7 +23,7 @@ public class ScriptValuesAddClasses {
   private Object addObject;
   private String strJSName;
 
-  public ScriptValuesAddClasses( Class<?> addClass, Object addObject, String strJSName ) {
+  public ScriptValuesAddClasses(Class<?> addClass, Object addObject, String strJSName) {
     super();
     this.addClass = addClass;
     this.addObject = addObject;

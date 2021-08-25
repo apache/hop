@@ -43,20 +43,20 @@ public class SingleRowRowSet extends BaseRowSet implements Comparable<IRowSet>, 
   }
 
   @Override
-  public Object[] getRowWait( long timeout, TimeUnit tu ) {
+  public Object[] getRowWait(long timeout, TimeUnit tu) {
     return getRow();
   }
 
   @Override
-  public boolean putRow( IRowMeta rowMeta, Object[] rowData ) {
+  public boolean putRow(IRowMeta rowMeta, Object[] rowData) {
     this.rowMeta = rowMeta;
     this.row = rowData;
     return true;
   }
 
   @Override
-  public boolean putRowWait( IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu ) {
-    return putRow( rowMeta, rowData );
+  public boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu) {
+    return putRow(rowMeta, rowData);
   }
 
   @Override
@@ -67,7 +67,6 @@ public class SingleRowRowSet extends BaseRowSet implements Comparable<IRowSet>, 
   @Override
   public void clear() {
     row = null;
-    done.set( false );
+    done.set(false);
   }
-
 }

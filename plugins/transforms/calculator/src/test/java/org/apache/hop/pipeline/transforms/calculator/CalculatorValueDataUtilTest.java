@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.Calc
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
@@ -114,14 +113,16 @@ public class CalculatorValueDataUtilTest {
   @Test
   public void checksumMissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
+    String checksum =
+        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
   @Test
   public void checksumNullPathTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
+    String checksum =
+        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 

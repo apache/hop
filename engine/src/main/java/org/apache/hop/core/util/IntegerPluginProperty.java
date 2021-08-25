@@ -24,9 +24,7 @@ import java.util.prefs.Preferences;
 
 public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginProperty {
 
-  /**
-   * Serial version UID.
-   */
+  /** Serial version UID. */
   private static final long serialVersionUID = -2990345692552430357L;
 
   /**
@@ -35,8 +33,8 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginP
    * @param key key to set.
    * @throws IllegalArgumentException if key is invalid.
    */
-  public IntegerPluginProperty( final String key ) throws IllegalArgumentException {
-    super( key, DEFAULT_INTEGER_VALUE );
+  public IntegerPluginProperty(final String key) throws IllegalArgumentException {
+    super(key, DEFAULT_INTEGER_VALUE);
   }
 
   public boolean evaluate() {
@@ -44,21 +42,20 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginP
     return value != null && value != 0;
   }
 
-  public void appendXml( final StringBuilder builder ) {
-    builder.append( XmlHandler.addTagValue( this.getKey(), this.getValue() ) );
+  public void appendXml(final StringBuilder builder) {
+    builder.append(XmlHandler.addTagValue(this.getKey(), this.getValue()));
   }
 
-  public void loadXml( final Node node ) {
-    final Integer value = Integer.parseInt( XmlHandler.getTagValue( node, this.getKey() ) );
-    this.setValue( value );
+  public void loadXml(final Node node) {
+    final Integer value = Integer.parseInt(XmlHandler.getTagValue(node, this.getKey()));
+    this.setValue(value);
   }
 
-  public void saveToPreferences( final Preferences node ) {
-    node.putInt( this.getKey(), this.getValue() );
+  public void saveToPreferences(final Preferences node) {
+    node.putInt(this.getKey(), this.getValue());
   }
 
-  public void readFromPreferences( final Preferences node ) {
-    this.setValue( node.getInt( this.getKey(), this.getValue() ) );
+  public void readFromPreferences(final Preferences node) {
+    this.setValue(node.getInt(this.getKey(), this.getValue()));
   }
-
 }

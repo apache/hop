@@ -36,90 +36,77 @@ public class Management {
    * @since 2008-apr-29
    */
 
-  /**
-   * @return Process CPU time in nanoseconds
-   */
+  /** @return Process CPU time in nanoseconds */
   public static long getPID() {
     String pid = null;
-    if ( mx == null ) {
+    if (mx == null) {
       mx = ManagementFactory.getRuntimeMXBean();
     }
 
     pid = mx.getName();
-    int indexOf = pid.indexOf( "@" );
-    if ( indexOf > 0 ) {
-      pid = pid.substring( 0, indexOf );
+    int indexOf = pid.indexOf("@");
+    if (indexOf > 0) {
+      pid = pid.substring(0, indexOf);
     }
-    return Const.toInt( pid, -1 );
+    return Const.toInt(pid, -1);
   }
 
-  /**
-   * @return JVM CPU time in nanoseconds
-   */
+  /** @return JVM CPU time in nanoseconds */
   public static long getJVMCpuTime() {
     setOperatingSystemMXBean();
     return bean.getProcessCpuTime();
   }
 
-  /**
-   * @return the amount of free physical memory in bytes
-   */
+  /** @return the amount of free physical memory in bytes */
   public static long getFreePhysicalMemorySize() {
     setOperatingSystemMXBean();
     return bean.getFreePhysicalMemorySize();
   }
 
-  /**
-   * @return the amount of free swap space in bytes
-   */
+  /** @return the amount of free swap space in bytes */
   public static long getFreeSwapSpaceSize() {
     setOperatingSystemMXBean();
     return bean.getFreeSwapSpaceSize();
   }
 
-  /**
-   * @return the total amount of physical memory in bytes
-   */
+  /** @return the total amount of physical memory in bytes */
   public static long getTotalPhysicalMemorySize() {
     setOperatingSystemMXBean();
     return bean.getTotalPhysicalMemorySize();
   }
 
-  /**
-   * @return the total amount of swap space in bytes.
-   */
+  /** @return the total amount of swap space in bytes. */
   public static long getTotalSwapSpaceSize() {
     setOperatingSystemMXBean();
     return bean.getTotalSwapSpaceSize();
   }
 
   /**
-   * @return the amount of virtual memory that is guaranteed to be available to the running process in bytes
+   * @return the amount of virtual memory that is guaranteed to be available to the running process
+   *     in bytes
    */
   public static long getCommittedVirtualMemorySize() {
     setOperatingSystemMXBean();
     return bean.getCommittedVirtualMemorySize();
   }
 
-  /**
-   * @return CPU time in nanoseconds.
-   */
-  public static long getCpuTime( long id ) {
+  /** @return CPU time in nanoseconds. */
+  public static long getCpuTime(long id) {
     setThreadMXBean();
-    if ( !tbean.isThreadCpuTimeSupported() ) {
+    if (!tbean.isThreadCpuTimeSupported()) {
       return 0L;
     }
-    return tbean.getThreadCpuTime( id );
+    return tbean.getThreadCpuTime(id);
   }
 
   private static void setOperatingSystemMXBean() {
-    if ( bean == null ) {
+    if (bean == null) {
       bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
     }
   }
 
   private static void setThreadMXBean() {
-    if ( tbean == null ) {
+    if (tbean == null) {
       tbean = ManagementFactory.getThreadMXBean();
     }
   }

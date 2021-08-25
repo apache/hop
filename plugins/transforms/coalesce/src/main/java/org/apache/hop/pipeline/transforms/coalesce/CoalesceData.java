@@ -23,9 +23,9 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 public class CoalesceData extends BaseTransformData implements ITransformData {
 
-    protected IRowMeta outputRowMeta;
-  
-	public CoalesceData() {
-		super();
-	}
+  protected IRowMeta outputRowMeta;
+
+  public CoalesceData() {
+    super();
+  }
 }

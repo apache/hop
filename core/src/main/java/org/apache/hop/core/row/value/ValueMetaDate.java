@@ -22,33 +22,28 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Date;
 
-@ValueMetaPlugin(
-  id = "3",
-  name = "Date",
-  description = "Date",
-  image = "images/date.svg"
-)
+@ValueMetaPlugin(id = "3", name = "Date", description = "Date", image = "images/date.svg")
 public class ValueMetaDate extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaDate() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaDate( String name ) {
-    super( name, IValueMeta.TYPE_DATE );
+  public ValueMetaDate(String name) {
+    super(name, IValueMeta.TYPE_DATE);
   }
 
-  public ValueMetaDate( String name, int type ) {
-    super( name, type );
+  public ValueMetaDate(String name, int type) {
+    super(name, type);
   }
 
-  public ValueMetaDate( String name, int length, int precision ) {
-    super( name, IValueMeta.TYPE_DATE, length, precision );
+  public ValueMetaDate(String name, int length, int precision) {
+    super(name, IValueMeta.TYPE_DATE, length, precision);
   }
 
   @Override
-  public Object getNativeDataType( Object object ) throws HopValueException {
-    return getDate( object );
+  public Object getNativeDataType(Object object) throws HopValueException {
+    return getDate(object);
   }
 
   @Override

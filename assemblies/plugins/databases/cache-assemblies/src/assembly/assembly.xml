@@ -52,6 +52,6 @@
             </includes>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
-        </dependencySet>        
+        </dependencySet>
     </dependencySets>
 </assembly>

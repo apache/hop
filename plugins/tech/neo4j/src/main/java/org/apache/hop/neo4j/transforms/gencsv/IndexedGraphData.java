@@ -24,12 +24,7 @@ import org.apache.hop.neo4j.core.data.GraphNodeData;
 import org.apache.hop.neo4j.core.data.GraphPropertyData;
 import org.apache.hop.neo4j.core.data.GraphRelationshipData;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.apache.hop.neo4j.transforms.gencsv.UniquenessStrategy.None;
 

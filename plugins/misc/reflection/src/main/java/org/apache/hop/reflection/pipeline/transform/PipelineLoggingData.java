@@ -18,10 +18,7 @@
 
 package org.apache.hop.reflection.pipeline.transform;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-public class PipelineLoggingData extends BaseTransformData implements ITransformData {
-}
+public class PipelineLoggingData extends BaseTransformData implements ITransformData {}

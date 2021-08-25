@@ -22,7 +22,7 @@ under the License.
 
 Enter the connection information in the following transform options:
 
-[option="header", width="90%"]
+[option="header",width="90%"]
 |===
 |Option|Description
 |Salesforce Webservice URL a| Specify the URL to the Salesforce Webservice. +
@@ -30,6 +30,8 @@ Enter the connection information in the following transform options:
 Default: https://login.salesforce.com/services/Soap/u/50.0
 
 |Username|Specify the username for authenticating to Salesforce
-|Password|Specify the password for authenticating to Salesforce. Enter your password followed by your security token. For example, if your password is PASSWORD and your security token is TOKEN, you would enter PASSWORDTOKEN in this field.
+|Password|Specify the password for authenticating to Salesforce.
+Enter your password followed by your security token.
+For example, if your password is PASSWORD and your security token is TOKEN, you would enter PASSWORDTOKEN in this field.
 |Test Connection|Click to verify the connection can be made to the Salesforce Webservice URL you specified.
 |===

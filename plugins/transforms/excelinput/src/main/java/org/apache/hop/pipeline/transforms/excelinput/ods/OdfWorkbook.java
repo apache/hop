@@ -37,43 +37,43 @@ public class OdfWorkbook implements IKWorkbook {
   private OdfDocument document;
   private Map<String, OdfSheet> openSheetsMap = new HashMap<>();
 
-  public OdfWorkbook( String filename, String encoding ) throws HopException {
+  public OdfWorkbook(String filename, String encoding) throws HopException {
     this.filename = filename;
     this.encoding = encoding;
 
     try {
-      document = OdfSpreadsheetDocument.loadDocument( HopVfs.getInputStream( filename ) );
-    } catch ( Exception e ) {
-      throw new HopException( e );
+      document = OdfSpreadsheetDocument.loadDocument(HopVfs.getInputStream(filename));
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
-  public OdfWorkbook( InputStream inputStream, String encoding ) throws HopException {
+  public OdfWorkbook(InputStream inputStream, String encoding) throws HopException {
     this.encoding = encoding;
 
     try {
-      document = OdfSpreadsheetDocument.loadDocument( inputStream );
-    } catch ( Exception e ) {
-      throw new HopException( e );
+      document = OdfSpreadsheetDocument.loadDocument(inputStream);
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 
   public void close() {
-    if ( document != null ) {
+    if (document != null) {
       document.close();
     }
   }
 
   @Override
-  public IKSheet getSheet( String sheetName ) {
-    OdfSheet sheet = openSheetsMap.get( sheetName );
-    if ( sheet == null ) {
-      OdfTable table = document.getTableByName( sheetName );
-      if ( table == null ) {
+  public IKSheet getSheet(String sheetName) {
+    OdfSheet sheet = openSheetsMap.get(sheetName);
+    if (sheet == null) {
+      OdfTable table = document.getTableByName(sheetName);
+      if (table == null) {
         return null;
       } else {
-        sheet = new OdfSheet( table );
-        openSheetsMap.put( sheetName, sheet );
+        sheet = new OdfSheet(table);
+        openSheetsMap.put(sheetName, sheet);
       }
     }
     return sheet;
@@ -82,9 +82,9 @@ public class OdfWorkbook implements IKWorkbook {
   public String[] getSheetNames() {
     List<OdfTable> list = document.getTableList();
     int nrSheets = list.size();
-    String[] names = new String[ nrSheets ];
-    for ( int i = 0; i < nrSheets; i++ ) {
-      names[ i ] = list.get( i ).getTableName();
+    String[] names = new String[nrSheets];
+    for (int i = 0; i < nrSheets; i++) {
+      names[i] = list.get(i).getTableName();
     }
     return names;
   }
@@ -101,17 +101,17 @@ public class OdfWorkbook implements IKWorkbook {
     return document.getTableList().size();
   }
 
-  public IKSheet getSheet( int sheetNr ) {
-    OdfTable table = document.getTableList().get( sheetNr );
-    if ( table == null ) {
+  public IKSheet getSheet(int sheetNr) {
+    OdfTable table = document.getTableList().get(sheetNr);
+    if (table == null) {
       return null;
     }
-    return new OdfSheet( table );
+    return new OdfSheet(table);
   }
 
-  public String getSheetName( int sheetNr ) {
-    OdfTable table = document.getTableList().get( sheetNr );
-    if ( table == null ) {
+  public String getSheetName(int sheetNr) {
+    OdfTable table = document.getTableList().get(sheetNr);
+    if (table == null) {
       return null;
     }
     return table.getTableName();

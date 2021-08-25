@@ -17,22 +17,14 @@
 
 package org.apache.hop.core.parameters;
 
-/**
- * Target class for the parameter keys.
- */
+/** Target class for the parameter keys. */
 public class NamedParameterDefinition {
-  /**
-   * key of this parameter
-   */
+  /** key of this parameter */
   public String key;
 
-  /**
-   * Description of the parameter
-   */
+  /** Description of the parameter */
   public String description;
 
-  /**
-   * Default value for this parameter
-   */
+  /** Default value for this parameter */
   public String defaultValue;
 }

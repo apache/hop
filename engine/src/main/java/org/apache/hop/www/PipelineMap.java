@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -48,20 +47,24 @@ public class PipelineMap {
    * Add a pipeline to the map
    *
    * @param pipelineName The name of the pipeline to add
-   * @param containerObjectId  the unique ID of the pipeline in this container.
-   * @param pipeline              The pipeline to add
+   * @param containerObjectId the unique ID of the pipeline in this container.
+   * @param pipeline The pipeline to add
    * @param pipelineConfiguration the pipeline configuration to add
    */
-  public void addPipeline( String pipelineName, String containerObjectId, IPipelineEngine<PipelineMeta> pipeline,
-                           PipelineConfiguration pipelineConfiguration ) {
-    HopServerObjectEntry entry = new HopServerObjectEntry( pipelineName, containerObjectId );
-    pipelineMap.put( entry, new PipelineData( pipeline, pipelineConfiguration ) );
+  public void addPipeline(
+      String pipelineName,
+      String containerObjectId,
+      IPipelineEngine<PipelineMeta> pipeline,
+      PipelineConfiguration pipelineConfiguration) {
+    HopServerObjectEntry entry = new HopServerObjectEntry(pipelineName, containerObjectId);
+    pipelineMap.put(entry, new PipelineData(pipeline, pipelineConfiguration));
   }
 
-  public void registerPipeline( Pipeline pipeline, PipelineConfiguration pipelineConfiguration ) {
-    pipeline.setContainerId( UUID.randomUUID().toString() );
-    HopServerObjectEntry entry = new HopServerObjectEntry( pipeline.getPipelineMeta().getName(), pipeline.getContainerId() );
-    pipelineMap.put( entry, new PipelineData( pipeline, pipelineConfiguration ) );
+  public void registerPipeline(Pipeline pipeline, PipelineConfiguration pipelineConfiguration) {
+    pipeline.setContainerId(UUID.randomUUID().toString());
+    HopServerObjectEntry entry =
+        new HopServerObjectEntry(pipeline.getPipelineMeta().getName(), pipeline.getContainerId());
+    pipelineMap.put(entry, new PipelineData(pipeline, pipelineConfiguration));
   }
 
   /**
@@ -70,10 +73,10 @@ public class PipelineMap {
    * @param pipelineName
    * @return the first pipeline with the specified name
    */
-  public IPipelineEngine<PipelineMeta> getPipeline( String pipelineName ) {
-    for ( HopServerObjectEntry entry : pipelineMap.keySet() ) {
-      if ( entry.getName().equals( pipelineName ) ) {
-        return pipelineMap.get( entry ).getPipeline();
+  public IPipelineEngine<PipelineMeta> getPipeline(String pipelineName) {
+    for (HopServerObjectEntry entry : pipelineMap.keySet()) {
+      if (entry.getName().equals(pipelineName)) {
+        return pipelineMap.get(entry).getPipeline();
       }
     }
     return null;
@@ -83,9 +86,9 @@ public class PipelineMap {
    * @param entry The HopServer pipeline object
    * @return the pipeline with the specified entry
    */
-  public IPipelineEngine<PipelineMeta> getPipeline( HopServerObjectEntry entry ) {
-    PipelineData pipelineData = pipelineMap.get( entry );
-    if (pipelineData!=null) {
+  public IPipelineEngine<PipelineMeta> getPipeline(HopServerObjectEntry entry) {
+    PipelineData pipelineData = pipelineMap.get(entry);
+    if (pipelineData != null) {
       return pipelineData.getPipeline();
     }
     return null;
@@ -95,10 +98,10 @@ public class PipelineMap {
    * @param pipelineName
    * @return The first pipeline configuration with the specified name
    */
-  public PipelineConfiguration getConfiguration( String pipelineName ) {
-    for ( HopServerObjectEntry entry : pipelineMap.keySet() ) {
-      if ( entry.getName().equals( pipelineName ) ) {
-        return pipelineMap.get( entry ).getConfiguration();
+  public PipelineConfiguration getConfiguration(String pipelineName) {
+    for (HopServerObjectEntry entry : pipelineMap.keySet()) {
+      if (entry.getName().equals(pipelineName)) {
+        return pipelineMap.get(entry).getConfiguration();
       }
     }
     return null;
@@ -108,65 +111,65 @@ public class PipelineMap {
    * @param entry The HopServer pipeline object
    * @return the pipeline configuration with the specified entry
    */
-  public PipelineConfiguration getConfiguration( HopServerObjectEntry entry ) {
-    return pipelineMap.get( entry ).getConfiguration();
+  public PipelineConfiguration getConfiguration(HopServerObjectEntry entry) {
+    return pipelineMap.get(entry).getConfiguration();
   }
 
-  /**
-   * @param entry the HopServer object entry
-   */
-  public void removePipeline( HopServerObjectEntry entry ) {
-    pipelineMap.remove( entry );
+  /** @param entry the HopServer object entry */
+  public void removePipeline(HopServerObjectEntry entry) {
+    pipelineMap.remove(entry);
   }
 
   public List<HopServerObjectEntry> getPipelineObjects() {
-    return new ArrayList<>( pipelineMap.keySet() );
+    return new ArrayList<>(pipelineMap.keySet());
   }
 
-
-  public HopServerObjectEntry getFirstServerObjectEntry( String pipelineName ) {
-    for ( HopServerObjectEntry key : pipelineMap.keySet() ) {
-      if ( key.getName().equals( pipelineName ) ) {
+  public HopServerObjectEntry getFirstServerObjectEntry(String pipelineName) {
+    for (HopServerObjectEntry key : pipelineMap.keySet()) {
+      if (key.getName().equals(pipelineName)) {
         return key;
       }
     }
     return null;
   }
 
-  /**
-   * @return the hopServerConfig
-   */
+  /** @return the hopServerConfig */
   public HopServerConfig getHopServerConfig() {
     return hopServerConfig;
   }
 
-  /**
-   * @param hopServerConfig the hopServerConfig to set
-   */
-  public void setHopServerConfig( HopServerConfig hopServerConfig ) {
+  /** @param hopServerConfig the hopServerConfig to set */
+  public void setHopServerConfig(HopServerConfig hopServerConfig) {
     this.hopServerConfig = hopServerConfig;
   }
 
-  public HopServerSequence getServerSequence( String name ) {
-    return HopServerSequence.findServerSequence( name, hopServerConfig.getHopServerSequences() );
+  public HopServerSequence getServerSequence(String name) {
+    return HopServerSequence.findServerSequence(name, hopServerConfig.getHopServerSequences());
   }
 
   public boolean isAutomaticServerSequenceCreationAllowed() {
     return hopServerConfig.isAutomaticCreationAllowed();
   }
 
-  public HopServerSequence createServerSequence( String name ) throws HopException {
+  public HopServerSequence createServerSequence(String name) throws HopException {
     HopServerSequence auto = hopServerConfig.getAutoSequence();
-    if ( auto == null ) {
-      throw new HopException( "No auto-sequence information found in the hop server config.  "
-        + "Server sequence could not be created automatically." );
+    if (auto == null) {
+      throw new HopException(
+          "No auto-sequence information found in the hop server config.  "
+              + "Server sequence could not be created automatically.");
     }
 
     HopServerSequence hopServerSequence =
-      new HopServerSequence( name, auto.getStartValue(), auto.getDatabaseMeta(), auto.getSchemaName(), auto
-        .getTableName(), auto.getSequenceNameField(), auto.getValueField() );
+        new HopServerSequence(
+            name,
+            auto.getStartValue(),
+            auto.getDatabaseMeta(),
+            auto.getSchemaName(),
+            auto.getTableName(),
+            auto.getSequenceNameField(),
+            auto.getValueField());
 
-    hopServerConfig.getHopServerSequences().add( hopServerSequence );
+    hopServerConfig.getHopServerSequences().add(hopServerSequence);
 
     return hopServerSequence;
   }
@@ -177,7 +180,7 @@ public class PipelineMap {
 
     private PipelineConfiguration configuration;
 
-    PipelineData( IPipelineEngine<PipelineMeta> pipeline, PipelineConfiguration configuration ) {
+    PipelineData(IPipelineEngine<PipelineMeta> pipeline, PipelineConfiguration configuration) {
       this.pipeline = pipeline;
       this.configuration = configuration;
     }
@@ -186,7 +189,7 @@ public class PipelineMap {
       return pipeline;
     }
 
-    public void setPipeline( IPipelineEngine<PipelineMeta> pipeline ) {
+    public void setPipeline(IPipelineEngine<PipelineMeta> pipeline) {
       this.pipeline = pipeline;
     }
 
@@ -194,7 +197,7 @@ public class PipelineMap {
       return configuration;
     }
 
-    public void setConfiguration( PipelineConfiguration configuration ) {
+    public void setConfiguration(PipelineConfiguration configuration) {
       this.configuration = configuration;
     }
   }

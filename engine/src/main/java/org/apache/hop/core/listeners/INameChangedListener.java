@@ -17,17 +17,14 @@
 
 package org.apache.hop.core.listeners;
 
-/**
- * A listener that will signal when the name of an object changes.
- *
- */
+/** A listener that will signal when the name of an object changes. */
 public interface INameChangedListener {
   /**
    * The method that is executed when the name of an object changes
    *
-   * @param object  The object for which there is a name change
+   * @param object The object for which there is a name change
    * @param oldName the old name
    * @param newName the new name
    */
-  void nameChanged( Object object, String oldName, String newName );
+  void nameChanged(Object object, String oldName, String newName);
 }

@@ -17,56 +17,57 @@
   ~
   -->
 
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.hop</groupId>
-  <artifactId>hop-plugins-valuetypes</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <modules>
-  </modules>
-  <packaging>pom</packaging>
-
-  <name>Hop Plugins Value Types</name>
-
-  <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins</artifactId>
+    <artifactId>hop-plugins-valuetypes</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
+    <modules>
+    </modules>
+    <packaging>pom</packaging>
 
-  <profiles>
-    <profile>
-      <id>lowdeps</id>
-      <activation>
-        <property>
-          <name>!skipDefault</name>
-        </property>
-      </activation>
-      <modules>
-        <module>json</module>
-      </modules>
-    </profile>
-  </profiles>
+    <name>Hop Plugins Value Types</name>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.svg</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.svg</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <profiles>
+        <profile>
+            <id>lowdeps</id>
+            <activation>
+                <property>
+                    <name>!skipDefault</name>
+                </property>
+            </activation>
+            <modules>
+                <module>json</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>

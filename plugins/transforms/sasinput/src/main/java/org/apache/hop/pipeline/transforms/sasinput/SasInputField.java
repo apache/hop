@@ -21,7 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 

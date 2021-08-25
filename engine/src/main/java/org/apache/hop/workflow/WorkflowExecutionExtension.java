@@ -28,7 +28,11 @@ public class WorkflowExecutionExtension {
   public ActionMeta actionMeta;
   public boolean executeAction;
 
-  public WorkflowExecutionExtension( IWorkflowEngine<WorkflowMeta> workflow, Result result, ActionMeta actionMeta, boolean executeAction ) {
+  public WorkflowExecutionExtension(
+      IWorkflowEngine<WorkflowMeta> workflow,
+      Result result,
+      ActionMeta actionMeta,
+      boolean executeAction) {
     super();
     this.workflow = workflow;
     this.result = result;

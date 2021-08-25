@@ -123,7 +123,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // loaded
       //
       ExtensionPointHandler.callExtensionPoint(
-        log, variables, HopExtensionPoint.HopRunStart.id, this);
+          log, variables, HopExtensionPoint.HopRunStart.id, this);
 
       // Handle the options of the configuration plugins
       //
@@ -236,7 +236,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
       pipeline.activateParameters(pipeline);
 
-      log.logMinimal( "Starting pipeline: "+pipelineMeta.getFilename() );
+      log.logMinimal("Starting pipeline: " + pipelineMeta.getFilename());
 
       // Run it!
       //
@@ -313,7 +313,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       workflow.activateParameters(workflow);
 
-      log.logMinimal( "Starting workflow: "+workflowMeta.getFilename() );
+      log.logMinimal("Starting workflow: " + workflowMeta.getFilename());
 
       workflow.startExecution();
       setFinishedWithoutError(workflow.getResult().getResult());
@@ -434,8 +434,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     // By default we use the value from the current variables map:
     //
     for (String key : namedParams.listParameters()) {
-      String value = variables.getVariable( key );
-      if (StringUtils.isNotEmpty( value )) {
+      String value = variables.getVariable(key);
+      if (StringUtils.isNotEmpty(value)) {
         try {
           namedParams.setParameterValue(key, value);
         } catch (UnknownParamException e) {

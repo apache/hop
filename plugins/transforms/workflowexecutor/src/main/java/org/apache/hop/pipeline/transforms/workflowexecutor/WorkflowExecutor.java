@@ -377,7 +377,8 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           int idx = getInputRowMeta().indexOfValue(fieldName);
           if (idx < 0) {
             throw new HopException(
-                BaseMessages.getString(PKG, "WorkflowExecutor.Exception.UnableToFindField", fieldName));
+                BaseMessages.getString(
+                    PKG, "WorkflowExecutor.Exception.UnableToFindField", fieldName));
           }
           variableValue = data.groupBuffer.get(0).getString(idx, "");
         } else {

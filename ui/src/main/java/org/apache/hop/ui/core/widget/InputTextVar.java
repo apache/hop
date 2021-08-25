@@ -22,12 +22,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 public class InputTextVar extends Input<TextVar> {
-  public InputTextVar( IVariables variables, Composite composite, int width1, int width2 ) {
-    super( variables, composite, width1, width2 );
+  public InputTextVar(IVariables variables, Composite composite, int width1, int width2) {
+    super(variables, composite, width1, width2);
   }
 
   @Override
-  protected void initText( IVariables variables, Composite composite, int flags ) {
-    input = new TextVar( variables, this, SWT.LEFT | SWT.SINGLE | SWT.BORDER );
+  protected void initText(IVariables variables, Composite composite, int flags) {
+    input = new TextVar(variables, this, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
   }
 }

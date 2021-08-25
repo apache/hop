@@ -25,7 +25,7 @@ The Get Mail from POP action allows you to retrieve mails from a POP server and 
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -38,6 +38,6 @@ The Get Mail from POP action allows you to retrieve mails from a POP server and 
 |Target filename pattern|The filename pattern (start of filename).
 |Retrieve|Select the e-mails to retrieve: all, unread or a selection of the first e-mails.
 |Retrieve the .. first emails|Allows you to specify the number of emails to retrieve if "first ... emails" is selected.
-|Delete emails after retrieval|Check this if you want to delete the mails on the pop server after retrieval. 
+|Delete emails after retrieval|Check this if you want to delete the mails on the pop server after retrieval.
 |===
 

@@ -22,7 +22,6 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 
 import java.util.List;
 import java.util.Properties;

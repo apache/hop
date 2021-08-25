@@ -42,7 +42,7 @@ public class SetValueConstantData extends BaseTransformData implements ITransfor
     return outputRowMeta;
   }
 
-  void setOutputRowMeta( IRowMeta outputRowMeta ) {
+  void setOutputRowMeta(IRowMeta outputRowMeta) {
     this.outputRowMeta = outputRowMeta;
   }
 
@@ -50,7 +50,7 @@ public class SetValueConstantData extends BaseTransformData implements ITransfor
     return convertRowMeta;
   }
 
-  void setConvertRowMeta( IRowMeta convertRowMeta ) {
+  void setConvertRowMeta(IRowMeta convertRowMeta) {
     this.convertRowMeta = convertRowMeta;
   }
 
@@ -58,7 +58,7 @@ public class SetValueConstantData extends BaseTransformData implements ITransfor
     return realReplaceByValues;
   }
 
-  void setRealReplaceByValues( String[] realReplaceByValues ) {
+  void setRealReplaceByValues(String[] realReplaceByValues) {
     this.realReplaceByValues = realReplaceByValues;
   }
 
@@ -66,7 +66,7 @@ public class SetValueConstantData extends BaseTransformData implements ITransfor
     return fieldnrs;
   }
 
-  void setFieldnrs( int[] fieldnrs ) {
+  void setFieldnrs(int[] fieldnrs) {
     this.fieldnrs = fieldnrs;
   }
 
@@ -74,7 +74,7 @@ public class SetValueConstantData extends BaseTransformData implements ITransfor
     return fieldnr;
   }
 
-  void setFieldnr( int fieldnr ) {
+  void setFieldnr(int fieldnr) {
     this.fieldnr = fieldnr;
   }
 }

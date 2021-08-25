@@ -43,5 +43,4 @@ public class IfNullData extends BaseTransformData implements ITransformData {
     super();
     ListTypes = new HashMap<>();
   }
-
 }

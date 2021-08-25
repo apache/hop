@@ -111,13 +111,16 @@ For **long-lived** containers (Hop Server):
 |Environment Variable | Description
 
 |```HOP_SERVER_PORT```
-| The port for hop-server.  Pick a value like ```8080``` or ```8181```
+| The port for hop-server.
+Pick a value like ```8080``` or ```8181```
 
 |```HOP_SERVER_USER```
-| Username for hop-server.  The Hop default is ```cluster```
+| Username for hop-server.
+The Hop default is ```cluster```
 
 |```HOP_SERVER_PASS```
-| Password for hop-server user.  The Hop default is ```cluster```
+| Password for hop-server user.
+The Hop default is ```cluster```
 
 |===
 
@@ -144,7 +147,8 @@ docker run -it --rm \
   apache/incubator-hop:<tag>
 ----
 
-If you need a **long-lived container**, this option is also available. Run this command to start a Hop Server in a docker container:
+If you need a **long-lived container**, this option is also available.
+Run this command to start a Hop Server in a docker container:
 
 [source,bash]
 ----
@@ -158,7 +162,8 @@ docker run -it --rm \
  apache/incubator-hop:<tag>
 ----
 
-Hop Server is designed to receive all variables and metadata from executing clients. This means it needs little to no configuration to run.
+Hop Server is designed to receive all variables and metadata from executing clients.
+This means it needs little to no configuration to run.
 
 You can then access the hop-server UI from your host at `http://localhost:8181`
 

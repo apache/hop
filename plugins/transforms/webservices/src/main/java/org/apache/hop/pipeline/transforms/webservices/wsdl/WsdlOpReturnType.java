@@ -19,9 +19,7 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
 import javax.xml.namespace.QName;
 
-/**
- * Represents the return value for a WSDL operation.
- */
+/** Represents the return value for a WSDL operation. */
 public class WsdlOpReturnType implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
 
@@ -34,11 +32,8 @@ public class WsdlOpReturnType implements java.io.Serializable {
 
   protected ComplexType itemComplexType;
 
-  /**
-   * Constructor.
-   */
-  protected WsdlOpReturnType() {
-  }
+  /** Constructor. */
+  protected WsdlOpReturnType() {}
 
   /**
    * Get the Xml type.

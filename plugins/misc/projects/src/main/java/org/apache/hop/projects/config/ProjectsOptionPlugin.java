@@ -18,13 +18,10 @@
 package org.apache.hop.projects.config;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
@@ -32,8 +29,6 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 

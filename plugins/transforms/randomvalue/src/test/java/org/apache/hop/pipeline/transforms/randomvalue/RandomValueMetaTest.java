@@ -16,20 +16,17 @@
  */
 package org.apache.hop.pipeline.transforms.randomvalue;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.ClassRule;
-import org.junit.Test;
 
 public class RandomValueMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,10 +43,9 @@ public class RandomValueMetaTest {
     setterMap.put("name", "setFieldName");
     setterMap.put("type", "setFieldType");
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
     fieldLoadSaveValidatorAttributeMap.put(
-        "name", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 ));
+        "name", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25));
     fieldLoadSaveValidatorAttributeMap.put(
         "type",
         new PrimitiveIntArrayLoadSaveValidator(
@@ -62,7 +58,7 @@ public class RandomValueMetaTest {
             getterMap,
             setterMap,
             fieldLoadSaveValidatorAttributeMap,
-          new HashMap<>());
+            new HashMap<>());
     loadSaveTester.testSerialization();
   }
 }

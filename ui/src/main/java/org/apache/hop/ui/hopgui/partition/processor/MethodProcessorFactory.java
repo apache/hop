@@ -19,13 +19,11 @@ package org.apache.hop.ui.hopgui.partition.processor;
 
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
-/**
- * @author Evgeniy_Lyakhov@epam.com
- */
+/** @author Evgeniy_Lyakhov@epam.com */
 public class MethodProcessorFactory {
 
-  public static IMethodProcessor create( int methodType ) {
-    switch ( methodType ) {
+  public static IMethodProcessor create(int methodType) {
+    switch (methodType) {
       case TransformPartitioningMeta.PARTITIONING_METHOD_NONE:
         return new NoneMethodProcessor();
       case TransformPartitioningMeta.PARTITIONING_METHOD_MIRROR:
@@ -35,6 +33,5 @@ public class MethodProcessorFactory {
       default:
         return new NoneMethodProcessor();
     }
-
   }
 }

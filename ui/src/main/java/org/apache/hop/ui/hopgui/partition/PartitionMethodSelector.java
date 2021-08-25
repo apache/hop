@@ -20,15 +20,13 @@ package org.apache.hop.ui.hopgui.partition;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * @author Evgeniy_Lyakhov@epam.com
- */
+/** @author Evgeniy_Lyakhov@epam.com */
 public class PartitionMethodSelector {
 
-  public String askForPartitionMethod( Shell shell, PartitionSettings settings ) {
+  public String askForPartitionMethod(Shell shell, PartitionSettings settings) {
     EnterSelectionDialog dialog =
-      new EnterSelectionDialog( shell, settings.getOptions(), "Partioning method", "Select the partitioning method" );
-    return dialog.open( settings.getDefaultSelectedMethodIndex() );
+        new EnterSelectionDialog(
+            shell, settings.getOptions(), "Partioning method", "Select the partitioning method");
+    return dialog.open(settings.getDefaultSelectedMethodIndex());
   }
-
 }

@@ -29,37 +29,37 @@ import java.util.Map;
  * @see BaseHopServerPlugin
  */
 public interface IHopServerRequestHandler {
-  void handleRequest( IHopServerRequest request ) throws IOException;
+  void handleRequest(IHopServerRequest request) throws IOException;
 
   interface IHopServerRequest {
     String getMethod();
 
     Map<String, Collection<String>> getHeaders();
 
-    String getHeader( String name );
+    String getHeader(String name);
 
     Map<String, Collection<String>> getParameters();
 
-    String getParameter( String name );
+    String getParameter(String name);
 
     InputStream getInputStream() throws IOException;
 
-    IHopServerResponse respond( int status );
+    IHopServerResponse respond(int status);
   }
 
   interface IHopServerResponse {
-    void with( String contentType, IWriterResponse response ) throws IOException;
+    void with(String contentType, IWriterResponse response) throws IOException;
 
-    void with( String contentType, IOutputStreamResponse response ) throws IOException;
+    void with(String contentType, IOutputStreamResponse response) throws IOException;
 
-    void withMessage( String text ) throws IOException;
+    void withMessage(String text) throws IOException;
   }
 
   interface IWriterResponse {
-    void write( PrintWriter writer ) throws IOException;
+    void write(PrintWriter writer) throws IOException;
   }
 
   interface IOutputStreamResponse {
-    void write( OutputStream outputStream ) throws IOException;
+    void write(OutputStream outputStream) throws IOException;
   }
 }

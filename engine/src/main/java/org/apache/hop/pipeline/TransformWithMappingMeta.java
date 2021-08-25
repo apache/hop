@@ -37,16 +37,9 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME;
+import static org.apache.hop.core.Const.*;
 
 /**
  * This class is supposed to use in transforms where the mapping to sub pipelines takes place

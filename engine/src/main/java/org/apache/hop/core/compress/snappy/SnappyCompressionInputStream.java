@@ -26,33 +26,33 @@ import java.io.InputStream;
 
 public class SnappyCompressionInputStream extends CompressionInputStream {
 
-  public SnappyCompressionInputStream( InputStream in, ICompressionProvider provider ) throws IOException {
-    super( getDelegate( in ), provider );
+  public SnappyCompressionInputStream(InputStream in, ICompressionProvider provider)
+      throws IOException {
+    super(getDelegate(in), provider);
   }
 
-  protected static SnappyInputStream getDelegate( InputStream in ) throws IOException {
+  protected static SnappyInputStream getDelegate(InputStream in) throws IOException {
     SnappyInputStream delegate = null;
-    if ( in instanceof SnappyInputStream ) {
+    if (in instanceof SnappyInputStream) {
       delegate = (SnappyInputStream) in;
     } else {
-      delegate = new SnappyInputStream( in );
+      delegate = new SnappyInputStream(in);
     }
     return delegate;
   }
 
   @Override
   public void close() throws IOException {
-    ( (SnappyInputStream) delegate ).close();
+    ((SnappyInputStream) delegate).close();
   }
 
   @Override
   public int read() throws IOException {
-    return ( (SnappyInputStream) delegate ).read();
+    return ((SnappyInputStream) delegate).read();
   }
 
   @Override
   public Object nextEntry() throws IOException {
     return null;
   }
-
 }

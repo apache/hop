@@ -21,8 +21,9 @@ import org.apache.hop.ui.hopgui.ISingletonProvider;
 
 public class GuiContextUtilImpl implements ISingletonProvider {
   private static GuiContextUtil instance;
+
   public Object getInstanceInternal() {
-    if ( instance == null ) {
+    if (instance == null) {
       instance = new GuiContextUtil();
     }
     return instance;

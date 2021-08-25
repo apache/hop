@@ -39,11 +39,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.TransformRowsCollector;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.pipeline.transforms.TransformRowsCollector;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 
@@ -54,14 +54,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * This class was a "copy and modification" of Hop's JsonOutputTests.

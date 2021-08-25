@@ -18,7 +18,6 @@
 package org.apache.hop.neo4j.actions.constraint;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;

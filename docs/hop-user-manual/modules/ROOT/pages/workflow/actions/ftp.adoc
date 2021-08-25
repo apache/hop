@@ -21,16 +21,21 @@ under the License.
 
 == Description
 
-Use the Get a File with FTP workflow action to retrieve one or more files from an FTP server. This workflow action does not "crawl" systems. It will not, for example, access a remote directory and go to other directories to find files that match a wildcard. This workflow retrieves files from one directory exclusively.
+Use the Get a File with FTP workflow action to retrieve one or more files from an FTP server.
+This workflow action does not "crawl" systems.
+It will not, for example, access a remote directory and go to other directories to find files that match a wildcard.
+This workflow retrieves files from one directory exclusively.
 
 == Options
 
 === General
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Workflow action name|The name of the workflow action.
+*Note*: This name has to be unique in a single workflow.
+A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |FTP server name/IP address|The name of the server or the IP address.
 |Server Port|Port number of the FTP server.
 |Username|The user name associated with FTP server account.
@@ -41,18 +46,21 @@ Use the Get a File with FTP workflow action to retrieve one or more files from a
 |Proxy password|Proxy server account password.
 |Binary mode|Enable if files must be transferred in binary mode.
 |Timeout|The FTP server timeout in seconds.
-|Use Active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open. The default is Passive mode.
-|Control Encoding|Encoding matters when retrieving file names that contain special characters. For Western Europe and the USA, ISO-8859-1 usually suffices. Select encoding that is valid for your server. 
+|Use Active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open.
+The default is Passive mode.
+|Control Encoding|Encoding matters when retrieving file names that contain special characters.
+For Western Europe and the USA, ISO-8859-1 usually suffices.
+Select encoding that is valid for your server.
 |===
-
 
 === Files
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Remote directory|The remote directory on FTP server from which files are taken.
-|Wildcard (regular expression)|Regular expression when you want to select multiple files. For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, ending with a number and .txt
+|Wildcard (regular expression)|Regular expression when you want to select multiple files.
+For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, ending with a number and .txt
 |Remove files after retrieval|Remove the files on the FTP server, but only after all selected files have been successfully transferred.
 |Move to Folder|Moves files to specified folder.
 |Create Folder|Creates folder that will contain files.
@@ -69,7 +77,7 @@ Use the Get a File with FTP workflow action to retrieve one or more files from a
 
 === Advanced
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Success on|Sets conditions of success.
@@ -78,7 +86,7 @@ Use the Get a File with FTP workflow action to retrieve one or more files from a
 
 === Socks Proxy
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Host|Socks Proxy host name.

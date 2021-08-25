@@ -37,5 +37,4 @@ public class FieldSplitterData extends BaseTransformData implements ITransformDa
   public FieldSplitterData() {
     super();
   }
-
 }

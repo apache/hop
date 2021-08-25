@@ -21,17 +21,20 @@ under the License.
 
 == Description
 
-This transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship. The transform generates the required Cypher statements with accompanying parameters.
+This transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
+The transform generates the required Cypher statements with accompanying parameters.
 
 == Usage
 
-You can update one node or two nodes and a relationship. Nodes and relationships can have properties and the appropriate MERGE statements will be generated based on the information you provided. Make use of the "Get fields" buttons on the right hand side of the dialog to prevent you from having to type too much.
+You can update one node or two nodes and a relationship.
+Nodes and relationships can have properties and the appropriate MERGE statements will be generated based on the information you provided.
+Make use of the "Get fields" buttons on the right hand side of the dialog to prevent you from having to type too much.
 
 == Labels
 
-You can get one node labels from a list of fields or you can use static values (with optionally variables). If you specify both the static value will be used if the field value is null. A label will not be used for the node if the label is null or empty.
-
-
+You can get one node labels from a list of fields or you can use static values (with optionally variables).
+If you specify both the static value will be used if the field value is null.
+A label will not be used for the node if the label is null or empty.
 
 == Notable options
 
@@ -45,6 +48,8 @@ You can get one node labels from a list of fields or you can use static values (
 |this bypasses any lookup and is faster.
 
 |Create indexes
-|creates unique field constraints for all Primary properties in the nodes to make sure performance stays good when dealing with merges and lookup of nodes for relationships. **NOTE:** Please consider only using this when doing prototyping and testing. It's better to put the index creation statements explicitly in a Cypher Script action to make sure you never forget it even when moving to a new database.
+|creates unique field constraints for all Primary properties in the nodes to make sure performance stays good when dealing with merges and lookup of nodes for relationships.
+**NOTE:** Please consider only using this when doing prototyping and testing.
+It's better to put the index creation statements explicitly in a Cypher Script action to make sure you never forget it even when moving to a new database.
 
 |===

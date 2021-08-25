@@ -23,11 +23,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.IProgressMonitor;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -37,9 +33,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
@@ -53,23 +47,19 @@ import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The definition of a Hop workflow is represented by a WorkflowMeta object. It is typically loaded
@@ -81,12 +71,7 @@ import java.util.Map;
  * @since 11-08-2003
  */
 public class WorkflowMeta extends AbstractMeta
-    implements Cloneable,
-        Comparable<WorkflowMeta>,
-        IXml,
-        IResourceExport,
-        ILoggingObject,
-        IHasFilename {
+    implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
   private static final Class<?> PKG = WorkflowMeta.class; // For Translator
 
   public static final String WORKFLOW_EXTENSION = ".hwf";
@@ -110,9 +95,6 @@ public class WorkflowMeta extends AbstractMeta
   protected String startActionName;
 
   protected boolean expandingRemoteWorkflow;
-
-  /** The log channel interface. */
-  protected ILogChannel log;
 
   /** Constant = "OK" */
   public static final String STRING_SPECIAL_OK = "OK";
@@ -153,8 +135,6 @@ public class WorkflowMeta extends AbstractMeta
     addDefaults();
     workflowStatus = -1;
     workflowVersion = null;
-
-    log = LogChannel.GENERAL;
   }
 
   /** Adds the defaults. */
@@ -1918,15 +1898,6 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Gets the log channel.
-   *
-   * @return the log channel
-   */
-  public ILogChannel getLogChannel() {
-    return log;
-  }
-
-  /**
    * Create a unique list of action interfaces
    *
    * @return
@@ -1960,31 +1931,6 @@ public class WorkflowMeta extends AbstractMeta
   public LoggingObjectType getObjectType() {
     return LoggingObjectType.WORKFLOW_META;
   }
-
-  /**
-   * Returns whether or not the workflow is gathering metrics. For a WorkflowMeta this is always
-   * false.
-   *
-   * @return is gathering metrics = false;
-   */
-  @Override
-  public boolean isGatheringMetrics() {
-    return false;
-  }
-
-  /**
-   * Sets whether or not the workflow is gathering metrics. This is a stub with not executable code.
-   */
-  @Override
-  public void setGatheringMetrics(boolean gatheringMetrics) {}
-
-  @Override
-  public boolean isForcingSeparateLogging() {
-    return false;
-  }
-
-  @Override
-  public void setForcingSeparateLogging(boolean forcingSeparateLogging) {}
 
   public boolean containsAction(ActionMeta actionMeta) {
     return workflowActions.contains(actionMeta);

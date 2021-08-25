@@ -34,15 +34,15 @@ public class SwingUniversalImageSvg extends SwingUniversalImage {
   private final GraphicsNode svgGraphicsNode;
   private final Dimension2D svgGraphicsSize;
 
-  public SwingUniversalImageSvg( SvgImage svg ) {
+  public SwingUniversalImageSvg(SvgImage svg) {
     this.svg = svg;
 
     // get GraphicsNode and size from svg document
     UserAgentAdapter userAgentAdapter = new UserAgentAdapter();
-    DocumentLoader documentLoader = new DocumentLoader( userAgentAdapter );
-    BridgeContext ctx = new BridgeContext( userAgentAdapter, documentLoader );
+    DocumentLoader documentLoader = new DocumentLoader(userAgentAdapter);
+    BridgeContext ctx = new BridgeContext(userAgentAdapter, documentLoader);
     GVTBuilder builder = new GVTBuilder();
-    svgGraphicsNode = builder.build( ctx, svg.getDocument() );
+    svgGraphicsNode = builder.build(ctx, svg.getDocument());
     svgGraphicsSize = ctx.getDocumentSize();
   }
 
@@ -52,40 +52,46 @@ public class SwingUniversalImageSvg extends SwingUniversalImage {
   }
 
   @Override
-  protected void renderSimple( BufferedImage area ) {
-    Graphics2D gc = createGraphics( area );
+  protected void renderSimple(BufferedImage area) {
+    Graphics2D gc = createGraphics(area);
 
-    render( gc, area.getWidth() / 2, area.getHeight() / 2, area.getWidth(), area.getHeight(), 0 );
+    render(gc, area.getWidth() / 2, area.getHeight() / 2, area.getWidth(), area.getHeight(), 0);
 
     gc.dispose();
   }
 
-  /**
-   * Draw SVG image to Graphics2D.
-   */
+  /** Draw SVG image to Graphics2D. */
   @Override
-  protected void render( Graphics2D gc, int centerX, int centerY, int width, int height, double angleRadians ) {
-    render( gc, svgGraphicsNode, svgGraphicsSize, centerX, centerY, width, height, angleRadians );
+  protected void render(
+      Graphics2D gc, int centerX, int centerY, int width, int height, double angleRadians) {
+    render(gc, svgGraphicsNode, svgGraphicsSize, centerX, centerY, width, height, angleRadians);
   }
 
-  public static void render( Graphics2D gc, GraphicsNode svgGraphicsNode, Dimension2D svgGraphicsSize, int centerX,
-                             int centerY, int width, int height, double angleRadians ) {
+  public static void render(
+      Graphics2D gc,
+      GraphicsNode svgGraphicsNode,
+      Dimension2D svgGraphicsSize,
+      int centerX,
+      int centerY,
+      int width,
+      int height,
+      double angleRadians) {
     double scaleX = width / svgGraphicsSize.getWidth();
     double scaleY = height / svgGraphicsSize.getHeight();
 
     AffineTransform affineTransform = new AffineTransform();
-    if ( centerX != 0 || centerY != 0 ) {
-      affineTransform.translate( centerX, centerY );
+    if (centerX != 0 || centerY != 0) {
+      affineTransform.translate(centerX, centerY);
     }
-    affineTransform.scale( scaleX, scaleY );
-    if ( angleRadians != 0 ) {
-      affineTransform.rotate( angleRadians );
+    affineTransform.scale(scaleX, scaleY);
+    if (angleRadians != 0) {
+      affineTransform.rotate(angleRadians);
     }
-    affineTransform.translate( -svgGraphicsSize.getWidth() / 2, -svgGraphicsSize.getHeight() / 2 );
+    affineTransform.translate(-svgGraphicsSize.getWidth() / 2, -svgGraphicsSize.getHeight() / 2);
 
-    svgGraphicsNode.setTransform( affineTransform );
+    svgGraphicsNode.setTransform(affineTransform);
 
-    svgGraphicsNode.paint( gc );
+    svgGraphicsNode.paint(gc);
   }
 
   /**

@@ -22,41 +22,37 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class SalesforceRecordValueTest {
 
   @Test
   public void testClass() {
-    SalesforceRecordValue srv = new SalesforceRecordValue( 100 );
-    assertEquals( 100, srv.getRecordIndex() );
-    assertNull( srv.getRecordValue() );
-    assertFalse( srv.isRecordIndexChanges() );
-    assertFalse( srv.isAllRecordsProcessed() );
-    assertNull( srv.getDeletionDate() );
+    SalesforceRecordValue srv = new SalesforceRecordValue(100);
+    assertEquals(100, srv.getRecordIndex());
+    assertNull(srv.getRecordValue());
+    assertFalse(srv.isRecordIndexChanges());
+    assertFalse(srv.isAllRecordsProcessed());
+    assertNull(srv.getDeletionDate());
 
-    srv.setRecordIndex( 120 );
-    assertEquals( 120, srv.getRecordIndex() );
+    srv.setRecordIndex(120);
+    assertEquals(120, srv.getRecordIndex());
 
-    srv.setRecordValue( mock( SObject.class ) );
-    assertNotNull( srv.getRecordValue() );
+    srv.setRecordValue(mock(SObject.class));
+    assertNotNull(srv.getRecordValue());
 
-    srv.setAllRecordsProcessed( true );
-    assertTrue( srv.isAllRecordsProcessed() );
-    srv.setAllRecordsProcessed( false );
-    assertFalse( srv.isRecordIndexChanges() );
+    srv.setAllRecordsProcessed(true);
+    assertTrue(srv.isAllRecordsProcessed());
+    srv.setAllRecordsProcessed(false);
+    assertFalse(srv.isRecordIndexChanges());
 
-    srv.setRecordIndexChanges( true );
-    assertTrue( srv.isRecordIndexChanges() );
-    srv.setRecordIndexChanges( false );
-    assertFalse( srv.isRecordIndexChanges() );
+    srv.setRecordIndexChanges(true);
+    assertTrue(srv.isRecordIndexChanges());
+    srv.setRecordIndexChanges(false);
+    assertFalse(srv.isRecordIndexChanges());
 
-    srv.setDeletionDate( new Date() );
-    assertNotNull( srv.getDeletionDate() );
+    srv.setDeletionDate(new Date());
+    assertNotNull(srv.getDeletionDate());
   }
 }

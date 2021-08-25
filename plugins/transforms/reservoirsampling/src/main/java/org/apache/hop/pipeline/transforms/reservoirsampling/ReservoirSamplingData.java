@@ -26,13 +26,14 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Holds temporary data (i.e. sampled rows). Implements the reservoir sampling algorithm "R" by Jeffrey Scott Vitter.
- * <p>
- * For more information see:<br>
+ * Holds temporary data (i.e. sampled rows). Implements the reservoir sampling algorithm "R" by
+ * Jeffrey Scott Vitter.
+ *
+ * <p>For more information see:<br>
  * <br>
- * <p>
- * Vitter, J. S. Random Sampling with a Reservoir. ACM Transactions on Mathematical Software, Vol. 11, No. 1, March
- * 1985. Pages 37-57.
+ *
+ * <p>Vitter, J. S. Random Sampling with a Reservoir. ACM Transactions on Mathematical Software,
+ * Vol. 11, No. 1, March 1985. Pages 37-57.
  *
  * @version 1.0
  */
@@ -57,7 +58,9 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
   protected PROC_MODE m_state;
 
   public enum PROC_MODE {
-    SAMPLING, PASSTHROUGH, DISABLED
+    SAMPLING,
+    PASSTHROUGH,
+    DISABLED
   }
 
   /**
@@ -65,7 +68,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    *
    * @param rmi a <code>IRowMeta</code> value
    */
-  public void setOutputRowMeta( IRowMeta rmi ) {
+  public void setOutputRowMeta(IRowMeta rmi) {
     mOutputRowMeta = rmi;
   }
 
@@ -91,32 +94,32 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    * Initialize this data object
    *
    * @param sampleSize the number of rows to sample
-   * @param seed       the seed for the random number generator
+   * @param seed the seed for the random number generator
    */
-  public void initialize( int sampleSize, int seed ) {
+  public void initialize(int sampleSize, int seed) {
     m_k = sampleSize;
 
-    if ( m_k == 0 ) {
+    if (m_k == 0) {
       m_state = PROC_MODE.PASSTHROUGH;
-    } else if ( m_k < 0 ) {
+    } else if (m_k < 0) {
       m_state = PROC_MODE.DISABLED;
-    } else if ( m_k > 0 ) {
+    } else if (m_k > 0) {
       m_state = PROC_MODE.SAMPLING;
     }
 
-    m_sample = ( m_k > 0 ) ? new ArrayList<>( m_k ) : new ArrayList<>();
+    m_sample = (m_k > 0) ? new ArrayList<>(m_k) : new ArrayList<>();
     m_currentRow = 0;
-    m_random = new Random( seed );
+    m_random = new Random(seed);
 
     // throw away the first 100 random numbers
-    for ( int i = 0; i < 100; i++ ) {
+    for (int i = 0; i < 100; i++) {
       m_random.nextDouble();
     }
   }
 
   /**
-   * Determine the current operational state of the Reservoir Sampling transform. Sampling, PassThrough(Do not wait until
-   * end, pass through on the fly), Disabled.
+   * Determine the current operational state of the Reservoir Sampling transform. Sampling,
+   * PassThrough(Do not wait until end, pass through on the fly), Disabled.
    *
    * @return current operational state
    */
@@ -129,26 +132,27 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    *
    * @param state member of PROC_MODE enumeration indicating the desired operational state
    */
-  public void setProcessingMode( PROC_MODE state ) {
+  public void setProcessingMode(PROC_MODE state) {
     this.m_state = state;
   }
 
   /**
-   * Here is where the action happens. Sampling is done using the "R" algorithm of Jeffrey Scott Vitter.
+   * Here is where the action happens. Sampling is done using the "R" algorithm of Jeffrey Scott
+   * Vitter.
    *
    * @param row an incoming row
    */
-  public void processRow( Object[] row ) {
-    if ( m_currentRow < m_k ) {
+  public void processRow(Object[] row) {
+    if (m_currentRow < m_k) {
       // Fill sample size with first available data
-      setElement( m_sample, m_currentRow, row );
-    } else if ( m_k > 0 ) {
+      setElement(m_sample, m_currentRow, row);
+    } else if (m_k > 0) {
       // Replace random positions within the sample
       double r = m_random.nextDouble();
-      if ( r < ( (double) m_k / (double) m_currentRow ) ) {
+      if (r < ((double) m_k / (double) m_currentRow)) {
         r = m_random.nextDouble();
-        int replace = (int) ( m_k * r );
-        setElement( m_sample, replace, row );
+        int replace = (int) (m_k * r);
+        setElement(m_sample, replace, row);
       }
     }
     m_currentRow++;
@@ -157,16 +161,15 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
   // brute force way of filling list when item index is out of range,
   // should be ported to a commons or some library call or something
   // that works well with the "R" randomizing algorithm
-  private void setElement( List<Object[]> list, int idx, Object item ) {
+  private void setElement(List<Object[]> list, int idx, Object item) {
     final int size = list.size();
-    if ( size <= idx ) {
-      int buff = ( size == 0 ) ? 100 : size * 2;
-      for ( int i = 0; i < buff; i++ ) {
-        list.add( null );
+    if (size <= idx) {
+      int buff = (size == 0) ? 100 : size * 2;
+      for (int i = 0; i < buff; i++) {
+        list.add(null);
       }
     }
-    list.set( idx, (Object[]) item );
-
+    list.set(idx, (Object[]) item);
   }
 
   public void cleanUp() {

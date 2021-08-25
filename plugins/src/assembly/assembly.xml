@@ -18,26 +18,26 @@
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>samples</id>
-  <formats>
-    <format>dir</format>
-  </formats>
+    <id>samples</id>
+    <formats>
+        <format>dir</format>
+    </formats>
 
-  <includeBaseDirectory>false</includeBaseDirectory>
-  <moduleSets>
-    <moduleSet>
-      <sources>
-        <includeModuleDirectory>false</includeModuleDirectory>
-        <fileSets>
-          <fileSet>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-              <include>src/main/samples/**</include>
-            </includes>
-          </fileSet>
-        </fileSets>
-      </sources>
-    </moduleSet>
-  </moduleSets>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <moduleSets>
+        <moduleSet>
+            <sources>
+                <includeModuleDirectory>false</includeModuleDirectory>
+                <fileSets>
+                    <fileSet>
+                        <outputDirectory>/</outputDirectory>
+                        <includes>
+                            <include>src/main/samples/**</include>
+                        </includes>
+                    </fileSet>
+                </fileSets>
+            </sources>
+        </moduleSet>
+    </moduleSets>
 
 </assembly>

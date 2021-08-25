@@ -27,13 +27,13 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.IResourceNaming;
-import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
 import java.util.List;

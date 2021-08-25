@@ -18,7 +18,7 @@
 package org.apache.hop.core.injection;
 
 public class MetaBeanLevel4 {
-  @Injection( name = "FILENAME" )
+  @Injection(name = "FILENAME")
   private String name;
 
   public String getName() {

@@ -60,7 +60,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
       if (meta.getExecuteForEachIncomingRow() && currentInputRowDrivingQuery == null) {
         currentInputRowDrivingQuery = getRow();
 
-        if ( currentInputRowDrivingQuery == null) {
+        if (currentInputRowDrivingQuery == null) {
           // no more input, no more queries to make
           setOutputDone();
           return false;
@@ -99,7 +99,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
           nextDoc = data.cursor.next();
         }
 
-        if (!meta.isQueryIsPipeline() && !serverDetermined ) {
+        if (!meta.isQueryIsPipeline() && !serverDetermined) {
           ServerAddress s = data.cursor.getServerAddress();
           if (s != null) {
             serverDetermined = true;
@@ -181,7 +181,7 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
 
         if (meta.getExecuteForEachIncomingRow() && currentInputRowDrivingQuery != null) {
           // do field value substitution
-          query = resolve(query, getInputRowMeta(), currentInputRowDrivingQuery );
+          query = resolve(query, getInputRowMeta(), currentInputRowDrivingQuery);
         }
 
         logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.QueryPulledDataFrom", query));
@@ -204,9 +204,9 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
       } else {
         if (meta.getExecuteForEachIncomingRow() && currentInputRowDrivingQuery != null) {
           // do field value substitution
-          query = resolve(query, getInputRowMeta(), currentInputRowDrivingQuery );
+          query = resolve(query, getInputRowMeta(), currentInputRowDrivingQuery);
 
-          fields = resolve(fields, getInputRowMeta(), currentInputRowDrivingQuery );
+          fields = resolve(fields, getInputRowMeta(), currentInputRowDrivingQuery);
         }
 
         logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.ExecutingQuery", query));

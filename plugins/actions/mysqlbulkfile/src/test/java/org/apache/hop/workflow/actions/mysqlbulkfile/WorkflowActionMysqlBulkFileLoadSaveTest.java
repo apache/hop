@@ -17,14 +17,15 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkfile;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionMysqlBulkFileLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionMysqlBulkFile> {
+public class WorkflowActionMysqlBulkFileLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionMysqlBulkFile> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
@@ -34,9 +35,22 @@ public class WorkflowActionMysqlBulkFileLoadSaveTest extends WorkflowActionLoadS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "schemaName", "tableName", "filename", "separator", "enclosed",
-      "optionEnclosed", "lineTerminated", "limitLines", "listColumn", "highPriority", "outDumpValue",
-      "ifFileExists", "addFileToResult", "database" } );
+    return Arrays.asList(
+        new String[] {
+          "schemaName",
+          "tableName",
+          "filename",
+          "separator",
+          "enclosed",
+          "optionEnclosed",
+          "lineTerminated",
+          "limitLines",
+          "listColumn",
+          "highPriority",
+          "outDumpValue",
+          "ifFileExists",
+          "addFileToResult",
+          "database"
+        });
   }
-
 }

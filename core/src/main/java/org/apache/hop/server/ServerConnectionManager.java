@@ -36,8 +36,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
- * Encapsulates the Apache commons HTTP connection manager with a singleton. We can use this to limit the number of open
- * connections to hop servers.
+ * Encapsulates the Apache commons HTTP connection manager with a singleton. We can use this to
+ * limit the number of open connections to hop servers.
  *
  * @author matt
  */
@@ -51,67 +51,63 @@ public class ServerConnectionManager {
   private PoolingHttpClientConnectionManager manager;
 
   private ServerConnectionManager() {
-    if ( needToInitializeSSLContext() ) {
+    if (needToInitializeSSLContext()) {
       try {
-        SSLContext context = SSLContext.getInstance( SSL );
-        context.init( new KeyManager[ 0 ], new X509TrustManager[] { getDefaultTrustManager() }, new SecureRandom() );
-        SSLContext.setDefault( context );
-      } catch ( Exception e ) {
-        //log.logError( "Default SSL context hasn't been initialized", e );
+        SSLContext context = SSLContext.getInstance(SSL);
+        context.init(
+            new KeyManager[0],
+            new X509TrustManager[] {getDefaultTrustManager()},
+            new SecureRandom());
+        SSLContext.setDefault(context);
+      } catch (Exception e) {
+        // log.logError( "Default SSL context hasn't been initialized", e );
       }
     }
     manager = new PoolingHttpClientConnectionManager();
-    manager.setDefaultMaxPerRoute( 100 );
-    manager.setMaxTotal( 200 );
+    manager.setDefaultMaxPerRoute(100);
+    manager.setMaxTotal(200);
   }
 
   private static boolean needToInitializeSSLContext() {
-    return System.getProperty( KEYSTORE_SYSTEM_PROPERTY ) == null;
+    return System.getProperty(KEYSTORE_SYSTEM_PROPERTY) == null;
   }
 
   public static ServerConnectionManager getInstance() {
-    if ( serverConnectionManager == null ) {
+    if (serverConnectionManager == null) {
       serverConnectionManager = new ServerConnectionManager();
     }
     return serverConnectionManager;
   }
 
   public HttpClient createHttpClient() {
-    return HttpClients.custom().setConnectionManager( manager )
-      .build();
+    return HttpClients.custom().setConnectionManager(manager).build();
   }
 
-  public HttpClient createHttpClient( String user, String password ) {
+  public HttpClient createHttpClient(String user, String password) {
     CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials( user, password );
-    provider.setCredentials( AuthScope.ANY, credentials );
+    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
+    provider.setCredentials(AuthScope.ANY, credentials);
 
-    return
-      HttpClientBuilder
-        .create()
-        .setDefaultCredentialsProvider( provider )
-        .setConnectionManager( manager )
+    return HttpClientBuilder.create()
+        .setDefaultCredentialsProvider(provider)
+        .setConnectionManager(manager)
         .build();
   }
 
-  public HttpClient createHttpClient( String user, String password,
-                                      String proxyHost, int proxyPort, AuthScope authScope ) {
-    HttpHost httpHost = new HttpHost( proxyHost, proxyPort );
+  public HttpClient createHttpClient(
+      String user, String password, String proxyHost, int proxyPort, AuthScope authScope) {
+    HttpHost httpHost = new HttpHost(proxyHost, proxyPort);
 
-    RequestConfig requestConfig = RequestConfig.custom()
-      .setProxy( httpHost )
-      .build();
+    RequestConfig requestConfig = RequestConfig.custom().setProxy(httpHost).build();
 
     CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials( user, password );
-    provider.setCredentials( authScope, credentials );
+    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
+    provider.setCredentials(authScope, credentials);
 
-    return
-      HttpClientBuilder
-        .create()
-        .setDefaultCredentialsProvider( provider )
-        .setDefaultRequestConfig( requestConfig )
-        .setConnectionManager( manager )
+    return HttpClientBuilder.create()
+        .setDefaultCredentialsProvider(provider)
+        .setDefaultRequestConfig(requestConfig)
+        .setConnectionManager(manager)
         .build();
   }
 
@@ -122,12 +118,13 @@ public class ServerConnectionManager {
   private static X509TrustManager getDefaultTrustManager() {
     return new X509TrustManager() {
       @Override
-      public void checkClientTrusted( X509Certificate[] certs, String param ) throws CertificateException {
-      }
+      public void checkClientTrusted(X509Certificate[] certs, String param)
+          throws CertificateException {}
 
       @Override
-      public void checkServerTrusted( X509Certificate[] certs, String param ) throws CertificateException {
-        for ( X509Certificate cert : certs ) {
+      public void checkServerTrusted(X509Certificate[] certs, String param)
+          throws CertificateException {
+        for (X509Certificate cert : certs) {
           cert.checkValidity(); // validate date
           // cert.verify( key ); // check by Public key
           // cert.getBasicConstraints()!=-1 // check by CA

@@ -52,9 +52,7 @@ public class GetFilesRowsCountData extends BaseTransformData implements ITransfo
 
   public boolean foundData;
 
-  /**
-   *
-   */
+  /** */
   public GetFilesRowsCountData() {
     super();
     previousRow = null;
@@ -62,7 +60,7 @@ public class GetFilesRowsCountData extends BaseTransformData implements ITransfo
     previousRow = null;
 
     fr = null;
-    lineStringBuilder = new StringBuilder( 256 );
+    lineStringBuilder = new StringBuilder(256);
     totalpreviousfields = 0;
     indexOfFilenameField = -1;
     readrow = null;

@@ -32,7 +32,7 @@ public class RowCollection {
     rows = new ArrayList<>();
   }
 
-  public RowCollection( IRowMeta rowMeta, List<Object[]> rows ) {
+  public RowCollection(IRowMeta rowMeta, List<Object[]> rows) {
     this.rowMeta = rowMeta;
     this.rows = rows;
   }
@@ -41,7 +41,7 @@ public class RowCollection {
     return rowMeta;
   }
 
-  public void setRowMeta( IRowMeta rowMeta ) {
+  public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }
 
@@ -49,7 +49,7 @@ public class RowCollection {
     return rows;
   }
 
-  public void setRows( List<Object[]> rows ) {
+  public void setRows(List<Object[]> rows) {
     this.rows = rows;
   }
 }

@@ -17,12 +17,7 @@
 
 package org.apache.hop.vfs.s3.s3common;
 
-import org.apache.commons.vfs2.Capability;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileSystem;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.UserAuthenticationData;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 
 import java.util.Arrays;

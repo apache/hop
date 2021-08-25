@@ -24,18 +24,9 @@ import org.apache.hop.core.HopVariablesList;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParameterDefinitions;
-import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.parameters.NamedParameters;
-import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -43,47 +34,22 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
-import org.apache.hop.pipeline.IExecutionStartedListener;
-import org.apache.hop.pipeline.IExecutionStoppedListener;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.*;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
-import org.apache.hop.pipeline.engine.EngineMetrics;
-import org.apache.hop.pipeline.engine.IEngineComponent;
-import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
-import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.HopServerPipelineStatus;
-import org.apache.hop.www.PrepareExecutionPipelineServlet;
-import org.apache.hop.www.RegisterPackageServlet;
-import org.apache.hop.www.RegisterPipelineServlet;
-import org.apache.hop.www.SniffTransformServlet;
-import org.apache.hop.www.StartExecutionPipelineServlet;
-import org.apache.hop.www.WebResult;
+import org.apache.hop.www.*;
 import org.w3c.dom.Node;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 @PipelineEnginePlugin(
     id = "Remote",
@@ -215,7 +181,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // Create a new log channel when we start the action
       // It's only now that we use it
       //
-      this.logChannel = new LogChannel(this, subject);
+      this.logChannel = new LogChannel(this, getParent());
       loggingObject = new LoggingObject(this);
       this.logChannel.setLogLevel(logLevel);
 

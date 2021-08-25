@@ -18,5 +18,6 @@
 package org.apache.hop.testing;
 
 public enum TestType {
-  DEVELOPMENT, UNIT_TEST;
+  DEVELOPMENT,
+  UNIT_TEST;
 }

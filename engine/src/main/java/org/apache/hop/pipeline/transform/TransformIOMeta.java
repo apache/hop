@@ -39,13 +39,18 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * @param inputAcceptor
    * @param outputProducer
    */
-  public TransformIOMeta( boolean inputAcceptor, boolean outputProducer, boolean inputOptional,
-                          boolean sortedDataRequired, boolean inputDynamic, boolean outputDynamic ) {
+  public TransformIOMeta(
+      boolean inputAcceptor,
+      boolean outputProducer,
+      boolean inputOptional,
+      boolean sortedDataRequired,
+      boolean inputDynamic,
+      boolean outputDynamic) {
     this.inputAcceptor = inputAcceptor;
     this.outputProducer = outputProducer;
     this.inputOptional = inputOptional;
     this.sortedDataRequired = sortedDataRequired;
-    this.streams = java.util.Collections.synchronizedList( new ArrayList<>() );
+    this.streams = java.util.Collections.synchronizedList(new ArrayList<>());
     this.inputDynamic = inputDynamic;
     this.outputDynamic = outputDynamic;
   }
@@ -54,63 +59,51 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   protected TransformIOMeta clone() throws CloneNotSupportedException {
     TransformIOMeta ioMeta = (TransformIOMeta) super.clone();
 
-    List<IStream> cloneStreams = new ArrayList<>( streams );
-    ioMeta.streams = java.util.Collections.synchronizedList( cloneStreams );
+    List<IStream> cloneStreams = new ArrayList<>(streams);
+    ioMeta.streams = java.util.Collections.synchronizedList(cloneStreams);
     return ioMeta;
   }
 
-  /**
-   * @return the inputAcceptor
-   */
+  /** @return the inputAcceptor */
   public boolean isInputAcceptor() {
     return inputAcceptor;
   }
 
-  /**
-   * @param inputAcceptor the inputAcceptor to set
-   */
-  public void setInputAcceptor( boolean inputAcceptor ) {
+  /** @param inputAcceptor the inputAcceptor to set */
+  public void setInputAcceptor(boolean inputAcceptor) {
     this.inputAcceptor = inputAcceptor;
   }
 
-  /**
-   * @return the outputProducer
-   */
+  /** @return the outputProducer */
   public boolean isOutputProducer() {
     return outputProducer;
   }
 
-  /**
-   * @param outputProducer the outputProducer to set
-   */
-  public void setOutputProducer( boolean outputProducer ) {
+  /** @param outputProducer the outputProducer to set */
+  public void setOutputProducer(boolean outputProducer) {
     this.outputProducer = outputProducer;
   }
 
-  /**
-   * @return the inputOptional
-   */
+  /** @return the inputOptional */
   public boolean isInputOptional() {
     return inputOptional;
   }
 
-  /**
-   * @param inputOptional the inputOptional to set
-   */
-  public void setInputOptional( boolean inputOptional ) {
+  /** @param inputOptional the inputOptional to set */
+  public void setInputOptional(boolean inputOptional) {
     this.inputOptional = inputOptional;
   }
 
   /**
-   * @return the info streams of this transform. Important: Modifying this list does not have any effect on the Transforms IO
-   * metadata.
+   * @return the info streams of this transform. Important: Modifying this list does not have any
+   *     effect on the Transforms IO metadata.
    */
   public List<IStream> getInfoStreams() {
     List<IStream> list = new ArrayList<>();
-    synchronized ( streams ) {
-      for ( IStream stream : streams ) {
-        if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {
-          list.add( stream );
+    synchronized (streams) {
+      for (IStream stream : streams) {
+        if (stream.getStreamType().equals(IStream.StreamType.INFO)) {
+          list.add(stream);
         }
       }
     }
@@ -118,53 +111,49 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /**
-   * @return the target streams of this transform. Important: Modifying this list does not have any effect on the Transforms IO
-   * metadata.
+   * @return the target streams of this transform. Important: Modifying this list does not have any
+   *     effect on the Transforms IO metadata.
    */
   public List<IStream> getTargetStreams() {
     List<IStream> list = new ArrayList<>();
-    synchronized ( streams ) {
-      for ( IStream stream : streams ) {
-        if ( stream.getStreamType().equals( IStream.StreamType.TARGET ) ) {
-          list.add( stream );
+    synchronized (streams) {
+      for (IStream stream : streams) {
+        if (stream.getStreamType().equals(IStream.StreamType.TARGET)) {
+          list.add(stream);
         }
       }
     }
     return list;
   }
 
-  /**
-   * @return the sortedDataRequired
-   */
+  /** @return the sortedDataRequired */
   public boolean isSortedDataRequired() {
     return sortedDataRequired;
   }
 
-  /**
-   * @param sortedDataRequired the sortedDataRequired to set
-   */
-  public void setSortedDataRequired( boolean sortedDataRequired ) {
+  /** @param sortedDataRequired the sortedDataRequired to set */
+  public void setSortedDataRequired(boolean sortedDataRequired) {
     this.sortedDataRequired = sortedDataRequired;
   }
 
-  public void addStream( IStream stream ) {
-    streams.add( stream );
+  public void addStream(IStream stream) {
+    streams.add(stream);
   }
 
   public String[] getInfoTransformNames() {
     List<IStream> infoStreams = getInfoStreams();
-    String[] names = new String[ infoStreams.size() ];
-    for ( int i = 0; i < names.length; i++ ) {
-      names[ i ] = infoStreams.get( i ).getTransformName();
+    String[] names = new String[infoStreams.size()];
+    for (int i = 0; i < names.length; i++) {
+      names[i] = infoStreams.get(i).getTransformName();
     }
     return names;
   }
 
   public String[] getTargetTransformNames() {
     List<IStream> targetStreams = getTargetStreams();
-    String[] names = new String[ targetStreams.size() ];
-    for ( int i = 0; i < names.length; i++ ) {
-      names[ i ] = targetStreams.get( i ).getTransformName();
+    String[] names = new String[targetStreams.size()];
+    for (int i = 0; i < names.length; i++) {
+      names[i] = targetStreams.get(i).getTransformName();
     }
     return names;
   }
@@ -174,50 +163,42 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    *
    * @param infoTransforms
    */
-  public void setInfoTransforms( TransformMeta[] infoTransforms ) {
+  public void setInfoTransforms(TransformMeta[] infoTransforms) {
     // First get the info transforms...
     //
     List<IStream> list = new ArrayList<>();
-    synchronized ( streams ) {
-      for ( IStream stream : streams ) {
-        if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {
-          list.add( stream );
+    synchronized (streams) {
+      for (IStream stream : streams) {
+        if (stream.getStreamType().equals(IStream.StreamType.INFO)) {
+          list.add(stream);
         }
       }
     }
-    for ( int i = 0; i < infoTransforms.length; i++ ) {
-      if ( i >= list.size() ) {
-        throw new RuntimeException( "We expect all possible info streams to be pre-populated!" );
+    for (int i = 0; i < infoTransforms.length; i++) {
+      if (i >= list.size()) {
+        throw new RuntimeException("We expect all possible info streams to be pre-populated!");
       }
-      streams.get( i ).setTransformMeta( infoTransforms[ i ] );
+      streams.get(i).setTransformMeta(infoTransforms[i]);
     }
   }
 
-  /**
-   * @return the generalInfoDescription
-   */
+  /** @return the generalInfoDescription */
   public String getGeneralInfoDescription() {
     return generalInfoDescription;
   }
 
-  /**
-   * @param generalInfoDescription the generalInfoDescription to set
-   */
-  public void setGeneralInfoDescription( String generalInfoDescription ) {
+  /** @param generalInfoDescription the generalInfoDescription to set */
+  public void setGeneralInfoDescription(String generalInfoDescription) {
     this.generalInfoDescription = generalInfoDescription;
   }
 
-  /**
-   * @return the generalTargetDescription
-   */
+  /** @return the generalTargetDescription */
   public String getGeneralTargetDescription() {
     return generalTargetDescription;
   }
 
-  /**
-   * @param generalTargetDescription the generalTargetDescription to set
-   */
-  public void setGeneralTargetDescription( String generalTargetDescription ) {
+  /** @param generalTargetDescription the generalTargetDescription to set */
+  public void setGeneralTargetDescription(String generalTargetDescription) {
     this.generalTargetDescription = generalTargetDescription;
   }
 
@@ -225,46 +206,38 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     streams.clear();
   }
 
-  /**
-   * @return the outputDynamic
-   */
+  /** @return the outputDynamic */
   public boolean isOutputDynamic() {
     return outputDynamic;
   }
 
-  /**
-   * @param outputDynamic the outputDynamic to set
-   */
-  public void setOutputDynamic( boolean outputDynamic ) {
+  /** @param outputDynamic the outputDynamic to set */
+  public void setOutputDynamic(boolean outputDynamic) {
     this.outputDynamic = outputDynamic;
   }
 
-  /**
-   * @return the inputDynamic
-   */
+  /** @return the inputDynamic */
   public boolean isInputDynamic() {
     return inputDynamic;
   }
 
-  /**
-   * @param inputDynamic the inputDynamic to set
-   */
-  public void setInputDynamic( boolean inputDynamic ) {
+  /** @param inputDynamic the inputDynamic to set */
+  public void setInputDynamic(boolean inputDynamic) {
     this.inputDynamic = inputDynamic;
   }
 
-  public IStream findTargetStream( TransformMeta targetTransform ) {
-    for ( IStream stream : getTargetStreams() ) {
-      if ( targetTransform.equals( stream.getTransformMeta() ) ) {
+  public IStream findTargetStream(TransformMeta targetTransform) {
+    for (IStream stream : getTargetStreams()) {
+      if (targetTransform.equals(stream.getTransformMeta())) {
         return stream;
       }
     }
     return null;
   }
 
-  public IStream findInfoStream( TransformMeta infoTransform ) {
-    for ( IStream stream : getInfoStreams() ) {
-      if ( infoTransform.equals( stream.getTransformMeta() ) ) {
+  public IStream findInfoStream(TransformMeta infoTransform) {
+    for (IStream stream : getInfoStreams()) {
+      if (infoTransform.equals(stream.getTransformMeta())) {
         return stream;
       }
     }

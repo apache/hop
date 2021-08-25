@@ -24,7 +24,7 @@ import javax.xml.namespace.QName;
 public class WsdlOpParameterContainer implements WsdlParamContainer {
   private WsdlOpParameter parameter;
 
-  public WsdlOpParameterContainer( WsdlOpParameter parameter ) {
+  public WsdlOpParameterContainer(WsdlOpParameter parameter) {
     this.parameter = parameter;
   }
 
@@ -33,35 +33,39 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
   }
 
   public String[] getParamNames() {
-    if ( parameter.isArray() ) {
-      if ( parameter.getItemComplexType() != null ) {
-        return parameter.getItemComplexType().listObjectNames().toArray(
-          new String[ parameter.getItemComplexType().listObjectNames().size() ] );
+    if (parameter.isArray()) {
+      if (parameter.getItemComplexType() != null) {
+        return parameter
+            .getItemComplexType()
+            .listObjectNames()
+            .toArray(new String[parameter.getItemComplexType().listObjectNames().size()]);
       } else {
-        if ( parameter.getItemXmlType() != null ) {
-          return new String[] { parameter.getItemXmlType().getLocalPart() };
+        if (parameter.getItemXmlType() != null) {
+          return new String[] {parameter.getItemXmlType().getLocalPart()};
         } else {
-          return new String[] { parameter.getName().getLocalPart(), };
+          return new String[] {
+            parameter.getName().getLocalPart(),
+          };
         }
       }
     } else {
-      return new String[] { parameter.getName().getLocalPart() };
+      return new String[] {parameter.getName().getLocalPart()};
     }
   }
 
-  public String getParamType( String paramName ) {
-    if ( parameter.isArray() ) {
-      if ( parameter.getItemComplexType() != null ) {
-        QName name = parameter.getItemComplexType().getElementType( paramName );
+  public String getParamType(String paramName) {
+    if (parameter.isArray()) {
+      if (parameter.getItemComplexType() != null) {
+        QName name = parameter.getItemComplexType().getElementType(paramName);
         return name == null ? null : name.getLocalPart();
       } else {
-        if ( parameter.getItemXmlType() != null ) {
+        if (parameter.getItemXmlType() != null) {
           return parameter.getItemXmlType().getLocalPart();
         } else {
           return null;
         }
       }
-    } else if ( paramName.equals( parameter.getName().getLocalPart() ) ) {
+    } else if (paramName.equals(parameter.getName().getLocalPart())) {
       return parameter.getXmlType().getLocalPart();
     } else {
       return null;
@@ -69,9 +73,9 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
   }
 
   public String getItemName() {
-    if ( parameter.isArray() ) {
-      if ( parameter.getItemXmlType() != null
-        && !WebServiceMeta.XSD_NS_URI.equals( parameter.getItemXmlType().getNamespaceURI() ) ) {
+    if (parameter.isArray()) {
+      if (parameter.getItemXmlType() != null
+          && !WebServiceMeta.XSD_NS_URI.equals(parameter.getItemXmlType().getNamespaceURI())) {
         return parameter.getItemXmlType().getLocalPart();
       } else {
         return null;

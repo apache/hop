@@ -25,8 +25,8 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
   private String[] valueFields;
   private String counterName;
 
-  private static final Logger LOG = LoggerFactory.getLogger( HopKeyValueFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger(HopKeyValueFn.class);
 
   private transient IRowMeta inputRowMeta;
   private transient int[] keyIndexes;
@@ -54,11 +54,15 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
   private transient Counter readCounter;
   private transient Counter errorCounter;
 
-  public HopKeyValueFn() {
-  }
+  public HopKeyValueFn() {}
 
-  public HopKeyValueFn( String inputRowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses,
-                        String[] keyFields, String[] valueFields, String counterName) {
+  public HopKeyValueFn(
+      String inputRowMetaJson,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses,
+      String[] keyFields,
+      String[] valueFields,
+      String counterName) {
     this.inputRowMetaJson = inputRowMetaJson;
     this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
@@ -70,50 +74,57 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, counterName );
-      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
+      readCounter = Metrics.counter(Pipeline.METRIC_NAME_READ, counterName);
+      errorCounter = Metrics.counter(Pipeline.METRIC_NAME_ERROR, counterName);
 
       // Initialize Hop Beam
       //
       BeamHop.init(transformPluginClasses, xpPluginClasses);
-      inputRowMeta = JsonRowMeta.fromJson( inputRowMetaJson );
+      inputRowMeta = JsonRowMeta.fromJson(inputRowMetaJson);
 
       // Calculate key indexes
       //
-      if ( keyFields.length==0) {
-        throw new HopException( "There are no group fields" );
+      if (keyFields.length == 0) {
+        throw new HopException("There are no group fields");
       }
-      keyIndexes = new int[ keyFields.length];
-      for ( int i = 0; i< keyFields.length; i++) {
-        keyIndexes[i]=inputRowMeta.indexOfValue( keyFields[i] );
-        if ( keyIndexes[i]<0) {
-          throw new HopException( "Unable to find group by field '"+ keyFields[i]+"' in input "+inputRowMeta.toString() );
+      keyIndexes = new int[keyFields.length];
+      for (int i = 0; i < keyFields.length; i++) {
+        keyIndexes[i] = inputRowMeta.indexOfValue(keyFields[i]);
+        if (keyIndexes[i] < 0) {
+          throw new HopException(
+              "Unable to find group by field '"
+                  + keyFields[i]
+                  + "' in input "
+                  + inputRowMeta.toString());
         }
       }
 
       // Calculate the value indexes
       //
-      valueIndexes =new int[ valueFields.length];
-      for ( int i = 0; i< valueFields.length; i++) {
-        valueIndexes[i] = inputRowMeta.indexOfValue( valueFields[i] );
-        if ( valueIndexes[i]<0) {
-          throw new HopException( "Unable to find subject by field '"+ valueFields[i]+"' in input "+inputRowMeta.toString() );
+      valueIndexes = new int[valueFields.length];
+      for (int i = 0; i < valueFields.length; i++) {
+        valueIndexes[i] = inputRowMeta.indexOfValue(valueFields[i]);
+        if (valueIndexes[i] < 0) {
+          throw new HopException(
+              "Unable to find subject by field '"
+                  + valueFields[i]
+                  + "' in input "
+                  + inputRowMeta.toString());
         }
       }
 
       // Now that we know everything, we can split the row...
       //
-      Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
-    } catch(Exception e) {
+      Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName).inc();
+    } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error setup of splitting row into key and value", e);
-      throw new RuntimeException( "Unable to setup of split row into key and value", e );
+      throw new RuntimeException("Unable to setup of split row into key and value", e);
     }
   }
 
-
   @ProcessElement
-  public void processElement( ProcessContext processContext ) {
+  public void processElement(ProcessContext processContext) {
 
     try {
 
@@ -126,28 +137,27 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
       // Copy over the data...
       //
-      Object[] keyRow = RowDataUtil.allocateRowData( keyIndexes.length );
-      for ( int i = 0; i< keyIndexes.length; i++) {
-        keyRow[i] = inputRow[ keyIndexes[i]];
+      Object[] keyRow = RowDataUtil.allocateRowData(keyIndexes.length);
+      for (int i = 0; i < keyIndexes.length; i++) {
+        keyRow[i] = inputRow[keyIndexes[i]];
       }
 
       // Copy over the values...
       //
-      Object[] valueRow = RowDataUtil.allocateRowData( valueIndexes.length );
-      for ( int i = 0; i< valueIndexes.length; i++) {
-        valueRow[i] = inputRow[ valueIndexes[i]];
+      Object[] valueRow = RowDataUtil.allocateRowData(valueIndexes.length);
+      for (int i = 0; i < valueIndexes.length; i++) {
+        valueRow[i] = inputRow[valueIndexes[i]];
       }
 
-      KV<HopRow, HopRow> keyValue = KV.of( new HopRow(keyRow), new HopRow( valueRow ) );
-      processContext.output( keyValue );
+      KV<HopRow, HopRow> keyValue = KV.of(new HopRow(keyRow), new HopRow(valueRow));
+      processContext.output(keyValue);
 
-    } catch(Exception e) {
+    } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error splitting row into key and value", e);
-      throw new RuntimeException( "Unable to split row into key and value", e );
+      throw new RuntimeException("Unable to split row into key and value", e);
     }
   }
-
 
   /**
    * Gets inputRowMetaJson
@@ -158,10 +168,8 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     return inputRowMetaJson;
   }
 
-  /**
-   * @param inputRowMetaJson The inputRowMetaJson to set
-   */
-  public void setInputRowMetaJson( String inputRowMetaJson ) {
+  /** @param inputRowMetaJson The inputRowMetaJson to set */
+  public void setInputRowMetaJson(String inputRowMetaJson) {
     this.inputRowMetaJson = inputRowMetaJson;
   }
 
@@ -174,10 +182,8 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     return keyFields;
   }
 
-  /**
-   * @param keyFields The keyFields to set
-   */
-  public void setKeyFields( String[] keyFields ) {
+  /** @param keyFields The keyFields to set */
+  public void setKeyFields(String[] keyFields) {
     this.keyFields = keyFields;
   }
 
@@ -190,12 +196,8 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     return valueFields;
   }
 
-  /**
-   * @param valueFields The valueFields to set
-   */
-  public void setValueFields( String[] valueFields ) {
+  /** @param valueFields The valueFields to set */
+  public void setValueFields(String[] valueFields) {
     this.valueFields = valueFields;
   }
-
-
 }

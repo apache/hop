@@ -26,27 +26,28 @@ public class TabItemHandler {
   private CTabItem tabItem;
   private IHopFileTypeHandler typeHandler;
 
-  public TabItemHandler() {
-  }
+  public TabItemHandler() {}
 
-  public TabItemHandler( CTabItem tabItem, IHopFileTypeHandler typeHandler ) {
+  public TabItemHandler(CTabItem tabItem, IHopFileTypeHandler typeHandler) {
     this.tabItem = tabItem;
     this.typeHandler = typeHandler;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     TabItemHandler that = (TabItemHandler) o;
-    return tabItem.equals( that.tabItem );
+    return tabItem.equals(that.tabItem);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( tabItem );
+  @Override
+  public int hashCode() {
+    return Objects.hash(tabItem);
   }
 
   /**
@@ -58,10 +59,8 @@ public class TabItemHandler {
     return tabItem;
   }
 
-  /**
-   * @param tabItem The tabItem to set
-   */
-  public void setTabItem( CTabItem tabItem ) {
+  /** @param tabItem The tabItem to set */
+  public void setTabItem(CTabItem tabItem) {
     this.tabItem = tabItem;
   }
 
@@ -74,10 +73,8 @@ public class TabItemHandler {
     return typeHandler;
   }
 
-  /**
-   * @param typeHandler The typeHandler to set
-   */
-  public void setTypeHandler( IHopFileTypeHandler typeHandler ) {
+  /** @param typeHandler The typeHandler to set */
+  public void setTypeHandler(IHopFileTypeHandler typeHandler) {
     this.typeHandler = typeHandler;
   }
 }

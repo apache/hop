@@ -30,7 +30,8 @@ public class SvgCacheEntry {
   private int y;
   private String filename;
 
-  public SvgCacheEntry( String filename, SVGDocument svgDocument, int width, int height, int x, int y ) {
+  public SvgCacheEntry(
+      String filename, SVGDocument svgDocument, int width, int height, int x, int y) {
     this.filename = filename;
     this.svgDocument = svgDocument;
     this.width = width;
@@ -39,19 +40,21 @@ public class SvgCacheEntry {
     this.y = y;
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     SvgCacheEntry that = (SvgCacheEntry) o;
-    return Objects.equals( filename, that.filename );
+    return Objects.equals(filename, that.filename);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( filename );
+  @Override
+  public int hashCode() {
+    return Objects.hash(filename);
   }
 
   /**
@@ -63,10 +66,8 @@ public class SvgCacheEntry {
     return filename;
   }
 
-  /**
-   * @param filename The filename to set
-   */
-  public void setFilename( String filename ) {
+  /** @param filename The filename to set */
+  public void setFilename(String filename) {
     this.filename = filename;
   }
 
@@ -79,10 +80,8 @@ public class SvgCacheEntry {
     return svgDocument;
   }
 
-  /**
-   * @param svgDocument The svgDocument to set
-   */
-  public void setSvgDocument( SVGDocument svgDocument ) {
+  /** @param svgDocument The svgDocument to set */
+  public void setSvgDocument(SVGDocument svgDocument) {
     this.svgDocument = svgDocument;
   }
 
@@ -95,10 +94,8 @@ public class SvgCacheEntry {
     return width;
   }
 
-  /**
-   * @param width The width to set
-   */
-  public void setWidth( float width ) {
+  /** @param width The width to set */
+  public void setWidth(float width) {
     this.width = width;
   }
 
@@ -111,10 +108,8 @@ public class SvgCacheEntry {
     return height;
   }
 
-  /**
-   * @param height The height to set
-   */
-  public void setHeight( float height ) {
+  /** @param height The height to set */
+  public void setHeight(float height) {
     this.height = height;
   }
 
@@ -127,10 +122,8 @@ public class SvgCacheEntry {
     return x;
   }
 
-  /**
-   * @param x The x to set
-   */
-  public void setX( int x ) {
+  /** @param x The x to set */
+  public void setX(int x) {
     this.x = x;
   }
 
@@ -143,10 +136,8 @@ public class SvgCacheEntry {
     return y;
   }
 
-  /**
-   * @param y The y to set
-   */
-  public void setY( int y ) {
+  /** @param y The y to set */
+  public void setY(int y) {
     this.y = y;
   }
 }

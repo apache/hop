@@ -24,18 +24,16 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- * Created by ecuellar on 3/3/2016.
- */
+/** Created by ecuellar on 3/3/2016. */
 public class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setup() {
 
-    try{
-      setup( new XmlJoinMeta() );
-    }catch(Exception e){
+    try {
+      setup(new XmlJoinMeta());
+    } catch (Exception e) {
 
     }
   }
@@ -44,26 +42,26 @@ public class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinM
   @Ignore
   public void test() throws Exception {
 
-    check( "COMPLEX_JOIN", () -> meta.isComplexJoin() );
+    check("COMPLEX_JOIN", () -> meta.isComplexJoin());
 
-    check( "TARGET_XML_TRANSFORM", () -> meta.getTargetXmlTransform() );
+    check("TARGET_XML_TRANSFORM", () -> meta.getTargetXmlTransform());
 
-    check( "TARGET_XML_FIELD", () -> meta.getTargetXmlField() );
+    check("TARGET_XML_FIELD", () -> meta.getTargetXmlField());
 
-    check( "SOURCE_XML_FIELD", () -> meta.getSourceXmlField() );
+    check("SOURCE_XML_FIELD", () -> meta.getSourceXmlField());
 
-    check( "VALUE_XML_FIELD", () -> meta.getValueXmlField() );
+    check("VALUE_XML_FIELD", () -> meta.getValueXmlField());
 
-    check( "TARGET_XPATH", () -> meta.getTargetXPath() );
+    check("TARGET_XPATH", () -> meta.getTargetXPath());
 
-    check( "SOURCE_XML_TRANSFORM", () -> meta.getSourceXmlTransform() );
+    check("SOURCE_XML_TRANSFORM", () -> meta.getSourceXmlTransform());
 
-    check( "JOIN_COMPARE_FIELD", () -> meta.getJoinCompareField() );
+    check("JOIN_COMPARE_FIELD", () -> meta.getJoinCompareField());
 
-    check( "ENCODING", () -> meta.getEncoding() );
+    check("ENCODING", () -> meta.getEncoding());
 
-    check( "OMIT_XML_HEADER", () -> meta.isOmitXmlHeader() );
+    check("OMIT_XML_HEADER", () -> meta.isOmitXmlHeader());
 
-    check( "OMIT_NULL_VALUES", () -> meta.isOmitNullValues() );
+    check("OMIT_NULL_VALUES", () -> meta.isOmitNullValues());
   }
 }

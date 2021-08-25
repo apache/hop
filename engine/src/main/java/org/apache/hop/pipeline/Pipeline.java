@@ -21,41 +21,13 @@ package org.apache.hop.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.BlockingBatchingRowSet;
-import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.IExecutor;
-import org.apache.hop.core.IExtensionData;
-import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopPipelineException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.IHasLogChannel;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingHierarchy;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.Metrics;
-import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParameterDefinitions;
-import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.parameters.NamedParameters;
-import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.logging.*;
+import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -70,42 +42,16 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
-import org.apache.hop.pipeline.engine.EngineMetric;
-import org.apache.hop.pipeline.engine.EngineMetrics;
-import org.apache.hop.pipeline.engine.IEngineComponent;
-import org.apache.hop.pipeline.engine.IEngineMetric;
-import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.*;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformFinishedListener;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.RunThread;
-import org.apache.hop.pipeline.transform.TransformInitThread;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
-import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.pipeline.transform.TransformStatus;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -113,13 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.BIT_STATUS_SUM;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.FINISHED;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.INITIALIZING;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PAUSED;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PREPARING;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.RUNNING;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.*;
 
 /**
  * This class represents the information and operations associated with the execution of a Pipeline.
@@ -418,12 +358,15 @@ public abstract class Pipeline
     this();
 
     this.pipelineMeta = pipelineMeta;
-    this.containerObjectId = pipelineMeta.getContainerId();
     this.metadataProvider = pipelineMeta.getMetadataProvider();
 
     setParent(parent);
 
     initializeFrom(variables);
+
+    this.log = new LogChannel(this, parent);
+    this.logLevel = log.getLogLevel();
+    this.containerObjectId = UUID.randomUUID().toString();
   }
 
   /**

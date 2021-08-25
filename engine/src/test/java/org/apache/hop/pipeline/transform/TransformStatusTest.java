@@ -25,8 +25,8 @@ public class TransformStatusTest {
   @Test
   public void testOverrideDescription() {
     TransformStatus status = new TransformStatus();
-    status.setStatusDescription( "Empty" );
-    String[] overrides = status.getPipelineLogFields( "Override" );
-    assertEquals( "Override", overrides[ 10 ] );
+    status.setStatusDescription("Empty");
+    String[] overrides = status.getPipelineLogFields("Override");
+    assertEquals("Override", overrides[10]);
   }
 }

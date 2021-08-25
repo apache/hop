@@ -20,32 +20,20 @@ package org.apache.hop.neo4j.logging.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingHierarchy;
-import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.logging.Defaults;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.eclipse.swt.graphics.Rectangle;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.Value;
+import org.neo4j.driver.*;
 import org.neo4j.driver.types.Node;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class LoggingCore {

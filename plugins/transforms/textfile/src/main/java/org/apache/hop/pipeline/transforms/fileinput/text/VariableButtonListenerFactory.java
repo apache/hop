@@ -33,51 +33,58 @@ public class VariableButtonListenerFactory {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   // Listen to the Variable... button
-  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            IVariables variables ) {
-    return getSelectionAdapter( composite, destination, null, null, variables );
+  public static final SelectionAdapter getSelectionAdapter(
+      final Composite composite, final Text destination, IVariables variables) {
+    return getSelectionAdapter(composite, destination, null, null, variables);
   }
 
   // Listen to the Variable... button
-  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            final IGetCaretPosition getCaretPositionInterface, final IInsertText insertTextInterface,
-                                                            final IVariables variables ) {
+  public static final SelectionAdapter getSelectionAdapter(
+      final Composite composite,
+      final Text destination,
+      final IGetCaretPosition getCaretPositionInterface,
+      final IInsertText insertTextInterface,
+      final IVariables variables) {
     return new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
+      public void widgetSelected(SelectionEvent e) {
         String[] keys = variables.getVariableNames();
-        Arrays.sort( keys );
+        Arrays.sort(keys);
 
         int size = keys.length;
-        String[] key = new String[ size ];
-        String[] val = new String[ size ];
-        String[] str = new String[ size ];
+        String[] key = new String[size];
+        String[] val = new String[size];
+        String[] str = new String[size];
 
-        for ( int i = 0; i < keys.length; i++ ) {
-          key[ i ] = keys[ i ];
-          val[ i ] = variables.getVariable( key[ i ] );
-          str[ i ] = key[ i ] + "  [" + val[ i ] + "]";
+        for (int i = 0; i < keys.length; i++) {
+          key[i] = keys[i];
+          val[i] = variables.getVariable(key[i]);
+          str[i] = key[i] + "  [" + val[i] + "]";
         }
 
-        // Before focus is lost, we get the position of where the selected variable needs to be inserted.
+        // Before focus is lost, we get the position of where the selected variable needs to be
+        // inserted.
         int position = 0;
-        if ( getCaretPositionInterface != null ) {
+        if (getCaretPositionInterface != null) {
           position = getCaretPositionInterface.getCaretPosition();
         }
 
         EnterSelectionDialog esd =
-          new EnterSelectionDialog( composite.getShell(), str, BaseMessages.getString( PKG,
-            "System.Dialog.SelectEnvironmentVar.Title" ), BaseMessages.getString( PKG,
-            "System.Dialog.SelectEnvironmentVar.Message" ) );
-        if ( esd.open() != null ) {
+            new EnterSelectionDialog(
+                composite.getShell(),
+                str,
+                BaseMessages.getString(PKG, "System.Dialog.SelectEnvironmentVar.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.SelectEnvironmentVar.Message"));
+        if (esd.open() != null) {
           int nr = esd.getSelectionNr();
-          String var = "${" + key[ nr ] + "}";
+          String var = "${" + key[nr] + "}";
 
-          if ( insertTextInterface == null ) {
-            destination.insert( var );
-            // destination.setToolTipText(StringUtil.environmentSubstitute( destination.getText() ) );
+          if (insertTextInterface == null) {
+            destination.insert(var);
+            // destination.setToolTipText(StringUtil.environmentSubstitute( destination.getText() )
+            // );
             e.doit = false;
           } else {
-            insertTextInterface.insertText( var, position );
+            insertTextInterface.insertText(var, position);
           }
         }
       }

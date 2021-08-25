@@ -20,6 +20,5 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
-public class MetaBeanMiddle<T> extends MetaBeanParent<MetaBeanChildItem, T> implements ITransformMeta<ITransform, ITransformData> {
-
-}
+public class MetaBeanMiddle<T> extends MetaBeanParent<MetaBeanChildItem, T>
+    implements ITransformMeta<ITransform, ITransformData> {}

@@ -17,47 +17,48 @@
 
 package org.apache.hop.workflow.engines.empty;
 
-import org.apache.commons.validator.Var;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 
 import java.util.Objects;
 
-public class EmptyWorkflowRunConfiguration extends Variables implements IWorkflowEngineRunConfiguration, Cloneable {
+public class EmptyWorkflowRunConfiguration extends Variables
+    implements IWorkflowEngineRunConfiguration, Cloneable {
 
   private String pluginId;
   private String pluginName;
 
-  public EmptyWorkflowRunConfiguration() {
-  }
+  public EmptyWorkflowRunConfiguration() {}
 
-  public EmptyWorkflowRunConfiguration( String pluginId, String pluginName ) {
+  public EmptyWorkflowRunConfiguration(String pluginId, String pluginName) {
     this.pluginId = pluginId;
     this.pluginName = pluginName;
   }
 
-  public EmptyWorkflowRunConfiguration( EmptyWorkflowRunConfiguration config ) {
+  public EmptyWorkflowRunConfiguration(EmptyWorkflowRunConfiguration config) {
     this.pluginId = config.pluginId;
     this.pluginName = config.pluginName;
   }
 
   public EmptyWorkflowRunConfiguration clone() {
-    return new EmptyWorkflowRunConfiguration( this );
+    return new EmptyWorkflowRunConfiguration(this);
   }
 
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() ) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     EmptyWorkflowRunConfiguration that = (EmptyWorkflowRunConfiguration) o;
-    return pluginId.equals( that.pluginId );
+    return pluginId.equals(that.pluginId);
   }
 
-  @Override public int hashCode() {
-    return Objects.hash( pluginId );
+  @Override
+  public int hashCode() {
+    return Objects.hash(pluginId);
   }
 
   /**
@@ -69,10 +70,9 @@ public class EmptyWorkflowRunConfiguration extends Variables implements IWorkflo
     return pluginId;
   }
 
-  /**
-   * @param pluginId The pluginId to set
-   */
-  @Override public void setEnginePluginId( String pluginId ) {
+  /** @param pluginId The pluginId to set */
+  @Override
+  public void setEnginePluginId(String pluginId) {
     this.pluginId = pluginId;
   }
 
@@ -85,10 +85,9 @@ public class EmptyWorkflowRunConfiguration extends Variables implements IWorkflo
     return pluginName;
   }
 
-  /**
-   * @param pluginName The pluginName to set
-   */
-  @Override public void setEnginePluginName( String pluginName ) {
+  /** @param pluginName The pluginName to set */
+  @Override
+  public void setEnginePluginName(String pluginName) {
     this.pluginName = pluginName;
   }
 }

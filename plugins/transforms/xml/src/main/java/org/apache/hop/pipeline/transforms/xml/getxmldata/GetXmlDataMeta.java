@@ -28,11 +28,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -59,7 +55,8 @@ import java.util.Map;
     name = "i18n::GetXMLData.name",
     description = "i18n::GetXMLData.description",
     categoryDescription = "i18n::GetXMLData.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getdatafromxml.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/pipeline/transforms/getdatafromxml.html")
 public class GetXmlDataMeta extends BaseTransformMeta
     implements ITransformMeta<GetXmlData, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator

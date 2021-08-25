@@ -39,35 +39,54 @@ public class SQLFileOutputMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init( false );
+    PluginRegistry.init(false);
     List<String> attributes =
-      Arrays.asList( "databaseMeta", "schemaName", "tablename", "truncateTable", "AddToResult", "createTable", "fileName",
-        "extension", "splitEvery", "fileAppended", "transformNrInFilename", "dateInFilename", "timeInFilename",
-        "encoding", "dateFormat", "StartNewLine", "createParentFolder", "DoNotOpenNewFileInit" );
+        Arrays.asList(
+            "databaseMeta",
+            "schemaName",
+            "tablename",
+            "truncateTable",
+            "AddToResult",
+            "createTable",
+            "fileName",
+            "extension",
+            "splitEvery",
+            "fileAppended",
+            "transformNrInFilename",
+            "dateInFilename",
+            "timeInFilename",
+            "encoding",
+            "dateFormat",
+            "StartNewLine",
+            "createParentFolder",
+            "DoNotOpenNewFileInit");
 
-    // Note - "partNrInFilename" is used in serialization/deserialization, but there is no getter/setter for it and it's
-    // not present in the dialog. Looks like a copy/paste thing, and the value itself will end up serialized/deserialized
+    // Note - "partNrInFilename" is used in serialization/deserialization, but there is no
+    // getter/setter for it and it's
+    // not present in the dialog. Looks like a copy/paste thing, and the value itself will end up
+    // serialized/deserialized
     // as false.
-    Map<String, String> getterMap = new HashMap<String, String>() {
-      {
-        put( "truncateTable", "truncateTable" );
-        put( "AddToResult", "AddToResult" );
-        put( "createTable", "createTable" );
-        put( "StartNewLine", "StartNewLine" );
-      }
-    };
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("truncateTable", "truncateTable");
+            put("AddToResult", "AddToResult");
+            put("createTable", "createTable");
+            put("StartNewLine", "StartNewLine");
+          }
+        };
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+        new LoadSaveTester(
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-
 }

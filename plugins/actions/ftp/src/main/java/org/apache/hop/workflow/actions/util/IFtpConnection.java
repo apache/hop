@@ -40,7 +40,6 @@ public interface IFtpConnection {
    */
   String getPassword();
 
-
   /**
    * Gets binaryMode
    *
@@ -131,5 +130,4 @@ public interface IFtpConnection {
    * @return value of activeConnection
    */
   public boolean isActiveConnection();
-
 }

@@ -20,19 +20,17 @@ import org.apache.hop.core.exception.HopException;
 
 public class JsonInputException extends HopException {
 
-  public JsonInputException() {
+  public JsonInputException() {}
+
+  public JsonInputException(String message) {
+    super(message);
   }
 
-  public JsonInputException( String message ) {
-    super( message );
+  public JsonInputException(Throwable cause) {
+    super(cause);
   }
 
-  public JsonInputException( Throwable cause ) {
-    super( cause );
+  public JsonInputException(String message, Throwable cause) {
+    super(message, cause);
   }
-
-  public JsonInputException( String message, Throwable cause ) {
-    super( message, cause );
-  }
-
 }

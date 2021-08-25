@@ -23,8 +23,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -33,28 +31,35 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class Dummy extends BaseTransform<DummyMeta, DummyData> implements ITransform<DummyMeta, DummyData> {
+public class Dummy extends BaseTransform<DummyMeta, DummyData>
+    implements ITransform<DummyMeta, DummyData> {
 
   private static final Class<?> PKG = DummyMeta.class; // For Translator
 
-  public Dummy( TransformMeta transformMeta, DummyMeta meta, DummyData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public Dummy(
+      TransformMeta transformMeta,
+      DummyMeta meta,
+      DummyData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row, set busy!
     // no more input to be expected...
-    if ( r == null ) {
+    if (r == null) {
       setOutputDone();
       return false;
     }
 
-    putRow( getInputRowMeta(), r ); // copy row to possible alternate rowset(s).
+    putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      if ( log.isBasic() ) {
-        logBasic( BaseMessages.getString( PKG, "Dummy.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      if (log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "Dummy.Log.LineNumber") + getLinesRead());
       }
     }
 

@@ -20,27 +20,25 @@ package org.apache.hop.pipeline.transforms.file;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 
-/**
- * Interface for some transform operations required for parse input file.
- */
+/** Interface for some transform operations required for parse input file. */
 public interface IBaseFileInputTransformControl {
   long incrementLinesInput();
 
   long getLinesWritten();
 
-  void putRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException;
+  void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException;
 
   long getLinesInput();
 
-  boolean checkFeedback( long lines );
+  boolean checkFeedback(long lines);
 
   long incrementLinesUpdated();
 
-  boolean failAfterBadFile( String errorMsg );
+  boolean failAfterBadFile(String errorMsg);
 
   void stopAll();
 
   long getErrors();
 
-  void setErrors( long e );
+  void setErrors(long e);
 }

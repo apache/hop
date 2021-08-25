@@ -20,30 +20,28 @@ package org.apache.hop.concurrency;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 class ExecutionResult<T> {
-  static <T> ExecutionResult<T> from( Future<? extends T> future ) {
+  static <T> ExecutionResult<T> from(Future<? extends T> future) {
     try {
-      return new ExecutionResult<>( future.get(), null );
-    } catch ( InterruptedException e ) {
-      throw new IllegalArgumentException( e );
-    } catch ( ExecutionException e ) {
-      return new ExecutionResult<>( null, e.getCause() );
+      return new ExecutionResult<>(future.get(), null);
+    } catch (InterruptedException e) {
+      throw new IllegalArgumentException(e);
+    } catch (ExecutionException e) {
+      return new ExecutionResult<>(null, e.getCause());
     }
   }
 
   private final T result;
   private final Throwable throwable;
 
-  ExecutionResult( T result, Throwable throwable ) {
+  ExecutionResult(T result, Throwable throwable) {
     this.result = result;
     this.throwable = throwable;
   }
 
   boolean isError() {
-    return ( throwable != null );
+    return (throwable != null);
   }
 
   T getResult() {

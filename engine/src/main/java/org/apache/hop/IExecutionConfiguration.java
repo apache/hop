@@ -22,7 +22,6 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 
-import java.io.IOException;
 import java.util.Map;
 
 public interface IExecutionConfiguration extends Cloneable, IXml {

@@ -28,108 +28,114 @@ public class ResourceReference {
 
   /**
    * @param resourceReferenceHolder Where to put the resource references
-   * @param entries                 the resource entries list
+   * @param entries the resource entries list
    */
-  public ResourceReference( IResourceHolder resourceReferenceHolder, List<ResourceEntry> entries ) {
+  public ResourceReference(IResourceHolder resourceReferenceHolder, List<ResourceEntry> entries) {
     super();
     this.resourceReferenceHolder = resourceReferenceHolder;
     this.entries = entries;
   }
 
-  public ResourceReference( IResourceHolder resourceReferenceHolder ) {
+  public ResourceReference(IResourceHolder resourceReferenceHolder) {
     this.resourceReferenceHolder = resourceReferenceHolder;
     this.entries = new ArrayList<>();
   }
 
-  /**
-   * @return the resource reference holder
-   */
+  /** @return the resource reference holder */
   public IResourceHolder getReferenceHolder() {
     return resourceReferenceHolder;
   }
 
-  /**
-   * @param resourceReferenceHolder the resource reference holder to set
-   */
-  public void setReferenceHolder( IResourceHolder resourceReferenceHolder ) {
+  /** @param resourceReferenceHolder the resource reference holder to set */
+  public void setReferenceHolder(IResourceHolder resourceReferenceHolder) {
     this.resourceReferenceHolder = resourceReferenceHolder;
   }
 
-  /**
-   * @return the entries
-   */
+  /** @return the entries */
   public List<ResourceEntry> getEntries() {
     return entries;
   }
 
-  /**
-   * @param entries the entries to set
-   */
-  public void setEntries( List<ResourceEntry> entries ) {
+  /** @param entries the entries to set */
+  public void setEntries(List<ResourceEntry> entries) {
     this.entries = entries;
   }
 
   public String toXml() {
-    return toXml( null, 0 );
+    return toXml(null, 0);
   }
 
-  public String toXml( IResourceXmlPropertyEmitter injector ) {
-    return toXml( injector, 0 );
+  public String toXml(IResourceXmlPropertyEmitter injector) {
+    return toXml(injector, 0);
   }
 
-  public String toXml( int indentLevel ) {
-    return toXml( null, indentLevel );
+  public String toXml(int indentLevel) {
+    return toXml(null, indentLevel);
   }
 
-  public String toXml( IResourceXmlPropertyEmitter injector, int indentLevel ) {
+  public String toXml(IResourceXmlPropertyEmitter injector, int indentLevel) {
     StringBuilder buff = new StringBuilder();
-    addXmlElementWithAttribute( buff, indentLevel, "ActionComponent", "type", resourceReferenceHolder
-      .getPluginId() );
+    addXmlElementWithAttribute(
+        buff, indentLevel, "ActionComponent", "type", resourceReferenceHolder.getPluginId());
     indentLevel++;
-    addXmlElement( buff, indentLevel, "ComponentName", resourceReferenceHolder.getName() );
-    addXmlElement( buff, indentLevel, "ComponentId", resourceReferenceHolder.getTypeId() );
-    addXmlElement( buff, indentLevel, "ComponentResources" );
+    addXmlElement(buff, indentLevel, "ComponentName", resourceReferenceHolder.getName());
+    addXmlElement(buff, indentLevel, "ComponentId", resourceReferenceHolder.getTypeId());
+    addXmlElement(buff, indentLevel, "ComponentResources");
     indentLevel++;
-    for ( ResourceEntry entry : this.getEntries() ) {
-      buff.append( entry.toXml( indentLevel ) );
+    for (ResourceEntry entry : this.getEntries()) {
+      buff.append(entry.toXml(indentLevel));
     }
     indentLevel--;
-    addXmlCloseElement( buff, indentLevel, "ComponentResources" );
-    if ( injector != null ) {
-      addXmlElement( buff, indentLevel, "ComponentProperties" );
+    addXmlCloseElement(buff, indentLevel, "ComponentResources");
+    if (injector != null) {
+      addXmlElement(buff, indentLevel, "ComponentProperties");
       indentLevel++;
-      buff.append( injector.getExtraResourceProperties( resourceReferenceHolder, indentLevel ) );
+      buff.append(injector.getExtraResourceProperties(resourceReferenceHolder, indentLevel));
       indentLevel--;
-      addXmlCloseElement( buff, indentLevel, "ComponentProperties" );
+      addXmlCloseElement(buff, indentLevel, "ComponentProperties");
     }
     indentLevel--;
-    addXmlCloseElement( buff, indentLevel, "ActionComponent" );
+    addXmlCloseElement(buff, indentLevel, "ActionComponent");
     return buff.toString();
   }
 
-  public void addXmlElementWithAttribute( StringBuilder buff, int indentLevel, String elementName, String attrName,
-                                          String attrValue ) {
-    buff
-      .append( StringUtil.getIndent( indentLevel ) )
-      .append( "<" ).append( elementName ).append( " " ).append( attrName ).append( "='" );
-    buff.append( attrValue ).append( "'>" ).append( StringUtil.CRLF );
+  public void addXmlElementWithAttribute(
+      StringBuilder buff, int indentLevel, String elementName, String attrName, String attrValue) {
+    buff.append(StringUtil.getIndent(indentLevel))
+        .append("<")
+        .append(elementName)
+        .append(" ")
+        .append(attrName)
+        .append("='");
+    buff.append(attrValue).append("'>").append(StringUtil.CRLF);
   }
 
-  public void addXmlCloseElement( StringBuilder buff, int indentLevel, String elementName ) {
-    buff.append( StringUtil.getIndent( indentLevel ) ).append( "</" ).append( elementName ).append( ">" ).append(
-      StringUtil.CRLF );
+  public void addXmlCloseElement(StringBuilder buff, int indentLevel, String elementName) {
+    buff.append(StringUtil.getIndent(indentLevel))
+        .append("</")
+        .append(elementName)
+        .append(">")
+        .append(StringUtil.CRLF);
   }
 
-  public void addXmlElement( StringBuilder buff, int indentLevel, String elementName ) {
-    buff.append( StringUtil.getIndent( indentLevel ) ).append( "<" ).append( elementName ).append( ">" ).append(
-      StringUtil.CRLF );
+  public void addXmlElement(StringBuilder buff, int indentLevel, String elementName) {
+    buff.append(StringUtil.getIndent(indentLevel))
+        .append("<")
+        .append(elementName)
+        .append(">")
+        .append(StringUtil.CRLF);
   }
 
-  public void addXmlElement( StringBuilder buff, int indentLevel, String elementName, String elementValue ) {
-    buff
-      .append( StringUtil.getIndent( indentLevel ) )
-      .append( "<" ).append( elementName ).append( "><![CDATA[" ).append( elementValue ).append( "]]></" ).append(
-      elementName ).append( ">" ).append( StringUtil.CRLF );
+  public void addXmlElement(
+      StringBuilder buff, int indentLevel, String elementName, String elementValue) {
+    buff.append(StringUtil.getIndent(indentLevel))
+        .append("<")
+        .append(elementName)
+        .append("><![CDATA[")
+        .append(elementValue)
+        .append("]]></")
+        .append(elementName)
+        .append(">")
+        .append(StringUtil.CRLF);
   }
-
 }

@@ -18,8 +18,6 @@
 package org.apache.hop.workflow.actions.http;
 
 import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.HopClientEnvironment;
@@ -28,7 +26,6 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.AfterClass;
@@ -69,86 +66,100 @@ public class ActionHttp_PDI208_Test {
 
   @Test
   public void testHttpResultDefaultRows() throws IOException {
-    File localFileForUpload = getInputFile( "existingFile1", ".tmp" );
-    File tempFileForDownload = File.createTempFile( "downloadedFile1", ".tmp" );
+    File localFileForUpload = getInputFile("existingFile1", ".tmp");
+    File tempFileForDownload = File.createTempFile("downloadedFile1", ".tmp");
     localFileForUpload.deleteOnExit();
     tempFileForDownload.deleteOnExit();
 
-    Object[] r = new Object[] { HTTP_SERVER_BASEURL + "/uploadFile",
-      localFileForUpload.getCanonicalPath(), tempFileForDownload.getCanonicalPath() };
+    Object[] r =
+        new Object[] {
+          HTTP_SERVER_BASEURL + "/uploadFile",
+          localFileForUpload.getCanonicalPath(),
+          tempFileForDownload.getCanonicalPath()
+        };
     RowMeta rowMetaDefault = new RowMeta();
-    rowMetaDefault.addValueMeta( new ValueMetaString( "URL" ) );
-    rowMetaDefault.addValueMeta( new ValueMetaString( "UPLOAD" ) );
-    rowMetaDefault.addValueMeta( new ValueMetaString( "DESTINATION" ) );
+    rowMetaDefault.addValueMeta(new ValueMetaString("URL"));
+    rowMetaDefault.addValueMeta(new ValueMetaString("UPLOAD"));
+    rowMetaDefault.addValueMeta(new ValueMetaString("DESTINATION"));
     List<RowMetaAndData> rows = new ArrayList<>();
-    rows.add( new RowMetaAndData( rowMetaDefault, r ) );
+    rows.add(new RowMetaAndData(rowMetaDefault, r));
     Result previousResult = new Result();
-    previousResult.setRows( rows );
+    previousResult.setRows(rows);
 
     ActionHttp http = new ActionHttp();
-    http.setParentWorkflow( new LocalWorkflowEngine() );
-    http.setRunForEveryRow( true );
-    http.setAddFilenameToResult( false );
-    http.execute( previousResult, 0 );
-    assertTrue( FileUtils.contentEquals( localFileForUpload, tempFileForDownload ) );
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(true);
+    http.setAddFilenameToResult(false);
+    http.execute(previousResult, 0);
+    assertTrue(FileUtils.contentEquals(localFileForUpload, tempFileForDownload));
   }
 
   @Test
   public void testHttpResultCustomRows() throws IOException {
-    File localFileForUpload = getInputFile( "existingFile2", ".tmp" );
-    File tempFileForDownload = File.createTempFile( "downloadedFile2", ".tmp" );
+    File localFileForUpload = getInputFile("existingFile2", ".tmp");
+    File tempFileForDownload = File.createTempFile("downloadedFile2", ".tmp");
     localFileForUpload.deleteOnExit();
     tempFileForDownload.deleteOnExit();
 
-    Object[] r = new Object[] { HTTP_SERVER_BASEURL + "/uploadFile",
-      localFileForUpload.getCanonicalPath(), tempFileForDownload.getCanonicalPath() };
+    Object[] r =
+        new Object[] {
+          HTTP_SERVER_BASEURL + "/uploadFile",
+          localFileForUpload.getCanonicalPath(),
+          tempFileForDownload.getCanonicalPath()
+        };
     RowMeta rowMetaDefault = new RowMeta();
-    rowMetaDefault.addValueMeta( new ValueMetaString( "MyURL" ) );
-    rowMetaDefault.addValueMeta( new ValueMetaString( "MyUpload" ) );
-    rowMetaDefault.addValueMeta( new ValueMetaString( "MyDestination" ) );
+    rowMetaDefault.addValueMeta(new ValueMetaString("MyURL"));
+    rowMetaDefault.addValueMeta(new ValueMetaString("MyUpload"));
+    rowMetaDefault.addValueMeta(new ValueMetaString("MyDestination"));
     List<RowMetaAndData> rows = new ArrayList<>();
-    rows.add( new RowMetaAndData( rowMetaDefault, r ) );
+    rows.add(new RowMetaAndData(rowMetaDefault, r));
     Result previousResult = new Result();
-    previousResult.setRows( rows );
+    previousResult.setRows(rows);
 
     ActionHttp http = new ActionHttp();
-    http.setParentWorkflow( new LocalWorkflowEngine() );
-    http.setRunForEveryRow( true );
-    http.setAddFilenameToResult( false );
-    http.setUrlFieldname( "MyURL" );
-    http.setUploadFieldname( "MyUpload" );
-    http.setDestinationFieldname( "MyDestination" );
-    http.execute( previousResult, 0 );
-    assertTrue( FileUtils.contentEquals( localFileForUpload, tempFileForDownload ) );
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(true);
+    http.setAddFilenameToResult(false);
+    http.setUrlFieldname("MyURL");
+    http.setUploadFieldname("MyUpload");
+    http.setDestinationFieldname("MyDestination");
+    http.execute(previousResult, 0);
+    assertTrue(FileUtils.contentEquals(localFileForUpload, tempFileForDownload));
   }
 
-  private File getInputFile( String prefix, String suffix ) throws IOException {
-    File inputFile = File.createTempFile( prefix, suffix );
-    FileUtils.writeStringToFile( inputFile, UUID.randomUUID().toString(), "UTF-8" );
+  private File getInputFile(String prefix, String suffix) throws IOException {
+    File inputFile = File.createTempFile(prefix, suffix);
+    FileUtils.writeStringToFile(inputFile, UUID.randomUUID().toString(), "UTF-8");
     return inputFile;
   }
 
   private static void startHttpServer() throws IOException {
-    httpServer = HttpServer.create( new InetSocketAddress( ActionHttp_PDI208_Test.HTTP_HOST, ActionHttp_PDI208_Test.HTTP_PORT ), 10 );
-    httpServer.createContext( "/uploadFile", httpExchange -> {
-      Headers h = httpExchange.getResponseHeaders();
-      h.add( "Content-Type", "application/octet-stream" );
-      httpExchange.sendResponseHeaders( 200, 0 );
-      InputStream is = httpExchange.getRequestBody();
-      OutputStream os = httpExchange.getResponseBody();
-      int inputChar = -1;
-      while ( ( inputChar = is.read() ) >= 0 ) {
-        os.write( inputChar );
-      }
-      is.close();
-      os.flush();
-      os.close();
-      httpExchange.close();
-    } );
+    httpServer =
+        HttpServer.create(
+            new InetSocketAddress(
+                ActionHttp_PDI208_Test.HTTP_HOST, ActionHttp_PDI208_Test.HTTP_PORT),
+            10);
+    httpServer.createContext(
+        "/uploadFile",
+        httpExchange -> {
+          Headers h = httpExchange.getResponseHeaders();
+          h.add("Content-Type", "application/octet-stream");
+          httpExchange.sendResponseHeaders(200, 0);
+          InputStream is = httpExchange.getRequestBody();
+          OutputStream os = httpExchange.getResponseBody();
+          int inputChar = -1;
+          while ((inputChar = is.read()) >= 0) {
+            os.write(inputChar);
+          }
+          is.close();
+          os.flush();
+          os.close();
+          httpExchange.close();
+        });
     httpServer.start();
   }
 
   private static void stopHttpServer() {
-    httpServer.stop( 2 );
+    httpServer.stop(2);
   }
 }

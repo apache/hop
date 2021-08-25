@@ -19,7 +19,6 @@ package org.apache.hop.core.logging;
 
 import java.util.Date;
 
-
 public interface ILoggingObject {
   /**
    * Gets the object name.
@@ -27,7 +26,6 @@ public interface ILoggingObject {
    * @return the name
    */
   String getObjectName();
-
 
   /**
    * Gets the filename.
@@ -72,9 +70,9 @@ public interface ILoggingObject {
   LogLevel getLogLevel();
 
   /**
-   * Gets the execution container (Carte/DI server/BI Server) object id. We use this to see to which copy of the
-   * workflow/pipeline hierarchy this object belongs. If it is null, we assume that we are running a single copy in
-   * HopGui/Pan/Kitchen.
+   * Gets the execution container (Carte/DI server/BI Server) object id. We use this to see to which
+   * copy of the workflow/pipeline hierarchy this object belongs. If it is null, we assume that we
+   * are running a single copy in HopGui/Pan/Kitchen.
    *
    * @return The execution container (Carte/DI server/BI Server) object id.
    */
@@ -99,18 +97,16 @@ public interface ILoggingObject {
    *
    * @param gatheringMetrics set to true to enable metrics gathering during execution.
    */
-  void setGatheringMetrics( boolean gatheringMetrics );
+  void setGatheringMetrics(boolean gatheringMetrics);
 
   /**
-   * This option will force the create of a separate logging channel even if the logging concerns identical objects with
-   * identical names.
+   * This option will force the create of a separate logging channel even if the logging concerns
+   * identical objects with identical names.
    *
    * @param forcingSeparateLogging Set to true to force separate logging
    */
-  void setForcingSeparateLogging( boolean forcingSeparateLogging );
+  void setForcingSeparateLogging(boolean forcingSeparateLogging);
 
-  /**
-   * @return True if the logging is forcibly separated out from even identical objects.
-   */
+  /** @return True if the logging is forcibly separated out from even identical objects. */
   boolean isForcingSeparateLogging();
 }

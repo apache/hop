@@ -34,20 +34,25 @@ public class EmailValidator implements IActionValidator {
     return VALIDATOR_NAME;
   }
 
-  public boolean validate( ICheckResultSource source, String propertyName,
-                           List<ICheckResult> remarks, ValidatorContext context ) {
+  public boolean validate(
+      ICheckResultSource source,
+      String propertyName,
+      List<ICheckResult> remarks,
+      ValidatorContext context) {
     String value = null;
 
-    value = ValidatorUtils.getValueAsString( source, propertyName );
+    value = ValidatorUtils.getValueAsString(source, propertyName);
 
-    if ( !GenericValidator.isBlankOrNull( value ) && !GenericValidator.isEmail( value ) ) {
+    if (!GenericValidator.isBlankOrNull(value) && !GenericValidator.isEmail(value)) {
       ActionValidatorUtils.addFailureRemark(
-        source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(
-          context, VALIDATOR_NAME ) );
+          source,
+          propertyName,
+          VALIDATOR_NAME,
+          remarks,
+          ActionValidatorUtils.getLevelOnFail(context, VALIDATOR_NAME));
       return false;
     } else {
       return true;
     }
   }
-
 }

@@ -41,5 +41,4 @@ public class DBProcData extends BaseTransformData implements ITransformData {
 
     db = null;
   }
-
 }

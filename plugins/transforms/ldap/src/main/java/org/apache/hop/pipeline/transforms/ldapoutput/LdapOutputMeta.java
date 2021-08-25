@@ -16,7 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
-import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,6 +37,8 @@ import org.apache.hop.pipeline.transforms.ldapinput.ILdapMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.w3c.dom.Node;
 
+import java.util.List;
+
 @Transform(
     id = "LDAPOutput",
     name = "i18n::LdapOutput.Name",
@@ -45,8 +46,7 @@ import org.w3c.dom.Node;
     image = "ldapoutput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = {"ldap", "output"},
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/ldapoutput.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/ldapoutput.html")
 public class LdapOutputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
   private static Class<?> PKG = LdapOutputMeta.class; // For Translator
@@ -94,12 +94,12 @@ public class LdapOutputMeta extends BaseTransformMeta
 
   /** The operations description */
   static final String[] operationTypeDesc = {
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Insert"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Upsert"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Update"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Add"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Delete"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Rename")
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Insert"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Upsert"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Update"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Add"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Delete"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Rename")
   };
 
   /** The operations type codes */
@@ -123,8 +123,8 @@ public class LdapOutputMeta extends BaseTransformMeta
 
   /** The referrals description */
   public static final String[] referralTypeDesc = {
-    BaseMessages.getString( PKG, "LdapOutputMeta.referralType.Follow"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.referralType.Ignore")
+    BaseMessages.getString(PKG, "LdapOutputMeta.referralType.Follow"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.referralType.Ignore")
   };
 
   /** The referrals type codes */
@@ -138,10 +138,10 @@ public class LdapOutputMeta extends BaseTransformMeta
 
   /** The derefAliasess description */
   static final String[] derefAliasesTypeDesc = {
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Always"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Never"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Searching"),
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Finding")
+    BaseMessages.getString(PKG, "LdapOutputMeta.derefAliasesType.Always"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.derefAliasesType.Never"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.derefAliasesType.Searching"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.derefAliasesType.Finding")
   };
 
   /** The derefAliasess type codes */
@@ -661,8 +661,7 @@ public class LdapOutputMeta extends BaseTransformMeta
 
     } catch (Exception e) {
       throw new HopXmlException(
-          BaseMessages.getString( PKG, "LdapOutputMeta.UnableToLoadFromXML"),
-          e);
+          BaseMessages.getString(PKG, "LdapOutputMeta.UnableToLoadFromXML"), e);
     }
   }
 
@@ -716,15 +715,13 @@ public class LdapOutputMeta extends BaseTransformMeta
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(
-                PKG, "LdapOutputMeta.CheckResult.NoInputExpected"),
+              BaseMessages.getString(PKG, "LdapOutputMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                PKG, "LdapOutputMeta.CheckResult.NoInput"),
+              BaseMessages.getString(PKG, "LdapOutputMeta.CheckResult.NoInput"),
               transformMeta);
     }
     remarks.add(cr);
@@ -734,15 +731,13 @@ public class LdapOutputMeta extends BaseTransformMeta
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(
-                PKG, "LdapOutputMeta.CheckResult.HostnameMissing"),
+              BaseMessages.getString(PKG, "LdapOutputMeta.CheckResult.HostnameMissing"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                PKG, "LdapOutputMeta.CheckResult.HostnameOk"),
+              BaseMessages.getString(PKG, "LdapOutputMeta.CheckResult.HostnameOk"),
               transformMeta);
     }
     remarks.add(cr);
@@ -752,15 +747,13 @@ public class LdapOutputMeta extends BaseTransformMeta
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(
-                PKG, "LdapOutputUpdateMeta.CheckResult.NoFields"),
+              BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.NoFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                PKG, "LdapOutputUpdateMeta.CheckResult.FieldsOk"),
+              BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.FieldsOk"),
               transformMeta);
     }
   }

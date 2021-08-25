@@ -44,7 +44,8 @@ import java.util.Map;
     name = "Cassandra Connection",
     description = "Describes a connection to a Cassandra cluster",
     image = "Cassandra_logo.svg",
-    documentationUrl="https://hop.apache.org/manual/latest/metadata-types/cassandra/cassandra-connection.html")
+    documentationUrl =
+        "https://hop.apache.org/manual/latest/metadata-types/cassandra/cassandra-connection.html")
 public class CassandraConnection extends HopMetadataBase implements IHopMetadata {
 
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";

@@ -22,7 +22,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
-import org.neo4j.driver.types.Point;
 
 import java.util.ArrayList;
 import java.util.List;

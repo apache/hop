@@ -21,6 +21,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
-@InjectionSupported( localizationPrefix = "" )
-public class MetaBeanChild extends MetaBeanMiddle<String>  implements ITransformMeta<ITransform, ITransformData> {
-}
+@InjectionSupported(localizationPrefix = "")
+public class MetaBeanChild extends MetaBeanMiddle<String>
+    implements ITransformMeta<ITransform, ITransformData> {}

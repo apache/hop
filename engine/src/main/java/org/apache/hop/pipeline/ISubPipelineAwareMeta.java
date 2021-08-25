@@ -19,13 +19,10 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * A transform "meta" that contains a reference to a sub-pipeline.
- */
+/** A transform "meta" that contains a reference to a sub-pipeline. */
 public interface ISubPipelineAwareMeta {
 
   String getFilename();
 
   TransformMeta getParentTransformMeta();
-
 }

@@ -28,22 +28,22 @@ public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRow
 
   @Before
   public void setup() throws Exception {
-    setup( new SortRowsMeta() );
+    setup(new SortRowsMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "SORT_DIRECTORY", () -> meta.getDirectory() );
-    check( "SORT_FILE_PREFIX", () -> meta.getPrefix() );
-    check( "SORT_SIZE_ROWS", () -> meta.getSortSize() );
-    check( "FREE_MEMORY_TRESHOLD", () -> meta.getFreeMemoryLimit() );
-    check( "ONLY_PASS_UNIQUE_ROWS", () -> meta.isOnlyPassingUniqueRows() );
-    check( "COMPRESS_TEMP_FILES", () -> meta.getCompressFiles() );
-    check( "NAME", () -> meta.getFieldName()[ 0 ] );
-    check( "SORT_ASCENDING", () -> meta.getAscending()[ 0 ] );
-    check( "IGNORE_CASE", () -> meta.getCaseSensitive()[ 0 ] );
-    check( "PRESORTED", () -> meta.getPreSortedField()[ 0 ] );
-    check( "COLLATOR_STRENGTH", () -> meta.getCollatorStrength()[ 0 ] );
-    check( "COLLATOR_ENABLED", () -> meta.getCollatorEnabled()[ 0 ] );
+    check("SORT_DIRECTORY", () -> meta.getDirectory());
+    check("SORT_FILE_PREFIX", () -> meta.getPrefix());
+    check("SORT_SIZE_ROWS", () -> meta.getSortSize());
+    check("FREE_MEMORY_TRESHOLD", () -> meta.getFreeMemoryLimit());
+    check("ONLY_PASS_UNIQUE_ROWS", () -> meta.isOnlyPassingUniqueRows());
+    check("COMPRESS_TEMP_FILES", () -> meta.getCompressFiles());
+    check("NAME", () -> meta.getFieldName()[0]);
+    check("SORT_ASCENDING", () -> meta.getAscending()[0]);
+    check("IGNORE_CASE", () -> meta.getCaseSensitive()[0]);
+    check("PRESORTED", () -> meta.getPreSortedField()[0]);
+    check("COLLATOR_STRENGTH", () -> meta.getCollatorStrength()[0]);
+    check("COLLATOR_ENABLED", () -> meta.getCollatorEnabled()[0]);
   }
 }

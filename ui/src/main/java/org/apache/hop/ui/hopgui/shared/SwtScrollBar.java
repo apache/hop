@@ -24,10 +24,8 @@ public class SwtScrollBar implements IScrollBar {
 
   private ScrollBar scrollBar;
 
-  /**
-   * @param scrollBar
-   */
-  public SwtScrollBar( ScrollBar scrollBar ) {
+  /** @param scrollBar */
+  public SwtScrollBar(ScrollBar scrollBar) {
     this.scrollBar = scrollBar;
   }
 
@@ -35,7 +33,7 @@ public class SwtScrollBar implements IScrollBar {
     return scrollBar.getSelection();
   }
 
-  public void setThumb( int thumb ) {
-    scrollBar.setThumb( thumb );
+  public void setThumb(int thumb) {
+    scrollBar.setThumb(thumb);
   }
 }

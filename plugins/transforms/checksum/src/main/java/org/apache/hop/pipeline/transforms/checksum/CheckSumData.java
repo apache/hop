@@ -44,5 +44,4 @@ public class CheckSumData extends BaseTransformData implements ITransformData {
     super();
     this.nrInfields = 0;
   }
-
 }

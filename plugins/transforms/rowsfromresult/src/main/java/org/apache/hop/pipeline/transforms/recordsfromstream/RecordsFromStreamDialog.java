@@ -25,15 +25,17 @@ import org.eclipse.swt.widgets.Shell;
 public class RecordsFromStreamDialog extends RowsFromResultDialog {
   private static final Class<?> PKG = RecordsFromStreamMeta.class; // For Translator
 
-  @Override public String getTitle() {
-    return BaseMessages.getString( PKG, "RecordsFromStreamDialog.Shell.Title" );
+  @Override
+  public String getTitle() {
+    return BaseMessages.getString(PKG, "RecordsFromStreamDialog.Shell.Title");
   }
 
-  public RecordsFromStreamDialog( final Shell parent,
-                                  final IVariables variables,
-                                  final Object in,
-                                  final PipelineMeta pipelineMeta,
-                                  final String sname ) {
-    super( parent, variables, in, pipelineMeta, sname );
+  public RecordsFromStreamDialog(
+      final Shell parent,
+      final IVariables variables,
+      final Object in,
+      final PipelineMeta pipelineMeta,
+      final String sname) {
+    super(parent, variables, in, pipelineMeta, sname);
   }
 }

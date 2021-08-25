@@ -21,43 +21,40 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/**
- * @author Andrey Khayrutdinov
- */
+/** @author Andrey Khayrutdinov */
 class LtIndex extends Index {
 
-  static Index greaterOrEqualCache( int column, IValueMeta valueMeta, int rowsAmount ) {
-    return new LtIndex( column, valueMeta, rowsAmount, true );
+  static Index greaterOrEqualCache(int column, IValueMeta valueMeta, int rowsAmount) {
+    return new LtIndex(column, valueMeta, rowsAmount, true);
   }
-
 
   private final boolean isMatchingGreaterOrEqual;
 
-  LtIndex( int column, IValueMeta valueMeta, int rowsAmount ) {
-    this( column, valueMeta, rowsAmount, false );
+  LtIndex(int column, IValueMeta valueMeta, int rowsAmount) {
+    this(column, valueMeta, rowsAmount, false);
   }
 
-  private LtIndex( int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingGreaterOrEqual ) {
-    super( column, valueMeta, rowsAmount );
+  private LtIndex(
+      int column, IValueMeta valueMeta, int rowsAmount, boolean isMatchingGreaterOrEqual) {
+    super(column, valueMeta, rowsAmount);
     this.isMatchingGreaterOrEqual = isMatchingGreaterOrEqual;
   }
 
   @Override
-  void doApply( SearchingContext context, IValueMeta lookupMeta, Object lookupValue ) {
-    int firstValue = findInsertionPointOf( new IndexedValue( lookupValue, -1 ) );
-    if ( firstValue == 0 ) {
+  void doApply(SearchingContext context, IValueMeta lookupMeta, Object lookupValue) {
+    int firstValue = findInsertionPointOf(new IndexedValue(lookupValue, -1));
+    if (firstValue == 0) {
       // everything is greater than lookupValue
-      if ( isMatchingGreaterOrEqual ) {
+      if (isMatchingGreaterOrEqual) {
         // then do nothing
         return;
-
       }
       context.setEmpty();
     } else {
       BitSet bitSet = context.getWorkingSet();
 
       int start, end;
-      if ( firstValue < values.length / 2 ) {
+      if (firstValue < values.length / 2) {
         start = 0;
         end = firstValue;
       } else {
@@ -65,11 +62,11 @@ class LtIndex extends Index {
         end = values.length;
       }
 
-      for ( int i = start; i < end; i++ ) {
-        bitSet.set( values[ i ].row, true );
+      for (int i = start; i < end; i++) {
+        bitSet.set(values[i].row, true);
       }
 
-      context.intersect( bitSet, ( start != 0 ) ^ isMatchingGreaterOrEqual );
+      context.intersect(bitSet, (start != 0) ^ isMatchingGreaterOrEqual);
     }
   }
 

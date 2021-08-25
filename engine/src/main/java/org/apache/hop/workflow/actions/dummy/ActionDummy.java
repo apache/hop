@@ -23,10 +23,10 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -45,9 +45,9 @@ public class ActionDummy extends ActionBase implements IAction {
   }
 
   public ActionDummy(String name) {
-     super(name, "");
+    super(name, "");
   }
-  
+
   public Result execute(Result prevResult, int nr) throws HopException {
     prevResult.setResult(true);
     prevResult.setNrErrors(0);
@@ -59,11 +59,14 @@ public class ActionDummy extends ActionBase implements IAction {
     return super.getXml();
   }
 
-  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables) throws HopXmlException {     
+  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
     super.loadXml(actionNode);
   }
 
-  public void check(List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider) {
-      
-  }
+  public void check(
+      List<ICheckResult> remarks,
+      WorkflowMeta workflowMeta,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {}
 }

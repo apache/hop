@@ -20,7 +20,7 @@ under the License.
 
 = Mariadb
 
-[width="90%", cols="2*", options="header"]
+[width="90%",cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational
@@ -28,5 +28,5 @@ under the License.
 |Version Included | None
 |Hop Dependencies | Mysql Database plugin
 |Documentation | https://mariadb.com/kb/en/about-mariadb-connector-j/[Documentation Link]
-|JDBC Url | 
+|JDBC Url |
 |===

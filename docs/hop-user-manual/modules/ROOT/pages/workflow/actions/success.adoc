@@ -25,7 +25,7 @@ The Success Action action clears any error state encountered in a workflow and f
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

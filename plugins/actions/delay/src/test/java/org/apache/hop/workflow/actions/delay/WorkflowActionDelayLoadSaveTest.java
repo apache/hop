@@ -16,21 +16,24 @@
  */
 package org.apache.hop.workflow.actions.delay;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionDelayLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionDelay> {
+public class WorkflowActionDelayLoadSaveTest
+    extends WorkflowActionLoadSaveTestSupport<ActionDelay> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Override protected Class<ActionDelay> getActionClass() {
+  @Override
+  protected Class<ActionDelay> getActionClass() {
     return ActionDelay.class;
   }
 
-  @Override protected List<String> listCommonAttributes() {
-    return Arrays.asList( "maximumTimeout", "scaleTime" );
+  @Override
+  protected List<String> listCommonAttributes() {
+    return Arrays.asList("maximumTimeout", "scaleTime");
   }
 }

@@ -15,7 +15,6 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[HopGui]]
-
 = Hop Gui
 
 This page covers a number of topics that are very specific to working with Hop Gui.

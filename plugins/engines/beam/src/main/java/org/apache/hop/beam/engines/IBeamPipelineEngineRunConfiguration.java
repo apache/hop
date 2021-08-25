@@ -25,16 +25,24 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 public interface IBeamPipelineEngineRunConfiguration extends IPipelineEngineRunConfiguration {
 
   RunnerType getRunnerType();
+
   PipelineOptions getPipelineOptions() throws HopException;
+
   boolean isRunningAsynchronous();
 
   String getUserAgent();
-  String getTempLocation();
-  String getPluginsToStage();
-  String getTransformPluginClasses();
-  String getXpPluginClasses();
-  String getStreamingHopTransformsFlushInterval();
-  String getStreamingHopTransformsBufferSize();
-  String getFatJar();
 
+  String getTempLocation();
+
+  String getPluginsToStage();
+
+  String getTransformPluginClasses();
+
+  String getXpPluginClasses();
+
+  String getStreamingHopTransformsFlushInterval();
+
+  String getStreamingHopTransformsBufferSize();
+
+  String getFatJar();
 }

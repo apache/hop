@@ -28,7 +28,7 @@ public class SearchEnabledFolderIterator implements Iterator<Message> {
 
   private Message next;
 
-  public SearchEnabledFolderIterator( Iterator<Message> messageIterator, SearchTerm search ) {
+  public SearchEnabledFolderIterator(Iterator<Message> messageIterator, SearchTerm search) {
     this.iterator = messageIterator;
     this.searchTerm = search;
     fetchNext();
@@ -36,7 +36,7 @@ public class SearchEnabledFolderIterator implements Iterator<Message> {
 
   @Override
   public boolean hasNext() {
-    return next != null && searchTerm.match( next );
+    return next != null && searchTerm.match(next);
   }
 
   @Override
@@ -60,16 +60,14 @@ public class SearchEnabledFolderIterator implements Iterator<Message> {
 
   private void fetchNext() {
 
-    while ( iterator.hasNext() ) {
+    while (iterator.hasNext()) {
       next = iterator.next();
-      if ( searchTerm.match( next ) ) {
+      if (searchTerm.match(next)) {
         return;
-      } else if ( !iterator.hasNext() ) {
+      } else if (!iterator.hasNext()) {
         break;
       }
     }
     next = null;
-
   }
-
 }

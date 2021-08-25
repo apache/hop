@@ -18,15 +18,15 @@
 package org.apache.hop.core;
 
 public interface IProgressMonitor {
-  void beginTask( String message, int nrWorks );
+  void beginTask(String message, int nrWorks);
 
-  void subTask( String message );
+  void subTask(String message);
 
   boolean isCanceled();
 
-  void worked( int nrWorks );
+  void worked(int nrWorks);
 
   void done();
 
-  void setTaskName( String taskName );
+  void setTaskName(String taskName);
 }

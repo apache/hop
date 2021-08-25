@@ -36,55 +36,60 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, Data extends SalesforceTransformData>
-  extends BaseTransformMeta
-  implements ITransformMeta<Main, Data> {
+public abstract class SalesforceTransformMeta<
+        Main extends SalesforceTransform, Data extends SalesforceTransformData>
+    extends BaseTransformMeta implements ITransformMeta<Main, Data> {
 
   private static Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 
   /** The Salesforce Target URL */
-  @Injection( name = "SALESFORCE_URL" )
+  @Injection(name = "SALESFORCE_URL")
   private String targetUrl;
 
   /** The userName */
-  @Injection( name = "SALESFORCE_USERNAME" )
+  @Injection(name = "SALESFORCE_USERNAME")
   private String username;
 
   /** The password */
-  @Injection( name = "SALESFORCE_PASSWORD" )
+  @Injection(name = "SALESFORCE_PASSWORD")
   private String password;
 
   /** The time out */
-  @Injection( name = "TIME_OUT" )
+  @Injection(name = "TIME_OUT")
   private String timeout;
 
   /** The connection compression */
-  @Injection( name = "USE_COMPRESSION" )
+  @Injection(name = "USE_COMPRESSION")
   private boolean compression;
 
   /** The Salesforce module */
-  @Injection( name = "MODULE" )
+  @Injection(name = "MODULE")
   private String module;
 
   public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " ).append( XmlHandler.addTagValue( "targeturl", getTargetUrl() ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "username", getUsername() ) );
-    retval.append( "    " ).append(
-      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "timeout", getTimeout() ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "useCompression", isCompression() ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "module", getModule() ) );
+    retval.append("    ").append(XmlHandler.addTagValue("targeturl", getTargetUrl()));
+    retval.append("    ").append(XmlHandler.addTagValue("username", getUsername()));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue(
+                "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
+    retval.append("    ").append(XmlHandler.addTagValue("timeout", getTimeout()));
+    retval.append("    ").append(XmlHandler.addTagValue("useCompression", isCompression()));
+    retval.append("    ").append(XmlHandler.addTagValue("module", getModule()));
     return retval.toString();
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    setTargetUrl( XmlHandler.getTagValue( transformNode, "targeturl" ) );
-    setUsername( XmlHandler.getTagValue( transformNode, "username" ) );
-    setPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) ) );
-    setTimeout( XmlHandler.getTagValue( transformNode, "timeout" ) );
-    setCompression( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useCompression" ) ) );
-    setModule( XmlHandler.getTagValue( transformNode, "module" ) );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    setTargetUrl(XmlHandler.getTagValue(transformNode, "targeturl"));
+    setUsername(XmlHandler.getTagValue(transformNode, "username"));
+    setPassword(
+        Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(transformNode, "password")));
+    setTimeout(XmlHandler.getTagValue(transformNode, "timeout"));
+    setCompression("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "useCompression")));
+    setModule(XmlHandler.getTagValue(transformNode, "module"));
   }
 
   public Object clone() {
@@ -93,82 +98,93 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
   }
 
   public void setDefault() {
-    setTargetUrl( SalesforceConnectionUtils.TARGET_DEFAULT_URL );
-    setUsername( "" );
-    setPassword( "" );
-    setTimeout( "60000" );
-    setCompression( false );
-    setModule( "Account" );
+    setTargetUrl(SalesforceConnectionUtils.TARGET_DEFAULT_URL);
+    setUsername("");
+    setPassword("");
+    setTimeout("60000");
+    setCompression(false);
+    setModule("Account");
   }
 
-  @Override public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                               IHopMetadataProvider metadataProvider ) {
+  @Override
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
     // check URL
-    if ( Utils.isEmpty( getTargetUrl() ) ) {
+    if (Utils.isEmpty(getTargetUrl())) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceTransformMeta.CheckResult.NoURL" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.NoURL"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceTransformMeta.CheckResult.URLOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.URLOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // check user name
-    if ( Utils.isEmpty( getUsername() ) ) {
+    if (Utils.isEmpty(getUsername())) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceTransformMeta.CheckResult.NoUsername" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.NoUsername"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceTransformMeta.CheckResult.UsernameOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.UsernameOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // check module
-    if ( Utils.isEmpty( getModule() ) ) {
+    if (Utils.isEmpty(getModule())) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "SalesforceTransformMeta.CheckResult.NoModule" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.NoModule"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "SalesforceTransformMeta.CheckResult.ModuleOk" ), transformMeta );
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.ModuleOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
   }
 
-  /**
-   * @return Returns the Target URL.
-   */
+  /** @return Returns the Target URL. */
   public String getTargetUrl() {
     return targetUrl;
   }
 
-  /**
-   * @param targetUrl
-   *          The Target URL to set.
-   */
-  public void setTargetUrl( String targetUrl ) {
+  /** @param targetUrl The Target URL to set. */
+  public void setTargetUrl(String targetUrl) {
     this.targetUrl = targetUrl;
   }
 
-  /**
-   * @return Returns the UserName.
-   */
+  /** @return Returns the UserName. */
   public String getUsername() {
     return username;
   }
 
-  /**
-   * @param username
-   *          The Username to set.
-   */
-  public void setUsername( String username ) {
+  /** @param username The Username to set. */
+  public void setUsername(String username) {
     this.username = username;
   }
 
@@ -178,37 +194,27 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
   }
 
   @Deprecated
-  public void setUserName( String username ) {
-    setUsername( username );
+  public void setUserName(String username) {
+    setUsername(username);
   }
 
-  /**
-   * @return Returns the Password.
-   */
+  /** @return Returns the Password. */
   public String getPassword() {
     return password;
   }
 
-  /**
-   * @param password
-   *          The password to set.
-   */
-  public void setPassword( String password ) {
+  /** @param password The password to set. */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  /**
-   * @return Returns the connection timeout.
-   */
+  /** @return Returns the connection timeout. */
   public String getTimeout() {
     return timeout;
   }
 
-  /**
-   * @param timeOut
-   *          The connection timeout to set.
-   */
-  public void setTimeout( String timeout ) {
+  /** @param timeOut The connection timeout to set. */
+  public void setTimeout(String timeout) {
     this.timeout = timeout;
   }
 
@@ -218,40 +224,35 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
   }
 
   @Deprecated
-  public void setTimeOut( String timeOut ) {
-    setTimeout( timeOut );
+  public void setTimeOut(String timeOut) {
+    setTimeout(timeOut);
   }
 
   public boolean isCompression() {
     return compression;
   }
 
-  public void setCompression( boolean compression ) {
+  public void setCompression(boolean compression) {
     this.compression = compression;
   }
 
-  /**
-   * @return Returns the useCompression.
-   */
+  /** @return Returns the useCompression. */
   @Deprecated
   public boolean isUsingCompression() {
     return isCompression();
   }
 
-  /**
-   * @param useCompression
-   *          The useCompression to set.
-   */
+  /** @param useCompression The useCompression to set. */
   @Deprecated
-  public void setUseCompression( boolean useCompression ) {
-    setCompression( useCompression );
+  public void setUseCompression(boolean useCompression) {
+    setCompression(useCompression);
   }
 
   public String getModule() {
     return module;
   }
 
-  public void setModule( String module ) {
+  public void setModule(String module) {
     this.module = module;
   }
 }

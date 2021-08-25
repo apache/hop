@@ -18,5 +18,5 @@
 package org.apache.hop.core.changed;
 
 public interface IHopObserver {
-  void update( IChanged o, Object arg );
+  void update(IChanged o, Object arg);
 }

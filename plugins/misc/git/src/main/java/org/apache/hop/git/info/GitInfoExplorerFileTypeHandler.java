@@ -54,24 +54,12 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /** Show git information about a file or folder : revisions */
 public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
@@ -246,7 +234,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
     wbDiff = new Button(wDiffComposite, SWT.PUSH);
     props.setLook(wbDiff);
-    wbDiff.setEnabled( false );
+    wbDiff.setEnabled(false);
     wbDiff.setText("Visual diff");
     wbDiff.addListener(SWT.Selection, e -> showHopFileDiff());
     FormData fdbDiff = new FormData();
@@ -316,7 +304,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
         commitIdNew = revisionId;
         commitIdOld = git.getParentCommitId(revisionId);
 
-        if (commitIdOld==null) {
+        if (commitIdOld == null) {
           return; // No parent to compare to
         }
       }
@@ -407,7 +395,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   }
 
   private void showWorkflowFileDiff(String filename, String commitIdNew, String commitIdOld)
-    throws HopException {
+      throws HopException {
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
 
@@ -419,9 +407,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       xmlStreamNew = git.open(filename, commitIdNew);
 
       WorkflowMeta workflowMetaOld =
-        new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
+          new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
       WorkflowMeta workflowMetaNew =
-        new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
+          new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       workflowMetaOld = HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true);
       workflowMetaOld = HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true);
@@ -434,19 +422,19 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       // Change the name to indicate the git revisions of the file
       //
       workflowMetaOld.setName(
-        String.format(
-          "%s (%s -> %s)",
-          workflowMetaOld.getName(),
-          git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT),
-          git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT)));
+          String.format(
+              "%s (%s -> %s)",
+              workflowMetaOld.getName(),
+              git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT),
+              git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT)));
       workflowMetaOld.setNameSynchronizedWithFilename(false);
 
       workflowMetaNew.setName(
-        String.format(
-          "%s (%s -> %s)",
-          workflowMetaNew.getName(),
-          git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT),
-          git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT)));
+          String.format(
+              "%s (%s -> %s)",
+              workflowMetaNew.getName(),
+              git.getShortenedName(commitIdNew, VCS.TYPE_COMMIT),
+              git.getShortenedName(commitIdOld, VCS.TYPE_COMMIT)));
       workflowMetaNew.setNameSynchronizedWithFilename(false);
 
       // Load both in the data orchestration perspective...
@@ -492,7 +480,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     }
     // If the file is already selected simply refresh the view.
     //
-    if (file.getFilename().equals( wFile.getText()) ) {
+    if (file.getFilename().equals(wFile.getText())) {
       refresh();
       return;
     }
@@ -574,7 +562,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
       // If it's the last revision then we can't compare it to the previous one...
       //
-      if (wRevisions.getSelectionIndex()==wRevisions.table.getItemCount()-1) {
+      if (wRevisions.getSelectionIndex() == wRevisions.table.getItemCount() - 1) {
         return; // Don't even try to compare with something that's not there.
       }
 

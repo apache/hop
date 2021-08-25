@@ -26,74 +26,66 @@ import java.util.Comparator;
  * @author matt
  */
 @XmlRootElement
-public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, Comparable<HopServerObjectEntry> {
+public class HopServerObjectEntry
+    implements Comparator<HopServerObjectEntry>, Comparable<HopServerObjectEntry> {
   private String name;
   private String id;
 
-  public HopServerObjectEntry() {
-  }
+  public HopServerObjectEntry() {}
 
-  public HopServerObjectEntry( String name, String id ) {
+  public HopServerObjectEntry(String name, String id) {
     this.name = name;
     this.id = id;
   }
 
   @Override
-  public boolean equals( Object obj ) {
-    if ( !( obj instanceof HopServerObjectEntry ) ) {
+  public boolean equals(Object obj) {
+    if (!(obj instanceof HopServerObjectEntry)) {
       return false;
     }
-    if ( obj == this ) {
+    if (obj == this) {
       return true;
     }
 
     HopServerObjectEntry entry = (HopServerObjectEntry) obj;
 
-    return entry.getId().equals( id );
+    return entry.getId().equals(id);
   }
 
   public int hashCode() {
     return id.hashCode();
   }
 
-  public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
-    int cmpName = o1.getName().compareTo( o2.getName() );
-    if ( cmpName != 0 ) {
+  public int compare(HopServerObjectEntry o1, HopServerObjectEntry o2) {
+    int cmpName = o1.getName().compareTo(o2.getName());
+    if (cmpName != 0) {
       return cmpName;
     }
 
-    return o1.getId().compareTo( o2.getId() );
+    return o1.getId().compareTo(o2.getId());
   }
 
-  public int compareTo( HopServerObjectEntry o ) {
-    return compare( this, o );
+  public int compareTo(HopServerObjectEntry o) {
+    return compare(this, o);
   }
 
-  /**
-   * @return the name
-   */
+  /** @return the name */
   public String getName() {
     return name;
   }
 
-  /**
-   * @param name the name to set
-   */
-  public void setName( String name ) {
+  /** @param name the name to set */
+  public void setName(String name) {
     this.name = name;
   }
 
-  /**
-   * @return the id
-   */
+  /** @return the id */
   public String getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
-  public void setId( String id ) {
+  /** @param id the id to set */
+  public void setId(String id) {
     this.id = id;
   }
 }

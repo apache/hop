@@ -22,7 +22,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 
 /**
- * A common interface for all metas aware of the csv input format, such as CSV Input and Text File Input
+ * A common interface for all metas aware of the csv input format, such as CSV Input and Text File
+ * Input
  */
 public interface ICsvInputAwareMeta {
 
@@ -39,12 +40,11 @@ public interface ICsvInputAwareMeta {
   boolean hasHeader();
 
   /**
-   * Returns a {@link FileObject} that corresponds to the first encountered input file. This object is used to read the
-   * file headers for the purpose of field parsing.
+   * Returns a {@link FileObject} that corresponds to the first encountered input file. This object
+   * is used to read the file headers for the purpose of field parsing.
    *
    * @param variables the {@link PipelineMeta}
    * @return null if the {@link FileObject} cannot be created.
    */
-  FileObject getHeaderFileObject( final IVariables variables );
-
+  FileObject getHeaderFileObject(final IVariables variables);
 }

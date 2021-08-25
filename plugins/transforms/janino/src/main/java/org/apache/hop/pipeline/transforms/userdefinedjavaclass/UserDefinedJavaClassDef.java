@@ -25,19 +25,20 @@ import java.util.Objects;
 
 public class UserDefinedJavaClassDef implements Cloneable {
   public enum ClassType {
-    NORMAL_CLASS, TRANSFORM_CLASS
+    NORMAL_CLASS,
+    TRANSFORM_CLASS
   }
 
   private ClassType classType;
   private boolean classActive;
 
-  @Injection( name = "CLASS_NAME", group = "JAVA_CLASSES" )
+  @Injection(name = "CLASS_NAME", group = "JAVA_CLASSES")
   private String className;
 
-  @Injection( name = "CLASS_SOURCE", group = "JAVA_CLASSES" )
+  @Injection(name = "CLASS_SOURCE", group = "JAVA_CLASSES")
   private String source;
 
-  public UserDefinedJavaClassDef( ClassType classType, String className, String source ) {
+  public UserDefinedJavaClassDef(ClassType classType, String className, String source) {
     super();
     this.classType = classType;
     this.className = className;
@@ -46,17 +47,17 @@ public class UserDefinedJavaClassDef implements Cloneable {
   }
 
   public int hashCode() {
-    return Objects.hash( className, source );
+    return Objects.hash(className, source);
   }
 
   public String getChecksum() throws HopTransformException {
     String ck = this.className + this.source;
     try {
-      byte[] b = MessageDigest.getInstance( "MD5" ).digest( ck.getBytes() );
-      return Hex.encodeHexString( b );
-    } catch ( Exception ex ) {
+      byte[] b = MessageDigest.getInstance("MD5").digest(ck.getBytes());
+      return Hex.encodeHexString(b);
+    } catch (Exception ex) {
       // Can't get MD5 hashcode ?
-      throw new HopTransformException( "Unable to obtain checksum of UDJC - " + this.className );
+      throw new HopTransformException("Unable to obtain checksum of UDJC - " + this.className);
     }
   }
 
@@ -64,7 +65,7 @@ public class UserDefinedJavaClassDef implements Cloneable {
     return classType;
   }
 
-  public void setClassType( ClassType classType ) {
+  public void setClassType(ClassType classType) {
     this.classType = classType;
   }
 
@@ -77,36 +78,36 @@ public class UserDefinedJavaClassDef implements Cloneable {
   }
 
   public String getTransformedSource() throws HopTransformException {
-    StringBuilder sb = new StringBuilder( getSource() );
-    appendConstructor( sb );
+    StringBuilder sb = new StringBuilder(getSource());
+    appendConstructor(sb);
     return sb.toString();
   }
 
-  public void setSource( String source ) {
+  public void setSource(String source) {
     this.source = source;
   }
 
   private static final String CONSTRUCTOR =
-    "\n\npublic %s(UserDefinedJavaClass parent, UserDefinedJavaClassMeta meta, UserDefinedJavaClassData data) "
-      + "throws HopTransformException { super(parent,meta,data);}";
+      "\n\npublic %s(UserDefinedJavaClass parent, UserDefinedJavaClassMeta meta, UserDefinedJavaClassData data) "
+          + "throws HopTransformException { super(parent,meta,data);}";
 
-  private void appendConstructor( StringBuilder sb ) {
-    sb.append( String.format( CONSTRUCTOR, className ) );
+  private void appendConstructor(StringBuilder sb) {
+    sb.append(String.format(CONSTRUCTOR, className));
   }
 
   public String getClassName() {
     return className;
   }
 
-  public void setClassName( String className ) {
+  public void setClassName(String className) {
     this.className = className;
   }
 
   public boolean isTransformClass() {
-    return ( this.classActive && this.classType == ClassType.TRANSFORM_CLASS );
+    return (this.classActive && this.classType == ClassType.TRANSFORM_CLASS);
   }
 
-  public void setActive( boolean classActive ) {
+  public void setActive(boolean classActive) {
     this.classActive = classActive;
   }
 

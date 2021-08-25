@@ -37,7 +37,5 @@ public class FlattenerData extends BaseTransformData implements ITransformData {
 
   public FlattenerData() {
     super();
-
   }
-
 }

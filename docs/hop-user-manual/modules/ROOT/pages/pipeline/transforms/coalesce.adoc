@@ -25,17 +25,20 @@ Lets you combine multiple fields into one, selecting the first value that is non
 
 == Options
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform. *Note*: This name has to be unique in a single pipeline.
+|Transform name|Name of the transform.
+*Note*: This name has to be unique in a single pipeline.
 |Considered empty string as null|The transform can consider empty string as null.
 |===
 
 == Fields
-|Fields|specify the name, type, and value in the form of a string. Then, specify the formats to convert the value into the chosen data type.
 
-[width="90%", options="header"]
+|Fields|specify the name, type, and value in the form of a string.
+Then, specify the formats to convert the value into the chosen data type.
+
+[width="90%",options="header"]
 |===
 |Name|The result field name, can overwrite an existing one.
 |Type|The formats to convert the value into the chosen data type.

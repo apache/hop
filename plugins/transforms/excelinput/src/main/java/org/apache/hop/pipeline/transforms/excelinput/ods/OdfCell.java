@@ -37,37 +37,39 @@ public class OdfCell implements IKCell {
 
   private OdfTableCell cell;
 
-  public OdfCell( OdfTableCell cell ) {
+  public OdfCell(OdfTableCell cell) {
     this.cell = cell;
   }
 
   public KCellType getType() {
 
     String type = cell.getValueType();
-    if ( Utils.isEmpty( type ) ) {
+    if (Utils.isEmpty(type)) {
       return KCellType.EMPTY;
     }
 
-    if ( TYPE_BOOLEAN.equals( type ) ) {
-      if ( Utils.isEmpty( cell.getFormula() ) ) {
+    if (TYPE_BOOLEAN.equals(type)) {
+      if (Utils.isEmpty(cell.getFormula())) {
         return KCellType.BOOLEAN;
       } else {
         return KCellType.BOOLEAN_FORMULA;
       }
-    } else if ( TYPE_CURRENCY.equals( type ) || TYPE_FLOAT.equals( type ) || TYPE_PERCENTAGE.equals( type ) ) {
-      if ( Utils.isEmpty( cell.getFormula() ) ) {
+    } else if (TYPE_CURRENCY.equals(type)
+        || TYPE_FLOAT.equals(type)
+        || TYPE_PERCENTAGE.equals(type)) {
+      if (Utils.isEmpty(cell.getFormula())) {
         return KCellType.NUMBER;
       } else {
         return KCellType.NUMBER_FORMULA;
       }
-    } else if ( TYPE_DATE.equals( type ) || TYPE_TIME.equals( type ) ) { // Validate!
-      if ( Utils.isEmpty( cell.getFormula() ) ) {
+    } else if (TYPE_DATE.equals(type) || TYPE_TIME.equals(type)) { // Validate!
+      if (Utils.isEmpty(cell.getFormula())) {
         return KCellType.DATE;
       } else {
         return KCellType.DATE_FORMULA;
       }
-    } else if ( TYPE_STRING.equals( type ) ) {
-      if ( Utils.isEmpty( cell.getFormula() ) ) {
+    } else if (TYPE_STRING.equals(type)) {
+      if (Utils.isEmpty(cell.getFormula())) {
         return KCellType.LABEL;
       } else {
         return KCellType.STRING_FORMULA;
@@ -81,7 +83,7 @@ public class OdfCell implements IKCell {
 
   public Object getValue() {
     try {
-      switch ( getType() ) {
+      switch (getType()) {
         case BOOLEAN_FORMULA:
         case BOOLEAN:
           return cell.getBooleanValue();
@@ -90,12 +92,12 @@ public class OdfCell implements IKCell {
           // Timezone conversion needed since POI doesn't support this apparently
           //
           long time = cell.getDateValue().getTime().getTime();
-          long tzOffset = TimeZone.getDefault().getOffset( time );
+          long tzOffset = TimeZone.getDefault().getOffset(time);
 
-          return new Date( time + tzOffset );
+          return new Date(time + tzOffset);
         case NUMBER_FORMULA:
         case NUMBER:
-          return Double.valueOf( cell.getDoubleValue() );
+          return Double.valueOf(cell.getDoubleValue());
         case STRING_FORMULA:
         case LABEL:
           return cell.getStringValue();
@@ -103,22 +105,28 @@ public class OdfCell implements IKCell {
         default:
           return null;
       }
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Unable to get value of cell ("
-        + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")", e );
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to get value of cell (" + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")",
+          e);
     }
   }
 
   public String getContents() {
     try {
       Object value = getValue();
-      if ( value == null ) {
+      if (value == null) {
         return null;
       }
       return value.toString();
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Unable to get string content of cell ("
-        + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")", e );
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Unable to get string content of cell ("
+              + cell.getColumnIndex()
+              + ", "
+              + cell.getRowIndex()
+              + ")",
+          e);
     }
   }
 

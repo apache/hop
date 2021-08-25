@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -320,6 +321,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -330,11 +332,12 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
+
     CheckResult cr;
     String errorMessage = "";
 
     if (database != null) {
-      Database db = new Database(pipelineMeta, variables, database );
+      Database db = new Database(new LoggingObject(pipelineMeta), variables, database);
       try {
         db.connect();
 

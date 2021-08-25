@@ -1,4 +1,3 @@
-
 ////
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -31,6 +30,7 @@ include::snippets/hop-concepts/hop-projects-environments.adoc[]
 include::snippets/hop-concepts/metadata.adoc[]
 
 == Various
+
 The following items are an alphabetically ordered list of concepts that are used throughout Hop and will be mentioned at various locations in the Hop tools and documentation.
 
 

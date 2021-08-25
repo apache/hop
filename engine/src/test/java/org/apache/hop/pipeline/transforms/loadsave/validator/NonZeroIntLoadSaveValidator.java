@@ -23,18 +23,17 @@ public class NonZeroIntLoadSaveValidator extends IntLoadSaveValidator {
     super();
   }
 
-  public NonZeroIntLoadSaveValidator( Integer maxValue ) {
-    super( maxValue );
+  public NonZeroIntLoadSaveValidator(Integer maxValue) {
+    super(maxValue);
   }
 
   @Override
   public Integer getTestObject() {
     Integer rtn = super.getTestObject();
-    if ( rtn.intValue() == 0 ) {
+    if (rtn.intValue() == 0) {
       return 1;
     } else {
       return rtn;
     }
   }
-
 }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
@@ -39,11 +40,7 @@ import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
@@ -314,11 +311,9 @@ public class MetaInjectMeta extends BaseTransformMeta
       //
       if (mappingPipelineMeta == null) {
         mappingPipelineMeta = new PipelineMeta(realFilename, metadataProvider, false, tmpSpace);
-        mappingPipelineMeta
-            .getLogChannel()
-            .logDetailed(
-                "Loading Mapping from repository",
-                "Mapping transformation was loaded from XML file [" + realFilename + "]");
+        LogChannel.GENERAL.logDetailed(
+            "Loading Mapping from repository",
+            "Mapping transformation was loaded from XML file [" + realFilename + "]");
       }
     } catch (Exception e) {
       throw new HopException(

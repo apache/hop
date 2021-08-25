@@ -17,13 +17,11 @@
 
 package org.apache.hop.core.injection;
 
-/**
- * Wrong declaration - two annotations on the one field.
- */
-@InjectionSupported( localizationPrefix = "" )
+/** Wrong declaration - two annotations on the one field. */
+@InjectionSupported(localizationPrefix = "")
 public class MetaBeanWrong1 {
 
-  @Injection( name = "TEST" )
+  @Injection(name = "TEST")
   @InjectionDeep
   private String s;
 }

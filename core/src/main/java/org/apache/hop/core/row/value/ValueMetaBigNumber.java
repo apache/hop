@@ -23,28 +23,27 @@ import org.apache.hop.core.row.IValueMeta;
 import java.math.BigDecimal;
 
 @ValueMetaPlugin(
-  id = "6",
-  name = "BigNumber",
-  description = "BigNumber",
-  image = "images/number.svg"
-)
+    id = "6",
+    name = "BigNumber",
+    description = "BigNumber",
+    image = "images/number.svg")
 public class ValueMetaBigNumber extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaBigNumber() {
-    this( null );
+    this(null);
   }
 
-  public ValueMetaBigNumber( String name ) {
-    super( name, IValueMeta.TYPE_BIGNUMBER );
+  public ValueMetaBigNumber(String name) {
+    super(name, IValueMeta.TYPE_BIGNUMBER);
   }
 
-  public ValueMetaBigNumber( String name, int length, int precision ) {
-    super( name, IValueMeta.TYPE_BIGNUMBER, length, precision );
+  public ValueMetaBigNumber(String name, int length, int precision) {
+    super(name, IValueMeta.TYPE_BIGNUMBER, length, precision);
   }
 
   @Override
-  public Object getNativeDataType( Object object ) throws HopValueException {
-    return getBigNumber( object );
+  public Object getNativeDataType(Object object) throws HopValueException {
+    return getBigNumber(object);
   }
 
   @Override
@@ -56,5 +55,4 @@ public class ValueMetaBigNumber extends ValueMetaBase implements IValueMeta {
   public String getFormatMask() {
     return getBigNumberFormatMask();
   }
-
 }

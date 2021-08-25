@@ -45,5 +45,4 @@ public class DatabaseJoinData extends BaseTransformData implements ITransformDat
     db = null;
     notfound = null;
   }
-
 }

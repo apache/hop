@@ -28,15 +28,13 @@ public class TimedRow {
    * @param logDate
    * @param row
    */
-  public TimedRow( Date logDate, Object[] row ) {
+  public TimedRow(Date logDate, Object[] row) {
     this.logDate = logDate;
     this.row = row;
   }
 
-  /**
-   * @param row
-   */
-  public TimedRow( Object[] row ) {
+  /** @param row */
+  public TimedRow(Object[] row) {
     this.logDate = new Date();
     this.row = row;
   }
@@ -44,44 +42,36 @@ public class TimedRow {
   @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
-    for ( int i = 0; i < row.length; i++ ) {
-      if ( i > 0 ) {
-        str.append( ", " );
+    for (int i = 0; i < row.length; i++) {
+      if (i > 0) {
+        str.append(", ");
       }
-      if ( row[ i ] == null ) {
-        str.append( "null" );
+      if (row[i] == null) {
+        str.append("null");
       } else {
-        str.append( row[ i ].toString() );
+        str.append(row[i].toString());
       }
     }
     return str.toString();
   }
 
-  /**
-   * @return the row
-   */
+  /** @return the row */
   public Object[] getRow() {
     return row;
   }
 
-  /**
-   * @param row the row to set
-   */
-  public void setRow( Object[] row ) {
+  /** @param row the row to set */
+  public void setRow(Object[] row) {
     this.row = row;
   }
 
-  /**
-   * @return the logDate
-   */
+  /** @return the logDate */
   public Date getLogDate() {
     return logDate;
   }
 
-  /**
-   * @param logDate the logDate to set
-   */
-  public void setLogDate( Date logDate ) {
+  /** @param logDate the logDate to set */
+  public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }
 
@@ -91,10 +81,9 @@ public class TimedRow {
    * @return the logging time for this row.
    */
   public long getLogtime() {
-    if ( logDate == null ) {
+    if (logDate == null) {
       return 0L;
     }
     return logDate.getTime();
   }
-
 }

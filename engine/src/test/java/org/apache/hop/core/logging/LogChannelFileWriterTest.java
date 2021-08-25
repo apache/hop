@@ -32,70 +32,64 @@ import java.io.OutputStream;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith( MockitoJUnitRunner.class )
+@RunWith(MockitoJUnitRunner.class)
 public class LogChannelFileWriterTest {
 
   String id = "1";
   String logMessage = "Log message";
 
-  @Mock
-  FileObject fileObject;
-  @Mock
-  FileContent fileContent;
-  @Mock
-  OutputStream outputStream;
-  @Captor
-  ArgumentCaptor<byte[]> captor;
+  @Mock FileObject fileObject;
+  @Mock FileContent fileContent;
+  @Mock OutputStream outputStream;
+  @Captor ArgumentCaptor<byte[]> captor;
 
   @Before
   public void setup() throws Exception {
-    when( fileObject.getContent() ).thenReturn( fileContent );
-    when( fileContent.getOutputStream( anyBoolean() ) ).thenReturn( outputStream );
+    when(fileObject.getContent()).thenReturn(fileContent);
+    when(fileContent.getOutputStream(anyBoolean())).thenReturn(outputStream);
   }
 
   @Test
   public void test() throws Exception {
 
-    LogChannelFileWriter writer = new LogChannelFileWriter( id, fileObject, false );
+    LogChannelFileWriter writer = new LogChannelFileWriter(id, fileObject, false);
 
-    LoggingRegistry.getInstance().getLogChannelFileWriterBuffer( id ).addEvent(
-      new HopLoggingEvent( logMessage, System.currentTimeMillis(), LogLevel.BASIC ) );
+    LoggingRegistry.getInstance()
+        .getLogChannelFileWriterBuffer(id)
+        .addEvent(new HopLoggingEvent(logMessage, System.currentTimeMillis(), LogLevel.BASIC));
 
     writer.flush();
 
-    verify( outputStream ).write( captor.capture() );
+    verify(outputStream).write(captor.capture());
 
-    String arguments = new String( captor.getValue() );
-    assertTrue( arguments.contains( logMessage ) );
+    String arguments = new String(captor.getValue());
+    assertTrue(arguments.contains(logMessage));
   }
 
   @Test
   public void testStartStopLogging() throws Exception {
-    LogChannelFileWriter writer = new LogChannelFileWriter( id, fileObject, false );
+    LogChannelFileWriter writer = new LogChannelFileWriter(id, fileObject, false);
 
-    doAnswer( invocationOnMock -> {
-      Thread.sleep( 2000 );
-      return null;
-    } )
-      .when( outputStream ).close();
+    doAnswer(
+            invocationOnMock -> {
+              Thread.sleep(2000);
+              return null;
+            })
+        .when(outputStream)
+        .close();
 
     writer.startLogging();
 
-    Thread.sleep( 500 );
+    Thread.sleep(500);
 
-    verify( outputStream, atLeastOnce() ).write( any( byte[].class ) );
-    verify( outputStream, atLeastOnce() ).flush();
-    verify( outputStream, never() ).close();
+    verify(outputStream, atLeastOnce()).write(any(byte[].class));
+    verify(outputStream, atLeastOnce()).flush();
+    verify(outputStream, never()).close();
 
     writer.stopLogging();
 
-    verify( outputStream ).close();
-
+    verify(outputStream).close();
   }
 }

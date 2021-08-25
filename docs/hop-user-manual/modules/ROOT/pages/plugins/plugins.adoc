@@ -23,7 +23,8 @@ The plugins are located in the following location `Instalation Directory/plugins
 
 The current plugin structure looks like this (with the amount of changes happening in Hop, new plugins may have appeared in your latest nightly build).
 
-This plugin organization is mainly technical, there is no 1 on 1 mapping between the plugins you'll find in the plugins directory and what you'll see in Hop Gui. For Example, the neo4j plugins category contains plugins for actions, transforms, metadata types, the Neo4j perspective etc.
+This plugin organization is mainly technical, there is no 1 on 1 mapping between the plugins you'll find in the plugins directory and what you'll see in Hop Gui.
+For Example, the neo4j plugins category contains plugins for actions, transforms, metadata types, the Neo4j perspective etc.
 
 * xref:workflow/actions.adoc[Action Plugins]
 * xref:database/databases.adoc[Database Plugins]

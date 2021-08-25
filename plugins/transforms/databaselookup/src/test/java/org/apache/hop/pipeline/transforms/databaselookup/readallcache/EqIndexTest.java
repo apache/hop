@@ -25,10 +25,8 @@ import java.util.List;
 
 import static org.junit.Assert.fail;
 
-/**
- * @author Andrey Khayrutdinov
- */
-@RunWith( Parameterized.class )
+/** @author Andrey Khayrutdinov */
+@RunWith(Parameterized.class)
 public class EqIndexTest extends IndexTestBase<EqIndex> {
 
   @Parameterized.Parameters
@@ -36,44 +34,47 @@ public class EqIndexTest extends IndexTestBase<EqIndex> {
     return IndexTestBase.createSampleData();
   }
 
-  public EqIndexTest( Long[][] rows ) {
-    super( EqIndex.class, rows );
+  public EqIndexTest(Long[][] rows) {
+    super(EqIndex.class, rows);
   }
 
   @Override
-  void doAssertMatches( BitSet candidates, long lookupValue, long actualValue ) {
-    if ( lookupValue != actualValue ) {
-      fail( String.format( "Expected to find [%d] among %s, but got [%d]", lookupValue, candidates, actualValue ) );
+  void doAssertMatches(BitSet candidates, long lookupValue, long actualValue) {
+    if (lookupValue != actualValue) {
+      fail(
+          String.format(
+              "Expected to find [%d] among %s, but got [%d]",
+              lookupValue, candidates, actualValue));
     }
   }
 
   @Override
   public void lookupFor_MinusOne() {
-    testFindsNothing( -1 );
+    testFindsNothing(-1);
   }
 
   @Override
   public void lookupFor_Zero() {
-    testFindsCorrectly( 0, 1 );
+    testFindsCorrectly(0, 1);
   }
 
   @Override
   public void lookupFor_One() {
-    testFindsCorrectly( 1, 1 );
+    testFindsCorrectly(1, 1);
   }
 
   @Override
   public void lookupFor_Two() {
-    testFindsCorrectly( 2, 2 );
+    testFindsCorrectly(2, 2);
   }
 
   @Override
   public void lookupFor_Three() {
-    testFindsCorrectly( 3, 1 );
+    testFindsCorrectly(3, 1);
   }
 
   @Override
   public void lookupFor_Hundred() {
-    testFindsNothing( 100 );
+    testFindsNothing(100);
   }
 }

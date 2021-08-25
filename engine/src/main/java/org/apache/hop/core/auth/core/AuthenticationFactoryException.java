@@ -22,15 +22,15 @@ import org.apache.hop.core.exception.HopException;
 public class AuthenticationFactoryException extends HopException {
   private static final long serialVersionUID = -7649037092966810244L;
 
-  public AuthenticationFactoryException( String message ) {
-    super( message );
+  public AuthenticationFactoryException(String message) {
+    super(message);
   }
 
-  public AuthenticationFactoryException( String message, Throwable cause ) {
-    super( message, cause );
+  public AuthenticationFactoryException(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  public AuthenticationFactoryException( Throwable cause ) {
-    super( cause );
+  public AuthenticationFactoryException(Throwable cause) {
+    super(cause);
   }
 }

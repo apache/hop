@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.server.HttpUtil;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

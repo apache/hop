@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.pipeline.transforms.metainject;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;

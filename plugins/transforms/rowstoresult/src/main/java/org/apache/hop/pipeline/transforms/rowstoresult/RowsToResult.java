@@ -32,35 +32,40 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultData> implements ITransform<RowsToResultMeta, RowsToResultData> {
+public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultData>
+    implements ITransform<RowsToResultMeta, RowsToResultData> {
   private static final Class<?> PKG = RowsToResult.class; // For Translator
 
-  public RowsToResult( TransformMeta transformMeta, RowsToResultMeta meta, RowsToResultData data, int copyNr, PipelineMeta pipelineMeta,
-                       Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  public RowsToResult(
+      TransformMeta transformMeta,
+      RowsToResultMeta meta,
+      RowsToResultData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
-    if ( r == null ) { // no more input to be expected...
+    if (r == null) { // no more input to be expected...
 
-
-      ((Pipeline)getPipeline()).getResultRows().addAll( data.rows );
+      ((Pipeline) getPipeline()).getResultRows().addAll(data.rows);
 
       setOutputDone();
       return false;
     }
 
     // Add all rows to rows buffer...
-    data.rows.add( new RowMetaAndData( getInputRowMeta(), r ) );
+    data.rows.add(new RowMetaAndData(getInputRowMeta(), r));
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
-    putRow( data.outputRowMeta, r ); // copy row to possible alternate
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    putRow(data.outputRowMeta, r); // copy row to possible alternate
     // rowset(s).
 
-    if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "RowsToResult.Log.LineNumber" ) + getLinesRead() );
+    if (checkFeedback(getLinesRead())) {
+      logBasic(BaseMessages.getString(PKG, "RowsToResult.Log.LineNumber") + getLinesRead());
     }
 
     return true;
@@ -68,11 +73,10 @@ public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultDa
 
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
       // Add init code here.
       return true;
     }
     return false;
   }
-
 }

@@ -32,10 +32,7 @@ import org.apache.hop.workflow.WorkflowPainterExtension;
 
 import java.util.Map;
 
-import static org.apache.hop.git.HopDiff.ADDED;
-import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
-import static org.apache.hop.git.HopDiff.CHANGED;
-import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.*;
 
 @ExtensionPoint(
     id = "DrawDiffOnWorkflowHopExtensionPoint",
@@ -53,13 +50,13 @@ public class DrawDiffOnWorkflowHopExtensionPoint
 
     try {
       Map<String, String> gitHops = ext.workflowMeta.getAttributes(ATTR_GIT_HOPS);
-      if (gitHops==null) {
+      if (gitHops == null) {
         return;
       }
 
       for (String hopName : gitHops.keySet()) {
 
-        String workflowHopName = HopDiff.getWorkflowHopName( ext.workflowHop );
+        String workflowHopName = HopDiff.getWorkflowHopName(ext.workflowHop);
 
         if (ext.workflowHop != null && workflowHopName.equals(hopName)) {
           // Draw this status...
@@ -93,7 +90,13 @@ public class DrawDiffOnWorkflowHopExtensionPoint
               }
 
               gc.drawImage(
-                  svgFile, middle.x, middle.y, iconSize/2, iconSize/2, gc.getMagnification(), 0);
+                  svgFile,
+                  middle.x,
+                  middle.y,
+                  iconSize / 2,
+                  iconSize / 2,
+                  gc.getMagnification(),
+                  0);
             }
           }
         }

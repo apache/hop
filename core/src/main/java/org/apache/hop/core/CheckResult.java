@@ -29,8 +29,12 @@ public class CheckResult implements ICheckResult {
   private static final Class<?> PKG = Const.class; // For Translator
 
   public static final String[] typeDesc = {
-    "", BaseMessages.getString( PKG, "CheckResult.OK" ), BaseMessages.getString( PKG, "CheckResult.Remark" ),
-    BaseMessages.getString( PKG, "CheckResult.Warning" ), BaseMessages.getString( PKG, "CheckResult.Error" ) };
+    "",
+    BaseMessages.getString(PKG, "CheckResult.OK"),
+    BaseMessages.getString(PKG, "CheckResult.Remark"),
+    BaseMessages.getString(PKG, "CheckResult.Warning"),
+    BaseMessages.getString(PKG, "CheckResult.Error")
+  };
 
   private int type;
 
@@ -43,17 +47,17 @@ public class CheckResult implements ICheckResult {
   private String errorCode;
 
   public CheckResult() {
-    this( ICheckResult.TYPE_RESULT_NONE, "", null );
+    this(ICheckResult.TYPE_RESULT_NONE, "", null);
   }
 
-  public CheckResult( int t, String s, ICheckResultSource sourceMeta ) {
+  public CheckResult(int t, String s, ICheckResultSource sourceMeta) {
     type = t;
     text = s;
     this.sourceMeta = sourceMeta;
   }
 
-  public CheckResult( int t, String errorCode, String s, ICheckResultSource sourceMeta ) {
-    this( t, s, sourceMeta );
+  public CheckResult(int t, String errorCode, String s, ICheckResultSource sourceMeta) {
+    this(t, s, sourceMeta);
     this.errorCode = errorCode;
   }
 
@@ -64,7 +68,7 @@ public class CheckResult implements ICheckResult {
 
   @Override
   public String getTypeDesc() {
-    return typeDesc[ type ];
+    return typeDesc[type];
   }
 
   @Override
@@ -80,39 +84,34 @@ public class CheckResult implements ICheckResult {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append( typeDesc[ type ] ).append( ": " ).append( text );
+    sb.append(typeDesc[type]).append(": ").append(text);
 
-    if ( sourceMeta != null ) {
-      sb.append( " (" ).append( sourceMeta.getName() ).append( ")" );
+    if (sourceMeta != null) {
+      sb.append(" (").append(sourceMeta.getName()).append(")");
     }
 
     return sb.toString();
   }
 
-  /**
-   * @return the errorCode
-   */
+  /** @return the errorCode */
   @Override
   public String getErrorCode() {
     return errorCode;
   }
 
-  /**
-   * @param errorCode the errorCode to set
-   */
+  /** @param errorCode the errorCode to set */
   @Override
-  public void setErrorCode( String errorCode ) {
+  public void setErrorCode(String errorCode) {
     this.errorCode = errorCode;
   }
 
   @Override
-  public void setText( String value ) {
+  public void setText(String value) {
     this.text = value;
   }
 
   @Override
-  public void setType( int value ) {
+  public void setType(int value) {
     this.type = value;
   }
-
 }
