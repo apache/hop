@@ -49,7 +49,7 @@ public class WebServiceGuiPlugin {
       type = GuiActionType.Info,
       name = "Add web service",
       tooltip = "Use the output of this transform as a web service with Hop Server",
-      image = "ui/images/server.svg",
+      image = "ui/images/webservice.svg",
       category = "Data routing",
       categoryOrder = "2")
   public void addWebServiceForTransform(HopGuiPipelineTransformContext context) {
