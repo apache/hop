@@ -43,12 +43,6 @@ public class HopGuiPipelineHopDelegate {
   // TODO: move i18n package to HopGui
   private static final Class<?> PKG = HopGui.class; // For Translator
 
-  public static final int MESSAGE_DIALOG_WITH_TOGGLE_YES_BUTTON_ID = 256;
-
-  public static final int MESSAGE_DIALOG_WITH_TOGGLE_NO_BUTTON_ID = 257;
-
-  public static final int MESSAGE_DIALOG_WITH_TOGGLE_CUSTOM_DISTRIBUTION_BUTTON_ID = 258;
-
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
   private PropsUi props;
@@ -176,8 +170,7 @@ public class HopGuiPipelineHopDelegate {
         int idx = md.open();
         props.setShowCopyOrDistributeWarning(!md.getToggleState());
 
-        distributes = idx == MESSAGE_DIALOG_WITH_TOGGLE_YES_BUTTON_ID;
-        customDistribution = idx == MESSAGE_DIALOG_WITH_TOGGLE_CUSTOM_DISTRIBUTION_BUTTON_ID;
+        distributes = idx == 0; // first button is "distribute"
       }
 
       if (distributes) {
@@ -190,7 +183,6 @@ public class HopGuiPipelineHopDelegate {
         fr.setDistributes(true);
         fr.setRowDistribution(rowDistribution);
       } else {
-        fr.setDistributes(false);
         fr.setDistributes(false);
       }
 

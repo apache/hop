@@ -53,7 +53,7 @@ limitations under the License.
       <description/>
       <type>ABORT</type>
       <attributes/>
-      <messageAbort>Abort this workflow</messageAbort>
+      <message>Abort this workflow</message>
       <parallel>N</parallel>
       <xloc>336</xloc>
       <yloc>128</yloc>
