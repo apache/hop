@@ -25,6 +25,7 @@ Hop Conf is a command line tool to manage environments.
 The *hop-conf.sh* script can be run with the *-h* flag (`./hop-conf.sh -h`) to display available options.
 
 [source,bash]
+----
 Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
                     [-pn] [-py] [-aza=<account>] [-azi=<blockIncrement>]
                     [-azk=<key>] [-cfg=<configFile>]
@@ -160,8 +161,7 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
                             Export project metadata to a single JSON file which you
                               can specify with this option. Also specify the -p
                               option.
-
-====
+----
 
 The available options are listed below:
 

@@ -36,7 +36,7 @@ A project's metadata is stored in `{openvar}PROJECT_HOME{closevar}/metadata`, bu
 A basic project metadata folder will look similar to the one below:
 
 [source,bash]
----
+----
 
 .
 ├── cassandra-connection
@@ -62,4 +62,4 @@ A basic project metadata folder will look similar to the one below:
 └── workflow-run-configuration
     └── local.json
 18 directories, 4 files
----
+----

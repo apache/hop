@@ -61,5 +61,3 @@ The fields returned by this transform are
 * mask
 * decimal_symbol
 * grouping_symbol
-
-|===
