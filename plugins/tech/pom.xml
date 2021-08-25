@@ -53,6 +53,7 @@
                 </property>
             </activation>
             <modules>
+                <module>aws</module>
                 <module>azure</module>
                 <module>avro</module>
                 <module>cassandra</module>

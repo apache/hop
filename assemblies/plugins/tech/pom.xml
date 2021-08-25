@@ -35,6 +35,7 @@
 
     <modules>
         <module>avro</module>
+        <module>aws</module>        
         <module>azure</module>
         <module>cassandra</module>
         <module>dropbox</module>

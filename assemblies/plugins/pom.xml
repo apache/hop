@@ -37,7 +37,6 @@
         <module>databases</module>
         <module>engines</module>
         <module>misc</module>
-        <module>vfs</module>
         <module>tech</module>
         <module>transforms</module>
         <module>valuetypes</module>
