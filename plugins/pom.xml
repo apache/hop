@@ -51,7 +51,6 @@
                 <module>tech</module>
                 <module>transforms</module>
                 <module>valuetypes</module>
-                <module>vfs</module>
             </modules>
         </profile>
 
