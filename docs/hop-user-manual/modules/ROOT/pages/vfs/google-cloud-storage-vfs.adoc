@@ -52,7 +52,7 @@ Once done you will see a `googleCloud` entry in the central `hop-config.json` fi
 
 == Usage and testing
 
-To test if the configuration works type use File/Open in the GUI and type in googledrive:// as a file location.
+To test if the configuration works type use File/Open in the GUI and type in gs:// as a file location.
 Then hit enter (or click the refresh button).
 Browse to a CSV, JSON or text file you uploaded and open it.
 If all is configured correctly you should be able to see the content in the Hop GUI.

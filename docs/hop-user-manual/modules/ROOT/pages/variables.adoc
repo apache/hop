@@ -73,12 +73,12 @@ This also means that's important to know where variables can be set and used and
 
 === System properties
 
-All system properties defined in the Hop configuration file 'config.json' are available as variables as well as all Java system properties.
+All system properties defined in the Hop configuration file 'hop-config.json' are available as variables as well as all Java system properties.
 You can define new system properties in the Hop GUI using the system properties editor:
 
 image::system-properties-menu.png[The system properties menu in Hop GUI]
 
-You can also edit the config.json file manually:
+You can also edit the 'hop-config.json' file manually:
 
 [source,json]
 {
