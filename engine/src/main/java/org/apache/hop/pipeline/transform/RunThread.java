@@ -43,6 +43,7 @@ public class RunThread implements Runnable {
     this.log = transform.getLogChannel();
   }
 
+  @Override
   public void run() {
     try {
       transform.setRunning(true);

@@ -280,6 +280,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     busyChangingPluginType.set(false);
   }
 
+  @Override
   public void save() throws HopException {
     changeWorkingEngineConfiguration(runConfiguration);
 

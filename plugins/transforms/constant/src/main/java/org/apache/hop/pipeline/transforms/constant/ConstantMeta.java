@@ -141,6 +141,7 @@ public class ConstantMeta extends BaseTransformMeta
     Constant.buildRow(meta, data, remarks);
   }
 
+  @Override
   public Constant createTransform(
       TransformMeta transformMeta,
       ConstantData data,
@@ -150,6 +151,7 @@ public class ConstantMeta extends BaseTransformMeta
     return new Constant(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public ConstantData getTransformData() {
     return new ConstantData();
   }

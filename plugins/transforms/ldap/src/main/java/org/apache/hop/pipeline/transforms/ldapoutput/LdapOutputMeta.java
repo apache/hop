@@ -170,6 +170,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the input useCertificate. */
+  @Override
   public boolean isUseCertificate() {
     return useCertificate;
   }
@@ -180,6 +181,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the input trustAllCertificates. */
+  @Override
   public boolean isTrustAllCertificates() {
     return trustAllCertificates;
   }
@@ -190,6 +192,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the trustStorePath. */
+  @Override
   public String getTrustStorePassword() {
     return trustStorePassword;
   }
@@ -200,6 +203,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the trustStorePath. */
+  @Override
   public String getTrustStorePath() {
     return trustStorePath;
   }
@@ -210,6 +214,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the protocol. */
+  @Override
   public String getProtocol() {
     return protocol;
   }
@@ -384,6 +389,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the host name. */
+  @Override
   public String getHost() {
     return host;
   }
@@ -422,6 +428,7 @@ public class LdapOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the Port. */
+  @Override
   public String getPort() {
     return port;
   }
@@ -441,11 +448,13 @@ public class LdapOutputMeta extends BaseTransformMeta
     this.failIfNotExist = failIfNotExist;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     LdapOutputMeta retval = (LdapOutputMeta) super.clone();
     int nrvalues = updateLookup.length;
@@ -535,6 +544,7 @@ public class LdapOutputMeta extends BaseTransformMeta
     return derefAliasesTypeCode[i];
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
 
@@ -665,6 +675,7 @@ public class LdapOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     useAuthentication = false;
     host = "";
@@ -697,6 +708,7 @@ public class LdapOutputMeta extends BaseTransformMeta
     this.useCertificate = false;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -758,6 +770,7 @@ public class LdapOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public LdapOutput createTransform(
       TransformMeta transformMeta,
       LdapOutputData data,
@@ -767,10 +780,12 @@ public class LdapOutputMeta extends BaseTransformMeta
     return new LdapOutput(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public LdapOutputData getTransformData() {
     return new LdapOutputData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

@@ -1067,6 +1067,7 @@ public class TextFileInputMeta
     this.acceptingTransform = acceptingTransform;
   }
 
+  @Override
   public int getFileFormatTypeNr() {
     // calculate the file format type in advance so we can use a switch
     if (content.fileFormat.equalsIgnoreCase("DOS")) {
@@ -1170,11 +1171,13 @@ public class TextFileInputMeta
   }
 
   /** Required for the Data Lineage. */
+  @Override
   public boolean isAcceptingFilenames() {
     return inputFiles.acceptingFilenames;
   }
 
   /** Required for the Data Lineage. */
+  @Override
   public String getAcceptingTransformName() {
     return inputFiles.acceptingTransformName;
   }
@@ -1185,6 +1188,7 @@ public class TextFileInputMeta
   }
 
   /** Required for the Data Lineage. */
+  @Override
   public String getAcceptingField() {
     return inputFiles.acceptingField;
   }

@@ -53,6 +53,7 @@ public class BeamInputDialog extends BaseTransformDialog implements ITransformDi
     input = (BeamInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

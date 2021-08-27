@@ -213,6 +213,7 @@ public class PipelineExecutorMeta
     outputRowsPrecision = new int[nrFields];
   }
 
+  @Override
   public Object clone() {
     PipelineExecutorMeta retval = (PipelineExecutorMeta) super.clone();
     int nrFields = outputRowsField.length;
@@ -224,6 +225,7 @@ public class PipelineExecutorMeta
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -341,6 +343,7 @@ public class PipelineExecutorMeta
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     try {
@@ -415,6 +418,7 @@ public class PipelineExecutorMeta
     }
   }
 
+  @Override
   public void setDefault() {
     parameters = new PipelineExecutorParameters();
     parameters.setInheritingAllVariables(true);
@@ -528,6 +532,7 @@ public class PipelineExecutorMeta
     return infoTransforms.length == 0 ? null : infoTransforms;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -578,6 +583,7 @@ public class PipelineExecutorMeta
     }
   }
 
+  @Override
   public ITransform createTransform(
       TransformMeta transformMeta,
       PipelineExecutorData data,
@@ -604,6 +610,7 @@ public class PipelineExecutorMeta
     return references;
   }
 
+  @Override
   public PipelineExecutorData getTransformData() {
     return new PipelineExecutorData();
   }
@@ -654,6 +661,7 @@ public class PipelineExecutorMeta
    *
    * @param stream The optional stream to handle.
    */
+  @Override
   public void handleStreamSelection(IStream stream) {
     // This transform targets another transform.
     // Make sure that we don't specify the same transform for more than 1 target...
@@ -678,6 +686,7 @@ public class PipelineExecutorMeta
   }
 
   /** Remove the cached {@link TransformIOMeta} so it is recreated when it is next accessed. */
+  @Override
   public void resetTransformIoMeta() {}
 
   @Override
@@ -692,6 +701,7 @@ public class PipelineExecutorMeta
         TransformMeta.findTransform(transforms, executorsOutputTransform);
   }
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,
@@ -925,6 +935,7 @@ public class PipelineExecutorMeta
   }
 
   /** @return The objects referenced in the transform, like a mapping, a pipeline, ... */
+  @Override
   public String[] getReferencedObjectDescriptions() {
     return new String[] {
       BaseMessages.getString(PKG, "PipelineExecutorMeta.ReferencedObject.Description"),
@@ -935,6 +946,7 @@ public class PipelineExecutorMeta
     return StringUtils.isNotEmpty(filename);
   }
 
+  @Override
   public boolean[] isReferencedObjectEnabled() {
     return new boolean[] {
       isPipelineDefined(),
@@ -949,6 +961,7 @@ public class PipelineExecutorMeta
    * @return the referenced object once loaded
    * @throws HopException
    */
+  @Override
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return loadMappingMeta(this, metadataProvider, variables);

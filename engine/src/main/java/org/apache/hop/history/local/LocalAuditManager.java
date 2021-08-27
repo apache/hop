@@ -227,6 +227,7 @@ public class LocalAuditManager implements IAuditManager {
    * @return The map. An empty one if there are any loading problems. They are simply logged and you
    *     start over.
    */
+  @Override
   public AuditStateMap loadAuditStateMap(String group, String type) {
     String filename = calculateStateFilename(group, type);
     try {
@@ -243,6 +244,7 @@ public class LocalAuditManager implements IAuditManager {
     }
   }
 
+  @Override
   public void saveAuditStateMap(String group, String type, AuditStateMap auditStateMap)
       throws HopException {
     String filename = calculateStateFilename(group, type);
@@ -313,6 +315,7 @@ public class LocalAuditManager implements IAuditManager {
    * @return The map. An empty one if there are any loading problems. They are simply logged and you
    *     start over.
    */
+  @Override
   public Map<String, String> loadMap(String group, String type) {
     String filename = calculateMapFilename(group, type);
     try {
@@ -329,6 +332,7 @@ public class LocalAuditManager implements IAuditManager {
     }
   }
 
+  @Override
   public void saveMap(String group, String type, Map<String, String> map) throws HopException {
     String filename = calculateMapFilename(group, type);
     try {

@@ -155,6 +155,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     input = (MailInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -170,6 +171,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             closeMailConnection();
@@ -286,6 +288,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     wUseSSL.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             closeMailConnection();
             refreshPort(true);
@@ -368,6 +371,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     wUseProxy.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setUserProxy();
             input.setChanged();
@@ -389,6 +393,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wUseBatch.setToolTipText(BaseMessages.getString(PKG, "MailInputDialog.UseBatch.Tooltip"));
     wUseBatch.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setBatchSettingsEnabled();
           }
@@ -410,6 +415,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wProtocol.select(0);
     wProtocol.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshProtocol(true);
           }
@@ -510,6 +516,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     wListmails.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             chooseListMails();
@@ -575,6 +582,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wDynamicFolder.setLayoutData(fddynamicFolder);
     SelectionAdapter lsxmlstream =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activedynamicFolder();
             input.setChanged();
@@ -603,8 +611,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wFolderField.setLayoutData(fdFolderField);
     wFolderField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             setFolderField();
           }
@@ -697,6 +707,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     wIMAPListmails.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // ChooseIMAPListmails();
 
@@ -931,6 +942,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wConditionOnReceivedDate.setLayoutData(fdConditionOnReceivedDate);
     wConditionOnReceivedDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             conditionReceivedDate();
             input.setChanged();
@@ -946,6 +958,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     open.setLayoutData(fdlButton);
     open.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             final Shell dialog = new Shell(shell, SWT.DIALOG_TRIM);
             dialog.setText(BaseMessages.getString(PKG, "MailInput.SelectDate"));
@@ -962,6 +975,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
             ok.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             ok.addSelectionListener(
                 new SelectionAdapter() {
+                  @Override
                   public void widgetSelected(SelectionEvent e) {
                     Calendar cal = Calendar.getInstance();
                     cal.set(Calendar.YEAR, calendar.getYear());
@@ -1011,6 +1025,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     opento.setLayoutData(fdlButtonto);
     opento.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             final Shell dialogto = new Shell(shell, SWT.DIALOG_TRIM);
             dialogto.setText(BaseMessages.getString(PKG, "MailInput.SelectDate"));
@@ -1026,6 +1041,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
             okto.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             okto.addSelectionListener(
                 new SelectionAdapter() {
+                  @Override
                   public void widgetSelected(SelectionEvent e) {
                     Calendar cal = Calendar.getInstance();
                     cal.set(Calendar.YEAR, calendarto.getYear());
@@ -1563,6 +1579,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wlUseSSL.setEnabled(enableRemoteOpts);
   }
 
+  @Override
   public void dispose() {
     closeMailConnection();
     WindowProperty winprop = new WindowProperty(shell);

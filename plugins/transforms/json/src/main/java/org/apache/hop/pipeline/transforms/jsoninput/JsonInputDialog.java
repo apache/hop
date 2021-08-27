@@ -138,6 +138,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     input = (JsonInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -210,6 +211,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
                 wFilename.getText(),
@@ -231,6 +233,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -242,6 +245,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -259,6 +263,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             try {
               JsonInputMeta tfii = new JsonInputMeta();
@@ -295,6 +300,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Enable/disable the right fields to allow a filename to be added to each row...
     wInclFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeFilename();
           }
@@ -303,6 +309,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     // Enable/disable the right fields to allow a row number to be added to each row...
     wInclRownum.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeRownum();
           }
@@ -536,6 +543,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wIgnoreMissingPath);
     wIgnoreMissingPath.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -562,6 +570,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wDefaultPathLeafToNull);
     wDefaultPathLeafToNull.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -795,6 +804,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wSourceStreamField.setLayoutData(fdSourceStreamField);
     SelectionAdapter lsstream =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activeStreamField();
             input.setChanged();
@@ -848,6 +858,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wSourceIsAFile.setLayoutData(fdSourceIsAFile);
     SelectionAdapter lssourceisafile =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             if (wSourceIsAFile.getSelection()) {
               wReadUrl.setSelection(false);
@@ -875,6 +886,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wReadUrl.setLayoutData(fdreadUrl);
     SelectionAdapter lsreadurl =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             if (wReadUrl.getSelection()) {
               wSourceIsAFile.setSelection(false);

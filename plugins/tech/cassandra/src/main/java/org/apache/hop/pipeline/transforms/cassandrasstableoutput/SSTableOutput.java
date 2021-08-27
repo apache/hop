@@ -190,7 +190,7 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
         return false;
       }
       // create record
-      Map<String, Object> record = new HashMap<String, Object>();
+      Map<String, Object> record = new HashMap<>();
       for (int i = 0; i < fieldNames.length; i++) {
         Object value = r[fieldValueIndices[i]];
         if (value == null || "".equals(value)) {

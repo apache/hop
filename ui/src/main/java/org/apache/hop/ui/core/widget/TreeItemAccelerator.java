@@ -36,6 +36,7 @@ public class TreeItemAccelerator {
     if (doubleClick != null) {
       final SelectionAdapter selectionAdapter =
           new SelectionAdapter() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent selectionEvent) {
               TreeItem[] items = tree.getSelection();
               for (int i = 0; i < items.length; i++) {

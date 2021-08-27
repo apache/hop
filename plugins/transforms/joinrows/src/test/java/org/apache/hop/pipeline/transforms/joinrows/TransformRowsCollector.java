@@ -41,14 +41,17 @@ public class TransformRowsCollector implements IRowListener {
     rowsError = new ArrayList<>();
   }
 
+  @Override
   public void rowReadEvent(IRowMeta rowMeta, Object[] row) {
     rowsRead.add(new RowMetaAndData(rowMeta, row));
   }
 
+  @Override
   public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
     rowsWritten.add(new RowMetaAndData(rowMeta, row));
   }
 
+  @Override
   public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) {
     rowsError.add(new RowMetaAndData(rowMeta, row));
   }

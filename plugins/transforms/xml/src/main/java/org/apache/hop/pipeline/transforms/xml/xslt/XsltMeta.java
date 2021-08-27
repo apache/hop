@@ -184,6 +184,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     outputPropertyValue = new String[outputProps];
   }
 
+  @Override
   public Object clone() {
     XsltMeta retval = (XsltMeta) super.clone();
     int nrparams = parameterName.length;
@@ -276,6 +277,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     }
   }
 
+  @Override
   public void setDefault() {
     xslFilename = null;
     fieldName = null;
@@ -299,6 +301,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -313,6 +316,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     inputRowMeta.addValueMeta(v);
   }
 
+  @Override
   public String getXml() {
     StringBuffer retval = new StringBuffer();
 
@@ -347,6 +351,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -466,6 +471,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

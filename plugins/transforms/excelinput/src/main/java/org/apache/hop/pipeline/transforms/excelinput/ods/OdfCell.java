@@ -41,6 +41,7 @@ public class OdfCell implements IKCell {
     this.cell = cell;
   }
 
+  @Override
   public KCellType getType() {
 
     String type = cell.getValueType();
@@ -81,6 +82,7 @@ public class OdfCell implements IKCell {
     return null; // unknown type!
   }
 
+  @Override
   public Object getValue() {
     try {
       switch (getType()) {
@@ -112,6 +114,7 @@ public class OdfCell implements IKCell {
     }
   }
 
+  @Override
   public String getContents() {
     try {
       Object value = getValue();
@@ -130,6 +133,7 @@ public class OdfCell implements IKCell {
     }
   }
 
+  @Override
   public int getRow() {
     return cell.getRowIndex();
   }

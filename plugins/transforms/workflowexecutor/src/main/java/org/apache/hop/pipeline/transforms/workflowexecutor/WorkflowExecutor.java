@@ -449,18 +449,21 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     return false;
   }
 
+  @Override
   public void dispose() {
     data.groupBuffer = null;
 
     super.dispose();
   }
 
+  @Override
   public void stopRunning() throws HopException {
     if (data.executorWorkflow != null) {
       data.executorWorkflow.stopExecution();
     }
   }
 
+  @Override
   public void stopAll() {
     // Stop the workflow execution.
     if (data.executorWorkflow != null) {

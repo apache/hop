@@ -74,6 +74,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -169,6 +170,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wSMTPCheck.setLayoutData(fdSMTPCheck);
     wSMTPCheck.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSMTPCheck();
           }

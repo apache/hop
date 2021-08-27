@@ -159,6 +159,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     }
   }
 
+  @Override
   public void close() throws HopException {
     for (Iterator<Writer> iter = writers.values().iterator(); iter.hasNext(); ) {
       close(iter.next());
@@ -187,6 +188,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     }
   }
 
+  @Override
   public void handleFile(FileObject file) throws HopException {
     close();
     this.processingFilename = file.getName().getBaseName();

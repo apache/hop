@@ -127,6 +127,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     this.action = (ActionShell) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
     display = parent.getDisplay();
@@ -217,6 +218,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wInsertScript.setLayoutData(fdInsertScript);
     wInsertScript.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeInsertScript();
             action.setChanged();
@@ -314,6 +316,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wSetLogfile.setLayoutData(fdSetLogfile);
     wSetLogfile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setLogfile = !action.setLogfile;
             action.setChanged();
@@ -340,6 +343,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wAppendLogfile.setLayoutData(fdAppendLogfile);
     wAppendLogfile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -397,6 +401,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.addDate = !action.addDate;
             action.setChanged();
@@ -421,6 +426,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.addTime = !action.addTime;
             action.setChanged();
@@ -473,6 +479,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.argFromPrevious = !action.argFromPrevious;
             action.setChanged();
@@ -501,6 +508,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wEveryRow.setLayoutData(fdEveryRow);
     wEveryRow.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.execPerRow = !action.execPerRow;
             action.setChanged();

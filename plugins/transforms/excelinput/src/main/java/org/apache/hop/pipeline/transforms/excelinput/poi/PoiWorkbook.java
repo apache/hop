@@ -88,6 +88,7 @@ public class PoiWorkbook implements IKWorkbook {
     }
   }
 
+  @Override
   public void close() {
     try {
       if (internalIS != null) {
@@ -114,6 +115,7 @@ public class PoiWorkbook implements IKWorkbook {
     return new PoiSheet(sheet);
   }
 
+  @Override
   public String[] getSheetNames() {
     int nrSheets = workbook.getNumberOfSheets();
     String[] names = new String[nrSheets];
@@ -131,10 +133,12 @@ public class PoiWorkbook implements IKWorkbook {
     return encoding;
   }
 
+  @Override
   public int getNumberOfSheets() {
     return workbook.getNumberOfSheets();
   }
 
+  @Override
   public IKSheet getSheet(int sheetNr) {
     Sheet sheet = workbook.getSheetAt(sheetNr);
     if (sheet == null) {
@@ -143,6 +147,7 @@ public class PoiWorkbook implements IKWorkbook {
     return new PoiSheet(sheet);
   }
 
+  @Override
   public String getSheetName(int sheetNr) {
     Sheet sheet = (Sheet) getSheet(sheetNr);
     if (sheet == null) {

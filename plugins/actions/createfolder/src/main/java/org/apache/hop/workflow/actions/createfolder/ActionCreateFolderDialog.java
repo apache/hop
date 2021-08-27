@@ -68,6 +68,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -159,6 +160,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wAbortExists.setLayoutData(fdAbortExists);
     wAbortExists.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

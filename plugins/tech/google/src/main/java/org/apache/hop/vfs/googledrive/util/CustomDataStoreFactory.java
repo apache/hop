@@ -45,6 +45,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
     }
   }
 
+  @Override
   protected <V extends Serializable> DataStore<V> createDataStore(String id) throws IOException {
     return new CustomDataStore(this, this.dataDirectory, id);
   }
@@ -77,6 +78,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
       IOUtils.serialize(this.keyValueMap, new FileOutputStream(this.dataFile));
     }
 
+    @Override
     public final Set<String> keySet() throws IOException {
       this.lock.lock();
 
@@ -90,10 +92,12 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
       return var1;
     }
 
+    @Override
     public FileDataStoreFactory getDataStoreFactory() {
       return (FileDataStoreFactory) super.getDataStoreFactory();
     }
 
+    @Override
     public final DataStore<V> clear() throws IOException {
       this.lock.lock();
 
@@ -107,6 +111,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
       return this;
     }
 
+    @Override
     public final Collection<V> values() throws IOException {
       this.lock.lock();
 
@@ -126,6 +131,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
       }
     }
 
+    @Override
     public final V get(String key) throws IOException {
       if (key == null) {
         return null;
@@ -143,6 +149,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
       }
     }
 
+    @Override
     public final DataStore<V> set(String key, V value) throws IOException {
       Preconditions.checkNotNull(key);
       Preconditions.checkNotNull(value);
@@ -158,6 +165,7 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
       return this;
     }
 
+    @Override
     public DataStore<V> delete(String key) throws IOException {
       if (key == null) {
         return this;

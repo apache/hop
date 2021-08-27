@@ -229,6 +229,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     return RowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -356,6 +357,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     return true;
   }
 
+  @Override
   public boolean init() {
     boolean rCode = true;
 
@@ -366,6 +368,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     return false;
   }
 
+  @Override
   public void dispose() {
 
     super.dispose();

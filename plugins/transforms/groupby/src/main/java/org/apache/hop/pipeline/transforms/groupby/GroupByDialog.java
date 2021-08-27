@@ -96,6 +96,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -154,6 +155,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     wAllRows.setLayoutData(fdAllRows);
     wAllRows.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setPassAllRows(!input.passAllRows());
             input.setChanged();
@@ -189,6 +191,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
 
     wbSortDir.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             DirectoryDialog dd = new DirectoryDialog(shell, SWT.NONE);
             dd.setFilterPath(wSortDir.getText());
@@ -238,6 +241,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     wAddLineNr.setLayoutData(fdAddLineNr);
     wAddLineNr.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setAddingLineNrInGroup(!input.isAddingLineNrInGroup());
             input.setChanged();

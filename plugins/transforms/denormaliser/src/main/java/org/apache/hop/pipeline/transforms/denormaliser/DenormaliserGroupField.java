@@ -37,6 +37,7 @@ public class DenormaliserGroupField implements Cloneable {
     this.name = g.name;
   }
 
+  @Override
   public DenormaliserGroupField clone() {
     return new DenormaliserGroupField(this);
   }

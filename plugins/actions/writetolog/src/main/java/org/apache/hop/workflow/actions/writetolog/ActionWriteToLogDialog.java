@@ -73,6 +73,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

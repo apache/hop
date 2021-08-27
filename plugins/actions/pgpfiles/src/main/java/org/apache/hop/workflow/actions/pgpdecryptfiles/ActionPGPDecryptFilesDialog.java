@@ -159,6 +159,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -294,6 +295,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             checkIncludeSubFolders();
@@ -320,6 +322,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             RefreshArgFromPrevious();
@@ -569,6 +572,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(
                 new String[] {
@@ -591,6 +595,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     // Delete files from the list of files...
     wbdSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -602,6 +607,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     // Edit the selected file & remove from the list...
     wbeSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {
@@ -683,6 +689,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wCreateDestinationFolder.setLayoutData(fdCreateDestinationFolder);
     wCreateDestinationFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -709,6 +716,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wDestinationIsAFile.setLayoutData(fdDestinationIsAFile);
     wDestinationIsAFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             action.setChanged();
@@ -736,6 +744,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wDoNotKeepFolderStructure.setLayoutData(fdDoNotKeepFolderStructure);
     wDoNotKeepFolderStructure.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -760,6 +769,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddDateBeforeExtension();
@@ -784,6 +794,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddDateBeforeExtension();
@@ -811,6 +822,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTimeFormat();
@@ -864,6 +876,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddDateBeforeExtension.setLayoutData(fdAddDateBeforeExtension);
     wAddDateBeforeExtension.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -901,6 +914,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     wIfFileExists.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             activeDestinationFolder();
@@ -992,6 +1006,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wCreateMoveToFolder.setLayoutData(fdCreateMoveToFolder);
     wCreateMoveToFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -1017,6 +1032,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddMovedDate.setLayoutData(fdAddMovedDate);
     wAddMovedDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddMovedDateBeforeExtension();
@@ -1042,6 +1058,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddMovedTime.setLayoutData(fdAddMovedTime);
     wAddMovedTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddMovedDateBeforeExtension();
@@ -1069,6 +1086,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wSpecifyMoveFormat.setLayoutData(fdSpecifyMoveFormat);
     wSpecifyMoveFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setMovedDateTimeFormat();
@@ -1122,6 +1140,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddMovedDateBeforeExtension.setLayoutData(fdAddMovedDateBeforeExtension);
     wAddMovedDateBeforeExtension.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -1236,6 +1255,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }
@@ -1311,6 +1331,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

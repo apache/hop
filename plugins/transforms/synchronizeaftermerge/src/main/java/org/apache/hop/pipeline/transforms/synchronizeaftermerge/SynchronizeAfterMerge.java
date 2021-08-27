@@ -690,6 +690,7 @@ public class SynchronizeAfterMerge
     return sql;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] nextRow = getRow(); // Get row from input rowset & set row busy!
@@ -904,6 +905,7 @@ public class SynchronizeAfterMerge
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       try {

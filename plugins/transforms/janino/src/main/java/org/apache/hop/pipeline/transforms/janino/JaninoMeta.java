@@ -79,6 +79,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     formula = new JaninoMetaFunction[nrCalcs];
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     int nrCalcs = XmlHandler.countNodes(transformNode, JaninoMetaFunction.XML_TAG);
@@ -89,6 +90,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -114,6 +116,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     return Arrays.hashCode(formula);
   }
 
+  @Override
   public Object clone() {
     JaninoMeta retval = (JaninoMeta) super.clone();
     if (formula != null) {
@@ -138,6 +141,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     return new Janino(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public void setDefault() {
     formula = new JaninoMetaFunction[0];
   }
@@ -196,6 +200,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
    * @param output The output transform names
    * @param info The fields that are used as information by the transform
    */
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -242,10 +247,12 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     }
   }
 
+  @Override
   public JaninoData getTransformData() {
     return new JaninoData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

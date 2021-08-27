@@ -150,6 +150,7 @@ public class EnterPrintDialog extends Dialog {
     wRows.setThumb(1);
     wRows.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             Slider sl = (Slider) se.widget;
             nrrows = sl.getSelection();
@@ -179,6 +180,7 @@ public class EnterPrintDialog extends Dialog {
     wCols.setThumb(1);
     wCols.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             Slider sl = (Slider) se.widget;
             nrcols = sl.getSelection();
@@ -209,6 +211,7 @@ public class EnterPrintDialog extends Dialog {
     wScale.setPageIncrement(25);
     wScale.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             Slider sl = (Slider) se.widget;
             scale = sl.getSelection();

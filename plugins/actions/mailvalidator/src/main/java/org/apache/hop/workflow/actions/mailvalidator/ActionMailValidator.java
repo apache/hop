@@ -111,11 +111,13 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     this.emailSender = emailSender;
   }
 
+  @Override
   public Object clone() {
     ActionMailValidator je = (ActionMailValidator) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(100);
     retval.append("      ").append(XmlHandler.addTagValue("smtpCheck", smtpCheck));
@@ -129,6 +131,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -152,6 +155,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
    * @param previousResult The result of the previous execution
    * @return The Result of the execution.
    */
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setNrErrors(1);

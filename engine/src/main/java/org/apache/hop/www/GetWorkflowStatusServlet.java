@@ -57,6 +57,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
     super(workflowMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -363,10 +364,12 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
     return "Workflow Status IHandler";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

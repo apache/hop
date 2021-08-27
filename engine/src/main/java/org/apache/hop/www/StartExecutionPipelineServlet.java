@@ -47,6 +47,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -194,6 +195,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     return "Start pipeline";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
@@ -202,6 +204,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     pipeline.startThreads();
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

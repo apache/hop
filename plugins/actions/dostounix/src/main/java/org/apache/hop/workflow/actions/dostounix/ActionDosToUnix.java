@@ -137,6 +137,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     conversionTypes = new int[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionDosToUnix je = (ActionDosToUnix) super.clone();
     if (sourceFileFolder != null) {
@@ -543,10 +544,12 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
           FileObject[] fileObjects =
               sourcefilefolder.findFiles(
                   new AllFileSelector() {
+                    @Override
                     public boolean traverseDescendents(FileSelectInfo info) {
                       return info.getDepth() == 0 || includeSubFolders;
                     }
 
+                    @Override
                     public boolean includeFile(FileSelectInfo info) {
 
                       FileObject fileObject = info.getFile();

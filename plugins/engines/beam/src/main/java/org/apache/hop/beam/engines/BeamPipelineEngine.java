@@ -614,6 +614,7 @@ public abstract class BeamPipelineEngine extends Variables
    *
    * @param executionStartedListener the pipeline started listener
    */
+  @Override
   public void addExecutionStartedListener(IExecutionStartedListener executionStartedListener) {
     synchronized (executionStartedListener) {
       executionStartedListeners.add(executionStartedListener);
@@ -625,6 +626,7 @@ public abstract class BeamPipelineEngine extends Variables
    *
    * @param executionFinishedListener the pipeline finished listener
    */
+  @Override
   public void addExecutionFinishedListener(IExecutionFinishedListener executionFinishedListener) {
     synchronized (executionFinishedListener) {
       executionFinishedListeners.add(executionFinishedListener);
@@ -788,19 +790,23 @@ public abstract class BeamPipelineEngine extends Variables
 
   ////////////
 
+  @Override
   public void addActiveSubPipeline(final String subPipelineName, IPipelineEngine subPipeline) {
     activeSubPipelines.put(subPipelineName, subPipeline);
   }
 
+  @Override
   public IPipelineEngine getActiveSubPipeline(final String subPipelineName) {
     return activeSubPipelines.get(subPipelineName);
   }
 
+  @Override
   public void addActiveSubWorkflow(
       final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow) {
     activeSubWorkflows.put(subWorkflowName, subWorkflow);
   }
 
+  @Override
   public IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow(final String subWorkflowName) {
     return activeSubWorkflows.get(subWorkflowName);
   }
@@ -821,6 +827,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /** @param parentPipeline The parentPipeline to set */
+  @Override
   public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
   }
@@ -962,6 +969,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /** @param pipelineRunConfiguration The pipelineRunConfiguration to set */
+  @Override
   public void setPipelineRunConfiguration(PipelineRunConfiguration pipelineRunConfiguration) {
     this.pipelineRunConfiguration = pipelineRunConfiguration;
   }
@@ -1085,6 +1093,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /** @param log The logChannel to set */
+  @Override
   public void setLogChannel(ILogChannel log) {
     this.logChannel = log;
   }
@@ -1254,6 +1263,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /** @param previousResult The previousResult to set */
+  @Override
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
   }
@@ -1357,6 +1367,7 @@ public abstract class BeamPipelineEngine extends Variables
    *
    * @return value of engineCapabilities
    */
+  @Override
   public PipelineEngineCapabilities getEngineCapabilities() {
     return engineCapabilities;
   }

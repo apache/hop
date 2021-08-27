@@ -126,6 +126,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     // Clicking on update changes the options in the update combo boxes!
     wPassAllRows.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setEnableDialog();
@@ -220,6 +221,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wCompress.setLayoutData(fdCompress);
     wCompress.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

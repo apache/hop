@@ -233,6 +233,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     return true;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     try {
       // Grab a row
@@ -499,6 +500,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     return outputRowData;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -536,6 +538,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.file != null) {

@@ -79,6 +79,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     input = (XmlJoinMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -280,6 +281,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     wComplexJoin.setLayoutData(fdComplexJoin);
     wComplexJoin.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -364,8 +366,10 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -393,6 +397,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     wOmitXmlHeader.setLayoutData(fdOmitXMLHeader);
     wOmitXmlHeader.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -415,6 +420,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

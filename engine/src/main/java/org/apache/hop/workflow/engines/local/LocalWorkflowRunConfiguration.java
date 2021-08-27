@@ -61,6 +61,7 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
     this.transactional = config.transactional;
   }
 
+  @Override
   public LocalWorkflowRunConfiguration clone() {
     return new LocalWorkflowRunConfiguration(this);
   }

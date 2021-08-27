@@ -247,6 +247,7 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public ChangeFileEncoding createTransform(
       TransformMeta transformMeta,
       ChangeFileEncodingData data,
@@ -256,6 +257,7 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta
     return new ChangeFileEncoding(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public ChangeFileEncodingData getTransformData() {
     return new ChangeFileEncodingData();
   }

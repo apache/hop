@@ -588,9 +588,9 @@ public abstract class TransformClassBase {
     return rowSet;
   }
 
-  private final Map<String, FieldHelper> inFieldHelpers = new HashMap<String, FieldHelper>();
-  private final Map<String, FieldHelper> infoFieldHelpers = new HashMap<String, FieldHelper>();
-  private final Map<String, FieldHelper> outFieldHelpers = new HashMap<String, FieldHelper>();
+  private final Map<String, FieldHelper> inFieldHelpers = new HashMap<>();
+  private final Map<String, FieldHelper> infoFieldHelpers = new HashMap<>();
+  private final Map<String, FieldHelper> outFieldHelpers = new HashMap<>();
 
   public enum Fields {
     In,

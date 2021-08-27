@@ -203,6 +203,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     this.outputFields = outputFields;
   }
 
+  @Override
   public void loadXml(Node transformnode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformnode);
@@ -212,6 +213,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     outputFields = new JsonOutputField[nrFields];
   }
 
+  @Override
   public Object clone() {
     JsonOutputMeta retval = (JsonOutputMeta) super.clone();
     int nrFields = outputFields.length;
@@ -278,6 +280,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     }
   }
 
+  @Override
   public void setDefault() {
     encoding = Const.XML_ENCODING;
     outputValue = "outputValue";
@@ -296,6 +299,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -319,6 +323,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     return operationTypeCode[i];
   }
 
+  @Override
   public String getXml() {
     StringBuffer retval = new StringBuffer(500);
 
@@ -464,6 +469,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     return new JsonOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public JsonOutputData getTransformData() {
     return new JsonOutputData();
   }
@@ -496,6 +502,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     this.nrRowsInBloc = nrRowsInBloc;
   }
 
+  @Override
   public int getSplitEvery() {
     try {
       return Integer.parseInt(getNrRowsInBloc());
@@ -504,6 +511,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     }
   }
 
+  @Override
   public void setSplitEvery(int splitEvery) {
     setNrRowsInBloc(splitEvery + "");
   }

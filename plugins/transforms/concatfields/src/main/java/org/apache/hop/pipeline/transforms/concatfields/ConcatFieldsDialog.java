@@ -86,6 +86,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -95,6 +96,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
     ModifyListener lsMod =
         new ModifyListener() {
+          @Override
           public void modifyText(ModifyEvent e) {
             input.setChanged();
           }
@@ -202,6 +204,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     wbSeparator.setLayoutData(fdbSeparator);
     wbSeparator.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             // wSeparator.insert("\t");
             wSeparator.getTextWidget().insert("\t");
@@ -358,6 +361,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
     final Runnable runnable =
         new Runnable() {
+          @Override
           public void run() {
             TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
             if (transformMeta != null) {
@@ -397,6 +401,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // Whenever something changes, set the tooltip to the expanded version:
     wTargetFieldName.addModifyListener(
         new ModifyListener() {
+          @Override
           public void modifyText(ModifyEvent e) {
             wTargetFieldName.setToolTipText(variables.resolve(wTargetFieldName.getText()));
           }
@@ -548,6 +553,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
       if (r != null) {
         ITableItemInsertListener listener =
             new ITableItemInsertListener() {
+              @Override
               public boolean tableItemInserted(TableItem tableItem, IValueMeta v) {
                 if (v.isNumber()) {
                   if (v.getLength() > 0) {

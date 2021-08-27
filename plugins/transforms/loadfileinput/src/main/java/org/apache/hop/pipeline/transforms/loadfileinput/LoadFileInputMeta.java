@@ -424,11 +424,13 @@ public class LoadFileInputMeta extends BaseTransformMeta
     this.encoding = encoding;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     LoadFileInputMeta retval = (LoadFileInputMeta) super.clone();
 
@@ -450,6 +452,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -570,6 +573,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     inputFields = new LoadFileInputField[nrFields];
   }
 
+  @Override
   public void setDefault() {
     shortFileFieldName = null;
     pathFieldName = null;
@@ -611,6 +615,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     DynamicFilenameField = null;
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -731,6 +736,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     return includeSubFolderBoolean;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -807,6 +813,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,
@@ -830,6 +837,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public LoadFileInput createTransform(
       TransformMeta transformMeta,
       LoadFileInputData data,
@@ -839,10 +847,12 @@ public class LoadFileInputMeta extends BaseTransformMeta
     return new LoadFileInput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public LoadFileInputData getTransformData() {
     return new LoadFileInputData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

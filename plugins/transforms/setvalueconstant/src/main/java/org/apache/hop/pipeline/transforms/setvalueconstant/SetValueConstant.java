@@ -51,6 +51,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
   }
 
   // CHECKSTYLE:Indentation:OFF
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
@@ -163,6 +164,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
     }
   }
 
+  @Override
   public boolean init() {
 
     return super.init();

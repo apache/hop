@@ -61,6 +61,7 @@ public class HopMetadataBase implements IHopMetadata {
    *
    * @return The name uniquely identifying the metadata object
    */
+  @Override
   public String getName() {
     return name;
   }
@@ -70,6 +71,7 @@ public class HopMetadataBase implements IHopMetadata {
    *
    * @param name The name uniquely identifying the metadata object
    */
+  @Override
   public void setName(String name) {
     this.name = name;
   }
@@ -80,6 +82,7 @@ public class HopMetadataBase implements IHopMetadata {
    *
    * @return The source of metadata or null if it's not specified.
    */
+  @Override
   public String getMetadataProviderName() {
     return metadataProviderName;
   }
@@ -90,6 +93,7 @@ public class HopMetadataBase implements IHopMetadata {
    *
    * @param metadataProviderName The source of metadata or null if it's not specified
    */
+  @Override
   public void setMetadataProviderName(String metadataProviderName) {
     this.metadataProviderName = metadataProviderName;
   }

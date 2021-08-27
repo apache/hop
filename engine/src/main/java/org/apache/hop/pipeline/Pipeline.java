@@ -374,6 +374,7 @@ public abstract class Pipeline
    *
    * @param parent the new parent
    */
+  @Override
   public void setParent(ILoggingObject parent) {
     this.parent = parent;
   }
@@ -407,6 +408,7 @@ public abstract class Pipeline
    *
    * @param log the new log channel interface
    */
+  @Override
   public void setLogChannel(ILogChannel log) {
     this.log = log;
   }
@@ -463,6 +465,7 @@ public abstract class Pipeline
    *
    * @throws HopException if the pipeline could not be prepared (initialized)
    */
+  @Override
   public void execute() throws HopException {
     prepareExecution();
     startThreads();
@@ -474,6 +477,7 @@ public abstract class Pipeline
    *
    * @throws HopException in case the pipeline could not be prepared (initialized)
    */
+  @Override
   public void prepareExecution() throws HopException {
     setPreparing(true);
     executionStartDate = new Date();
@@ -1039,6 +1043,7 @@ public abstract class Pipeline
    *
    * @throws HopException if there is a communication error with a remote output socket.
    */
+  @Override
   public void startThreads() throws HopException {
     // Now prepare to start all the threads...
     //
@@ -1249,6 +1254,7 @@ public abstract class Pipeline
    *
    * @throws HopException if any errors occur during notification
    */
+  @Override
   public void firePipelineExecutionFinishedListeners() throws HopException {
 
     synchronized (executionFinishedListeners) {
@@ -1280,6 +1286,7 @@ public abstract class Pipeline
    *
    * @throws HopException if any errors occur during notification
    */
+  @Override
   public void firePipelineExecutionStartedListeners() throws HopException {
     synchronized (executionStartedListeners) {
       for (IExecutionStartedListener executionListener : executionStartedListeners) {
@@ -1356,6 +1363,7 @@ public abstract class Pipeline
   /**
    * This method performs any cleanup operations, typically called after the pipeline has finished.
    */
+  @Override
   public void cleanup() {
     // Close all open server sockets.
     // We can only close these after all processing has been confirmed to be finished.
@@ -1370,6 +1378,7 @@ public abstract class Pipeline
   }
 
   /** Waits until all RunThreads have finished. */
+  @Override
   public void waitUntilFinished() {
     try {
       if (pipelineWaitUntilFinishedBlockingQueue == null) {
@@ -1394,6 +1403,7 @@ public abstract class Pipeline
    *
    * @return the number of errors
    */
+  @Override
   public int getErrors() {
     int nrErrors = errors.get();
 
@@ -1415,6 +1425,7 @@ public abstract class Pipeline
    *
    * @return true if the pipeline is finished, false otherwise
    */
+  @Override
   public boolean isFinished() {
     int exist = status.get() & FINISHED.mask;
     return exist != 0;
@@ -1459,6 +1470,7 @@ public abstract class Pipeline
    * @param tocopy the copy number of the "to" transform
    * @return the row set, or null if none found
    */
+  @Override
   public IRowSet findRowSet(String from, int fromcopy, String to, int tocopy) {
     // Start with the pipeline.
     for (IRowSet rs : rowsets) {
@@ -1513,6 +1525,7 @@ public abstract class Pipeline
   }
 
   /** Stops all transforms from running, and alerts any registered listeners. */
+  @Override
   public void stopAll() {
     if (transforms == null || isAlreadyStopped.get()) {
       return;
@@ -1545,6 +1558,7 @@ public abstract class Pipeline
     }
   }
 
+  @Override
   public void firePipelineExecutionStoppedListeners() {
     // Fire the stopped listener...
     //
@@ -1669,6 +1683,7 @@ public abstract class Pipeline
    *
    * @return the Result object containing resulting measures from execution of the pipeline
    */
+  @Override
   public Result getResult() {
     if (transforms == null) {
       return null;
@@ -1981,6 +1996,7 @@ public abstract class Pipeline
    * @return Returns true if the safe mode is enabled: the pipeline will run slower but with more
    *     checking enabled
    */
+  @Override
   public boolean isSafeModeEnabled() {
     return safeModeEnabled;
   }
@@ -2028,6 +2044,7 @@ public abstract class Pipeline
    *
    * @return the parent workflow, or null if there is no parent
    */
+  @Override
   public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
@@ -2037,6 +2054,7 @@ public abstract class Pipeline
    *
    * @param parentWorkflow The parent workflow to set
    */
+  @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
   }
@@ -2142,6 +2160,7 @@ public abstract class Pipeline
    *
    * @return true if the pipeline is preparing for execution, false otherwise
    */
+  @Override
   public boolean isPreparing() {
     int exist = status.get() & PREPARING.mask;
     return exist != 0;
@@ -2162,6 +2181,7 @@ public abstract class Pipeline
    *
    * @return true if the pipeline is running, false otherwise
    */
+  @Override
   public boolean isRunning() {
     int exist = status.get() & RUNNING.mask;
     return exist != 0;
@@ -2182,6 +2202,7 @@ public abstract class Pipeline
    * @return true if the pipeline was prepared for execution successfully, false otherwise
    * @see Pipeline#prepareExecution()
    */
+  @Override
   public boolean isReadyToStart() {
     return readyToStart;
   }
@@ -2195,6 +2216,7 @@ public abstract class Pipeline
    *
    * @param var the new internal hop variables
    */
+  @Override
   public void setInternalHopVariables(IVariables var) {
     boolean hasFilename = pipelineMeta != null && !Utils.isEmpty(pipelineMeta.getFilename());
     if (hasFilename) { // we have a filename that's defined.
@@ -2421,6 +2443,7 @@ public abstract class Pipeline
   }
 
   /** Pauses the pipeline (pause all transforms). */
+  @Override
   public void pauseExecution() {
     setPaused(true);
     for (TransformMetaDataCombi combi : transforms) {
@@ -2429,6 +2452,7 @@ public abstract class Pipeline
   }
 
   /** Resumes running the pipeline after a pause (resume all transforms). */
+  @Override
   public void resumeExecution() {
     for (TransformMetaDataCombi combi : transforms) {
       combi.transform.resumeRunning();
@@ -2441,6 +2465,7 @@ public abstract class Pipeline
    *
    * @return true if the pipeline is being previewed, false otherwise
    */
+  @Override
   public boolean isPreview() {
     return preview;
   }
@@ -2450,6 +2475,7 @@ public abstract class Pipeline
    *
    * @param preview true if the pipeline is being previewed, false otherwise
    */
+  @Override
   public void setPreview(boolean preview) {
     this.preview = preview;
   }
@@ -2479,6 +2505,7 @@ public abstract class Pipeline
    *
    * @param executionStartedListener the pipeline started listener
    */
+  @Override
   public void addExecutionStartedListener(IExecutionStartedListener executionStartedListener) {
     synchronized (executionStartedListener) {
       executionStartedListeners.add(executionStartedListener);
@@ -2490,6 +2517,7 @@ public abstract class Pipeline
    *
    * @param executionFinishedListener the pipeline finished listener
    */
+  @Override
   public void addExecutionFinishedListener(IExecutionFinishedListener executionFinishedListener) {
     synchronized (executionFinishedListener) {
       executionFinishedListeners.add(executionFinishedListener);
@@ -2501,6 +2529,7 @@ public abstract class Pipeline
    *
    * @param executionStoppedListener the pipeline stopped listener
    */
+  @Override
   public void addExecutionStoppedListener(IExecutionStoppedListener executionStoppedListener) {
     synchronized (executionStoppedListener) {
       executionStoppedListeners.add(executionStoppedListener);
@@ -2543,6 +2572,7 @@ public abstract class Pipeline
    *
    * @return true if the pipeline is paused, false otherwise
    */
+  @Override
   public boolean isPaused() {
     int exist = status.get() & PAUSED.mask;
     return exist != 0;
@@ -2557,6 +2587,7 @@ public abstract class Pipeline
    *
    * @return true if the pipeline is stopped, false otherwise
    */
+  @Override
   public boolean isStopped() {
     int exist = status.get() & STOPPED.mask;
     return exist != 0;
@@ -2685,6 +2716,7 @@ public abstract class Pipeline
    * @return a reference to the parent pipeline's Pipeline object, or null if no parent pipeline
    *     exists
    */
+  @Override
   public IPipelineEngine getParentPipeline() {
     return parentPipeline;
   }
@@ -2694,6 +2726,7 @@ public abstract class Pipeline
    *
    * @param parentPipeline the parentPipeline to set
    */
+  @Override
   public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
   }
@@ -2783,6 +2816,7 @@ public abstract class Pipeline
    *
    * @param logLevel the new log level
    */
+  @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
     log.setLogLevel(logLevel);
@@ -2806,19 +2840,23 @@ public abstract class Pipeline
     return hierarchy;
   }
 
+  @Override
   public void addActiveSubPipeline(final String subPipelineName, IPipelineEngine subPipeline) {
     activeSubPipelines.put(subPipelineName, subPipeline);
   }
 
+  @Override
   public IPipelineEngine getActiveSubPipeline(final String subPipelineName) {
     return activeSubPipelines.get(subPipelineName);
   }
 
+  @Override
   public void addActiveSubWorkflow(
       final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow) {
     activeSubWorkflows.put(subWorkflowName, subWorkflow);
   }
 
+  @Override
   public IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow(final String subWorkflowName) {
     return activeSubWorkflows.get(subWorkflowName);
   }
@@ -2847,6 +2885,7 @@ public abstract class Pipeline
    *
    * @param containerId the HopServer object ID to set
    */
+  @Override
   public void setContainerId(String containerId) {
     this.containerObjectId = containerId;
   }
@@ -2944,10 +2983,12 @@ public abstract class Pipeline
     this.resultRows = resultRows;
   }
 
+  @Override
   public Result getPreviousResult() {
     return previousResult;
   }
 
+  @Override
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
   }
@@ -2969,10 +3010,12 @@ public abstract class Pipeline
     }
   }
 
+  @Override
   public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
+  @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
     if (pipelineMeta != null) {
@@ -3159,6 +3202,7 @@ public abstract class Pipeline
    *
    * @return value of executionStartDate
    */
+  @Override
   public Date getExecutionStartDate() {
     return executionStartDate;
   }
@@ -3173,6 +3217,7 @@ public abstract class Pipeline
    *
    * @return value of executionEndDate
    */
+  @Override
   public Date getExecutionEndDate() {
     return executionEndDate;
   }
@@ -3245,10 +3290,12 @@ public abstract class Pipeline
           "100",
           true);
 
+  @Override
   public EngineMetrics getEngineMetrics() {
     return getEngineMetrics(null, -1);
   }
 
+  @Override
   public synchronized EngineMetrics getEngineMetrics(String componentName, int copyNr) {
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate(getExecutionStartDate());
@@ -3406,6 +3453,7 @@ public abstract class Pipeline
     return new EmptyPipelineRunConfiguration();
   }
 
+  @Override
   public void retrieveComponentOutput(
       IVariables variables,
       String componentName,
@@ -3471,6 +3519,7 @@ public abstract class Pipeline
    *
    * @return value of feedbackShown
    */
+  @Override
   public boolean isFeedbackShown() {
     return feedbackShown;
   }
@@ -3485,6 +3534,7 @@ public abstract class Pipeline
    *
    * @return value of feedbackSize
    */
+  @Override
   public int getFeedbackSize() {
     return feedbackSize;
   }

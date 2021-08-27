@@ -53,6 +53,7 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
     input = (InjectorMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

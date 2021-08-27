@@ -97,11 +97,13 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionFoldersCompare je = (ActionFoldersCompare) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(200); // 133 chars in just spaces and tag names alone
 
@@ -120,6 +122,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -231,6 +234,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -532,6 +536,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
       try {
@@ -573,6 +578,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
       return returncode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }
@@ -628,6 +634,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     return filename2;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

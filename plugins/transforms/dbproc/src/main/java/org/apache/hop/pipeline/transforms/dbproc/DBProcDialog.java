@@ -82,6 +82,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -93,6 +94,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
     SelectionAdapter lsSelMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -159,6 +161,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     wbProcName.setLayoutData(fdbProcName);
     wbProcName.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             DatabaseMeta dbInfo = pipelineMeta.findDatabase(wConnection.getText());
             if (dbInfo != null) {

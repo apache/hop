@@ -51,6 +51,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
@@ -177,6 +178,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData>
     return data.logmessage;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

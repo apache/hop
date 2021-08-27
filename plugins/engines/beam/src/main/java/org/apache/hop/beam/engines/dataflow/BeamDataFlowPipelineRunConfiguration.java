@@ -190,6 +190,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     this.gcpUsingPublicIps = config.gcpUsingPublicIps;
   }
 
+  @Override
   public BeamDataFlowPipelineRunConfiguration clone() {
     return new BeamDataFlowPipelineRunConfiguration(this);
   }

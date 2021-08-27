@@ -89,6 +89,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     input = (GetTableNamesMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -189,6 +190,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wDynamicSchema.setLayoutData(fddynamicSchema);
     SelectionAdapter lsxmlstream =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateDynamicSchema();
             input.setChanged();
@@ -217,8 +219,10 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wSchemaField.setLayoutData(fdSchemaField);
     wSchemaField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setSchemaField();
             shell.setCursor(null);
@@ -258,6 +262,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeCatalog.setLayoutData(fdincludeCatalog);
     SelectionAdapter lincludeCatalog =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -284,6 +289,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeSchema.setLayoutData(fdincludeSchema);
     SelectionAdapter lincludeSchema =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -309,6 +315,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeTable.setLayoutData(fdincludeTable);
     SelectionAdapter lincludeTable =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -334,6 +341,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeView.setLayoutData(fdincludeView);
     SelectionAdapter lincludeView =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -360,6 +368,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeProcedure.setLayoutData(fdincludeProcedure);
     SelectionAdapter lincludeProcedure =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -386,6 +395,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeSynonym.setLayoutData(fdincludeSynonym);
     SelectionAdapter lincludeSynonym =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -412,6 +422,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wAddSchemaInOutput.setLayoutData(fdaddSchemaInOutput);
     SelectionAdapter laddSchemaInOutput =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

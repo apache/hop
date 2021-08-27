@@ -83,6 +83,7 @@ public class MappingInput extends BaseTransform<MappingInputMeta, MappingInputDa
     return true;
   }
 
+  @Override
   public boolean init() {
     return super.init();
   }

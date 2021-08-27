@@ -512,6 +512,7 @@ public class SalesforceInputMeta
     setRowLimit("0");
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -700,6 +701,7 @@ public class SalesforceInputMeta
     return new SalesforceInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SalesforceInputData getTransformData() {
     return new SalesforceInputData();
   }

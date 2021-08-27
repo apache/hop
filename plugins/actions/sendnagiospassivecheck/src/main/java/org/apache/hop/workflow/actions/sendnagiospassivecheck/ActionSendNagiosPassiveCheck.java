@@ -131,6 +131,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionSendNagiosPassiveCheck je = (ActionSendNagiosPassiveCheck) super.clone();
     return je;
@@ -194,6 +195,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return levelTypeCode[i];
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(200);
 
@@ -241,6 +243,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return 0;
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -360,6 +363,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return connectionTimeOut;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     log.logBasic(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Started", serverName));
 
@@ -466,6 +470,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return true;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

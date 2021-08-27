@@ -72,6 +72,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (!meta.isFileField()) {
       if (data.filenr >= data.filessize) {
@@ -317,6 +318,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -353,6 +355,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.file != null) {

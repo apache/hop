@@ -107,6 +107,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionSNMPTrap je = (ActionSNMPTrap) super.clone();
     return je;
@@ -134,6 +135,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(200);
 
@@ -156,6 +158,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -286,6 +289,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     return nrretry;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setNrErrors(1);

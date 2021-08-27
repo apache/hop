@@ -23,6 +23,7 @@ public class FilePlayListAll implements IFilePlayList {
 
   public static final IFilePlayList INSTANCE = new FilePlayListAll();
 
+  @Override
   public boolean isProcessingNeeded(FileObject file, long lineNr, String filePart) {
     return true;
   }

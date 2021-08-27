@@ -222,6 +222,7 @@ public class ShowMessageDialog extends Dialog {
         button.setText(entry.getValue());
         SelectionAdapter selectionAdapter =
             new SelectionAdapter() {
+              @Override
               public void widgetSelected(SelectionEvent event) {
                 quit(buttonFlag);
               }
@@ -237,6 +238,7 @@ public class ShowMessageDialog extends Dialog {
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             cancel();
           }

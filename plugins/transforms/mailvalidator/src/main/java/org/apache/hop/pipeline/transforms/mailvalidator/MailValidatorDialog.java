@@ -82,6 +82,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     input = (MailValidatorMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -143,8 +144,10 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wEmailFieldName.setLayoutData(fdemailFieldName);
     wEmailFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -185,6 +188,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wSMTPCheck.setLayoutData(fdSMTPCheck);
     wSMTPCheck.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSMTPCheck();
             input.setChanged();
@@ -276,6 +280,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wDynamicDefaultSMTP.setLayoutData(fdDynamicDefaultSMTP);
     wDynamicDefaultSMTP.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activedynamicDefaultSMTP();
             input.setChanged();
@@ -303,8 +308,10 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wDefaultSMTPField.setLayoutData(fddefaultSMTPField);
     wDefaultSMTPField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -377,6 +384,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wResultAsString.setLayoutData(fdResultAsString);
     wResultAsString.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeResultAsString();
             input.setChanged();

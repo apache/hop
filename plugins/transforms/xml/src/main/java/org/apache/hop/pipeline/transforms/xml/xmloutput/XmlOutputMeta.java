@@ -259,6 +259,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     outputFields = new XmlField[nrFields];
   }
 
+  @Override
   public Object clone() {
     XmlOutputMeta retval = (XmlOutputMeta) super.clone();
     int nrFields = outputFields.length;
@@ -367,6 +368,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     return nl;
   }
 
+  @Override
   public void setDefault() {
     fileName = "file";
     extension = "xml";
@@ -474,6 +476,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -495,6 +498,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     RowMeta row = new RowMeta();
     for (int i = 0; i < outputFields.length; i++) {
@@ -506,6 +510,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     return row;
   }
 
+  @Override
   public String getXml() {
     StringBuffer retval = new StringBuffer(600);
 
@@ -566,6 +571,7 @@ public class XmlOutputMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -698,6 +704,7 @@ public class XmlOutputMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-Hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

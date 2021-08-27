@@ -377,6 +377,7 @@ public class PipelineMeta extends AbstractMeta
     }
   }
 
+  @Override
   protected String getExtension() {
     return PIPELINE_EXTENSION;
   }

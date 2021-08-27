@@ -108,6 +108,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -206,6 +207,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             refreshArgFromPrevious();
@@ -243,6 +245,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     wbxmlFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
@@ -288,6 +291,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     wbxslFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.xsl;*.XSL", "*.xslt;*.XSLT", "*"});
@@ -313,6 +317,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     wbOutputDirectory.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
             if (wOutputFilename.getText() != null) {
@@ -350,6 +355,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wbMovetoDirectory.setLayoutData(fdbMovetoDirectory);
     wbMovetoDirectory.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
             if (wOutputFilename.getText() != null) {
@@ -472,6 +478,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

@@ -80,6 +80,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     this.action = (ActionWorkflow) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
     display = parent.getDisplay();
@@ -100,6 +101,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     return action;
   }
 
+  @Override
   protected void createElements() {
     super.createElements();
     shell.setText(BaseMessages.getString(PKG, "ActionWorkflow.Header"));
@@ -163,6 +165,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     wbBrowse.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             pickFileVFS();
           }
@@ -170,16 +173,19 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     wbLogFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             selectLogFile(FILE_FILTERLOGNAMES);
           }
         });
   }
 
+  @Override
   protected ActionBase getAction() {
     return action;
   }
 
+  @Override
   protected Image getImage() {
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
@@ -189,6 +195,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
         ConstUi.LARGE_ICON_SIZE);
   }
 
+  @Override
   protected String[] getParameters() {
     return action.parameters;
   }
@@ -242,6 +249,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     shell.dispose();
   }
 
+  @Override
   public void setActive() {
     super.setActive();
   }
@@ -322,6 +330,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wName.setFocus();
   }
 
+  @Override
   protected void cancel() {
     action.setChanged(backupChanged);
 
@@ -392,6 +401,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     aw.setRunConfiguration(wRunConfiguration.getText());
   }
 
+  @Override
   public void ok() {
     if (Utils.isEmpty(getName())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);

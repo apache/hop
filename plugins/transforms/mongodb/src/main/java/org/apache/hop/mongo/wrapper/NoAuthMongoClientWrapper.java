@@ -154,6 +154,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
    *
    * @throws MongoDbException
    */
+  @Override
   public List<String> getDatabaseNames() throws MongoDbException {
     try {
       return getMongo().getDatabaseNames();
@@ -177,6 +178,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
    * @return Set of collections in the database requested.
    * @throws MongoDbException If an error occurs.
    */
+  @Override
   public Set<String> getCollectionsNames(String dB) throws MongoDbException {
     try {
       return getDb(dB).getCollectionNames();
@@ -197,6 +199,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
    * @return a list of the names of any custom "lastErrorModes"
    * @throws MongoDbException if a problem occurs
    */
+  @Override
   public List<String> getLastErrorModes() throws MongoDbException {
     List<String> customLastErrorModes = new ArrayList<>();
 
@@ -233,6 +236,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     }
   }
 
+  @Override
   public List<String> getIndexInfo(String dbName, String collection) throws MongoDbException {
     try {
       DB db = getDb(dbName);
@@ -398,6 +402,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
    * @return a list of replica set members who's tags satisfy the supplied list of tag sets
    * @throws MongoDbException if a problem occurs
    */
+  @Override
   public List<String> getReplicaSetMembersThatSatisfyTagSets(List<DBObject> tagSets)
       throws MongoDbException {
     try {

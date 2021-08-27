@@ -75,6 +75,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     lsMod = e -> input.setChanged();
     lsSelMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

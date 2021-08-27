@@ -131,6 +131,7 @@ public class MailInputField implements Cloneable {
     return 0;
   }
 
+  @Override
   public Object clone() {
     try {
       MailInputField retval = (MailInputField) super.clone();

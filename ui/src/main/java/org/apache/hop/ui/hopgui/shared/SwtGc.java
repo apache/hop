@@ -108,6 +108,7 @@ public class SwtGc implements IGc {
     this.deprecated = GuiResource.getInstance().getColorDeprecated();
   }
 
+  @Override
   public void dispose() {
     // Do not dispose the GC.  It's handed to us so we don't dispose it
     // However, the resources below are possibly used and allocated here so they need to be cleaned
@@ -124,10 +125,12 @@ public class SwtGc implements IGc {
     }
   }
 
+  @Override
   public void drawLine(int x, int y, int x2, int y2) {
     gc.drawLine(x, y, x2, y2);
   }
 
+  @Override
   public void drawImage(EImage image, int x, int y, float magnification) {
     Image img =
         getNativeImage(image)
@@ -154,6 +157,7 @@ public class SwtGc implements IGc {
     }
   }
 
+  @Override
   public void drawImage(EImage image, int x, int y, float magnification, double angle) {
     Image img =
         getNativeImage(image)
@@ -234,65 +238,80 @@ public class SwtGc implements IGc {
     return null;
   }
 
+  @Override
   public void drawPoint(int x, int y) {
     gc.drawPoint(x, y);
   }
 
+  @Override
   public void drawPolygon(int[] polygon) {
     gc.drawPolygon(polygon);
   }
 
+  @Override
   public void drawPolyline(int[] polyline) {
     gc.drawPolyline(polyline);
   }
 
+  @Override
   public void drawRectangle(int x, int y, int width, int height) {
     gc.drawRectangle(x, y, width, height);
   }
 
+  @Override
   public void drawRoundRectangle(
       int x, int y, int width, int height, int circleWidth, int circleHeight) {
     gc.drawRoundRectangle(x, y, width, height, circleWidth, circleHeight);
   }
 
+  @Override
   public void drawText(String text, int x, int y) {
     gc.drawText(text, x, y);
   }
 
+  @Override
   public void drawText(String text, int x, int y, boolean transparent) {
     gc.drawText(text, x, y, SWT.DRAW_DELIMITER | SWT.DRAW_TAB | SWT.DRAW_TRANSPARENT);
   }
 
+  @Override
   public void fillPolygon(int[] polygon) {
     gc.fillPolygon(polygon);
   }
 
+  @Override
   public void fillRectangle(int x, int y, int width, int height) {
     gc.fillRectangle(x, y, width, height);
   }
 
+  @Override
   public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {
     gc.fillGradientRectangle(x, y, width, height, vertical);
   }
 
+  @Override
   public void fillRoundRectangle(
       int x, int y, int width, int height, int circleWidth, int circleHeight) {
     gc.fillRoundRectangle(x, y, width, height, circleWidth, circleHeight);
   }
 
+  @Override
   public Point getDeviceBounds() {
     org.eclipse.swt.graphics.Rectangle p = gc.getDevice().getBounds();
     return new Point(p.width, p.height);
   }
 
+  @Override
   public void setAlpha(int alpha) {
     gc.setAlpha(alpha);
   }
 
+  @Override
   public int getAlpha() {
     return gc.getAlpha();
   }
 
+  @Override
   public void setBackground(EColor color) {
     gc.setBackground(getColor(color));
   }
@@ -343,6 +362,7 @@ public class SwtGc implements IGc {
     return null;
   }
 
+  @Override
   public void setFont(EFont font) {
     switch (font) {
       case GRAPH:
@@ -359,10 +379,12 @@ public class SwtGc implements IGc {
     }
   }
 
+  @Override
   public void setForeground(EColor color) {
     gc.setForeground(getColor(color));
   }
 
+  @Override
   public void setLineStyle(ELineStyle lineStyle) {
     // RAP does not implement LineStyle and LineAttributes
     if (!EnvironmentUtils.getInstance().isWeb()) {
@@ -398,10 +420,12 @@ public class SwtGc implements IGc {
     }
   }
 
+  @Override
   public void setLineWidth(int width) {
     gc.setLineWidth(width);
   }
 
+  @Override
   public void setTransform(float translationX, float translationY, float magnification) {
     if (transform != null) { // dispose of previous to prevent leaking of handles
       transform.dispose();
@@ -418,11 +442,13 @@ public class SwtGc implements IGc {
     return currentMagnification;
   }
 
+  @Override
   public Point textExtent(String text) {
     org.eclipse.swt.graphics.Point p = gc.textExtent(text);
     return new Point(p.x, p.y);
   }
 
+  @Override
   public void drawTransformIcon(int x, int y, TransformMeta transformMeta, float magnification) {
     SwtUniversalImage swtImage = null;
 
@@ -449,6 +475,7 @@ public class SwtGc implements IGc {
     gc.drawImage(image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize);
   }
 
+  @Override
   public void drawActionIcon(int x, int y, ActionMeta actionMeta, float magnification) {
     if (actionMeta == null) {
       return; // Don't draw anything
@@ -516,6 +543,7 @@ public class SwtGc implements IGc {
     }
   }
 
+  @Override
   public void setAntialias(boolean antiAlias) {
     if (antiAlias) {
       gc.setAntialias(SWT.ON);
@@ -524,11 +552,13 @@ public class SwtGc implements IGc {
     }
   }
 
+  @Override
   public void setBackground(int r, int g, int b) {
     Color color = getColor(r, g, b);
     gc.setBackground(color);
   }
 
+  @Override
   public void setForeground(int r, int g, int b) {
     Color color = getColor(r, g, b);
     gc.setForeground(color);
@@ -546,6 +576,7 @@ public class SwtGc implements IGc {
     return color;
   }
 
+  @Override
   public void setFont(String fontName, int fontSize, boolean fontBold, boolean fontItalic) {
     int swt = SWT.NORMAL;
     if (fontBold) {
@@ -566,6 +597,7 @@ public class SwtGc implements IGc {
     gc.setFont(font);
   }
 
+  @Override
   public void switchForegroundBackgroundColors() {
     Color fg = gc.getForeground();
     Color bg = gc.getBackground();
@@ -574,6 +606,7 @@ public class SwtGc implements IGc {
     gc.setBackground(fg);
   }
 
+  @Override
   public Point getArea() {
     return area;
   }

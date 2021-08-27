@@ -366,6 +366,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     return response.getHeaders();
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -522,6 +523,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -579,6 +581,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     data.config = null;

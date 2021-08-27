@@ -141,6 +141,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -318,6 +319,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wUsePublicKey.setLayoutData(fdUsePublicKey);
     wUsePublicKey.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeUseKey();
             action.setChanged();
@@ -398,6 +400,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wProxyType.setLayoutData(fdProxyType);
     wProxyType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setDefaultProxyPort();
           }
@@ -576,6 +579,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wGetPrevious.setLayoutData(fdGetPrevious);
     wGetPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             if (wGetPrevious.getSelection()) {
               wGetPreviousFiles.setSelection(false); // only one is allowed
@@ -605,6 +609,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wGetPreviousFiles.setLayoutData(fdGetPreviousFiles);
     wGetPreviousFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             if (wGetPreviousFiles.getSelection()) {
               wGetPrevious.setSelection(false); // only one is allowed
@@ -685,6 +690,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wSuccessWhenNoFile.setLayoutData(fdSuccessWhenNoFile);
     wSuccessWhenNoFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -712,6 +718,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wAfterFtpPut.setLayoutData(fdAfterFtpPut);
     wAfterFtpPut.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             afterFtpPutActivate();
           }
@@ -872,6 +879,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wCreateRemoteFolder.setLayoutData(fdCreateRemoteFolder);
     wCreateRemoteFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

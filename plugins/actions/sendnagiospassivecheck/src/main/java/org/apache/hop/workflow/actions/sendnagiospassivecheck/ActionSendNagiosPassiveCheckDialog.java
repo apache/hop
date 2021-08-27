@@ -92,6 +92,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -328,6 +329,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wEncryptionMode.setLayoutData(fdEncryptionMode);
     wEncryptionMode.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -352,6 +354,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wLevelMode.setLayoutData(fdLevelMode);
     wLevelMode.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 

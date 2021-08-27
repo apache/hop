@@ -159,6 +159,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     valueName = new String[nrvalues];
   }
 
+  @Override
   public Object clone() {
     FuzzyMatchMeta retval = (FuzzyMatchMeta) super.clone();
 
@@ -272,6 +273,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     this.separator = separator;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -371,6 +373,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     return algorithmCode[i];
   }
 
+  @Override
   public void setDefault() {
     value = null;
     valueName = null;
@@ -394,6 +397,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -466,6 +470,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -498,6 +503,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -689,6 +695,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public FuzzyMatch createTransform(
       TransformMeta transformMeta,
       FuzzyMatchData data,
@@ -698,14 +705,17 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     return new FuzzyMatch(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public FuzzyMatchData getTransformData() {
     return new FuzzyMatchData();
   }
 
+  @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
@@ -714,6 +724,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
    * Returns the Input/Output metadata for this transform. The generator transform only produces
    * output, does not accept input!
    */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
@@ -734,6 +745,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta
     return ioMeta;
   }
 
+  @Override
   public void resetTransformIoMeta() {
     // Do nothing, don't reset as there is no need to do this.
   }

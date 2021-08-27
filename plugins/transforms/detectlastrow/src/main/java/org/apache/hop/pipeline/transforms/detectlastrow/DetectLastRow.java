@@ -50,6 +50,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -122,6 +123,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

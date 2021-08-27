@@ -392,6 +392,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
     }
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     if (first) {
@@ -830,6 +831,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
     ZipSecureFile.setMaxTextSize(maxTextSize);
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -892,6 +894,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.workbook != null) {

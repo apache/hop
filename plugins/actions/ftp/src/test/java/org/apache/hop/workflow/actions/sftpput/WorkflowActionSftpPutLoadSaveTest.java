@@ -71,7 +71,7 @@ public class WorkflowActionSftpPutLoadSaveTest
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators =
-        new HashMap<String, IFieldLoadSaveValidator<?>>();
+            new HashMap<>();
     validators.put("afterFtps", new IntLoadSaveValidator(ActionSftpPut.afterFtpsCode.length));
 
     return validators;

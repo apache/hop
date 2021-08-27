@@ -144,6 +144,7 @@ public class GoogleAuthorizationDialog extends Dialog {
       cancelButton.addListener(
           SWT.MouseEnter,
           new Listener() {
+            @Override
             public void handleEvent(Event event) {
               Image closeImage =
                   SwtSvgImageUtil.getImage(

@@ -275,6 +275,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     this.flinkExecutionModeForBatch = config.flinkExecutionModeForBatch;
   }
 
+  @Override
   public BeamFlinkPipelineRunConfiguration clone() {
     return new BeamFlinkPipelineRunConfiguration(this);
   }

@@ -81,6 +81,7 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
     this.numberOfWorkers = config.numberOfWorkers;
   }
 
+  @Override
   public BeamDirectPipelineRunConfiguration clone() {
     return new BeamDirectPipelineRunConfiguration(this);
   }

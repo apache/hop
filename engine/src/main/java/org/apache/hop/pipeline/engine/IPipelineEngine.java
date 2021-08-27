@@ -264,6 +264,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return
    */
+  @Override
   String getLogChannelId();
 
   /**
@@ -307,6 +308,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
 
   void setLogLevel(LogLevel logLevel);
 
+  @Override
   LogLevel getLogLevel();
 
   /**
@@ -471,5 +473,6 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return The extension data map to use
    */
+  @Override
   Map<String, Object> getExtensionDataMap();
 }

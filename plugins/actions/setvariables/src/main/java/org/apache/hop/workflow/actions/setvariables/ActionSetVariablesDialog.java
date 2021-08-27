@@ -76,6 +76,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -207,6 +208,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     wVarSubs.setLayoutData(fdVarSubs);
     wVarSubs.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

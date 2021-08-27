@@ -63,6 +63,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

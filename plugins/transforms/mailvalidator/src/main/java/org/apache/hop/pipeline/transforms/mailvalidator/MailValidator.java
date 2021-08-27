@@ -48,6 +48,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -220,6 +221,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -232,6 +234,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
     return false;
   }
 
+  @Override
   public void dispose() {
 
     super.dispose();

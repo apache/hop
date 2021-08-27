@@ -92,6 +92,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
     return r;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     try {
@@ -309,6 +310,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
 
@@ -399,6 +401,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.file != null) {

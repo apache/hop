@@ -118,6 +118,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -231,6 +232,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -273,6 +275,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wAddTransformnr.setLayoutData(fdAddTransformnr);
     wAddTransformnr.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -296,6 +299,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -318,6 +322,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -343,6 +348,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setDateTimeFormat();
@@ -383,6 +389,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             XmlOutputMeta tfoi = new XmlOutputMeta();
             getInfo(tfoi);
@@ -426,6 +433,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -477,6 +485,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wZipped.setLayoutData(fdZipped);
     wZipped.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -501,8 +510,10 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -599,6 +610,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

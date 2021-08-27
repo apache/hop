@@ -29,10 +29,12 @@ public class SwtScrollBar implements IScrollBar {
     this.scrollBar = scrollBar;
   }
 
+  @Override
   public int getSelection() {
     return scrollBar.getSelection();
   }
 
+  @Override
   public void setThumb(int thumb) {
     scrollBar.setThumb(thumb);
   }

@@ -64,6 +64,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     input = (WebServiceAvailableMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -126,10 +127,12 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wURL.setLayoutData(fdURL);
     wURL.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable FocusLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }

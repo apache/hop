@@ -376,6 +376,7 @@ public class CalculatorMetaFunction implements Cloneable {
      *
      * @return value of code
      */
+    @Override
     public String getCode() {
       return code;
     }

@@ -70,6 +70,7 @@ public class StringListPluginProperty extends KeyValue<List<String>>
   }
 
   /** */
+  @Override
   public void appendXml(final StringBuilder builder) {
     if (!this.evaluate()) {
       return;
@@ -79,11 +80,13 @@ public class StringListPluginProperty extends KeyValue<List<String>>
   }
 
   /** */
+  @Override
   public boolean evaluate() {
     return CollectionPredicates.NOT_NULL_OR_EMPTY_COLLECTION.evaluate(this.getValue());
   }
 
   /** */
+  @Override
   public void loadXml(final Node node) {
     final String stringValue = XmlHandler.getTagValue(node, this.getKey());
     final List<String> values = fromString(stringValue);
@@ -91,12 +94,14 @@ public class StringListPluginProperty extends KeyValue<List<String>>
   }
 
   /** */
+  @Override
   public void readFromPreferences(final Preferences node) {
     final String stringValue = node.get(this.getKey(), asString(this.getValue()));
     this.setValue(fromString(stringValue));
   }
 
   /** */
+  @Override
   public void saveToPreferences(final Preferences node) {
     node.put(this.getKey(), asString(this.getValue()));
   }
@@ -116,6 +121,7 @@ public class StringListPluginProperty extends KeyValue<List<String>>
    *
    * @see java.lang.Iterable#iterator()
    */
+  @Override
   public Iterator<String> iterator() throws IllegalStateException {
     this.assertValueNotNull();
     return this.getValue().iterator();

@@ -60,11 +60,13 @@ public class FilesFromResultMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
@@ -72,8 +74,10 @@ public class FilesFromResultMeta extends BaseTransformMeta
 
   private void readData(Node transformNode) {}
 
+  @Override
   public void setDefault() {}
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -103,6 +107,7 @@ public class FilesFromResultMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -133,6 +138,7 @@ public class FilesFromResultMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public FilesFromResult createTransform(
       TransformMeta transformMeta,
       FilesFromResultData data,
@@ -142,6 +148,7 @@ public class FilesFromResultMeta extends BaseTransformMeta
     return new FilesFromResult(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public FilesFromResultData getTransformData() {
     return new FilesFromResultData();
   }

@@ -234,6 +234,7 @@ public abstract class Workflow extends Variables
     }
   }
 
+  @Override
   public String getWorkflowName() {
     if (workflowMeta == null) {
       return null;
@@ -241,6 +242,7 @@ public abstract class Workflow extends Variables
     return workflowMeta.getName();
   }
 
+  @Override
   public Result startExecution() {
 
     try {
@@ -479,6 +481,7 @@ public abstract class Workflow extends Variables
     return res;
   }
 
+  @Override
   public void addWorkflowFinishedListener(
       IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
     synchronized (workflowFinishedListeners) {
@@ -486,6 +489,7 @@ public abstract class Workflow extends Variables
     }
   }
 
+  @Override
   public void fireWorkflowFinishListeners() throws HopException {
     synchronized (workflowFinishedListeners) {
       for (IExecutionFinishedListener listener : workflowFinishedListeners) {
@@ -494,6 +498,7 @@ public abstract class Workflow extends Variables
     }
   }
 
+  @Override
   public void addWorkflowStartedListener(
       IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
     synchronized (workflowStartedListeners) {
@@ -501,6 +506,7 @@ public abstract class Workflow extends Variables
     }
   }
 
+  @Override
   public void fireWorkflowStartedListeners() throws HopException {
     synchronized (workflowStartedListeners) {
       for (IExecutionStartedListener listener : workflowStartedListeners) {
@@ -872,6 +878,7 @@ public abstract class Workflow extends Variables
     return true;
   }
 
+  @Override
   public boolean isInitialized() {
     int exist = status.get() & BitMaskStatus.INITIALIZED.mask;
     return exist != 0;
@@ -885,6 +892,7 @@ public abstract class Workflow extends Variables
                 : (BitMaskStatus.BIT_STATUS_SUM ^ BitMaskStatus.INITIALIZED.mask) & v);
   }
 
+  @Override
   public boolean isActive() {
     int exist = status.get() & BitMaskStatus.ACTIVE.mask;
     return exist != 0;
@@ -898,17 +906,20 @@ public abstract class Workflow extends Variables
                 : (BitMaskStatus.BIT_STATUS_SUM ^ BitMaskStatus.ACTIVE.mask) & v);
   }
 
+  @Override
   public boolean isStopped() {
     int exist = status.get() & BitMaskStatus.STOPPED.mask;
     return exist != 0;
   }
 
   /** Stop all activity by setting the stopped property to true. */
+  @Override
   public void stopExecution() {
     setStopped(true);
   }
 
   /** Sets the stopped. */
+  @Override
   public void setStopped(boolean stopped) {
     status.updateAndGet(
         v ->
@@ -917,11 +928,13 @@ public abstract class Workflow extends Variables
                 : (BitMaskStatus.BIT_STATUS_SUM ^ BitMaskStatus.STOPPED.mask) & v);
   }
 
+  @Override
   public boolean isFinished() {
     int exist = status.get() & BitMaskStatus.FINISHED.mask;
     return exist != 0;
   }
 
+  @Override
   public void setFinished(boolean finished) {
     status.updateAndGet(
         v ->
@@ -930,6 +943,7 @@ public abstract class Workflow extends Variables
                 : (BitMaskStatus.BIT_STATUS_SUM ^ BitMaskStatus.FINISHED.mask) & v);
   }
 
+  @Override
   public WorkflowMeta getWorkflowMeta() {
     return workflowMeta;
   }
@@ -946,6 +960,7 @@ public abstract class Workflow extends Variables
     this.logLevel = log.getLogLevel();
   }
 
+  @Override
   public WorkflowTracker getWorkflowTracker() {
     return workflowTracker;
   }
@@ -974,6 +989,7 @@ public abstract class Workflow extends Variables
    *
    * @return Returns the parentWorkflow
    */
+  @Override
   public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
@@ -983,6 +999,7 @@ public abstract class Workflow extends Variables
    *
    * @param parentWorkflow The parentWorkflow to set.
    */
+  @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.logLevel = parentWorkflow.getLogLevel();
     this.log.setLogLevel(logLevel);
@@ -1001,14 +1018,17 @@ public abstract class Workflow extends Variables
     return super.getParentVariables();
   }
 
+  @Override
   public Result getResult() {
     return result;
   }
 
+  @Override
   public void setResult(Result result) {
     this.result = result;
   }
 
+  @Override
   public void setInternalHopVariables() {
     if (workflowMeta == null) {
       setInternalHopVariables(this, null, null);
@@ -1052,6 +1072,7 @@ public abstract class Workflow extends Variables
     variables.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL(name, ""));
   }
 
+  @Override
   public String getStatusDescription() {
     String message;
 
@@ -1078,6 +1099,7 @@ public abstract class Workflow extends Variables
     return message;
   }
 
+  @Override
   public void addActionListener(IActionListener actionListener) {
     actionListeners.add(actionListener);
   }
@@ -1086,6 +1108,7 @@ public abstract class Workflow extends Variables
     actionListeners.remove(actionListener);
   }
 
+  @Override
   public List<IActionListener> getActionListeners() {
     return actionListeners;
   }
@@ -1157,6 +1180,7 @@ public abstract class Workflow extends Variables
    *
    * @see org.apache.hop.core.parameters.INamedParameters#eraseParameters()
    */
+  @Override
   public void removeAllParameters() {
     namedParams.removeAllParameters();
   }
@@ -1166,6 +1190,7 @@ public abstract class Workflow extends Variables
    *
    * @see org.apache.hop.core.parameters.INamedParameters#clearParameters()
    */
+  @Override
   public void clearParameterValues() {
     namedParams.clearParameterValues();
   }
@@ -1175,6 +1200,7 @@ public abstract class Workflow extends Variables
    *
    * @see org.apache.hop.core.parameters.INamedParameters#activateParameters()
    */
+  @Override
   public void activateParameters(IVariables variables) {
     namedParams.activateParameters(variables);
   }
@@ -1189,6 +1215,7 @@ public abstract class Workflow extends Variables
    *
    * @return ILogChannel
    */
+  @Override
   public ILogChannel getLogChannel() {
     return log;
   }
@@ -1198,6 +1225,7 @@ public abstract class Workflow extends Variables
    *
    * @return workflowName
    */
+  @Override
   public String getObjectName() {
     return getWorkflowName();
   }
@@ -1207,6 +1235,7 @@ public abstract class Workflow extends Variables
    *
    * @return null
    */
+  @Override
   public String getObjectCopy() {
     return null;
   }
@@ -1216,6 +1245,7 @@ public abstract class Workflow extends Variables
    *
    * @return the filename
    */
+  @Override
   public String getFilename() {
     if (workflowMeta == null) {
       return null;
@@ -1228,6 +1258,7 @@ public abstract class Workflow extends Variables
    *
    * @return the logChannelId
    */
+  @Override
   public String getLogChannelId() {
     return log == null ? null : log.getLogChannelId();
   }
@@ -1237,6 +1268,7 @@ public abstract class Workflow extends Variables
    *
    * @return LoggingObjectType LoggingObjectType.JOB
    */
+  @Override
   public LoggingObjectType getObjectType() {
     return LoggingObjectType.WORKFLOW;
   }
@@ -1246,6 +1278,7 @@ public abstract class Workflow extends Variables
    *
    * @return parentLoggingObject
    */
+  @Override
   public ILoggingObject getParent() {
     return parentLoggingObject;
   }
@@ -1255,6 +1288,7 @@ public abstract class Workflow extends Variables
    *
    * @return logLevel
    */
+  @Override
   public LogLevel getLogLevel() {
     return logLevel;
   }
@@ -1264,6 +1298,7 @@ public abstract class Workflow extends Variables
    *
    * @param logLevel the new log level
    */
+  @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
     log.setLogLevel(logLevel);
@@ -1274,6 +1309,7 @@ public abstract class Workflow extends Variables
    *
    * @return the interactive
    */
+  @Override
   public boolean isInteractive() {
     return interactive;
   }
@@ -1283,6 +1319,7 @@ public abstract class Workflow extends Variables
    *
    * @param interactive the interactive to set
    */
+  @Override
   public void setInteractive(boolean interactive) {
     this.interactive = interactive;
   }
@@ -1292,6 +1329,7 @@ public abstract class Workflow extends Variables
    *
    * @return the activeJobEntryPipelines
    */
+  @Override
   public Set<ActionMeta> getActiveActions() {
     return activeActions;
   }
@@ -1301,6 +1339,7 @@ public abstract class Workflow extends Variables
    *
    * @return A flat list of results in THIS workflow, in the order of execution of actions
    */
+  @Override
   public List<ActionResult> getActionResults() {
     synchronized (actionResults) {
       return new ArrayList<>(actionResults);
@@ -1312,6 +1351,7 @@ public abstract class Workflow extends Variables
    *
    * @return the serverObjectId
    */
+  @Override
   public String getContainerId() {
     return containerObjectId;
   }
@@ -1321,6 +1361,7 @@ public abstract class Workflow extends Variables
    *
    * @param containerId the execution container object id to set
    */
+  @Override
   public void setContainerId(String containerId) {
     this.containerObjectId = containerId;
   }
@@ -1344,6 +1385,7 @@ public abstract class Workflow extends Variables
    *
    * @return null
    */
+  @Override
   public Date getRegistrationDate() {
     return null;
   }
@@ -1362,6 +1404,7 @@ public abstract class Workflow extends Variables
    *
    * @param actionMeta the startActionMeta to set
    */
+  @Override
   public void setStartActionMeta(ActionMeta actionMeta) {
     this.startActionMeta = actionMeta;
   }
@@ -1371,6 +1414,7 @@ public abstract class Workflow extends Variables
    *
    * @return the executingServer
    */
+  @Override
   public String getExecutingServer() {
     if (executingServer == null) {
       setExecutingServer(Const.getHostname());
@@ -1383,6 +1427,7 @@ public abstract class Workflow extends Variables
    *
    * @param executingServer the executingServer to set
    */
+  @Override
   public void setExecutingServer(String executingServer) {
     this.executingServer = executingServer;
   }
@@ -1392,6 +1437,7 @@ public abstract class Workflow extends Variables
    *
    * @return the executingUser
    */
+  @Override
   public String getExecutingUser() {
     return executingUser;
   }
@@ -1401,6 +1447,7 @@ public abstract class Workflow extends Variables
    *
    * @param executingUser the executingUser to set
    */
+  @Override
   public void setExecutingUser(String executingUser) {
     this.executingUser = executingUser;
   }
@@ -1429,14 +1476,17 @@ public abstract class Workflow extends Variables
     }
   }
 
+  @Override
   public IPipelineEngine getParentPipeline() {
     return parentPipeline;
   }
 
+  @Override
   public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
   }
 
+  @Override
   public Map<String, Object> getExtensionDataMap() {
     return extensionDataMap;
   }
@@ -1454,6 +1504,7 @@ public abstract class Workflow extends Variables
    *
    * @return value of executionStartDate
    */
+  @Override
   public Date getExecutionStartDate() {
     return executionStartDate;
   }
@@ -1468,6 +1519,7 @@ public abstract class Workflow extends Variables
    *
    * @return value of executionEndDate
    */
+  @Override
   public Date getExecutionEndDate() {
     return executionEndDate;
   }
@@ -1482,6 +1534,7 @@ public abstract class Workflow extends Variables
    *
    * @return value of workflowFinishedListeners
    */
+  @Override
   public List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
       getWorkflowFinishedListeners() {
     return workflowFinishedListeners;
@@ -1498,6 +1551,7 @@ public abstract class Workflow extends Variables
    *
    * @return value of workflowStartedListeners
    */
+  @Override
   public List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
       getWorkflowStartedListeners() {
     return workflowStartedListeners;

@@ -102,6 +102,7 @@ public class HopTrustManager implements X509TrustManager {
    * @return an array of certificate authority certificates which are trusted for authenticating
    *     peers
    */
+  @Override
   public X509Certificate[] getAcceptedIssuers() {
     if (tm == null) {
       return null;
@@ -116,6 +117,7 @@ public class HopTrustManager implements X509TrustManager {
    * path to a trusted root and return if it can be validated and is trusted for client SSL
    * authentication based on the authentication type
    */
+  @Override
   public void checkClientTrusted(X509Certificate[] chain, String authType)
       throws CertificateException {
     if (tm == null) {
@@ -131,6 +133,7 @@ public class HopTrustManager implements X509TrustManager {
    * path to a trusted root and return if it can be validated and is trusted for server SSL
    * authentication based on the authentication type
    */
+  @Override
   public void checkServerTrusted(X509Certificate[] chain, String authType)
       throws CertificateException {
     if (tm == null) {

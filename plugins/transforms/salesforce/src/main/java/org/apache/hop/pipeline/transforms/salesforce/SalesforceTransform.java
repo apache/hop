@@ -93,6 +93,7 @@ public abstract class SalesforceTransform<
     return true;
   }
 
+  @Override
   public void dispose() {
     if (data.connection != null) {
       try {

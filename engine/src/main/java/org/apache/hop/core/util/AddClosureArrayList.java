@@ -32,6 +32,7 @@ public class AddClosureArrayList<T> extends ArrayList<T> implements Closure {
    *
    * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
    */
+  @Override
   @SuppressWarnings("unchecked")
   public void execute(final Object input) {
     this.add((T) input);

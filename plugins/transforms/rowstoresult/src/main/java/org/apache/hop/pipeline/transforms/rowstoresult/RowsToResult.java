@@ -46,6 +46,7 @@ public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultDa
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
@@ -71,6 +72,7 @@ public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultDa
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

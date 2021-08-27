@@ -171,6 +171,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
     return descriptions;
   }
 
+  @Override
   public boolean[] isReferencedObjectEnabled() {
     boolean[] enabled = new boolean[testNames.size()];
     for (int i = 0; i < enabled.length; i++) {

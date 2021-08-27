@@ -238,6 +238,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     fieldFormatOk = new boolean[nrvalues];
   }
 
+  @Override
   public Object clone() {
     MonetDbBulkLoaderMeta retval = (MonetDbBulkLoaderMeta) super.clone();
     int nrvalues = fieldTable.length;
@@ -307,6 +308,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     fieldTable = null;
     databaseMeta = null;
@@ -360,6 +362,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -371,6 +374,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -661,6 +665,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -709,6 +714,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);

@@ -439,11 +439,13 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     }
   }
 
+  @Override
   public Delete createTransform(
       TransformMeta transformMeta, DeleteData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
     return new Delete(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public DeleteData getTransformData() {
     return new DeleteData();
   }

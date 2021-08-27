@@ -79,6 +79,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     return new String[] {"Pipelines"};
   }
 
+  @Override
   public Properties getCapabilities() {
     Properties capabilities = new Properties();
     capabilities.setProperty(IHopFileType.CAPABILITY_NEW, "true");

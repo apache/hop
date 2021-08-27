@@ -47,6 +47,7 @@ public class VariableButtonListenerFactory {
       final IInsertText insertTextInterface,
       final IVariables variables) {
     return new SelectionAdapter() {
+      @Override
       public void widgetSelected(SelectionEvent e) {
         String[] keys = variables.getVariableNames();
         Arrays.sort(keys);

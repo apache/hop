@@ -146,6 +146,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     return names;
   }
 
+  @Override
   public RemoteWorkflowRunConfiguration clone() {
     return new RemoteWorkflowRunConfiguration(this);
   }

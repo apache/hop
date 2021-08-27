@@ -202,6 +202,7 @@ public class DenormaliserMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public Denormaliser createTransform(
       TransformMeta transformMeta,
       DenormaliserData data,
@@ -211,6 +212,7 @@ public class DenormaliserMeta extends BaseTransformMeta
     return new Denormaliser(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public DenormaliserData getTransformData() {
     return new DenormaliserData();
   }

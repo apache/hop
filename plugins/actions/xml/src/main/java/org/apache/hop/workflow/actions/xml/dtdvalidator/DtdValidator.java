@@ -67,11 +67,13 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     DtdValidator je = (DtdValidator) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuffer retval = new StringBuffer(50);
 
@@ -83,6 +85,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
 
@@ -106,6 +109,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     return resolve(dtdfilename);
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(true);
@@ -167,6 +171,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     this.dtdintern = dtdinternin;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

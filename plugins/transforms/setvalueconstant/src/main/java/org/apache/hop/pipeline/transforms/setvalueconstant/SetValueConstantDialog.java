@@ -64,6 +64,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

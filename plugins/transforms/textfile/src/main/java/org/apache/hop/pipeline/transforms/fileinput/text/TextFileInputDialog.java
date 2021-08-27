@@ -264,6 +264,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     firstClickOnDateLocale = true;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -341,6 +342,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
                 wFilename.getText(),
@@ -362,6 +364,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -373,6 +376,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -390,6 +394,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             showFiles();
           }
@@ -398,6 +403,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Allow the insertion of tabs as separator...
     wbSeparator.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             wSeparator.getTextWidget().insert("\t");
           }
@@ -405,6 +411,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     SelectionAdapter lsFlags =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setFlags();
           }
@@ -1248,8 +1255,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1335,8 +1344,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     wDateLocale.setLayoutData(fdDateLocale);
     wDateLocale.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1869,6 +1880,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileInputDialog.MinWidth.Tooltip"));
     wMinWidth.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

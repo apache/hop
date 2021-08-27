@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui;
 public class HopGuiImpl implements ISingletonProvider {
   private static HopGui instance;
 
+  @Override
   public Object getInstanceInternal() {
     if (instance == null) {
       instance = new HopGui();

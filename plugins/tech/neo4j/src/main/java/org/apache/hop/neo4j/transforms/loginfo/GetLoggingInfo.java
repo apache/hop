@@ -122,6 +122,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     return row;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] row;
     if (data.readsRows) {
@@ -175,6 +176,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       data.readsRows = false;
@@ -188,6 +190,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     return false;
   }
 
+  @Override
   public void dispose() {
     super.dispose();
   }

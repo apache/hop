@@ -86,6 +86,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionCheckFilesLocked je = (ActionCheckFilesLocked) super.clone();
     if (arguments != null) {
@@ -102,6 +103,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     filemasks = new String[nrFields];
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(300);
 
@@ -123,6 +125,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -151,6 +154,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
 
     Result result = previousResult;
@@ -308,6 +312,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
       FileObject filename = null;
@@ -371,6 +376,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
       return returncode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return info.getDepth() == 0 || includeSubfolders;
     }
@@ -406,6 +412,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     this.argFromPrevious = argFromPrevious;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
@@ -426,6 +433,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return includeSubfolders;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

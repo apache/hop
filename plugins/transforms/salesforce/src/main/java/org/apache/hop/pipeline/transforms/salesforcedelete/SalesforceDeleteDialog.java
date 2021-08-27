@@ -78,6 +78,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     input = (SalesforceDeleteMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -328,10 +329,12 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     wModule.setLayoutData(fdModule);
     wModule.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {
             getModulesListError = false;
           }
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             // check if the URL and login credentials passed and not just had error
             if (Utils.isEmpty(wURL.getText())
@@ -369,8 +372,10 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     wDeleteField.setLayoutData(fdDeleteField);
     wDeleteField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             getPreviousFields();
           }

@@ -449,6 +449,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     return data.outputRowMeta;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -521,6 +522,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     return bRC;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -549,6 +551,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     return false;
   }
 
+  @Override
   public void dispose() {
     try {
       if (data.cx != null) {

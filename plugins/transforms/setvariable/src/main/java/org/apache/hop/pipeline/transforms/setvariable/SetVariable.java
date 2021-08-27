@@ -52,6 +52,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     // Get one row from one of the rowsets...
     //

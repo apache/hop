@@ -78,6 +78,7 @@ public class SetValueConstantMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -115,6 +116,7 @@ public class SetValueConstantMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append("   " + XmlHandler.addTagValue("usevar", usevar));
@@ -134,10 +136,12 @@ public class SetValueConstantMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void setDefault() {
     usevar = false;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -230,10 +234,12 @@ public class SetValueConstantMeta extends BaseTransformMeta
     return new SetValueConstant(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SetValueConstantData getTransformData() {
     return new SetValueConstantData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

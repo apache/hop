@@ -255,10 +255,12 @@ public class TextVar extends Composite {
     wText.addSelectionListener(lsDef);
   }
 
+  @Override
   public void addKeyListener(KeyListener lsKey) {
     wText.addKeyListener(lsKey);
   }
 
+  @Override
   public void addFocusListener(FocusListener lsFocus) {
     wText.addFocusListener(lsFocus);
   }
@@ -267,18 +269,22 @@ public class TextVar extends Composite {
     wText.setEchoChar(c);
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wText.setEnabled(flag);
   }
 
+  @Override
   public boolean setFocus() {
     return wText.setFocus();
   }
 
+  @Override
   public void addTraverseListener(TraverseListener tl) {
     wText.addTraverseListener(tl);
   }
 
+  @Override
   public void setToolTipText(String toolTipText) {
     this.toolTipText = toolTipText;
     wText.setToolTipText(toolTipText);

@@ -132,6 +132,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -238,6 +239,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wRunEveryRow.setLayoutData(fdRunEveryRow);
     wRunEveryRow.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setFlags();
           }
@@ -561,6 +563,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wDateTimeAdded.setLayoutData(fdDateTimeAdded);
     wDateTimeAdded.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setFlags();
           }

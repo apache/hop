@@ -48,6 +48,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] rowData;
 
@@ -127,6 +128,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

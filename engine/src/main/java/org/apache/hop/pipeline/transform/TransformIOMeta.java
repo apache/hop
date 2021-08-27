@@ -65,6 +65,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /** @return the inputAcceptor */
+  @Override
   public boolean isInputAcceptor() {
     return inputAcceptor;
   }
@@ -75,6 +76,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /** @return the outputProducer */
+  @Override
   public boolean isOutputProducer() {
     return outputProducer;
   }
@@ -85,6 +87,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /** @return the inputOptional */
+  @Override
   public boolean isInputOptional() {
     return inputOptional;
   }
@@ -98,6 +101,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * @return the info streams of this transform. Important: Modifying this list does not have any
    *     effect on the Transforms IO metadata.
    */
+  @Override
   public List<IStream> getInfoStreams() {
     List<IStream> list = new ArrayList<>();
     synchronized (streams) {
@@ -114,6 +118,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * @return the target streams of this transform. Important: Modifying this list does not have any
    *     effect on the Transforms IO metadata.
    */
+  @Override
   public List<IStream> getTargetStreams() {
     List<IStream> list = new ArrayList<>();
     synchronized (streams) {
@@ -127,6 +132,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /** @return the sortedDataRequired */
+  @Override
   public boolean isSortedDataRequired() {
     return sortedDataRequired;
   }
@@ -136,10 +142,12 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     this.sortedDataRequired = sortedDataRequired;
   }
 
+  @Override
   public void addStream(IStream stream) {
     streams.add(stream);
   }
 
+  @Override
   public String[] getInfoTransformNames() {
     List<IStream> infoStreams = getInfoStreams();
     String[] names = new String[infoStreams.size()];
@@ -149,6 +157,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     return names;
   }
 
+  @Override
   public String[] getTargetTransformNames() {
     List<IStream> targetStreams = getTargetStreams();
     String[] names = new String[targetStreams.size()];
@@ -163,6 +172,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    *
    * @param infoTransforms
    */
+  @Override
   public void setInfoTransforms(TransformMeta[] infoTransforms) {
     // First get the info transforms...
     //
@@ -183,21 +193,25 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /** @return the generalInfoDescription */
+  @Override
   public String getGeneralInfoDescription() {
     return generalInfoDescription;
   }
 
   /** @param generalInfoDescription the generalInfoDescription to set */
+  @Override
   public void setGeneralInfoDescription(String generalInfoDescription) {
     this.generalInfoDescription = generalInfoDescription;
   }
 
   /** @return the generalTargetDescription */
+  @Override
   public String getGeneralTargetDescription() {
     return generalTargetDescription;
   }
 
   /** @param generalTargetDescription the generalTargetDescription to set */
+  @Override
   public void setGeneralTargetDescription(String generalTargetDescription) {
     this.generalTargetDescription = generalTargetDescription;
   }
@@ -207,25 +221,30 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   }
 
   /** @return the outputDynamic */
+  @Override
   public boolean isOutputDynamic() {
     return outputDynamic;
   }
 
   /** @param outputDynamic the outputDynamic to set */
+  @Override
   public void setOutputDynamic(boolean outputDynamic) {
     this.outputDynamic = outputDynamic;
   }
 
   /** @return the inputDynamic */
+  @Override
   public boolean isInputDynamic() {
     return inputDynamic;
   }
 
   /** @param inputDynamic the inputDynamic to set */
+  @Override
   public void setInputDynamic(boolean inputDynamic) {
     this.inputDynamic = inputDynamic;
   }
 
+  @Override
   public IStream findTargetStream(TransformMeta targetTransform) {
     for (IStream stream : getTargetStreams()) {
       if (targetTransform.equals(stream.getTransformMeta())) {
@@ -235,6 +254,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     return null;
   }
 
+  @Override
   public IStream findInfoStream(TransformMeta infoTransform) {
     for (IStream stream : getInfoStreams()) {
       if (infoTransform.equals(stream.getTransformMeta())) {

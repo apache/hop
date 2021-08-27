@@ -28,6 +28,7 @@ public class HopWebServletContextListener extends RWTServletContextListener {
   private static final Logger logger =
       Logger.getLogger(HopWebServletContextListener.class.getName());
 
+  @Override
   public void contextInitialized(ServletContextEvent event) {
     /*
      *  The following lines are from HopGui.main
@@ -42,6 +43,7 @@ public class HopWebServletContextListener extends RWTServletContextListener {
     super.contextInitialized(event);
   }
 
+  @Override
   public void contextDestroyed(ServletContextEvent event) {
     super.contextDestroyed(event);
     // Kill all remaining things in this VM!

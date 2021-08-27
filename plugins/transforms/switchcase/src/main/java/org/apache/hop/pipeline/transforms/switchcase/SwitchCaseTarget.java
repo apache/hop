@@ -47,6 +47,7 @@ public class SwitchCaseTarget implements Cloneable {
     this.caseTargetTransformName = t.caseTargetTransformName;
   }
 
+  @Override
   public SwitchCaseTarget clone() {
     return new SwitchCaseTarget(this);
   }

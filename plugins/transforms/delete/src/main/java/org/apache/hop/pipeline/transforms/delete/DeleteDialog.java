@@ -82,6 +82,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

@@ -67,6 +67,7 @@ public abstract class BaseFileInputMeta<
   @InjectionDeep public BaseFileErrorHandling errorHandling = new BaseFileErrorHandling();
   @InjectionDeep public A additionalOutputFields;
 
+  @Override
   public Object clone() {
     BaseFileInputMeta<
             BaseFileInputAdditionalField,

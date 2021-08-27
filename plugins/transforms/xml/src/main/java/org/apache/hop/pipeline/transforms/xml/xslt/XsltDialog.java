@@ -87,6 +87,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -174,8 +175,10 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wField.setLayoutData(fdField);
     wField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -258,6 +261,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     SelectionAdapter lsXslFile =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateWlXSLField();
             input.setChanged();
@@ -285,8 +289,10 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLField.setLayoutData(fdXSLField);
     wXSLField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -315,6 +321,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLFieldIsAFile.setLayoutData(fdXSLFieldIsAFile);
     wXSLFieldIsAFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -549,6 +556,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);

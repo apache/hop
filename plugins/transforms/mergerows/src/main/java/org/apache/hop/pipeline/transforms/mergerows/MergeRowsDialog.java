@@ -68,6 +68,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     input = (MergeRowsMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -107,6 +108,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     wbKeys.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getKeys();
           }
@@ -122,6 +124,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     wbValues.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getValues();
           }

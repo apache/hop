@@ -128,12 +128,15 @@ public abstract class HopImportBase implements IHopImport {
     }
   }
 
+  @Override
   public abstract void importFiles() throws HopException;
 
   public abstract void findFilesToImport() throws HopException;
 
+  @Override
   public abstract void importConnections() throws HopException;
 
+  @Override
   public abstract void importVariables() throws HopException;
 
   protected void collectVariablesFromKettleProperties() throws HopException {
@@ -169,10 +172,12 @@ public abstract class HopImportBase implements IHopImport {
     }
   }
 
+  @Override
   public FileObject getInputFolder() {
     return inputFolder;
   }
 
+  @Override
   public void setValidateInputFolder(String inputFolderName) throws HopException {
     try {
       inputFolder = HopVfs.getFileObject(inputFolderName);
@@ -186,10 +191,12 @@ public abstract class HopImportBase implements IHopImport {
     }
   }
 
+  @Override
   public FileObject getOutputFolder() {
     return outputFolder;
   }
 
+  @Override
   public void setValidateOutputFolder(String outputFolderName) throws HopException {
     this.outputFolder = HopVfs.getFileObject(outputFolderName);
     try {
@@ -208,6 +215,7 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of inputFolderName
    */
+  @Override
   public String getInputFolderName() {
     return inputFolderName;
   }
@@ -222,6 +230,7 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of outputFolderName
    */
+  @Override
   public String getOutputFolderName() {
     return outputFolderName;
   }
@@ -341,11 +350,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of sharedXmlFilename
    */
+  @Override
   public String getSharedXmlFilename() {
     return sharedXmlFilename;
   }
 
   /** @param sharedXmlFilename The sharedXmlFilename to set */
+  @Override
   public void setSharedXmlFilename(String sharedXmlFilename) {
     this.sharedXmlFilename = sharedXmlFilename;
   }
@@ -355,11 +366,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of kettlePropertiesFilename
    */
+  @Override
   public String getKettlePropertiesFilename() {
     return kettlePropertiesFilename;
   }
 
   /** @param kettlePropertiesFilename The kettlePropertiesFilename to set */
+  @Override
   public void setKettlePropertiesFilename(String kettlePropertiesFilename) {
     this.kettlePropertiesFilename = kettlePropertiesFilename;
   }
@@ -369,11 +382,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of jdbcPropertiesFilename
    */
+  @Override
   public String getJdbcPropertiesFilename() {
     return jdbcPropertiesFilename;
   }
 
   /** @param jdbcPropertiesFilename The jdbcPropertiesFilename to set */
+  @Override
   public void setJdbcPropertiesFilename(String jdbcPropertiesFilename) {
     this.jdbcPropertiesFilename = jdbcPropertiesFilename;
   }
@@ -392,11 +407,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of metadataProvider
    */
+  @Override
   public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
   /** @param metadataProvider The metadataProvider to set */
+  @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
@@ -406,11 +423,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of targetConfigFilename
    */
+  @Override
   public String getTargetConfigFilename() {
     return targetConfigFilename;
   }
 
   /** @param targetConfigFilename The targetConfigFilename to set */
+  @Override
   public void setTargetConfigFilename(String targetConfigFilename) {
     this.targetConfigFilename = targetConfigFilename;
   }
@@ -462,11 +481,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of skippingHiddenFilesAndFolders
    */
+  @Override
   public boolean isSkippingHiddenFilesAndFolders() {
     return skippingHiddenFilesAndFolders;
   }
 
   /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  @Override
   public void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders) {
     this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
   }
@@ -476,11 +497,13 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return value of skippingFolders
    */
+  @Override
   public boolean isSkippingFolders() {
     return skippingFolders;
   }
 
   /** @param skippingFolders The skippingFolders to set */
+  @Override
   public void setSkippingFolders(boolean skippingFolders) {
     this.skippingFolders = skippingFolders;
   }
@@ -490,5 +513,6 @@ public abstract class HopImportBase implements IHopImport {
    *
    * @return The import report
    */
+  @Override
   public abstract String getImportReport();
 }

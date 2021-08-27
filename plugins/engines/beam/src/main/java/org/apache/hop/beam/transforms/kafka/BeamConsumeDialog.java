@@ -60,6 +60,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     input = (BeamConsumeMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

@@ -233,6 +233,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   /** @return true if all fields should always be quoted in db */
+  @Override
   public boolean isQuoteAllFields() {
     return false;
   }
@@ -244,6 +245,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   /** @return true if the database supports schemas */
+  @Override
   public boolean supportsSchemas() {
     return false;
   }
@@ -401,6 +403,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return true if we need to supply the schema-name to getTables in order to get a correct list
    *     of items.
    */
+  @Override
   public boolean useSchemaNameForTableList() {
     return false;
   }
@@ -408,6 +411,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   /**
    * @return true if the database resultsets support getTimeStamp() to retrieve date-time. (Date)
    */
+  @Override
   public boolean supportsTimeStampToDateConversion() {
     return false;
   }

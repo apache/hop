@@ -281,6 +281,7 @@ public class AzureListenerMeta extends BaseTransformMeta
   /**
    * @return The objects referenced in the Transform, like a mapping, a transformation, a job, ...
    */
+  @Override
   public String[] getReferencedObjectDescriptions() {
     return new String[] {
       "Batch pipeline",
@@ -291,6 +292,7 @@ public class AzureListenerMeta extends BaseTransformMeta
     return StringUtils.isNotEmpty(batchPipeline);
   }
 
+  @Override
   public boolean[] isReferencedObjectEnabled() {
     return new boolean[] {
       isPipelineDefined(),
@@ -305,6 +307,7 @@ public class AzureListenerMeta extends BaseTransformMeta
    * @return the referenced object once loaded
    * @throws HopException
    */
+  @Override
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return loadBatchPipelineMeta(this, metadataProvider, variables);

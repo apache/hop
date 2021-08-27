@@ -102,6 +102,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -221,6 +222,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     wUrlInField.setLayoutData(fdUrlInField);
     wUrlInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activeUrlInfield();
@@ -251,8 +253,10 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     wUrlField.setEnabled(false);
     wUrlField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -285,8 +289,10 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     lastControl = wEncoding;
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

@@ -42,6 +42,7 @@ public class S3FileNameParser extends AbstractFileNameParser {
     return INSTANCE;
   }
 
+  @Override
   public FileName parseUri(VfsComponentContext context, FileName base, String uri)
       throws FileSystemException {
     StringBuilder name = new StringBuilder();

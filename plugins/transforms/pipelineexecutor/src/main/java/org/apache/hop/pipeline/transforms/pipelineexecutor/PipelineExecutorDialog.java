@@ -141,6 +141,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     jobModified = false;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -519,6 +520,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wGetParameters.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
     wGetParameters.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getParametersFromPipeline(null); // null = force reload of data on disk
           }

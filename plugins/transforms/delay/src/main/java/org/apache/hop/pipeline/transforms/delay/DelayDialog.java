@@ -51,6 +51,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     input = (DelayMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

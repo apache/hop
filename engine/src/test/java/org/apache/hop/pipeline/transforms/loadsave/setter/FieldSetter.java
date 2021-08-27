@@ -26,6 +26,7 @@ public class FieldSetter<T> implements ISetter<T> {
     this.field = field;
   }
 
+  @Override
   public void set(Object obj, T value) {
     try {
       field.set(obj, value);

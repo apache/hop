@@ -117,11 +117,13 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionFtpPut je = (ActionFtpPut) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(450); // 365 characters in spaces and tag names alone
 
@@ -208,6 +210,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the binaryMode. */
+  @Override
   public boolean isBinaryMode() {
     return binaryMode;
   }
@@ -223,6 +226,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the timeout. */
+  @Override
   public int getTimeout() {
     return timeout;
   }
@@ -242,6 +246,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
    *
    * @return the used encoding
    */
+  @Override
   public String getControlEncoding() {
     return controlEncoding;
   }
@@ -267,6 +272,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the password. */
+  @Override
   public String getPassword() {
     return password;
   }
@@ -277,6 +283,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the serverName. */
+  @Override
   public String getServerName() {
     return serverName;
   }
@@ -287,6 +294,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the userName. */
+  @Override
   public String getUserName() {
     return userName;
   }
@@ -326,6 +334,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     return remove;
   }
 
+  @Override
   public String getServerPort() {
     return serverPort;
   }
@@ -335,6 +344,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return the activeConnection */
+  @Override
   public boolean isActiveConnection() {
     return activeConnection;
   }
@@ -345,6 +355,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the hostname of the ftp-proxy. */
+  @Override
   public String getProxyHost() {
     return proxyHost;
   }
@@ -355,6 +366,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the password which is used to authenticate at the proxy. */
+  @Override
   public String getProxyPassword() {
     return proxyPassword;
   }
@@ -365,6 +377,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the port of the ftp-proxy. */
+  @Override
   public String getProxyPort() {
     return proxyPort;
   }
@@ -375,6 +388,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return Returns the username which is used to authenticate at the proxy. */
+  @Override
   public String getProxyUsername() {
     return proxyUsername;
   }
@@ -400,21 +414,25 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   /** @return The sox proxy host name */
+  @Override
   public String getSocksProxyHost() {
     return this.socksProxyHost;
   }
 
   /** @return The socks proxy port */
+  @Override
   public String getSocksProxyPort() {
     return this.socksProxyPort;
   }
 
   /** @return The socks proxy username */
+  @Override
   public String getSocksProxyUsername() {
     return this.socksProxyUsername;
   }
 
   /** @return The socks proxy password */
+  @Override
   public String getSocksProxyPassword() {
     return this.socksProxyPassword;
   }
@@ -424,6 +442,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     this.proxyUsername = proxyUsername;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);

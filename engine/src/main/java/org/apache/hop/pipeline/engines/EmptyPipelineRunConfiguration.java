@@ -40,6 +40,7 @@ public class EmptyPipelineRunConfiguration extends Variables
     this.pluginName = config.pluginName;
   }
 
+  @Override
   public EmptyPipelineRunConfiguration clone() {
     return new EmptyPipelineRunConfiguration(this);
   }
@@ -66,6 +67,7 @@ public class EmptyPipelineRunConfiguration extends Variables
    *
    * @return value of pluginId
    */
+  @Override
   public String getEnginePluginId() {
     return pluginId;
   }
@@ -81,6 +83,7 @@ public class EmptyPipelineRunConfiguration extends Variables
    *
    * @return value of pluginName
    */
+  @Override
   public String getEnginePluginName() {
     return pluginName;
   }

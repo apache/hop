@@ -54,6 +54,7 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
     this.fields = null;
   }
 
+  @Override
   public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
     int size = pipelineMeta.findPreviousTransforms(transformMeta).size();
 

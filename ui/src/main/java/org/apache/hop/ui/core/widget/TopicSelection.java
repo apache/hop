@@ -197,6 +197,7 @@ public class TopicSelection extends Composite {
     return wTopicFromField.getSelection();
   }
 
+  @Override
   public void setEnabled(boolean enabled) {
     wTopicGroup.setEnabled(enabled);
 

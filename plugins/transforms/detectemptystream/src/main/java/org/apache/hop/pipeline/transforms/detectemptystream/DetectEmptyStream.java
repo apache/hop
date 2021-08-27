@@ -59,6 +59,7 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
     return outputRowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!

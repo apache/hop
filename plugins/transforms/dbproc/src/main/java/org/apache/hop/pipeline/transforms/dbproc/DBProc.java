@@ -135,6 +135,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
     return outputRowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     boolean sendToErrorRow = false;
     String errorMessage = null;
@@ -203,6 +204,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -237,6 +239,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {

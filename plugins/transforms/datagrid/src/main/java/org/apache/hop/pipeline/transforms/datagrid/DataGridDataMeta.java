@@ -47,6 +47,7 @@ public class DataGridDataMeta implements Cloneable {
     this.datalines = m.datalines;
   }
 
+  @Override
   public DataGridDataMeta clone() {
     return new DataGridDataMeta(this);
   }

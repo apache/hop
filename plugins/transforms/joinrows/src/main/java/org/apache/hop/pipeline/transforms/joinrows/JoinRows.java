@@ -261,6 +261,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     if (first) {
@@ -464,6 +465,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
     return outputRowMeta;
   }
 
+  @Override
   public void dispose() {
 
     // Remove the temporary files...

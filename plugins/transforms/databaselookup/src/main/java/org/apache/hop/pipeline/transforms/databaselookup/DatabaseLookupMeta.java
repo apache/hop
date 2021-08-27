@@ -118,6 +118,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta
     this.lookup = new Lookup(m.lookup);
   }
 
+  @Override
   public DatabaseLookupMeta clone() {
     return new DatabaseLookupMeta(this);
   }

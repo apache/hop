@@ -81,6 +81,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     return new String[] {"Workflows"};
   }
 
+  @Override
   public Properties getCapabilities() {
     Properties capabilities = new Properties();
     capabilities.setProperty(IHopFileType.CAPABILITY_NEW, "true");

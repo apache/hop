@@ -170,6 +170,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     this.autoCommit = autoCommit;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -181,6 +182,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     argumentType = new int[nrargs];
   }
 
+  @Override
   public Object clone() {
     DBProcMeta retval = (DBProcMeta) super.clone();
     int nrargs = argument.length;
@@ -194,6 +196,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     return retval;
   }
 
+  @Override
   public void setDefault() {
     int i;
     int nrargs;
@@ -252,6 +255,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     return;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
 
@@ -423,6 +427,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     }
   }
 
+  @Override
   public DBProc createTransform(
       TransformMeta transformMeta,
       DBProcData data,
@@ -432,10 +437,12 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     return new DBProc(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public DBProcData getTransformData() {
     return new DBProcData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (database != null) {
       return new DatabaseMeta[] {database};
@@ -444,6 +451,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

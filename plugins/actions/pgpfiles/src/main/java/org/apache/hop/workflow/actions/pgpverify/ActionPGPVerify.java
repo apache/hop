@@ -78,11 +78,13 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionPGPVerify je = (ActionPGPVerify) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(100);
 
@@ -96,6 +98,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -126,6 +129,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     this.filename = filename;
   }
 
+  @Override
   public String getFilename() {
     return filename;
   }
@@ -146,6 +150,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return useDetachedSignature;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -204,6 +209,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
@@ -243,6 +249,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

@@ -35,6 +35,7 @@ public class S3FileProvider extends S3CommonFileProvider {
     setFileNameParser(S3FileNameParser.getInstance());
   }
 
+  @Override
   public FileSystem doCreateFileSystem(
       final FileName name, final FileSystemOptions fileSystemOptions) {
     return new S3FileSystem(name, fileSystemOptions);

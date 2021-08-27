@@ -92,6 +92,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     metadataProvider = HopGui.getInstance().getMetadataProvider();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

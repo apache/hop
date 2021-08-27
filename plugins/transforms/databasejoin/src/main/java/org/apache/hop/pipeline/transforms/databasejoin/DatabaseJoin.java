@@ -150,6 +150,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     data.db.closeQuery(rs);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -201,6 +202,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
    * <p>To cancel a prepared statement we need a valid database connection which we do not have if
    * disposed has already been called
    */
+  @Override
   public synchronized void stopRunning() throws HopException {
     if (this.isStopped() || data.isDisposed()) {
       return;
@@ -213,6 +215,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     }
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       if (meta.getDatabaseMeta() == null) {
@@ -252,6 +255,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.db != null) {
       data.db.disconnect();

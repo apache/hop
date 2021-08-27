@@ -49,6 +49,7 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
     input = (BeamTimestampMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

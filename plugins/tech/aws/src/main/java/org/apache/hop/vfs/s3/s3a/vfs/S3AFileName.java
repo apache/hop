@@ -63,10 +63,12 @@ public class S3AFileName extends AbstractFileName {
     return bucketRelativePath;
   }
 
+  @Override
   public FileName createName(String absPath, FileType type) {
     return new S3AFileName(getScheme(), bucketId, absPath, type);
   }
 
+  @Override
   protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
     buffer.append(getScheme());
     buffer.append("://");

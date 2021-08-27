@@ -111,14 +111,17 @@ public class CheckBoxVar extends Composite {
     wBox.addSelectionListener(lsDef);
   }
 
+  @Override
   public void addKeyListener(KeyListener lsKey) {
     wBox.addKeyListener(lsKey);
   }
 
+  @Override
   public void addFocusListener(FocusListener lsFocus) {
     wBox.addFocusListener(lsFocus);
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wBox.setEnabled(flag);
   }
@@ -131,10 +134,12 @@ public class CheckBoxVar extends Composite {
     return wBox.getSelection();
   }
 
+  @Override
   public boolean setFocus() {
     return wBox.setFocus();
   }
 
+  @Override
   public void addTraverseListener(TraverseListener tl) {
     wBox.addTraverseListener(tl);
   }

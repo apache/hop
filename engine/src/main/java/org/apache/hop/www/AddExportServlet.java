@@ -75,6 +75,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
     super(transformationMap, workflowMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getRequestURI().startsWith(CONTEXT_PATH)) {
@@ -237,10 +238,12 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
     return "Add export";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

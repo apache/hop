@@ -110,6 +110,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
         && messagesPackage.equals(((KeyOccurrence) occ).messagesPackage);
   }
 
+  @Override
   public int compareTo(KeyOccurrence occ) {
     int cmp = key.compareTo(occ.key);
     if (cmp != 0) {

@@ -39,27 +39,32 @@ public class StringPluginProperty extends KeyValue<String> implements IPluginPro
   }
 
   /** */
+  @Override
   public boolean evaluate() {
     return StringUtils.isNotBlank(this.getValue());
   }
 
   /** */
+  @Override
   public void appendXml(final StringBuilder builder) {
     builder.append(XmlHandler.addTagValue(this.getKey(), this.getValue()));
   }
 
   /** */
+  @Override
   public void loadXml(final Node node) {
     final String value = XmlHandler.getTagValue(node, this.getKey());
     this.setValue(value);
   }
 
   /** */
+  @Override
   public void saveToPreferences(final Preferences node) {
     node.put(this.getKey(), this.getValue());
   }
 
   /** */
+  @Override
   public void readFromPreferences(final Preferences node) {
     this.setValue(node.get(this.getKey(), this.getValue()));
   }

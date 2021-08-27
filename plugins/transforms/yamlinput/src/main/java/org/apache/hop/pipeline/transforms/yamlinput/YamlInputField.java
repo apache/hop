@@ -150,6 +150,7 @@ public class YamlInputField implements Cloneable {
     return trimTypeDesc[i];
   }
 
+  @Override
   public Object clone() {
     try {
       YamlInputField retval = (YamlInputField) super.clone();

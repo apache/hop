@@ -77,6 +77,7 @@ public class Mail extends BaseTransform<MailMeta, MailData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
@@ -1036,6 +1037,7 @@ public class Mail extends BaseTransform<MailMeta, MailData>
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
       try {
@@ -1063,6 +1065,7 @@ public class Mail extends BaseTransform<MailMeta, MailData>
       return returncode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }
@@ -1090,6 +1093,7 @@ public class Mail extends BaseTransform<MailMeta, MailData>
     return getIt;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -1099,6 +1103,7 @@ public class Mail extends BaseTransform<MailMeta, MailData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.embeddedMimePart != null) {

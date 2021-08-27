@@ -132,6 +132,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTableFieldCombo();
@@ -388,6 +389,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wHashcode.setLayoutData(fdHashcode);
     wHashcode.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             enableFields();
           }
@@ -411,6 +413,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wReplace.setLayoutData(fdReplace);
     wReplace.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             enableFields();
           }
@@ -464,6 +467,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wSeq.setLayoutData(gdSeq);
     wSeq.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusGained(FocusEvent arg0) {
             input.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_SEQUENCE);
             wSeqButton.setSelection(true);
@@ -471,6 +475,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
             wTableMax.setSelection(false);
           }
 
+          @Override
           public void focusLost(FocusEvent arg0) {}
         });
 
@@ -548,12 +553,14 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

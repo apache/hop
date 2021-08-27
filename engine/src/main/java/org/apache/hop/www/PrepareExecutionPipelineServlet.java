@@ -49,6 +49,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -246,10 +247,12 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
     return "Start pipeline";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

@@ -116,6 +116,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

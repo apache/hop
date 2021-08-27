@@ -128,6 +128,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     targetSourceMapping.putAll(metaInjectMeta.getTargetSourceMapping());
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

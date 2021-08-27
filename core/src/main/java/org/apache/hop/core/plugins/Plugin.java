@@ -490,11 +490,13 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
    *
    * @return value of keywords
    */
+  @Override
   public String[] getKeywords() {
     return keywords;
   }
 
   /** @param keywords The keywords to set */
+  @Override
   public void setKeywords(String[] keywords) {
     this.keywords = keywords;
   }

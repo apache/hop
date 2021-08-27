@@ -149,6 +149,7 @@ public class PipelineHopDialog extends Dialog {
     wEnabled.setLayoutData(fdEnabled);
     wEnabled.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setEnabled(!input.isEnabled());
             input.setChanged();

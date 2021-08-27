@@ -467,6 +467,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     if (data.readLookupValues) {
@@ -536,6 +537,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
 
@@ -638,6 +640,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
     return false;
   }
 
+  @Override
   public void dispose() {
     data.look.clear();
     super.dispose();

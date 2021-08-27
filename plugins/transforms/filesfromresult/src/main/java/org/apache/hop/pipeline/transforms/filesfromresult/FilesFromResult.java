@@ -50,6 +50,7 @@ public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFro
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (data.resultFilesList == null || getLinesRead() >= data.resultFilesList.size()) {
       setOutputDone();
@@ -76,6 +77,7 @@ public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFro
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       Result result = getPipeline().getPreviousResult();

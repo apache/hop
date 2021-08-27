@@ -120,6 +120,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     input = (GetFileNamesMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -220,6 +221,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wFileField.setLayoutData(fdFileField);
     SelectionAdapter lfilefield =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateFileField();
             setFileField();
@@ -731,6 +733,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
                 new String[] {
@@ -753,6 +756,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -765,6 +769,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -783,6 +788,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             GetFileNamesMeta tfii = new GetFileNamesMeta();
             getInfo(tfii);

@@ -355,6 +355,7 @@ public class Translator {
     // In case someone dares to press the [X] in the corner ;-)
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             e.doit = quitFile();
           }
@@ -362,6 +363,7 @@ public class Translator {
 
     wReload.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wPackages.table.getSelectionIndices();
             reload();
@@ -371,6 +373,7 @@ public class Translator {
 
     wZip.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             saveFilesToZip();
           }
@@ -378,6 +381,7 @@ public class Translator {
 
     wClose.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             quitFile();
           }
@@ -479,12 +483,14 @@ public class Translator {
     // Add a selection listener.
     wLocale.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshGrid();
           }
         });
     wPackages.table.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshGrid();
           }
@@ -803,6 +809,7 @@ public class Translator {
 
     wAll.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshGrid();
           }
@@ -810,6 +817,7 @@ public class Translator {
 
     wTodo.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // If someone clicks on the todo list, we set the appropriate values
             //
@@ -836,6 +844,7 @@ public class Translator {
 
     wApply.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             applyChangedValue();
           }
@@ -843,6 +852,7 @@ public class Translator {
 
     wRevert.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             revertChangedValue();
           }
@@ -850,6 +860,7 @@ public class Translator {
 
     wSave.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent event) {
             saveFiles();
           }
@@ -857,6 +868,7 @@ public class Translator {
 
     wSearch.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             search(referenceLocale);
           }
@@ -864,6 +876,7 @@ public class Translator {
 
     wNext.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             searchAgain(referenceLocale);
           }
@@ -871,6 +884,7 @@ public class Translator {
 
     wSearchV.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             search(selectedLocale);
           }
@@ -878,6 +892,7 @@ public class Translator {
 
     wNextV.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             searchAgain(selectedLocale);
           }

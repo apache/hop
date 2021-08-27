@@ -68,6 +68,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
     }
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean keep;

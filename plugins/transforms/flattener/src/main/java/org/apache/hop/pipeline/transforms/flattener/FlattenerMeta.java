@@ -81,6 +81,7 @@ public class FlattenerMeta extends BaseTransformMeta
     this.targetField = targetField;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -90,11 +91,13 @@ public class FlattenerMeta extends BaseTransformMeta
     targetField = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
+  @Override
   public void setDefault() {
     int nrFields = 0;
 
@@ -157,6 +160,7 @@ public class FlattenerMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -173,6 +177,7 @@ public class FlattenerMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -205,6 +210,7 @@ public class FlattenerMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public Flattener createTransform(
       TransformMeta transformMeta,
       FlattenerData data,
@@ -214,6 +220,7 @@ public class FlattenerMeta extends BaseTransformMeta
     return new Flattener(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public FlattenerData getTransformData() {
     return new FlattenerData();
   }

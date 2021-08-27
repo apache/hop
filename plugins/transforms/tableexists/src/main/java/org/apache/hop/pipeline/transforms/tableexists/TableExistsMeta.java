@@ -205,6 +205,7 @@ public class TableExistsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public TableExistsData getTransformData() {
     return new TableExistsData();
   }

@@ -98,6 +98,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -113,6 +114,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
         };
     SelectionAdapter lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setModuleFieldCombo();
@@ -360,10 +362,12 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wModule.setLayoutData(fdModule);
     wModule.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {
             getModulesListError = false;
           }
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             // check if the URL and login credentials passed and not just had error
             if (Utils.isEmpty(wURL.getText())

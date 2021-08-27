@@ -119,6 +119,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -260,10 +261,12 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wUrlField.setLayoutData(fdUrlField);
     wUrlField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -292,10 +295,12 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -326,10 +331,12 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wRequestEntity.setLayoutData(fdRequestEntity);
     wRequestEntity.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

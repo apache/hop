@@ -132,6 +132,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
   }
 
   /** @return Returns the database. */
+  @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
@@ -142,6 +143,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
   }
 
   /** @return Returns the tableName. */
+  @Override
   public String getTableName() {
     return tableName;
   }
@@ -446,6 +448,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public PGBulkLoader createTransform(
       TransformMeta transformMeta,
       PGBulkLoaderData data,
@@ -455,6 +458,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
     return new PGBulkLoader(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public PGBulkLoaderData getTransformData() {
     return new PGBulkLoaderData();
   }
@@ -507,6 +511,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
   }
 
   /** @return the schemaName */
+  @Override
   public String getSchemaName() {
     return schemaName;
   }

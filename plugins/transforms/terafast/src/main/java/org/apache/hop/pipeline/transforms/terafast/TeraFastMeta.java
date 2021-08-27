@@ -132,6 +132,7 @@ public class TeraFastMeta extends AbstractTransformMeta
     this.variableSubstitution = this.getPropertyFactory().createBoolean(VARIABLE_SUBSTITUTION);
   }
 
+  @Override
   public void check(
       final List<ICheckResult> remarks,
       final PipelineMeta pipelineMeta,
@@ -265,6 +266,7 @@ public class TeraFastMeta extends AbstractTransformMeta
    *
    * @see ITransformMeta#setDefault()
    */
+  @Override
   public void setDefault() {
     this.fastloadPath.setValue(DEFAULT_FASTLOAD_PATH);
     this.dataFile.setValue(DEFAULT_DATA_FILE);

@@ -96,6 +96,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     this.action = (ActionSimpleEval) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -194,6 +195,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wValueType.setLayoutData(fdValueType);
     wValueType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             refresh();
@@ -268,6 +270,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wFieldType.setLayoutData(fdFieldType);
     wFieldType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             refresh();
@@ -295,6 +298,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wMask.setLayoutData(fdMask);
     wMask.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -341,6 +345,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessWhenSet.setLayoutData(fdSuccessWhenSet);
     wSuccessWhenSet.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refresh();
             action.setChanged();
@@ -370,6 +375,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -396,6 +402,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessNumberCondition.setLayoutData(fdSuccessNumberCondition);
     wSuccessNumberCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refresh();
           }
@@ -424,6 +431,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessBooleanCondition.setLayoutData(fdSuccessBooleanCondition);
     wSuccessBooleanCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refresh();
           }

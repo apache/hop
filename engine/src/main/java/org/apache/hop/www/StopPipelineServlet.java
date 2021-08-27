@@ -46,6 +46,7 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -169,10 +170,12 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
     return "Stop pipeline";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

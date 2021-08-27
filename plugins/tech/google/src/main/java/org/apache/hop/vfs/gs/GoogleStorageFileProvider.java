@@ -41,6 +41,7 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
               Capability.URI,
               Capability.WRITE_CONTENT));
 
+  @Override
   public Collection<Capability> getCapabilities() {
     return capabilities;
   }

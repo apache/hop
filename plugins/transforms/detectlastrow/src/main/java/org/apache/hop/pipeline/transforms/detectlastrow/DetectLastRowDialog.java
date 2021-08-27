@@ -50,6 +50,7 @@ public class DetectLastRowDialog extends BaseTransformDialog implements ITransfo
     input = (DetectLastRowMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

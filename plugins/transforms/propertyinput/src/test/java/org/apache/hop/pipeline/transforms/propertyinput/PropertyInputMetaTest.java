@@ -181,6 +181,7 @@ public class PropertyInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   // Call the allocate method on the LoadSaveTester meta class
+  @Override
   public void modify(ITransformMeta propInputMeta) {
     if (propInputMeta instanceof PropertyInputMeta) {
       ((PropertyInputMeta) propInputMeta).allocate(5, 5);

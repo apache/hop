@@ -52,21 +52,25 @@ public class Const {
   /** Release Type */
   public enum ReleaseType {
     RELEASE_CANDIDATE {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.PreviewRelease.HelpAboutText");
       }
     },
     MILESTONE {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.Candidate.HelpAboutText");
       }
     },
     PREVIEW {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.Milestone.HelpAboutText");
       }
     },
     GA {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.GA.HelpAboutText");
       }

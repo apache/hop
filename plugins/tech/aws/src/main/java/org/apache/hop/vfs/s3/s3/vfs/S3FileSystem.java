@@ -64,6 +64,7 @@ public class S3FileSystem extends S3CommonFileSystem {
     this.s3HopProperty = s3HopProperty;
   }
 
+  @Override
   public FileObject createFile(AbstractFileName name) throws Exception {
     return new S3FileObject(name, this);
   }

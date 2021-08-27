@@ -115,6 +115,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -228,6 +229,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wUrlInField.setLayoutData(fdUrlInField);
     wUrlInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activateUrlInfield();
@@ -255,8 +257,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wUrlField.setLayoutData(fdUrlField);
     wUrlField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -289,6 +293,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wMethod.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setMethod();
           }
@@ -312,6 +317,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wMethodInField.setLayoutData(fdMethodInField);
     wMethodInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activateMethodInfield();
@@ -339,8 +345,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wMethodField.setLayoutData(fdMethodField);
     wMethodField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -371,8 +379,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wBody.setLayoutData(fdBody);
     wBody.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -405,6 +415,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wApplicationType.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -604,6 +615,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wPreemptive.setLayoutData(fdPreemptive);
     wPreemptive.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -1015,6 +1027,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
     final Runnable runnable =
         new Runnable() {
+          @Override
           public void run() {
             TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
             if (transformMeta != null) {

@@ -401,6 +401,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     busyChangingPluginType.set(false);
   }
 
+  @Override
   public void save() throws HopException {
     changeWorkingEngineConfiguration(runConfiguration);
 

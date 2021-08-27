@@ -53,6 +53,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public synchronized boolean processRow() throws HopException {
 
     boolean result = true;
@@ -280,11 +281,13 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     return result;
   }
 
+  @Override
   public boolean init() {
 
     return super.init();
   }
 
+  @Override
   public void dispose() {
 
     try {

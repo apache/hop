@@ -205,11 +205,13 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionFtp je = (ActionFtp) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(650); // 528 chars in spaces and tags alone
 
@@ -347,6 +349,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return InetAddress.getByName(realServername);
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     log.logBasic(BaseMessages.getString(PKG, "ActionFTP.Started", serverName));
 
@@ -802,6 +805,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
   }
 
   /** @return the activeConnection */
+  @Override
   public boolean isActiveConnection() {
     return activeConnection;
   }
@@ -811,6 +815,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     this.activeConnection = activeConnection;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
@@ -862,6 +867,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of serverName
    */
+  @Override
   public String getServerName() {
     return serverName;
   }
@@ -876,6 +882,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of userName
    */
+  @Override
   public String getUserName() {
     return userName;
   }
@@ -890,6 +897,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of password
    */
+  @Override
   public String getPassword() {
     return password;
   }
@@ -946,6 +954,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of binaryMode
    */
+  @Override
   public boolean isBinaryMode() {
     return binaryMode;
   }
@@ -960,6 +969,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of timeout
    */
+  @Override
   public int getTimeout() {
     return timeout;
   }
@@ -1002,6 +1012,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of controlEncoding
    */
+  @Override
   public String getControlEncoding() {
     return controlEncoding;
   }
@@ -1142,6 +1153,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of port
    */
+  @Override
   public String getServerPort() {
     return serverPort;
   }
@@ -1156,6 +1168,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of proxyHost
    */
+  @Override
   public String getProxyHost() {
     return proxyHost;
   }
@@ -1170,6 +1183,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of proxyPort
    */
+  @Override
   public String getProxyPort() {
     return proxyPort;
   }
@@ -1184,6 +1198,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of proxyUsername
    */
+  @Override
   public String getProxyUsername() {
     return proxyUsername;
   }
@@ -1198,6 +1213,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of proxyPassword
    */
+  @Override
   public String getProxyPassword() {
     return proxyPassword;
   }
@@ -1212,6 +1228,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of socksProxyHost
    */
+  @Override
   public String getSocksProxyHost() {
     return socksProxyHost;
   }
@@ -1226,6 +1243,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of socksProxyPort
    */
+  @Override
   public String getSocksProxyPort() {
     return socksProxyPort;
   }
@@ -1240,6 +1258,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of socksProxyUsername
    */
+  @Override
   public String getSocksProxyUsername() {
     return socksProxyUsername;
   }
@@ -1254,6 +1273,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
    *
    * @return value of socksProxyPassword
    */
+  @Override
   public String getSocksProxyPassword() {
     return socksProxyPassword;
   }

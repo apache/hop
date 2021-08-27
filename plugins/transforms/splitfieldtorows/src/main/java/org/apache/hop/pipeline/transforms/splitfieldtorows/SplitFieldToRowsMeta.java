@@ -276,6 +276,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
     return new SplitFieldToRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SplitFieldToRowsData getTransformData() {
     return new SplitFieldToRowsData();
   }

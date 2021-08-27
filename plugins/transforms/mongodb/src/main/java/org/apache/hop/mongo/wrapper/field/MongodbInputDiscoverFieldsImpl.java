@@ -40,6 +40,7 @@ import java.util.*;
 public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverFields {
   private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class; // For Translator
 
+  @Override
   public List<MongoField> discoverFields(
       final IVariables variables,
       final MongoDbConnection connection,

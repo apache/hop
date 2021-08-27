@@ -71,6 +71,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     this.action = (ActionStart) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

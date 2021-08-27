@@ -422,6 +422,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wPrevToParams.setLayoutData(fdCopyResultsParams);
     wPrevToParams.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getAction().setChanged();
           }

@@ -146,6 +146,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
   }
 
   /** @return Returns the database. */
+  @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
@@ -196,6 +197,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
   }
 
   /** @return Returns the tableName. */
+  @Override
   public String getTableName() {
     return tableName;
   }
@@ -233,6 +235,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     this.update = update;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -248,6 +251,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     update = new Boolean[nrvalues];
   }
 
+  @Override
   public Object clone() {
     InsertUpdateMeta retval = (InsertUpdateMeta) super.clone();
     int nrkeys = keyStream.length;
@@ -339,6 +343,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     keyStream = null;
     updateLookup = null;
@@ -366,6 +371,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(400);
 
@@ -402,6 +408,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -413,6 +420,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -652,6 +660,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -729,6 +738,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -781,10 +791,12 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public InsertUpdateData getTransformData() {
     return new InsertUpdateData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -803,6 +815,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     this.updateBypassed = updateBypassed;
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realSchemaName = variables.resolve(schemaName);
     String realTableName = variables.resolve(tableName);
@@ -837,6 +850,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
   }
 
   /** @return the schemaName */
+  @Override
   public String getSchemaName() {
     return schemaName;
   }
@@ -851,6 +865,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
     this.schemaName = schemaName;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

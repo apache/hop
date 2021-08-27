@@ -18,7 +18,6 @@
 // CHECKSTYLE:FileLength:OFF
 package org.apache.hop.core.database;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.*;
@@ -55,9 +54,6 @@ import java.util.*;
 /**
  * Database handles the process of connecting to, reading from, writing to and updating databases.
  * The database specific parameters are defined in DatabaseInfo.
- *
- * @author Matt
- * @since 05-04-2003
  */
 public class Database implements IVariables, ILoggingObject {
   private static final Class<?> PKG = Database.class; // For Translator

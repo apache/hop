@@ -30,10 +30,12 @@ public class EmailValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "email";
 
+  @Override
   public String getName() {
     return VALIDATOR_NAME;
   }
 
+  @Override
   public boolean validate(
       ICheckResultSource source,
       String propertyName,

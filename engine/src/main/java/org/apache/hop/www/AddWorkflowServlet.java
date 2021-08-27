@@ -53,6 +53,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
     super(workflowMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getRequestURI().startsWith(CONTEXT_PATH)) {
@@ -209,10 +210,12 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
     return "Add Workflow";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

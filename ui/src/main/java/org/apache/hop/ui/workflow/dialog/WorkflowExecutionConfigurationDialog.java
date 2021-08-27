@@ -66,6 +66,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     super(parent, configuration, workflowMeta);
   }
 
+  @Override
   protected void optionsSectionControls() {
 
     wlLogLevel = new Label(gDetails, SWT.RIGHT);
@@ -292,6 +293,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     getVariablesData();
   }
 
+  @Override
   public boolean getInfo() {
     try {
       IHopMetadataSerializer<WorkflowRunConfiguration> serializer =

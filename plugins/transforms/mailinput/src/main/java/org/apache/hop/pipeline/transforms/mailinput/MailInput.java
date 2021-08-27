@@ -63,6 +63,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] outputRowData = getOneRow();
@@ -374,6 +375,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (!super.init()) {
@@ -504,6 +506,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     return 0;
   }
 
+  @Override
   public void dispose() {
 
     if (data.mailConn != null) {

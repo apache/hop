@@ -72,6 +72,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -201,6 +202,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     wAddFilenameResult.setLayoutData(fdAddFilenameResult);
     wAddFilenameResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

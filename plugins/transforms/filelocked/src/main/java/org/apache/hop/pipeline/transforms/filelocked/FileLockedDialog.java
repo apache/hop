@@ -62,6 +62,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     input = (FileLockedMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -123,10 +124,12 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wFileName.setLayoutData(fdfileName);
     wFileName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focusLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }

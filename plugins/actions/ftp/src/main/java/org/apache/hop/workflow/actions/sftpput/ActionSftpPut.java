@@ -132,11 +132,13 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionSftpPut je = (ActionSftpPut) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -496,6 +498,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     this.createRemoteFolder = value;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -504,7 +507,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     if (log.isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "ActionSftpPut.Log.StartAction"));
     }
-    ArrayList<FileObject> myFileList = new ArrayList<FileObject>();
+    ArrayList<FileObject> myFileList = new ArrayList<>();
 
     if (copyingPrevious) {
       if (rows.size() == 0) {

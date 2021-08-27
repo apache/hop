@@ -361,6 +361,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] rowData = getRow(); // get row from rowset, wait for our turn, indicate busy!
     if (rowData == null) { // no more input to be expected...
@@ -440,6 +441,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

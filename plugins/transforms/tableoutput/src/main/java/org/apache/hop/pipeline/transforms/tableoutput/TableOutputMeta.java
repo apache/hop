@@ -296,6 +296,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return Returns the database. */
+  @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
@@ -329,6 +330,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return the table name */
+  @Override
   public String getTableName() {
     return tableName;
   }
@@ -679,6 +681,7 @@ public class TableOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public ITransform createTransform(
       TransformMeta transformMeta,
       TableOutputData data,
@@ -688,6 +691,7 @@ public class TableOutputMeta extends BaseTransformMeta
     return new TableOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public TableOutputData getTransformData() {
     return new TableOutputData();
   }
@@ -872,6 +876,7 @@ public class TableOutputMeta extends BaseTransformMeta
   }
 
   /** @return the schemaName */
+  @Override
   public String getSchemaName() {
     return schemaName;
   }

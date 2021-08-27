@@ -293,6 +293,7 @@ public class NoAuthMongoClientWrapperTest {
     final MongoClientOptions options = Mockito.mock(MongoClientOptions.class);
     Mockito.when(mongoProperties.buildMongoClientOptions(mockMongoUtilLogger)).thenReturn(options);
     new NoAuthMongoClientWrapper(mongoProperties, mockMongoUtilLogger) {
+      @Override
       protected MongoClient getClient(MongoClientOptions opts) {
         clientCalled.set(true);
         Assert.assertThat(opts, IsEqual.equalTo(options));

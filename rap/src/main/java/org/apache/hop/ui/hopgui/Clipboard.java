@@ -40,7 +40,7 @@ import java.util.List;
 public class Clipboard extends Widget {
 
   private RemoteObject remoteObject;
-  private List<ClipboardListener> listeners = new ArrayList<ClipboardListener>();
+  private List<ClipboardListener> listeners = new ArrayList<>();
 
   public Clipboard(Composite parent) {
     super(parent, SWT.NONE);
@@ -73,6 +73,7 @@ public class Clipboard extends Widget {
     remoteObject.listen("cut", true);
   }
 
+  @Override
   public void dispose() {
     remoteObject.destroy();
   }

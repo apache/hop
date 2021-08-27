@@ -68,6 +68,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

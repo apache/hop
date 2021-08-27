@@ -30,6 +30,7 @@ public interface IKWorkbook extends AutoCloseable {
   String[] getSheetNames();
 
   /** Close the workbook file */
+  @Override
   void close();
 
   /** @return The number of sheets in the workbook */

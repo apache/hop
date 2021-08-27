@@ -144,6 +144,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     wildcard = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionMoveFiles je = (ActionMoveFiles) super.clone();
     if (sourceFileFolder != null) {
@@ -156,6 +157,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(600);
 
@@ -220,6 +222,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -281,6 +284,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -639,10 +643,12 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               FileObject[] fileObjects =
                   sourcefilefolder.findFiles(
                       new AllFileSelector() {
+                        @Override
                         public boolean traverseDescendents(FileSelectInfo info) {
                           return true;
                         }
 
+                        @Override
                         public boolean includeFile(FileSelectInfo info) {
                           FileObject fileObject = info.getFile();
                           try {
@@ -1475,6 +1481,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return successCondition;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

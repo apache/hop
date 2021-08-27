@@ -37,6 +37,7 @@ public class AndValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "and";
 
+  @Override
   public boolean validate(
       ICheckResultSource source,
       String propertyName,
@@ -55,6 +56,7 @@ public class AndValidator implements IActionValidator {
     return true;
   }
 
+  @Override
   public String getName() {
     return VALIDATOR_NAME;
   }

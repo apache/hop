@@ -73,6 +73,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -159,6 +160,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wIncludeSubFolders.setLayoutData(fdIncludeSubFolders);
     wIncludeSubFolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -185,6 +187,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wSpecifyWildcard.setLayoutData(fdSpecifyWildcard);
     wSpecifyWildcard.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             checkLimitSearch();

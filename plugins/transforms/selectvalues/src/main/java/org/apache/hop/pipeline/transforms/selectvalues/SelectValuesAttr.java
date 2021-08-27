@@ -116,11 +116,13 @@ public enum SelectValuesAttr implements IHopAttribute {
     return null;
   }
 
+  @Override
   public String getKey() {
     return repCode;
   }
 
   /** @return the xmlCode */
+  @Override
   public String getXmlCode() {
     return xmlCode;
   }
@@ -131,20 +133,24 @@ public enum SelectValuesAttr implements IHopAttribute {
   }
 
   /** @return the description */
+  @Override
   public String getDescription() {
     return description;
   }
 
   /** @return the tooltip */
+  @Override
   public String getTooltip() {
     return tooltip;
   }
 
   /** @return the type */
+  @Override
   public int getType() {
     return type;
   }
 
+  @Override
   public SelectValuesAttr getParent() {
     return parent;
   }

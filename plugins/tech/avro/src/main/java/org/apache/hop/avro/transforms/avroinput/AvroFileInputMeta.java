@@ -64,6 +64,7 @@ public class AvroFileInputMeta extends BaseTransformMeta
     this.rowsLimit = m.rowsLimit;
   }
 
+  @Override
   public AvroFileInputMeta clone() {
     return new AvroFileInputMeta(this);
   }

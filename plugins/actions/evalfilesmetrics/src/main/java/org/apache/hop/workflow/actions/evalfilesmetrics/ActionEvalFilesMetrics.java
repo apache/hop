@@ -205,6 +205,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     sourceIncludeSubfolders = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionEvalFilesMetrics je = (ActionEvalFilesMetrics) super.clone();
     if (sourceFileFolder != null) {
@@ -217,6 +218,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -288,6 +290,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     }
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -331,6 +334,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     result.setNrErrors(1);
@@ -811,10 +815,12 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
           FileObject[] fileObjects =
               sourcefilefolder.findFiles(
                   new AllFileSelector() {
+                    @Override
                     public boolean traverseDescendents(FileSelectInfo info) {
                       return info.getDepth() == 0 || includeSubFolders;
                     }
 
+                    @Override
                     public boolean includeFile(FileSelectInfo info) {
                       FileObject fileObject = info.getFile();
                       try {
@@ -1178,6 +1184,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     return this.scale;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

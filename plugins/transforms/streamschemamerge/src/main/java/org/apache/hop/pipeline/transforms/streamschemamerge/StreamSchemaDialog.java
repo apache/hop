@@ -72,6 +72,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
    *
    * <p>or null if the user cancelled the dialog.
    */
+  @Override
   public String open() {
 
     // store some convenient SWT variables

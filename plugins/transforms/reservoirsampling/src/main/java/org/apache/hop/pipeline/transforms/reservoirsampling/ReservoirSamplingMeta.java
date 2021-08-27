@@ -104,6 +104,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
    *
    * @return a <code>String</code> containing the XML
    */
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(100);
 
@@ -136,6 +137,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
   }
 
   /** Set the defaults for this transform. */
+  @Override
   public void setDefault() {
     m_sampleSize = "100";
     m_randomSeed = "1";
@@ -146,6 +148,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
    *
    * @return the cloned meta data
    */
+  @Override
   public Object clone() {
     ReservoirSamplingMeta retval = (ReservoirSamplingMeta) super.clone();
     return retval;
@@ -167,6 +170,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
    * @param transformNode the transform to load
    * @throws HopXmlException if an error occurs
    */
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
 
@@ -180,6 +184,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String origin,
@@ -192,6 +197,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
     // nothing to do, as no fields are added/deleted
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -246,6 +252,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
    *
    * @return a <code>ITransformData</code> value
    */
+  @Override
   public ReservoirSamplingData getTransformData() {
     return new ReservoirSamplingData();
   }

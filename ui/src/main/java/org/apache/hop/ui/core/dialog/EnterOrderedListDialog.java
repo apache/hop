@@ -125,6 +125,7 @@ public class EnterOrderedListDialog extends Dialog {
     wListSource.addListener(SWT.DefaultSelection, e -> addToSelection(wListSource.getSelection()));
     wListSource.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent event) {
             if (event.character == SWT.CR) {
               addToSelection(wListSource.getSelection());
@@ -243,6 +244,7 @@ public class EnterOrderedListDialog extends Dialog {
         SWT.DefaultSelection, e -> removeFromSelection(wListTarget.getSelection()));
     wListTarget.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent event) {
             if (event.character == SWT.CR) {
               removeFromSelection(wListTarget.getSelection());
@@ -273,8 +275,10 @@ public class EnterOrderedListDialog extends Dialog {
     ddSource.setTransfer(ttypes);
     ddSource.addDragListener(
         new DragSourceListener() {
+          @Override
           public void dragStart(DragSourceEvent event) {}
 
+          @Override
           public void dragSetData(DragSourceEvent event) {
             String[] ti = wListSource.getSelection();
             String data = new String();
@@ -284,16 +288,20 @@ public class EnterOrderedListDialog extends Dialog {
             event.data = data;
           }
 
+          @Override
           public void dragFinished(DragSourceEvent event) {}
         });
     DropTarget ddTarget = new DropTarget(wListTarget, DND.DROP_MOVE | DND.DROP_COPY);
     ddTarget.setTransfer(ttypes);
     ddTarget.addDropListener(
         new DropTargetListener() {
+          @Override
           public void dragEnter(DropTargetEvent event) {}
 
+          @Override
           public void dragLeave(DropTargetEvent event) {}
 
+          @Override
           public void dragOperationChanged(DropTargetEvent event) {}
 
           @Override
@@ -301,6 +309,7 @@ public class EnterOrderedListDialog extends Dialog {
             event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL | DND.FEEDBACK_INSERT_AFTER;
           }
 
+          @Override
           public void drop(DropTargetEvent event) {
             if (event.data == null) { // no data to copy, indicate failure
               // in event.detail
@@ -314,6 +323,7 @@ public class EnterOrderedListDialog extends Dialog {
             }
           }
 
+          @Override
           public void dropAccept(DropTargetEvent event) {}
         });
 

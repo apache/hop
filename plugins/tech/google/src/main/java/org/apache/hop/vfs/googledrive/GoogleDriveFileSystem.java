@@ -29,10 +29,12 @@ public class GoogleDriveFileSystem extends AbstractFileSystem implements FileSys
     super(rootName, null, fileSystemOptions);
   }
 
+  @Override
   protected FileObject createFile(AbstractFileName abstractFileName) throws Exception {
     return new GoogleDriveFileObject(abstractFileName, this);
   }
 
+  @Override
   public void addCapabilities(Collection<Capability> caps) {
     caps.addAll(GoogleDriveFileProvider.capabilities);
   }
@@ -41,6 +43,7 @@ public class GoogleDriveFileSystem extends AbstractFileSystem implements FileSys
     super.removeFileFromCache(name);
   }
 
+  @Override
   public FileObject resolveFile(FileName name) throws FileSystemException {
     return this.processFile(name, true);
   }

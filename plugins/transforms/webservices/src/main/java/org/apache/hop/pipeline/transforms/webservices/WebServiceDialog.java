@@ -513,6 +513,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     vButton.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
     vButton.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent event) {
             if (outWsdlParamContainer == null) {
               try {
@@ -758,6 +759,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     meta = (WebServiceMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -857,6 +859,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     wbURL.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // If the URL is specified, we always try to load
             //
@@ -886,6 +889,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     wbFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // We will load the WSDL from a file so we can at least try to debug the metadata
             // extraction phase from the
@@ -951,6 +955,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wOperation.addSelectionListener(
         new SelectionListener() {
 
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             try {
               selectWSDLOperation(wOperation.getText());
@@ -960,6 +965,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
             }
           }
 
+          @Override
           public void widgetDefaultSelected(SelectionEvent arg0) {
             // TODO Auto-generated method stub
 
@@ -1219,6 +1225,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     SelectionAdapter selAdapter =
         new SelectionAdapter() {
+          @Override
           public void widgetDefaultSelected(SelectionEvent e) {
             ok();
           }

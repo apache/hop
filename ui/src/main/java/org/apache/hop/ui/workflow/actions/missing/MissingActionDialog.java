@@ -96,6 +96,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     return message;
   }
 
+  @Override
   public IAction open() {
 
     this.props = PropsUi.getInstance();
@@ -150,6 +151,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     closeButton.setText(BaseMessages.getString(PKG, "MissingActionDialog.Close"));
     closeButton.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             close();
           }
@@ -166,6 +168,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
       openButton.setText(BaseMessages.getString(PKG, "MissingActionDialog.OpenFile"));
       openButton.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               openFile();
             }
@@ -184,6 +187,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     searchButton.setEnabled(false);
     searchButton.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             searchMarketplace();
           }

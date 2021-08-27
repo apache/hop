@@ -127,7 +127,7 @@ public class CassandraUtils {
    */
   public static List<String> splitCQLStatements(String source) {
     String[] cqlStatements = source.split(";");
-    List<String> individualStatements = new ArrayList<String>();
+    List<String> individualStatements = new ArrayList<>();
 
     if (cqlStatements.length > 0) {
       for (String cqlC : cqlStatements) {
@@ -323,7 +323,7 @@ public class CassandraUtils {
    * @return the new batch
    */
   public static List<Object[]> newNonCQLBatch(int numRows) {
-    List<Object[]> newBatch = new ArrayList<Object[]>(numRows);
+    List<Object[]> newBatch = new ArrayList<>(numRows);
 
     return newBatch;
   }
@@ -456,7 +456,7 @@ public class CassandraUtils {
     // IValueMeta keyMeta = inputMeta.getValueMeta(keyIndex);
     final String quoteChar = identifierQuoteChar(cqlMajVersion);
 
-    Map<String, String> columnValues = new HashMap<String, String>();
+    Map<String, String> columnValues = new HashMap<>();
     for (int i = 0; i < inputMeta.size(); i++) {
       IValueMeta colMeta = inputMeta.getValueMeta(i);
       String colName = colMeta.getName();
@@ -477,8 +477,8 @@ public class CassandraUtils {
     // Column order does not matter
     columnOrder = columnValues.keySet();
 
-    List<String> columns = new ArrayList<String>(columnOrder.size());
-    List<String> values = new ArrayList<String>(columnOrder.size());
+    List<String> columns = new ArrayList<>(columnOrder.size());
+    List<String> values = new ArrayList<>(columnOrder.size());
     for (String column : columnOrder) {
       columns.add(quoteChar + column + quoteChar);
       values.add(columnValues.get(column));

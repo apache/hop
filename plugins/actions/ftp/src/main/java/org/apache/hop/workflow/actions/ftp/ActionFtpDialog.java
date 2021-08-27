@@ -164,6 +164,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -623,6 +624,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
     wRemove.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             if (wRemove.getSelection()) {
               wMove.setSelection(false);
@@ -650,6 +652,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wMove.setLayoutData(fdMove);
     wMove.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activateMoveTo();
             if (wMove.getSelection()) {
@@ -788,6 +791,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -811,6 +815,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -835,6 +840,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTimeFormat();
@@ -888,6 +894,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wAddDateBeforeExtension.setLayoutData(fdAddDateBeforeExtension);
     wAddDateBeforeExtension.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -912,6 +919,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wOnlyNew.setLayoutData(fdOnlyNew);
     wOnlyNew.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeIfExists();
             action.setChanged();
@@ -943,6 +951,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
     wIfFileExists.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -1044,6 +1053,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }

@@ -65,6 +65,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     input = (ValueMapperMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -132,8 +133,10 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     wFieldName.setLayoutData(fdFieldname);
     wFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

@@ -88,6 +88,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -169,6 +170,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setPrevious();
             action.setChanged();
@@ -226,6 +228,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }
@@ -379,6 +382,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(wFilename.getText());
             wFilename.setText("");
@@ -393,6 +397,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -404,6 +409,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {

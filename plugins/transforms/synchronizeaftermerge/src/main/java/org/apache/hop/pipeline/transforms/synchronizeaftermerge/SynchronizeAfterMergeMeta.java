@@ -331,6 +331,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -346,6 +347,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     update = new Boolean[nrvalues];
   }
 
+  @Override
   public Object clone() {
     SynchronizeAfterMergeMeta retval = (SynchronizeAfterMergeMeta) super.clone();
     int nrkeys = keyStream.length;
@@ -432,6 +434,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     tablenameInField = false;
     tablenameField = null;
@@ -468,6 +471,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     normalizeAllocationFields();
     StringBuilder retval = new StringBuilder(200);
@@ -517,6 +521,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -840,6 +845,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -948,6 +954,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -1010,10 +1017,12 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     return new SynchronizeAfterMerge(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SynchronizeAfterMergeData getTransformData() {
     return new SynchronizeAfterMergeData();
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -1022,6 +1031,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
@@ -1066,6 +1076,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     this.schemaName = schemaName;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

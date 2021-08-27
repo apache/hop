@@ -59,6 +59,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
    * the time being, there can only be one MappingInput and one MappingOutput transform in the
    * PipelineExecutor.
    */
+  @Override
   public boolean processRow() throws HopException {
     try {
       PipelineExecutorData pipelineExecutorData = getData();
@@ -468,6 +469,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     }
   }
 
+  @Override
   public boolean init() {
 
     PipelineExecutorData pipelineExecutorData = getData();
@@ -516,18 +518,21 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     return PipelineExecutorMeta.loadMappingMeta(meta, metadataProvider, this);
   }
 
+  @Override
   public void dispose() {
     PipelineExecutorData pipelineExecutorData = getData();
     pipelineExecutorData.groupBuffer = null;
     super.dispose();
   }
 
+  @Override
   public void stopRunning() throws HopException {
     if (getData().getExecutorPipeline() != null) {
       getData().getExecutorPipeline().stopAll();
     }
   }
 
+  @Override
   public void stopAll() {
     // Stop the pipeline execution.
     if (getData().getExecutorPipeline() != null) {

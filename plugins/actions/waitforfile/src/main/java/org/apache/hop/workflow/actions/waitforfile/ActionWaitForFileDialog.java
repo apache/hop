@@ -79,6 +79,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -215,6 +216,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wSuccessOnTimeout.setLayoutData(fdSuccessOnTimeout);
     wSuccessOnTimeout.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -240,6 +242,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wFileSizeCheck.setLayoutData(fdFileSizeCheck);
     wFileSizeCheck.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -266,6 +269,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wAddFilenameResult.setLayoutData(fdAddFilenameResult);
     wAddFilenameResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

@@ -353,6 +353,7 @@ public abstract class BaseFileInputTransform<
    * @param errorMsg Message to send to rejected row if enabled
    * @return If should stop processing after having problems with a file
    */
+  @Override
   public boolean failAfterBadFile(String errorMsg) {
 
     if (getTransformMeta().isDoingErrorHandling()
