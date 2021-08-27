@@ -88,11 +88,6 @@ public class ExcelWriterOutputField implements Cloneable {
     return name.hashCode();
   }
 
-  @Deprecated
-  public boolean equal(Object obj) {
-    return equals(obj);
-  }
-
   @Override
   public Object clone() {
     try {

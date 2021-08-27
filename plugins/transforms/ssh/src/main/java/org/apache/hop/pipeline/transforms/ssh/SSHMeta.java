@@ -474,57 +474,6 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SS
     return true;
   }
 
-  /**
-   * @param serveur
-   * @param port
-   * @param username
-   * @param password
-   * @param useKey
-   * @param keyFilename
-   * @param passPhrase
-   * @param timeOut
-   * @param variables
-   * @param proxyhost
-   * @param proxyport
-   * @param proxyusername
-   * @param proxypassword
-   * @return
-   * @throws HopException
-   * @deprecated Use {@link SSHData#OpenConnection(String, int, String, String, boolean, String,
-   *     String, int, IVariables, String, int, String, String)} instead
-   */
-  @Deprecated
-  public static Connection OpenConnection(
-      String serveur,
-      int port,
-      String username,
-      String password,
-      boolean useKey,
-      String keyFilename,
-      String passPhrase,
-      int timeOut,
-      IVariables variables,
-      String proxyhost,
-      int proxyport,
-      String proxyusername,
-      String proxypassword)
-      throws HopException {
-    return SSHData.OpenConnection(
-        serveur,
-        port,
-        username,
-        password,
-        useKey,
-        keyFilename,
-        passPhrase,
-        timeOut,
-        variables,
-        proxyhost,
-        proxyport,
-        proxyusername,
-        proxypassword);
-  }
-
   /** Returns the Input/Output metadata for this transform. */
   @Override
   public ITransformIOMeta getTransformIOMeta() {

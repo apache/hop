@@ -238,12 +238,6 @@ public class LoadFileInputMeta extends BaseTransformMeta
     this.fileRequired = fileRequired;
   }
 
-  /** @deprecated typo in method name */
-  @Deprecated
-  public String[] getExludeFileMask() {
-    return excludeFileMask;
-  }
-
   /** @return Returns the excludeFileMask. */
   public String[] getExcludeFileMask() {
     return excludeFileMask;
@@ -252,12 +246,6 @@ public class LoadFileInputMeta extends BaseTransformMeta
   /** @param excludeFileMask The excludeFileMask to set. */
   public void setExcludeFileMask(String[] excludeFileMask) {
     this.excludeFileMask = excludeFileMask;
-  }
-
-  /** @deprecated doesn't following naming standards */
-  @Deprecated
-  public boolean addResultFile() {
-    return addresultfile;
   }
 
   /** @return the add result filesname flag */
@@ -318,20 +306,6 @@ public class LoadFileInputMeta extends BaseTransformMeta
   /** */
   public boolean getFileInFields() {
     return fileinfield;
-  }
-
-  /************************************
-   * @deprecated doesn't follow standard naming
-   *************************************/
-  @Deprecated
-  public boolean getIsInFields() {
-    return fileinfield;
-  }
-
-  /** @deprecated doesn't follow standard naming */
-  @Deprecated
-  public void setIsInFields(boolean IsInFields) {
-    this.fileinfield = IsInFields;
   }
 
   public void setFileInFields(boolean IsInFields) {
@@ -400,15 +374,6 @@ public class LoadFileInputMeta extends BaseTransformMeta
     this.filenameField = filenameField;
   }
 
-  /**
-   * @return Returns the includeFilename.
-   * @deprecated doesn't follow standard naming
-   */
-  @Deprecated
-  public boolean includeFilename() {
-    return includeFilename;
-  }
-
   /** @return Returns the includeFilename. */
   public boolean getIncludeFilename() {
     return includeFilename;
@@ -417,15 +382,6 @@ public class LoadFileInputMeta extends BaseTransformMeta
   /** @param includeFilename The includeFilename to set. */
   public void setIncludeFilename(boolean includeFilename) {
     this.includeFilename = includeFilename;
-  }
-
-  /**
-   * @return Returns the includeRowNumber.
-   * @deprecated doesn't follow standard naming
-   */
-  @Deprecated
-  public boolean includeRowNumber() {
-    return includeRowNumber;
   }
 
   /** @return Returns the includeRowNumber. */
@@ -663,7 +619,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (!getIsInFields()) {
+    if (!getFileInFields()) {
       r.clear();
     }
     int i;
@@ -787,7 +743,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (getIsInFields()) {
+    if (getFileInFields()) {
       // See if we get input...
       if (input.length == 0) {
         cr =

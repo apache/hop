@@ -396,57 +396,6 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testHasLoop_simpleLoop() throws Exception {
-    // main->2->3->main
-    PipelineMeta pipelineMetaSpy = spy(pipelineMeta);
-    TransformMeta transformMetaMain = createTransformMeta("mainTransform");
-    TransformMeta transformMeta2 = createTransformMeta("transform2");
-    TransformMeta transformMeta3 = createTransformMeta("transform3");
-    List<TransformMeta> mainPrevTransforms = new ArrayList<>();
-    mainPrevTransforms.add(transformMeta2);
-    doReturn(mainPrevTransforms)
-        .when(pipelineMetaSpy)
-        .findPreviousTransforms(transformMetaMain, true);
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMetaMain)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMetaMain, 0)).thenReturn(transformMeta2);
-    List<TransformMeta> transformmeta2PrevTransforms = new ArrayList<>();
-    transformmeta2PrevTransforms.add(transformMeta3);
-    doReturn(transformmeta2PrevTransforms)
-        .when(pipelineMetaSpy)
-        .findPreviousTransforms(transformMeta2, true);
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMeta2)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMeta2, 0)).thenReturn(transformMeta3);
-    List<TransformMeta> transformmeta3PrevTransforms = new ArrayList<>();
-    transformmeta3PrevTransforms.add(transformMetaMain);
-    doReturn(transformmeta3PrevTransforms)
-        .when(pipelineMetaSpy)
-        .findPreviousTransforms(transformMeta3, true);
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMeta3)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMeta3, 0)).thenReturn(transformMetaMain);
-    assertTrue(pipelineMetaSpy.hasLoop(transformMetaMain));
-  }
-
-  @Test
-  public void testHasLoop_loopInPrevTransforms() throws Exception {
-    // main->2->3->4->3
-    PipelineMeta pipelineMetaSpy = spy(pipelineMeta);
-    TransformMeta transformMetaMain = createTransformMeta("mainTransform");
-    TransformMeta transformMeta2 = createTransformMeta("transform2");
-    TransformMeta transformMeta3 = createTransformMeta("transform3");
-    TransformMeta transformMeta4 = createTransformMeta("transform4");
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMetaMain)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMetaMain, 0)).thenReturn(transformMeta2);
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMeta2)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMeta2, 0)).thenReturn(transformMeta3);
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMeta3)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMeta3, 0)).thenReturn(transformMeta4);
-    when(pipelineMetaSpy.findNrPrevTransforms(transformMeta4)).thenReturn(1);
-    when(pipelineMetaSpy.findPrevTransform(transformMeta4, 0)).thenReturn(transformMeta3);
-    // check no StackOverflow error
-    assertFalse(pipelineMetaSpy.hasLoop(transformMetaMain));
-  }
-
-  @Test
   public void infoTransformFieldsAreNotIncludedInGetTransformFields() throws HopTransformException {
     // validates that the fields from info transforms are not included in the resulting transform
     // fields for a transformMeta.

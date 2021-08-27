@@ -17,11 +17,9 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -87,53 +85,6 @@ public class LoggingBufferTest {
 
     // check
     Assert.assertEquals("Failed", true, done.get());
-  }
-
-  @Test
-  public void testBufferSizeRestrictions() {
-    final LoggingBuffer buff = new LoggingBuffer(10);
-
-    Assert.assertEquals(10, buff.getMaxNrLines());
-    Assert.assertEquals(0, buff.getLastBufferLineNr());
-    Assert.assertEquals(0, buff.getNrLines());
-
-    // Load 20 records.  Only last 10 should be kept
-    LogMessage message = null;
-    for (int i = 1; i <= 20; i++) {
-      message =
-          new LogMessage(
-              "Test #" + i + Const.CR + "Hello World!", String.valueOf(i), LogLevel.DETAILED);
-      buff.addLogggingEvent(new HopLoggingEvent(message, Long.valueOf(i), LogLevel.DETAILED));
-    }
-    Assert.assertEquals(10, buff.getNrLines());
-
-    // Check remaining records, confirm that they are the proper records
-    int i = 11;
-    Iterator<BufferLine> it = buff.getBufferIterator();
-    Assert.assertNotNull(it);
-    while (it.hasNext()) {
-      BufferLine bl = it.next();
-      Assert.assertNotNull(bl.getEvent());
-      Assert.assertEquals(
-          "Test #" + i + Const.CR + "Hello World!",
-          ((LogMessage) bl.getEvent().getMessage()).getMessage());
-      Assert.assertEquals(Long.valueOf(i).longValue(), bl.getEvent().getTimeStamp());
-      Assert.assertEquals(LogLevel.DETAILED, bl.getEvent().getLevel());
-      i++;
-    }
-    Assert.assertEquals(i, 21); // Confirm that only 10 lines were iterated over
-
-    Assert.assertEquals(0, buff.getBufferLinesBefore(10L).size());
-    Assert.assertEquals(5, buff.getBufferLinesBefore(16L).size());
-    Assert.assertEquals(10, buff.getBufferLinesBefore(System.currentTimeMillis()).size());
-
-    buff.clear();
-    Assert.assertEquals(0, buff.getNrLines());
-    it = buff.getBufferIterator();
-    Assert.assertNotNull(it);
-    while (it.hasNext()) {
-      Assert.fail("This should never be reached, as the LogBuffer is empty");
-    }
   }
 
   @Test

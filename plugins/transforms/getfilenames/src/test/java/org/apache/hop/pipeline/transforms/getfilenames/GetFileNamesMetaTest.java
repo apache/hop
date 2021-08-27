@@ -67,7 +67,7 @@ public class GetFileNamesMetaTest {
     getterMap.put("limit", "getRowLimit");
     getterMap.put("name", "getFileName");
     getterMap.put("filemask", "getFileMask");
-    getterMap.put("exclude_filemask", "getExludeFileMask");
+    getterMap.put("exclude_filemask", "getExcludeFileMask");
     getterMap.put("file_required", "getFileRequired");
     getterMap.put("include_subfolders", "getIncludeSubFolders");
 

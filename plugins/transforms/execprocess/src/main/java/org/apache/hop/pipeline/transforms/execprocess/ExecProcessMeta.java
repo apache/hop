@@ -135,15 +135,6 @@ public class ExecProcessMeta extends BaseTransformMeta
     return failwhennotsuccess;
   }
 
-  /**
-   * @param failwhennotsuccess The failwhennotsuccess to set.
-   * @deprecated due to method name typo
-   */
-  @Deprecated
-  public void setFailWhentNoSuccess(boolean failwhennotsuccess) {
-    setFailWhenNotSuccess(failwhennotsuccess);
-  }
-
   /** @param failwhennotsuccess The failwhennotsuccess to set. */
   public void setFailWhenNotSuccess(boolean failwhennotsuccess) {
     this.failwhennotsuccess = failwhennotsuccess;

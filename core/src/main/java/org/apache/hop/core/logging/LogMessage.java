@@ -119,7 +119,6 @@ public class LogMessage implements ILogMessage {
   }
 
   @Override
-  @Deprecated
   public String toString() {
     if (simplified) {
       return getMessage();

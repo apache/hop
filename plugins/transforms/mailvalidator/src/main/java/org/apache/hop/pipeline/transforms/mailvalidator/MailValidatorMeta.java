@@ -57,7 +57,7 @@ public class MailValidatorMeta extends BaseTransformMeta
   /** dynamic email address */
   private String emailfield;
 
-  private boolean ResultAsString;
+  private boolean resultAsString;
 
   private boolean smtpCheck;
 
@@ -88,15 +88,6 @@ public class MailValidatorMeta extends BaseTransformMeta
     return emailfield;
   }
 
-  /**
-   * @param emailfield The emailfield to set.
-   * @deprecated use {@link #setEmailField(String)} instead
-   */
-  @Deprecated
-  public void setEmailfield(String emailfield) {
-    setEmailField(emailfield);
-  }
-
   public void setEmailField(String emailfield) {
     this.emailfield = emailfield;
   }
@@ -116,26 +107,8 @@ public class MailValidatorMeta extends BaseTransformMeta
     this.emailValideMsg = emailValideMsg;
   }
 
-  /**
-   * @return Returns the emailValideMsg.
-   * @deprecated use {@link #getEmailValideMsg()} instead
-   */
-  @Deprecated
-  public String getEMailValideMsg() {
-    return getEmailValideMsg();
-  }
-
   public String getEmailValideMsg() {
     return emailValideMsg;
-  }
-
-  /**
-   * @return Returns the emailNotValideMsg.
-   * @deprecated use {@link #getEmailNotValideMsg()} instead
-   */
-  @Deprecated
-  public String getEMailNotValideMsg() {
-    return getEmailNotValideMsg();
   }
 
   public String getEmailNotValideMsg() {
@@ -172,26 +145,8 @@ public class MailValidatorMeta extends BaseTransformMeta
     this.defaultSMTP = defaultSMTP;
   }
 
-  /**
-   * @return Returns the emailSender.
-   * @deprecated use {@link #getEmailSender()} instead
-   */
-  @Deprecated
-  public String geteMailSender() {
-    return getEmailSender();
-  }
-
   public String getEmailSender() {
     return emailSender;
-  }
-
-  /**
-   * @param emailSender The emailSender to set.
-   * @deprecated use {@link #setEmailSender(String)} instead
-   */
-  @Deprecated
-  public void seteMailSender(String emailSender) {
-    setEmailSender(emailSender);
   }
 
   public void setEmailSender(String emailSender) {
@@ -208,26 +163,8 @@ public class MailValidatorMeta extends BaseTransformMeta
     this.defaultSMTPField = defaultSMTPField;
   }
 
-  /**
-   * @return Returns the isdynamicDefaultSMTP.
-   * @deprecated use {@link #isDynamicDefaultSMTP()} instead
-   */
-  @Deprecated
-  public boolean isdynamicDefaultSMTP() {
-    return isDynamicDefaultSMTP();
-  }
-
   public boolean isDynamicDefaultSMTP() {
     return isdynamicDefaultSMTP;
-  }
-
-  /**
-   * @param isdynamicDefaultSMTP The isdynamicDefaultSMTP to set.
-   * @deprecated use {@link #setDynamicDefaultSMTP(boolean)} instead
-   */
-  @Deprecated
-  public void setdynamicDefaultSMTP(boolean isdynamicDefaultSMTP) {
-    setDynamicDefaultSMTP(isdynamicDefaultSMTP);
   }
 
   public void setDynamicDefaultSMTP(boolean isdynamicDefaultSMTP) {
@@ -240,11 +177,11 @@ public class MailValidatorMeta extends BaseTransformMeta
   }
 
   public boolean isResultAsString() {
-    return ResultAsString;
+    return resultAsString;
   }
 
   public void setResultAsString(boolean ResultAsString) {
-    this.ResultAsString = ResultAsString;
+    this.resultAsString = ResultAsString;
   }
 
   public void setSMTPCheck(boolean smtpcheck) {
@@ -280,7 +217,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     resultfieldname = "result";
     emailValideMsg = "email address is valid";
     emailNotValideMsg = "email address is not valid";
-    ResultAsString = false;
+    resultAsString = false;
     errorsFieldName = "Error message";
     timeout = "0";
     defaultSMTP = null;
@@ -300,7 +237,7 @@ public class MailValidatorMeta extends BaseTransformMeta
       throws HopTransformException {
 
     String realResultFieldName = variables.resolve(resultfieldname);
-    if (ResultAsString) {
+    if (resultAsString) {
       IValueMeta v = new ValueMetaString(realResultFieldName);
       v.setLength(100, -1);
       v.setOrigin(name);
@@ -326,7 +263,7 @@ public class MailValidatorMeta extends BaseTransformMeta
 
     retval.append("    " + XmlHandler.addTagValue("emailfield", emailfield));
     retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    retval.append("    ").append(XmlHandler.addTagValue("ResultAsString", ResultAsString));
+    retval.append("    ").append(XmlHandler.addTagValue("ResultAsString", resultAsString));
     retval.append("    ").append(XmlHandler.addTagValue("smtpCheck", smtpCheck));
 
     retval.append("    " + XmlHandler.addTagValue("emailValideMsg", emailValideMsg));
@@ -346,7 +283,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     try {
       emailfield = XmlHandler.getTagValue(transformNode, "emailfield");
       resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-      ResultAsString =
+      resultAsString =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ResultAsString"));
       smtpCheck = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "smtpCheck"));
 
@@ -394,7 +331,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     }
     remarks.add(cr);
 
-    if (this.ResultAsString) {
+    if (this.resultAsString) {
       if (Utils.isEmpty(emailValideMsg)) {
         cr =
             new CheckResult(
@@ -458,7 +395,7 @@ public class MailValidatorMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-    if (ResultAsString) {
+    if (resultAsString) {
       if (Utils.isEmpty(emailValideMsg)) {
         cr =
             new CheckResult(

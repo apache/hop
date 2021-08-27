@@ -641,7 +641,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       data.staxInstance = XMLInputFactory.newInstance(); // could select the parser later on
       data.staxInstance.setProperty("javax.xml.stream.isCoalescing", false);
       data.filenr = 0;
-      if (getPipelineMeta().findNrPrevTransforms(getTransformMeta()) == 0
+      if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() == 0
           && !meta.sourceFromInput) {
         String filename = resolve(meta.getFilename());
         if (Utils.isEmpty(filename)) {

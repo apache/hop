@@ -356,17 +356,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   /**
-   * Returns a short description of the type of database.
-   *
-   * @return A short description of the type of database.
-   * @deprecated This is actually the plugin ID
-   */
-  @Deprecated
-  public String getDatabaseTypeDesc() {
-    return getPluginId();
-  }
-
-  /**
    * Gets you a short description of the type of database access.
    *
    * @return A short description of the type of database access.
@@ -755,17 +744,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
   }
 
-  /**
-   * @return true if the database supports transactions
-   * @deprecated because the same database can support transactions or not. It all depends on the
-   *     database setup. Therefor, we look at the database metadata
-   *     DatabaseMetaData.supportsTransactions() in stead of this.
-   */
-  @Deprecated
-  public boolean supportsTransactions() {
-    return iDatabase.supportsTransactions();
-  }
-
   public boolean supportsAutoinc() {
     return iDatabase.supportsAutoInc();
   }
@@ -1068,21 +1046,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
 
     return remarks.toArray(new String[remarks.size()]);
-  }
-
-  /**
-   * This is now replaced with getQuotedSchemaTableCombination(), enforcing the use of the
-   * quoteFields call
-   *
-   * @param schemaName
-   * @param tableName
-   * @return
-   * @deprecated please use getQuotedSchemaTableCombination()
-   */
-  @Deprecated
-  public String getSchemaTableCombination(
-      IVariables variables, String schemaName, String tableName) {
-    return getQuotedSchemaTableCombination(variables, schemaName, tableName);
   }
 
   /**

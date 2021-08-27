@@ -74,18 +74,18 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
       }
 
       if (meta.isResultAsString()) {
-        if (Utils.isEmpty(meta.getEMailValideMsg())) {
+        if (Utils.isEmpty(meta.getEmailValideMsg())) {
           throw new HopException(
               BaseMessages.getString(PKG, "MailValidator.Error.EMailValidMsgMissing"));
         }
 
-        if (Utils.isEmpty(meta.getEMailNotValideMsg())) {
+        if (Utils.isEmpty(meta.getEmailNotValideMsg())) {
           throw new HopException(
               BaseMessages.getString(PKG, "MailValidator.Error.EMailNotValidMsgMissing"));
         }
 
-        data.msgValidMail = resolve(meta.getEMailValideMsg());
-        data.msgNotValidMail = resolve(meta.getEMailNotValideMsg());
+        data.msgValidMail = resolve(meta.getEmailValideMsg());
+        data.msgNotValidMail = resolve(meta.getEmailNotValideMsg());
       }
 
       // Check is email address field is provided
@@ -109,7 +109,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
 
       // SMTP check?
       if (meta.isSMTPCheck()) {
-        if (meta.isdynamicDefaultSMTP()) {
+        if (meta.isDynamicDefaultSMTP()) {
           if (Utils.isEmpty(meta.getDefaultSMTP())) {
             throw new HopException(
                 BaseMessages.getString(PKG, "MailValidator.Error.DefaultSMTPFieldMissing"));
@@ -129,7 +129,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
         data.timeout = Const.toInt(resolve(meta.getTimeOut()), 0);
 
         // get email sender
-        data.realemailSender = resolve(meta.geteMailSender());
+        data.realemailSender = resolve(meta.getEmailSender());
 
         // get default SMTP server
         data.realdefaultSMTPServer = resolve(meta.getDefaultSMTP());
@@ -151,7 +151,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
       String emailaddress = data.previousRowMeta.getString(r, data.indexOfeMailField);
 
       if (!Utils.isEmpty(emailaddress)) {
-        if (meta.isdynamicDefaultSMTP()) {
+        if (meta.isDynamicDefaultSMTP()) {
           data.realdefaultSMTPServer =
               data.previousRowMeta.getString(r, data.indexOfdefaultSMTPField);
         }

@@ -139,12 +139,6 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     this.smartCount = smartCount;
   }
 
-  /** @return Returns the excludeFileMask. Deprecated due to typo */
-  @Deprecated
-  public String[] getExludeFileMask() {
-    return excludeFileMask;
-  }
-
   /** @return Returns the excludeFileMask. */
   public String[] getExcludeFileMask() {
     return excludeFileMask;
@@ -163,12 +157,6 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
   /** @return Returns smartCount. */
   public boolean isSmartCount() {
     return smartCount;
-  }
-
-  /** @return Returns the output filename_Field. Deprecated due to typo */
-  @Deprecated
-  public String setOutputFilenameField() {
-    return outputFilenameField;
   }
 
   /** @return Returns the output filename_Field. */
@@ -191,7 +179,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     this.filefield = filefield;
   }
 
-  /** @param RowSeparator_formatin The RowSeparator_format to set. */
+  /** @param RowSeparatorFormatin The RowSeparator_format to set. */
   public void setRowSeparatorFormat(String RowSeparatorFormatin) {
     this.RowSeparatorFormat = RowSeparatorFormatin;
   }

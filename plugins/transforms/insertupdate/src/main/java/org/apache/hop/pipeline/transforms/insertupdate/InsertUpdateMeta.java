@@ -124,15 +124,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
   }
 
-  /**
-   * @return Returns the commitSize.
-   * @deprecated use public String getCommitSizeVar() instead
-   */
-  @Deprecated
-  public int getCommitSize() {
-    return Integer.parseInt(commitSize);
-  }
-
   /** @return Returns the commitSize. */
   public String getCommitSizeVar() {
     return commitSize;
@@ -147,15 +138,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = (commitSize == null) ? "0" : commitSize;
     return Integer.parseInt(vs.resolve(commitSize));
-  }
-
-  /**
-   * @param commitSize The commitSize to set.
-   * @deprecated use public void setCommitSize( String commitSize ) instead
-   */
-  @Deprecated
-  public void setCommitSize(int commitSize) {
-    this.commitSize = Integer.toString(commitSize);
   }
 
   /** @param commitSize The commitSize to set. */

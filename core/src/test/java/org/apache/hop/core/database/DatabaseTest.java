@@ -17,7 +17,6 @@
 
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -35,7 +34,6 @@ import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.List;
 
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.Matchers.*;
@@ -261,7 +259,7 @@ public class DatabaseTest {
     Database database = new Database(log, variables, meta);
     database.setCommit(1);
     database.setConnection(mockConnection);
-    database.insertFinished(ps, true);
+    database.emptyAndCommit(ps, true, 1);
   }
 
   @Test(expected = HopDatabaseException.class)
@@ -274,11 +272,7 @@ public class DatabaseTest {
 
     Database database = new Database(log, variables, meta);
     database.setConnection(mockConnection);
-    try {
-      database.insertFinished(ps, true);
-    } catch (HopDatabaseBatchException e) {
-      // noop
-    }
+    database.emptyAndCommit(ps, true, 1);
   }
 
   @Test
@@ -387,20 +381,6 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCheckTableExistsByDbMeta_Success() throws Exception {
-    when(rs.next()).thenReturn(true, false);
-    when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
-    when(dbMetaDataMock.getTables(any(), anyString(), anyString(), aryEq(TABLE_TYPES_TO_GET)))
-        .thenReturn(rs);
-    Database db = new Database(log, variables, dbMetaMock);
-    db.setConnection(mockConnection(dbMetaDataMock));
-
-    assertTrue(
-        "The table " + EXISTING_TABLE_NAME + " is not in db meta data but should be here",
-        db.checkTableExistsByDbMeta(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME));
-  }
-
-  @Test
   public void testCheckTableNotExistsByDbMeta() throws Exception {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
@@ -411,55 +391,7 @@ public class DatabaseTest {
 
     assertFalse(
         "The table " + NOT_EXISTING_TABLE_NAME + " is in db meta data but should not be here",
-        db.checkTableExistsByDbMeta(SCHEMA_TO_CHECK, NOT_EXISTING_TABLE_NAME));
-  }
-
-  @Test
-  public void testCheckTableExistsByDbMetaThrowsHopDatabaseException() {
-    HopDatabaseException kettleDatabaseException =
-        new HopDatabaseException(
-            "Unable to check if table ["
-                + EXISTING_TABLE_NAME
-                + "] exists on connection ["
-                + TEST_NAME_OF_DB_CONNECTION
-                + "].",
-            SQL_EXCEPTION);
-    try {
-      when(dbMetaMock.getName()).thenReturn(TEST_NAME_OF_DB_CONNECTION);
-      when(rs.next()).thenReturn(true, false);
-      when(rs.getString("TABLE_NAME")).thenThrow(SQL_EXCEPTION);
-      when(dbMetaDataMock.getTables(any(), anyString(), anyString(), aryEq(TABLE_TYPES_TO_GET)))
-          .thenReturn(rs);
-      Database db = new Database(log, variables, dbMetaMock);
-      db.setConnection(mockConnection(dbMetaDataMock));
-      db.checkTableExistsByDbMeta(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME);
-      fail("There should be thrown HopDatabaseException but was not.");
-    } catch (HopDatabaseException e) {
-      assertTrue(e instanceof HopDatabaseException);
-      assertEquals(kettleDatabaseException.getLocalizedMessage(), e.getLocalizedMessage());
-    } catch (Exception ex) {
-      fail("There should be thrown HopDatabaseException but was :" + ex.getMessage());
-    }
-  }
-
-  @Test
-  public void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenDbMetaNull() {
-    HopDatabaseException kettleDatabaseException =
-        new HopDatabaseException("Unable to get database meta-data from the database.");
-    try {
-      when(rs.next()).thenReturn(true, false);
-      when(dbMetaDataMock.getTables(any(), anyString(), anyString(), aryEq(TABLE_TYPES_TO_GET)))
-          .thenReturn(rs);
-      Database db = new Database(log, variables, dbMetaMock);
-      db.setConnection(mockConnection(null));
-      db.checkTableExistsByDbMeta(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME);
-      fail("There should be thrown HopDatabaseException but was not.");
-    } catch (HopDatabaseException e) {
-      assertTrue(e instanceof HopDatabaseException);
-      assertEquals(kettleDatabaseException.getLocalizedMessage(), e.getLocalizedMessage());
-    } catch (Exception ex) {
-      fail("There should be thrown HopDatabaseException but was :" + ex.getMessage());
-    }
+        db.checkTableExists(SCHEMA_TO_CHECK, NOT_EXISTING_TABLE_NAME));
   }
 
   @Test
@@ -473,8 +405,7 @@ public class DatabaseTest {
           .thenThrow(SQL_EXCEPTION);
       Database db = new Database(log, variables, dbMetaMock);
       db.setConnection(mockConnection(dbMetaDataMock));
-      db.checkTableExistsByDbMeta(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME);
-      fail("There should be thrown HopDatabaseException but was not.");
+      assertFalse(db.checkTableExists(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME));
     } catch (HopDatabaseException e) {
       assertTrue(e instanceof HopDatabaseException);
       assertEquals(kettleDatabaseException.getLocalizedMessage(), e.getLocalizedMessage());
@@ -493,8 +424,7 @@ public class DatabaseTest {
           .thenReturn(null);
       Database db = new Database(log, variables, dbMetaMock);
       db.setConnection(mockConnection(dbMetaDataMock));
-      db.checkTableExistsByDbMeta(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME);
-      fail("There should be thrown HopDatabaseException but was not.");
+      assertFalse(db.checkTableExists(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME));
     } catch (HopDatabaseException e) {
       assertTrue(e instanceof HopDatabaseException);
       assertEquals(kettleDatabaseException.getLocalizedMessage(), e.getLocalizedMessage());
@@ -572,38 +502,16 @@ public class DatabaseTest {
     Database db = spy(new Database(log, variables, databaseMeta));
 
     db.checkTableExists(any(), any());
-    verify(db, times(1)).checkTableExists(any());
-    verify(db, times(0)).checkTableExistsByDbMeta(any(), any());
+    verify(db, times(1)).checkTableExists(any(), any());
   }
 
   @Test
   public void testCheckTableExistsFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
-    db.setVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false");
 
-    db.checkTableExists(any(), any());
-    verify(db, times(1)).checkTableExists(any());
-    verify(db, times(0)).checkTableExistsByDbMeta(any(), any());
-  }
-
-  @Test
-  public void testCheckTableExistsTrueProperty() throws Exception {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy(new Database(log, variables, databaseMeta));
-    db.setVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true");
-    db.setConnection(conn);
-
-    try {
-      db.checkTableExists(any(), any());
-    } catch (HopDatabaseException e) {
-      // Expecting an error since we aren't mocking everything in a database connection.
-      assertThat(
-          e.getMessage(), containsString("Unable to get table-names from the database meta-data"));
-    }
-
-    verify(db, times(0)).checkTableExists(any());
-    verify(db, times(1)).checkTableExistsByDbMeta(any(), any());
+    db.checkTableExists(any(),any());
+    verify(db, times(1)).checkTableExists(any(), any());
   }
 
   @Test
@@ -612,38 +520,7 @@ public class DatabaseTest {
     Database db = spy(new Database(log, variables, databaseMeta));
 
     db.checkColumnExists(any(), any(), any());
-    verify(db, times(1)).checkColumnExists(any(), any());
-    verify(db, times(0)).checkColumnExistsByDbMeta(any(), any(), any());
-  }
-
-  @Test
-  public void testCheckColumnExistsFalseProperty() throws Exception {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy(new Database(log, variables, databaseMeta));
-    db.setVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false");
-
-    db.checkColumnExists(any(), any(), any());
-    verify(db, times(1)).checkColumnExists(any(), any());
-    verify(db, times(0)).checkColumnExistsByDbMeta(any(), any(), any());
-  }
-
-  @Test
-  public void testCheckColumnExistsTrueProperty() throws Exception {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy(new Database(log, variables, databaseMeta));
-    db.setVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true");
-    db.setConnection(conn);
-
-    try {
-      db.checkColumnExists(any(), any(), any());
-    } catch (HopDatabaseException e) {
-      // Expecting an error since we aren't mocking everything in a database connection.
-      assertThat(
-          e.getMessage(), containsString("Metadata check failed. Fallback to statement check."));
-    }
-
-    verify(db, times(0)).checkColumnExists(any(), any());
-    verify(db, times(1)).checkColumnExistsByDbMeta(any(), any(), any());
+    verify(db, times(1)).checkColumnExists(any(), any(), any());
   }
 
   @Test
@@ -656,38 +533,7 @@ public class DatabaseTest {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    // verify( db, times( 1 ) ).getQueryFields( any(), any() );
-    verify(db, times(0)).getTableFieldsMetaByDbMeta(any(), any());
-  }
-
-  @Test
-  public void testGetTableFieldsMetaFalseProperty() throws Exception {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy(new Database(log, variables, databaseMeta));
-    db.setVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false");
-
-    db.getTableFieldsMeta(any(), any());
-    // verify( db, times( 1 ) ).getQueryFields( any(), any() );
-    verify(db, times(0)).getTableFieldsMetaByDbMeta(any(), any());
-  }
-
-  @Test
-  @Ignore // TODO figure out why it gives a different error
-  public void testGetTableFieldsMetaTrueProperty() throws Exception {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    Database db = spy(new Database(log, variables, databaseMeta));
-    db.setVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true");
-    db.setConnection(conn);
-
-    try {
-      db.getTableFieldsMeta(any(), any());
-    } catch (HopDatabaseException e) {
-      // Expecting an error since we aren't mocking everything in a database connection.
-      assertThat(e.getMessage(), containsString("Failed to fetch fields from jdbc meta"));
-    }
-
-    // verify( db, times( 0 ) ).getQueryFields( any(), any() );
-    verify(db, times(1)).getTableFieldsMetaByDbMeta(any(), any());
+    verify(db, times(1)).getTableFieldsMeta(any(), any());
   }
 
   private String concatWordsForRegexp(String... words) {

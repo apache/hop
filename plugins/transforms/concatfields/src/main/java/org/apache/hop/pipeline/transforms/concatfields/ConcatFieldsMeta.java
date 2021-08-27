@@ -181,13 +181,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta
     removeSelectedFields = false;
   }
 
-  @Deprecated
-  public void getFieldsModifyInput(
-      IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables)
-      throws HopTransformException {
-    getFieldsModifyInput(row, name, info, nextTransform, variables, null);
-  }
-
   public void getFieldsModifyInput(
       IRowMeta row,
       String name,

@@ -48,10 +48,9 @@ import java.util.List;
 @Transform(
     id = "Neo4JOutput",
     image = "neo4j_output.svg",
-    i18nPackageName = "org.apache.hop.neo4j.transforms.output",
-    name = "Neo4JOutput.Transform.Name",
-    description = "Neo4JOutput.Transform.Description",
-    categoryDescription = "Neo4JOutput.Transform.Category",
+    name = "i18n::Neo4JOutput.Transform.Name",
+    description = "i18n::Neo4JOutput.Transform.Description",
+    categoryDescription = "i18n::Neo4JOutput.Transform.Category",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-output.html")
 @InjectionSupported(
     localizationPrefix = "Neo4JOutput.Injection.",

@@ -353,7 +353,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
   public void getData() {
     wLoglevel.select(input.getLogLevelByDesc().getLevel());
 
-    wPrintHeader.setSelection(input.isdisplayHeader());
+    wPrintHeader.setSelection(input.isDisplayHeader());
     wLimitRows.setSelection(input.isLimitRows());
     wLimitRowsNumber.setText("" + input.getLimitRowsNumber());
 
@@ -390,7 +390,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     }
     transformName = wTransformName.getText(); // return value
 
-    input.setdisplayHeader(wPrintHeader.getSelection());
+    input.setDisplayHeader(wPrintHeader.getSelection());
     input.setLimitRows(wLimitRows.getSelection());
     input.setLimitRowsNumber(Const.toInt(wLimitRowsNumber.getText(), 0));
 

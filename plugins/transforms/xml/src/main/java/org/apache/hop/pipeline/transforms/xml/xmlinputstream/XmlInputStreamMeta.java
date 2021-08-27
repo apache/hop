@@ -524,7 +524,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta
     }
     remarks.add(cr);
 
-    if (pipelineMeta.findNrPrevTransforms(transformMeta) > 0) {
+    if (pipelineMeta.findPreviousTransforms(transformMeta).size() > 0) {
       IRowMeta previousFields;
       try {
         previousFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);

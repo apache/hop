@@ -25,8 +25,6 @@ import java.lang.annotation.*;
  *
  * <p>Important: The XML definitions alienate annoated transforms and the two methods of definition
  * are therefore mutually exclusive.
- *
- * @author Alex Silva
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -37,14 +35,6 @@ public @interface PartitionerPlugin {
   String name() default "";
 
   String description() default "";
-
-  /**
-   * Please use the i18n:package:key format in name, description and categoryDescription
-   *
-   * @return
-   */
-  @Deprecated
-  String i18nPackageName() default "";
 
   String classLoaderGroup() default "";
 }

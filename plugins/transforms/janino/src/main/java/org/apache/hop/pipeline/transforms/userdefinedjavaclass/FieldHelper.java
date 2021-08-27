@@ -53,11 +53,6 @@ public class FieldHelper {
     return dataRow[index];
   }
 
-  @Deprecated
-  public BigDecimal getBigNumber(Object[] dataRow) throws HopValueException {
-    return getBigDecimal(dataRow);
-  }
-
   public BigDecimal getBigDecimal(Object[] dataRow) throws HopValueException {
     return meta.getBigNumber(dataRow[index]);
   }
@@ -74,18 +69,8 @@ public class FieldHelper {
     return meta.getDate(dataRow[index]);
   }
 
-  @Deprecated
-  public Long getInteger(Object[] dataRow) throws HopValueException {
-    return getLong(dataRow);
-  }
-
   public Long getLong(Object[] dataRow) throws HopValueException {
     return meta.getInteger(dataRow[index]);
-  }
-
-  @Deprecated
-  public Double getNumber(Object[] dataRow) throws HopValueException {
-    return getDouble(dataRow);
   }
 
   public Double getDouble(Object[] dataRow) throws HopValueException {

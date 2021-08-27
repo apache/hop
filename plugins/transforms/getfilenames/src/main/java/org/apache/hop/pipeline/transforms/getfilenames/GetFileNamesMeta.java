@@ -237,12 +237,6 @@ public class GetFileNamesMeta extends BaseTransformMeta
     this.excludeFileMask = excludeFileMask;
   }
 
-  /** @return Returns the excludeFileMask. Deprecated due to typo */
-  @Deprecated
-  public String[] getExludeFileMask() {
-    return excludeFileMask;
-  }
-
   /** @return Returns the excludeFileMask. */
   public String[] getExcludeFileMask() {
     return excludeFileMask;

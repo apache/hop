@@ -1171,7 +1171,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
             new String[] {
               in.getFileName()[i],
               in.getFileMask()[i],
-              in.getExludeFileMask()[i],
+              in.getExcludeFileMask()[i],
               in.getRequiredFilesDesc(in.getFileRequired()[i]),
               in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
             });
@@ -1181,13 +1181,13 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
       wFilenameList.setRowNums();
       wFilenameList.optWidth(true);
     }
-    wInclFilename.setSelection(in.includeFilename());
-    wInclRownum.setSelection(in.includeRowNumber());
-    wAddResult.setSelection(in.addResultFile());
+    wInclFilename.setSelection(in.getIncludeFilename());
+    wInclRownum.setSelection(in.getIncludeRowNumber());
+    wAddResult.setSelection(in.getAddResultFile());
 
     wIgnoreEmptyFile.setSelection(in.isIgnoreEmptyFile());
     wIgnoreMissingPath.setSelection(in.isIgnoreMissingPath());
-    wFilenameInField.setSelection(in.getIsInFields());
+    wFilenameInField.setSelection(in.getFileInFields());
 
     if (in.getDynamicFilenameField() != null) {
       wFilenameField.setText(in.getDynamicFilenameField());
@@ -1326,7 +1326,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     in.setFilenameField(wInclFilenameField.getText());
     in.setIncludeRowNumber(wInclRownum.getSelection());
 
-    in.setIsInFields(wFilenameInField.getSelection());
+    in.setFileInFields(wFilenameInField.getSelection());
     in.setDynamicFilenameField(wFilenameField.getText());
 
     int nrFields = wFields.nrNonEmpty();

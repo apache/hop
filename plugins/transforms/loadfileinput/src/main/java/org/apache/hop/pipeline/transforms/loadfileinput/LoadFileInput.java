@@ -358,7 +358,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
     try {
       // Create new row or clone
-      if (meta.getIsInFields()) {
+      if (meta.getFileInFields()) {
         outputRowData = copyOrCloneArrayFromLoadFile(outputRowData, data.readrow);
       }
 
@@ -441,14 +441,14 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
       int rowIndex = data.totalpreviousfields + data.nrInputFields;
 
       // See if we need to add the filename to the row...
-      if (meta.includeFilename()
+      if (meta.getIncludeFilename()
           && meta.getFilenameField() != null
           && meta.getFilenameField().length() > 0) {
         outputRowData[rowIndex++] = data.filename;
       }
 
       // See if we need to add the row number to the row...
-      if (meta.includeRowNumber()
+      if (meta.getIncludeRowNumber()
           && meta.getRowNumberField() != null
           && meta.getRowNumberField().length() > 0) {
         outputRowData[rowIndex++] = new Long(data.rownr);
@@ -502,7 +502,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
   public boolean init() {
 
     if (super.init()) {
-      if (!meta.getIsInFields()) {
+      if (!meta.getFileInFields()) {
         try {
           data.files = meta.getFiles(this);
           handleMissingFiles();

@@ -292,14 +292,6 @@ public class ConcurrentMapProperties extends Properties {
   }
 
   @Override
-  @Deprecated
-  public synchronized void save(OutputStream out, String comments) {
-    super.putAll(storageMap);
-    super.save(out, comments);
-    super.clear();
-  }
-
-  @Override
   public synchronized void store(OutputStream out, String comments) throws IOException {
     super.putAll(storageMap);
     super.store(out, comments);

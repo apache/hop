@@ -89,7 +89,7 @@ public class SalesforceMetaTest {
 
     meta.setDefault();
     meta.setTargetUrl(null);
-    meta.setUserName("anonymous");
+    meta.setUsername("anonymous");
     meta.setPassword("password");
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;

@@ -82,7 +82,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
 
     // See if the transform receives input.
     //
-    boolean isReceivingInput = pipelineMeta.findNrPrevTransforms(transformMeta) > 0;
+    boolean isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
 
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);

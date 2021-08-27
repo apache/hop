@@ -460,11 +460,6 @@ public class XmlInputStreamTest {
     testCorrectFileSelected(getFile("default.xml"), 0);
   }
 
-  @Test
-  public void testFileNameSelectedFromIncomingHops() throws Exception {
-    testCorrectFileSelected("filename", 1);
-  }
-
   @Test(expected = HopException.class)
   public void testNotValidFilePathAndFileField() throws Exception {
     testCorrectFileSelected("notPathNorValidFieldName", 0);
@@ -487,9 +482,6 @@ public class XmlInputStreamTest {
     IRowSet rs = new SingleRowRowSet();
     rs.putRow(rm, new Object[] {pathValue});
     rs.setDone();
-
-    when(transformMockHelper.pipelineMeta.findNrPrevTransforms(transformMockHelper.transformMeta))
-        .thenReturn(1);
 
     XmlInputStream xmlInputStream =
         new XmlInputStream(

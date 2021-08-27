@@ -345,12 +345,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
               // Get tablename
               String realTablename = resolve(tableName);
 
-              // Add schemaname (Most the time Schemaname.Tablename)
-              if (schemaname != null) {
-                realTablename = realSchemaname + "." + realTablename;
-              }
-
-              if (db.checkTableExists(realTablename)) {
+              if (db.checkTableExists(realSchemaname,realTablename)) {
                 // The table existe, We can continue ...
                 if (log.isDetailed()) {
                   logDetailed(

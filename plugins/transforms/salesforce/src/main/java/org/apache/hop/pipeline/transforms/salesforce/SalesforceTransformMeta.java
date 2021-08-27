@@ -188,16 +188,6 @@ public abstract class SalesforceTransformMeta<
     this.username = username;
   }
 
-  @Deprecated
-  public String getUserName() {
-    return getUsername();
-  }
-
-  @Deprecated
-  public void setUserName(String username) {
-    setUsername(username);
-  }
-
   /** @return Returns the Password. */
   public String getPassword() {
     return password;
@@ -213,19 +203,9 @@ public abstract class SalesforceTransformMeta<
     return timeout;
   }
 
-  /** @param timeOut The connection timeout to set. */
+  /** @param timeout The connection timeout to set. */
   public void setTimeout(String timeout) {
     this.timeout = timeout;
-  }
-
-  @Deprecated
-  public String getTimeOut() {
-    return getTimeout();
-  }
-
-  @Deprecated
-  public void setTimeOut(String timeOut) {
-    setTimeout(timeOut);
   }
 
   public boolean isCompression() {
@@ -234,18 +214,6 @@ public abstract class SalesforceTransformMeta<
 
   public void setCompression(boolean compression) {
     this.compression = compression;
-  }
-
-  /** @return Returns the useCompression. */
-  @Deprecated
-  public boolean isUsingCompression() {
-    return isCompression();
-  }
-
-  /** @param useCompression The useCompression to set. */
-  @Deprecated
-  public void setUseCompression(boolean useCompression) {
-    setCompression(useCompression);
   }
 
   public String getModule() {

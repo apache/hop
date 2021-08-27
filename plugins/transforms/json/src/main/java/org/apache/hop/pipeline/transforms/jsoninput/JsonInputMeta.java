@@ -393,12 +393,6 @@ public class JsonInputMeta
     this.inputFields = inputFields;
   }
 
-  /** @deprecated use {@link#getExcludeFileMask()} */
-  @Deprecated
-  public String[] getExludeFileMask() {
-    return getExcludeFileMask();
-  }
-
   public String[] getExcludeFileMask() {
     return inputFiles.excludeFileMask;
   }
@@ -502,16 +496,6 @@ public class JsonInputMeta
   /** @param isIgnoreEmptyFile the IsIgnoreEmptyFile to set */
   public void setIgnoreEmptyFile(boolean isIgnoreEmptyFile) {
     this.isIgnoreEmptyFile = isIgnoreEmptyFile;
-  }
-
-  @Deprecated
-  public boolean isdoNotFailIfNoFile() {
-    return isDoNotFailIfNoFile();
-  }
-
-  @Deprecated
-  public void setdoNotFailIfNoFile(boolean doNotFailIfNoFile) {
-    setDoNotFailIfNoFile(doNotFailIfNoFile);
   }
 
   public boolean isDoNotFailIfNoFile() {

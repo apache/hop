@@ -43,9 +43,6 @@ import java.util.*;
 /*
  * colors etc. are allocated once and released once at the end of the program.
  *
- * @author Matt
- * @since 27/10/2005
- *
  */
 public class GuiResource {
 

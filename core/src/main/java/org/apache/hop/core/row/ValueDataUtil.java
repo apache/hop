@@ -365,18 +365,6 @@ public class ValueDataUtil {
     return md5Hash;
   }
 
-  /** @deprecated Use {@link ValueDataUtil#checksumCRC32(IValueMeta, Object, boolean)} instead */
-  @Deprecated
-  public static Long ChecksumCRC32(IValueMeta metaA, Object dataA) {
-    long checksum = 0;
-    try {
-      checksum = checksumCRC32(metaA, dataA, false);
-    } catch (HopFileNotFoundException e) {
-      // Ignore
-    }
-    return checksum;
-  }
-
   /**
    * @param metaA The IValueMeta
    * @param dataA Filename
@@ -419,18 +407,6 @@ public class ValueDataUtil {
     } finally {
       IOUtils.closeQuietly(file);
       IOUtils.closeQuietly(cis);
-    }
-    return checksum;
-  }
-
-  /** @deprecated Use {@link ValueDataUtil#checksumAdler32(IValueMeta, Object, boolean)} instead */
-  @Deprecated
-  public static Long ChecksumAdler32(IValueMeta metaA, Object dataA) {
-    long checksum = 0;
-    try {
-      checksum = checksumAdler32(metaA, dataA, false);
-    } catch (HopFileNotFoundException e) {
-      // Ignore
     }
     return checksum;
   }
@@ -598,22 +574,6 @@ public class ValueDataUtil {
     }
 
     return plus(metaA, dataA, metaB, dataB);
-  }
-
-  /**
-   * @deprecated Use {@link ValueDataUtil#loadFileContentInBinary(IValueMeta, Object, boolean)}
-   *     instead
-   */
-  @Deprecated
-  public static Object loadFileContentInBinary(IValueMeta metaA, Object dataA)
-      throws HopValueException {
-    Object content = null;
-    try {
-      content = loadFileContentInBinary(metaA, dataA, true);
-    } catch (HopFileNotFoundException e) {
-      throw new HopValueException();
-    }
-    return content;
   }
 
   /**
@@ -1988,25 +1948,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     }
     return false;
-  }
-
-  /**
-   * Get file encoding.
-   *
-   * @param metaA The IValueMeta
-   * @param dataA The value (filename)
-   * @return file encoding.
-   * @deprecated Use {@link ValueDataUtil#getFileEncoding(IValueMeta, Object, boolean)} instead
-   */
-  @Deprecated
-  public static String getFileEncoding(IValueMeta metaA, Object dataA) throws HopValueException {
-    String encoding = null;
-    try {
-      encoding = getFileEncoding(metaA, dataA, true);
-    } catch (HopFileNotFoundException e) {
-      throw new HopValueException();
-    }
-    return encoding;
   }
 
   /**
