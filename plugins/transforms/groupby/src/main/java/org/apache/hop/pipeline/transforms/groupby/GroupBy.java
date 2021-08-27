@@ -949,6 +949,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
     this.minNullIsValued = minNullIsValued;
   }
 
+  @Override
   public GroupByMeta getMeta() {
     return meta;
   }

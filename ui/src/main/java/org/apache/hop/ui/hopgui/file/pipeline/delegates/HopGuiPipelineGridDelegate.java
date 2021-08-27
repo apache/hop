@@ -243,6 +243,7 @@ public class HopGuiPipelineGridDelegate {
 
     TimerTask timtask =
         new TimerTask() {
+          @Override
           public void run() {
             if (!hopGui.getDisplay().isDisposed()) {
               hopGui.getDisplay().asyncExec(HopGuiPipelineGridDelegate.this::refreshView);

@@ -430,6 +430,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     toolTip.setVisible(false);
   }
 
+  @Override
   public void mouseDoubleClick(MouseEvent e) {
 
     if (!PropsUi.getInstance().useDoubleClick()) {
@@ -481,6 +482,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void mouseDown(MouseEvent e) {
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
@@ -635,6 +637,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Hop,
   }
 
+  @Override
   public void mouseUp(MouseEvent e) {
     // canvas.setData("mode", null); does not work.
     canvas.setData("mode", "null");
@@ -1036,6 +1039,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void mouseMove(MouseEvent e) {
     boolean shift = (e.stateMask & SWT.SHIFT) != 0;
     noInputAction = null;
@@ -1225,6 +1229,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void mouseHover(MouseEvent e) {
 
     boolean tip = true;
@@ -1237,10 +1242,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void mouseEnter(MouseEvent event) {}
 
+  @Override
   public void mouseExit(MouseEvent event) {}
 
+  @Override
   public void adjustScrolling() {
     // What's the new canvas size?
     //
@@ -1353,6 +1361,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     setFocus();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_IN,
@@ -1363,6 +1372,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     super.zoomIn();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_OUT,
@@ -1373,6 +1383,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     super.zoomOut();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_100PCT,
@@ -1418,6 +1429,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void setZoomLabel() {
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
     if (zoomLabel == null || zoomLabel.isDisposed()) {
@@ -1566,6 +1578,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public boolean setFocus() {
     return (canvas != null && !canvas.isDisposed()) ? canvas.setFocus() : false;
   }
@@ -1814,6 +1827,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     currentMouseY = y;
   }
 
+  @Override
   @GuiKeyboardShortcut(control = true, key = 'a')
   @GuiOsxKeyboardShortcut(command = true, key = 'a')
   public void selectAll() {
@@ -2657,6 +2671,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     CanvasFacade.setData(canvas, magnification, workflowMeta, HopGuiWorkflowGraph.class);
   }
 
+  @Override
   protected Point getOffset() {
     Point area = getArea();
     Point max = workflowMeta.getMaximum();
@@ -3354,6 +3369,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    }
      */
 
+  @Override
   public void close() {
     perspective.remove(this);
   }
@@ -3588,11 +3604,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private IActionListener createRefreshActionListener() {
     return new IActionListener<WorkflowMeta>() {
 
+      @Override
       public void beforeExecution(
           IWorkflowEngine<WorkflowMeta> workflow, ActionMeta actionCopy, IAction action) {
         asyncRedraw();
       }
 
+      @Override
       public void afterExecution(
           IWorkflowEngine<WorkflowMeta> workflow,
           ActionMeta actionCopy,
@@ -3613,6 +3631,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
+  @Override
   public IHasLogChannel getLogChannelProvider() {
     return () -> getWorkflow() != null ? getWorkflow().getLogChannel() : LogChannel.GENERAL;
   }
@@ -3854,6 +3873,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    *
    * @return value of id
    */
+  @Override
   public String getId() {
     return id;
   }

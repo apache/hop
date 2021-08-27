@@ -252,6 +252,7 @@ public class NotePadDialog extends Dialog {
     wFontName.select(0);
     wFontName.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             refreshTextNote();
           }
@@ -277,6 +278,7 @@ public class NotePadDialog extends Dialog {
     wFontSize.setLayoutData(fdFontSize);
     wFontSize.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             refreshTextNote();
           }
@@ -300,6 +302,7 @@ public class NotePadDialog extends Dialog {
     wFontBold.setLayoutData(fdFontBold);
     wFontBold.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             refreshTextNote();
           }
@@ -322,6 +325,7 @@ public class NotePadDialog extends Dialog {
     wFontItalic.setLayoutData(fdFontItalic);
     wFontItalic.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             refreshTextNote();
           }
@@ -348,6 +352,7 @@ public class NotePadDialog extends Dialog {
     wbFontColorChange.setLayoutData(fdFontColorChange);
     wbFontColorChange.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             ColorDialog cd = new ColorDialog(shell);
             cd.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Dialog.Label"));
@@ -398,6 +403,7 @@ public class NotePadDialog extends Dialog {
     wbBackGroundColorChange.setLayoutData(fdBackGroundColorChange);
     wbBackGroundColorChange.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             ColorDialog cd = new ColorDialog(shell);
             cd.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Dialog.Label"));
@@ -447,6 +453,7 @@ public class NotePadDialog extends Dialog {
     wbBorderColorChange.setLayoutData(fdBorderColorChange);
     wbBorderColorChange.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             ColorDialog cd = new ColorDialog(shell);
             cd.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Dialog.Label"));

@@ -58,6 +58,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     input = (GetServerSequenceMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

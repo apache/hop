@@ -193,6 +193,7 @@ public class WorkflowMeta extends AbstractMeta
    * @see #compare(WorkflowMeta, WorkflowMeta)
    * @see Comparable#compareTo(Object)
    */
+  @Override
   public int compareTo(WorkflowMeta o) {
     return compare(this, o);
   }
@@ -222,6 +223,7 @@ public class WorkflowMeta extends AbstractMeta
    * @return a clone of the workflow meta-data object
    * @see Object#clone()
    */
+  @Override
   public Object clone() {
     return realClone(true);
   }
@@ -266,6 +268,7 @@ public class WorkflowMeta extends AbstractMeta
     }
   }
 
+  @Override
   protected String getExtension() {
     return WORKFLOW_EXTENSION;
   }
@@ -1767,6 +1770,7 @@ public class WorkflowMeta extends AbstractMeta
     return resourceReferences;
   }
 
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,
@@ -1953,6 +1957,7 @@ public class WorkflowMeta extends AbstractMeta
     }
   }
 
+  @Override
   public boolean hasMissingPlugins() {
     return missingActions != null && !missingActions.isEmpty();
   }

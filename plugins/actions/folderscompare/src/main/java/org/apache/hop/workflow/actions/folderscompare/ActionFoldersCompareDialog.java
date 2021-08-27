@@ -85,6 +85,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -157,6 +158,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -185,6 +187,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wCompareOnly.setLayoutData(fdCompareOnly);
     wCompareOnly.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             specifyCompareOnlyActivate();
           }
@@ -233,6 +236,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wCompareFileSize.setLayoutData(fdCompareFileSize);
     wCompareFileSize.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -258,6 +262,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wCompareFileContent.setLayoutData(fdCompareFileContent);
     wCompareFileContent.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -294,6 +299,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
 
     wbDirectory1.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             BaseDialog.presentDirectoryDialog(shell, wFilename1, variables);
           }

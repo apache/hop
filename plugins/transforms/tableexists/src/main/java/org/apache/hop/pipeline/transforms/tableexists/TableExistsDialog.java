@@ -62,6 +62,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     input = (TableExistsMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -164,10 +165,12 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wTableName.setLayoutData(fdTableName);
     wTableName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // disable focuslost even
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

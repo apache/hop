@@ -115,6 +115,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
   }
 
   /** */
+  @Override
   public String open() {
 
     // store some convenient SWT variables
@@ -134,6 +135,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     // indicate that changes are being made.
     ModifyListener lsMod =
         new ModifyListener() {
+          @Override
           public void modifyText(ModifyEvent e) {
             meta.setChanged();
           }
@@ -270,8 +272,10 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     wDefaultCharset.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -357,6 +361,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     // Listen to the browse button next to the file name
     wbbFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.txt;*.csv", "*.csv", "*.txt", "*"});

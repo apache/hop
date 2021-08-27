@@ -69,6 +69,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     condition = (Condition) input.getCondition().clone();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

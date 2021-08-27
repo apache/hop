@@ -38,6 +38,7 @@ public class ModPartitioner extends BasePartitioner {
     super();
   }
 
+  @Override
   public IPartitioner getInstance() {
     IPartitioner partitioner = new ModPartitioner();
     partitioner.setId(getId());
@@ -45,6 +46,7 @@ public class ModPartitioner extends BasePartitioner {
     return partitioner;
   }
 
+  @Override
   public ModPartitioner clone() {
     ModPartitioner modPartitioner = (ModPartitioner) super.clone();
     modPartitioner.fieldName = fieldName;
@@ -52,10 +54,12 @@ public class ModPartitioner extends BasePartitioner {
     return modPartitioner;
   }
 
+  @Override
   public String getDialogClassName() {
     return "org.apache.hop.ui.pipeline.dialog.ModPartitionerDialog";
   }
 
+  @Override
   public int getPartition(IVariables variables, IRowMeta rowMeta, Object[] row)
       throws HopException {
 
@@ -106,6 +110,7 @@ public class ModPartitioner extends BasePartitioner {
     return targetLocation;
   }
 
+  @Override
   public String getDescription() {
     String description = "Mod partitioner";
     if (!Utils.isEmpty(fieldName)) {
@@ -114,12 +119,14 @@ public class ModPartitioner extends BasePartitioner {
     return description;
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(150);
     xml.append("           ").append(XmlHandler.addTagValue("field_name", fieldName));
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node partitioningMethodNode) throws HopXmlException {
     fieldName = XmlHandler.getTagValue(partitioningMethodNode, "field_name");
   }

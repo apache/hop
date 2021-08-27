@@ -78,6 +78,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     this.action = (ActionPipeline) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
     display = parent.getDisplay();
@@ -149,6 +150,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
     wbBrowse.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             pickFileVFS();
           }
@@ -156,16 +158,19 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
     wbLogFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             selectLogFile(FILE_FILTERLOGNAMES);
           }
         });
   }
 
+  @Override
   protected ActionBase getAction() {
     return action;
   }
 
+  @Override
   protected Image getImage() {
     return SwtSvgImageUtil.getImage(
         shell.getDisplay(),
@@ -175,6 +180,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         ConstUi.LARGE_ICON_SIZE);
   }
 
+  @Override
   protected String[] getParameters() {
     return action.parameters;
   }
@@ -310,6 +316,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wName.setFocus();
   }
 
+  @Override
   protected void cancel() {
     action.setChanged(backupChanged);
 
@@ -387,6 +394,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     actionPipeline.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
   }
 
+  @Override
   protected void ok() {
     if (Utils.isEmpty(wName.getText())) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);

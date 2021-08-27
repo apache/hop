@@ -51,6 +51,7 @@ public class BeamPublishDialog extends BaseTransformDialog implements ITransform
     input = (BeamPublishMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

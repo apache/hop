@@ -45,6 +45,7 @@ public class UniqueRowsByHashSet
     return data.seen.add(new RowKey(row, data));
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row!
@@ -117,6 +118,7 @@ public class UniqueRowsByHashSet
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

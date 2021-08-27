@@ -58,6 +58,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     input = (NumberRangeMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -97,8 +98,10 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
 
     inputFieldControl.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

@@ -219,6 +219,7 @@ public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
     }
   }
 
+  @Override
   public Object cloneValueData(Object object) throws HopValueException {
     if (object == null) {
       return null;

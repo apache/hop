@@ -287,6 +287,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
+  @Override
   public String getSqlListOfProcedures() {
     return "select proname "
         + "from sys_proc, sys_user "

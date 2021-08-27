@@ -73,6 +73,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     input = (SSTableOutputMeta) in;
   }
 
+  @Override
   public String open() {
 
     Shell parent = getParent();

@@ -71,6 +71,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
    *
    * @return the transform name
    */
+  @Override
   public String open() {
     Shell parent = getParent();
 

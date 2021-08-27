@@ -232,6 +232,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     }
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -294,6 +295,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
   }
 
   /** Stop the running query */
+  @Override
   public void stopRunning() throws HopException {
 
     if (data.db != null && !data.isCanceled) {
@@ -305,6 +307,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -338,6 +341,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {

@@ -56,9 +56,9 @@ public class TokenReplacementData extends BaseTransformData implements ITransfor
     defaultDateFormat = new SimpleDateFormat();
     defaultDateFormatSymbols = new DateFormatSymbols();
 
-    openFiles = new ArrayList<String>();
-    openWriters = new ArrayList<OutputStream>();
-    openBufferedWriters = new ArrayList<OutputStream>();
+    openFiles = new ArrayList<>();
+    openWriters = new ArrayList<>();
+    openBufferedWriters = new ArrayList<>();
 
     rowNumber = 0;
 

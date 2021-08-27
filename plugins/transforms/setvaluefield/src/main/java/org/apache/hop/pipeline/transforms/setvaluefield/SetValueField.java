@@ -48,6 +48,7 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // Get one row from one of the rowsets...
@@ -145,11 +146,13 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
     return true;
   }
 
+  @Override
   public void dispose() {
 
     super.dispose();
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

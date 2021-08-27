@@ -44,6 +44,7 @@ public class TokenReplacementField implements Cloneable {
     return false;
   }
 
+  @Override
   public Object clone() {
     try {
       return super.clone();

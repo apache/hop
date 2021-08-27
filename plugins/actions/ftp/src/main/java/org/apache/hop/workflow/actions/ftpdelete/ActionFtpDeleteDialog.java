@@ -140,6 +140,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -246,6 +247,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wProtocol.setLayoutData(fdProtocol);
     wProtocol.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeFtpProtocol();
             action.setChanged();
@@ -343,6 +345,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wUseProxy.setLayoutData(fdUseProxy);
     wUseProxy.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeProxy();
             action.setChanged();
@@ -441,6 +444,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wUsePublicKey.setLayoutData(fdusePublicKey);
     wUsePublicKey.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeUsePublicKey();
             action.setChanged();
@@ -645,6 +649,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wGetPrevious.setLayoutData(fdGetPrevious);
     wGetPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeCopyFromPrevious();
             action.setChanged();
@@ -753,6 +758,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }

@@ -47,6 +47,7 @@ public class RowsToResultDialog extends BaseTransformDialog implements ITransfor
     input = (RowsToResultMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

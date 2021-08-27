@@ -108,11 +108,13 @@ public class MappingInputMeta extends BaseTransformMeta
     this.fieldType = fieldType;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     MappingInputMeta retval = (MappingInputMeta) super.clone();
 
@@ -157,6 +159,7 @@ public class MappingInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(300);
 
@@ -179,6 +182,7 @@ public class MappingInputMeta extends BaseTransformMeta
     return xml.toString();
   }
 
+  @Override
   public void setDefault() {
     int nrFields = 0;
 
@@ -192,6 +196,7 @@ public class MappingInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String origin,
@@ -253,6 +258,7 @@ public class MappingInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -302,6 +308,7 @@ public class MappingInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public MappingInput createTransform(
       TransformMeta transformMeta,
       MappingInputData data,
@@ -311,6 +318,7 @@ public class MappingInputMeta extends BaseTransformMeta
     return new MappingInput(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public MappingInputData getTransformData() {
     return new MappingInputData();
   }

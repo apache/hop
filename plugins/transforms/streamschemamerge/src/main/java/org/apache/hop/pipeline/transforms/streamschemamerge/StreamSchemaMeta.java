@@ -75,6 +75,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    *
    * @return true
    */
+  @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
   }
@@ -84,6 +85,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    * transform configuration to sensible defaults. The values set here will be used by Spoon when a
    * new transform is created.
    */
+  @Override
   public void setDefault() {
     // intentionally empty
   }
@@ -133,6 +135,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    *
    * @return a deep copy of this
    */
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
@@ -146,6 +149,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    *
    * @return a string containing the XML serialization of this transform
    */
+  @Override
   public String getXml() throws HopValueException {
     StringBuilder xml = new StringBuilder();
     xml.append("    <transforms>" + Const.CR);
@@ -166,6 +170,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    * @param transformNode the XML node containing the configuration
    * @param metadataProvider the metadataProvider to optionally read from
    */
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
 
@@ -263,6 +268,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
    * @param info fields coming in from info transforms
    * @param metadataProvider metadataProvider to optionally read from
    */
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -302,6 +308,7 @@ public class StreamSchemaMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void resetTransformIoMeta() {
     // Do nothing, don't reset as there is no need to do this.
   }

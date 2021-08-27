@@ -53,6 +53,7 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog
     input = (BlockUntilTransformsFinishMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

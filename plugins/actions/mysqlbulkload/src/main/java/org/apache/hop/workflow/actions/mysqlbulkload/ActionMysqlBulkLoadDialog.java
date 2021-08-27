@@ -111,6 +111,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -203,6 +204,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -281,6 +283,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wLocalInfile.setLayoutData(fdLocalInfile);
     wLocalInfile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -430,6 +433,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wbListattribut.setLayoutData(fdbListattribut);
     wbListattribut.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getListColumns();
           }
@@ -467,6 +471,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wReplaceData.setLayoutData(fdReplaceData);
     wReplaceData.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -527,6 +532,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

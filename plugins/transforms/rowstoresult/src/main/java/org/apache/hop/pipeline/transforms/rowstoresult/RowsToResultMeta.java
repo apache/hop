@@ -52,11 +52,13 @@ public class RowsToResultMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
@@ -74,8 +76,10 @@ public class RowsToResultMeta extends BaseTransformMeta
 
   private void readData(Node transformNode) {}
 
+  @Override
   public void setDefault() {}
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -87,6 +91,7 @@ public class RowsToResultMeta extends BaseTransformMeta
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -116,6 +121,7 @@ public class RowsToResultMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public RowsToResultData getTransformData() {
     return new RowsToResultData();
   }

@@ -83,6 +83,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     input = (IfNullMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -192,6 +193,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     wSetEmptyStringAll.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             enableSetEmptyStringAll();

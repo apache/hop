@@ -183,6 +183,7 @@ public class SalesforceInputField implements Cloneable {
     return trimTypeDesc[i];
   }
 
+  @Override
   public Object clone() {
     try {
       return (SalesforceInputField) super.clone();

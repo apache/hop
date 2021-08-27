@@ -51,6 +51,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // Grab a row and also wait for a row to be finished.
@@ -307,6 +308,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       try {
@@ -333,6 +335,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.connection != null) {
       try {

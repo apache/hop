@@ -78,6 +78,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -89,6 +90,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
 
     SelectionAdapter lsSelMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -96,6 +98,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
 
     SelectionAdapter lsLimitRows =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             enableFields();

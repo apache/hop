@@ -145,6 +145,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
    *
    * @see ITransformDialog#open()
    */
+  @Override
   public String open() {
     this.changed = this.meta.hasChanged();
     final Shell parent = getParent();

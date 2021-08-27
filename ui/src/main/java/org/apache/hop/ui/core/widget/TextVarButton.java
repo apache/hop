@@ -49,6 +49,7 @@ public class TextVarButton extends TextVar {
         selectionListener);
   }
 
+  @Override
   protected void initialize(
       IVariables variables,
       Composite composite,

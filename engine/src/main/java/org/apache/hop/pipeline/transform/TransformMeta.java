@@ -669,6 +669,7 @@ public class TransformMeta
     return this.transformPluginId;
   }
 
+  @Override
   public String getPluginId() {
     return this.transformPluginId;
   }

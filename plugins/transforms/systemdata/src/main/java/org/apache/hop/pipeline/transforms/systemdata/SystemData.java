@@ -664,6 +664,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     return row;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] row;
     if (data.readsRows) {
@@ -713,6 +714,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -727,6 +729,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     return false;
   }
 
+  @Override
   public void dispose() {
     super.dispose();
   }

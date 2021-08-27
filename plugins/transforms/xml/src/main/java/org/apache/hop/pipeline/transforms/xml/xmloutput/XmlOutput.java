@@ -67,6 +67,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
     super(transformMeta, meta, transformDataInterface, copyNr, pipelineMeta, trans);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r;
@@ -383,6 +384,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
     return retval;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -403,6 +405,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
     return false;
   }
 
+  @Override
   public void dispose() {
     closeFile();
 

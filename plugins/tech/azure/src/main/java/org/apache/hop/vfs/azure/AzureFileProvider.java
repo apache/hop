@@ -69,6 +69,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
     setFileNameParser(AzureFileNameParser.getInstance());
   }
 
+  @Override
   protected FileSystem doCreateFileSystem(FileName fileName, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
 
@@ -125,6 +126,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
     return new AzureFileSystem((AzureFileName) fileName, service, fsOptions);
   }
 
+  @Override
   public Collection<Capability> getCapabilities() {
     return capabilities;
   }

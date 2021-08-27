@@ -90,6 +90,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     this.schemaNames = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionTruncateTables je = (ActionTruncateTables) super.clone();
     if (tableNames != null) {

@@ -40,6 +40,7 @@ public class TargetTransformDefinition extends TransformDefinition {
     super(tag, transformName, transformMeta, description);
   }
 
+  @Override
   public Object clone() throws CloneNotSupportedException {
     return super.clone();
   }

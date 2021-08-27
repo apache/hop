@@ -121,12 +121,14 @@ public class SalesforceUpdateMeta
     return Const.toInt(this.batchSize, 10);
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     SalesforceUpdateMeta retval = (SalesforceUpdateMeta) super.clone();
 
@@ -143,6 +145,7 @@ public class SalesforceUpdateMeta
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(super.getXml());
     retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
@@ -208,6 +211,7 @@ public class SalesforceUpdateMeta
     setUseExternalId(new Boolean[nrvalues]);
   }
 
+  @Override
   public void setDefault() {
     super.setDefault();
     setBatchSize("10");
@@ -218,6 +222,7 @@ public class SalesforceUpdateMeta
   }
 
   /* This function adds meta data to the rows being pushed out */
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -294,10 +299,12 @@ public class SalesforceUpdateMeta
     return new SalesforceUpdate(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SalesforceUpdateData getTransformData() {
     return new SalesforceUpdateData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

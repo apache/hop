@@ -151,11 +151,13 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     this.sqlfieldname = sqlfieldname;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
   }
 
+  @Override
   public Object clone() {
     DynamicSqlRowMeta retval = (DynamicSqlRowMeta) super.clone();
 
@@ -182,6 +184,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     databaseMeta = null;
     rowLimit = 0;
@@ -192,6 +195,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     queryonlyonchange = false;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -249,6 +253,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -266,6 +271,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -368,6 +374,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public DynamicSqlRow createTransform(
       TransformMeta transformMeta,
       DynamicSqlRowData data,
@@ -377,10 +384,12 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     return new DynamicSqlRow(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public DynamicSqlRowData getTransformData() {
     return new DynamicSqlRowData();
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -423,6 +432,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -431,6 +441,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

@@ -172,6 +172,7 @@ public abstract class AbstractMeta
    *
    * @param newName The new name
    */
+  @Override
   public void setName(String newName) {
     fireNameChangedListeners(this.name, newName);
     this.name = newName;
@@ -182,11 +183,13 @@ public abstract class AbstractMeta
    *
    * @return value of nameSynchronizedWithFilename
    */
+  @Override
   public boolean isNameSynchronizedWithFilename() {
     return nameSynchronizedWithFilename;
   }
 
   /** @param nameSynchronizedWithFilename The nameSynchronizedWithFilename to set */
+  @Override
   public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
     this.nameSynchronizedWithFilename = nameSynchronizedWithFilename;
   }
@@ -258,6 +261,7 @@ public abstract class AbstractMeta
   }
 
   /** This method sets various internal hop variables. */
+  @Override
   public abstract void setInternalHopVariables(IVariables var);
 
   /**

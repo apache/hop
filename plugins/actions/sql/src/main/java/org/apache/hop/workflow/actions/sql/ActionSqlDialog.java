@@ -92,6 +92,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -158,6 +159,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wSqlFromFile.setLayoutData(fdSqlFromFile);
     wSqlFromFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSqlFromFile();
             action.setChanged();
@@ -226,6 +228,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wSendOneStatement.setLayoutData(fdUseOneStatement);
     wSendOneStatement.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -250,6 +253,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wUseSubs.setLayoutData(fdUseSubs);
     wUseSubs.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setUseVariableSubstitution(!action.getUseVariableSubstitution());
             action.setChanged();
@@ -288,34 +292,41 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
     wSql.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wSql.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wSql.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }

@@ -100,6 +100,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

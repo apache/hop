@@ -77,6 +77,7 @@ public class DelegatingDriver implements Driver {
    *
    * @return always null until we finally switch over to Java7 with the codebase (TODO)
    */
+  @Override
   public Logger getParentLogger() {
     return null;
   }

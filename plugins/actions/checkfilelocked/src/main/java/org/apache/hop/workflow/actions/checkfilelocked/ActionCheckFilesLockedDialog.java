@@ -88,6 +88,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -170,6 +171,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -195,6 +197,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setPrevious();
             action.setChanged();
@@ -367,6 +370,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(new String[] {wFilename.getText(), wFilemask.getText()});
             wFilename.setText("");
@@ -382,6 +386,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -393,6 +398,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {

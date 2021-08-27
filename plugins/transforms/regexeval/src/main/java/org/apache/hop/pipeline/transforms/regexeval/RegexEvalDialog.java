@@ -73,6 +73,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     input = (RegexEvalMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -83,6 +84,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSel =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -184,8 +186,10 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wFieldEvaluate.addSelectionListener(lsSel);
     wFieldEvaluate.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -234,6 +238,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wAllowCaptureGroups.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setFieldsEnabledStatus();
             input.setChanged();
@@ -261,6 +266,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wReplaceFields.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

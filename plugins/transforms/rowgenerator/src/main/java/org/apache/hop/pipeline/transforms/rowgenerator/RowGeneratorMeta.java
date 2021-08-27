@@ -104,6 +104,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public RowGeneratorMeta clone() {
     return new RowGeneratorMeta(this);
   }
@@ -138,6 +139,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -201,6 +203,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public RowGenerator createTransform(
       TransformMeta transformMeta,
       RowGeneratorData data,
@@ -210,6 +213,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
     return new RowGenerator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public RowGeneratorData getTransformData() {
     return new RowGeneratorData();
   }
@@ -218,6 +222,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
    * Returns the Input/Output metadata for this transform. The generator transform only produces
    * output, does not accept input!
    */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     return new TransformIOMeta(false, true, false, false, false, false);
   }

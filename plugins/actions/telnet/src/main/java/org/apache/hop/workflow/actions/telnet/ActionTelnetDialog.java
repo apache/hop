@@ -69,6 +69,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

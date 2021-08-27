@@ -512,11 +512,13 @@ public class PropertyInputMeta extends BaseTransformMeta
     this.rowNumberField = rowNumberField;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     PropertyInputMeta retval = (PropertyInputMeta) super.clone();
     int nrFiles = fileName.length;
@@ -546,6 +548,7 @@ public class PropertyInputMeta extends BaseTransformMeta
     return new PropertyInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
     retval.append("    ").append(XmlHandler.addTagValue("file_type", fileType));
@@ -731,6 +734,7 @@ public class PropertyInputMeta extends BaseTransformMeta
     inputFields = new PropertyInputField[nrFields];
   }
 
+  @Override
   public void setDefault() {
     shortFileFieldName = null;
     pathFieldName = null;
@@ -775,6 +779,7 @@ public class PropertyInputMeta extends BaseTransformMeta
     rowLimit = 0;
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -914,6 +919,7 @@ public class PropertyInputMeta extends BaseTransformMeta
         variables, fileName, fileMask, excludeFileMask, required, subdirs);
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -966,10 +972,12 @@ public class PropertyInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public PropertyInputData getTransformData() {
     return new PropertyInputData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
@@ -986,6 +994,7 @@ public class PropertyInputMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

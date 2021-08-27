@@ -123,6 +123,7 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     variables = new Variables();
   }
 
+  @Override
   public void run() {
     try {
       log = new LogChannel("HopImport");

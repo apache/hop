@@ -37,24 +37,29 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginP
     super(key, DEFAULT_INTEGER_VALUE);
   }
 
+  @Override
   public boolean evaluate() {
     final Integer value = this.getValue();
     return value != null && value != 0;
   }
 
+  @Override
   public void appendXml(final StringBuilder builder) {
     builder.append(XmlHandler.addTagValue(this.getKey(), this.getValue()));
   }
 
+  @Override
   public void loadXml(final Node node) {
     final Integer value = Integer.parseInt(XmlHandler.getTagValue(node, this.getKey()));
     this.setValue(value);
   }
 
+  @Override
   public void saveToPreferences(final Preferences node) {
     node.putInt(this.getKey(), this.getValue());
   }
 
+  @Override
   public void readFromPreferences(final Preferences node) {
     this.setValue(node.getInt(this.getKey(), this.getValue()));
   }

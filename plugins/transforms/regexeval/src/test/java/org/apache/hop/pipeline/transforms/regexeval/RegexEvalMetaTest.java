@@ -264,6 +264,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   }
 
   // Call the allocate method on the LoadSaveTester meta class
+  @Override
   public void modify(ITransform someMeta) {
     if (someMeta instanceof RegexEvalMeta) {
       ((RegexEvalMeta) someMeta).allocate(5);

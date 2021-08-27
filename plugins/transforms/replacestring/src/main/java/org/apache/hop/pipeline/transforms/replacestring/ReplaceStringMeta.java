@@ -232,6 +232,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
     this.isUnicode = isUnicode;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -250,6 +251,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
     isUnicode = new int[nrkeys];
   }
 
+  @Override
   public Object clone() {
     ReplaceStringMeta retval = (ReplaceStringMeta) super.clone();
     int nrkeys = fieldInStream.length;
@@ -331,6 +333,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
     return 0;
   }
 
+  @Override
   public void setDefault() {
     fieldInStream = null;
     fieldOutStream = null;
@@ -339,6 +342,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
     allocate(nrkeys);
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
 
@@ -387,6 +391,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
     return isUnicodeCode[i];
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -419,6 +424,7 @@ public class ReplaceStringMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -534,10 +540,12 @@ public class ReplaceStringMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public ReplaceStringData getTransformData() {
     return new ReplaceStringData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

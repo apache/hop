@@ -96,6 +96,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     input = (FuzzyMatchMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -106,6 +107,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setComboBoxesLookup();
@@ -220,8 +222,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wLookupField.setLayoutData(fdLookupField);
     wLookupField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             setLookupField();
           }
@@ -273,8 +277,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wMainStreamField.setLayoutData(fdMainStreamField);
     wMainStreamField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             setMainStreamField();
           }
@@ -325,6 +331,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wAlgorithm.setItems(FuzzyMatchMeta.algorithmDesc);
     wAlgorithm.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeAlgorithm();
           }
@@ -350,6 +357,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wCaseSensitive.setLayoutData(fdcaseSensitive);
     SelectionAdapter lcaseSensitive =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -377,6 +385,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wGetCloserValue.setLayoutData(fdgetCloserValue);
     SelectionAdapter lgetCloserValue =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activegetCloserValue();
             input.setChanged();

@@ -113,6 +113,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
       this.setEmptyString = setEmptyString;
     }
 
+    @Override
     public Fields clone() {
       try {
         return (Fields) super.clone();
@@ -171,6 +172,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
       this.setTypeEmptyString = setTypeEmptyString;
     }
 
+    @Override
     public ValueTypes clone() {
       try {
         return (ValueTypes) super.clone();
@@ -214,11 +216,13 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     this.setEmptyStringAll = setEmptyStringAll;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
   }
 
+  @Override
   public Object clone() {
     IfNullMeta retval = (IfNullMeta) super.clone();
 
@@ -337,6 +341,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -377,6 +382,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     return retval.toString();
   }
 
+  @Override
   public void setDefault() {
     replaceAllByValue = null;
     replaceAllMask = null;
@@ -408,6 +414,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     */
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -490,10 +497,12 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     }
   }
 
+  @Override
   public IfNullData getTransformData() {
     return new IfNullData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

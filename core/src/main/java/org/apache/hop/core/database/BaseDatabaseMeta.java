@@ -253,11 +253,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *
    * @return value of port
    */
+  @Override
   public String getPort() {
     return port;
   }
 
   /** @param port The port to set */
+  @Override
   public void setPort(String port) {
     this.port = port;
   }
@@ -1462,11 +1464,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /** @return true if the database is an Oracle variant. */
+  @Override
   public boolean isOracleVariant() {
     return false;
   }
 
   /** @return true if the database is an Netezza variant. */
+  @Override
   public boolean isNetezzaVariant() {
     return false;
   }

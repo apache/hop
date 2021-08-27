@@ -71,6 +71,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     HopLogStore.init();
   }
 
+  @Override
   @Before
   public void setUp() throws HopPluginException {
     listener = new StoreLoggingEventListener();

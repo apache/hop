@@ -113,11 +113,13 @@ public class SQLFileOutputMeta extends BaseTransformMeta
 
   private boolean DoNotOpenNewFileInit;
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
   }
 
+  @Override
   public Object clone() {
 
     SQLFileOutputMeta retval = (SQLFileOutputMeta) super.clone();
@@ -414,6 +416,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     databaseMeta = null;
     tableName = "";
@@ -421,6 +424,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     DoNotOpenNewFileInit = false;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -455,6 +459,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -648,6 +653,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public ITransform createTransform(
       TransformMeta transformMeta,
       SQLFileOutputData data,
@@ -657,10 +663,12 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     return new SQLFileOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SQLFileOutputData getTransformData() {
     return new SQLFileOutputData();
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
@@ -707,6 +715,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SqlStatement getSqlStatements(
       IVariables variables,
       PipelineMeta pipelineMeta,
@@ -754,6 +763,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
@@ -787,6 +797,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     if (databaseMeta != null) {
       return new DatabaseMeta[] {databaseMeta};
@@ -805,6 +816,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     this.schemaName = schemaName;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
@@ -821,6 +833,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

@@ -75,6 +75,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     input = (StreamLookupMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -85,6 +86,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setComboBoxesLookup();
@@ -226,6 +228,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wSortedList.setLayoutData(fdSortedList);
     wSortedList.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -249,6 +252,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wIntegerPair.setLayoutData(fdIntegerPair);
     wIntegerPair.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -272,6 +276,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wPreserveMemory.setLayoutData(fdPreserveMemory);
     wPreserveMemory.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

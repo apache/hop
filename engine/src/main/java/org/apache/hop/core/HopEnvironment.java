@@ -173,6 +173,7 @@ public class HopEnvironment {
     Runtime.getRuntime()
         .addShutdownHook(
             new Thread() {
+              @Override
               public void run() {
                 shutdown();
               }

@@ -133,11 +133,13 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionMssqlBulkLoad je = (ActionMssqlBulkLoad) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
 
@@ -177,6 +179,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -275,10 +278,12 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     String TakeFirstNbrLines = "";
     String LineTerminatedby = "";
@@ -569,6 +574,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return result;
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {
       connection,
@@ -579,6 +585,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     this.filename = filename;
   }
 
+  @Override
   public String getFilename() {
     return filename;
   }
@@ -747,6 +754,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return tablock;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

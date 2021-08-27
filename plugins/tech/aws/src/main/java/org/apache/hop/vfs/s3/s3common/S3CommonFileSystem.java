@@ -46,11 +46,13 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
     super(rootName, null, fileSystemOptions);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   protected void addCapabilities(Collection caps) {
     caps.addAll(S3CommonFileProvider.capabilities);
   }
 
+  @Override
   protected abstract FileObject createFile(AbstractFileName name) throws Exception;
 
   public AmazonS3 getS3Client() {

@@ -331,6 +331,7 @@ public class HttpPostMeta extends BaseTransformMeta
     remarks.add(cr);
   }
 
+  @Override
   public HttpPost createTransform(
       TransformMeta transformMeta,
       HttpPostData data,
@@ -340,6 +341,7 @@ public class HttpPostMeta extends BaseTransformMeta
     return new HttpPost(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public HttpPostData getTransformData() {
     return new HttpPostData();
   }

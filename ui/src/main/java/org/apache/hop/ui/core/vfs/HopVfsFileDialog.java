@@ -206,12 +206,14 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return instance;
   }
 
+  @Override
   public String open() {
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
     props.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             cancel();
           }
@@ -332,6 +334,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     final Menu menu = new Menu(wBookmarks);
     menu.addMenuListener(
         new MenuAdapter() {
+          @Override
           public void menuShown(MenuEvent event) {
             MenuItem[] items = menu.getItems();
             for (int i = 0; i < items.length; i++) {
@@ -461,6 +464,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     dragSource.addDragListener(
         new DragSourceAdapter() {
 
+          @Override
           public void dragStart(DragSourceEvent event) {
 
             TreeItem[] selection = wBrowser.getSelection();
@@ -469,6 +473,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             } else event.doit = false;
           }
 
+          @Override
           public void dragSetData(DragSourceEvent event) {
             // Set the data to be the first selected item's text
             TreeItem[] selection = wBrowser.getSelection();
@@ -1432,6 +1437,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /** @param text The text to set */
+  @Override
   public void setText(String text) {
     this.text = text;
   }
@@ -1476,6 +1482,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /** @param filterExtensions The filterExtensions to set */
+  @Override
   public void setFilterExtensions(String[] filterExtensions) {
     this.filterExtensions = filterExtensions;
   }
@@ -1490,6 +1497,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /** @param filterNames The filterNames to set */
+  @Override
   public void setFilterNames(String[] filterNames) {
     this.filterNames = filterNames;
   }
@@ -1547,6 +1555,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   /** @param filterPath The filterPath to set */
+  @Override
   public void setFilterPath(String filterPath) {
     this.filterPath = variables.resolve(filterPath);
   }

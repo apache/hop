@@ -94,11 +94,13 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     XsdValidator je = (XsdValidator) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuffer xml = new StringBuffer(50);
 
@@ -111,6 +113,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -134,6 +137,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     return resolve(getxsdFilename());
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -274,6 +278,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     this.allowExternalEntities = allowExternalEntities;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

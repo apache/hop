@@ -93,6 +93,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
     }
   }
 
+  @Override
   protected String[] doListChildren() throws Exception {
     String[] children = null;
     if (isFolder()) {
@@ -108,6 +109,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
     return children;
   }
 
+  @Override
   protected void doCreateFolder() throws Exception {
     if (!getName().getBaseName().isEmpty()) {
       File folder = new File();
@@ -121,20 +123,24 @@ public class GoogleDriveFileObject extends AbstractFileObject {
     }
   }
 
+  @Override
   protected void doDelete() throws Exception {
     driveService.files().delete(id).execute();
     id = null;
     mimeType = null;
   }
 
+  @Override
   protected long doGetContentSize() throws Exception {
     return -1;
   }
 
+  @Override
   protected FileType doGetType() throws Exception {
     return mimeType;
   }
 
+  @Override
   protected InputStream doGetInputStream() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     driveService.files().get(id).executeMediaAndDownloadTo(out);
@@ -142,6 +148,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
     return in;
   }
 
+  @Override
   protected OutputStream doGetOutputStream(boolean append) throws Exception {
     final File parent =
         getName().getParent() != null
@@ -149,6 +156,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
             : null;
     ByteArrayOutputStream out =
         new ByteArrayOutputStream() {
+          @Override
           public void close() throws IOException {
             File file = new File();
             file.setName(getName().getBaseName());
@@ -166,6 +174,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
     return out;
   }
 
+  @Override
   protected long doGetLastModifiedTime() throws Exception {
     return -1;
   }

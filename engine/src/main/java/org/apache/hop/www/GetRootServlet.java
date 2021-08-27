@@ -33,6 +33,7 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
 
   public GetRootServlet() {}
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getRequestURI().equals(CONTEXT_PATH)) {
@@ -76,10 +77,12 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
     return "Root IHandler";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

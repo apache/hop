@@ -425,11 +425,13 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
    *
    * @return value of name
    */
+  @Override
   public String getName() {
     return name;
   }
 
   /** @param name The name to set */
+  @Override
   public void setName(String name) {
     this.name = name;
   }

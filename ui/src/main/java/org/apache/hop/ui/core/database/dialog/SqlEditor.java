@@ -151,34 +151,41 @@ public class SqlEditor {
 
     wScript.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wScript.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wScript.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }

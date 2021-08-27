@@ -107,6 +107,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     input = (SQLFileOutputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -286,6 +287,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wAddCreate.setLayoutData(fdAddCreate);
     SelectionAdapter lsSelMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateTruncate();
             input.setChanged();
@@ -313,6 +315,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wTruncate.setLayoutData(fdTruncate);
     SelectionAdapter lsSelTMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -339,6 +342,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wStartNewLine.setLayoutData(fdStartNewLine);
     SelectionAdapter lsSelSMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -393,6 +397,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -419,6 +424,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -462,6 +468,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wAddTransformNr.setLayoutData(fdAddTransformNr);
     wAddTransformNr.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -485,6 +492,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -507,6 +515,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -531,6 +540,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -563,6 +573,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             SQLFileOutputMeta tfoi = new SQLFileOutputMeta();
             getInfo(tfoi);
@@ -608,6 +619,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -699,8 +711,10 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -734,6 +748,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     // Add listeners
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

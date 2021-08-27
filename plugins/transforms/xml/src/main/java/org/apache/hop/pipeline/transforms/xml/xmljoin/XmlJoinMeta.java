@@ -110,6 +110,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public Object clone() {
     XmlJoinMeta retval = (XmlJoinMeta) super.clone();
     return retval;
@@ -140,11 +141,13 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     }
   }
 
+  @Override
   public void setDefault() {
     // complexJoin = false;
     encoding = Const.XML_ENCODING;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -183,6 +186,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     row.addValueMeta(v);
   }
 
+  @Override
   public String getXml() {
     StringBuffer xml = new StringBuffer(500);
 
@@ -203,6 +207,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     return xml.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -366,6 +371,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
    * Returns the Input/Output metadata for this transform. The generator transform only produces
    * output, does not accept input!
    */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
@@ -401,6 +407,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     }
   }
 
+  @Override
   public void resetTransformIoMeta() {
     // Don't reset!
   }
@@ -481,6 +488,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     this.joinCompareField = joinCompareField;
   }
 
+  @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
   }

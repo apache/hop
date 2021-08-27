@@ -141,6 +141,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     jobModified = false;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

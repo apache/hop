@@ -162,6 +162,7 @@ public class SelectMetadataChange implements Cloneable {
     currencySymbol = XmlHandler.getTagValue(metaNode, "currency_symbol");
   }
 
+  @Override
   public SelectMetadataChange clone() {
     try {
       return (SelectMetadataChange) super.clone();

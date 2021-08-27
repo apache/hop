@@ -76,6 +76,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

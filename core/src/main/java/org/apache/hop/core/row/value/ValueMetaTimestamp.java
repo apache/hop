@@ -198,6 +198,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     }
   }
 
+  @Override
   public int compare(Object data1, Object data2) throws HopValueException {
     Timestamp timestamp1 = getTimestamp(data1);
     Timestamp timestamp2 = getTimestamp(data2);

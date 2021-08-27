@@ -62,6 +62,7 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
 
+  @Override
   public String getContextId() {
     return CONTEXT_ID;
   }

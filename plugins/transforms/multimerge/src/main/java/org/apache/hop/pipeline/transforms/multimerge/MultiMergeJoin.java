@@ -197,6 +197,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     return true;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     if (first) {
@@ -383,6 +384,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

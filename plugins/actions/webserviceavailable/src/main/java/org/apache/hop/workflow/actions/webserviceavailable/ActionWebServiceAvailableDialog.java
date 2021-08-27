@@ -69,6 +69,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

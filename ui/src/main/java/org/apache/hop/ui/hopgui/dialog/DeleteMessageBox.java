@@ -61,6 +61,7 @@ public class DeleteMessageBox extends MessageBox {
    *
    * @see org.eclipse.swt.widgets.MessageBox
    */
+  @Override
   public int open() {
     // Set the title
     setText(title);
@@ -89,5 +90,6 @@ public class DeleteMessageBox extends MessageBox {
   }
 
   /** Allow this class to subclass MessageBox */
+  @Override
   protected void checkSubclass() {}
 }

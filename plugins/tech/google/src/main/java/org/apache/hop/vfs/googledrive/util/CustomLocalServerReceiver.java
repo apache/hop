@@ -54,6 +54,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     this.url = url;
   }
 
+  @Override
   public String getRedirectUri() throws IOException {
     if (this.port == -1) {
       this.port = getUnusedPort();
@@ -80,10 +81,12 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     return "http://" + this.host + ":" + this.port + "/Callback/success.html";
   }
 
+  @Override
   public String waitForCode() throws IOException {
     return this.code;
   }
 
+  @Override
   public void stop() throws IOException {
     if (this.server != null) {
       try {
@@ -126,6 +129,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
       setContextPath("/Callback");
     }
 
+    @Override
     public void handle(
         String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
         throws IOException, ServletException {

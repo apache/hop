@@ -47,6 +47,7 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     input = (BeamBigtableInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

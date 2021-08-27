@@ -45,11 +45,13 @@ public class GoogleDriveFileProvider extends AbstractOriginatingFileProvider {
                 Capability.RANDOM_ACCESS_READ
               }));
 
+  @Override
   public FileSystem doCreateFileSystem(FileName fileName, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
     return new GoogleDriveFileSystem(fileName, fileSystemOptions);
   }
 
+  @Override
   public Collection<Capability> getCapabilities() {
     return capabilities;
   }

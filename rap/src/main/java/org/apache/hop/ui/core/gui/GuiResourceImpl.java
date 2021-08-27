@@ -21,6 +21,7 @@ import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.eclipse.rap.rwt.SingletonUtil;
 
 public class GuiResourceImpl implements ISingletonProvider {
+  @Override
   public Object getInstanceInternal() {
     return SingletonUtil.getSessionInstance(GuiResource.class);
   }

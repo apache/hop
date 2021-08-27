@@ -56,6 +56,7 @@ public class HopServerObjectEntry
     return id.hashCode();
   }
 
+  @Override
   public int compare(HopServerObjectEntry o1, HopServerObjectEntry o2) {
     int cmpName = o1.getName().compareTo(o2.getName());
     if (cmpName != 0) {
@@ -65,6 +66,7 @@ public class HopServerObjectEntry
     return o1.getId().compareTo(o2.getId());
   }
 
+  @Override
   public int compareTo(HopServerObjectEntry o) {
     return compare(this, o);
   }

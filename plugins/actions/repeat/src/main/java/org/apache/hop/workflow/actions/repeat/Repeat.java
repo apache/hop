@@ -555,6 +555,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return new String[] {referenceDescription};
   }
 
+  @Override
   public boolean[] isReferencedObjectEnabled() {
     return new boolean[] {StringUtils.isNotEmpty(filename)};
   }

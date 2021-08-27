@@ -82,6 +82,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -139,6 +140,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     wAllowExternalEntities.setLayoutData(fdAllowExternalEntities);
     wAllowExternalEntities.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -175,6 +177,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
     wbxmlFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
@@ -220,6 +223,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
     wbxsdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.xsd;*.XSD", "*"});

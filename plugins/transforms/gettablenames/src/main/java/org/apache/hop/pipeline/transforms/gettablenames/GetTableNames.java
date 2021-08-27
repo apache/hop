@@ -66,6 +66,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (meta.isDynamicSchema()) {
       // Grab one row from previous transform ...
@@ -395,6 +396,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -452,6 +454,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.db != null) {
       data.db.disconnect();

@@ -71,6 +71,7 @@ public class MockDriver implements Driver {
             new Answer<Boolean>() {
               private int count = 0;
 
+              @Override
               public Boolean answer(org.mockito.invocation.InvocationOnMock invocation)
                   throws Throwable {
                 return count++ == 0;

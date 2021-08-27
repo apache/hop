@@ -62,6 +62,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     input = (FileExistsMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -131,10 +132,12 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wFileName.setLayoutData(fdFileName);
     wFileName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do nothing on focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

@@ -82,11 +82,13 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionSql je = (ActionSql) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(200);
 
@@ -111,6 +113,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -189,6 +192,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return connection;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
 
@@ -291,16 +295,19 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return true;
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {
       connection,
     };
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

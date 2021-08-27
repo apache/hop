@@ -62,11 +62,13 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
     this("", "");
   }
 
+  @Override
   public Object clone() {
     ActionMsgBoxInfo je = (ActionMsgBoxInfo) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -77,6 +79,7 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -119,11 +122,13 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
    * @param prevResult The result of the previous execution
    * @return The Result of the execution.
    */
+  @Override
   public Result execute(Result prevResult, int nr) {
     prevResult.setResult(evaluate(prevResult));
     return prevResult;
   }
 
+  @Override
   public boolean resetErrorsBeforeExecution() {
     // we should be able to evaluate the errors in
     // the previous action.
@@ -135,6 +140,7 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }

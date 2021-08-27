@@ -31,10 +31,12 @@ public class LongValidator implements IActionValidator {
 
   private String VALIDATOR_NAME = "long";
 
+  @Override
   public String getName() {
     return VALIDATOR_NAME;
   }
 
+  @Override
   public boolean validate(
       ICheckResultSource source,
       String propertyName,

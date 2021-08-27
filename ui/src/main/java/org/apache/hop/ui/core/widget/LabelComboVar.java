@@ -130,15 +130,18 @@ public class LabelComboVar extends Composite {
     wCombo.select(index);
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wCombo.setEnabled(flag);
     wLabel.setEnabled(flag);
   }
 
+  @Override
   public boolean setFocus() {
     return wCombo.setFocus();
   }
 
+  @Override
   public void addTraverseListener(TraverseListener tl) {
     wCombo.addTraverseListener(tl);
   }

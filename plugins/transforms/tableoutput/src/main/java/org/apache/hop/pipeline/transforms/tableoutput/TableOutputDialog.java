@@ -132,6 +132,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   }
 
   /** Open the dialog. */
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -397,10 +398,12 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wPartField.setLayoutData(fdPartField);
     wPartField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do nothing on focuslost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -538,10 +541,12 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wNameField.setLayoutData(fdNameField);
     wNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do nothing on focuslost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

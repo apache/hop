@@ -68,6 +68,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
     super(transformMeta, meta, data, copyNr, pipelineMeta, trans);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] row = getRow();
@@ -340,6 +341,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -349,6 +351,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
     return false;
   }
 
+  @Override
   public void dispose() {
 
     super.dispose();

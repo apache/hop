@@ -63,6 +63,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (first && !meta.isFileField()) {
       data.files = meta.getFiles(this);
@@ -544,6 +545,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     return rowData;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -567,6 +569,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.readrow != null) {

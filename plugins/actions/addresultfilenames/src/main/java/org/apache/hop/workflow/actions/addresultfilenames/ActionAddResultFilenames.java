@@ -90,11 +90,13 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionAddResultFilenames je = (ActionAddResultFilenames) super.clone();
     return je;
   }
 
+  @Override
   public Result execute(Result result, int nr) throws HopException {
     List<RowMetaAndData> rows = result.getRows();
     RowMetaAndData resultRow;
@@ -269,6 +271,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
       try {
@@ -297,6 +300,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       return returncode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }
@@ -336,10 +340,12 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     this.deleteAllBefore = deleteallbefore;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

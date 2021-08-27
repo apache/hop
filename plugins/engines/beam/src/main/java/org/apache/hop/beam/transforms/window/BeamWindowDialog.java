@@ -54,6 +54,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     input = (BeamWindowMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

@@ -159,6 +159,7 @@ public class EnterSearchDialog {
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             ok();
           }
@@ -168,6 +169,7 @@ public class EnterSearchDialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             cancel();
           }

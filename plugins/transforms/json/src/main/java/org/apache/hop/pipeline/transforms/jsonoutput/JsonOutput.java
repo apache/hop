@@ -74,6 +74,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
 
   @SuppressWarnings("unchecked")
   private class CompatibilityMode implements CompatibilityFactory {
+    @Override
     public void execute(Object[] row) throws HopException {
 
       for (int i = 0; i < data.nrFields; i++) {
@@ -129,6 +130,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
 
   @SuppressWarnings("unchecked")
   private class FixedMode implements CompatibilityFactory {
+    @Override
     public void execute(Object[] row) throws HopException {
 
       // Create a new object with specified fields
@@ -184,6 +186,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
 
   private CompatibilityFactory compatibilityFactory;
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // This also waits for a row to be finished.
     if (r == null) {
@@ -264,6 +267,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     data.ja = new JSONArray();
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -305,6 +309,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.ja != null) {
       data.ja = null;

@@ -183,6 +183,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     return outputRowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] row = getRowSorted(); // get row, sorted
@@ -201,6 +202,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

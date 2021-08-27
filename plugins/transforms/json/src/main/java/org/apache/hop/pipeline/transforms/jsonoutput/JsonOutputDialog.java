@@ -113,6 +113,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -200,6 +201,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wOperation.setItems(JsonOutputMeta.operationTypeDesc);
     wOperation.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             updateOperation();
           }
@@ -296,6 +298,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wCompatibilityMode.setLayoutData(fdCompatibilityMode);
     wCompatibilityMode.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -386,6 +389,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -412,6 +416,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -438,6 +443,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -481,8 +487,10 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -510,6 +518,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -532,6 +541,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -546,6 +556,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             JsonOutputMeta tfoi = new JsonOutputMeta();
             getInfo(tfoi);
@@ -590,6 +601,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

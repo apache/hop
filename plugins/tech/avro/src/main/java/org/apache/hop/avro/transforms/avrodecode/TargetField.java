@@ -77,6 +77,7 @@ public class TargetField {
     this.targetPrecision = f.targetPrecision;
   }
 
+  @Override
   public TargetField clone() {
     return new TargetField(this);
   }

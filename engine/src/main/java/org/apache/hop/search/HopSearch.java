@@ -81,6 +81,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     searchablesLocations = new ArrayList<>();
   }
 
+  @Override
   public void run() {
 
     try {

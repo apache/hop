@@ -72,6 +72,7 @@ public class JavaFilterMeta extends BaseTransformMeta
 
   public void allocate(int nrCalcs) {}
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
@@ -82,6 +83,7 @@ public class JavaFilterMeta extends BaseTransformMeta
     condition = XmlHandler.getTagValue(transformNode, "condition");
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -108,11 +110,13 @@ public class JavaFilterMeta extends BaseTransformMeta
     return Objects.hash(getTransformIOMeta().getTargetStreams(), condition);
   }
 
+  @Override
   public Object clone() {
     JavaFilterMeta retval = (JavaFilterMeta) super.clone();
     return retval;
   }
 
+  @Override
   public void setDefault() {
     condition = "true";
   }
@@ -126,6 +130,7 @@ public class JavaFilterMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -258,11 +263,13 @@ public class JavaFilterMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public JavaFilterData getTransformData() {
     return new JavaFilterData();
   }
 
   /** Returns the Input/Output metadata for this transform. */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {

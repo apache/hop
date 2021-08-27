@@ -56,6 +56,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     super(hopGui, manager, connection);
   }
 
+  @Override
   public void createControl(Composite parent) {
     PropsUi props = PropsUi.getInstance();
     int middle = props.getMiddlePct();

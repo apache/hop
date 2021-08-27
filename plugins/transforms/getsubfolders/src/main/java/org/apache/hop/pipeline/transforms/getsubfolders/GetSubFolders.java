@@ -70,6 +70,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     if (meta.isFoldernameDynamic() && (data.filenr >= data.filessize)) {
@@ -246,6 +247,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -265,6 +267,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.file != null) {
       try {

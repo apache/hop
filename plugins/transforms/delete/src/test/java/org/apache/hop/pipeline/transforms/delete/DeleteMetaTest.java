@@ -92,28 +92,28 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(DeleteLookupField.class),
-        new ObjectValidator<DeleteLookupField>(
-            validatorFactory,
-            DeleteLookupField.class,
-            Arrays.asList("schema", "table", "key"),
-            new HashMap<String, String>() {
-              {
-                put("table", "getTableName");
-                put("schema", "getSchemaName");
-                put("key", "getFields");
-              }
-            },
-            new HashMap<String, String>() {
-              {
-                put("table", "setTableName");
-                put("schema", "setSchemaName");
-                put("key", "setFields");
-              }
-            }));
+            new ObjectValidator<>(
+                    validatorFactory,
+                    DeleteLookupField.class,
+                    Arrays.asList("schema", "table", "key"),
+                    new HashMap<String, String>() {
+                      {
+                        put("table", "getTableName");
+                        put("schema", "getSchemaName");
+                        put("key", "getFields");
+                      }
+                    },
+                    new HashMap<String, String>() {
+                      {
+                        put("table", "setTableName");
+                        put("schema", "setSchemaName");
+                        put("key", "setFields");
+                      }
+                    }));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, DeleteKeyField.class),
-        new ListLoadSaveValidator<DeleteKeyField>(new DeleteKeyFieldInputFieldLoadSaveValidator()));
+            new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator()));
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -203,7 +203,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
           new DeleteLookupField(
               UUID.randomUUID().toString(),
               UUID.randomUUID().toString(),
-              new ArrayList<DeleteKeyField>());
+                  new ArrayList<>());
 
       return field;
     }

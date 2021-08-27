@@ -105,6 +105,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
    *
    * @see org.apache.hop.pipeline.transform.ITransformDialog#open()
    */
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -385,6 +386,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     getKeyButton.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             BaseTransformDialog.getFieldsFromPrevious(
                 prev, wKeys, 1, new int[] {1}, new int[] {}, -1, -1, null);
@@ -398,6 +400,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
 
     okButton.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             int nrKeys = wKeys.nrNonEmpty();
             StringBuilder sb = new StringBuilder();

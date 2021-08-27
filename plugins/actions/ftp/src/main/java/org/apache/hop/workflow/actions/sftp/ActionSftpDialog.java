@@ -123,6 +123,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -298,6 +299,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     wUsePublicKey.setLayoutData(fdUsePublicKey);
     wUsePublicKey.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeUseKey();
             action.setChanged();
@@ -378,6 +380,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     wProxyType.setLayoutData(fdProxyType);
     wProxyType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setDefaultProxyPort();
           }
@@ -556,6 +559,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     wGetPrevious.setLayoutData(fdGetPrevious);
     wGetPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeCopyFromPrevious();
             action.setChanged();

@@ -68,6 +68,7 @@ public class GPG {
       this.stream = new StringBuilder();
     }
 
+    @Override
     public void run() {
       try {
         int read;

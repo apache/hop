@@ -35,6 +35,7 @@ public class NotNullValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "notNull";
 
+  @Override
   public boolean validate(
       ICheckResultSource source,
       String propertyName,
@@ -64,6 +65,7 @@ public class NotNullValidator implements IActionValidator {
     return false;
   }
 
+  @Override
   public String getName() {
     return VALIDATOR_NAME;
   }

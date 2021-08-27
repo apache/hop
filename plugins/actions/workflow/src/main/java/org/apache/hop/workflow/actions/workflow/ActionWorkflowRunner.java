@@ -51,6 +51,7 @@ public class ActionWorkflowRunner implements Runnable {
     finished = false;
   }
 
+  @Override
   public void run() {
     try {
       if (workflow.isStopped()

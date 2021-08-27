@@ -112,6 +112,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -127,6 +128,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTableFieldCombo();
@@ -134,6 +136,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
         };
     SelectionListener lsSimpleSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -318,6 +321,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wTablenameInField.setLayoutData(fdTablenameInField);
     wTablenameInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeTablenameField();
             input.setChanged();
@@ -344,8 +348,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wTableField.setLayoutData(fdTableField);
     wTableField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -575,8 +581,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wOperationField.setLayoutData(fdOperationField);
     wOperationField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -710,12 +718,14 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

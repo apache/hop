@@ -239,6 +239,7 @@ public class SwitchCaseTest {
      *
      * @throws HopException
      */
+    @Override
     public boolean processRow() throws HopException {
       boolean run = false;
       do {

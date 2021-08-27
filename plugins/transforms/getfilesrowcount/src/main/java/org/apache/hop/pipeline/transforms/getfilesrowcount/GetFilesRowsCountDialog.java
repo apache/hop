@@ -94,6 +94,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     input = (GetFilesRowsCountMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -196,6 +197,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wFileField.setLayoutData(fdFileField);
     SelectionAdapter lsFileField =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateFileField();
             input.setChanged();
@@ -225,8 +227,10 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wFilenameField.setLayoutData(fdFilenameField);
     wFilenameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -534,6 +538,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     wRowSeparatorFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeRowSeparator();
           }
@@ -724,6 +729,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
                 new String[] {
@@ -747,6 +753,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -759,6 +766,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -777,6 +785,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             try {
               GetFilesRowsCountMeta tfii = new GetFilesRowsCountMeta();
@@ -818,6 +827,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Enable/disable the right fields to allow a row number to be added to each row...
     wInclFilesCount.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeRownum();
             input.setChanged();

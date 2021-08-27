@@ -66,6 +66,7 @@ public class DatabaseFactory implements IDatabaseFactory {
     return report.toString();
   }
 
+  @Override
   public DatabaseTestResults getConnectionTestResults(
       IVariables variables, DatabaseMeta databaseMeta) throws HopDatabaseException {
     DatabaseTestResults databaseTestResults = new DatabaseTestResults();

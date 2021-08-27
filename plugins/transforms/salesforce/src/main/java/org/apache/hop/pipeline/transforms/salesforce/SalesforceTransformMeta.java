@@ -66,6 +66,7 @@ public abstract class SalesforceTransformMeta<
   @Injection(name = "MODULE")
   private String module;
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append("    ").append(XmlHandler.addTagValue("targeturl", getTargetUrl()));
@@ -81,6 +82,7 @@ public abstract class SalesforceTransformMeta<
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     setTargetUrl(XmlHandler.getTagValue(transformNode, "targeturl"));
@@ -92,11 +94,13 @@ public abstract class SalesforceTransformMeta<
     setModule(XmlHandler.getTagValue(transformNode, "module"));
   }
 
+  @Override
   public Object clone() {
     SalesforceTransformMeta retval = (SalesforceTransformMeta) super.clone();
     return retval;
   }
 
+  @Override
   public void setDefault() {
     setTargetUrl(SalesforceConnectionUtils.TARGET_DEFAULT_URL);
     setUsername("");

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 public class SingleBytePatternMatcher implements IPatternMatcher {
 
+  @Override
   public boolean matchesPattern(byte[] source, int location, byte[] pattern) {
     return source[location] == pattern[0];
   }

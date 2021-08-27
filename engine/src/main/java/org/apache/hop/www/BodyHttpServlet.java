@@ -42,6 +42,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     return "Y".equalsIgnoreCase(request.getParameter("xml"));
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(getContextPath())) {
       return;

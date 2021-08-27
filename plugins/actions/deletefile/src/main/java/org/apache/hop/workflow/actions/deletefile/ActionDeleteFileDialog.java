@@ -72,6 +72,7 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -166,6 +167,7 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     wAbortExists.setLayoutData(fdAbortExists);
     wAbortExists.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

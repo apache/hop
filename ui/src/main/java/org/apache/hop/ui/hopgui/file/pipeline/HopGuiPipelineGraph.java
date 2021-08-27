@@ -1788,6 +1788,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     redraw();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_IN,
@@ -1798,6 +1799,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     super.zoomIn();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_OUT,
@@ -1808,6 +1810,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     super.zoomOut();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_100PCT,
@@ -1853,6 +1856,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void setZoomLabel() {
     Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
     if (combo == null || combo.isDisposed()) {
@@ -1894,6 +1898,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     redraw();
   }
 
+  @Override
   public void adjustScrolling() {
     // What's the new canvas size?
     //
@@ -3697,6 +3702,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
   public void close() {
     perspective.remove(this);
   }
@@ -4934,6 +4940,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    *
    * @return value of fileType
    */
+  @Override
   public HopPipelineFileType<PipelineMeta> getFileType() {
     return fileType;
   }
@@ -5051,6 +5058,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             });
   }
 
+  @Override
   public boolean forceFocus() {
     return canvas.forceFocus();
   }

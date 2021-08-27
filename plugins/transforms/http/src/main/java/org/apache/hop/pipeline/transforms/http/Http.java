@@ -294,6 +294,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData>
     return response.getAllHeaders();
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -390,6 +391,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

@@ -112,6 +112,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -173,6 +174,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAction.setLayoutData(fdAction);
     wAction.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             enableAction();
             action.setChanged();
@@ -236,6 +238,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wCreateDestinationFolder.setLayoutData(fdCreateDestinationFolder);
     wCreateDestinationFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -262,6 +265,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wOverwriteFile.setLayoutData(fdOverwriteFile);
     wOverwriteFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -288,6 +292,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wRemovedSourceFilename.setLayoutData(fdRemovedSourceFilename);
     wRemovedSourceFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -315,6 +320,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddDestinationFilename.setLayoutData(fdAddDestinationFilename);
     wAddDestinationFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -340,6 +346,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddDateBeforeExtension();
@@ -365,6 +372,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddDateBeforeExtension();
@@ -392,6 +400,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTimeFormat();
@@ -447,6 +456,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddDateBeforeExtension.setLayoutData(fdAddDateBeforeExtension);
     wAddDateBeforeExtension.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             CheckLimit();
@@ -489,6 +499,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wSpecifyWildcard.setLayoutData(fdSpecifyWildcard);
     wSpecifyWildcard.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             CheckLimit();
@@ -597,6 +608,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }

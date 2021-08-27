@@ -38,6 +38,7 @@ public class MissingTransform extends Dummy {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       logError(BaseMessages.getString(PKG, "MissingPipelineTransform.Log.CannotRunPipeline"));

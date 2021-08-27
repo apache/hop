@@ -56,6 +56,7 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
     this.action = (ActionDummy) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

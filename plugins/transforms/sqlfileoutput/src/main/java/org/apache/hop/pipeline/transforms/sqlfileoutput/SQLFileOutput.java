@@ -54,6 +54,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
@@ -273,6 +274,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
     return retval;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

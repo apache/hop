@@ -146,6 +146,7 @@ public class GraphData {
     return toJson().toJSONString();
   }
 
+  @Override
   public GraphData clone() {
     return new GraphData(this);
   }

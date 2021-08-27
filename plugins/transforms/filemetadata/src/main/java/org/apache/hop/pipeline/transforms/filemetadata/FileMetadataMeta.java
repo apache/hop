@@ -88,6 +88,7 @@ public class FileMetadataMeta extends BaseTransformMeta
    * transform configuration to sensible defaults. The values set here will be used by Spoon when a
    * new transform is created.
    */
+  @Override
   public void setDefault() {
     fileName = "";
     limitRows = "10000";
@@ -110,6 +111,7 @@ public class FileMetadataMeta extends BaseTransformMeta
    *
    * @return a deep copy of this
    */
+  @Override
   public Object clone() {
     FileMetadataMeta copy = (FileMetadataMeta) super.clone();
     copy.setDelimiterCandidates(new ArrayList<>(this.delimiterCandidates));
@@ -132,6 +134,7 @@ public class FileMetadataMeta extends BaseTransformMeta
     return new FileMetadataData();
   }
 
+  @Override
   public String getXml() throws HopValueException {
 
     StringBuilder buffer = new StringBuilder(800);
@@ -163,6 +166,7 @@ public class FileMetadataMeta extends BaseTransformMeta
    * @param transformNode the XML node containing the configuration
    * @param metadataProvider the metadata provider
    */
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
 

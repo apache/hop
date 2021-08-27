@@ -69,6 +69,7 @@ public class CubeOutputMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -104,6 +105,7 @@ public class CubeOutputMeta extends BaseTransformMeta
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
+  @Override
   public Object clone() {
     CubeOutputMeta retval = (CubeOutputMeta) super.clone();
 
@@ -128,12 +130,14 @@ public class CubeOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     filename = "file.cube";
     addToResultFilenames = false;
     doNotOpenNewFileInit = false;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -151,6 +155,7 @@ public class CubeOutputMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -182,6 +187,7 @@ public class CubeOutputMeta extends BaseTransformMeta
     remarks.add(cr);
   }
 
+  @Override
   public CubeOutput createTransform(
       TransformMeta transformMeta,
       CubeOutputData data,
@@ -191,6 +197,7 @@ public class CubeOutputMeta extends BaseTransformMeta
     return new CubeOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public CubeOutputData getTransformData() {
     return new CubeOutputData();
   }
@@ -202,6 +209,7 @@ public class CubeOutputMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

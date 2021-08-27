@@ -157,6 +157,7 @@ public class WebServiceMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public WebServiceMeta clone() {
     WebServiceMeta retval = (WebServiceMeta) super.clone();
     retval.fieldsIn = new ArrayList<>();
@@ -170,10 +171,12 @@ public class WebServiceMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public void setDefault() {
     passingInputData = true; // Pass input data by default.
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -219,6 +222,7 @@ public class WebServiceMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -278,6 +282,7 @@ public class WebServiceMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     // Load the URL
@@ -359,6 +364,7 @@ public class WebServiceMeta extends BaseTransformMeta
     return new WebService(transformMeta, this, data, cnr, pipelineMeta, disp);
   }
 
+  @Override
   public WebServiceData getTransformData() {
     return new WebServiceData();
   }

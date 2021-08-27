@@ -95,18 +95,21 @@ public class SalesforceDeleteMeta
     return Const.toInt(this.batchSize, 10);
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     SalesforceDeleteMeta retval = (SalesforceDeleteMeta) super.clone();
 
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(super.getXml());
     retval.append("    " + XmlHandler.addTagValue("DeleteField", getDeleteField()));
@@ -130,6 +133,7 @@ public class SalesforceDeleteMeta
     }
   }
 
+  @Override
   public void setDefault() {
     super.setDefault();
     setModule("Account");
@@ -139,6 +143,7 @@ public class SalesforceDeleteMeta
   }
 
   /* This function adds meta data to the rows being pushed out */
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -203,6 +208,7 @@ public class SalesforceDeleteMeta
     return new SalesforceDeleteData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

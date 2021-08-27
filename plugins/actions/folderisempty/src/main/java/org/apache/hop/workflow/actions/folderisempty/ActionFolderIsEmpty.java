@@ -81,11 +81,13 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionFolderIsEmpty je = (ActionFolderIsEmpty) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -98,6 +100,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -152,6 +155,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     this.includeSubfolders = includeSubfolders;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     boolean oldBehavior =
         "Y"
@@ -240,6 +244,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) throws ExpectedException {
       boolean returncode = false;
       FileObject filename = null;
@@ -306,6 +311,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
       return returncode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }

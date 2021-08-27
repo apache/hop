@@ -122,17 +122,20 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     return notvalidmsg;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     CreditCardValidatorMeta retval = (CreditCardValidatorMeta) super.clone();
 
     return retval;
   }
 
+  @Override
   public void setDefault() {
     resultfieldname = "result";
     onlydigits = false;
@@ -140,6 +143,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     notvalidmsg = "not valid message";
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -168,6 +172,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -196,6 +201,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -250,6 +256,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public CreditCardValidator createTransform(
       TransformMeta transformMeta,
       CreditCardValidatorData data,
@@ -259,10 +266,12 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     return new CreditCardValidator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public CreditCardValidatorData getTransformData() {
     return new CreditCardValidatorData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

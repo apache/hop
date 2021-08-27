@@ -53,6 +53,7 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
     input = (CubeInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

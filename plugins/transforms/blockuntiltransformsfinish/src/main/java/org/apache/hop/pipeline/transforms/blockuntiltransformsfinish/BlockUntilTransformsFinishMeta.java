@@ -60,6 +60,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     blockingTransforms = new ArrayList<>();
   }
 
+  @Override
   public BlockUntilTransformsFinishMeta clone() {
     BlockUntilTransformsFinishMeta meta = new BlockUntilTransformsFinishMeta();
     for (BlockingTransform blockingTransform : blockingTransforms) {
@@ -68,6 +69,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     return meta;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -126,6 +128,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     remarks.add(cr);
   }
 
+  @Override
   public BlockUntilTransformsFinish createTransform(
       TransformMeta transformMeta,
       BlockUntilTransformsFinishData data,
@@ -135,10 +138,12 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     return new BlockUntilTransformsFinish(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public BlockUntilTransformsFinishData getTransformData() {
     return new BlockUntilTransformsFinishData();
   }
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,

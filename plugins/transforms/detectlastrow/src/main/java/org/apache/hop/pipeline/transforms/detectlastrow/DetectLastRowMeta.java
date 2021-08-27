@@ -65,21 +65,25 @@ public class DetectLastRowMeta extends BaseTransformMeta
     this.resultfieldname = resultfieldname;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     DetectLastRowMeta retval = (DetectLastRowMeta) super.clone();
 
     return retval;
   }
 
+  @Override
   public void setDefault() {
     resultfieldname = "result";
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -96,6 +100,7 @@ public class DetectLastRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
@@ -111,6 +116,7 @@ public class DetectLastRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -154,6 +160,7 @@ public class DetectLastRowMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public DetectLastRow createTransform(
       TransformMeta transformMeta,
       DetectLastRowData data,
@@ -163,10 +170,12 @@ public class DetectLastRowMeta extends BaseTransformMeta
     return new DetectLastRow(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public DetectLastRowData getTransformData() {
     return new DetectLastRowData();
   }
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,

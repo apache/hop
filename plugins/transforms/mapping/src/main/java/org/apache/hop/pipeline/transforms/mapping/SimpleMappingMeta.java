@@ -84,6 +84,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     mappingParameters = new MappingParameters();
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     try {
@@ -125,11 +126,13 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     }
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -154,6 +157,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return retval.toString();
   }
 
+  @Override
   public void setDefault() {
 
     MappingIODefinition inputDefinition = new MappingIODefinition(null, null);
@@ -166,6 +170,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     outputMapping = outputDefinition;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String origin,
@@ -262,6 +267,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return null;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -309,6 +315,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     }
   }
 
+  @Override
   public SimpleMapping createTransform(
       TransformMeta transformMeta,
       SimpleMappingData data,
@@ -318,6 +325,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return new SimpleMapping(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public SimpleMappingData getTransformData() {
     return new SimpleMappingData();
   }
@@ -359,6 +367,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return ioMeta;
   }
 
+  @Override
   public boolean excludeFromRowLayoutVerification() {
     return false;
   }
@@ -366,6 +375,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {}
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,
@@ -375,6 +385,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   /**
    * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
+  @Override
   public String[] getReferencedObjectDescriptions() {
     return new String[] {
       BaseMessages.getString(PKG, "SimpleMappingMeta.ReferencedObject.Description"),
@@ -385,6 +396,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return StringUtils.isNotEmpty(filename);
   }
 
+  @Override
   public boolean[] isReferencedObjectEnabled() {
     return new boolean[] {
       isMapppingDefined(),
@@ -400,6 +412,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
    * @return the referenced object once loaded
    * @throws HopException
    */
+  @Override
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return loadMappingMeta(this, metadataProvider, variables);

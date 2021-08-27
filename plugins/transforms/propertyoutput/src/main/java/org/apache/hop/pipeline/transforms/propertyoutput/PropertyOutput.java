@@ -54,6 +54,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
@@ -296,6 +297,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
     return meta.buildFilename(this, getCopy());
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -304,6 +306,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
     return false;
   }
 
+  @Override
   public void dispose() {
 
     closeFile();

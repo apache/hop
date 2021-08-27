@@ -70,6 +70,7 @@ public class HopGuiLogBrowser {
     final Timer logRefreshTimer = new Timer("log sniffer Timer");
     TimerTask timerTask =
         new TimerTask() {
+          @Override
           public void run() {
             if (text.isDisposed() || text.getDisplay().isDisposed()) {
               return;
@@ -190,6 +191,7 @@ public class HopGuiLogBrowser {
     item.setText(BaseMessages.getString(PKG, "LogBrowser.CopySelectionToClipboard.MenuItem"));
     item.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent event) {
             String selection = text.getSelectionText();
             if (!Utils.isEmpty(selection)) {
@@ -201,6 +203,7 @@ public class HopGuiLogBrowser {
 
     text.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDown(MouseEvent event) {
             if (event.button == 3) {
               ConstUi.displayMenu(menu, text);

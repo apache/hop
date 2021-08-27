@@ -44,6 +44,7 @@ public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
   }
 
   /** Column number where the input value is stored */
+  @Override
   public boolean processRow() throws HopException {
     Object[] row = getRow();
     if (row == null) {
@@ -107,10 +108,12 @@ public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
     return true;
   }
 
+  @Override
   public boolean init() {
     return super.init();
   }
 
+  @Override
   public void dispose() {
     super.dispose();
   }

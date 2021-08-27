@@ -219,6 +219,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     this.urlField = urlField;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
@@ -231,6 +232,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     headerParameter = new String[nrqueryparams];
   }
 
+  @Override
   public Object clone() {
     HttpMeta retval = (HttpMeta) super.clone();
     int nrargs = argumentField.length;
@@ -246,6 +248,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     return retval;
   }
 
+  @Override
   public void setDefault() {
     socketTimeout = String.valueOf(DEFAULT_SOCKET_TIMEOUT);
     connectionTimeout = String.valueOf(DEFAULT_CONNECTION_TIMEOUT);
@@ -275,6 +278,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     encoding = "UTF-8";
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -306,6 +310,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -403,6 +408,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -465,6 +471,7 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     remarks.add(cr);
   }
 
+  @Override
   public Http createTransform(
       TransformMeta transformMeta,
       HttpData data,
@@ -474,10 +481,12 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     return new Http(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public HttpData getTransformData() {
     return new HttpData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

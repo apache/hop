@@ -129,6 +129,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -229,6 +230,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wArgsPrevious.setLayoutData(fdArgsPrevious);
     wArgsPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setArgdPrevious();
             action.setChanged();
@@ -356,6 +358,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wRootZip.setLayoutData(fdRootZip);
     wRootZip.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -415,6 +418,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wCreateFolder.setLayoutData(fdCreateFolder);
     wCreateFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -485,6 +489,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTime();
@@ -509,6 +514,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTime();
@@ -534,6 +540,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTimeFormat();
@@ -585,6 +592,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddOriginalTimestamp.setLayoutData(fdAddOriginalTimestamp);
     wAddOriginalTimestamp.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -612,6 +620,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wSetModificationDateToOriginal.setLayoutData(fdSetModificationDateToOriginal);
     wSetModificationDateToOriginal.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -638,6 +647,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     wIfFileExists.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -666,6 +676,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     wAfterUnZip.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             afterUnZipActivate();
           }
@@ -727,6 +738,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wCreateMoveToDirectory.setLayoutData(fdCreateMoveToDirectory);
     wCreateMoveToDirectory.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -805,6 +817,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -858,6 +871,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }

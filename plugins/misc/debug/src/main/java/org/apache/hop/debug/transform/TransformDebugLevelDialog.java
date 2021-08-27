@@ -156,6 +156,7 @@ public class TransformDebugLevelDialog extends Dialog {
 
     SelectionAdapter selAdapter =
         new SelectionAdapter() {
+          @Override
           public void widgetDefaultSelected(SelectionEvent e) {
             ok();
           }

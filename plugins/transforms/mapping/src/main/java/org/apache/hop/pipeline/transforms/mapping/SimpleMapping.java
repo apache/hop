@@ -62,6 +62,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
    * the time being, there can only be one MappingInput and one MappingOutput transform in the
    * Mapping.
    */
+  @Override
   public boolean processRow() throws HopException {
 
     try {
@@ -232,6 +233,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     return list;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -263,6 +265,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     return false;
   }
 
+  @Override
   public void dispose() {
     // Close the running pipeline
     if (data.wasStarted) {
@@ -283,12 +286,14 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     super.dispose();
   }
 
+  @Override
   public void stopRunning() {
     if (data.mappingPipeline != null) {
       data.mappingPipeline.stopAll();
     }
   }
 
+  @Override
   public void stopAll() {
     // Stop the mapping transform.
     if (data.mappingPipeline != null) {

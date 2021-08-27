@@ -82,6 +82,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -216,6 +217,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wUseDetachedSignature.setLayoutData(fdUseDetachedSignature);
     wUseDetachedSignature.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             enableDetachedSignature();

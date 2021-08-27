@@ -152,6 +152,7 @@ public class StyledTextComp extends Composite {
     textWidget.setSelection(arg0, arg1);
   }
 
+  @Override
   public void setFont(Font fnt) {
     textWidget.setFont(fnt);
   }

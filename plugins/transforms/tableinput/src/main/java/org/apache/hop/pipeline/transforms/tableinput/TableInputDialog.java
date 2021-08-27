@@ -82,6 +82,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     input = (TableInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -175,6 +176,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wEachRow.setLayoutData(fdEachRow);
     SelectionAdapter lsSelMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -225,6 +227,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wVariables.setLayoutData(fdVariables);
     wVariables.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
             setSqlToolTip();
@@ -275,34 +278,41 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     wSql.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wSql.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wSql.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }

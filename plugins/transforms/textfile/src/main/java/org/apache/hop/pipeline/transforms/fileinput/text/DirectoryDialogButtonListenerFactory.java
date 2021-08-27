@@ -28,6 +28,7 @@ public class DirectoryDialogButtonListenerFactory {
       final Shell shell, final TextVar destination) {
     // Listen to the Browse... button
     return new SelectionAdapter() {
+      @Override
       public void widgetSelected(SelectionEvent event) {
         BaseDialog.presentDirectoryDialog(shell, destination, null);
       }

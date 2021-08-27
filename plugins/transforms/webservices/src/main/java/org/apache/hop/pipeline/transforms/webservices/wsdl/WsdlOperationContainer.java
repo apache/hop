@@ -33,10 +33,12 @@ public class WsdlOperationContainer implements WsdlParamContainer {
     this.operation = operation;
   }
 
+  @Override
   public String getContainerName() {
     return null;
   }
 
+  @Override
   public String[] getParamNames() {
     List<String> paramsRet = new ArrayList<>();
     for (WsdlOpParameter param : operation.getParameters()) {
@@ -47,6 +49,7 @@ public class WsdlOperationContainer implements WsdlParamContainer {
     return paramsRet.toArray(new String[paramsRet.size()]);
   }
 
+  @Override
   public String getParamType(String paramName) {
     String typeRet = null;
     for (WsdlOpParameter param : operation.getParameters()) {
@@ -58,11 +61,13 @@ public class WsdlOperationContainer implements WsdlParamContainer {
     return typeRet;
   }
 
+  @Override
   public String getItemName() {
     // This method is only relevant for output containers
     return null;
   }
 
+  @Override
   public boolean isArray() {
     return false;
   }

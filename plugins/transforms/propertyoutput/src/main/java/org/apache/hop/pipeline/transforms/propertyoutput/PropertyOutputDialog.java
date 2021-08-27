@@ -93,6 +93,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     input = (PropertyOutputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -337,6 +338,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -363,6 +365,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -389,6 +392,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wFileNameInField.setLayoutData(fdFileNameInField);
     wFileNameInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activateFilenameInField();
@@ -455,6 +459,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wAddTransformNr.setLayoutData(fdAddTransformNr);
     wAddTransformNr.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -478,6 +483,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -500,6 +506,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -514,6 +521,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             PropertyOutputMeta tfoi = new PropertyOutputMeta();
             getInfo(tfoi);
@@ -584,6 +592,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelAR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

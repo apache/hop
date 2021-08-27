@@ -52,6 +52,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     input = (FilesToResultMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();

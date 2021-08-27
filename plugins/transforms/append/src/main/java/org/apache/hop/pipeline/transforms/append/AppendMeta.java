@@ -92,6 +92,7 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
     streams.get(1).setTransformMeta(TransformMeta.findTransform(transforms, tailTransformName));
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,

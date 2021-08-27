@@ -135,6 +135,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     return "neo4j";
   }
 
+  @Override
   public void activate() {
     // Someone clicked on the Neo4j icon
     //

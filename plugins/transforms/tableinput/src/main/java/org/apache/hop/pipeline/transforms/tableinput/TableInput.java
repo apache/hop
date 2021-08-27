@@ -95,6 +95,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
     return parameters;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (first) { // we just got started
 
@@ -275,6 +276,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
     return success;
   }
 
+  @Override
   public void dispose() {
     if (log.isBasic()) {
       logBasic("Finished reading query, closing connection.");
@@ -295,6 +297,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
   }
 
   /** Stop the running query */
+  @Override
   public synchronized void stopRunning() throws HopException {
     if (this.isStopped() || data.isDisposed()) {
       return;

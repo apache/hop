@@ -394,6 +394,7 @@ public class CsvInputMeta extends BaseTransformMeta
   }
 
   /** @return the delimiter */
+  @Override
   public String getDelimiter() {
     return delimiter;
   }
@@ -611,6 +612,7 @@ public class CsvInputMeta extends BaseTransformMeta
   }
 
   /** @return the encoding */
+  @Override
   public String getEncoding() {
     return encoding;
   }

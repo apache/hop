@@ -78,6 +78,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     arguments = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionColumnsExist je = (ActionColumnsExist) super.clone();
     if (arguments != null) {
@@ -113,6 +114,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {

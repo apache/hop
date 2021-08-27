@@ -54,13 +54,16 @@ public class MappingOutputMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public Object clone() {
     MappingOutputMeta retval = new MappingOutputMeta();
     return retval;
   }
 
+  @Override
   public void setDefault() {}
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -108,6 +111,7 @@ public class MappingOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public MappingOutput createTransform(
       TransformMeta transformMeta,
       MappingOutputData data,
@@ -117,6 +121,7 @@ public class MappingOutputMeta extends BaseTransformMeta
     return new MappingOutput(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public MappingOutputData getTransformData() {
     return new MappingOutputData();
   }

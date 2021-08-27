@@ -224,6 +224,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
     return true;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (first && !meta.isInFields()) {
       first = false;
@@ -389,6 +390,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
     return outputRowData;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

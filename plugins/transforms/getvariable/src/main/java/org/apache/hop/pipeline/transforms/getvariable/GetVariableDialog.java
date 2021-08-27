@@ -60,6 +60,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     input = (GetVariableMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

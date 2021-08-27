@@ -34,6 +34,7 @@ public class GraphPresentation {
     this.y = y;
   }
 
+  @Override
   public GraphPresentation clone() {
     return new GraphPresentation(x, y);
   }

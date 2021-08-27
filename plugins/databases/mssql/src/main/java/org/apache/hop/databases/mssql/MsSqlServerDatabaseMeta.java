@@ -333,6 +333,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   /** @return The SQL on this database to get a list of stored procedures. */
+  @Override
   public String getSqlListOfProcedures() {
     return "select o.name "
         + "from sysobjects o, sysusers u "

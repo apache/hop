@@ -192,11 +192,13 @@ public class MailValidatorMeta extends BaseTransformMeta
     return smtpCheck;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     MailValidatorMeta retval = (MailValidatorMeta) super.clone();
 
@@ -213,6 +215,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     return new MailValidator(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public void setDefault() {
     resultfieldname = "result";
     emailValideMsg = "email address is valid";
@@ -227,6 +230,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     defaultSMTPField = null;
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -258,6 +262,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -304,6 +309,7 @@ public class MailValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -467,10 +473,12 @@ public class MailValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public MailValidatorData getTransformData() {
     return new MailValidatorData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

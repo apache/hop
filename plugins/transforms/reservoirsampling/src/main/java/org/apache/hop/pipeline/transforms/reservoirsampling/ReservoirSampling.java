@@ -69,6 +69,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
    */
+  @Override
   public boolean processRow() throws HopException {
 
     if (data.getProcessingMode() == PROC_MODE.DISABLED) {
@@ -157,6 +158,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
    *
    * @return a <code>boolean</code> value
    */
+  @Override
   public boolean init() {
 
     if (super.init()) {

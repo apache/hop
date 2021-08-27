@@ -77,11 +77,13 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionDeleteResultFilenames je = (ActionDeleteResultFilenames) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(100); // 75 chars in just tag names and spaces
 
@@ -94,6 +96,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -146,6 +149,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     this.wildcardExclude = wildcardExclude;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -220,10 +224,12 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     return getIt;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

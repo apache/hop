@@ -48,6 +48,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -180,6 +181,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

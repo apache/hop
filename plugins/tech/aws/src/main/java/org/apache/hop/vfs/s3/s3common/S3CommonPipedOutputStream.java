@@ -120,6 +120,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
 
   class S3AsyncTransferRunner implements Callable<Boolean> {
 
+    @Override
     public Boolean call() throws Exception {
       boolean returnVal = true;
       List<PartETag> partETags = new ArrayList<>();

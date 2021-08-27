@@ -191,18 +191,22 @@ public class ComboVar extends Composite {
     wCombo.addSelectionListener(lsDef);
   }
 
+  @Override
   public void addKeyListener(KeyListener lsKey) {
     wCombo.addKeyListener(lsKey);
   }
 
+  @Override
   public void addFocusListener(FocusListener lsFocus) {
     wCombo.addFocusListener(lsFocus);
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wCombo.setEnabled(flag);
   }
 
+  @Override
   public synchronized boolean setFocus() {
     if (wCombo != null && !wCombo.isDisposed()) {
       synchronized (wCombo) {
@@ -226,10 +230,12 @@ public class ComboVar extends Composite {
     }
   }
 
+  @Override
   public void addTraverseListener(TraverseListener tl) {
     wCombo.addTraverseListener(tl);
   }
 
+  @Override
   public void setToolTipText(String toolTipText) {
     this.toolTipText = toolTipText;
     wCombo.setToolTipText(toolTipText);

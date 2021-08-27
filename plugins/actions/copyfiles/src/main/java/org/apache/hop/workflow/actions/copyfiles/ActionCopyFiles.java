@@ -118,6 +118,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     wildcard = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionCopyFiles je = (ActionCopyFiles) super.clone();
     if (sourceFileFolder != null) {
@@ -632,6 +633,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean resultat = false;
       String filename = null;
@@ -699,6 +701,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       return resultat;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return false;
     }
@@ -789,6 +792,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       parentjob = parentWorkflow;
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
       FileObject filename = null;
@@ -1028,6 +1032,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       return returncode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return (traverseCount++ == 0 || includeSubFolders);
     }
@@ -1064,6 +1069,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       }
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean resultat = false;
       String filename = null;
@@ -1140,11 +1146,13 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       return resultat;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return (traverseCount++ == 0 || includeSubFolders);
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
@@ -1172,6 +1180,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }

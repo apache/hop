@@ -112,99 +112,100 @@ public class ExcelWriterTransformMetaTest implements IInitializer<ITransformMeta
 
     validatorFactory.registerValidator(
         validatorFactory.getName(ExcelWriterTemplateField.class),
-        new ObjectValidator<ExcelWriterTemplateField>(
-            validatorFactory,
-            ExcelWriterTemplateField.class,
-            Arrays.asList("enabled", "sheet_enabled", "hidden", "sheetname", "filename"),
-            new HashMap<String, String>() {
-              {
-                put("enabled", "isTemplateEnabled");
-                put("sheet_enabled", "isTemplateSheetEnabled");
-                put("hidden", "isTemplateSheetHidden");
-                put("sheetname", "getTemplateSheetName");
-                put("filename", "getTemplateFileName");
-              }
-            },
-            new HashMap<String, String>() {
-              {
-                put("enabled", "setTemplateEnabled");
-                put("sheet_enabled", "setTemplateSheetEnabled");
-                put("hidden", "setTemplateSheetHidden");
-                put("sheetname", "setTemplateSheetName");
-                put("filename", "setTemplateFileName");
-              }
-            }));
+            new ObjectValidator<>(
+                    validatorFactory,
+                    ExcelWriterTemplateField.class,
+                    Arrays.asList("enabled", "sheet_enabled", "hidden", "sheetname", "filename"),
+                    new HashMap<String, String>() {
+                        {
+                            put("enabled", "isTemplateEnabled");
+                            put("sheet_enabled", "isTemplateSheetEnabled");
+                            put("hidden", "isTemplateSheetHidden");
+                            put("sheetname", "getTemplateSheetName");
+                            put("filename", "getTemplateFileName");
+                        }
+                    },
+                    new HashMap<String, String>() {
+                        {
+                            put("enabled", "setTemplateEnabled");
+                            put("sheet_enabled", "setTemplateSheetEnabled");
+                            put("hidden", "setTemplateSheetHidden");
+                            put("sheetname", "setTemplateSheetName");
+                            put("filename", "setTemplateFileName");
+                        }
+                    }));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(ExcelWriterFileField.class),
-        new ObjectValidator<ExcelWriterFileField>(
-            validatorFactory,
-            ExcelWriterFileField.class,
-            Arrays.asList(
-                "name",
-                "extension",
-                "password",
-                "protected_by",
-                "protect_sheet",
-                "add_time",
-                "sheetname",
-                "do_not_open_newfile_init",
-                "SpecifyFormat",
-                "date_time_format",
-                "autosizecolums",
-                "stream_data",
-                "splitevery",
-                "split",
-                "if_file_exists",
-                "if_sheet_exists",
-                "add_date"),
-            new HashMap<String, String>() {
-              {
-                put("name", "getFileName");
-                put("extension", "getExtension");
-                put("password", "getPassword");
-                put("protected_by", "getProtectedBy");
-                put("protect_sheet", "isProtectsheet");
-                put("add_time", "isTimeInFilename");
-                put("sheetname", "getSheetname");
-                put("do_not_open_newfile_init", "isDoNotOpenNewFileInit");
-                put("SpecifyFormat", "isSpecifyFormat");
-                put("date_time_format", "getDateTimeFormat");
-                put("autosizecolums", "isAutosizecolums");
-                put("splitevery", "getSplitEvery");
-                put("stream_data", "isStreamingData");
-                put("split", "isTransformNrInFilename");
-                put("if_file_exists", "getIfFileExists");
-                put("if_sheet_exists", "getIfSheetExists");
-                put("add_date", "isDateInFilename");
-              }
-            },
-            new HashMap<String, String>() {
-              {
-                put("name", "setFileName");
-                put("extension", "setExtension");
-                put("password", "setPassword");
-                put("protected_by", "setProtectedBy");
-                put("protect_sheet", "setProtectsheet");
-                put("add_time", "setTimeInFilename");
-                put("sheetname", "setSheetname");
-                put("do_not_open_newfile_init", "setDoNotOpenNewFileInit");
-                put("SpecifyFormat", "setSpecifyFormat");
-                put("date_time_format", "setDateTimeFormat");
-                put("autosizecolums", "setAutosizecolums");
-                put("splitevery", "setSplitEvery");
-                put("stream_data", "setStreamingData");
-                put("split", "setTransformNrInFilename");
-                put("if_file_exists", "setIfFileExists");
-                put("if_sheet_exists", "setIfSheetExists");
-                put("add_date", "setDateInFilename");
-              }
-            }));
+            new ObjectValidator<>(
+                    validatorFactory,
+                    ExcelWriterFileField.class,
+                    Arrays.asList(
+                            "name",
+                            "extension",
+                            "password",
+                            "protected_by",
+                            "protect_sheet",
+                            "add_time",
+                            "sheetname",
+                            "do_not_open_newfile_init",
+                            "SpecifyFormat",
+                            "date_time_format",
+                            "autosizecolums",
+                            "stream_data",
+                            "splitevery",
+                            "split",
+                            "if_file_exists",
+                            "if_sheet_exists",
+                            "add_date"),
+                    new HashMap<String, String>() {
+                        {
+                            put("name", "getFileName");
+                            put("extension", "getExtension");
+                            put("password", "getPassword");
+                            put("protected_by", "getProtectedBy");
+                            put("protect_sheet", "isProtectsheet");
+                            put("add_time", "isTimeInFilename");
+                            put("sheetname", "getSheetname");
+                            put("do_not_open_newfile_init", "isDoNotOpenNewFileInit");
+                            put("SpecifyFormat", "isSpecifyFormat");
+                            put("date_time_format", "getDateTimeFormat");
+                            put("autosizecolums", "isAutosizecolums");
+                            put("splitevery", "getSplitEvery");
+                            put("stream_data", "isStreamingData");
+                            put("split", "isTransformNrInFilename");
+                            put("if_file_exists", "getIfFileExists");
+                            put("if_sheet_exists", "getIfSheetExists");
+                            put("add_date", "isDateInFilename");
+                        }
+                    },
+                    new HashMap<String, String>() {
+                        {
+                            put("name", "setFileName");
+                            put("extension", "setExtension");
+                            put("password", "setPassword");
+                            put("protected_by", "setProtectedBy");
+                            put("protect_sheet", "setProtectsheet");
+                            put("add_time", "setTimeInFilename");
+                            put("sheetname", "setSheetname");
+                            put("do_not_open_newfile_init", "setDoNotOpenNewFileInit");
+                            put("SpecifyFormat", "setSpecifyFormat");
+                            put("date_time_format", "setDateTimeFormat");
+                            put("autosizecolums", "setAutosizecolums");
+                            put("splitevery", "setSplitEvery");
+                            put("stream_data", "setStreamingData");
+                            put("split", "setTransformNrInFilename");
+                            put("if_file_exists", "setIfFileExists");
+                            put("if_sheet_exists", "setIfSheetExists");
+                            put("add_date", "setDateInFilename");
+                        }
+                    }));
 
     loadSaveTester.testSerialization();
   }
 
   // Call the allocate method on the LoadSaveTester meta class
+  @Override
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof ExcelWriterTransformMeta) {
       ((ExcelWriterTransformMeta) someMeta).getOutputFields().clear();

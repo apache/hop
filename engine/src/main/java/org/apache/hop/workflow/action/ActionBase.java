@@ -150,6 +150,7 @@ public abstract class ActionBase
   }
 
   /** Clears all variable values */
+  @Override
   public void clear() {
     name = null;
     description = null;
@@ -172,6 +173,7 @@ public abstract class ActionBase
    *
    * @param name the new name
    */
+  @Override
   public void setName(String name) {
     this.name = name;
   }
@@ -182,6 +184,7 @@ public abstract class ActionBase
    * @return the name of the action
    * @see ICheckResultSource#getName()
    */
+  @Override
   public String getName() {
     return name;
   }
@@ -191,6 +194,7 @@ public abstract class ActionBase
    *
    * @param description the new description
    */
+  @Override
   public void setDescription(String description) {
     this.description = description;
   }
@@ -201,6 +205,7 @@ public abstract class ActionBase
    * @return the description of the action
    * @see ICheckResultSource#getDescription()
    */
+  @Override
   public String getDescription() {
     return description;
   }
@@ -215,6 +220,7 @@ public abstract class ActionBase
    *
    * @see ActionBase#setChanged(boolean)
    */
+  @Override
   public void setChanged() {
     setChanged(true);
   }
@@ -224,6 +230,7 @@ public abstract class ActionBase
    *
    * @param ch true if the action has changed, false otherwise
    */
+  @Override
   public void setChanged(boolean ch) {
     changed = ch;
   }
@@ -233,6 +240,7 @@ public abstract class ActionBase
    *
    * @return true if the action has changed, false otherwise
    */
+  @Override
   public boolean hasChanged() {
     return changed;
   }
@@ -242,6 +250,7 @@ public abstract class ActionBase
    *
    * @return true if the action has started, false otherwise
    */
+  @Override
   public boolean isStart() {
     return false;
   }
@@ -251,6 +260,7 @@ public abstract class ActionBase
    *
    * @return true if the action executes a workflow, false otherwise
    */
+  @Override
   public boolean isWorkflow() {
     return "WORKFLOW".equals(pluginId);
   }
@@ -260,6 +270,7 @@ public abstract class ActionBase
    *
    * @return true if this action executes a pipeline, false otherwise
    */
+  @Override
   public boolean isPipeline() {
     return "PIPELINE".equals(pluginId);
   }
@@ -273,6 +284,7 @@ public abstract class ActionBase
    *
    * @return the xml representation of the action
    */
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder();
     xml.append("      ").append(XmlHandler.addTagValue("name", getName()));
@@ -361,6 +373,7 @@ public abstract class ActionBase
    *
    * @return true if a reset of the number of errors is required before execution, false otherwise
    */
+  @Override
   public boolean resetErrorsBeforeExecution() {
     return true;
   }
@@ -371,6 +384,7 @@ public abstract class ActionBase
    *
    * @return false
    */
+  @Override
   public boolean isEvaluation() {
     return false;
   }
@@ -381,6 +395,7 @@ public abstract class ActionBase
    *
    * @return true
    */
+  @Override
   public boolean isUnconditional() {
     return true;
   }
@@ -393,6 +408,7 @@ public abstract class ActionBase
    * @return an empty list
    * @throws HopException if any errors occur during the generation of SQL statements
    */
+  @Override
   public List<SqlStatement> getSqlStatements(
       IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return new ArrayList<>();
@@ -415,6 +431,7 @@ public abstract class ActionBase
    *
    * @return null
    */
+  @Override
   public String getRealFilename() {
     return null;
   }
@@ -599,6 +616,7 @@ public abstract class ActionBase
    * @param variables the variable variables to resolve string expressions with variables with
    * @param metadataProvider the MetaStore to load common elements from
    */
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
@@ -612,6 +630,7 @@ public abstract class ActionBase
    * @return an empty list of ResourceReferences
    * @see ResourceReference
    */
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     return new ArrayList<>(5); // default: return an empty resource dependency list. Lower the
@@ -631,6 +650,7 @@ public abstract class ActionBase
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,
@@ -645,6 +665,7 @@ public abstract class ActionBase
    *
    * @return the plugin id
    */
+  @Override
   public String getPluginId() {
     return pluginId;
   }
@@ -654,6 +675,7 @@ public abstract class ActionBase
    *
    * @param pluginId the new plugin id
    */
+  @Override
   public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
   }
@@ -664,6 +686,7 @@ public abstract class ActionBase
    *
    * @return full class name of the action dialog class (null by default)
    */
+  @Override
   public String getDialogClassName() {
     return null;
   }
@@ -682,6 +705,7 @@ public abstract class ActionBase
    *
    * @param parentWorkflow the new parent workflow
    */
+  @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
     this.logLevel = parentWorkflow.getLogLevel();
@@ -694,6 +718,7 @@ public abstract class ActionBase
    *
    * @return the parent workflow
    */
+  @Override
   public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
@@ -863,6 +888,7 @@ public abstract class ActionBase
    *
    * @return the log channel
    */
+  @Override
   public ILogChannel getLogChannel() {
     return log;
   }
@@ -975,6 +1001,7 @@ public abstract class ActionBase
    * @return The objects referenced in the transform, like a a pipeline, a workflow, a mapper, a
    *     reducer, a combiner, ...
    */
+  @Override
   public String[] getReferencedObjectDescriptions() {
     return null;
   }
@@ -982,6 +1009,7 @@ public abstract class ActionBase
   /**
    * @return true for each referenced object that is enabled or has a valid reference definition.
    */
+  @Override
   public boolean[] isReferencedObjectEnabled() {
     return null;
   }
@@ -995,6 +1023,7 @@ public abstract class ActionBase
    * @return the referenced object once loaded
    * @throws HopException
    */
+  @Override
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return null;
@@ -1028,6 +1057,7 @@ public abstract class ActionBase
     return metadataProvider;
   }
 
+  @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
@@ -1077,6 +1107,7 @@ public abstract class ActionBase
   }
 
   /** @return The parent workflowMeta at save and during execution. */
+  @Override
   public WorkflowMeta getParentWorkflowMeta() {
     return parentWorkflowMeta;
   }
@@ -1087,6 +1118,7 @@ public abstract class ActionBase
    *
    * @param parentWorkflowMeta the WorkflowMeta to which this IAction belongs
    */
+  @Override
   public void setParentWorkflowMeta(WorkflowMeta parentWorkflowMeta) {
     this.parentWorkflowMeta = parentWorkflowMeta;
   }

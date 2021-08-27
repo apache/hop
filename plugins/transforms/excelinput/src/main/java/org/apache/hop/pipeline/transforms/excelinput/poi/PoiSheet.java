@@ -30,10 +30,12 @@ public class PoiSheet implements IKSheet {
     this.sheet = sheet;
   }
 
+  @Override
   public String getName() {
     return sheet.getSheetName();
   }
 
+  @Override
   public IKCell[] getRow(int rownr) {
     if (rownr < sheet.getFirstRowNum()) {
       return new IKCell[] {};
@@ -58,10 +60,12 @@ public class PoiSheet implements IKSheet {
     return xlsCells;
   }
 
+  @Override
   public int getRows() {
     return sheet.getLastRowNum() + 1;
   }
 
+  @Override
   public IKCell getCell(int colnr, int rownr) {
     Row row = sheet.getRow(rownr);
     if (row == null) {

@@ -89,6 +89,7 @@ public class HopServerConfig implements IXml {
     this.hopServer = hopServer;
   }
 
+  @Override
   public String getXml(IVariables variables) {
 
     StringBuilder xml = new StringBuilder();

@@ -53,6 +53,7 @@ public class SequenceResourceNaming extends SimpleResourceNaming {
   // Output Example 3 (file system prefix: ${HOP_FILE_BASE}!, path is used)
   // ${HOP_FILE_BASE}!japps/hop/samples/Marc_Sample_Pipeline_014.hpl
 
+  @Override
   protected String getFileNameUniqueIdentifier(String filename, String extension) {
 
     String key = filename + extension;

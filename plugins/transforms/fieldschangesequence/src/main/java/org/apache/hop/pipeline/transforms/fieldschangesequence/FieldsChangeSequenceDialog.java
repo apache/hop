@@ -72,6 +72,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();

@@ -126,6 +126,7 @@ public class GraphNodeData {
     propertySetId = (String) jNode.get("property_set");
   }
 
+  @Override
   public GraphNodeData clone() {
     return new GraphNodeData(this);
   }

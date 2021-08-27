@@ -76,6 +76,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -158,6 +159,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wPingType.setLayoutData(fdPingType);
     wPingType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setPingType();
             action.setChanged();

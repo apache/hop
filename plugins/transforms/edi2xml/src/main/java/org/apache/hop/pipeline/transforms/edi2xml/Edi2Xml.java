@@ -54,6 +54,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, blocks when needed!
@@ -212,6 +213,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData>
     return true;
   }
 
+  @Override
   public void dispose() {
 
     data.inputMeta = null;

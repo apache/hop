@@ -62,6 +62,7 @@ public abstract class BaseTextParsingTest
    *
    * <p>TODO: move to BaseParsingTest after CSV moving to BaseFileInput
    */
+  @Override
   protected void setFields(BaseFileField... fields) throws Exception {
     meta.inputFields = fields;
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);

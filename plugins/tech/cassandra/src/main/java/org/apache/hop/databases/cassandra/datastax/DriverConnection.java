@@ -161,6 +161,7 @@ public class DriverConnection implements Connection, AutoCloseable {
     return names;
   }
 
+  @Override
   public void createKeyspace(
       String keyspaceName, boolean ifNotExists, Map<String, Object> createOptions)
       throws Exception {

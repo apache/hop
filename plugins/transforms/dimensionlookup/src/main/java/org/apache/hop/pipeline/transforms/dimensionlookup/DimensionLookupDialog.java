@@ -153,6 +153,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -612,10 +613,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTk.setLayoutData(fdTk);
     wTk.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do not trigger focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -706,6 +709,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wSeq.setLayoutData(fdSeq);
     wSeq.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusGained(FocusEvent arg0) {
             input.setTechKeyCreation(DimensionLookupMeta.CREATION_METHOD_SEQUENCE);
             wSeqButton.setSelection(true);
@@ -713,6 +717,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             wTableMax.setSelection(false);
           }
 
+          @Override
           public void focusLost(FocusEvent arg0) {
             // Do not trigger focusLost
           }
@@ -760,10 +765,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wVersion.setLayoutData(fdVersion);
     wVersion.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do not trigger focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -792,10 +799,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wDatefield.setLayoutData(fdDatefield);
     wDatefield.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do not trigger focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -828,10 +837,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wFromdate.setLayoutData(fdFromdate);
     wFromdate.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do not trigger focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -926,10 +937,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wAltStartDateField.setLayoutData(fdAltStartDateField);
     wAltStartDateField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do not trigger focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -958,10 +971,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTodate.setLayoutData(fdTodate);
     wTodate.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Do not trigger focusLost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

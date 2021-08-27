@@ -254,6 +254,7 @@ public class EnterOptionsDialog extends Dialog {
     wdFFont.setLayoutData(fddFFont);
     wdFFont.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             fixedFontData =
                 new FontData(
@@ -396,6 +397,7 @@ public class EnterOptionsDialog extends Dialog {
     wdNFont.setLayoutData(fddNFont);
     wdNFont.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             noteFontData = props.getDefaultFontData();
             noteFont.dispose();
@@ -414,6 +416,7 @@ public class EnterOptionsDialog extends Dialog {
     wbNFont.setLayoutData(fdbNFont);
     wbNFont.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             FontDialog fd = new FontDialog(shell);
             fd.setFontList(new FontData[] {noteFontData});
@@ -467,6 +470,7 @@ public class EnterOptionsDialog extends Dialog {
     wdBGcolor.setLayoutData(fddBGColor);
     wdBGcolor.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             background.dispose();
 
@@ -495,6 +499,7 @@ public class EnterOptionsDialog extends Dialog {
     wbBGColor.setLayoutData(fdbBGColor);
     wbBGColor.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             ColorDialog cd = new ColorDialog(shell);
             cd.setRGB(props.getBackgroundRGB());
@@ -540,6 +545,7 @@ public class EnterOptionsDialog extends Dialog {
     wdGrColor.setLayoutData(fddGrColor);
     wdGrColor.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             graphColor.dispose();
 
@@ -562,6 +568,7 @@ public class EnterOptionsDialog extends Dialog {
     wbGrColor.setLayoutData(fdbGrColor);
     wbGrColor.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             ColorDialog cd = new ColorDialog(shell);
             cd.setRGB(props.getGraphColorRGB());
@@ -607,6 +614,7 @@ public class EnterOptionsDialog extends Dialog {
     wdTabColor.setLayoutData(fddTabColor);
     wdTabColor.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             tabColor.dispose();
 
@@ -628,6 +636,7 @@ public class EnterOptionsDialog extends Dialog {
     wbTabColor.setLayoutData(fdbTabColor);
     wbTabColor.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             ColorDialog cd = new ColorDialog(shell);
             cd.setRGB(props.getTabColorRGB());

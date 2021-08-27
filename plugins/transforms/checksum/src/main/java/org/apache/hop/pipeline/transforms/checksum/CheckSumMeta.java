@@ -100,6 +100,7 @@ public class CheckSumMeta extends BaseTransformMeta
      *
      * @return value of code
      */
+    @Override
     public String getCode() {
       return code;
     }
@@ -150,6 +151,7 @@ public class CheckSumMeta extends BaseTransformMeta
      *
      * @return value of code
      */
+    @Override
     public String getCode() {
       return code;
     }

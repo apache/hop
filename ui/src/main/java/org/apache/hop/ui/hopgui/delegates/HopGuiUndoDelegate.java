@@ -52,6 +52,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   }
 
   // Change of transform, connection, hop or note...
+  @Override
   public void addUndoPosition(
       IUndo undoInterface, Object[] obj, int[] pos, Point[] prev, Point[] curr) {
     addUndoPosition(undoInterface, obj, pos, prev, curr, false);

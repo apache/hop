@@ -128,6 +128,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData>
     }
   }
 
+  @Override
   public boolean processRow() throws HopException {
     meta = (WebServiceMeta) meta;
 
@@ -517,6 +518,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData>
     return httpClient;
   }
 
+  @Override
   public boolean init() {
 
     data.indexMap = new Hashtable<>();
@@ -525,6 +527,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData>
     return super.init();
   }
 
+  @Override
   public void dispose() {
 
     super.dispose();

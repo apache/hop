@@ -111,6 +111,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -198,6 +199,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

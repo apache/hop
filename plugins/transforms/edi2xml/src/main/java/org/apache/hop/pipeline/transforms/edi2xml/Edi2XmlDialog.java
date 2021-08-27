@@ -56,6 +56,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     input = (Edi2XmlMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -117,8 +118,10 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     wEdiField.setLayoutData(fdEdiField);
     wEdiField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

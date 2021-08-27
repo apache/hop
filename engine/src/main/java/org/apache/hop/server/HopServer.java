@@ -202,6 +202,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return log;
   }
 
+  @Override
   public String getXml(IVariables variables) {
     StringBuilder xml = new StringBuilder();
 
@@ -228,6 +229,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return xml.toString();
   }
 
+  @Override
   public Object clone() {
     HopServer hopServer = new HopServer();
     hopServer.replaceMeta(this);

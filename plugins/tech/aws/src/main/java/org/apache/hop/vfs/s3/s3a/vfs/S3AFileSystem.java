@@ -29,6 +29,7 @@ public class S3AFileSystem extends S3CommonFileSystem {
     super(rootName, fileSystemOptions);
   }
 
+  @Override
   protected FileObject createFile(AbstractFileName name) throws Exception {
     return new S3AFileObject(name, this);
   }

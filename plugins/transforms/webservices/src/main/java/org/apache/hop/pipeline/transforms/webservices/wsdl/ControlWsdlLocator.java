@@ -80,6 +80,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
    *
    * @return An InputSource for the WSDL file.
    */
+  @Override
   public InputSource getBaseInputSource() {
 
     InputStream wsdlStream = null;
@@ -116,6 +117,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
    *
    * @return null if _wsdlName is not a valid URI.
    */
+  @Override
   public String getBaseURI() {
 
     try {
@@ -133,6 +135,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
    * @param string1
    * @return null
    */
+  @Override
   public InputSource getImportInputSource(String string, String string1) {
     return null;
   }
@@ -142,10 +145,12 @@ public final class ControlWsdlLocator implements WSDLLocator {
    *
    * @return null
    */
+  @Override
   public String getLatestImportURI() {
     return null;
   }
 
+  @Override
   public void close() {
     cleanup();
   }

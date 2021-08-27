@@ -67,11 +67,13 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     this("", "");
   }
 
+  @Override
   public Object clone() {
     ActionEval je = (ActionEval) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -81,6 +83,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -181,25 +184,30 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * @param prevResult The result of the previous execution
    * @return The Result of the execution.
    */
+  @Override
   public Result execute(Result prevResult, int nr) {
     prevResult.setResult(evaluate(prevResult, parentWorkflow, prevResult));
     return prevResult;
   }
 
+  @Override
   public boolean resetErrorsBeforeExecution() {
     // we should be able to evaluate the errors in
     // the previous action.
     return false;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

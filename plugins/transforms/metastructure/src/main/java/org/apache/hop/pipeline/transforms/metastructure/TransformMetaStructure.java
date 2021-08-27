@@ -48,6 +48,7 @@ public class TransformMetaStructure
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       // Add init code here.
@@ -57,6 +58,7 @@ public class TransformMetaStructure
     return false;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // Get row from input row set & set row busy!

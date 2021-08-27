@@ -189,6 +189,7 @@ public class WebServiceAvailableMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public WebServiceAvailable createTransform(
       TransformMeta transformMeta,
       WebServiceAvailableData data,
@@ -198,6 +199,7 @@ public class WebServiceAvailableMeta extends BaseTransformMeta
     return new WebServiceAvailable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public WebServiceAvailableData getTransformData() {
     return new WebServiceAvailableData();
   }

@@ -87,6 +87,7 @@ public class RegexEvalMeta extends BaseTransformMeta
     super();
   }
 
+  @Override
   public Object clone() {
     RegexEvalMeta retval = (RegexEvalMeta) super.clone();
 
@@ -388,6 +389,7 @@ public class RegexEvalMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     script = "";
     matcher = "";
@@ -406,6 +408,7 @@ public class RegexEvalMeta extends BaseTransformMeta
     allocate(0);
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -485,11 +488,13 @@ public class RegexEvalMeta extends BaseTransformMeta
     return v;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -537,6 +542,7 @@ public class RegexEvalMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -614,10 +620,12 @@ public class RegexEvalMeta extends BaseTransformMeta
     return new RegexEval(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public RegexEvalData getTransformData() {
     return new RegexEvalData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

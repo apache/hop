@@ -81,6 +81,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -164,8 +165,10 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -228,6 +231,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     wOmitXMLHeader.setLayoutData(fdOmitXMLHeader);
     wOmitXMLHeader.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -250,6 +254,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

@@ -898,16 +898,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return the status description
    */
+  @Override
   public String getStatusDescription() {
     return getStatus().getDescription();
   }
 
   /** @return Returns the transformMetaInterface. */
+  @Override
   public Meta getMeta() {
     return meta;
   }
 
   /** @param meta The transformMetaInterface to set. */
+  @Override
   public void setMeta(Meta meta) {
     this.meta = meta;
   }
@@ -917,11 +920,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of data
    */
+  @Override
   public Data getData() {
     return data;
   }
 
   /** @param data The data to set */
+  @Override
   public void setData(Data data) {
     this.data = data;
   }
@@ -3395,10 +3400,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
+  @Override
   public void addTransformFinishedListener(ITransformFinishedListener transformFinishedListener) {
     transformFinishedListeners.add(transformFinishedListener);
   }
 
+  @Override
   public void addTransformStartedListener(ITransformStartedListener transformStartedListener) {
     transformStartedListeners.add(transformStartedListener);
   }
@@ -3468,6 +3475,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of copyNr
    */
+  @Override
   public int getCopyNr() {
     return copyNr;
   }
@@ -3551,6 +3559,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @param logLevel the new log level
    */
+  @Override
   public void setLogLevel(LogLevel logLevel) {
     log.setLogLevel(logLevel);
   }
@@ -3706,11 +3715,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of initStartDate
    */
+  @Override
   public Date getInitStartDate() {
     return initStartDate;
   }
 
   /** @param initStartDate The initStartDate to set */
+  @Override
   public void setInitStartDate(Date initStartDate) {
     this.initStartDate = initStartDate;
   }
@@ -3720,11 +3731,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of executionStartDate
    */
+  @Override
   public Date getExecutionStartDate() {
     return executionStartDate;
   }
 
   /** @param executionStartDate The executionStartDate to set */
+  @Override
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
@@ -3734,11 +3747,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of firstRowReadDate
    */
+  @Override
   public Date getFirstRowReadDate() {
     return firstRowReadDate;
   }
 
   /** @param firstRowReadDate The firstRowReadDate to set */
+  @Override
   public void setFirstRowReadDate(Date firstRowReadDate) {
     this.firstRowReadDate = firstRowReadDate;
   }
@@ -3748,11 +3763,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of lastRowWrittenDate
    */
+  @Override
   public Date getLastRowWrittenDate() {
     return lastRowWrittenDate;
   }
 
   /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  @Override
   public void setLastRowWrittenDate(Date lastRowWrittenDate) {
     this.lastRowWrittenDate = lastRowWrittenDate;
   }
@@ -3762,11 +3779,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return value of executionEndDate
    */
+  @Override
   public Date getExecutionEndDate() {
     return executionEndDate;
   }
 
   /** @param executionEndDate The executionEndDate to set */
+  @Override
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }

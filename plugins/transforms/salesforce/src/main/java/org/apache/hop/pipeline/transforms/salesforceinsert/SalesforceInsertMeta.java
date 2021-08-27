@@ -134,12 +134,14 @@ public class SalesforceInsertMeta
     this.salesforceIDFieldName = salesforceIDFieldName;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     SalesforceInsertMeta retval = (SalesforceInsertMeta) super.clone();
 
@@ -156,6 +158,7 @@ public class SalesforceInsertMeta
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(super.getXml());
     retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
@@ -225,6 +228,7 @@ public class SalesforceInsertMeta
     setUseExternalId(new Boolean[nrvalues]);
   }
 
+  @Override
   public void setDefault() {
     super.setDefault();
     setBatchSize("10");
@@ -236,6 +240,7 @@ public class SalesforceInsertMeta
   }
 
   /* This function adds meta data to the rows being pushed out */
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -321,10 +326,12 @@ public class SalesforceInsertMeta
     return new SalesforceInsert(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SalesforceInsertData getTransformData() {
     return new SalesforceInsertData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

@@ -51,11 +51,13 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
@@ -63,8 +65,10 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
 
   private void readData(Node transformNode) {}
 
+  @Override
   public void setDefault() {}
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -113,6 +117,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public DetectEmptyStream createTransform(
       TransformMeta transformMeta,
       DetectEmptyStreamData data,
@@ -122,10 +127,12 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     return new DetectEmptyStream(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public DetectEmptyStreamData getTransformData() {
     return new DetectEmptyStreamData();
   }
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,

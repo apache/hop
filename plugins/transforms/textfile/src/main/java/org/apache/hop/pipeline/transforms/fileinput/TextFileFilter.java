@@ -49,6 +49,7 @@ public class TextFileFilter implements Cloneable {
 
   public TextFileFilter() {}
 
+  @Override
   public Object clone() {
     try {
       Object retval = super.clone();

@@ -193,6 +193,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
     this.xmlStream = xmlStream;
   }
 
+  @Override
   public Object clone() {
     XsdValidatorMeta retval = (XsdValidatorMeta) super.clone();
 
@@ -245,6 +246,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     xsdFilename = "";
     xmlStream = "";
@@ -265,6 +267,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
                     ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT));
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -292,6 +295,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuffer xml = new StringBuffer();
 
@@ -312,6 +316,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
     return xml.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -406,6 +411,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
@@ -423,6 +429,7 @@ public class XsdValidatorMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-Hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

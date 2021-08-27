@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 public class MultiBytePatternMatcher implements IPatternMatcher {
 
+  @Override
   public boolean matchesPattern(byte[] source, int location, byte[] pattern) {
     int start = location;
     for (int i = 0; i < pattern.length; i++) {

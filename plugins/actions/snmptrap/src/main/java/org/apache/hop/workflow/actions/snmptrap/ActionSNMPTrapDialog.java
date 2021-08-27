@@ -99,6 +99,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -271,6 +272,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wTargetType.setLayoutData(fdTargetType);
     wTargetType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             checkUseUserTarget();
           }

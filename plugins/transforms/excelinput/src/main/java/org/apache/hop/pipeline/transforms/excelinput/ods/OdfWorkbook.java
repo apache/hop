@@ -58,6 +58,7 @@ public class OdfWorkbook implements IKWorkbook {
     }
   }
 
+  @Override
   public void close() {
     if (document != null) {
       document.close();
@@ -79,6 +80,7 @@ public class OdfWorkbook implements IKWorkbook {
     return sheet;
   }
 
+  @Override
   public String[] getSheetNames() {
     List<OdfTable> list = document.getTableList();
     int nrSheets = list.size();
@@ -97,10 +99,12 @@ public class OdfWorkbook implements IKWorkbook {
     return encoding;
   }
 
+  @Override
   public int getNumberOfSheets() {
     return document.getTableList().size();
   }
 
+  @Override
   public IKSheet getSheet(int sheetNr) {
     OdfTable table = document.getTableList().get(sheetNr);
     if (table == null) {
@@ -109,6 +113,7 @@ public class OdfWorkbook implements IKWorkbook {
     return new OdfSheet(table);
   }
 
+  @Override
   public String getSheetName(int sheetNr) {
     OdfTable table = document.getTableList().get(sheetNr);
     if (table == null) {

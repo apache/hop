@@ -152,6 +152,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     attributesMap = new HashMap<>();
   }
 
+  @Override
   public ActionMeta clone() {
     ActionMeta ge = new ActionMeta();
     ge.replaceMeta(this);
@@ -223,6 +224,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     return plugin.getDescription();
   }
 
+  @Override
   public void setLocation(int x, int y) {
     int nx = (x >= 0 ? x : 0);
     int ny = (y >= 0 ? y : 0);
@@ -234,6 +236,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     location = loc;
   }
 
+  @Override
   public void setLocation(Point loc) {
     if (loc != null && !loc.equals(location)) {
       setChanged();
@@ -241,22 +244,27 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     location = loc;
   }
 
+  @Override
   public Point getLocation() {
     return location;
   }
 
+  @Override
   public void setChanged() {
     setChanged(true);
   }
 
+  @Override
   public void setChanged(boolean ch) {
     action.setChanged(ch);
   }
 
+  @Override
   public void clearChanged() {
     action.setChanged(false);
   }
 
+  @Override
   public boolean hasChanged() {
     return action.hasChanged();
   }
@@ -269,6 +277,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     return launchingInParallel;
   }
 
+  @Override
   public void setSelected(boolean sel) {
     selected = sel;
   }
@@ -277,6 +286,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     selected = !selected;
   }
 
+  @Override
   public boolean isSelected() {
     return selected;
   }

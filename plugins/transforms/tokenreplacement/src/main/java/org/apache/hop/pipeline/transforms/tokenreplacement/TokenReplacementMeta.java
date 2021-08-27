@@ -419,6 +419,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     this.appendOutputFileName = appendOutputFileName;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     try {
@@ -521,6 +522,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     tokenReplacementFields = new TokenReplacementField[nrfields];
   }
 
+  @Override
   public Object clone() {
     TokenReplacementMeta retval = (TokenReplacementMeta) super.clone();
     int nrfields = tokenReplacementFields.length;
@@ -549,6 +551,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     return new TokenReplacementData();
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(800);
 
@@ -612,6 +615,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void setDefault() {
 
     inputType = "Text";
@@ -697,6 +701,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -790,6 +795,7 @@ public class TokenReplacementMeta extends BaseTransformMeta
     remarks.add(cr);
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,

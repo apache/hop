@@ -47,6 +47,7 @@ public class DummyDialog extends BaseTransformDialog implements ITransformDialog
     input = (DummyMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

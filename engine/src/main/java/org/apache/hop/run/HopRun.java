@@ -111,6 +111,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     variables = new Variables();
   }
 
+  @Override
   public void run() {
     validateOptions();
 
@@ -501,6 +502,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
    *
    * @return value of metadataProvider
    */
+  @Override
   public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
@@ -665,6 +667,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   }
 
   /** @param metadataProvider The metadataProvider to set */
+  @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }

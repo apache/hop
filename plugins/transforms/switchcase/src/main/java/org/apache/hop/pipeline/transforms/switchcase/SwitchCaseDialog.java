@@ -69,6 +69,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     input = (SwitchCaseMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -79,6 +80,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     ModifyListener lsMod = e -> input.setChanged();
     SelectionAdapter lsSel =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

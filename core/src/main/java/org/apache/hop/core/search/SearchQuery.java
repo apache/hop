@@ -32,6 +32,7 @@ public class SearchQuery implements ISearchQuery {
     this.regEx = regEx;
   }
 
+  @Override
   public boolean matches(String string) {
     if (StringUtils.isEmpty(searchString)) {
       // match everything non-null

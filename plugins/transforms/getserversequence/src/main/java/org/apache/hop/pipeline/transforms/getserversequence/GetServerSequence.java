@@ -80,6 +80,7 @@ public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetS
     }
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -134,6 +135,7 @@ public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetS
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

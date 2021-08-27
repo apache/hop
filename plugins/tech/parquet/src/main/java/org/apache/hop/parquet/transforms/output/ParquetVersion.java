@@ -53,6 +53,7 @@ public enum ParquetVersion implements IEnumHasCode {
    *
    * @return value of code
    */
+  @Override
   public String getCode() {
     return code;
   }

@@ -78,6 +78,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -255,6 +256,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(new String[] {wFilename.getText()});
             wFilename.setText("");
@@ -269,6 +271,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -280,6 +283,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {

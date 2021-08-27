@@ -693,6 +693,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     return wName.setFocus();
   }
 
+  @Override
   public void setChanged() {
     if (this.isChanged == false) {
       this.isChanged = true;

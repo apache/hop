@@ -168,6 +168,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     input = (MailMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -268,8 +269,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDestination.setLayoutData(fdDestination);
     wDestination.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -300,8 +303,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDestinationCc.setLayoutData(fdDestinationCc);
     wDestinationCc.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -331,8 +336,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDestinationBCc.setLayoutData(fdDestinationBCc);
     wDestinationBCc.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -386,8 +393,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wReplyName.setLayoutData(fdReplyName);
     wReplyName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -418,8 +427,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wReply.setLayoutData(fdReply);
     wReply.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -459,8 +470,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wReplyToAddresses.setLayoutData(fdReplyToAddresses);
     wReplyToAddresses.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -491,8 +504,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wPerson.setLayoutData(fdPerson);
     wPerson.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -523,8 +538,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wPhone.setLayoutData(fdPhone);
     wPhone.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -598,8 +615,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wServer.setLayoutData(fdServer);
     wServer.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -630,8 +649,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wPort.setLayoutData(fdPort);
     wPort.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -683,6 +704,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wUseAuth.setLayoutData(fdUseAuth);
     wUseAuth.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setUseAuth();
             input.setChanged();
@@ -710,8 +732,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAuthUser.setLayoutData(fdAuthUser);
     wAuthUser.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -742,8 +766,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAuthPass.setLayoutData(fdAuthPass);
     wAuthPass.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -771,6 +797,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wUseSecAuth.setLayoutData(fdUseSecAuth);
     wUseSecAuth.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setSecureConnectiontype();
             input.setChanged();
@@ -801,6 +828,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSecureConnectionType.add("TLS 1.2");
     wSecureConnectionType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setSecureConnectiontype();
             input.setChanged();
@@ -878,6 +906,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -901,6 +930,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wOnlyComment.setLayoutData(fdOnlyComment);
     wOnlyComment.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -924,6 +954,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wUseHTML.setLayoutData(fdUseHTML);
     wUseHTML.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setEnabledEncoding();
             input.setChanged();
@@ -950,8 +981,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -980,6 +1013,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wUsePriority.setLayoutData(fdUsePriority);
     wUsePriority.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activateUsePriority();
             input.setChanged();
@@ -988,6 +1022,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
     SelectionAdapter selChanged =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -1106,8 +1141,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSubject.setLayoutData(fdSubject);
     wSubject.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1137,8 +1174,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wComment.setLayoutData(fdComment);
     wComment.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1220,6 +1259,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wIsAttachContentField.setLayoutData(fdIsAttachContentField);
     SelectionAdapter lisattachContentField =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateIsAttachContentField();
             input.setChanged();
@@ -1248,8 +1288,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAttachContentField.setLayoutData(fdAttachContentField);
     wAttachContentField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1280,8 +1322,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAttachContentFileNameField.setLayoutData(fdAttachContentFileNameField);
     wAttachContentFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1332,6 +1376,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wIsFileDynamic.setLayoutData(fdIsFileDynamic);
     SelectionAdapter lisFileDynamic =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateIsFileDynamic();
             input.setChanged();
@@ -1361,8 +1406,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicFilenameField.setLayoutData(fdFilenameField);
     wDynamicFilenameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1394,8 +1441,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicWildcardField.setLayoutData(fdDynamicWildcardField);
     wDynamicWildcardField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1425,6 +1474,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wbSourceFolder.setLayoutData(fdbSourceFolder);
     wbSourceFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
             if (wSourceFileFoldername.getText() != null) {
@@ -1469,6 +1519,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
     wbFileFoldername.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*"});
@@ -1503,6 +1554,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wIncludeSubFolders.setLayoutData(fdIncludeSubFolders);
     wIncludeSubFolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -1571,6 +1623,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wZipFiles.setLayoutData(fdZipFiles);
     wZipFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setZip();
@@ -1595,6 +1648,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wisZipFileDynamic.setLayoutData(fdIsZipFileDynamic);
     wisZipFileDynamic.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setDynamicZip();
@@ -1623,8 +1677,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicZipFileField.setLayoutData(fdDynamicZipFileField);
     wDynamicZipFileField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -1746,6 +1802,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
     wbImageFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(
@@ -1860,6 +1917,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(new String[] {wImageFilename.getText(), wContentID.getText()});
             wImageFilename.setText("");
@@ -1875,6 +1933,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // Delete files from the list of files...
     wbdImageFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -1886,6 +1945,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // Edit the selected file & remove from the list...
     wbeImageFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {

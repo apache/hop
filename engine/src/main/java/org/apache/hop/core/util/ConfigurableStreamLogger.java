@@ -52,6 +52,7 @@ public class ConfigurableStreamLogger implements Runnable {
    *
    * @see java.lang.Runnable#run()
    */
+  @Override
   public void run() {
     try {
       InputStreamReader isr = new InputStreamReader(this.is);

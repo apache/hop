@@ -46,6 +46,7 @@ public class ReadChannelInputStream extends InputStream {
     return r;
   }
 
+  @Override
   public synchronized int read(byte[] buf, int off, int len) throws IOException {
     if (channel == null) {
       return -1;
@@ -67,6 +68,7 @@ public class ReadChannelInputStream extends InputStream {
     return read;
   }
 
+  @Override
   public synchronized void close() {
     if (channel != null) {
       channel.close();

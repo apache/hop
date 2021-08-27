@@ -68,6 +68,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

@@ -118,6 +118,7 @@ public class FastJsonReader implements IJsonReader {
     return jsonConfiguration;
   }
 
+  @Override
   public void setIgnoreMissingPath(boolean value) {
     this.ignoreMissingPath = value;
   }
@@ -146,6 +147,7 @@ public class FastJsonReader implements IJsonReader {
     }
   }
 
+  @Override
   public boolean isIgnoreMissingPath() {
     return this.ignoreMissingPath;
   }

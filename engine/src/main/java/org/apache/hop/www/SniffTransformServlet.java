@@ -56,6 +56,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -139,6 +140,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
           IRowListener rowListener =
               new IRowListener() {
+                @Override
                 public void rowReadEvent(IRowMeta rowMeta, Object[] row)
                     throws HopTransformException {
                   if (read && rowBuffer.getBuffer().size() < nrLines) {
@@ -147,6 +149,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
                   }
                 }
 
+                @Override
                 public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                     throws HopTransformException {
                   if (written && rowBuffer.getBuffer().size() < nrLines) {
@@ -155,6 +158,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
                   }
                 }
 
+                @Override
                 public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row)
                     throws HopTransformException {}
               };
@@ -317,10 +321,12 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
     return "Sniff Transform";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

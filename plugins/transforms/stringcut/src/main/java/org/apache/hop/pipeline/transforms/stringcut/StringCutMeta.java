@@ -219,6 +219,7 @@ public class StringCutMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public StringCut createTransform(
       TransformMeta transformMeta,
       StringCutData data,
@@ -228,6 +229,7 @@ public class StringCutMeta extends BaseTransformMeta
     return new StringCut(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public StringCutData getTransformData() {
     return new StringCutData();
   }

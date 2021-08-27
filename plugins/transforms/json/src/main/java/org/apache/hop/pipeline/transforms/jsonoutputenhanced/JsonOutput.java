@@ -67,6 +67,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -102,6 +103,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     return false;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // This also waits for a row to be finished.
@@ -469,6 +471,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.jsonKeyGroupItems != null) {

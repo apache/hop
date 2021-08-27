@@ -138,7 +138,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new IOException("Object is not a directory");
     }
     Storage storage = getAbstractFileSystem().setupStorage();
-    List<String> results = new ArrayList<String>();
+    List<String> results = new ArrayList<>();
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {
@@ -233,7 +233,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new IOException("Object is not a directory");
     }
     Storage storage = getAbstractFileSystem().setupStorage();
-    List<FileObject> results = new ArrayList<FileObject>();
+    List<FileObject> results = new ArrayList<>();
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {

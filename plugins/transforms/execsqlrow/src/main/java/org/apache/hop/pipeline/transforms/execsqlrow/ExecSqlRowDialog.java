@@ -70,6 +70,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     input = (ExecSqlRowMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -154,6 +155,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSendOneStatement.setLayoutData(fdSendOneStatement);
     wSendOneStatement.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -179,8 +181,10 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSqlFieldName.setLayoutData(fdSqlFieldName);
     wSqlFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -209,6 +213,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSqlFromFile.setLayoutData(fdSqlFromFile);
     wSqlFromFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

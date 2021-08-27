@@ -203,6 +203,7 @@ public class LoadFileInputField implements Cloneable {
     return ElementTypeDesc[i];
   }
 
+  @Override
   public Object clone() {
     try {
       LoadFileInputField retval = (LoadFileInputField) super.clone();

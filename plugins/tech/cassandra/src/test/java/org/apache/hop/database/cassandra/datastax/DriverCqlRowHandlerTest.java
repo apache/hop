@@ -57,7 +57,7 @@ public class DriverCqlRowHandlerTest {
 
   @Test
   public void testQueryRows() throws Exception {
-    List<Object[]> rowList = new ArrayList<Object[]>();
+    List<Object[]> rowList = new ArrayList<>();
     rowList.add(new Object[] {1L, "a", 0.2d});
     rowList.add(new Object[] {2L, "b", 42d});
 
@@ -107,8 +107,8 @@ public class DriverCqlRowHandlerTest {
 
   @Test
   public void testExpandCollection() throws Exception {
-    List<Object[]> rowList = new ArrayList<Object[]>();
-    ArrayList<Long> numList = new ArrayList<Long>();
+    List<Object[]> rowList = new ArrayList<>();
+    ArrayList<Long> numList = new ArrayList<>();
     numList.add(1L);
     numList.add(2L);
     numList.add(3L);

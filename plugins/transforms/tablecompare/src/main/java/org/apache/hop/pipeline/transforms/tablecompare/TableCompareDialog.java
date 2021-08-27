@@ -76,6 +76,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     input = (TableCompareMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -375,6 +376,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
   private void setComboValues() {
     Runnable fieldLoader =
         new Runnable() {
+          @Override
           public void run() {
 
             try {

@@ -69,6 +69,7 @@ public class SortedMergeMeta extends BaseTransformMeta
   @Injection(name = "ASCENDING", group = "FIELDS")
   private boolean[] ascending;
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -79,6 +80,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     ascending = new boolean[nrFields];
   }
 
+  @Override
   public void setDefault() {
     int nrFields = 0;
 
@@ -89,6 +91,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public Object clone() {
     SortedMergeMeta retval = (SortedMergeMeta) super.clone();
 
@@ -134,6 +137,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -149,6 +153,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -169,6 +174,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -252,6 +258,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SortedMergeData getTransformData() {
     return new SortedMergeData();
   }
@@ -276,6 +283,7 @@ public class SortedMergeMeta extends BaseTransformMeta
     this.fieldName = fieldName;
   }
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,

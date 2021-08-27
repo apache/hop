@@ -39,10 +39,12 @@ import java.util.Map;
 
 public class HopWeb implements ApplicationConfiguration {
 
+  @Override
   public void configure(Application application) {
     application.addResource(
         "ui/images/logo_icon.png",
         new ResourceLoader() {
+          @Override
           public InputStream getResourceAsStream(String resourceName) throws IOException {
             // Convert svg to png without Display
             PNGTranscoder t = new PNGTranscoder();

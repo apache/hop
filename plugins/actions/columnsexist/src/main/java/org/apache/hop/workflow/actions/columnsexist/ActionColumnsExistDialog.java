@@ -155,6 +155,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
@@ -190,6 +191,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

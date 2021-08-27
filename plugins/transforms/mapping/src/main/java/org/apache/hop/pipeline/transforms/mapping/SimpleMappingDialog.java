@@ -101,6 +101,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
       this.parameters = parameters;
     }
 
+    @Override
     public void applyChanges() {
 
       int nrLines = wMappingParameters.nrNonEmpty();
@@ -129,6 +130,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
       wFieldMappings = fieldMappings;
     }
 
+    @Override
     public void applyChanges() {
       // The grid
       //
@@ -161,6 +163,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     changeList = new ArrayList<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
