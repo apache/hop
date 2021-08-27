@@ -920,7 +920,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
             new String[] {
               in.getFileName()[i],
               in.getFileMask()[i],
-              in.getExludeFileMask()[i],
+              in.getExcludeFileMask()[i],
               in.getRequiredFilesDesc(in.getFileRequired()[i]),
               in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
             });

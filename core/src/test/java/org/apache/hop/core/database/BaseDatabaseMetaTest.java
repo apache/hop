@@ -159,30 +159,6 @@ public class BaseDatabaseMetaTest {
     assertTrue(nativeMeta.fullExceptionLog(new RuntimeException("xxxx")));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testDeprecatedItems() throws Exception {
-    assertEquals(
-        "'2016-08-11'",
-        nativeMeta.getSqlValue(new ValueMetaDate("FOO"), new Date(116, 7, 11), "YYYY-MM-dd"));
-    assertEquals(
-        "\"FOO\".\"BAR\"", nativeMeta.getBackwardsCompatibleSchemaTableCombination("FOO", "BAR"));
-    assertEquals(
-        "\"null\".\"BAR\"",
-        nativeMeta.getBackwardsCompatibleSchemaTableCombination(
-            null, "BAR")); // not sure this is right ...
-    assertEquals(
-        "FOO\".\"BAR\"", nativeMeta.getBackwardsCompatibleSchemaTableCombination("FOO\"", "BAR"));
-    assertEquals(
-        "FOO\".BAR\"", nativeMeta.getBackwardsCompatibleSchemaTableCombination("FOO\"", "BAR\""));
-    assertEquals("\"FOO\"", nativeMeta.getBackwardsCompatibleTable("FOO"));
-    assertEquals(
-        "\"null\"",
-        nativeMeta.getBackwardsCompatibleTable(null)); // not sure this should happen but it does
-    assertEquals("FOO\"", nativeMeta.getBackwardsCompatibleTable("FOO\""));
-    assertEquals("\"FOO", nativeMeta.getBackwardsCompatibleTable("\"FOO"));
-  }
-
   @Test
   public void testDefaultSqlStatements() {
     // Note - this method should use only native metas.

@@ -31,20 +31,8 @@ import org.w3c.dom.Node;
 
 /**
  * Describes a JsonPath field.
- *
- * @author Samatar
- * @since 20-06-20010
  */
 public class JsonInputField extends BaseFileField implements Cloneable {
-
-  @Deprecated public static final int TYPE_TRIM_NONE = IValueMeta.TRIM_TYPE_NONE;
-  @Deprecated public static final int TYPE_TRIM_LEFT = IValueMeta.TRIM_TYPE_LEFT;
-  @Deprecated public static final int TYPE_TRIM_RIGHT = IValueMeta.TRIM_TYPE_RIGHT;
-  @Deprecated public static final int TYPE_TRIM_BOTH = IValueMeta.TRIM_TYPE_BOTH;
-
-  @Deprecated public static final String[] trimTypeCode = ValueMetaBase.trimTypeCode;
-
-  @Deprecated public static final String[] trimTypeDesc = ValueMetaBase.trimTypeDesc;
 
   @Injection(name = "FIELD_PATH", group = "FIELDS")
   private String path;
@@ -89,7 +77,7 @@ public class JsonInputField extends BaseFileField implements Cloneable {
     setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
     setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
     setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+    setTrimType(ValueMetaBase.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
     setRepeated(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
   }
 
@@ -111,26 +99,6 @@ public class JsonInputField extends BaseFileField implements Cloneable {
     v.setCurrencySymbol(getCurrencySymbol());
     v.setTrimType(getTrimType());
     return v;
-  }
-
-  @Deprecated
-  public static final int getTrimTypeByCode(String tt) {
-    return ValueMetaBase.getTrimTypeByCode(tt);
-  }
-
-  @Deprecated
-  public static final int getTrimTypeByDesc(String tt) {
-    return ValueMetaBase.getTrimTypeByDesc(tt);
-  }
-
-  @Deprecated
-  public static final String getTrimTypeCode(int i) {
-    return ValueMetaBase.getTrimTypeCode(i);
-  }
-
-  @Deprecated
-  public static final String getTrimTypeDesc(int i) {
-    return ValueMetaBase.getTrimTypeDesc(i);
   }
 
   public JsonInputField clone() {

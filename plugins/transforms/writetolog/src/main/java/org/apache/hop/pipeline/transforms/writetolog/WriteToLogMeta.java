@@ -151,26 +151,8 @@ public class WriteToLogMeta extends BaseTransformMeta
     this.fieldName = fieldName;
   }
 
-  /**
-   * @return
-   * @deprecated use {@link #isDisplayHeader()} instead
-   */
-  @Deprecated
-  public boolean isdisplayHeader() {
-    return isDisplayHeader();
-  }
-
   public boolean isDisplayHeader() {
     return displayHeader;
-  }
-
-  /**
-   * @param displayheader
-   * @deprecated use {@link #setDisplayHeader(boolean)} instead
-   */
-  @Deprecated
-  public void setdisplayHeader(boolean displayheader) {
-    setDisplayHeader(displayheader);
   }
 
   public void setDisplayHeader(boolean displayheader) {

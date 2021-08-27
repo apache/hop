@@ -263,15 +263,6 @@ public class PropertyInputMeta extends BaseTransformMeta
     return fileName;
   }
 
-  /**
-   * @return Returns the excludeFileMask.
-   * @deprecated due to typo
-   */
-  @Deprecated
-  public String[] getExludeFileMask() {
-    return excludeFileMask;
-  }
-
   /** @return Returns the excludeFileMask. */
   public String[] getExcludeFileMask() {
     return excludeFileMask;

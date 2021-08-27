@@ -103,7 +103,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
 
     // See if the transform receives input.
     //
-    isReceivingInput = pipelineMeta.findNrPrevTransforms(transformMeta) > 0;
+    isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
 
     // Transform name line
     wlTransformname = new Label(shell, SWT.RIGHT);

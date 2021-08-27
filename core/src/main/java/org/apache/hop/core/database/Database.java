@@ -18,6 +18,7 @@
 // CHECKSTYLE:FileLength:OFF
 package org.apache.hop.core.database;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.*;
@@ -89,7 +90,6 @@ public class Database implements IVariables, ILoggingObject {
 
   private ILogChannel log;
   private ILoggingObject parentLoggingObject;
-  private static final String[] TABLE_TYPES_TO_GET = {"TABLE", "VIEW"};
   private static final String TABLES_META_DATA_TABLE_NAME = "TABLE_NAME";
 
   /**
@@ -663,33 +663,6 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  /**
-   * this is a copy of {@link #commit(boolean)} - but delegates exception handling to caller. Can be
-   * possibly be removed in future.
-   *
-   * @param force
-   * @throws HopDatabaseException
-   * @throws SQLException
-   * @deprecated
-   */
-  @Deprecated
-  private void commitInternal(boolean force) throws HopDatabaseException, SQLException {
-    if (!Utils.isEmpty(connectionGroup) && !force) {
-      return;
-    }
-    if (getDatabaseMetaData().supportsTransactions()) {
-      if (log.isDebug()) {
-        log.logDebug("Commit on database connection [" + toString() + "]");
-      }
-      connection.commit();
-      nrExecutedCommits++;
-    } else {
-      if (log.isDetailed()) {
-        log.logDetailed("No commit possible on database connection [" + toString() + "]");
-      }
-    }
-  }
-
   public void rollback() throws HopDatabaseException {
     rollback(false);
   }
@@ -1152,17 +1125,6 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  /**
-   * Clears batch of insert prepared statement
-   *
-   * @throws HopDatabaseException
-   * @deprecated
-   */
-  @Deprecated
-  public void clearInsertBatch() throws HopDatabaseException {
-    clearBatch(prepStatementInsert);
-  }
-
   public void clearBatch(PreparedStatement preparedStatement) throws HopDatabaseException {
     try {
       preparedStatement.clearBatch();
@@ -1183,11 +1145,6 @@ public class Database implements IVariables, ILoggingObject {
     } catch (SQLException e) {
       throw new HopDatabaseException("Unable to clear batch for prepared statement", e);
     }
-  }
-
-  public void insertFinished(boolean batch) throws HopDatabaseException {
-    insertFinished(prepStatementInsert, batch);
-    prepStatementInsert = null;
   }
 
   /**
@@ -1279,55 +1236,6 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   /**
-   * Close the prepared statement of the insert statement.
-   *
-   * @param ps The prepared statement to empty and close.
-   * @param batch true if you are using batch processing (typically true for this method)
-   * @throws HopDatabaseException
-   * @deprecated use emptyAndCommit() instead (pass in the number of rows left in the batch)
-   */
-  @Deprecated
-  public void insertFinished(PreparedStatement ps, boolean batch) throws HopDatabaseException {
-    boolean isBatchUpdate = false;
-    try {
-      if (ps != null) {
-        if (!isAutoCommit()) {
-          // Execute the batch or just perform a commit.
-          if (batch && getDatabaseMetaData().supportsBatchUpdates()) {
-            // The problem with the batch counters is that you can't just
-            // execute the current batch.
-            // Certain databases have a problem if you execute the batch and if
-            // there are no statements in it.
-            // You can't just catch the exception either because you would have
-            // to roll back on certain databases before you can then continue to
-            // do anything.
-            // That leaves the task of keeping track of the number of rows up to
-            // our responsibility.
-            isBatchUpdate = true;
-            ps.executeBatch();
-            commit();
-          } else {
-            commit();
-          }
-        }
-
-        // Let's not forget to close the prepared statement.
-        //
-        ps.close();
-      }
-    } catch (BatchUpdateException ex) {
-      throw createHopDatabaseBatchException("Error updating batch", ex);
-    } catch (SQLException ex) {
-      if (isBatchUpdate) {
-        throw createHopDatabaseBatchException("Error updating batch", ex);
-      } else {
-        throw new HopDatabaseException(
-            "Unable to commit connection after having inserted rows.", ex);
-      }
-    }
-  }
-
-  /**
    * Execute an SQL statement on the database connection (has to be open)
    *
    * @param sql The SQL to execute
@@ -1360,7 +1268,6 @@ public class Database implements IVariables, ILoggingObject {
         prepStmt.close();
       } else {
         String sqlStripped = databaseMeta.stripCR(sql);
-        // log.logDetailed("Executing SQL Statement: ["+sqlStripped+"]");
         Statement stmt = connection.createStatement();
         resultSet = stmt.execute(sqlStripped);
         count = stmt.getUpdateCount();
@@ -1370,7 +1277,6 @@ public class Database implements IVariables, ILoggingObject {
       if (!resultSet) {
         // if the result is a resultset, we don't do anything with it!
         // You should have called something else!
-        // log.logDetailed("What to do with ResultSet??? (count="+count+")");
         if (count > 0) {
           if (upperSql.startsWith("INSERT")) {
             result.setNrLinesOutput(count);
@@ -1706,9 +1612,8 @@ public class Database implements IVariables, ILoggingObject {
    *     This is supposed to be the properly quoted name of the table or the complete schema-table
    *     name combination.
    * @return true if the table exists, false if it doesn't.
-   * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
    */
-  public boolean checkTableExists(String tableName) throws HopDatabaseException {
+  private boolean checkTableExists(String tableName) throws HopDatabaseException {
     try {
       if (log.isDebug()) {
         log.logDebug("Checking if table [" + tableName + "] exists!");
@@ -1748,105 +1653,7 @@ public class Database implements IVariables, ILoggingObject {
    * @return true if the table exists, false if it doesn't.
    */
   public boolean checkTableExists(String schema, String tableName) throws HopDatabaseException {
-
-    if (useJdbcMeta()) {
-      return checkTableExistsByDbMeta(schema, tableName);
-    } else {
-      return checkTableExists(
-          databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName));
-    }
-  }
-
-  /**
-   * See if the table specified exists by getting db metadata.
-   *
-   * @param tableName The name of the table to check.<br>
-   *     This is supposed to be the properly quoted name of the table or the complete schema-table
-   *     name combination.
-   * @return true if the table exists, false if it doesn't.
-   * @throws HopDatabaseException
-   * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
-   */
-  @Deprecated
-  public boolean checkTableExistsByDbMeta(String schema, String tableName)
-      throws HopDatabaseException {
-    boolean isTableExist = false;
-    if (log.isDebug()) {
-      log.logDebug(
-          BaseMessages.getString(
-              PKG, "Database.Info.CheckingIfTableExistsInDbMetaData", tableName));
-    }
-    try (ResultSet resTables = getTableMetaData(schema, tableName)) {
-      while (resTables.next()) {
-        String resTableName = resTables.getString(TABLES_META_DATA_TABLE_NAME);
-        if (tableName.equalsIgnoreCase(resTableName)) {
-          if (log.isDebug()) {
-            log.logDebug(BaseMessages.getString(PKG, "Database.Info.TableFound", tableName));
-          }
-          isTableExist = true;
-          break;
-        }
-      }
-    } catch (SQLException e) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(
-              PKG, "Database.Error.UnableToCheckExistingTable", tableName, databaseMeta.getName()),
-          e);
-    }
-    return isTableExist;
-  }
-
-  /**
-   * Retrieves the table description matching the schema and table name.
-   *
-   * @param schema the schema name pattern
-   * @param table the table name pattern
-   * @return table description row set
-   * @throws HopDatabaseException if DatabaseMetaData is null or some database error occurs
-   */
-  private ResultSet getTableMetaData(String schema, String table) throws HopDatabaseException {
-    ResultSet tables = null;
-    if (getDatabaseMetaData() == null) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(PKG, "Database.Error.UnableToGetDbMeta"));
-    }
-    try {
-      tables = getDatabaseMetaData().getTables(null, schema, table, TABLE_TYPES_TO_GET);
-    } catch (SQLException e) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(PKG, "Database.Error.UnableToGetTableNames"), e);
-    }
-    if (tables == null) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(PKG, "Database.Error.UnableToGetTableNames"));
-    }
-    return tables;
-  }
-
-  /**
-   * Retrieves the columns metadata matching the schema and table name.
-   *
-   * @param schema the schema name pattern
-   * @param table the table name pattern
-   * @throws HopDatabaseException if DatabaseMetaData is null or some database error occurs
-   */
-  private ResultSet getColumnsMetaData(String schema, String table) throws HopDatabaseException {
-    ResultSet columns = null;
-    if (getDatabaseMetaData() == null) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(PKG, "Database.Error.UnableToGetDbMeta"));
-    }
-    try {
-      columns = getDatabaseMetaData().getColumns(null, schema, table, null);
-    } catch (SQLException e) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(PKG, "Database.Error.UnableToGetTableNames"), e);
-    }
-    if (columns == null) {
-      throw new HopDatabaseException(
-          BaseMessages.getString(PKG, "Database.Error.UnableToGetTableNames"));
-    }
-    return columns;
+    return checkTableExists(databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName));
   }
 
   /**
@@ -1865,34 +1672,9 @@ public class Database implements IVariables, ILoggingObject {
    */
   public boolean checkColumnExists(String schemaname, String tableName, String columnName)
       throws HopDatabaseException {
-    if (useJdbcMeta()) {
-      return checkColumnExistsByDbMeta(schemaname, tableName, columnName);
-    } else {
-      return checkColumnExists(
-          databaseMeta.quoteField(columnName),
-          databaseMeta.getQuotedSchemaTableCombination(this, schemaname, tableName));
-    }
-  }
-
-  public boolean checkColumnExistsByDbMeta(String schemaname, String tableName, String columnName)
-      throws HopDatabaseException {
-    if (log.isDebug()) {
-      log.logDebug("Checking if column [" + columnName + "] exists in table [" + tableName + "] !");
-    }
-
-    // First try the metadata
-    try {
-      ResultSet columns = getColumnsMetaData(schemaname, tableName);
-      while (columns.next()) {
-        if (columnName.equals(columns.getString("COLUMN_NAME"))) {
-          return true;
-        }
-      }
-      return false;
-    } catch (HopDatabaseException | SQLException e) {
-      // That's ok. We will use a prepared statement.
-      throw new HopDatabaseException("Metadata check failed. Fallback to statement check.");
-    }
+    return checkColumnExists(
+        databaseMeta.quoteField(columnName),
+        databaseMeta.getQuotedSchemaTableCombination(this, schemaname, tableName));
   }
 
   /**
@@ -1903,11 +1685,8 @@ public class Database implements IVariables, ILoggingObject {
    *     This is supposed to be the properly quoted name of the table or the complete schema-table
    *     name combination.
    * @return true if the table exists, false if it doesn't.
-   * @deprecated Deprecated in favor of the smarter {@link #checkColumnExists(String, String,
-   *     String)}
    */
-  @Deprecated
-  public boolean checkColumnExists(String columnName, String tableName)
+  private boolean checkColumnExists(String columnName, String tableName)
       throws HopDatabaseException {
     try {
       if (log.isDebug()) {
@@ -2176,90 +1955,9 @@ public class Database implements IVariables, ILoggingObject {
    */
   public IRowMeta getTableFieldsMeta(String schemaName, String tableName)
       throws HopDatabaseException {
-    if (useJdbcMeta()) {
-      return getTableFieldsMetaByDbMeta(schemaName, tableName);
-    } else {
-      String tableSchema =
-          databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
-      String sql = databaseMeta.getSqlQueryFields(tableSchema);
-      return getQueryFields(sql, false);
-    }
-  }
-
-  public IRowMeta getTableFieldsMetaByDbMeta(String schemaName, String tableName)
-      throws HopDatabaseException {
-    try {
-      // Cleanup a bit. In JDBC metadata, we want null names for
-      // wildcards, not empty strings.
-      if ("".equals(schemaName)) {
-        schemaName = null;
-      }
-      if ("".equals(tableName)) {
-        tableName = null;
-      }
-
-      IRowMeta fields = null;
-      DbCache dbcache = DbCache.getInstance();
-      DbCacheEntry entry = null;
-
-      if (dbcache != null) {
-        // Cache key must not match the other implementation where
-        // valuemeta is properly casted. We're not caching values here,
-        // just metadata.
-        entry =
-            new DbCacheEntry(
-                databaseMeta.getName(),
-                "LIGHTWEIGHT_SALT"
-                    .concat(schemaName == null ? "nullSchema" : schemaName)
-                    .concat(tableName == null ? "nullTable" : tableName));
-
-        fields = dbcache.get(entry);
-
-        if (fields != null) {
-          return fields;
-        }
-      }
-      if (connection == null) {
-        return null; // Cache test without connect.
-      }
-
-      // First get the fields through metadata
-      ResultSet rm = connection.getMetaData().getColumns(null, schemaName, tableName, null);
-
-      if (fields == null) {
-        fields = new RowMeta();
-      }
-
-      while (rm.next()) {
-        IValueMeta valueMeta = null;
-        for (IValueMeta valueMetaClass : valueMetaPluginClasses) {
-          try {
-            IValueMeta v = valueMetaClass.getMetadataPreview(this, databaseMeta, rm);
-            if (v != null) {
-              valueMeta = v;
-              break;
-            }
-          } catch (HopDatabaseException e) {
-            // That's ok. The VMI impl doesn't like this data type.
-            if (log.isDebug()) {
-              log.logDebug("Skipping IValueMeta:" + valueMetaClass.getClass().getName(), e);
-            }
-          }
-        }
-        fields.addValueMeta(valueMeta);
-      }
-
-      // Store in cache!!
-      if (dbcache != null && entry != null) {
-        if (fields != null) {
-          dbcache.put(entry, fields);
-        }
-      }
-
-      return fields;
-    } catch (Exception e) {
-      throw new HopDatabaseException("Failed to fetch fields from jdbc meta ", e);
-    }
+    String tableSchema = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
+    String sql = databaseMeta.getSqlQueryFields(tableSchema);
+    return getQueryFields(sql, false);
   }
 
   public IRowMeta getQueryFields(String sql, boolean param, IRowMeta inform, Object[] data)
@@ -2308,9 +2006,6 @@ public class Database implements IVariables, ILoggingObject {
         }
       }
     } catch (Exception e) {
-      /*
-       * databaseMeta.getDatabaseType()==DatabaseMeta.TYPE_DATABASE_SYBASEIQ ) {
-       */
       fields = getQueryFieldsFallback(sql, param, inform, data);
     }
 
@@ -2473,12 +2168,8 @@ public class Database implements IVariables, ILoggingObject {
             // prepared
             // statement's metadata. The right answer is to directly get the resultset metadata.
             //
-            // ResultSetMetaData metadata = ps.getMetaData();
             // If the PreparedStatement can't get us the metadata, try using the ResultSet's
             // metadata
-            // if ( metadata == null ) {
-            //  metadata = r.getMetaData();
-            // }
             ResultSetMetaData metadata = r.getMetaData();
             fields = getRowInfo(metadata, false, false);
           } finally { // should always use a try/finally to avoid leaks
@@ -3326,7 +3017,7 @@ public class Database implements IVariables, ILoggingObject {
   public RowMetaAndData getOneRow(String sql) throws HopDatabaseException {
     ResultSet rs = openQuery(sql);
     if (rs != null) {
-      Object[] row = getRow(rs); // One row only;
+      Object[] row = getRow(rs); // One row only
 
       try {
         rs.close();
@@ -3372,7 +3063,7 @@ public class Database implements IVariables, ILoggingObject {
       throws HopDatabaseException {
     ResultSet rs = openQuery(sql, param, data);
     if (rs != null) {
-      Object[] row = getRow(rs); // One value: a number;
+      Object[] row = getRow(rs); // One value: a number
 
       rowMeta = null;
       RowMeta tmpMeta = null;
@@ -4011,7 +3702,6 @@ public class Database implements IVariables, ILoggingObject {
       }
     }
     Map<String, Collection<String>> synonymMap = new HashMap<>();
-    // ArrayList<String> names = new ArrayList<>();
     ResultSet alltables = null;
     try {
       alltables =
@@ -4904,12 +4594,5 @@ public class Database implements IVariables, ILoggingObject {
     if (log != null) {
       log.setForcingSeparateLogging(forcingSeparateLogging);
     }
-  }
-
-  // Checks to see if the HOP_COMPATIBILITY_USE_JDBC_METADATA is set.
-  private boolean useJdbcMeta() {
-    String useJdbcMeta =
-        this.variables.getVariable(Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false");
-    return Boolean.TRUE.toString().equals(useJdbcMeta);
   }
 }

@@ -78,7 +78,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
 
     // See if the transform receives input.
     //
-    boolean isReceivingInput = pipelineMeta.findNrPrevTransforms(transformMeta) > 0;
+    boolean isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);

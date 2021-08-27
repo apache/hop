@@ -120,23 +120,23 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void checksumCRC32Test() {
+  public void checksumCRC32Test() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.ChecksumCRC32(new ValueMetaString(), path);
+    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), path,false);
     assertEquals(3632233996l, checksum);
   }
 
   @Test
-  public void checksumCRC32MissingFileTest() {
+  public void checksumCRC32MissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.ChecksumCRC32(new ValueMetaString(), nonExistingFile);
+    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile,false);
     assertEquals(0, checksum);
   }
 
   @Test
   public void checksumCRC32NullPathTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.ChecksumCRC32(new ValueMetaString(), nonExistingFile);
+    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile,false);
     assertEquals(0, checksum);
   }
 
@@ -169,27 +169,6 @@ public class ValueDataUtilTest {
   @Test
   public void checksumCRC32NullPathFailTest() throws HopFileNotFoundException {
     long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), null, true);
-    assertEquals(0, checksum);
-  }
-
-  @Test
-  public void checksumAdlerTest() {
-    String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.ChecksumAdler32(new ValueMetaString(), path);
-    assertEquals(73204161L, checksum);
-  }
-
-  @Test
-  public void checksumAdlerMissingFileTest() {
-    String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.ChecksumAdler32(new ValueMetaString(), nonExistingFile);
-    assertEquals(0, checksum);
-  }
-
-  @Test
-  public void checksumAdlerNullPathTest() {
-    String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.ChecksumAdler32(new ValueMetaString(), nonExistingFile);
     assertEquals(0, checksum);
   }
 
@@ -336,24 +315,6 @@ public class ValueDataUtilTest {
   public void loadFileContentInBinaryNullPathFailTest()
       throws HopFileNotFoundException, HopValueException {
     assertNull(ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), null, true));
-  }
-
-  @Test
-  public void getFileEncodingTest() throws Exception {
-    String path = getClass().getResource("txt-sample.txt").getPath();
-    String encoding = ValueDataUtil.getFileEncoding(new ValueMetaString(), path);
-    assertEquals("US-ASCII", encoding);
-  }
-
-  @Test(expected = HopValueException.class)
-  public void getFileEncodingMissingFileTest() throws HopValueException {
-    String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.getFileEncoding(new ValueMetaString(), nonExistingPath);
-  }
-
-  @Test
-  public void getFileEncodingNullPathTest() throws Exception {
-    assertNull(ValueDataUtil.getFileEncoding(new ValueMetaString(), null));
   }
 
   @Test

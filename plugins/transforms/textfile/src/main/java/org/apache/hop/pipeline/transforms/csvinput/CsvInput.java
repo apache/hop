@@ -897,7 +897,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData>
       // If the transform doesn't have any previous transforms, we just get the filename.
       // Otherwise, we'll grab the list of file names later...
       //
-      if (getPipelineMeta().findNrPrevTransforms(getTransformMeta()) == 0) {
+      if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() == 0) {
         String filename = resolve(meta.getFilename());
 
         if (Utils.isEmpty(filename)) {

@@ -22,8 +22,6 @@ import java.lang.annotation.*;
 /**
  * This annotation signals to the Hop plugin registry that it needs to consider the annotated class
  * as a carte servlet plugin. The class needs to implement the IHopServerPlugin interface
- *
- * @author Matt Casters
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -42,14 +40,6 @@ public @interface HopServerServlet {
 
   /** @return True if a separate class loader is needed every time this class is instantiated */
   boolean isSeparateClassLoaderNeeded() default false;
-
-  /**
-   * Please use the i18n:package:key format in name, description and categoryDescription
-   *
-   * @return
-   */
-  @Deprecated
-  String i18nPackageName() default "";
 
   String classLoaderGroup() default "";
 }

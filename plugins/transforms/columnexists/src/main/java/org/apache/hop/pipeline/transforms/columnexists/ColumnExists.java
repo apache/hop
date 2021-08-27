@@ -129,21 +129,14 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       // get tablename
       if (meta.isTablenameInfield()) {
         data.tableName = getInputRowMeta().getString(r, data.indexOfTablename);
-        if (!Utils.isEmpty(data.schemaname)) {
-          data.tableName =
-              data.db
-                  .getDatabaseMeta()
-                  .getQuotedSchemaTableCombination(this, data.schemaname, data.tableName);
-        } else {
           data.tableName = data.db.getDatabaseMeta().quoteField(data.tableName);
-        }
       }
       // get columnname
       String columnname = getInputRowMeta().getString(r, data.indexOfColumnname);
       columnname = data.db.getDatabaseMeta().quoteField(columnname);
 
       // Check if table exists on the specified connection
-      columnexists = data.db.checkColumnExists(columnname, data.tableName);
+      columnexists = data.db.checkColumnExists(data.schemaname, data.tableName, columnname);
 
       Object[] outputRowData = RowDataUtil.addValueData(r, getInputRowMeta().size(), columnexists);
 

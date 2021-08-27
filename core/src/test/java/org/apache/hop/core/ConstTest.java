@@ -2404,18 +2404,6 @@ public class ConstTest {
   }
 
   @Test
-  public void testReplEnv() {
-    assertNull(Const.replEnv((String) null));
-    System.setProperty("testProp", "testValue");
-    assertEquals(
-        "Value for testProp property is testValue.",
-        Const.replEnv("Value for testProp property is %%testProp%%."));
-    assertEquals(
-        "Value for testProp property is testValue.",
-        Const.replEnv(new String[] {"Value for testProp property is %%testProp%%."})[0]);
-  }
-
-  @Test
   public void testNullToEmpty() {
     assertEquals("", Const.nullToEmpty(null));
     assertEquals("value", Const.nullToEmpty("value"));

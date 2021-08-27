@@ -297,11 +297,6 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
     readData(transformNode, metadataProvider);
   }
 
-  @Deprecated
-  public void allocate(int nrheaders, int nrparamers) {
-    allocate(nrheaders, nrparamers, 0);
-  }
-
   public void allocate(int nrheaders, int nrparamers, int nrmatrixparameters) {
     headerField = new String[nrheaders];
     headerName = new String[nrheaders];

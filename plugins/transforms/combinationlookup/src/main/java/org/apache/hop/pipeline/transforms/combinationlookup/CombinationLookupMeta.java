@@ -716,7 +716,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
               vLastUpdateField = new ValueMetaDate(lastUpdateField);
             }
 
-            if (!db.checkTableExists(schemaTable)) {
+            if (!db.checkTableExists(variables.resolve(schemaName),variables.resolve(tableName))) {
               // Add technical key field.
               fields.addValueMeta(vkeyfield);
 

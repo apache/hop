@@ -189,7 +189,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     // See if the transform receives input. If so, we don't ask for the filename, but
     // for the filename field.
     //
-    isReceivingInput = pipelineMeta.findNrPrevTransforms(transformMeta) > 0;
+    isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
     if (isReceivingInput) {
 
       IRowMeta previousFields;

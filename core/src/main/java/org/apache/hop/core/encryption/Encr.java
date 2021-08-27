@@ -38,11 +38,6 @@ public class Encr {
 
   public Encr() {}
 
-  @Deprecated
-  public boolean init() {
-    return true;
-  }
-
   public static void init(String encoderPluginId) throws HopException {
     if (Utils.isEmpty(encoderPluginId)) {
       throw new HopException(
@@ -59,42 +54,6 @@ public class Encr {
     // Load encoder specific options...
     //
     encoder.init();
-  }
-
-  /**
-   * Old signature code, used in license keys, from the Hop 1.x days.
-   *
-   * @param signature
-   * @param verify
-   * @return
-   * @deprecated
-   */
-  @Deprecated
-  public static final boolean checkSignatureShort(String signature, String verify) {
-    return getSignatureShort(signature).equalsIgnoreCase(verify);
-  }
-
-  /**
-   * Old Hop 1.x code used to get a short signature from a long version signature for license
-   * checking.
-   *
-   * @param signature
-   * @return
-   * @deprecated
-   */
-  @Deprecated
-  public static final String getSignatureShort(String signature) {
-    String retval = "";
-    if (signature == null) {
-      return retval;
-    }
-    int len = signature.length();
-    if (len < 6) {
-      return retval;
-    }
-    retval = signature.substring(len - 5, len);
-
-    return retval;
   }
 
   public static final String encryptPassword(String password) {

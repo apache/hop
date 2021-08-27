@@ -358,7 +358,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
       return;
     }
     input.setStreamField(wStreamFieldName.getText());
-    input.setGPGPLocation(wGPGLocation.getText());
+    input.setGPGLocation(wGPGLocation.getText());
     input.setKeyName(wKeyName.getText());
     input.setResultFieldName(wResult.getText());
     input.setKeynameInField(wKeyNameFromField.getSelection());

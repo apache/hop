@@ -228,22 +228,6 @@ public class SftpClient {
     }
   }
 
-  /**
-   * @param localFilePath
-   * @param remoteFile
-   * @throws HopWorkflowException
-   * @deprecated use {@link #get(FileObject, String)}
-   */
-  @Deprecated
-  public void get(String localFilePath, String remoteFile) throws HopWorkflowException {
-    int mode = ChannelSftp.OVERWRITE;
-    try {
-      c.get(remoteFile, localFilePath, null, mode);
-    } catch (SftpException e) {
-      throw new HopWorkflowException(e);
-    }
-  }
-
   public String pwd() throws HopWorkflowException {
     try {
       return c.pwd();

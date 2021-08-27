@@ -26,7 +26,6 @@ import java.lang.annotation.*;
  * <p>Important: The XML definitions alienate annotated transforms and the two methods of definition
  * are therefore mutually exclusive.
  *
- * @author Alex Silva
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

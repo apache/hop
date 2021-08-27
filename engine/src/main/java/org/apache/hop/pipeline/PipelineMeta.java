@@ -841,142 +841,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Counts the number of previous transforms for a transform name.
-   *
-   * @param transformName The name of the transform to start from
-   * @return The number of preceding transforms.
-   * @deprecated
-   */
-  @Deprecated
-  public int findNrPrevTransforms(String transformName) {
-    return findNrPrevTransforms(findTransform(transformName), false);
-  }
-
-  /**
-   * Counts the number of previous transforms for a transform name taking into account whether or
-   * not they are informational.
-   *
-   * @param transformName The name of the transform to start from
-   * @param info true if only the informational transforms are desired, false otherwise
-   * @return The number of preceding transforms.
-   * @deprecated
-   */
-  @Deprecated
-  public int findNrPrevTransforms(String transformName, boolean info) {
-    return findNrPrevTransforms(findTransform(transformName), info);
-  }
-
-  /**
-   * Find the number of transforms that precede the indicated transform.
-   *
-   * @param transformMeta The source transform
-   * @return The number of preceding transforms found.
-   */
-  public int findNrPrevTransforms(TransformMeta transformMeta) {
-    return findNrPrevTransforms(transformMeta, false);
-  }
-
-  /**
-   * Find the previous transform on a certain location (i.e. the specified index).
-   *
-   * @param transformName The source transform name
-   * @param nr the index into the transform list
-   * @return The preceding transform found.
-   * @deprecated
-   */
-  @Deprecated
-  public TransformMeta findPrevTransform(String transformName, int nr) {
-    return findPrevTransform(findTransform(transformName), nr);
-  }
-
-  /**
-   * Find the previous transform on a certain location taking into account the transforms being
-   * informational or not.
-   *
-   * @param transformName The name of the transform
-   * @param nr The index into the transform list
-   * @param info true if only the informational transforms are desired, false otherwise
-   * @return The transform information
-   * @deprecated
-   */
-  @Deprecated
-  public TransformMeta findPrevTransform(String transformName, int nr, boolean info) {
-    return findPrevTransform(findTransform(transformName), nr, info);
-  }
-
-  /**
-   * Find the previous transform on a certain location (i.e. the specified index).
-   *
-   * @param transformMeta The source transform information
-   * @param nr the index into the hops list
-   * @return The preceding transform found.
-   */
-  public TransformMeta findPrevTransform(TransformMeta transformMeta, int nr) {
-    return findPrevTransform(transformMeta, nr, false);
-  }
-
-  /**
-   * Count the number of previous transforms on a certain location taking into account the
-   * transforms being informational or not.
-   *
-   * @param transformMeta The name of the transform
-   * @param info true if only the informational transforms are desired, false otherwise
-   * @return The number of preceding transforms
-   * @deprecated please use method findPreviousTransforms
-   */
-  @Deprecated
-  public int findNrPrevTransforms(TransformMeta transformMeta, boolean info) {
-    int count = 0;
-    int i;
-
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.getToTransform() != null
-          && hi.isEnabled()
-          && hi.getToTransform().equals(transformMeta)) {
-        // Check if this previous transform isn't informative (StreamValueLookup)
-        // We don't want fields from this stream to show up!
-        if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
-          count++;
-        }
-      }
-    }
-    return count;
-  }
-
-  /**
-   * Find the previous transform on a certain location taking into account the transforms being
-   * informational or not.
-   *
-   * @param transformMeta The transform
-   * @param nr The index into the hops list
-   * @param info true if we only want the informational transforms.
-   * @return The preceding transform information
-   * @deprecated please use method findPreviousTransforms
-   */
-  @Deprecated
-  public TransformMeta findPrevTransform(TransformMeta transformMeta, int nr, boolean info) {
-    int count = 0;
-    int i;
-
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
-
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.getToTransform() != null
-          && hi.isEnabled()
-          && hi.getToTransform().equals(transformMeta)) {
-        if (info || !isTransformInformative(transformMeta, hi.getFromTransform())) {
-          if (count == nr) {
-            return hi.getFromTransform();
-          }
-          count++;
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
    * Get the list of previous transforms for a certain reference transform. This includes the info
    * transforms.
    *
@@ -1113,52 +977,6 @@ public class PipelineMeta extends AbstractMeta
     return new RowMeta();
   }
 
-  /**
-   * Find the number of succeeding transforms for a certain originating transform.
-   *
-   * @param transformMeta The originating transform
-   * @return The number of succeeding transforms.
-   * @deprecated use {@link #getNextTransforms(TransformMeta)}
-   */
-  @Deprecated
-  public int findNrNextTransforms(TransformMeta transformMeta) {
-    int count = 0;
-    int i;
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
-
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
-        count++;
-      }
-    }
-    return count;
-  }
-
-  /**
-   * Find the succeeding transform at a location for an originating transform.
-   *
-   * @param transformMeta The originating transform
-   * @param nr The location
-   * @return The transform found.
-   * @deprecated use {@link #getNextTransforms(TransformMeta)}
-   */
-  @Deprecated
-  public TransformMeta findNextTransform(TransformMeta transformMeta, int nr) {
-    int count = 0;
-    int i;
-
-    for (i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
-
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
-        if (count == nr) {
-          return hi.getToTransform();
-        }
-        count++;
-      }
-    }
-    return null;
-  }
 
   /**
    * Retrieve an array of preceding transforms for a certain destination transform. This includes
@@ -1210,27 +1028,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Retrieve an array of succeeding transforms for a certain originating transform.
-   *
-   * @param transformMeta The originating transform
-   * @return an array of succeeding transforms.
-   * @deprecated use findNextTransforms instead
-   */
-  @Deprecated
-  public TransformMeta[] getNextTransforms(TransformMeta transformMeta) {
-    List<TransformMeta> nextTransforms = new ArrayList<>();
-    for (int i = 0; i < nrPipelineHops(); i++) { // Look at all the hops
-
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.isEnabled() && hi.getFromTransform().equals(transformMeta)) {
-        nextTransforms.add(hi.getToTransform());
-      }
-    }
-
-    return nextTransforms.toArray(new TransformMeta[nextTransforms.size()]);
-  }
-
-  /**
    * Retrieve a list of succeeding transforms for a certain originating transform.
    *
    * @param transformMeta The originating transform
@@ -1256,10 +1053,10 @@ public class PipelineMeta extends AbstractMeta
    * @return an array of succeeding transform names.
    */
   public String[] getNextTransformNames(TransformMeta transformMeta) {
-    TransformMeta[] nextTransformMeta = getNextTransforms(transformMeta);
-    String[] retval = new String[nextTransformMeta.length];
-    for (int x = 0; x < nextTransformMeta.length; x++) {
-      retval[x] = nextTransformMeta[x].getName();
+    List<TransformMeta> nextTransformMeta = findNextTransforms(transformMeta);
+    String[] retval = new String[nextTransformMeta.size()];
+    for (int x = 0; x < nextTransformMeta.size(); x++) {
+      retval[x] = nextTransformMeta.get(x).getName();
     }
 
     return retval;

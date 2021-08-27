@@ -124,24 +124,12 @@ public class SalesforceConnection {
     return this.rollbackAllChangesOnError;
   }
 
-  /** @see #isRollbackAllChangesOnError() */
-  @Deprecated
-  public void rollbackAllChangesOnError(boolean value) {
-    setRollbackAllChangesOnError(value);
-  }
-
   public void setRollbackAllChangesOnError(boolean value) {
     this.rollbackAllChangesOnError = value;
   }
 
   public boolean isQueryAll() {
     return this.queryAll;
-  }
-
-  /** @see #setQueryAll(boolean) */
-  @Deprecated
-  public void queryAll(boolean value) {
-    setQueryAll(value);
   }
 
   public void setQueryAll(boolean value) {

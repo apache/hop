@@ -273,7 +273,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
             // Get tablename
             String realTablename = resolve(tableName);
 
-            if (db.checkTableExists(realTablename)) {
+            if (db.checkTableExists(realSchemaname,realTablename)) {
               // The table existe, We can continue ...
               if (log.isDetailed()) {
                 logDetailed(

@@ -368,13 +368,6 @@ public class SelectValuesMeta extends BaseTransformMeta
     }
   }
 
-  // Not called anywhere else in Hop. It's important to call the method below passing in the
-  // IVariables
-  @Deprecated
-  public void getMetadataFields(IRowMeta inputRowMeta, String name) throws HopPluginException {
-    getMetadataFields(inputRowMeta, name, null);
-  }
-
   public void getMetadataFields(IRowMeta inputRowMeta, String name, IVariables variables)
       throws HopPluginException {
     if (meta != null && meta.length > 0) {
@@ -478,7 +471,7 @@ public class SelectValuesMeta extends BaseTransformMeta
 
       getSelectFields(inputRowMeta, name);
       getDeleteFields(inputRowMeta);
-      getMetadataFields(inputRowMeta, name);
+      getMetadataFields(inputRowMeta, name,variables);
     } catch (Exception e) {
       throw new HopTransformException(e);
     }

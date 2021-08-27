@@ -190,15 +190,6 @@ public class PropertyOutputMeta extends BaseTransformMeta
     this.fileName = fileName;
   }
 
-  /**
-   * @return Returns the Add to result filesname flag.
-   * @deprecated use {@link #isAddToResult()}
-   */
-  @Deprecated
-  public boolean addToResult() {
-    return isAddToResult();
-  }
-
   public boolean isAddToResult() {
     return addToResult;
   }

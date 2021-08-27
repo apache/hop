@@ -226,7 +226,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
           data.totalpreviousfields = data.inputRowMeta.size();
 
           // Check is filename field is provided
-          if (Utils.isEmpty(meta.setOutputFilenameField())) {
+          if (Utils.isEmpty(meta.getOutputFilenameField())) {
             logError(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.NoField"));
             throw new HopException(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.NoField"));
           }
@@ -234,19 +234,19 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
           // cache the position of the field
           if (data.indexOfFilenameField < 0) {
             data.indexOfFilenameField =
-                getInputRowMeta().indexOfValue(meta.setOutputFilenameField());
+                getInputRowMeta().indexOfValue(meta.getOutputFilenameField());
             if (data.indexOfFilenameField < 0) {
               // The field is unreachable !
               logError(
                   BaseMessages.getString(
                       PKG,
                       "GetFilesRowsCount.Log.ErrorFindingField",
-                      meta.setOutputFilenameField()));
+                      meta.getOutputFilenameField()));
               throw new HopException(
                   BaseMessages.getString(
                       PKG,
                       "GetFilesRowsCount.Exception.CouldnotFindField",
-                      meta.setOutputFilenameField()));
+                      meta.getOutputFilenameField()));
             }
           }
         } // End if first
@@ -257,7 +257,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
               BaseMessages.getString(
                   PKG,
                   "GetFilesRowsCount.Log.FilenameInStream",
-                  meta.setOutputFilenameField(),
+                  meta.getOutputFilenameField(),
                   filename));
         }
 

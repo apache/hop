@@ -32,12 +32,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to enter a (single line) String.
- *
- * @author Matt
- * @since 21-11-2004
- */
+/** This dialog allows you to enter a (single line) String. */
 public class EnterStringDialog extends Dialog {
   private static final Class<?> PKG = EnterStringDialog.class; // For Translator
 
@@ -212,21 +207,9 @@ public class EnterStringDialog extends Dialog {
     dispose();
   }
 
-  /** @return the manditory */
-  @Deprecated
-  public boolean isManditory() {
-    return this.isMandatory();
-  }
-
   /** @return the mandatory */
   public boolean isMandatory() {
     return mandatory;
-  }
-
-  /** @param manditory the manditory to set */
-  @Deprecated
-  public void setManditory(boolean manditory) {
-    this.setMandatory(manditory);
   }
 
   /** @param mandatory the manditory to set */

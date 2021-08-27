@@ -640,9 +640,6 @@ public class Const {
   public static final String HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES =
       "HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES";
 
-  public static final String HOP_COMPATIBILITY_USE_JDBC_METADATA =
-      "HOP_COMPATIBILITY_USE_JDBC_METADATA";
-
   private static String[] emptyPaddedSpacesStrings;
 
   /** The release type of this compilation */
@@ -1571,75 +1568,6 @@ public class Const {
    */
   public static String getEnvironmentVariable(String variable, String deflt) {
     return System.getProperty(variable, deflt);
-  }
-
-  /**
-   * Replaces environment variables in a string. For example if you set HOP_HOME as an environment
-   * variable, you can use %%HOP_HOME%% in dialogs etc. to refer to this value. This procedures
-   * looks for %%...%% pairs and replaces them including the name of the environment variable with
-   * the actual value. In case the variable was not set, nothing is replaced!
-   *
-   * @param string The source string where text is going to be replaced.
-   * @return The expanded string.
-   * @deprecated use StringUtil.environmentSubstitute(): handles both Windows and unix conventions
-   */
-  @Deprecated
-  public static String replEnv(String string) {
-    if (string == null) {
-      return null;
-    }
-    StringBuilder str = new StringBuilder(string);
-
-    int idx = str.indexOf("%%");
-    while (idx >= 0) {
-      // OK, so we found a marker, look for the next one...
-      int to = str.indexOf("%%", idx + 2);
-      if (to >= 0) {
-        // OK, we found the other marker also...
-        String marker = str.substring(idx, to + 2);
-        String var = str.substring(idx + 2, to);
-
-        if (var != null && var.length() > 0) {
-          // Get the environment variable
-          String newval = getEnvironmentVariable(var, null);
-
-          if (newval != null) {
-            // Replace the whole bunch
-            str.replace(idx, to + 2, newval);
-
-            // The last position has changed...
-            to += newval.length() - marker.length();
-          }
-        }
-
-      } else {
-        // We found the start, but NOT the ending %% without closing %%
-        to = idx;
-      }
-
-      // Look for the next variable to replace...
-      idx = str.indexOf("%%", to + 1);
-    }
-
-    return str.toString();
-  }
-
-  /**
-   * Replaces environment variables in an array of strings.
-   *
-   * <p>See also: replEnv(String string)
-   *
-   * @param string The array of strings that wants its variables to be replaced.
-   * @return the array with the environment variables replaced.
-   * @deprecated please use StringUtil.environmentSubstitute now.
-   */
-  @Deprecated
-  public static String[] replEnv(String[] string) {
-    String[] retval = new String[string.length];
-    for (int i = 0; i < string.length; i++) {
-      retval[i] = Const.replEnv(string[i]);
-    }
-    return retval;
   }
 
   /**

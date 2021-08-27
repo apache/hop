@@ -625,7 +625,6 @@ public class ValueMetaBase implements IValueMeta {
 
   /** @return the conversionMask */
   @Override
-  @Deprecated
   public String getConversionMask() {
     return conversionMask;
   }

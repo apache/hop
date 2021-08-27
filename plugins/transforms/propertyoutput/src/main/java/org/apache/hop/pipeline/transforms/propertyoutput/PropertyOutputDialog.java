@@ -711,7 +711,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     wAddTime.setSelection(input.isTimeInFilename());
     wAddTransformNr.setSelection(input.isTransformNrInFilename());
 
-    wAddToResult.setSelection(input.addToResult());
+    wAddToResult.setSelection(input.isAddToResult());
     wAppend.setSelection(input.isAppend());
 
     if (input.getComment() != null) {

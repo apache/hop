@@ -48,7 +48,7 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
     Map<String, String> getterMap =
         new HashMap<String, String>() {
           {
-            put("displayHeader", "isdisplayHeader");
+            put("displayHeader", "isDisplayHeader");
             put("limitRows", "isLimitRows");
             put("limitRowsNumber", "getLimitRowsNumber");
             put("logmessage", "getLogMessage");
@@ -59,7 +59,7 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
     Map<String, String> setterMap =
         new HashMap<String, String>() {
           {
-            put("displayHeader", "setdisplayHeader");
+            put("displayHeader", "setDisplayHeader");
             put("limitRows", "setLimitRows");
             put("limitRowsNumber", "setLimitRowsNumber");
             put("logmessage", "setLogMessage");

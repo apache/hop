@@ -93,13 +93,8 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     this.lookup = lookup;
   }
 
-  /**
-   * @return Returns the commitSize.
-   * @deprecated use public String getCommitSizeVar() instead
-   */
-  @Deprecated
-  public int getCommitSize() {
-    return Integer.parseInt(commitSize);
+  public String getCommitSize() {
+    return commitSize;
   }
 
   /**
@@ -111,15 +106,6 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = (commitSize == null) ? "0" : commitSize;
     return Integer.parseInt(vs.resolve(commitSize));
-  }
-
-  /**
-   * @param commitSize The commitSize to set.
-   * @deprecated use public void setCommitSize( String commitSize ) instead
-   */
-  @Deprecated
-  public void setCommitSize(int commitSize) {
-    this.commitSize = Integer.toString(commitSize);
   }
 
   /** @param commitSize The commitSize to set. */

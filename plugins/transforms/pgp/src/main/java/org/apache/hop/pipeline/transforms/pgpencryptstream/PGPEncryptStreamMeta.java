@@ -76,12 +76,6 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
-  /** @deprecated - typo */
-  @Deprecated
-  public void setGPGPLocation(String value) {
-    this.setGPGLocation(value);
-  }
-
   public void setGPGLocation(String value) {
     this.gpgLocation = value;
   }

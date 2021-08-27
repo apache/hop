@@ -90,12 +90,6 @@ public class CubeInputMeta extends BaseTransformMeta
   }
 
   /** @param rowLimit The rowLimit to set. */
-  @Deprecated
-  public void setRowLimit(int rowLimit) {
-    this.rowLimit = String.valueOf(rowLimit);
-  }
-
-  /** @param rowLimit The rowLimit to set. */
   public void setRowLimit(String rowLimit) {
     this.rowLimit = rowLimit;
   }

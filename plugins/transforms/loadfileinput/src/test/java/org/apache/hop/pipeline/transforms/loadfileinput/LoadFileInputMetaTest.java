@@ -74,7 +74,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
     meta.setFileRequired(new String[] {"N"});
     meta.setIncludeSubFolders(new String[] {"N"});
     meta.setRowLimit(0);
-    meta.setIsInFields(false);
+    meta.setFileInFields(false);
     meta.setDynamicFilenameField(null);
     meta.setShortFileNameField(null);
     meta.setPathField(null);

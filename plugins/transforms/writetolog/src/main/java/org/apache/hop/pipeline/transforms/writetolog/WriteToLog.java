@@ -111,7 +111,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData>
     for (int i = 0; i < data.fieldnr; i++) {
       String fieldvalue = getInputRowMeta().getString(r, data.fieldnrs[i]);
 
-      if (meta.isdisplayHeader()) {
+      if (meta.isDisplayHeader()) {
         String fieldname = getInputRowMeta().getFieldNames()[data.fieldnrs[i]];
         out.append(fieldname + " = " + fieldvalue + Const.CR);
       } else {

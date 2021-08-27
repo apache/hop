@@ -25,8 +25,6 @@ import java.lang.annotation.*;
  *
  * <p>Important: The XML definitions alienate annotated transforms and the two methods of definition
  * are therefore mutually exclusive.
- *
- * @author Alex Silva
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -52,15 +50,6 @@ public @interface Transform {
   String classLoaderGroup() default "";
 
   String categoryDescription() default "";
-
-  /**
-   * This is a deprecated method: please use the i18n:package:key format in name, description and
-   * categoryDescription
-   *
-   * @return
-   */
-  @Deprecated
-  String i18nPackageName() default "";
 
   /** @return The documentation url */
   String documentationUrl() default "";

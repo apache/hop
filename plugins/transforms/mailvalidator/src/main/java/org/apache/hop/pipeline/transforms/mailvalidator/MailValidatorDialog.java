@@ -507,11 +507,11 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     }
 
     wResultAsString.setSelection(input.isResultAsString());
-    if (input.getEMailValideMsg() != null) {
-      wResultStringTrue.setText(input.getEMailValideMsg());
+    if (input.getEmailValideMsg() != null) {
+      wResultStringTrue.setText(input.getEmailValideMsg());
     }
-    if (input.getEMailNotValideMsg() != null) {
-      wResultStringFalse.setText(input.getEMailNotValideMsg());
+    if (input.getEmailNotValideMsg() != null) {
+      wResultStringFalse.setText(input.getEmailNotValideMsg());
     }
     if (input.getErrorsField() != null) {
       wErrorMsg.setText(input.getErrorsField());
@@ -522,10 +522,10 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     if (input.getDefaultSMTP() != null) {
       wDefaultSMTP.setText(input.getDefaultSMTP());
     }
-    if (input.geteMailSender() != null) {
-      weMailSender.setText(input.geteMailSender());
+    if (input.getEmailSender() != null) {
+      weMailSender.setText(input.getEmailSender());
     }
-    wDynamicDefaultSMTP.setSelection(input.isdynamicDefaultSMTP());
+    wDynamicDefaultSMTP.setSelection(input.isDynamicDefaultSMTP());
     if (input.getDefaultSMTPField() != null) {
       wDefaultSMTPField.setText(input.getDefaultSMTPField());
     }
@@ -551,7 +551,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setEmailfield(wEmailFieldName.getText());
+    input.setEmailField(wEmailFieldName.getText());
     input.setResultFieldName(wResult.getText());
     transformName = wTransformName.getText(); // return value
 
@@ -561,9 +561,9 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     input.setErrorsField(wErrorMsg.getText());
     input.setTimeOut(wTimeOut.getText());
     input.setDefaultSMTP(wDefaultSMTP.getText());
-    input.seteMailSender(weMailSender.getText());
+    input.setEmailSender(weMailSender.getText());
     input.setSMTPCheck(wSMTPCheck.getSelection());
-    input.setdynamicDefaultSMTP(wDynamicDefaultSMTP.getSelection());
+    input.setDynamicDefaultSMTP(wDynamicDefaultSMTP.getSelection());
     input.setDefaultSMTPField(wDefaultSMTPField.getText());
 
     dispose();

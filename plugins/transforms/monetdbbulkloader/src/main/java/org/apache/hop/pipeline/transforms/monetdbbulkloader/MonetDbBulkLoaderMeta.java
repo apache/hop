@@ -724,7 +724,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
                   variables, realSchemaName, realTableName);
 
           // Check if this table exists...
-          if (db.checkTableExists(schemaTable)) {
+          if (db.checkTableExists(realSchemaName,realTableName)) {
             return db.getTableFields(schemaTable);
           } else {
             throw new HopException(

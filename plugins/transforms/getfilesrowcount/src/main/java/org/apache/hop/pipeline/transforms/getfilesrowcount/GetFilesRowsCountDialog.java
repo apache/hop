@@ -928,7 +928,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
             new String[] {
               in.getFileName()[i],
               in.getFileMask()[i],
-              in.getExludeFileMask()[i],
+              in.getExcludeFileMask()[i],
               in.getRequiredFilesDesc(in.getFileRequired()[i]),
               in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
             });
@@ -978,8 +978,8 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     wAddResult.setSelection(in.isAddResultFile());
     wFileField.setSelection(in.isFileField());
-    if (in.setOutputFilenameField() != null) {
-      wFilenameField.setText(in.setOutputFilenameField());
+    if (in.getOutputFilenameField() != null) {
+      wFilenameField.setText(in.getOutputFilenameField());
     }
 
     logDebug(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.Log.GettingFieldsInfo"));

@@ -17,21 +17,19 @@
 
 package org.apache.hop.core.logging;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * This class keeps the last N lines in a buffer
- *
- * @author matt
- */
+/** This class keeps the last N lines in a buffer */
 public class LoggingBuffer {
   private String name;
 
@@ -234,69 +232,6 @@ public class LoggingBuffer {
       buffer.removeIf(line -> isGeneral(getLogChId(line)));
     } finally {
       lock.writeLock().unlock();
-    }
-  }
-
-  /**
-   * We should not expose iterator out of the class. Looks like it's only used in tests.
-   *
-   * <p>Marked deprecated for now. TODO: To be made package-level in future.
-   */
-  @Deprecated
-  @VisibleForTesting
-  public Iterator<BufferLine> getBufferIterator() {
-    return buffer.iterator();
-  }
-
-  /** It looks like this method is not used in the project. */
-  @Deprecated
-  public String dump() {
-    StringBuilder buf = new StringBuilder(50000);
-    lock.readLock().lock();
-    try {
-      buffer.forEach(
-          line -> {
-            LogMessage message = (LogMessage) line.getEvent().getMessage();
-            buf.append(message.getLogChannelId())
-                .append("\t")
-                .append(message.getSubject())
-                .append("\n");
-          });
-      return buf.toString();
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  /**
-   * Was used in a pair with {@link #getBufferLinesBefore(long)}.
-   *
-   * @deprecated in favor of {@link #removeBufferLinesBefore(long)}.
-   */
-  @Deprecated
-  public void removeBufferLines(List<BufferLine> linesToRemove) {
-    lock.writeLock().lock();
-    try {
-      buffer.removeAll(linesToRemove);
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
-  /**
-   * Was used in a pair with {@link #removeBufferLines(List)}.
-   *
-   * @deprecated in favor of {@link #removeBufferLinesBefore(long)}.
-   */
-  @Deprecated
-  public List<BufferLine> getBufferLinesBefore(long minTimeBoundary) {
-    lock.readLock().lock();
-    try {
-      return buffer.stream()
-          .filter(line -> line.getEvent().timeStamp < minTimeBoundary)
-          .collect(Collectors.toList());
-    } finally {
-      lock.readLock().unlock();
     }
   }
 
