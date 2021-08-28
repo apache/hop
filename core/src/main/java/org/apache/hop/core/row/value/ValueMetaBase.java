@@ -45,6 +45,15 @@ import java.util.*;
 
 public class ValueMetaBase implements IValueMeta {
 
+  private static final String MSG_UNKNOWN_STORAGE_TYPE = " : Unknown storage type ";
+  private static final String MSG_SPECIFIED = " specified.";
+  private static final String MSG_DATA_TYPE_ERROR =
+      " : There was a data type error: the data type of ";
+  private static final String MSG_FOR_VALUE = " for value [";
+  private static final String MSG_OBJECT = " object [";
+  private static final String MSG_DOES_NOT_CORRESPOND = "] does not correspond to value meta [";
+  private static final String MSG_UNKNOWN_TYPE = " : Unknown type ";
+
   // region Default Numeric Types Parse Format
   public static final String DEFAULT_INTEGER_PARSE_MASK =
       Const.NVL(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_INTEGER_FORMAT), "####0");
@@ -862,13 +871,13 @@ public class ValueMetaBase implements IValueMeta {
       // If there are only spaces after pp.getIndex() - that means full values was parsed
       return result;
     } catch (ParseException e) {
-      String dateFormat = (getDateFormat() != null) ? getDateFormat().toPattern() : "null";
+      String dateFormatString = (getDateFormat() != null) ? getDateFormat().toPattern() : "null";
       throw new HopValueException(
           toString()
               + " : couldn't convert string ["
               + string
               + "] to a date using format ["
-              + dateFormat
+              + dateFormatString
               + "] on offset location "
               + e.getErrorOffset(),
           e);
@@ -878,7 +887,7 @@ public class ValueMetaBase implements IValueMeta {
   // DATE + NUMBER
 
   protected Double convertDateToNumber(Date date) {
-    return new Double(date.getTime());
+    return Double.valueOf(date.getTime());
   }
 
   protected Date convertNumberToDate(Double number) {
@@ -888,7 +897,7 @@ public class ValueMetaBase implements IValueMeta {
   // DATE + INTEGER
 
   protected Long convertDateToInteger(Date date) {
-    return new Long(date.getTime());
+    return Long.valueOf(date.getTime());
   }
 
   protected Date convertIntegerToDate(Long number) {
@@ -969,13 +978,13 @@ public class ValueMetaBase implements IValueMeta {
               toString()
                   + " : couldn't convert String to number : non-numeric character found at position "
                   + (parsePosition.getIndex() + 1)
-                  + " for value ["
+                  + MSG_FOR_VALUE
                   + string
                   + "]");
         }
       }
 
-      return new Double(number.doubleValue());
+      return Double.valueOf(number.doubleValue());
     } catch (Exception e) {
       throw new HopValueException(toString() + " : couldn't convert String to number ", e);
     }
@@ -1274,7 +1283,7 @@ public class ValueMetaBase implements IValueMeta {
     try {
       Number number;
       if (lenientStringToNumber) {
-        number = new Long(getDecimalFormat(false).parse(string).longValue());
+        number = Long.valueOf(getDecimalFormat(false).parse(string).longValue());
       } else {
         ParsePosition parsePosition = new ParsePosition(0);
         number = getDecimalFormat(false).parse(string, parsePosition);
@@ -1284,12 +1293,12 @@ public class ValueMetaBase implements IValueMeta {
               toString()
                   + " : couldn't convert String to number : non-numeric character found at position "
                   + (parsePosition.getIndex() + 1)
-                  + " for value ["
+                  + MSG_FOR_VALUE
                   + string
                   + "]");
         }
       }
-      return new Long(number.longValue());
+      return Long.valueOf(number.longValue());
     } catch (Exception e) {
       throw new HopValueException(toString() + " : couldn't convert String to Integer", e);
     }
@@ -1332,7 +1341,7 @@ public class ValueMetaBase implements IValueMeta {
               toString()
                   + " : couldn't convert String to number : non-numeric character found at position "
                   + (parsePosition.getIndex() + 1)
-                  + " for value ["
+                  + MSG_FOR_VALUE
                   + string
                   + "]");
         }
@@ -1387,7 +1396,7 @@ public class ValueMetaBase implements IValueMeta {
     if (bool == null) {
       return null;
     }
-    return new Double(bool.booleanValue() ? 1.0 : 0.0);
+    return Double.valueOf(bool.booleanValue() ? 1.0 : 0.0);
   }
 
   protected Boolean convertNumberToBoolean(Double number) {
@@ -1455,7 +1464,6 @@ public class ValueMetaBase implements IValueMeta {
     // This obviously only applies to numeric data and dates.
     // We verify if this is true or false in advance for performance reasons
     //
-    // if (binary==null || binary.length==0) return null;
     if (binary == null || binary.length == 0) {
       return (emptyStringDiffersFromNull && binary != null) ? "" : null;
     }
@@ -1633,9 +1641,9 @@ public class ValueMetaBase implements IValueMeta {
           // inexpensive too.
 
         case IValueMeta.TYPE_BINARY:
-          byte[] origin = (byte[]) object;
-          byte[] target = new byte[origin.length];
-          System.arraycopy(origin, 0, target, 0, origin.length);
+          byte[] originByte = (byte[]) object;
+          byte[] target = new byte[originByte.length];
+          System.arraycopy(originByte, 0, target, 0, originByte.length);
           return target;
 
         case IValueMeta.TYPE_SERIALIZABLE:
@@ -1678,7 +1686,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1701,7 +1709,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1728,7 +1736,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1740,11 +1748,11 @@ public class ValueMetaBase implements IValueMeta {
     } catch (ClassCastException e) {
       throw new HopValueException(
           toString()
-              + " : There was a data type error: the data type of "
+              + MSG_DATA_TYPE_ERROR
               + object.getClass().getName()
-              + " object ["
+              + MSG_OBJECT
               + object
-              + "] does not correspond to value meta ["
+              + MSG_DOES_NOT_CORRESPOND
               + toStringMeta()
               + "]");
     }
@@ -1769,7 +1777,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           if (string != null) {
             string = trim(string);
@@ -1792,7 +1800,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1813,7 +1821,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1834,7 +1842,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1856,7 +1864,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1878,7 +1886,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1898,7 +1906,7 @@ public class ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
@@ -1915,12 +1923,12 @@ public class ValueMetaBase implements IValueMeta {
               break; // just go for the default toString()
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
           break;
 
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
       }
 
       if (isOutputPaddingEnabled() && getLength() > 0) {
@@ -1931,11 +1939,11 @@ public class ValueMetaBase implements IValueMeta {
     } catch (ClassCastException e) {
       throw new HopValueException(
           toString()
-              + " : There was a data type error: the data type of "
+              + MSG_DATA_TYPE_ERROR
               + object.getClass().getName()
-              + " object ["
+              + MSG_OBJECT
               + object
-              + "] does not correspond to value meta ["
+              + MSG_DOES_NOT_CORRESPOND
               + toStringMeta()
               + "]");
     }
@@ -1977,7 +1985,7 @@ public class ValueMetaBase implements IValueMeta {
               return (Double) index[((Integer) object).intValue()];
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_STRING:
           switch (storageType) {
@@ -1990,7 +1998,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertStringToNumber((String) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_DATE:
           switch (storageType) {
@@ -1999,36 +2007,37 @@ public class ValueMetaBase implements IValueMeta {
             case STORAGE_TYPE_BINARY_STRING:
               return convertDateToNumber((Date) convertBinaryStringToNativeType((byte[]) object));
             case STORAGE_TYPE_INDEXED:
-              return new Double(((Date) index[((Integer) object).intValue()]).getTime());
+              return Double.valueOf(((Date) index[((Integer) object).intValue()]).getTime());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_INTEGER:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
-              return new Double(((Long) object).doubleValue());
+              return Double.valueOf(((Long) object).doubleValue());
             case STORAGE_TYPE_BINARY_STRING:
-              return new Double(
+              return Double.valueOf(
                   ((Long) convertBinaryStringToNativeType((byte[]) object)).doubleValue());
             case STORAGE_TYPE_INDEXED:
-              return new Double(((Long) index[((Integer) object).intValue()]).doubleValue());
+              return Double.valueOf(((Long) index[((Integer) object).intValue()]).doubleValue());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BIGNUMBER:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
-              return new Double(((BigDecimal) object).doubleValue());
+              return Double.valueOf(((BigDecimal) object).doubleValue());
             case STORAGE_TYPE_BINARY_STRING:
-              return new Double(
+              return Double.valueOf(
                   ((BigDecimal) convertBinaryStringToNativeType((byte[]) object)).doubleValue());
             case STORAGE_TYPE_INDEXED:
-              return new Double(((BigDecimal) index[((Integer) object).intValue()]).doubleValue());
+              return Double.valueOf(
+                  ((BigDecimal) index[((Integer) object).intValue()]).doubleValue());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BOOLEAN:
           switch (storageType) {
@@ -2041,7 +2050,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertBooleanToNumber((Boolean) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BINARY:
           throw new HopValueException(
@@ -2050,7 +2059,7 @@ public class ValueMetaBase implements IValueMeta {
           throw new HopValueException(
               toString() + " : I don't know how to convert serializable values to numbers.");
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
       }
     } catch (Exception e) {
       throw new HopValueException(
@@ -2075,7 +2084,7 @@ public class ValueMetaBase implements IValueMeta {
               return (Long) index[((Integer) object).intValue()];
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_STRING:
           switch (storageType) {
@@ -2088,47 +2097,48 @@ public class ValueMetaBase implements IValueMeta {
               return convertStringToInteger((String) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_NUMBER:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
-              return new Long(Math.round(((Double) object).doubleValue()));
+              return Long.valueOf(Math.round(((Double) object).doubleValue()));
             case STORAGE_TYPE_BINARY_STRING:
-              return new Long(
+              return Long.valueOf(
                   Math.round(
                       ((Double) convertBinaryStringToNativeType((byte[]) object)).doubleValue()));
             case STORAGE_TYPE_INDEXED:
-              return new Long(
+              return Long.valueOf(
                   Math.round(((Double) index[((Integer) object).intValue()]).doubleValue()));
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_DATE:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
               return convertDateToInteger((Date) object);
             case STORAGE_TYPE_BINARY_STRING:
-              return new Long(((Date) convertBinaryStringToNativeType((byte[]) object)).getTime());
+              return Long.valueOf(
+                  ((Date) convertBinaryStringToNativeType((byte[]) object)).getTime());
             case STORAGE_TYPE_INDEXED:
               return convertDateToInteger((Date) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BIGNUMBER:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
-              return new Long(((BigDecimal) object).longValue());
+              return Long.valueOf(((BigDecimal) object).longValue());
             case STORAGE_TYPE_BINARY_STRING:
-              return new Long(
+              return Long.valueOf(
                   ((BigDecimal) convertBinaryStringToNativeType((byte[]) object)).longValue());
             case STORAGE_TYPE_INDEXED:
-              return new Long(((BigDecimal) index[((Integer) object).intValue()]).longValue());
+              return Long.valueOf(((BigDecimal) index[((Integer) object).intValue()]).longValue());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BOOLEAN:
           switch (storageType) {
@@ -2141,7 +2151,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertBooleanToInteger((Boolean) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BINARY:
           throw new HopValueException(
@@ -2150,7 +2160,7 @@ public class ValueMetaBase implements IValueMeta {
           throw new HopValueException(
               toString() + " : I don't know how to convert serializable values to integers.");
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
       }
     } catch (Exception e) {
       throw new HopValueException(
@@ -2176,7 +2186,7 @@ public class ValueMetaBase implements IValueMeta {
               return (BigDecimal) index[((Integer) object).intValue()];
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_STRING:
           switch (storageType) {
@@ -2189,7 +2199,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertStringToBigNumber((String) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_INTEGER:
           switch (storageType) {
@@ -2202,7 +2212,7 @@ public class ValueMetaBase implements IValueMeta {
               return BigDecimal.valueOf(((Long) index[((Integer) object).intValue()]).longValue());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_NUMBER:
           switch (storageType) {
@@ -2216,7 +2226,7 @@ public class ValueMetaBase implements IValueMeta {
                   ((Double) index[((Integer) object).intValue()]).doubleValue());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_DATE:
           switch (storageType) {
@@ -2229,7 +2239,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertDateToBigNumber((Date) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BOOLEAN:
           switch (storageType) {
@@ -2242,7 +2252,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertBooleanToBigNumber((Boolean) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
         case TYPE_BINARY:
           throw new HopValueException(
@@ -2251,7 +2261,7 @@ public class ValueMetaBase implements IValueMeta {
           throw new HopValueException(
               toString() + " : I don't know how to convert serializable values to BigDecimals.");
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
       }
     } catch (Exception e) {
       throw new HopValueException(
@@ -2276,7 +2286,7 @@ public class ValueMetaBase implements IValueMeta {
             return (Boolean) index[((Integer) object).intValue()];
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -2289,7 +2299,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertStringToBoolean(trim((String) index[((Integer) object).intValue()]));
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_INTEGER:
         switch (storageType) {
@@ -2301,7 +2311,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertIntegerToBoolean((Long) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_NUMBER:
         switch (storageType) {
@@ -2314,7 +2324,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertNumberToBoolean((Double) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_BIGNUMBER:
         switch (storageType) {
@@ -2327,7 +2337,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertBigNumberToBoolean((BigDecimal) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_DATE:
         throw new HopValueException(
@@ -2339,7 +2349,7 @@ public class ValueMetaBase implements IValueMeta {
         throw new HopValueException(
             toString() + " : I don't know how to convert serializable values to booleans.");
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+        throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
     }
   }
 
@@ -2359,7 +2369,7 @@ public class ValueMetaBase implements IValueMeta {
             return (Date) index[((Integer) object).intValue()];
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -2371,7 +2381,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertStringToDate((String) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_NUMBER:
         switch (storageType) {
@@ -2383,7 +2393,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertNumberToDate((Double) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_INTEGER:
         switch (storageType) {
@@ -2395,7 +2405,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertIntegerToDate((Long) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_BIGNUMBER:
         switch (storageType) {
@@ -2408,7 +2418,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertBigNumberToDate((BigDecimal) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_BOOLEAN:
         throw new HopValueException(
@@ -2421,7 +2431,7 @@ public class ValueMetaBase implements IValueMeta {
             toString() + " : I don't know how to convert a serializable value to date.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+        throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
     }
   }
 
@@ -2441,7 +2451,7 @@ public class ValueMetaBase implements IValueMeta {
             return (byte[]) index[((Integer) object).intValue()];
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_DATE:
         throw new HopValueException(
@@ -2456,7 +2466,7 @@ public class ValueMetaBase implements IValueMeta {
             return convertStringToBinaryString((String) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
         }
       case TYPE_NUMBER:
         throw new HopValueException(
@@ -2475,7 +2485,7 @@ public class ValueMetaBase implements IValueMeta {
             toString() + " : I don't know how to convert a serializable to binary.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+        throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
     }
   }
 
@@ -2507,7 +2517,7 @@ public class ValueMetaBase implements IValueMeta {
               return convertStringToBinaryString((String) index[((Integer) object).intValue()]);
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_DATE:
@@ -2523,7 +2533,7 @@ public class ValueMetaBase implements IValueMeta {
                   convertDateToString((Date) index[((Integer) object).intValue()]));
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_NUMBER:
@@ -2539,7 +2549,7 @@ public class ValueMetaBase implements IValueMeta {
                   convertNumberToString((Double) index[((Integer) object).intValue()]));
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_INTEGER:
@@ -2555,7 +2565,7 @@ public class ValueMetaBase implements IValueMeta {
                   convertIntegerToString((Long) index[((Integer) object).intValue()]));
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_BIGNUMBER:
@@ -2572,7 +2582,7 @@ public class ValueMetaBase implements IValueMeta {
                   convertBigNumberToString((BigDecimal) index[((Integer) object).intValue()]));
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_BOOLEAN:
@@ -2589,7 +2599,7 @@ public class ValueMetaBase implements IValueMeta {
                   convertBooleanToString((Boolean) index[((Integer) object).intValue()]));
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_BINARY:
@@ -2602,7 +2612,7 @@ public class ValueMetaBase implements IValueMeta {
               return (byte[]) index[((Integer) object).intValue()];
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         case TYPE_SERIALIZABLE:
@@ -2615,20 +2625,20 @@ public class ValueMetaBase implements IValueMeta {
               return convertStringToBinaryString(index[((Integer) object).intValue()].toString());
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
           }
 
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
       }
     } catch (ClassCastException e) {
       throw new HopValueException(
           toString()
-              + " : There was a data type error: the data type of "
+              + MSG_DATA_TYPE_ERROR
               + object.getClass().getName()
-              + " object ["
+              + MSG_OBJECT
               + object
-              + "] does not correspond to value meta ["
+              + MSG_DOES_NOT_CORRESPOND
               + toStringMeta()
               + "]");
     }
@@ -2867,17 +2877,17 @@ public class ValueMetaBase implements IValueMeta {
             break;
 
           default:
-            throw new HopFileException(toString() + " : Unknown storage type " + getStorageType());
+            throw new HopFileException(toString() + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
         }
       }
     } catch (ClassCastException e) {
       throw new RuntimeException(
           toString()
-              + " : There was a data type error: the data type of "
+              + MSG_DATA_TYPE_ERROR
               + object.getClass().getName()
-              + " object ["
+              + MSG_OBJECT
               + object
-              + "] does not correspond to value meta ["
+              + MSG_DOES_NOT_CORRESPOND
               + toStringMeta()
               + "]");
     } catch (IOException e) {
@@ -2927,7 +2937,7 @@ public class ValueMetaBase implements IValueMeta {
           // be enough.
 
         default:
-          throw new HopFileException(toString() + " : Unknown storage type " + getStorageType());
+          throw new HopFileException(toString() + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
       }
     } catch (EOFException e) {
       throw new HopEofException(e);
@@ -2961,27 +2971,26 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   protected String readString(DataInputStream inputStream) throws IOException {
-    // Read the length and then the bytes
-    int length = inputStream.readInt();
-    if (length < 0) {
+    // Read the inputLength and then the bytes
+    int inputLength = inputStream.readInt();
+    if (inputLength < 0) {
       return null;
     }
 
-    byte[] chars = new byte[length];
+    byte[] chars = new byte[inputLength];
     inputStream.readFully(chars);
 
-    String string = new String(chars, Const.XML_ENCODING);
-    return string;
+    return new String(chars, Const.XML_ENCODING);
   }
 
   protected byte[] readBinaryString(DataInputStream inputStream) throws IOException {
-    // Read the length and then the bytes
-    int length = inputStream.readInt();
-    if (length < 0) {
+    // Read the inputLength and then the bytes
+    int inputLength = inputStream.readInt();
+    if (inputLength < 0) {
       return null;
     }
 
-    byte[] chars = new byte[length];
+    byte[] chars = new byte[inputLength];
     inputStream.readFully(chars);
 
     return chars;
@@ -3012,8 +3021,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   protected Boolean readBoolean(DataInputStream inputStream) throws IOException {
-    Boolean bool = Boolean.valueOf(inputStream.readBoolean());
-    return bool;
+    return Boolean.valueOf(inputStream.readBoolean());
   }
 
   protected void writeNumber(DataOutputStream outputStream, Double number) throws IOException {
@@ -3021,8 +3029,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   protected Double readNumber(DataInputStream inputStream) throws IOException {
-    Double d = new Double(inputStream.readDouble());
-    return d;
+    return Double.valueOf(inputStream.readDouble());
   }
 
   protected void writeInteger(DataOutputStream outputStream, Long number) throws IOException {
@@ -3030,8 +3037,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   protected Long readInteger(DataInputStream inputStream) throws IOException {
-    Long l = new Long(inputStream.readLong());
-    return l;
+    return Long.valueOf(inputStream.readLong());
   }
 
   protected void writeInteger(DataOutputStream outputStream, Integer number) throws IOException {
@@ -3039,8 +3045,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   protected Integer readSmallInteger(DataInputStream inputStream) throws IOException {
-    Integer i = Integer.valueOf(inputStream.readInt());
-    return i;
+    return Integer.valueOf(inputStream.readInt());
   }
 
   protected void writeBinary(DataOutputStream outputStream, byte[] binary) throws IOException {
@@ -3107,11 +3112,11 @@ public class ValueMetaBase implements IValueMeta {
               } catch (ClassCastException e) {
                 throw new RuntimeException(
                     toString()
-                        + " : There was a data type error: the data type of "
+                        + MSG_DATA_TYPE_ERROR
                         + index[i].getClass().getName()
-                        + " object ["
+                        + MSG_OBJECT
                         + index[i]
-                        + "] does not correspond to value meta ["
+                        + MSG_DOES_NOT_CORRESPOND
                         + toStringMeta()
                         + "]");
               }
@@ -3379,11 +3384,11 @@ public class ValueMetaBase implements IValueMeta {
             } catch (ClassCastException e) {
               throw new RuntimeException(
                   toString()
-                      + " : There was a data type error: the data type of "
+                      + MSG_DATA_TYPE_ERROR
                       + index[i].getClass().getName()
-                      + " object ["
+                      + MSG_OBJECT
                       + index[i]
-                      + "] does not correspond to value meta ["
+                      + MSG_DOES_NOT_CORRESPOND
                       + toStringMeta()
                       + "]");
             }
@@ -3502,16 +3507,16 @@ public class ValueMetaBase implements IValueMeta {
             break;
 
           default:
-            throw new IOException(toString() + " : Unknown storage type " + getStorageType());
+            throw new IOException(toString() + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
         }
       } catch (ClassCastException e) {
         throw new RuntimeException(
             toString()
-                + " : There was a data type error: the data type of "
+                + MSG_DATA_TYPE_ERROR
                 + object.getClass().getName()
-                + " object ["
+                + MSG_OBJECT
                 + object
-                + "] does not correspond to value meta ["
+                + MSG_DOES_NOT_CORRESPOND
                 + toStringMeta()
                 + "]",
             e);
@@ -3597,7 +3602,7 @@ public class ValueMetaBase implements IValueMeta {
         return Integer.parseInt(indexString);
 
       default:
-        throw new HopException(toString() + " : Unknown storage type " + getStorageType());
+        throw new HopException(toString() + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
     }
   }
 
@@ -3609,11 +3614,6 @@ public class ValueMetaBase implements IValueMeta {
   public static final String[] getTypes() {
 
     return ValueMetaFactory.getValueMetaNames();
-
-    /*
-     * String retval[] = new String[typeCodes.length - 1]; System.arraycopy(typeCodes, 1, retval, 0, typeCodes.length -
-     * 1); return retval;
-     */
   }
 
   /**
@@ -3624,11 +3624,6 @@ public class ValueMetaBase implements IValueMeta {
   public static final String[] getAllTypes() {
 
     return ValueMetaFactory.getAllValueMetaNames();
-
-    /*
-     * String retval[] = new String[typeCodes.length]; System.arraycopy(typeCodes, 0, retval, 0, typeCodes.length);
-     * return retval;
-     */
   }
 
   /**
@@ -3640,8 +3635,6 @@ public class ValueMetaBase implements IValueMeta {
   public static final String getTypeDesc(int type) {
 
     return ValueMetaFactory.getValueMetaName(type);
-
-    // return typeCodes[type];
   }
 
   /**
@@ -3653,12 +3646,6 @@ public class ValueMetaBase implements IValueMeta {
   public static final int getType(String desc) {
 
     return ValueMetaFactory.getIdForValueMeta(desc);
-
-    /*
-     * for (int i = 1; i < typeCodes.length; i++) { if (typeCodes[i].equalsIgnoreCase(desc)) { return i; } }
-     *
-     * return TYPE_NONE;
-     */
   }
 
   /**
@@ -3746,21 +3733,6 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  /*
-   * Compare 2 binary strings, one byte at a time.<br> This algorithm is very fast but most likely wrong as well.<br>
-   *
-   * @param one The first binary string to compare with
-   *
-   * @param two the second binary string to compare to
-   *
-   * @return -1 if <i>one</i> is smaller than <i>two</i>, 0 is both byte arrays are identical and 1 if <i>one</i> is
-   * larger than <i>two</i> protected int compareBinaryStrings(byte[] one, byte[] two) {
-   *
-   * for (int i=0;i<one.length;i++) { if (i>=two.length) return 1; // larger if (one[i]>two[i]) return 1; // larger if
-   * (one[i]<two[i]) return -1; // smaller } if (one.length>two.length) return 1; // larger if (one.length>two.length)
-   * return -11; // smaller return 0; }
-   */
-
   /**
    * Compare 2 values of the same data type
    *
@@ -3813,9 +3785,6 @@ public class ValueMetaBase implements IValueMeta {
     int cmp = 0;
     switch (getType()) {
       case TYPE_STRING:
-        // if (isStorageBinaryString() && identicalFormat &&
-        // storageMetadata.isSingleByteEncoding()) return
-        // compareBinaryStrings((byte[])data1, (byte[])data2); TODO
         String one = getString(data1);
         String two = getString(data2);
 
@@ -3836,8 +3805,6 @@ public class ValueMetaBase implements IValueMeta {
         break;
 
       case TYPE_INTEGER:
-        // if (isStorageBinaryString() && identicalFormat) return
-        // compareBinaryStrings((byte[])data1, (byte[])data2); TODO
         cmp = getInteger(data1).compareTo(getInteger(data2));
         break;
 
@@ -3869,11 +3836,11 @@ public class ValueMetaBase implements IValueMeta {
         byte[] b1 = (byte[]) data1;
         byte[] b2 = (byte[]) data2;
 
-        int length = b1.length < b2.length ? b1.length : b2.length;
+        int byteLength = b1.length < b2.length ? b1.length : b2.length;
 
         cmp = b1.length - b2.length;
         if (cmp == 0) {
-          for (int i = 0; i < length; i++) {
+          for (int i = 0; i < byteLength; i++) {
             cmp = b1[i] - b2[i];
             if (cmp != 0) {
               cmp = cmp < 0 ? -1 : 1;
@@ -4151,7 +4118,7 @@ public class ValueMetaBase implements IValueMeta {
     boolean isStringValue = outValueType == IValueMeta.TYPE_STRING;
     Object emptyValue = isStringValue ? Const.NULL_STRING : null;
 
-    Boolean isEmptyAndNullDiffer =
+    boolean isEmptyAndNullDiffer =
         convertStringToBoolean(
             Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
 
@@ -4988,17 +4955,6 @@ public class ValueMetaBase implements IValueMeta {
     int originalScale = rm.getScale(index);
     v.setOriginalScale(originalScale);
 
-    // DISABLED FOR PERFORMANCE REASONS
-    //
-    // boolean originalAutoIncrement=rm.isAutoIncrement(index); DISABLED FOR
-    // PERFORMANCE REASONS
-    // v.setOriginalAutoIncrement(originalAutoIncrement);
-
-    // int originalNullable=rm.isNullable(index); DISABLED FOR PERFORMANCE
-    // REASONS
-    // v.setOriginalNullable(originalNullable);
-    //
-
     boolean originalSigned = false;
     try {
       originalSigned = rm.isSigned(index);
@@ -5275,7 +5231,7 @@ public class ValueMetaBase implements IValueMeta {
           data = Boolean.valueOf(resultSet.getBoolean(index + 1));
           break;
         case IValueMeta.TYPE_NUMBER:
-          data = new Double(resultSet.getDouble(index + 1));
+          data = Double.valueOf(resultSet.getDouble(index + 1));
           break;
         case IValueMeta.TYPE_BIGNUMBER:
           data = resultSet.getBigDecimal(index + 1);
@@ -5333,16 +5289,10 @@ public class ValueMetaBase implements IValueMeta {
       throws SQLException, HopDatabaseException {
     Object data = null;
     int type = resultSet.getMetaData().getColumnType(index);
-    switch (type) {
-      case Types.TIME:
-        {
-          data = resultSet.getTime(index);
-          break;
-        }
-      default:
-        {
-          data = resultSet.getDate(index);
-        }
+    if (type == Types.TIME) {
+      data = resultSet.getTime(index);
+    } else {
+      data = resultSet.getDate(index);
     }
     return data;
   }

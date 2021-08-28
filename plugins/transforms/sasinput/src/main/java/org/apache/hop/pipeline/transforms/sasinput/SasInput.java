@@ -47,7 +47,7 @@ import java.util.List;
 /** Reads data from a SAS file in SAS7BAT format. */
 public class SasInput extends BaseTransform<SasInputMeta, SasInputData>
     implements ITransform<SasInputMeta, SasInputData> {
-  private static Class<?> PKG = SasInputMeta.class; // for Translator
+  private static final Class<?> PKG = SasInputMeta.class; // for Translator
 
   public SasInput(
       TransformMeta stepMeta,
@@ -174,7 +174,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData>
           }
           if (sasValue instanceof Float) {
             inputValueMeta = new ValueMetaNumber(fieldName);
-            value = new Double((double) sasValue);
+            value = Double.valueOf((double) sasValue);
           }
           if (sasValue instanceof Long) {
             inputValueMeta = new ValueMetaInteger(fieldName);
@@ -182,7 +182,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData>
           }
           if (sasValue instanceof Integer) {
             inputValueMeta = new ValueMetaInteger(fieldName);
-            value = new Long((int) sasValue);
+            value = Long.valueOf((int) sasValue);
           }
           if (sasValue instanceof Date) {
             inputValueMeta = new ValueMetaDate(fieldName);

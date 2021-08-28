@@ -40,9 +40,6 @@ import java.util.List;
 /**
  * Read all subfolder inside a specified folder and convert them to rows and writes these to one or
  * more output streams.
- *
- * @author Samatar
- * @since 18-July-2008
  */
 public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData>
     implements ITransform<GetSubFoldersMeta, GetSubFoldersData> {
@@ -118,7 +115,6 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
             data.outputRowMeta, getTransformName(), null, null, this, metadataProvider); // get the
         // metadata
         // populated
-        // data.nrTransformFields= data.outputRowMeta.size();
 
         data.files = meta.getFolderList(this);
         data.filessize = data.files.nrOfFiles();
@@ -194,11 +190,11 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
         extraData[outputIndex++] = data.file.getName().getRootURI();
 
         // childrens files
-        extraData[outputIndex++] = new Long(data.file.getChildren().length);
+        extraData[outputIndex++] = Long.valueOf(data.file.getChildren().length);
 
         // See if we need to add the row number to the row...
         if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-          extraData[outputIndex++] = new Long(data.rownr);
+          extraData[outputIndex++] = Long.valueOf(data.rownr);
         }
 
         data.rownr++;
@@ -219,10 +215,8 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
 
     data.filenr++;
 
-    if (checkFeedback(getLinesInput())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "GetSubFolders.Log.NrLine", "" + getLinesInput()));
-      }
+    if (checkFeedback(getLinesInput()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "GetSubFolders.Log.NrLine", "" + getLinesInput()));
     }
 
     return true;

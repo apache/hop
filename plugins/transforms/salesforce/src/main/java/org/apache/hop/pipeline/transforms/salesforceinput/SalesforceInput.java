@@ -40,12 +40,9 @@ import java.util.GregorianCalendar;
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar
- * @since 10-06-2007
  */
 public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, SalesforceInputData> {
-  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   public SalesforceInput(
       TransformMeta transformMeta,
@@ -99,13 +96,11 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         return false;
       }
 
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesInput())) {
-        if (log.isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(PKG, "SalesforceInput.log.LineRow", "" + getLinesInput()));
-        }
+      if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "SalesforceInput.log.LineRow", "" + getLinesInput()));
       }
 
       data.rownr++;
@@ -250,7 +245,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
       // See if we need to add the row number to the row...
       if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-        outputRowData[rowIndex++] = new Long(data.rownr);
+        outputRowData[rowIndex++] = data.rownr;
       }
 
       if (meta.includeDeletionDate() && !Utils.isEmpty(meta.getDeletionDateField())) {

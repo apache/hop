@@ -40,9 +40,6 @@ import java.util.List;
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar
- * @since 20-06-2007
  */
 public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
     implements ITransform<YamlInputMeta, YamlInputData> {
@@ -123,14 +120,14 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
       }
 
       // get field value
-      String Fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfYamlField);
+      String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfYamlField);
 
       getLinesInput();
 
       if (log.isDetailed()) {
         logDetailed(
             BaseMessages.getString(
-                PKG, "YamlInput.Log.YAMLStream", meta.getYamlField(), Fieldvalue));
+                PKG, "YamlInput.Log.YAMLStream", meta.getYamlField(), fieldvalue));
       }
 
       if (meta.getIsAFile()) {
@@ -138,13 +135,13 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
         // source is a file.
 
         data.yaml = new YamlReader();
-        data.yaml.loadFile(HopVfs.getFileObject(Fieldvalue));
+        data.yaml.loadFile(HopVfs.getFileObject(fieldvalue));
 
         addFileToResultFilesname(data.yaml.getFile());
 
       } else {
         data.yaml = new YamlReader();
-        data.yaml.loadString(Fieldvalue);
+        data.yaml.loadString(fieldvalue);
       }
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "YamlInput.Log.UnexpectedError", e.toString()));
@@ -260,7 +257,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
     incrementLinesOutput();
 
     data.rownr++;
-    putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
     if (meta.getRowLimit() > 0 && data.rownr > meta.getRowLimit()) {
       // limit has been reached: stop now.
@@ -364,7 +361,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
       }
       // See if we need to add the row number to the row...
       if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-        outputRowData[rowIndex++] = new Long(data.rownr);
+        outputRowData[rowIndex++] = data.rownr;
       }
 
     } catch (Exception e) {

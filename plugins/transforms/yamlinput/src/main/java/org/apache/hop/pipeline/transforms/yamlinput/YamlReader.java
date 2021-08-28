@@ -39,9 +39,6 @@ import java.util.*;
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar
- * @since 20-06-2010
  */
 public class YamlReader {
 
@@ -208,26 +205,26 @@ public class YamlReader {
     switch (valueMeta.getType()) {
       case IValueMeta.TYPE_INTEGER:
         if (value instanceof Integer) {
-          o = new Long((Integer) value);
+          o = Long.valueOf((Integer) value);
         } else if (value instanceof BigInteger) {
-          o = new Long(((BigInteger) value).longValue());
+          o = Long.valueOf(((BigInteger) value).longValue());
         } else if (value instanceof Long) {
-          o = new Long((Long) value);
+          o = Long.valueOf((Long) value);
         } else {
-          o = new Long(value.toString());
+          o = Long.valueOf(value.toString());
         }
         break;
       case IValueMeta.TYPE_NUMBER:
         if (value instanceof Integer) {
-          o = new Double((Integer) value);
+          o = Double.valueOf((Integer) value);
         } else if (value instanceof BigInteger) {
-          o = new Double(((BigInteger) value).doubleValue());
+          o = Double.valueOf(((BigInteger) value).doubleValue());
         } else if (value instanceof Long) {
-          o = new Double((Long) value);
+          o = Double.valueOf((Long) value);
         } else if (value instanceof Double) {
           o = value;
         } else {
-          o = new Double((String) value);
+          o = Double.valueOf((String) value);
         }
         break;
       case IValueMeta.TYPE_BIGNUMBER:
@@ -238,7 +235,7 @@ public class YamlReader {
         } else if (value instanceof Long) {
           o = new BigDecimal((Long) value);
         } else if (value instanceof Double) {
-          o = new BigDecimal((Double) value);
+          o = BigDecimal.valueOf((Double) value);
         }
         break;
       case IValueMeta.TYPE_BOOLEAN:

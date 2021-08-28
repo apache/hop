@@ -302,7 +302,7 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
 
     String nrErr = variables.resolve(getNrErrorsValuename());
     if (!Utils.isEmpty(nrErr)) {
-      row[index] = new Long(nrErrors);
+      row[index] = Long.valueOf(nrErrors);
       index++;
     }
     String errDesc = variables.resolve(getErrorDescriptionsValuename());
@@ -318,7 +318,6 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
     String errCodes = variables.resolve(getErrorCodesValuename());
     if (!Utils.isEmpty(errCodes)) {
       row[index] = errorCodes;
-      index++;
     }
   }
 

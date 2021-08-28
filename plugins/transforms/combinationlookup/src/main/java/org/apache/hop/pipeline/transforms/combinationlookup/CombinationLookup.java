@@ -56,9 +56,6 @@ import java.util.*;
  * <p>
  *
  * <p>
- *
- * @author Matt
- * @since 22-jul-2003
  */
 public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData>
     implements ITransform<CombinationLookupMeta, CombinationLookupData> {
@@ -211,7 +208,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
   private Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     Long valKey = null;
-    Long val_hash = null;
+    Long valHash = null;
     Object[] hashRow = null;
 
     Object[] lookupRow = new Object[data.lookupRowMeta.size()];
@@ -224,8 +221,8 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       }
 
       if (meta.useHash()) {
-        val_hash = new Long(data.hashRowMeta.hashCode(hashRow));
-        lookupRow[lookupIndex] = val_hash;
+        valHash = Long.valueOf(data.hashRowMeta.hashCode(hashRow));
+        lookupRow[lookupIndex] = valHash;
         lookupIndex++;
       }
     }
@@ -266,7 +263,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
                     data.realSchemaName, data.realTableName, meta.getTechnicalKeyField());
             break;
           case CREATION_METHOD_AUTOINC:
-            valKey = new Long(0); // value to accept new key...
+            valKey = Long.valueOf(0); // value to accept new key...
             break;
           case CREATION_METHOD_SEQUENCE:
             valKey =
@@ -282,7 +279,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
             break;
         }
 
-        valKey = combiInsert(rowMeta, row, valKey, val_hash);
+        valKey = combiInsert(rowMeta, row, valKey, valHash);
         incrementLinesOutput();
 
         if (isRowLevel()) {
@@ -389,13 +386,10 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     try {
       Object[] outputRow =
           lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic(
-              BaseMessages.getString(PKG, "CombinationLookup.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "CombinationLookup.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
@@ -427,12 +421,12 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
     /*
      * SELECT <retval> FROM <table> WHERE ( ( <key1> = ? ) OR ( <key1> IS NULL AND ? IS NULL ) ) AND ( ( <key2> = ? ) OR
-     * ( <key1> IS NULL AND ? IS NULL ) ) ... ;
+     * ( <key1> IS NULL AND ? IS NULL ) ) ...
      *
      * OR
      *
      * SELECT <retval> FROM <table> WHERE <crcfield> = ? AND ( ( <key1> = ? ) OR ( <key1> IS NULL AND ? IS NULL ) ) AND
-     * ( ( <key2> = ? ) OR ( <key1> IS NULL AND ? IS NULL ) ) ... ;
+     * ( ( <key2> = ? ) OR ( <key1> IS NULL AND ? IS NULL ) ) ...
      */
 
     sql += "SELECT " + databaseMeta.quoteField(meta.getTechnicalKeyField()) + Const.CR;
@@ -502,7 +496,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         /*
          * Construct the SQL statement...
          *
-         * INSERT INTO d_test(keyfield, [crcfield,] keylookup[]) VALUES(val_key, [val_crc], row values with keynrs[]) ;
+         * INSERT INTO d_test(keyfield, [crcfield,] keylookup[]) VALUES(val_key, [val_crc], row values with keynrs[])
          */
 
         String sql = "";
@@ -643,7 +637,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         try {
           keys = data.prepStatementInsert.getGeneratedKeys(); // 1 key
           if (keys.next()) {
-            valKey = new Long(keys.getLong(1));
+            valKey = Long.valueOf(keys.getLong(1));
           } else {
             throw new HopDatabaseException(
                 "Unable to retrieve auto-increment of combi insert key : "
