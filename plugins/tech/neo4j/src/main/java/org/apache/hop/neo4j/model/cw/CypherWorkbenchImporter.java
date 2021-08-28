@@ -107,7 +107,7 @@ public class CypherWorkbenchImporter {
 
   private static Double getDouble(Object obj) {
     if (obj == null) {
-      return new Double(0);
+      return Double.valueOf(0);
     }
     if (obj instanceof Double) {
       return (Double) obj;

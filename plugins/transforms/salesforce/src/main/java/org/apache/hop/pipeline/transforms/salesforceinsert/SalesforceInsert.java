@@ -38,13 +38,10 @@ import java.util.ArrayList;
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author jstairs, Samatar
- * @since 10-06-2007
  */
 public class SalesforceInsert
     extends SalesforceTransform<SalesforceInsertMeta, SalesforceInsertData> {
-  private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 
   public SalesforceInsert(
       TransformMeta transformMeta,
@@ -207,14 +204,12 @@ public class SalesforceInsert
             logDetailed(BaseMessages.getString(PKG, "SalesforceInsert.NewRow", newRow[0]));
           }
 
-          putRow(data.outputRowMeta, newRow); // copy row to output rowset(s);
+          putRow(data.outputRowMeta, newRow); // copy row to output rowset(s)
           incrementLinesOutput();
 
-          if (checkFeedback(getLinesInput())) {
-            if (log.isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(PKG, "SalesforceInsert.log.LineRow", getLinesInput()));
-            }
+          if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "SalesforceInsert.log.LineRow", getLinesInput()));
           }
 
         } else {
@@ -235,7 +230,7 @@ public class SalesforceInsert
                 BaseMessages.getString(
                     PKG,
                     "SalesforceInsert.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage()));
           }
@@ -248,7 +243,7 @@ public class SalesforceInsert
                 BaseMessages.getString(
                     PKG,
                     "SalesforceInsert.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage());
           }

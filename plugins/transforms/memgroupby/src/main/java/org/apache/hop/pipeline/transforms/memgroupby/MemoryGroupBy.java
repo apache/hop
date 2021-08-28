@@ -37,12 +37,7 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry
 
 import java.util.*;
 
-/**
- * Groups information based on aggregation rules. (sum, count, ...)
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Groups information based on aggregation rules. (sum, count, ...) */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData>
     implements ITransform<MemoryGroupByMeta, MemoryGroupByData> {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
@@ -283,7 +278,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           double n = aggregate.counts[i];
           double x = subjMeta.getNumber(subj);
           // for standard deviation null is exact 0
-          double sum = value == null ? new Double(0) : (Double) value;
+          double sum = value == null ? Double.valueOf(0) : (Double) value;
           double mean = aggregate.mean[i];
 
           double delta = x - mean;
@@ -358,7 +353,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           aggregate.agg[i] = subj;
           break;
         case MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA:
-          if (!(subj == null)) {
+          if (subj != null) {
             StringBuilder sb = (StringBuilder) value;
             if (sb.length() > 0) {
               sb.append(", ");
@@ -367,7 +362,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING:
-          if (!(subj == null)) {
+          if (subj != null) {
             String separator = "";
             if (!Utils.isEmpty(meta.getValueField()[i])) {
               separator = resolve(meta.getValueField()[i]);

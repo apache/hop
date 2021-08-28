@@ -27,8 +27,6 @@ import java.util.Map;
  * <p>For example :
  *
  * <p>Load orders.hpl Load orders 2.hpl Load orders 3.hpl etc.
- *
- * @author matt
  */
 public class SequenceResourceNaming extends SimpleResourceNaming {
 
@@ -59,12 +57,12 @@ public class SequenceResourceNaming extends SimpleResourceNaming {
     String key = filename + extension;
     Integer seq = sequenceMap.get(key);
     if (seq == null) {
-      seq = new Integer(2);
+      seq = Integer.valueOf(2);
       sequenceMap.put(key, seq);
       return null;
     }
 
-    sequenceMap.put(key, new Integer(seq.intValue() + 1));
+    sequenceMap.put(key, Integer.valueOf(seq.intValue() + 1));
 
     return seq.toString();
   }

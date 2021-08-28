@@ -245,10 +245,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wServerSettings);
     wServerSettings.setText(BaseMessages.getString(PKG, "MailInput.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
@@ -464,10 +464,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wSettingsTab.setText(BaseMessages.getString(PKG, "MailInput.Tab.Pop.Label"));
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSettingsComp);
-    FormLayout PopLayout = new FormLayout();
-    PopLayout.marginWidth = 3;
-    PopLayout.marginHeight = 3;
-    wSettingsComp.setLayout(PopLayout);
+    FormLayout popLayout = new FormLayout();
+    popLayout.marginWidth = 3;
+    popLayout.marginHeight = 3;
+    wSettingsComp.setLayout(popLayout);
 
     // Message: for POP3, only INBOX folder is available!
     wlPOP3Message = new Label(wSettingsComp, SWT.RIGHT);
@@ -486,10 +486,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wPOP3Settings);
     wPOP3Settings.setText(BaseMessages.getString(PKG, "MailInput.POP3Settings.Group.Label"));
 
-    FormLayout POP3SettingsgroupLayout = new FormLayout();
-    POP3SettingsgroupLayout.marginWidth = 10;
-    POP3SettingsgroupLayout.marginHeight = 10;
-    wPOP3Settings.setLayout(POP3SettingsgroupLayout);
+    FormLayout pop3SettingsgroupLayout = new FormLayout();
+    pop3SettingsgroupLayout.marginWidth = 10;
+    pop3SettingsgroupLayout.marginHeight = 10;
+    wPOP3Settings.setLayout(pop3SettingsgroupLayout);
 
     // List of mails of retrieve
     wlListmails = new Label(wPOP3Settings, SWT.RIGHT);
@@ -503,7 +503,6 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wListmails.add(BaseMessages.getString(PKG, "MailInput.RetrieveAllMails.Label"));
     // pop3 does not support retrieve unread option
-    // wListmails.add( BaseMessages.getString( PKG, "MailInput.RetrieveUnreadMails.Label" ) );
     wListmails.add(BaseMessages.getString(PKG, "MailInput.RetrieveFirstMails.Label"));
     wListmails.select(0); // +1: starts at -1
 
@@ -558,10 +557,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wIMAPSettings);
     wIMAPSettings.setText(BaseMessages.getString(PKG, "MailInput.IMAPSettings.Groupp.Label"));
 
-    FormLayout IMAPSettingsgroupLayout = new FormLayout();
-    IMAPSettingsgroupLayout.marginWidth = 10;
-    IMAPSettingsgroupLayout.marginHeight = 10;
-    wIMAPSettings.setLayout(IMAPSettingsgroupLayout);
+    FormLayout imapSettingsgroupLayout = new FormLayout();
+    imapSettingsgroupLayout.marginWidth = 10;
+    imapSettingsgroupLayout.marginHeight = 10;
+    wIMAPSettings.setLayout(imapSettingsgroupLayout);
 
     // Is folder name defined in a Field
     wlDynamicFolder = new Label(wIMAPSettings, SWT.RIGHT);
@@ -708,10 +707,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wIMAPListmails.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {
-            // ChooseIMAPListmails();
-
-          }
+          public void widgetSelected(SelectionEvent e) {}
         });
 
     // Retrieve the first ... mails
@@ -808,10 +804,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wHeader);
     wHeader.setText(BaseMessages.getString(PKG, "MailInput.Header.Group.Label"));
 
-    FormLayout HeadergroupLayout = new FormLayout();
-    HeadergroupLayout.marginWidth = 10;
-    HeadergroupLayout.marginHeight = 10;
-    wHeader.setLayout(HeadergroupLayout);
+    FormLayout headergroupLayout = new FormLayout();
+    headergroupLayout.marginWidth = 10;
+    headergroupLayout.marginHeight = 10;
+    wHeader.setLayout(headergroupLayout);
 
     // From line
     Label wlSender = new Label(wHeader, SWT.RIGHT);
@@ -905,10 +901,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wReceivedDate);
     wReceivedDate.setText(BaseMessages.getString(PKG, "MailInput.ReceivedDate.Group.Label"));
 
-    FormLayout ReceivedDategroupLayout = new FormLayout();
-    ReceivedDategroupLayout.marginWidth = 10;
-    ReceivedDategroupLayout.marginHeight = 10;
-    wReceivedDate.setLayout(ReceivedDategroupLayout);
+    FormLayout receivedDategroupLayout = new FormLayout();
+    receivedDategroupLayout.marginWidth = 10;
+    receivedDategroupLayout.marginHeight = 10;
+    wReceivedDate.setLayout(receivedDategroupLayout);
 
     wNegateReceivedDate = new Button(wReceivedDate, SWT.CHECK);
     props.setLook(wNegateReceivedDate);
@@ -1473,11 +1469,11 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
   private void conditionReceivedDate() {
     boolean activeReceivedDate =
-        !(MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
-            == MailConnectionMeta.CONDITION_DATE_IGNORE);
+        MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
+            != MailConnectionMeta.CONDITION_DATE_IGNORE;
     boolean useBetween =
-        (MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
-            == MailConnectionMeta.CONDITION_DATE_BETWEEN);
+        MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
+            == MailConnectionMeta.CONDITION_DATE_BETWEEN;
     wlReadFrom.setVisible(activeReceivedDate);
     wReadFrom.setVisible(activeReceivedDate);
     open.setVisible(activeReceivedDate);
@@ -1827,7 +1823,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     }
 
     try {
-      return new Integer(toParse);
+      return Integer.parseInt(toParse);
     } catch (NumberFormatException e) {
       return null;
     }

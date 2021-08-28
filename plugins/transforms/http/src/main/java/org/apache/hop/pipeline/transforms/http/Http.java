@@ -52,12 +52,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Retrieves data from an Http endpoint
- *
- * @author Matt
- * @since 26-apr-2003
- */
+/** Retrieves data from an Http endpoint */
 public class Http extends BaseTransform<HttpMeta, HttpData>
     implements ITransform<HttpMeta, HttpData> {
 
@@ -227,11 +222,11 @@ public class Http extends BaseTransform<HttpMeta, HttpData>
         }
 
         if (!Utils.isEmpty(meta.getResultCodeFieldName())) {
-          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, new Long(statusCode));
+          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(statusCode));
           returnFieldsOffset++;
         }
         if (!Utils.isEmpty(meta.getResponseTimeFieldName())) {
-          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, new Long(responseTime));
+          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(responseTime));
           returnFieldsOffset++;
         }
         if (!Utils.isEmpty(meta.getResponseHeaderFieldName())) {
@@ -361,7 +356,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData>
 
     try {
       Object[] outputRowData = execHttp(getInputRowMeta(), r); // add new values to the row
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (checkFeedback(getLinesRead())) {
         if (isDetailed()) {

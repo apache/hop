@@ -372,7 +372,6 @@ public class ScriptValuesMeta extends BaseTransformMeta
       replace[i] = false;
     }
 
-    //    compatible = false;
     optimizationLevel = OPTIMIZATION_LEVEL_DEFAULT;
   }
 
@@ -525,7 +524,6 @@ public class ScriptValuesMeta extends BaseTransformMeta
     if (jsScripts.length > 0) {
       for (int i = 0; i < jsScripts.length; i++) {
         if (jsScripts[i].isTransformScript()) {
-          // strActiveScriptName =jsScripts[i].getScriptName();
           strActiveScript = jsScripts[i].getScript();
         } else if (jsScripts[i].isStartScript()) {
           strActiveStartScriptName = jsScripts[i].getScriptName();
@@ -621,7 +619,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
             valueData = Long.valueOf(0L);
           }
           if (valueMeta.isNumber()) {
-            valueData = new Double(0.0);
+            valueData = Double.valueOf(0.0);
           }
           if (valueMeta.isBigNumber()) {
             valueData = BigDecimal.ZERO;

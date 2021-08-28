@@ -47,9 +47,6 @@ import java.util.Iterator;
 /**
  * Performs a fuzzy match for each main stream field row An approximative match is done in a lookup
  * stream
- *
- * @author Samatar
- * @since 03-mars-2008
  */
 public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
     implements ITransform<FuzzyMatchMeta, FuzzyMatchData> {
@@ -259,7 +256,6 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
 
     long distance = -1;
 
-    // Object o=row[data.indexOfMainField];
     String lookupvalue = getInputRowMeta().getString(row, data.indexOfMainField);
 
     while (it.hasNext()) {
@@ -406,7 +402,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
       // Key value is the first value
       String cacheValue = (String) cachedData[0];
 
-      double csimilarity = new Double(0);
+      double csimilarity = 0;
 
       switch (meta.getAlgorithmType()) {
         case FuzzyMatchMeta.OPERATION_TYPE_JARO:
@@ -430,7 +426,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
             rowData[index++] = cacheValue;
             // Add metric value?
             if (data.addValueFieldName) {
-              rowData[index++] = new Double(similarity);
+              rowData[index++] = Double.valueOf(similarity);
             }
 
             // Add additional return values?
@@ -506,12 +502,10 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
+      if (checkFeedback(getLinesRead()) && log.isBasic()) {
           logBasic(BaseMessages.getString(PKG, "FuzzyMatch.Log.LineNumber") + getLinesRead());
-        }
       }
     } catch (HopException e) {
       boolean sendToErrorRow = false;

@@ -120,16 +120,16 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     try {
       scope = cx.initStandardObjects(null);
 
-      Long errors = new Long(result.getNrErrors());
-      Long linesInput = new Long(result.getNrLinesInput());
-      Long linesOutput = new Long(result.getNrLinesOutput());
-      Long linesUpdated = new Long(result.getNrLinesUpdated());
-      Long linesRejected = new Long(result.getNrLinesRejected());
-      Long linesRead = new Long(result.getNrLinesRead());
-      Long linesWritten = new Long(result.getNrLinesWritten());
-      Long exitStatus = new Long(result.getExitStatus());
-      Long filesRetrieved = new Long(result.getNrFilesRetrieved());
-      Long nr = new Long(result.getEntryNr());
+      Long errors = Long.valueOf(result.getNrErrors());
+      Long linesInput = Long.valueOf(result.getNrLinesInput());
+      Long linesOutput = Long.valueOf(result.getNrLinesOutput());
+      Long linesUpdated = Long.valueOf(result.getNrLinesUpdated());
+      Long linesRejected = Long.valueOf(result.getNrLinesRejected());
+      Long linesRead = Long.valueOf(result.getNrLinesRead());
+      Long linesWritten = Long.valueOf(result.getNrLinesWritten());
+      Long exitStatus = Long.valueOf(result.getExitStatus());
+      Long filesRetrieved = Long.valueOf(result.getNrFilesRetrieved());
+      Long nr = Long.valueOf(result.getEntryNr());
 
       scope.put("errors", scope, errors);
       scope.put("lines_input", scope, linesInput);

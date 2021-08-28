@@ -42,11 +42,11 @@ public class HopJaroWinklerDistance {
   private double jw = 0D;
 
   public Double getJaroDistance() {
-    return new Double(j);
+    return Double.valueOf(j);
   }
 
   public Double getJaroWinklerDistance() {
-    return new Double(jw);
+    return Double.valueOf(jw);
   }
 
   /**
@@ -87,7 +87,7 @@ public class HopJaroWinklerDistance {
       j = 0D;
       jw = 0D;
     } else {
-      j = ((m / left.length() + m / right.length() + (m - mtp[1]) / m)) / 3;
+      j = (m / left.length() + m / right.length() + (m - mtp[1]) / m) / 3;
       jw = j < 0.7D ? j : j + Math.min(defaultScalingFactor, 1D / mtp[3]) * mtp[2] * (1D - j);
     }
   }
@@ -100,7 +100,8 @@ public class HopJaroWinklerDistance {
    * @return mtp array containing: matches, transpositions, prefix, and max length
    */
   protected static int[] matches(final CharSequence first, final CharSequence second) {
-    CharSequence max, min;
+    CharSequence max;
+    CharSequence min;
     if (first.length() > second.length()) {
       max = first;
       min = second;

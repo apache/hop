@@ -182,24 +182,18 @@ public class MongoField implements Comparable<MongoField> {
           fieldValue = ((Binary) fieldValue).getData();
         } else if (fieldValue instanceof byte[]) {
           // Leave fieldValue alone if it is a byte[], or defensively copy uncommenting
-          /*
-          byte[] castValue = (byte[]) fieldValue;
-          byte[] copyValue = new byte[ castValue.length ];
-          System.arraycopy( castValue, 0, copyValue, 0, copyValue.length );
-          fieldValue = copyValue;
-          */
         } else {
           fieldValue = fieldValue.toString().getBytes();
         }
         return tempValueMeta.getBinary(fieldValue);
       case IValueMeta.TYPE_BOOLEAN:
         if (fieldValue instanceof Number) {
-          fieldValue = new Boolean(((Number) fieldValue).intValue() != 0);
+          fieldValue = Boolean.valueOf(((Number) fieldValue).intValue() != 0);
         } else if (fieldValue instanceof Date) {
-          fieldValue = new Boolean(((Date) fieldValue).getTime() != 0);
+          fieldValue = Boolean.valueOf(((Date) fieldValue).getTime() != 0);
         } else if (!(fieldValue instanceof Boolean)) {
           fieldValue =
-              new Boolean(
+              Boolean.valueOf(
                   fieldValue.toString().equalsIgnoreCase("Y")
                       || fieldValue.toString().equalsIgnoreCase("T")
                       || fieldValue.toString().equalsIgnoreCase("1"));
@@ -216,24 +210,24 @@ public class MongoField implements Comparable<MongoField> {
         return tempValueMeta.getDate(fieldValue);
       case IValueMeta.TYPE_INTEGER:
         if (fieldValue instanceof Number) {
-          fieldValue = new Long(((Number) fieldValue).intValue());
+          fieldValue = Long.valueOf(((Number) fieldValue).intValue());
         } else if (fieldValue instanceof Binary) {
           byte[] b = ((Binary) fieldValue).getData();
           String s = new String(b);
-          fieldValue = new Long(s);
+          fieldValue = Long.valueOf(s);
         } else {
-          fieldValue = new Long(fieldValue.toString());
+          fieldValue = Long.valueOf(fieldValue.toString());
         }
         return tempValueMeta.getInteger(fieldValue);
       case IValueMeta.TYPE_NUMBER:
         if (fieldValue instanceof Number) {
-          fieldValue = new Double(((Number) fieldValue).doubleValue());
+          fieldValue = Double.valueOf(((Number) fieldValue).doubleValue());
         } else if (fieldValue instanceof Binary) {
           byte[] b = ((Binary) fieldValue).getData();
           String s = new String(b);
-          fieldValue = new Double(s);
+          fieldValue = Double.valueOf(s);
         } else {
-          fieldValue = new Double(fieldValue.toString());
+          fieldValue = Double.valueOf(fieldValue.toString());
         }
         return tempValueMeta.getNumber(fieldValue);
       case IValueMeta.TYPE_STRING:

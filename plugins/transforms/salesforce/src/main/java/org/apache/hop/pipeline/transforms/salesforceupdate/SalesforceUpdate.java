@@ -37,13 +37,10 @@ import java.util.ArrayList;
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author jstairs, Samatar
- * @since 10-06-2007
  */
 public class SalesforceUpdate
     extends SalesforceTransform<SalesforceUpdateMeta, SalesforceUpdateData> {
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   public SalesforceUpdate(
       TransformMeta transformMeta,
@@ -206,15 +203,12 @@ public class SalesforceUpdate
             logDetailed("The new row has an id value of : " + newRow[0]);
           }
 
-          putRow(data.outputRowMeta, newRow); // copy row to output rowset(s);
+          putRow(data.outputRowMeta, newRow); // copy row to output rowset(s)
           incrementLinesUpdated();
 
-          if (checkFeedback(getLinesInput())) {
-            if (log.isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "SalesforceUpdate.log.LineRow", "" + getLinesInput()));
-            }
+          if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "SalesforceUpdate.log.LineRow", "" + getLinesInput()));
           }
 
         } else {
@@ -234,7 +228,7 @@ public class SalesforceUpdate
                 BaseMessages.getString(
                     PKG,
                     "SalesforceUpdate.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage()));
           }
@@ -247,7 +241,7 @@ public class SalesforceUpdate
                 BaseMessages.getString(
                     PKG,
                     "SalesforceUpdate.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage());
           }

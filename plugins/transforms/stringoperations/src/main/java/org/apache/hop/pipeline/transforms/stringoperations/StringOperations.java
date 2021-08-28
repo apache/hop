@@ -31,12 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Apply certain operations too string.
- *
- * @author Samatar Hassan
- * @since 02 April 2009
- */
+/** Apply certain operations too string. */
 public class StringOperations extends BaseTransform<StringOperationsMeta, StringOperationsData>
     implements ITransform<StringOperationsMeta, StringOperationsData> {
   private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
@@ -327,11 +322,9 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
 
       putRow(data.outputRowMeta, output);
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(PKG, "StringOperations.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "StringOperations.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
 

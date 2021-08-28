@@ -71,7 +71,7 @@ public class LetterPairSimilarity {
   /** @return lexical similarity value in the range [0,1] */
   public static double getSimiliarity(String str1, String str2) {
     if (Utils.isEmpty(str1) && Utils.isEmpty(str2)) {
-      return new Double(1);
+      return Double.valueOf(1);
     }
     ArrayList<String> pairs1 = wordLetterPairs(str1.toUpperCase());
     ArrayList<String> pairs2 = wordLetterPairs(str2.toUpperCase());

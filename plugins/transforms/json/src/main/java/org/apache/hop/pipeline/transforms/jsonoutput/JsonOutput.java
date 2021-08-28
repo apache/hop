@@ -39,12 +39,7 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-/**
- * Converts input rows to one or more Xml files.
- *
- * @author Matt
- * @since 14-jan-2006
- */
+/** Converts input rows to one or more Xml files. */
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     implements ITransform<JsonOutputMeta, JsonOutputData> {
   private static final Class<?> PKG = JsonOutput.class; // For Translator
@@ -118,10 +113,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
       data.nrRow++;
 
       if (data.nrRowsInBloc > 0) {
-        // System.out.println("data.nrRow%data.nrRowsInBloc = "+ data.nrRow%data.nrRowsInBloc);
         if (data.nrRow % data.nrRowsInBloc == 0) {
           // We can now output an object
-          // System.out.println("outputting the row.");
           outPutRow(row);
         }
       }
@@ -174,10 +167,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
       data.nrRow++;
 
       if (data.nrRowsInBloc > 0) {
-        // System.out.println("data.nrRow%data.nrRowsInBloc = "+ data.nrRow%data.nrRowsInBloc);
         if (data.nrRow % data.nrRowsInBloc == 0) {
           // We can now output an object
-          // System.out.println("outputting the row.");
           outPutRow(row);
         }
       }

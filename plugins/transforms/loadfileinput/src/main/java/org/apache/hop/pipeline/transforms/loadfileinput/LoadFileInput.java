@@ -43,9 +43,6 @@ import java.util.List;
 
 /**
  * Read files, parse them and convert them to rows and writes these to one or more output streams.
- *
- * @author Samatar
- * @since 20-06-2007
  */
 public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData>
     implements ITransform<LoadFileInputMeta, LoadFileInputData> {
@@ -130,17 +127,17 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         } // end if first
 
         // get field value
-        String Fieldvalue = data.inputRowMeta.getString(data.readrow, data.indexOfFilenameField);
+        String fieldvalue = data.inputRowMeta.getString(data.readrow, data.indexOfFilenameField);
 
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "LoadFileInput.Log.Stream", meta.getDynamicFilenameField(), Fieldvalue));
+                  PKG, "LoadFileInput.Log.Stream", meta.getDynamicFilenameField(), fieldvalue));
         }
 
         try {
           // Source is a file.
-          data.file = HopVfs.getFileObject(Fieldvalue);
+          data.file = HopVfs.getFileObject(fieldvalue);
         } catch (Exception e) {
           throw new HopException(e);
         }
@@ -452,7 +449,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
       if (meta.getIncludeRowNumber()
           && meta.getRowNumberField() != null
           && meta.getRowNumberField().length() > 0) {
-        outputRowData[rowIndex++] = new Long(data.rownr);
+        outputRowData[rowIndex++] = data.rownr;
       }
       // Possibly add short filename...
       if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
@@ -469,7 +466,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
       // add Hidden
       if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
-        outputRowData[rowIndex++] = new Boolean(data.hidden);
+        outputRowData[rowIndex++] = data.hidden;
       }
       // Add modification date
       if (meta.getLastModificationDateField() != null

@@ -51,13 +51,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * This class reads data from one or more Microsoft Excel files.
- *
- * @author Matt
- * @author timh
- * @since 19-NOV-2003
- */
+/** This class reads data from one or more Microsoft Excel files. */
 public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
     implements ITransform<ExcelInputMeta, ExcelInputData> {
 
@@ -201,21 +195,18 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
               //
             case IValueMeta.TYPE_NUMBER:
             case IValueMeta.TYPE_INTEGER:
-              switch (field.getType()) {
-                case IValueMeta.TYPE_DATE:
-                  // number to string conversion (20070522.00 --> "20070522")
-                  //
-                  IValueMeta valueMetaNumber = new ValueMetaNumber("num");
-                  valueMetaNumber.setConversionMask("#");
-                  Object string = sourceMetaCopy.convertData(valueMetaNumber, r[rowcolumn]);
+              if (field.getType() == IValueMeta.TYPE_DATE) {
+                // number to string conversion (20070522.00 --> "20070522")
+                //
+                IValueMeta valueMetaNumber = new ValueMetaNumber("num");
+                valueMetaNumber.setConversionMask("#");
+                Object string = sourceMetaCopy.convertData(valueMetaNumber, r[rowcolumn]);
 
-                  // String to date with mask...
-                  //
-                  r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, string);
-                  break;
-                default:
-                  r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, r[rowcolumn]);
-                  break;
+                // String to date with mask...
+                //
+                r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, string);
+              } else {
+                r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, r[rowcolumn]);
               }
               break;
               // Use case: we find a date: convert it using the supplied format to String...
@@ -268,13 +259,13 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
 
     // Do we need to include the sheet rownumber?
     if (!Utils.isEmpty(meta.getSheetRowNumberField())) {
-      r[rowIndex] = new Long(data.rownr);
+      r[rowIndex] = Long.valueOf(data.rownr);
       rowIndex++;
     }
 
     // Do we need to include the rownumber?
     if (!Utils.isEmpty(meta.getRowNumberField())) {
-      r[rowIndex] = new Long(getLinesWritten() + 1);
+      r[rowIndex] = Long.valueOf(getLinesWritten() + 1);
       rowIndex++;
     }
     // Possibly add short filename...
@@ -294,12 +285,12 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
     }
     // Add Size
     if (!Utils.isEmpty(meta.getSizeField())) {
-      r[rowIndex] = new Long(data.size);
+      r[rowIndex] = Long.valueOf(data.size);
       rowIndex++;
     }
     // add Hidden
     if (!Utils.isEmpty(meta.isHiddenField())) {
-      r[rowIndex] = new Boolean(data.hidden);
+      r[rowIndex] = Boolean.valueOf(data.hidden);
       rowIndex++;
     }
     // Add modification date
@@ -315,7 +306,6 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
     // Add RootUri
     if (!Utils.isEmpty(meta.getRootUriField())) {
       r[rowIndex] = data.rootUriName;
-      rowIndex++;
     }
 
     return r;

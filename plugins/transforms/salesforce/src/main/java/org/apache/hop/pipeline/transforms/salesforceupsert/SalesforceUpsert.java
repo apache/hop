@@ -43,13 +43,10 @@ import java.util.Map;
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author jstairs, Samatar
- * @since 10-06-2007
  */
 public class SalesforceUpsert
     extends SalesforceTransform<SalesforceUpsertMeta, SalesforceUpsertData> {
-  private static Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
 
   private static final String BOOLEAN = "boolean";
   private static final String STRING = "string";
@@ -244,14 +241,11 @@ public class SalesforceUpsert
             logDetailed(BaseMessages.getString(PKG, "SalesforceUpsert.NewRow", newRow[0]));
           }
 
-          putRow(data.outputRowMeta, newRow); // copy row to output rowset(s);
+          putRow(data.outputRowMeta, newRow); // copy row to output rowset(s)
 
-          if (checkFeedback(getLinesInput())) {
-            if (log.isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "SalesforceUpsert.log.LineRow", "" + getLinesInput()));
-            }
+          if (checkFeedback(getLinesInput()) && log.isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "SalesforceUpsert.log.LineRow", "" + getLinesInput()));
           }
 
         } else {
@@ -271,7 +265,7 @@ public class SalesforceUpsert
                 BaseMessages.getString(
                     PKG,
                     "SalesforceUpsert.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage()));
           }
@@ -284,7 +278,7 @@ public class SalesforceUpsert
                 BaseMessages.getString(
                     PKG,
                     "SalesforceUpsert.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage());
           }
@@ -312,7 +306,6 @@ public class SalesforceUpsert
       if (!getTransformMeta().isDoingErrorHandling()) {
         if (e instanceof HopException) {
           // I know, bad form usually. But I didn't want to duplicate the logic with a
-          // catch(HopException). MB
           throw (HopException) e;
         } else {
           throw new HopException(
@@ -360,7 +353,7 @@ public class SalesforceUpsert
         // Now connect ...
         data.connection.connect();
         if (data.mapData) { // check if user wants data mapping. If so, get the (fieldName -->
-                            // dataType) mapping
+          // dataType) mapping
           Field[] fields = data.connection.getObjectFields(resolve(meta.getModule()));
           if (fields != null) {
             data.dataTypeMap = mapDataTypesToFields(fields);

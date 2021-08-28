@@ -158,16 +158,24 @@ public class TableView extends Composite {
   private ITableViewModifyListener tableViewModifyListener =
       new ITableViewModifyListener() {
         @Override
-        public void moveRow(int position1, int position2) {}
+        public void moveRow(int position1, int position2) {
+          // Disable listener
+        }
 
         @Override
-        public void insertRow(int rowIndex) {}
+        public void insertRow(int rowIndex) {
+          // Disable listener
+        }
 
         @Override
-        public void cellFocusLost(int rowIndex) {}
+        public void cellFocusLost(int rowIndex) {
+          // Disable listener
+        }
 
         @Override
-        public void delete(int[] items) {}
+        public void delete(int[] items) {
+          // Disable listener
+        }
       };
 
   public TableView(
@@ -1222,7 +1230,9 @@ public class TableView extends Composite {
     ddSource.addDragListener(
         new DragSourceListener() {
           @Override
-          public void dragStart(DragSourceEvent event) {}
+          public void dragStart(DragSourceEvent event) {
+            // Disable listener
+          }
 
           @Override
           public void dragSetData(DragSourceEvent event) {
@@ -1230,7 +1240,9 @@ public class TableView extends Composite {
           }
 
           @Override
-          public void dragFinished(DragSourceEvent event) {}
+          public void dragFinished(DragSourceEvent event) {
+            // Disable listener
+          }
         });
 
     table.layout();
@@ -1368,7 +1380,7 @@ public class TableView extends Composite {
       // first time through, so update
       shouldRefresh = true;
       this.sortFieldLast = this.sortField;
-      this.sortingDescendingLast = new Boolean(this.sortingDescending);
+      this.sortingDescendingLast = Boolean.valueOf(this.sortingDescending);
 
       this.sortField = sortField;
       this.sortingDescending = sortingDescending;
@@ -1450,7 +1462,7 @@ public class TableView extends Composite {
         if (!bg.equals(defaultBackgroundColor)) {
           String colorName = "bg " + bg.toString();
           r[0] = colorName;
-          r[1] = new Long((bg.getRed() << 16) + (bg.getGreen() << 8) + (bg.getBlue()));
+          r[1] = Long.valueOf((bg.getRed() << 16) + (bg.getGreen() << 8) + (bg.getBlue()));
           // Save it in the used colors map!
           usedColors.put(colorName, bg);
         }
@@ -3181,7 +3193,7 @@ public class TableView extends Composite {
     IRowMeta rowMeta = getRowWithoutValues();
     Object[] rowData = new Object[rowMeta.size()];
 
-    rowData[0] = new Long(nr);
+    rowData[0] = Long.valueOf(nr);
     for (int i = 1; i < rowMeta.size(); i++) {
       rowData[i] = ti.getText(i);
     }
