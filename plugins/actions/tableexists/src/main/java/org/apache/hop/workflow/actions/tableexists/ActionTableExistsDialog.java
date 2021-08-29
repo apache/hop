@@ -49,9 +49,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the Table Exists action settings. (select the connection and the
  * table to be checked) This entry type evaluates!
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class ActionTableExistsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator
@@ -241,7 +238,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setTablename(wTablename.getText());
     action.setSchemaname(wSchemaname.getText());
 
@@ -252,7 +249,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -298,7 +295,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(

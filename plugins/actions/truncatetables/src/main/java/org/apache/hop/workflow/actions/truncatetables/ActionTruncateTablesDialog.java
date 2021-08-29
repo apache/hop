@@ -52,9 +52,6 @@ import java.util.Arrays;
 /**
  * This dialog allows you to edit the Truncate Tables action settings. (select the connection and
  * the table to be truncated)
- *
- * @author Samatar
- * @since 22-07-2008
  */
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
@@ -324,7 +321,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setArgFromPrevious(wPrevious.getSelection());
 
     int nrItems = wFields.nrNonEmpty();
@@ -355,7 +352,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   }
 
   private void getTableName() {
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

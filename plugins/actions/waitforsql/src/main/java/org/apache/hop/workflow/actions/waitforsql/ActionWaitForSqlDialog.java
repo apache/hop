@@ -50,9 +50,6 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit the Wait for SQL action settings.
- *
- * @author Samatar
- * @since 27-10-2008
  */
 public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
@@ -583,17 +580,17 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getSql() {
-    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText());
-    if (inf != null) {
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
-              shell, SWT.NONE, variables, inf, getWorkflowMeta().getDatabases());
+              shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
       if (std.open()) {
         String sql =
             "SELECT *"
                 + Const.CR
                 + "FROM "
-                + inf.getQuotedSchemaTableCombination(
+                + databaseMeta.getQuotedSchemaTableCombination(
                     variables, std.getSchemaName(), std.getTableName())
                 + Const.CR;
         wSql.setText(sql);
@@ -609,7 +606,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
             wSql.setText(sql);
             break;
           case SWT.YES:
-            Database db = new Database(loggingObject, variables, inf);
+            Database db = new Database(loggingObject, variables, databaseMeta);
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);
@@ -622,11 +619,11 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
                   } else {
                     sql += ", ";
                   }
-                  sql += inf.quoteField(field.getName()) + Const.CR;
+                  sql += databaseMeta.quoteField(field.getName()) + Const.CR;
                 }
                 sql +=
                     "FROM "
-                        + inf.getQuotedSchemaTableCombination(
+                        + databaseMeta.getQuotedSchemaTableCombination(
                             variables, std.getSchemaName(), std.getTableName())
                         + Const.CR;
                 wSql.setText(sql);
@@ -735,7 +732,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
 
     action.schemaName = wSchemaname.getText();
     action.tableName = wTablename.getText();
@@ -757,7 +754,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(

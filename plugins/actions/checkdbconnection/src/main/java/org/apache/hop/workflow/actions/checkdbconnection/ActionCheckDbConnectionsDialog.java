@@ -44,9 +44,6 @@ import java.util.List;
 
 /**
  * This dialog allows you to edit the check database connection action settings.
- *
- * @author Samatar
- * @since 12-10-2007
  */
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // For Translator
@@ -286,8 +283,8 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     int[] waittimes = new int[nrItems];
 
     for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      DatabaseMeta dbMeta = this.getWorkflowMeta().findDatabase(arg);
+      String name = wFields.getNonEmpty(i).getText(1);
+      DatabaseMeta dbMeta = this.getWorkflowMeta().findDatabase(name, variables);
       if (dbMeta != null) {
         connections[i] = dbMeta;
         waitfors[i] = "" + Const.toInt(wFields.getNonEmpty(i).getText(2), 0);

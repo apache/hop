@@ -640,7 +640,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     transformName = wTransformName.getText(); // return value
     // copy info to TextFileInputMeta class (input)
     input.setSql(wSql.getText());
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setExecutedEachInputRow(wEachRow.getSelection());
     input.setSingleStatement(wSingleStatement.getSelection());
     input.setVariableReplacementActive(wVariables.getSelection());

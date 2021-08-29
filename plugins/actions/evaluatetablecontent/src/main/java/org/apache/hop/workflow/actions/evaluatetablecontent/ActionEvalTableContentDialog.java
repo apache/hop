@@ -51,9 +51,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the Table content evaluation action settings. (select the
  * connection and the table to evaluate)
- *
- * @author Samatar
- * @since 22-07-2008
  */
 public class ActionEvalTableContentDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
@@ -518,7 +515,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   }
 
   private void getSql() {
-    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (inf != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -685,7 +682,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
 
     action.setSchemaname(wSchemaname.getText());
     action.setTablename(wTablename.getText());
@@ -704,7 +701,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(

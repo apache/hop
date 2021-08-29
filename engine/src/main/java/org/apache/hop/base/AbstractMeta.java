@@ -274,29 +274,8 @@ public abstract class AbstractMeta
   /**
    * Find a database connection by it's name
    *
-   * @deprecated use {@link #findDatabase(String name, IVariables variables)}
    * @param name The database name to look for
-   * @return The database connection or null if nothing was found.
-   */
-  @Deprecated
-  public DatabaseMeta findDatabase(String name) {
-    if (metadataProvider == null || StringUtils.isEmpty(name)) {
-      return null;
-    }
-    try {
-      DatabaseMeta databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(name);
-      return databaseMeta;
-    } catch (HopException e) {
-      throw new RuntimeException(
-          "Unable to load database with name '" + name + "' from the metadata", e);
-    }
-  }
-
-  /**
-   * Find a database connection by it's name
-   *
-   * @param name The database name to look for
-   * @param variables Ivariables to use to resolve possible database name
+   * @param variables IVariables to use to resolve possible database name
    * @return The database connection or null if nothing was found.
    */
   public DatabaseMeta findDatabase(String name, IVariables variables) {

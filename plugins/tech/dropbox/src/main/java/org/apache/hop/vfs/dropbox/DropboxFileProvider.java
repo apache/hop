@@ -48,11 +48,6 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
               Capability.URI,
               Capability.WRITE_CONTENT));
 
-  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-      new UserAuthenticationData.Type[] {
-        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
-      };
-
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 
   public static FileSystemOptions getDefaultFileSystemOptions() {

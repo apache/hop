@@ -253,7 +253,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
       return;
     }
 
-    input.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabase(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setSchemaName(wSchemaname.getText());
     input.setTableNameField(wTableName.getText());
     input.setResultFieldName(wResult.getText());
@@ -297,7 +297,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

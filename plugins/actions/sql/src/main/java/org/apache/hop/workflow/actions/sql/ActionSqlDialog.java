@@ -44,9 +44,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the SQL action settings. (select the connection and the sql script
  * to be executed)
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSql.class; // For Translator
@@ -403,7 +400,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     action.setSqlFromFile(wSqlFromFile.getSelection());
     action.setSqlFilename(wFilename.getText());
     action.setSendOneStatement(wSendOneStatement.getSelection());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
 
     action.setChanged();
 

@@ -489,7 +489,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -723,7 +723,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
 
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
   }
@@ -741,7 +741,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
@@ -801,7 +801,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -847,7 +847,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(

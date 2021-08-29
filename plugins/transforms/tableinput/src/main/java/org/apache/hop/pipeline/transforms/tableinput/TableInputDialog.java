@@ -403,7 +403,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
         preview && !Utils.isEmpty(wSql.getSelectionText())
             ? wSql.getSelectionText()
             : wSql.getText());
-    meta.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    meta.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     meta.setRowLimit(wLimit.getText());
     IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
     infoStream.setTransformMeta(pipelineMeta.findTransform(wDatefrom.getText()));
@@ -433,7 +433,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getSql() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(

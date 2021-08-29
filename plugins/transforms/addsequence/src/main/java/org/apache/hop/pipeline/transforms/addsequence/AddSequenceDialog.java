@@ -454,7 +454,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     input.setDatabaseUsed(wUseDatabase.getSelection());
 
     String connection = wConnection.getText();
-    input.setDatabaseMeta(pipelineMeta.findDatabase(connection));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(connection, variables));
     input.setSchemaName(wSchema.getText());
     input.setSequenceName(wSeqname.getText());
     input.setValueName(wValuename.getText());
@@ -464,7 +464,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     input.setIncrementBy(wIncrBy.getText());
     input.setMaxValue(wMaxVal.getText());
 
-    if (input.isDatabaseUsed() && pipelineMeta.findDatabase(connection) == null) {
+    if (input.isDatabaseUsed() && pipelineMeta.findDatabase(connection, variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "AddSequenceDialog.NoValidConnectionError.DialogMessage"));
@@ -478,13 +478,13 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
   private void activeSequence() {
     boolean useDatabase = wUseDatabase.getSelection();
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     wbSequence.setEnabled(
         databaseMeta == null ? false : useDatabase && databaseMeta.supportsSequences());
   }
 
   private void getSequences() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -531,7 +531,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     if (wSchema.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

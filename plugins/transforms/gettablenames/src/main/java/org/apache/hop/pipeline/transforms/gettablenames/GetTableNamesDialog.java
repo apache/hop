@@ -670,7 +670,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void getInfo(GetTableNamesMeta info) {
-    info.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
+    info.setDatabase(pipelineMeta.findDatabase(wConnection.getText(), variables));
     info.setSchemaName(wSchemaName.getText());
     info.setTablenameFieldName(wTablenameField.getText());
     info.setSqlCreationFieldName(wSqlCreationField.getText());
@@ -683,7 +683,6 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     info.setIncludeProcedure(wIncludeProcedure.getSelection());
     info.setIncludeSynonym(wIncludeSynonym.getSelection());
     info.setAddSchemaInOut(wAddSchemaInOutput.getSelection());
-
     info.setDynamicSchema(wDynamicSchema.getSelection());
     info.setSchemaFieldName(wSchemaField.getText());
   }

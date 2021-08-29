@@ -385,11 +385,11 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     input.setOuterJoin(wOuter.getSelection());
     input.setVariableReplace(wuseVars.getSelection());
     input.setQueryOnlyOnChange(wqueryOnlyOnChange.getSelection());
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DynamicSQLRowDialog.InvalidConnection.DialogMessage"));

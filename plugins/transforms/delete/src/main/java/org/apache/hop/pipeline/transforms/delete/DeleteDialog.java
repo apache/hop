@@ -419,7 +419,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database database = new Database(loggingObject, variables, databaseMeta);
                 try {
@@ -480,7 +480,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     inf.getLookup().setSchemaName(wSchema.getText());
     inf.getLookup().setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
   }
@@ -505,7 +505,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -551,7 +551,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       logDebug(
           BaseMessages.getString(PKG, "DeleteDialog.Log.LookingAtConnection")

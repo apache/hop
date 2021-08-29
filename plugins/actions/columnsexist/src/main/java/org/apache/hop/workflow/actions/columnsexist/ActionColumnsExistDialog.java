@@ -53,9 +53,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the Column Exists action settings. (select the connection and the
  * table to be checked) This entry type evaluates!
- *
- * @author Samatar
- * @since 15-06-2008
  */
 public class ActionColumnsExistDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
@@ -304,7 +301,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = this.getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = this.getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(
@@ -371,7 +368,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setTablename(wTablename.getText());
     action.setSchemaname(wSchemaname.getText());
 
@@ -400,7 +397,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   /** Get a list of columns */
   private void getListColumns() {
     if (!Utils.isEmpty(wTablename.getText())) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
       if (databaseMeta != null) {
         Database database = new Database(loggingObject, variables, databaseMeta);
         try {
@@ -443,7 +440,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

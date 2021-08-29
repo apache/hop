@@ -378,7 +378,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     transformName = wTransformName.getText(); // return value
     input.setSqlFieldName(wSqlFieldName.getText());
     // copy info to TextFileInputMeta class (input)
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     input.setInsertField(wInsertField.getText());
     input.setUpdateField(wUpdateField.getText());

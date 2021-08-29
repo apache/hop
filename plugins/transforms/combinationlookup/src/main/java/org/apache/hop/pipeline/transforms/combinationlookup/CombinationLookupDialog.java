@@ -168,7 +168,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wConnection.addModifyListener(
         e -> {
           // We have new content: change ci connection:
-          ci = pipelineMeta.findDatabase(wConnection.getText());
+          ci = pipelineMeta.findDatabase(wConnection.getText(), variables);
           setAutoincUse();
           setSequence();
           input.setChanged();
@@ -610,14 +610,14 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName);
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+              if (databaseMeta != null) {
+                Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
                   db.connect();
 
                   String schemaTable =
-                      ci.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+                      databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
                   IRowMeta r = db.getTableFields(schemaTable);
                   if (null != r) {
                     String[] fieldNames = r.getFieldNames();
@@ -788,7 +788,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     getInfo(input);
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "CombinationLookupDialog.NoValidConnection.DialogMessage"));
@@ -839,7 +839,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       in.setSequenceFrom(null);
     }
 
-    in.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    in.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     in.setCommitSize(Const.toInt(wCommit.getText(), 0));
     in.setCacheSize(Const.toInt(wCachesize.getText(), 0));
@@ -848,7 +848,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -896,7 +896,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       logDebug(
           BaseMessages.getString(

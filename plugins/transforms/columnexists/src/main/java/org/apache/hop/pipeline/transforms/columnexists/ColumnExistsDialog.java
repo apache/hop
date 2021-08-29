@@ -430,7 +430,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -453,7 +453,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

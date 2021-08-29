@@ -791,7 +791,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName, variables);
               if (ci != null) {
                 Database db = new Database(loggingObject, variables, ci);
                 try {
@@ -941,7 +941,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     inf.setDbConnectionName(wConnection.getText());
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     inf.setBufferSize(wBufferSize.getText());
     inf.setLogFile(wLogFile.getText());
     inf.setTruncate(wTruncate.getSelection());
@@ -972,7 +972,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
@@ -1023,7 +1023,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {

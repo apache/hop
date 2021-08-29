@@ -163,7 +163,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            DatabaseMeta dbInfo = pipelineMeta.findDatabase(wConnection.getText());
+            DatabaseMeta dbInfo = pipelineMeta.findDatabase(wConnection.getText(), variables);
             if (dbInfo != null) {
               Database db = new Database(loggingObject, variables, dbInfo);
               try {
@@ -445,7 +445,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
       input.getArgumentType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(3));
     }
 
-    input.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabase(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setProcedure(wProcName.getText());
     input.setResultName(wResult.getText());
     input.setResultType(ValueMetaFactory.getIdForValueMeta(wResultType.getText()));

@@ -545,15 +545,15 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
                 connectionName = wConnection.getText(),
                 schemaName = wSchema.getText();
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName);
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+              if (databaseMeta != null) {
+                Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
                   db.connect();
 
                   // IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
                   String schemaTable =
-                      ci.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+                      databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
                   IRowMeta r = db.getTableFields(schemaTable);
 
                   if (null != r) {
@@ -692,14 +692,14 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
 
     lookup.setSchemaName(wSchema.getText());
     lookup.setTableName(wTable.getText());
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     lookup.setOrderByClause(wOrderBy.getText());
     lookup.setFailingOnMultipleResults(wFailMultiple.getSelection());
     lookup.setEatingRowOnLookupFailure(wEatRows.getSelection());
 
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DatabaseLookupDialog.InvalidConnection.DialogMessage"));
@@ -715,7 +715,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
@@ -763,15 +763,15 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   }
 
   private void getlookup() {
-    DatabaseMeta ci = pipelineMeta.findDatabase(wConnection.getText());
-    if (ci != null) {
-      Database db = new Database(loggingObject, variables, ci);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
         if (!Utils.isEmpty(wTable.getText())) {
           String schemaTable =
-              ci.getQuotedSchemaTableCombination(variables, wSchema.getText(), wTable.getText());
+              databaseMeta.getQuotedSchemaTableCombination(variables, wSchema.getText(), wTable.getText());
           IRowMeta r = db.getTableFields(schemaTable);
 
           if (r != null && !r.isEmpty()) {
@@ -813,7 +813,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

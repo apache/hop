@@ -434,11 +434,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
       input.getParameterType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(2));
     }
 
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DatabaseJoinDialog.InvalidConnection.DialogMessage"));

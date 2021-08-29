@@ -83,8 +83,8 @@ public class PipelineMetaModifier {
       String replacementDatabaseName =
           variables.resolve(dbReplacement.getReplacementDatabaseName());
 
-      DatabaseMeta sourceDatabaseMeta = copyPipelineMeta.findDatabase(sourceDatabaseName);
-      DatabaseMeta replacementDatabaseMeta = copyPipelineMeta.findDatabase(replacementDatabaseName);
+      DatabaseMeta sourceDatabaseMeta = copyPipelineMeta.findDatabase(sourceDatabaseName, variables);
+      DatabaseMeta replacementDatabaseMeta = copyPipelineMeta.findDatabase(replacementDatabaseName, variables);
       if (sourceDatabaseMeta == null) {
         throw new HopException(
             "Unable to find source database connection '"
