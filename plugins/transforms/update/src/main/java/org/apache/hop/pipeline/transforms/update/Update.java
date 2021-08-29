@@ -200,6 +200,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     return outputRow;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -493,6 +494,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -520,6 +522,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.db != null) {

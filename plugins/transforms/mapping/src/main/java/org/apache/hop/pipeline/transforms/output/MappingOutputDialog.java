@@ -48,6 +48,7 @@ public class MappingOutputDialog extends BaseTransformDialog implements ITransfo
     input = (MappingOutputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -57,6 +58,7 @@ public class MappingOutputDialog extends BaseTransformDialog implements ITransfo
 
     ModifyListener lsMod =
         new ModifyListener() {
+          @Override
           public void modifyText(ModifyEvent e) {
             input.setChanged();
           }

@@ -148,6 +148,7 @@ public class DenormaliserTargetField implements Cloneable {
      *
      * @return value of code
      */
+    @Override
     public String getCode() {
       return code;
     }
@@ -227,6 +228,7 @@ public class DenormaliserTargetField implements Cloneable {
     this.targetAggregationType = targetAggregationType;
   }
 
+  @Override
   public DenormaliserTargetField clone() {
     return new DenormaliserTargetField(this);
   }

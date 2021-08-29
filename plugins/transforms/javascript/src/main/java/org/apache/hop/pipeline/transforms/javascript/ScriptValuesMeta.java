@@ -200,6 +200,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     this.jsScripts = jsScripts;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -271,6 +272,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public Object clone() {
     ScriptValuesMeta retval = (ScriptValuesMeta) super.clone();
 
@@ -349,6 +351,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     jsScripts = new ScriptValuesScript[1];
     jsScripts[0] =
@@ -369,10 +372,10 @@ public class ScriptValuesMeta extends BaseTransformMeta
       replace[i] = false;
     }
 
-    //    compatible = false;
     optimizationLevel = OPTIMIZATION_LEVEL_DEFAULT;
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String originTransformName,
@@ -435,6 +438,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -474,6 +478,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -519,7 +524,6 @@ public class ScriptValuesMeta extends BaseTransformMeta
     if (jsScripts.length > 0) {
       for (int i = 0; i < jsScripts.length; i++) {
         if (jsScripts[i].isTransformScript()) {
-          // strActiveScriptName =jsScripts[i].getScriptName();
           strActiveScript = jsScripts[i].getScript();
         } else if (jsScripts[i].isStartScript()) {
           strActiveStartScriptName = jsScripts[i].getScriptName();
@@ -615,7 +619,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
             valueData = Long.valueOf(0L);
           }
           if (valueMeta.isNumber()) {
-            valueData = new Double(0.0);
+            valueData = Double.valueOf(0.0);
           }
           if (valueMeta.isBigNumber()) {
             valueData = BigDecimal.ZERO;
@@ -784,6 +788,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     return sRC;
   }
 
+  @Override
   public ScriptValuesData getTransformData() {
     return new ScriptValuesData();
   }
@@ -842,6 +847,7 @@ public class ScriptValuesMeta extends BaseTransformMeta
     return additionalClasses;
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

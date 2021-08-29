@@ -62,6 +62,7 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     this.partitionIDs = partitionIDs;
   }
 
+  @Override
   public Object clone() {
     PartitionSchema partitionSchema = new PartitionSchema();
     partitionSchema.replaceMeta(this);

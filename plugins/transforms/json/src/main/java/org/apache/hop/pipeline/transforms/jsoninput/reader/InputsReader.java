@@ -71,6 +71,7 @@ public class InputsReader implements Iterable<InputStream> {
     } else {
       // direct content
       return new ChainedIterator<InputStream, String>(getFieldIterator(), errorHandler) {
+        @Override
         protected InputStream tryNext() throws IOException {
           String next = inner.next();
           return next == null ? null : IOUtils.toInputStream(next, meta.getEncoding());
@@ -205,10 +206,12 @@ public class InputsReader implements Iterable<InputStream> {
       this.idx = idx;
     }
 
+    @Override
     public boolean hasNext() {
       return rowIter.hasNext();
     }
 
+    @Override
     public String next() {
       Object[] row = rowIter.next();
       return (row == null || row.length <= idx) ? null : (String) row[idx];

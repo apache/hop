@@ -129,6 +129,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     input = (LdapInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -271,6 +272,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wProtocol.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setProtocol();
           }
@@ -321,6 +323,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wUsingAuthentication.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             useAuthentication();
             input.setChanged();
@@ -410,6 +413,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wSetTrustStore.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTrustStore();
@@ -500,6 +504,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wTrustAll.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             trustAll();
@@ -586,6 +591,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wDynamicBase.setLayoutData(fdDynamicBase);
     SelectionAdapter ldynamicBase =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateDynamicBase();
             input.setChanged();
@@ -615,8 +621,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wSearchBaseField.setLayoutData(fdsearchBaseField);
     wSearchBaseField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setSearchBaseField();
           }
@@ -660,6 +668,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wDynamicFilter.setLayoutData(fdynamicFilter);
     SelectionAdapter ldynamicFilter =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateDynamicFilter();
             input.setChanged();
@@ -687,8 +696,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wFilterField.setLayoutData(fdfilterField);
     wFilterField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setSearchBaseField();
           }
@@ -894,6 +905,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wSetPaging.setLayoutData(fdSetPaging);
     wSetPaging.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setPaging();
             input.setChanged();
@@ -936,6 +948,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wSearchScope.setItems(LdapInputMeta.searchScopeDesc);
     wSearchScope.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 
@@ -1092,6 +1105,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Enable/disable the right fields to allow a row number to be added to each row...
     wInclRownum.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeRownum();
           }

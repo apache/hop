@@ -354,10 +354,12 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wFileNameField.setEnabled(false);
     wFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focustLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

@@ -137,6 +137,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     Xslt je = (Xslt) super.clone();
     int nrparams = parameterName.length;
@@ -155,6 +156,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuffer xml = new StringBuffer(50);
 
@@ -191,6 +193,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -257,6 +260,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return resolve(getxslFilename());
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     int nrErrors = 0;
@@ -593,6 +597,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return addfiletoresult;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

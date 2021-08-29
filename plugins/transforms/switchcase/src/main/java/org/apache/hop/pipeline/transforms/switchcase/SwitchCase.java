@@ -48,6 +48,7 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get next usable row from input rowset(s)!
@@ -99,6 +100,7 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData>
   }
 
   /** @see ITransform#init() */
+  @Override
   public boolean init() {
 
     if (!super.init()) {

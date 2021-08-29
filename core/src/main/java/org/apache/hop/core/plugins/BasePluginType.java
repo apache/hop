@@ -571,6 +571,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
    * @throws HopPluginException
    */
   // @Override
+  @Override
   public void handlePluginAnnotation(
       Class<?> clazz,
       T annotation,

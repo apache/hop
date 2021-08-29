@@ -91,6 +91,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -173,6 +174,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -198,6 +200,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             setPrevious();
@@ -225,6 +228,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     wDeleteAllBefore.setLayoutData(fdDeleteAllBefore);
     wDeleteAllBefore.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -395,6 +399,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(wFilename.getText(), wFilemask.getText());
             wFilename.setText("");
@@ -410,6 +415,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -421,6 +427,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {

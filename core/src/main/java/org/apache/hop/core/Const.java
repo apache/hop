@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.core;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -42,9 +41,6 @@ import java.util.regex.Pattern;
 /**
  * This class is used to define a number of default values for various settings throughout Hop. It
  * also contains a number of static final methods to make your life easier.
- *
- * @author Matt
- * @since 07-05-2003
  */
 public class Const {
   private static final Class<?> PKG = Const.class; // For Translator
@@ -52,21 +48,25 @@ public class Const {
   /** Release Type */
   public enum ReleaseType {
     RELEASE_CANDIDATE {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.PreviewRelease.HelpAboutText");
       }
     },
     MILESTONE {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.Candidate.HelpAboutText");
       }
     },
     PREVIEW {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.Milestone.HelpAboutText");
       }
     },
     GA {
+      @Override
       public String getMessage() {
         return BaseMessages.getString(PKG, "Const.GA.HelpAboutText");
       }
@@ -1357,9 +1357,7 @@ public class Const {
           }
           pr.waitFor();
           br.close();
-        } catch (IOException e) {
-          return getHostname();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
           return getHostname();
         }
       }
@@ -1400,8 +1398,7 @@ public class Const {
     while (ipAddresses.hasMoreElements()) {
       InetAddress inetAddress = ipAddresses.nextElement();
       if (!inetAddress.isLoopbackAddress() && inetAddress.toString().indexOf(':') < 0) {
-        String hostname = inetAddress.getHostAddress();
-        return hostname;
+        return inetAddress.getHostAddress();
       }
     }
     return null;
@@ -1969,11 +1966,6 @@ public class Const {
 
     // Split the string on the delimiter, we'll build the "real" results from the partial results
     String[] delimiterSplit = stringToSplit.split(Pattern.quote(delimiter));
-
-    // At this point, if the enclosure is null or empty, we will return the delimiter split
-    // if ( Utils.isEmpty( enclosure ) ) {
-    //  return delimiterSplit;
-    // }
 
     // Keep track of partial splits and concatenate them into a legit split
     StringBuilder concatSplit = null;

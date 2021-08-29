@@ -64,6 +64,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     input = (PGPEncryptStreamMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -205,6 +206,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
 
     wKeyNameFromField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             keyNameFromField();
             input.setChanged();
@@ -232,8 +234,10 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     wKeyNameFieldName.setLayoutData(fdKeyNameFieldName);
     wKeyNameFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -274,8 +278,10 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     wStreamFieldName.setLayoutData(fdStreamFieldName);
     wStreamFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

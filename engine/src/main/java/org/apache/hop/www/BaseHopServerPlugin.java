@@ -65,6 +65,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet
   @Override
   public abstract String getContextPath();
 
+  @Override
   public String getService() {
     return getContextPath() + " (" + toString() + ")";
   }

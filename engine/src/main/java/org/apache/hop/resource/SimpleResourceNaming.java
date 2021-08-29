@@ -52,6 +52,7 @@ public class SimpleResourceNaming implements IResourceNaming {
     this.fileSystemPrefix = fileSystemPrefix;
   }
 
+  @Override
   public String nameResource(FileObject fileObject, IVariables variables, boolean includeFileName)
       throws FileSystemException {
     if (includeFileName) {
@@ -62,6 +63,7 @@ public class SimpleResourceNaming implements IResourceNaming {
     }
   }
 
+  @Override
   public String nameResource(
       String prefix, String originalFilePath, String extension, FileNamingType namingType) {
     switch (namingType) {
@@ -270,6 +272,7 @@ public class SimpleResourceNaming implements IResourceNaming {
   }
 
   /** @return the directoryMap */
+  @Override
   public Map<String, String> getDirectoryMap() {
     return directoryMap;
   }

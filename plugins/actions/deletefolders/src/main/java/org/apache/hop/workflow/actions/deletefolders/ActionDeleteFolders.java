@@ -99,6 +99,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     arguments = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionDeleteFolders je = (ActionDeleteFolders) super.clone();
     if (arguments != null) {
@@ -335,10 +336,12 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private class TextFileSelector implements FileSelector {
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       return true;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }

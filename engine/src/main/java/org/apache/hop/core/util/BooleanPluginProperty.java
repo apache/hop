@@ -38,27 +38,32 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements IPluginP
   }
 
   /** {@inheritDoc} */
+  @Override
   public boolean evaluate() {
     return Boolean.TRUE.equals(this.getValue());
   }
 
   /** */
+  @Override
   public void appendXml(final StringBuilder builder) {
     builder.append(XmlHandler.addTagValue(this.getKey(), this.getValue()));
   }
 
   /** */
+  @Override
   public void loadXml(final Node node) {
     final String stringValue = XmlHandler.getTagValue(node, this.getKey());
     this.setValue(BOOLEAN_STRING_TRUE.equalsIgnoreCase(stringValue));
   }
 
   /** */
+  @Override
   public void saveToPreferences(final Preferences node) {
     node.putBoolean(this.getKey(), this.getValue());
   }
 
   /** */
+  @Override
   public void readFromPreferences(final Preferences node) {
     this.setValue(node.getBoolean(this.getKey(), this.getValue()));
   }

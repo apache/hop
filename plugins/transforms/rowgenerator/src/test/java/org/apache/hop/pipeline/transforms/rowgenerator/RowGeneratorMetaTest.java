@@ -94,6 +94,7 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   }
 
   // Call the allocate method on the LoadSaveTester meta class
+  @Override
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof RowGeneratorMeta) {
       ((RowGeneratorMeta) someMeta).getFields().clear();

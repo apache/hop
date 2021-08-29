@@ -63,6 +63,7 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
     super();
   }
 
+  @Override
   protected FileSystem doCreateFileSystem(FileName fileName, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
 
@@ -93,6 +94,7 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
     }
   }
 
+  @Override
   public Collection<Capability> getCapabilities() {
     return capabilities;
   }

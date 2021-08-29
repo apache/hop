@@ -208,6 +208,7 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
     }
   }
 
+  @Override
   public void setLocation(int x, int y) {
     if (x != location.x || y != location.y) {
       setChanged();
@@ -216,10 +217,12 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
     location.y = y;
   }
 
+  @Override
   public void setLocation(Point p) {
     setLocation(p.x, p.y);
   }
 
+  @Override
   public Point getLocation() {
     return location;
   }
@@ -280,11 +283,13 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   }
 
   /** @return Returns the selected. */
+  @Override
   public boolean isSelected() {
     return selected;
   }
 
   /** @param selected The selected to set. */
+  @Override
   public void setSelected(boolean selected) {
     this.selected = selected;
   }
@@ -294,6 +299,7 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
     this.selected = !this.selected;
   }
 
+  @Override
   public NotePadMeta clone() {
     return new NotePadMeta(this);
   }
@@ -347,21 +353,25 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   }
 
   /** @return the height */
+  @Override
   public int getHeight() {
     return height;
   }
 
   /** @param height the height to set */
+  @Override
   public void setHeight(int height) {
     this.height = height;
   }
 
   /** @return the width */
+  @Override
   public int getWidth() {
     return width;
   }
 
   /** @param width the width to set */
+  @Override
   public void setWidth(int width) {
     this.width = width;
   }

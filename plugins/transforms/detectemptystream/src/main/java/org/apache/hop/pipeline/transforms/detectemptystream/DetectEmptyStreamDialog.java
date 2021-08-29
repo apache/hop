@@ -47,6 +47,7 @@ public class DetectEmptyStreamDialog extends BaseTransformDialog implements ITra
     input = (DetectEmptyStreamMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

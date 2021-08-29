@@ -38,6 +38,7 @@ public class LocalSinglePipelineRunConfiguration extends EmptyPipelineRunConfigu
     super(config);
   }
 
+  @Override
   public LocalSinglePipelineRunConfiguration clone() {
     return new LocalSinglePipelineRunConfiguration(this);
   }

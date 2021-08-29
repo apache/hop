@@ -65,7 +65,7 @@ public class SasInputMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    outputFields = new ArrayList<SasInputField>();
+    outputFields = new ArrayList<>();
   }
 
   @Override
@@ -74,7 +74,7 @@ public class SasInputMeta extends BaseTransformMeta
     try {
       acceptingField = XmlHandler.getTagValue(transformNode, "accept_field");
       int nrFields = XmlHandler.countNodes(transformNode, Xml_TAG_FIELD);
-      outputFields = new ArrayList<SasInputField>();
+      outputFields = new ArrayList<>();
       for (int i = 0; i < nrFields; i++) {
         Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, Xml_TAG_FIELD, i);
         outputFields.add(new SasInputField(fieldNode));
@@ -87,9 +87,10 @@ public class SasInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public Object clone() {
     SasInputMeta retval = (SasInputMeta) super.clone();
-    retval.setOutputFields(new ArrayList<SasInputField>());
+    retval.setOutputFields(new ArrayList<>());
     for (SasInputField field : outputFields) {
       retval.getOutputFields().add(field.clone());
     }
@@ -123,6 +124,7 @@ public class SasInputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -170,6 +172,7 @@ public class SasInputMeta extends BaseTransformMeta
     return new SasInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SasInputData getTransformData() {
     return new SasInputData();
   }

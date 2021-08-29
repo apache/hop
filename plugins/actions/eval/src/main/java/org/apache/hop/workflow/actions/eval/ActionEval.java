@@ -67,11 +67,13 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     this("", "");
   }
 
+  @Override
   public Object clone() {
     ActionEval je = (ActionEval) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -81,6 +83,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -117,16 +120,16 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     try {
       scope = cx.initStandardObjects(null);
 
-      Long errors = new Long(result.getNrErrors());
-      Long linesInput = new Long(result.getNrLinesInput());
-      Long linesOutput = new Long(result.getNrLinesOutput());
-      Long linesUpdated = new Long(result.getNrLinesUpdated());
-      Long linesRejected = new Long(result.getNrLinesRejected());
-      Long linesRead = new Long(result.getNrLinesRead());
-      Long linesWritten = new Long(result.getNrLinesWritten());
-      Long exitStatus = new Long(result.getExitStatus());
-      Long filesRetrieved = new Long(result.getNrFilesRetrieved());
-      Long nr = new Long(result.getEntryNr());
+      Long errors = Long.valueOf(result.getNrErrors());
+      Long linesInput = Long.valueOf(result.getNrLinesInput());
+      Long linesOutput = Long.valueOf(result.getNrLinesOutput());
+      Long linesUpdated = Long.valueOf(result.getNrLinesUpdated());
+      Long linesRejected = Long.valueOf(result.getNrLinesRejected());
+      Long linesRead = Long.valueOf(result.getNrLinesRead());
+      Long linesWritten = Long.valueOf(result.getNrLinesWritten());
+      Long exitStatus = Long.valueOf(result.getExitStatus());
+      Long filesRetrieved = Long.valueOf(result.getNrFilesRetrieved());
+      Long nr = Long.valueOf(result.getEntryNr());
 
       scope.put("errors", scope, errors);
       scope.put("lines_input", scope, linesInput);
@@ -181,25 +184,30 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * @param prevResult The result of the previous execution
    * @return The Result of the execution.
    */
+  @Override
   public Result execute(Result prevResult, int nr) {
     prevResult.setResult(evaluate(prevResult, parentWorkflow, prevResult));
     return prevResult;
   }
 
+  @Override
   public boolean resetErrorsBeforeExecution() {
     // we should be able to evaluate the errors in
     // the previous action.
     return false;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

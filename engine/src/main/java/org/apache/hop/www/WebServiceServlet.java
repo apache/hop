@@ -66,6 +66,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
@@ -214,10 +215,12 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
     return "Web Service Servlet";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

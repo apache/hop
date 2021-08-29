@@ -46,8 +46,8 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
     PluginRegistry.init(false);
     List<String> attributes = new ArrayList<>();
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
@@ -70,48 +70,48 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
         loadSaveTester.getFieldLoadSaveValidatorFactory();
     validatorFactory.registerValidator(
         validatorFactory.getName(ConstantField.class),
-        new ObjectValidator<ConstantField>(
-            validatorFactory,
-            ConstantField.class,
-            Arrays.asList(
-                "name",
-                "type",
-                "format",
-                "length",
-                "precision",
-                "set_empty_string",
-                "nullif",
-                "group",
-                "decimal",
-                "currency"),
-            new HashMap<String, String>() {
-              {
-                put("name", "getFieldName");
-                put("type", "getFieldType");
-                put("format", "getFieldFormat");
-                put("length", "getFieldLength");
-                put("precision", "getFieldPrecision");
-                put("set_empty_string", "isEmptyString");
-                put("nullif", "getValue");
-                put("group", "getGroup");
-                put("decimal", "getDecimal");
-                put("currency", "getCurrency");
-              }
-            },
-            new HashMap<String, String>() {
-              {
-                put("name", "setFieldName");
-                put("type", "setFieldType");
-                put("format", "setFieldFormat");
-                put("length", "setFieldLength");
-                put("precision", "setFieldPrecision");
-                put("set_empty_string", "setEmptyString");
-                put("nullif", "setValue");
-                put("group", "setGroup");
-                put("decimal", "setDecimal");
-                put("currency", "setCurrency");
-              }
-            }));
+            new ObjectValidator<>(
+                    validatorFactory,
+                    ConstantField.class,
+                    Arrays.asList(
+                            "name",
+                            "type",
+                            "format",
+                            "length",
+                            "precision",
+                            "set_empty_string",
+                            "nullif",
+                            "group",
+                            "decimal",
+                            "currency"),
+                    new HashMap<String, String>() {
+                        {
+                            put("name", "getFieldName");
+                            put("type", "getFieldType");
+                            put("format", "getFieldFormat");
+                            put("length", "getFieldLength");
+                            put("precision", "getFieldPrecision");
+                            put("set_empty_string", "isEmptyString");
+                            put("nullif", "getValue");
+                            put("group", "getGroup");
+                            put("decimal", "getDecimal");
+                            put("currency", "getCurrency");
+                        }
+                    },
+                    new HashMap<String, String>() {
+                        {
+                            put("name", "setFieldName");
+                            put("type", "setFieldType");
+                            put("format", "setFieldFormat");
+                            put("length", "setFieldLength");
+                            put("precision", "setFieldPrecision");
+                            put("set_empty_string", "setEmptyString");
+                            put("nullif", "setValue");
+                            put("group", "setGroup");
+                            put("decimal", "setDecimal");
+                            put("currency", "setCurrency");
+                        }
+                    }));
   }
 
   // Call the allocate method on the LoadSaveTester meta class

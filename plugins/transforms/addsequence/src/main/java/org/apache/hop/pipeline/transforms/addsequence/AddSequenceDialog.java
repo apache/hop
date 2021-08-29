@@ -82,6 +82,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     input = (AddSequenceMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -171,6 +172,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wUseDatabase.setLayoutData(fdUseDatabase);
     wUseDatabase.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             wUseCounter.setSelection(!wUseDatabase.getSelection());
             enableFields();
@@ -266,6 +268,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wUseCounter.setLayoutData(fdUseCounter);
     wUseCounter.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             wUseDatabase.setSelection(!wUseCounter.getSelection());
             enableFields();
@@ -350,12 +353,14 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wMaxVal.setLayoutData(fdMaxVal);
     wbSequence.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSequences();
           }
         });
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }

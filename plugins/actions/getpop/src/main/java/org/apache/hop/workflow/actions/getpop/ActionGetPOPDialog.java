@@ -219,6 +219,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -234,6 +235,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             closeMailConnection();
@@ -345,6 +347,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wUseSSL.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             closeMailConnection();
             refreshPort(true);
@@ -427,6 +430,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wUseProxy.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setUserProxy();
             action.setChanged();
@@ -473,6 +477,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wProtocol.setLayoutData(fdProtocol);
     wProtocol.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshProtocol(true);
           }
@@ -607,6 +612,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wGetMessage.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             if (!wGetAttachment.getSelection() && !wGetMessage.getSelection()) {
               wGetAttachment.setSelection(true);
@@ -635,6 +641,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wGetAttachment.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeAttachmentFolder();
           }
@@ -663,6 +670,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wDifferentFolderForAttachment.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeAttachmentFolder();
           }
@@ -784,6 +792,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wActionType.setLayoutData(fdActionType);
     wActionType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setActionType();
             action.setChanged();
@@ -837,6 +846,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wListmails.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             chooseListMails();
@@ -988,6 +998,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wIMAPListmails.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // ChooseIMAPListmails();
 
@@ -1035,6 +1046,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wAfterGetIMAP.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setAfterIMAPRetrived();
             action.setChanged();
@@ -1345,6 +1357,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wConditionOnReceivedDate.setLayoutData(fdConditionOnReceivedDate);
     wConditionOnReceivedDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             conditionReceivedDate();
             action.setChanged();
@@ -1360,6 +1373,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     open.setLayoutData(fdlButton);
     open.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             final Shell dialog = new Shell(shell, SWT.DIALOG_TRIM);
             dialog.setText(BaseMessages.getString(PKG, "ActionGetPOP.SelectDate"));
@@ -1376,6 +1390,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
             ok.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             ok.addSelectionListener(
                 new SelectionAdapter() {
+                  @Override
                   public void widgetSelected(SelectionEvent e) {
                     Calendar cal = Calendar.getInstance();
                     cal.set(Calendar.YEAR, calendar.getYear());
@@ -1425,6 +1440,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     opento.setLayoutData(fdlButtonto);
     opento.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             final Shell dialogto = new Shell(shell, SWT.DIALOG_TRIM);
             dialogto.setText(BaseMessages.getString(PKG, "ActionGetPOP.SelectDate"));
@@ -1440,6 +1456,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
             okto.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             okto.addSelectionListener(
                 new SelectionAdapter() {
+                  @Override
                   public void widgetSelected(SelectionEvent e) {
                     Calendar cal = Calendar.getInstance();
                     cal.set(Calendar.YEAR, calendarto.getYear());

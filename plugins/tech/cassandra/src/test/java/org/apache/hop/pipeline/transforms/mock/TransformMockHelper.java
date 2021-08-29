@@ -87,7 +87,7 @@ public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITran
   }
 
   public static List<Object[]> asList(Object[]... objects) {
-    List<Object[]> result = new ArrayList<Object[]>();
+    List<Object[]> result = new ArrayList<>();
     Collections.addAll(result, objects);
     return result;
   }

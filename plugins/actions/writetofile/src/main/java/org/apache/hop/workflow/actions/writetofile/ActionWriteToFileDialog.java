@@ -82,6 +82,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -200,6 +201,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -223,6 +225,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wAppendFile.setLayoutData(fdAppendFile);
     wAppendFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -271,8 +274,10 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             setEncodings();
           }

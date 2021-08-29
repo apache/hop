@@ -69,6 +69,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     input = (ProcessFilesMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -265,10 +266,12 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wSourceFileNameField.setLayoutData(fdSourceFileNameField);
     wSourceFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focusLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -299,10 +302,12 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wTargetFileNameField.setLayoutData(fdTargetFileNameField);
     wTargetFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focusLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

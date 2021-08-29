@@ -50,10 +50,12 @@ import java.util.Map;
 public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
 
+  @Override
   public boolean isInput() {
     return false;
   }
 
+  @Override
   public boolean isOutput() {
     return false;
   }

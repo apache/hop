@@ -34,12 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Execute one or more SQL statements in a script, one time or parameterised (for every row)
- *
- * @author Matt
- * @since 10-sep-2005
- */
+/** Execute one or more SQL statements in a script, one time or parameterised (for every row) */
 public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData>
     implements ITransform<ExecSqlRowMeta, ExecSqlRowData> {
 
@@ -62,25 +57,25 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData>
     if (upd != null && upd.length() > 0) {
       IValueMeta meta = new ValueMetaInteger(upd);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
-      resultRow.addValue(meta, new Long(result.getNrLinesUpdated()));
+      resultRow.addValue(meta, Long.valueOf(result.getNrLinesUpdated()));
     }
 
     if (ins != null && ins.length() > 0) {
       IValueMeta meta = new ValueMetaInteger(ins);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
-      resultRow.addValue(meta, new Long(result.getNrLinesOutput()));
+      resultRow.addValue(meta, Long.valueOf(result.getNrLinesOutput()));
     }
 
     if (del != null && del.length() > 0) {
       IValueMeta meta = new ValueMetaInteger(del);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
-      resultRow.addValue(meta, new Long(result.getNrLinesDeleted()));
+      resultRow.addValue(meta, Long.valueOf(result.getNrLinesDeleted()));
     }
 
     if (read != null && read.length() > 0) {
       IValueMeta meta = new ValueMetaInteger(read);
       meta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
-      resultRow.addValue(meta, new Long(result.getNrLinesRead()));
+      resultRow.addValue(meta, Long.valueOf(result.getNrLinesRead()));
     }
 
     return resultRow;
@@ -170,10 +165,8 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData>
 
       putRow(data.outputRowMeta, row); // send it out!
 
-      if (checkFeedback(getLinesWritten())) {
-        if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "ExecSqlRow.Log.LineNumber") + getLinesWritten());
-        }
+      if (checkFeedback(getLinesWritten()) && log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "ExecSqlRow.Log.LineNumber") + getLinesWritten());
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {

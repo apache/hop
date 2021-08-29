@@ -52,6 +52,7 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
     input = (BeamSubscribeMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

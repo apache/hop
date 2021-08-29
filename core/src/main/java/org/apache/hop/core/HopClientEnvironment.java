@@ -119,7 +119,7 @@ public class HopClientEnvironment {
     //
     HopVfs.reset();
 
-    initialized = new Boolean(true);
+    initialized = true;
   }
 
   /**

@@ -281,6 +281,7 @@ public class SSTableOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     directory = System.getProperty("java.io.tmpdir");
     bufferSize = "16";

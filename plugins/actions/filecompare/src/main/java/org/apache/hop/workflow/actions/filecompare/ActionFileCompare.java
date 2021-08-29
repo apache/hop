@@ -81,11 +81,13 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionFileCompare je = (ActionFileCompare) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -99,6 +101,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -175,6 +178,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -293,6 +297,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     this.addFilenameToResult = addFilenameToResult;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
@@ -307,6 +312,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     return references;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

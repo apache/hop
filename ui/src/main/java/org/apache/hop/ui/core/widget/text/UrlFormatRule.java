@@ -34,6 +34,7 @@ public class UrlFormatRule extends FormatRule {
     super(PATTERN);
   }
 
+  @Override
   public Format execute(String value) {
     Format format = new Format();
     Matcher matcher = parse(value);

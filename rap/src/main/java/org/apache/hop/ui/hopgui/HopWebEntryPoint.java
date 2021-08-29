@@ -45,7 +45,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
      */
     // Options
     StartupParameters serviceParams = RWT.getClient().getService(StartupParameters.class);
-    List<String> args = new ArrayList<String>();
+    List<String> args = new ArrayList<>();
     String[] options = {"rep", "user", "pass", "trans", "job", "dir", "file"};
     for (String option : options) {
       if (serviceParams.getParameter(option) != null) {

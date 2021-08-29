@@ -25,7 +25,7 @@ public class TokenResolver {
   Map<String, String> tokenMap;
 
   public TokenResolver() {
-    tokenMap = new HashMap<String, String>();
+    tokenMap = new HashMap<>();
   }
 
   public void addToken(String tokenName, String tokenValue) {

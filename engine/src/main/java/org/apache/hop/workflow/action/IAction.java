@@ -164,6 +164,7 @@ public interface IAction extends IVariables, IHasLogChannel, IExtensionData {
    *
    * @return the log channel
    */
+  @Override
   ILogChannel getLogChannel();
 
   /**

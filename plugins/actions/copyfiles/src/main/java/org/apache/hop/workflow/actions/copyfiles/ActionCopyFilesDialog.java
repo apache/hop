@@ -199,6 +199,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     SelectionAdapter listener =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -296,6 +297,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString(PKG, "ActionCopyFiles.FilenameDelete.Tooltip"));
     deleteToolItem.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -422,6 +424,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
   protected SelectionAdapter getFileSelectionAdapter() {
     return new SelectionAdapter() {
+      @Override
       public void widgetSelected(SelectionEvent e) {
         String filename = BaseDialog.presentFileDialog(shell, null, null, true); // all files
         if (filename != null) {

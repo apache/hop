@@ -79,6 +79,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -139,6 +140,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
@@ -172,6 +174,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

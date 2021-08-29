@@ -28,10 +28,12 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
     this.parameter = parameter;
   }
 
+  @Override
   public String getContainerName() {
     return parameter.getName().getLocalPart();
   }
 
+  @Override
   public String[] getParamNames() {
     if (parameter.isArray()) {
       if (parameter.getItemComplexType() != null) {
@@ -53,6 +55,7 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
     }
   }
 
+  @Override
   public String getParamType(String paramName) {
     if (parameter.isArray()) {
       if (parameter.getItemComplexType() != null) {
@@ -72,6 +75,7 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
     }
   }
 
+  @Override
   public String getItemName() {
     if (parameter.isArray()) {
       if (parameter.getItemXmlType() != null
@@ -85,6 +89,7 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
     }
   }
 
+  @Override
   public boolean isArray() {
     return parameter.isArray();
   }

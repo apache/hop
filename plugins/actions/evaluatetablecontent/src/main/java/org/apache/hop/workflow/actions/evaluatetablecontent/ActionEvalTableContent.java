@@ -121,6 +121,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionEvalTableContent je = (ActionEvalTableContent) super.clone();
     return je;
@@ -146,6 +147,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return getSuccessConditionByCode(tt);
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(200);
 
@@ -197,6 +199,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return successConditionsDesc[i];
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -248,10 +251,12 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -413,12 +418,14 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return result;
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {
       connection,
     };
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

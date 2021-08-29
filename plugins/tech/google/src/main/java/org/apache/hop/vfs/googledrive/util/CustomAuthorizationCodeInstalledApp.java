@@ -35,6 +35,7 @@ public class CustomAuthorizationCodeInstalledApp extends AuthorizationCodeInstal
     super(flow, receiver);
   }
 
+  @Override
   protected void onAuthorization(AuthorizationCodeRequestUrl authorizationUrl) throws IOException {
     String url = authorizationUrl.build();
     HopGui hopGui = HopGui.getInstance();

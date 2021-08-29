@@ -132,6 +132,7 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
   }
 
   /** Compare 2 hops. */
+  @Override
   public int compareTo(PipelineHopMeta obj) {
     return toString().compareTo(obj.toString());
   }

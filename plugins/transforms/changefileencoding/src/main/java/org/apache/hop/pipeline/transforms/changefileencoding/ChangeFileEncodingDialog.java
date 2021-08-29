@@ -243,10 +243,12 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wTargetFileName.setLayoutData(fdTargetFileName);
     wTargetFileName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focusLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }

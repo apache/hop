@@ -96,6 +96,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -111,6 +112,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTableFieldCombo();
@@ -420,12 +422,14 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

@@ -331,6 +331,7 @@ public class BaseTransformDialog extends Dialog {
         button.addSelectionListener(
             new SelectionAdapter() {
 
+              @Override
               public void widgetSelected(SelectionEvent e) {
                 for (TableView view : tableViews) {
                   view.applyOSXChanges();

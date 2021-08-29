@@ -175,6 +175,7 @@ public class EnterTextDialog extends Dialog {
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             checkCancel(e);
           }

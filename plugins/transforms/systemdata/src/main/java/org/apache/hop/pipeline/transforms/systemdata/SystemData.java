@@ -33,12 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Get information from the System or the supervising pipeline.
- *
- * @author Matt
- * @since 4-aug-2003
- */
+/** Get information from the System or the supervising pipeline. */
 public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     implements ITransform<SystemDataMeta, SystemDataData> {
 
@@ -192,7 +187,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
           row[index] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_COPYNR:
-          row[index] = new Long(getCopy());
+          row[index] = Long.valueOf(getCopy());
           break;
         case TYPE_SYSTEM_INFO_PIPELINE_NAME:
           row[index] = getPipelineMeta().getName();
@@ -220,7 +215,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
           row[index] = getPipelineMeta().getFilename();
           break;
         case TYPE_SYSTEM_INFO_CURRENT_PID:
-          row[index] = new Long(Management.getPID());
+          row[index] = Management.getPID();
           break;
         case TYPE_SYSTEM_INFO_JVM_TOTAL_MEMORY:
           row[index] = Runtime.getRuntime().totalMemory();
@@ -664,6 +659,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     return row;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] row;
     if (data.readsRows) {
@@ -713,10 +709,10 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
-      //      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
       if (previous != null && previous.size() > 0) {
         data.readsRows = true;
@@ -727,6 +723,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
     return false;
   }
 
+  @Override
   public void dispose() {
     super.dispose();
   }

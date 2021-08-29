@@ -250,6 +250,7 @@ public class GetXmlDataField implements Cloneable {
     return ElementTypeDesc[i];
   }
 
+  @Override
   public Object clone() {
     try {
       GetXmlDataField retval = (GetXmlDataField) super.clone();

@@ -70,6 +70,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     input = (ZipFileMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -220,10 +221,12 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wSourceFileNameField.setLayoutData(fdSourceFileNameField);
     wSourceFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }
@@ -250,10 +253,12 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wTargetFileNameField.setLayoutData(fdTargetFileNameField);
     wTargetFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }
@@ -305,10 +310,12 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wBaseFolderField.setLayoutData(fdBaseFolderField);
     wBaseFolderField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }
@@ -363,10 +370,12 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wMoveToFolderField.setLayoutData(fdMoveToFolderField);
     wMoveToFolderField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             get();
           }

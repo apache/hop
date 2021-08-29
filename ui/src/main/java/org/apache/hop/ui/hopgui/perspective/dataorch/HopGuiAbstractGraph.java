@@ -161,6 +161,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   public abstract boolean hasChanged();
 
+  @Override
   public void redraw() {
     if (isDisposed() || canvas == null || canvas.isDisposed() || parentTabItem.isDisposed()) {
       return;
@@ -243,10 +244,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return screen;
   }
 
+  @Override
   public boolean forceFocus() {
     return canvas.forceFocus();
   }
 
+  @Override
   public void dispose() {
     parentTabItem.dispose();
   }

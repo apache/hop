@@ -81,6 +81,7 @@ public class HopSearchPerspective implements IHopPerspective {
     return "search";
   }
 
+  @Override
   public void activate() {
     // Someone clicked on the search icon of used CTRL-F
     //

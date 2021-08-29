@@ -52,6 +52,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row, set busy!
     if (r == null) { // no more input to be expected...

@@ -110,6 +110,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -201,6 +202,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -252,6 +254,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // activeSuccessCondition();
 
@@ -324,6 +327,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wCustomSql.setLayoutData(fdCustomSql);
     wCustomSql.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             setCustomSql();
@@ -350,6 +354,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wUseSubs.setLayoutData(fdUseSubs);
     wUseSubs.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -376,6 +381,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wClearResultList.setLayoutData(fdClearResultList);
     wClearResultList.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -402,6 +408,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wAddRowsToResult.setLayoutData(fdAddRowsToResult);
     wAddRowsToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -451,34 +458,41 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
 
     wSql.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wSql.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wSql.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }

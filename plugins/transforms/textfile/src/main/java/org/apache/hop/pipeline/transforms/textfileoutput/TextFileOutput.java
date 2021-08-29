@@ -419,6 +419,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     data.getFileStreamsCollection().flushOpenFiles(true);
   }
 
+  @Override
   public synchronized boolean processRow() throws HopException {
 
     if ((meta.getEncoding() == null) || (meta.getEncoding().isEmpty())) {

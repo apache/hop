@@ -51,11 +51,6 @@ import java.util.BitSet;
 /**
  * Read Json files, parse them and convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar
- * @author edube
- * @author jadametz
- * @since 20-06-2010
  */
 public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData>
     implements ITransform<JsonInputMeta, JsonInputData> {
@@ -121,7 +116,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       incrementLinesInput();
       data.rownr++;
 
-      putRow(data.outputRowMeta, outRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outRow); // copy row to output rowset(s)
 
       if (meta.getRowLimit() > 0 && data.rownr > meta.getRowLimit()) {
         // limit has been reached: stop now.
@@ -205,7 +200,6 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     // Create convert meta-data objects that will contain Date & Number formatters
     data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
     data.inputs = new InputsReader(this, meta, data, new InputErrorHandler()).iterator();
-    // data.recordnr = 0;
     data.readerRowSet = new QueueRowSet();
     data.readerRowSet.setDone();
     this.rowOutputConverter = new RowOutputConverter(getLogChannel());
@@ -415,7 +409,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     }
     // See if we need to add the row number to the row...
     if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-      outputRowData[rowIndex++] = new Long(data.rownr);
+      outputRowData[rowIndex++] = Long.valueOf(data.rownr);
     }
     // Possibly add short filename...
     if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
@@ -431,11 +425,11 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     }
     // Add Size
     if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
-      outputRowData[rowIndex++] = new Long(data.size);
+      outputRowData[rowIndex++] = data.size;
     }
     // add Hidden
     if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
-      outputRowData[rowIndex++] = new Boolean(data.path);
+      outputRowData[rowIndex++] = Boolean.valueOf(data.path);
     }
     // Add modification date
     if (meta.getLastModificationDateField() != null

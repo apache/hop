@@ -137,6 +137,7 @@ public class PipelineDialog extends Dialog {
     lsMod = e -> changed = true;
     lsModSel =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             changed = true;
           }

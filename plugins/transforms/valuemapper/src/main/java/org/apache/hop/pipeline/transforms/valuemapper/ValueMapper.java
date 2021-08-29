@@ -52,6 +52,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // Get one row from one of the rowsets...
@@ -169,10 +170,12 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     return true;
   }
 
+  @Override
   public void dispose() {
     super.dispose();
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

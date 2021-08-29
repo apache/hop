@@ -71,6 +71,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     input = (DynamicSqlRowMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -137,8 +138,10 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wSqlFieldName.setLayoutData(fdSqlFieldName);
     wSqlFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -194,6 +197,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wOuter.setLayoutData(fdOuter);
     wOuter.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -219,6 +223,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wuseVars.setLayoutData(fduseVars);
     wuseVars.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -245,6 +250,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wqueryOnlyOnChange.setLayoutData(fdqueryOnlyOnChange);
     wqueryOnlyOnChange.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -283,34 +289,41 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
 
     wSql.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wSql.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wSql.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }

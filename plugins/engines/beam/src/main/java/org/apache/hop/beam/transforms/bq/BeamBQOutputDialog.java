@@ -53,6 +53,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     input = (BeamBQOutputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

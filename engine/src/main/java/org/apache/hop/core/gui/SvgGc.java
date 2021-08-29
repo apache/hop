@@ -253,16 +253,20 @@ public class SvgGc implements IGc {
     gc.fillRect(0, 0, area.x, area.y);
   }
 
+  @Override
   public void dispose() {}
 
+  @Override
   public void drawLine(int x, int y, int x2, int y2) {
     gc.drawLine(x + xOffset, y + yOffset, x2 + xOffset, y2 + yOffset);
   }
 
+  @Override
   public void drawPoint(int x, int y) {
     gc.drawLine(x + xOffset, y + yOffset, x + xOffset, y + yOffset);
   }
 
+  @Override
   public void drawPolygon(int[] polygon) {
     gc.drawPolygon(getSwingPolygon(polygon));
   }
@@ -279,6 +283,7 @@ public class SvgGc implements IGc {
     return new Polygon(xPoints, yPoints, nPoints);
   }
 
+  @Override
   public void drawPolyline(int[] polyline) {
     int nPoints = polyline.length / 2;
     int[] xPoints = new int[polyline.length / 2];
@@ -290,15 +295,18 @@ public class SvgGc implements IGc {
     gc.drawPolyline(xPoints, yPoints, nPoints);
   }
 
+  @Override
   public void drawRectangle(int x, int y, int width, int height) {
     gc.drawRect(x + xOffset, y + yOffset, width, height);
   }
 
+  @Override
   public void drawRoundRectangle(
       int x, int y, int width, int height, int circleWidth, int circleHeight) {
     gc.drawRoundRect(x + xOffset, y + yOffset, width, height, circleWidth, circleHeight);
   }
 
+  @Override
   public void drawText(String text, int x, int y) {
 
     int height = gc.getFontMetrics().getHeight();
@@ -311,16 +319,19 @@ public class SvgGc implements IGc {
     }
   }
 
+  @Override
   public void drawText(String text, int x, int y, boolean transparent) {
     drawText(text, x, y);
   }
 
+  @Override
   public void fillPolygon(int[] polygon) {
     switchForegroundBackgroundColors();
     gc.fillPolygon(getSwingPolygon(polygon));
     switchForegroundBackgroundColors();
   }
 
+  @Override
   public void fillRectangle(int x, int y, int width, int height) {
     switchForegroundBackgroundColors();
     gc.fillRect(x + xOffset, y + yOffset, width, height);
@@ -328,10 +339,12 @@ public class SvgGc implements IGc {
   }
 
   // TODO: complete code
+  @Override
   public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {
     fillRectangle(x, y, width, height);
   }
 
+  @Override
   public void fillRoundRectangle(
       int x, int y, int width, int height, int circleWidth, int circleHeight) {
     switchForegroundBackgroundColors();
@@ -339,10 +352,12 @@ public class SvgGc implements IGc {
     switchForegroundBackgroundColors();
   }
 
+  @Override
   public Point getDeviceBounds() {
     return area;
   }
 
+  @Override
   public void setAlpha(int alpha) {
     this.alpha = alpha;
     AlphaComposite alphaComposite =
@@ -350,10 +365,12 @@ public class SvgGc implements IGc {
     gc.setComposite(alphaComposite);
   }
 
+  @Override
   public int getAlpha() {
     return alpha;
   }
 
+  @Override
   public void setBackground(EColor color) {
     gc.setBackground(getColor(color));
   }
@@ -402,6 +419,7 @@ public class SvgGc implements IGc {
     return null;
   }
 
+  @Override
   public void setFont(EFont font) {
     switch (font) {
       case GRAPH:
@@ -418,10 +436,12 @@ public class SvgGc implements IGc {
     }
   }
 
+  @Override
   public void setForeground(EColor color) {
     gc.setColor(getColor(color));
   }
 
+  @Override
   public void setLineStyle(ELineStyle lineStyle) {
     this.lineStyle = lineStyle;
     gc.setStroke(createStroke());
@@ -463,11 +483,13 @@ public class SvgGc implements IGc {
     return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2, dash, 0);
   }
 
+  @Override
   public void setLineWidth(int width) {
     this.lineWidth = width;
     gc.setStroke(createStroke());
   }
 
+  @Override
   public void setTransform(float translationX, float translationY, float magnification) {
     // always use original GC's transform.
     AffineTransform transform = (AffineTransform) originalTransform.clone();
@@ -485,6 +507,7 @@ public class SvgGc implements IGc {
     return gc.getTransform();
   }
 
+  @Override
   public Point textExtent(String text) {
 
     String[] lines = text.split(Const.CR);
@@ -500,6 +523,7 @@ public class SvgGc implements IGc {
     return new Point(maxWidth, height);
   }
 
+  @Override
   public void setAntialias(boolean antiAlias) {
     if (antiAlias) {
       RenderingHints hints =
@@ -513,11 +537,13 @@ public class SvgGc implements IGc {
     }
   }
 
+  @Override
   public void setBackground(int r, int g, int b) {
     Color color = getColor(r, g, b);
     gc.setBackground(color);
   }
 
+  @Override
   public void setForeground(int r, int g, int b) {
     Color color = getColor(r, g, b);
     gc.setColor(color);
@@ -527,6 +553,7 @@ public class SvgGc implements IGc {
     return new Color(r, g, b);
   }
 
+  @Override
   public void setFont(String fontName, int fontSize, boolean fontBold, boolean fontItalic) {
     int style = Font.PLAIN;
     if (fontBold) {
@@ -544,6 +571,7 @@ public class SvgGc implements IGc {
     return null;
   }
 
+  @Override
   public void switchForegroundBackgroundColors() {
     Color fg = gc.getColor();
     Color bg = gc.getBackground();
@@ -552,6 +580,7 @@ public class SvgGc implements IGc {
     gc.setBackground(fg);
   }
 
+  @Override
   public Point getArea() {
     return area;
   }
@@ -636,6 +665,7 @@ public class SvgGc implements IGc {
         angle);
   }
 
+  @Override
   public void drawTransformIcon(int x, int y, TransformMeta transformMeta, float magnification)
       throws HopException {
 
@@ -654,6 +684,7 @@ public class SvgGc implements IGc {
     }
   }
 
+  @Override
   public void drawActionIcon(int x, int y, ActionMeta actionMeta, float magnification)
       throws HopException {
 

@@ -87,16 +87,19 @@ public class FilesToResultMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
@@ -111,11 +114,13 @@ public class FilesToResultMeta extends BaseTransformMeta
     fileType = ResultFile.getType(XmlHandler.getTagValue(transformNode, "file_type"));
   }
 
+  @Override
   public void setDefault() {
     filenameField = null;
     fileType = ResultFile.FILE_TYPE_GENERAL;
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -127,6 +132,7 @@ public class FilesToResultMeta extends BaseTransformMeta
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -156,6 +162,7 @@ public class FilesToResultMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public FilesToResult createTransform(
       TransformMeta transformMeta,
       FilesToResultData data,
@@ -165,6 +172,7 @@ public class FilesToResultMeta extends BaseTransformMeta
     return new FilesToResult(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public FilesToResultData getTransformData() {
     return new FilesToResultData();
   }

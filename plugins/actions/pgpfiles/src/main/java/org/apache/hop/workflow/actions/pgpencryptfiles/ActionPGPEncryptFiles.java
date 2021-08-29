@@ -165,6 +165,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     wildcard = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionPGPEncryptFiles je = (ActionPGPEncryptFiles) super.clone();
     if (actionType != null) {
@@ -179,6 +180,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(450);
 
@@ -254,6 +256,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return actionTypeCodes[i];
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -329,6 +332,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return 0;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -738,10 +742,12 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               FileObject[] fileObjects =
                   sourcefilefolder.findFiles(
                       new AllFileSelector() {
+                        @Override
                         public boolean traverseDescendents(FileSelectInfo info) {
                           return info.getDepth() == 0 || includeSubFolders;
                         }
 
+                        @Override
                         public boolean includeFile(FileSelectInfo info) {
                           FileObject fileObject = info.getFile();
                           try {
@@ -1586,6 +1592,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return true;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

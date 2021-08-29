@@ -63,6 +63,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     input = (CreditCardValidatorMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -124,8 +125,10 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wFieldName.setLayoutData(fdFieldName);
     wFieldName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

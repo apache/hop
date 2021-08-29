@@ -116,6 +116,7 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta = (CsvInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -449,6 +450,7 @@ public class CsvInputDialog extends BaseTransformDialog
     wNewlinePossible.setLayoutData(fdNewlinePossible);
     wNewlinePossible.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent event) {
             setFlags();
           }
@@ -484,8 +486,10 @@ public class CsvInputDialog extends BaseTransformDialog
 
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -590,6 +594,7 @@ public class CsvInputDialog extends BaseTransformDialog
     // Allow the insertion of tabs as separator...
     wbDelimiter.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             Text t = wDelimiter.getTextWidget();
             if (t != null) {

@@ -98,6 +98,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     filemasks = new String[numberOfFields];
   }
 
+  @Override
   public Object clone() {
     ActionDeleteFiles action = (ActionDeleteFiles) super.clone();
     if (arguments != null) {
@@ -338,6 +339,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       parentjob = parentWorkflow;
     }
 
+    @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean doReturnCode = false;
       try {
@@ -386,6 +388,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
       return doReturnCode;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return true;
     }

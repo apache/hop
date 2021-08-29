@@ -174,7 +174,7 @@ public class ExcelWriterTransformTest {
     dataMock.realSheetname = "TicketData";
     dataMock.inputRowMeta = mock(IRowMeta.class);
 
-    List<ExcelWriterOutputField> fields = new ArrayList<ExcelWriterOutputField>();
+    List<ExcelWriterOutputField> fields = new ArrayList<>();
     fields.add(new ExcelWriterOutputField());
 
     IValueMeta vmi = mock(ValueMetaInteger.class);

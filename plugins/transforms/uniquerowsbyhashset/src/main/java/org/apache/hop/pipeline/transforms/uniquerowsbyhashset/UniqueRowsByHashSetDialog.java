@@ -70,6 +70,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -142,6 +143,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     wStoreValues.setLayoutData(fdStoreValues);
     wStoreValues.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -167,6 +169,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
     wRejectDuplicateRow.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setErrorDesc();

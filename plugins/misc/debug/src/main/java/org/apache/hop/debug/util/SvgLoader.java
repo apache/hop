@@ -37,8 +37,8 @@ public class SvgLoader {
     Transcoder t = new PNGTranscoder();
 
     // Set the transcoding hints.
-    t.addTranscodingHint(PNGTranscoder.KEY_WIDTH, new Float(width));
-    t.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, new Float(height));
+    t.addTranscodingHint(PNGTranscoder.KEY_WIDTH, Float.valueOf(width));
+    t.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, Float.valueOf(height));
 
     // Create the transcoder input.
     //

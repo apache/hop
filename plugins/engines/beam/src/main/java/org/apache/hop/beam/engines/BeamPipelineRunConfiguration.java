@@ -111,6 +111,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of userAgent
    */
+  @Override
   public String getUserAgent() {
     return userAgent;
   }
@@ -125,6 +126,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of tempLocation
    */
+  @Override
   public String getTempLocation() {
     return tempLocation;
   }
@@ -139,6 +141,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of pluginsToStage
    */
+  @Override
   public String getPluginsToStage() {
     return pluginsToStage;
   }
@@ -153,6 +156,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of transformPluginClasses
    */
+  @Override
   public String getTransformPluginClasses() {
     return transformPluginClasses;
   }
@@ -167,6 +171,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of xpPluginClasses
    */
+  @Override
   public String getXpPluginClasses() {
     return xpPluginClasses;
   }
@@ -181,6 +186,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of streamingHopTransformsFlushInterval
    */
+  @Override
   public String getStreamingHopTransformsFlushInterval() {
     return streamingHopTransformsFlushInterval;
   }
@@ -210,6 +216,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
    *
    * @return value of fatJar
    */
+  @Override
   public String getFatJar() {
     return fatJar;
   }

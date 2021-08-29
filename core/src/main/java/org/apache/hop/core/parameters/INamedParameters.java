@@ -45,6 +45,7 @@ public interface INamedParameters extends INamedParameterDefinitions {
   String getParameterValue(String key) throws UnknownParamException;
 
   /** Clear the values. */
+  @Override
   void removeAllParameters();
 
   /**

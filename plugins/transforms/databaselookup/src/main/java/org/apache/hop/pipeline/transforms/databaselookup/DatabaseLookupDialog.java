@@ -103,6 +103,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     input = (DatabaseLookupMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -119,6 +120,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTableFieldCombo();
@@ -231,6 +233,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wCache.setLayoutData(fdCache);
     wCache.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             enableFields();
@@ -274,6 +277,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wCacheLoadAll.setLayoutData(fdCacheLoadAll);
     wCacheLoadAll.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             enableFields();
@@ -421,6 +425,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wEatRows.setLayoutData(fdEatRows);
     wEatRows.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             enableFields();
@@ -444,6 +449,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     wFailMultiple.setLayoutData(fdFailMultiple);
     wFailMultiple.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             enableFields();
@@ -488,12 +494,14 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }

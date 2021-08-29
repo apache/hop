@@ -141,6 +141,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -264,6 +265,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -299,6 +301,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wTruncate.setLayoutData(fdTruncate);
     wTruncate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -395,6 +398,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wDataFiletype.setLayoutData(fdDataFiletype);
     wDataFiletype.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setDataType();
           }
@@ -509,6 +513,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wCodePage.setLayoutData(fdCodePage);
     wCodePage.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setCodeType();
           }
@@ -600,6 +605,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFireTriggers.setLayoutData(fdFireTriggers);
     wFireTriggers.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -627,6 +633,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wCheckConstraints.setLayoutData(fdCheckConstraints);
     wCheckConstraints.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -652,6 +659,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wKeepNulls.setLayoutData(fdKeepNulls);
     wKeepNulls.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -678,6 +686,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wKeepIdentity.setLayoutData(fdKeepIdentity);
     wKeepIdentity.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -703,6 +712,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wTablock.setLayoutData(fdTablock);
     wTablock.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -770,6 +780,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wbOrderBy.setLayoutData(fdbListattribut);
     wbOrderBy.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getListColumns();
           }
@@ -865,6 +876,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddDateTime.setLayoutData(fdAddDateTime);
     wAddDateTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -971,6 +983,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

@@ -60,6 +60,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData>
     super(transformMeta, meta, sdi, copyNr, tm, trans);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // This also waits for a row to be finished.
@@ -253,6 +254,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData>
     return retval;
   }
 
+  @Override
   public boolean init() {
     if (!super.init()) {
       return false;

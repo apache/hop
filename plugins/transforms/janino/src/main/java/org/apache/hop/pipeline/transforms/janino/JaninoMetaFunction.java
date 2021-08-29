@@ -82,6 +82,7 @@ public class JaninoMetaFunction implements Cloneable {
     return Objects.hash(fieldName, formula, valueType, valueLength, valuePrecision, replaceField);
   }
 
+  @Override
   public Object clone() {
     try {
       JaninoMetaFunction retval = (JaninoMetaFunction) super.clone();

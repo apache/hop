@@ -28,6 +28,7 @@ public class UsageParameter implements Cloneable {
   @Injection(name = "DESCRIPTION", group = "PARAMETERS")
   public String description;
 
+  @Override
   public Object clone() throws CloneNotSupportedException {
     return super.clone();
   }

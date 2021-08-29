@@ -160,6 +160,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     }
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -340,6 +341,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
+          @Override
           public void close(CTabFolderEvent event) {
             CTabItem cItem = (CTabItem) event.item;
             event.doit = false;
@@ -447,6 +449,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     ds.addDragListener(
         new DragSourceAdapter() {
 
+          @Override
           public void dragStart(DragSourceEvent event) {
             boolean doit = false;
             TreeItem item = wTree.getSelection()[0];
@@ -466,6 +469,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
             event.doit = doit;
           }
 
+          @Override
           public void dragSetData(DragSourceEvent event) {
             // Set the data to be the first selected item's data
             event.data = wTree.getSelection()[0].getData();
@@ -835,34 +839,41 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     wScript.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wScript.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wScript.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }
@@ -1030,7 +1041,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     List<UserDefinedJavaClassDef> definitions = input.getDefinitions();
     if (definitions.size() == 0) {
       try {
-        definitions = new ArrayList<UserDefinedJavaClassDef>();
+        definitions = new ArrayList<>();
         // Note the tab name isn't i18n because it is a Java Class name and i18n characters might
         // make it choke.
         definitions.add(
@@ -1142,7 +1153,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private void getInfo(UserDefinedJavaClassMeta meta) {
     int nrFields = wFields.nrNonEmpty();
-    List<FieldInfo> newFields = new ArrayList<FieldInfo>(nrFields);
+    List<FieldInfo> newFields = new ArrayList<>(nrFields);
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       newFields.add(
@@ -1157,7 +1168,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
       List<UserDefinedJavaClassDef> definitions =
-          new ArrayList<UserDefinedJavaClassDef>(cTabs.length);
+              new ArrayList<>(cTabs.length);
       for (int i = 0; i < cTabs.length; i++) {
         UserDefinedJavaClassDef def =
             new UserDefinedJavaClassDef(
@@ -1446,7 +1457,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     item.setImage(guiResource.getImageFolder());
     item.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Snippits.Label"));
 
-    Map<Category, TreeItem> categoryTreeItems = new EnumMap<Category, TreeItem>(Category.class);
+    Map<Category, TreeItem> categoryTreeItems = new EnumMap<>(Category.class);
     for (Category cat : Category.values()) {
       TreeItem itemGroup = new TreeItem(item, SWT.NULL);
       itemGroup.setImage(guiResource.getImageFolder());

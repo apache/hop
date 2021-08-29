@@ -28,6 +28,7 @@ import java.io.IOException;
 
 public class DownloadServiceHandler implements ServiceHandler {
 
+  @Override
   public void service(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Which file to download?

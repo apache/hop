@@ -83,19 +83,17 @@ public class ValueDataUtil {
    *   <li>{@code java.math.BigDecimal.ROUND_HALF_EVEN} - backward compatibility
    * </ul>
    */
-  private static int ROUND_2_MODE = readRound2Mode();
+  private static final int ROUND_2_MODE = readRound2Mode();
 
   private static int readRound2Mode() {
     int round2Mode = ROUND_2_MODE_DEFAULT_VALUE;
     final String rpaValue = System.getProperty(SYS_PROPERTY_ROUND_2_MODE);
     if (Utils.isEmpty(rpaValue)) {
-      round2Mode = ROUND_2_MODE_DEFAULT_VALUE;
       log.debug(
           "System property is omitted: ROUND_2_MODE. Default value used: "
               + SYS_PROPERTY_ROUND_2_MODE_DEFAULT_VALUE
               + ".");
     } else if (SYS_PROPERTY_ROUND_2_MODE_DEFAULT_VALUE.equals(rpaValue)) {
-      round2Mode = ROUND_2_MODE_DEFAULT_VALUE;
       log.debug(
           "System property read: ROUND_2_MODE=" + ROUND_2_MODE_DEFAULT_VALUE + " (default value)");
     } else if (SYS_PROPERTY_ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE.equalsIgnoreCase(rpaValue)) {
@@ -132,7 +130,7 @@ public class ValueDataUtil {
     if (dataA == null || dataB == null) {
       return null;
     }
-    return new Long(StringUtils.getLevenshteinDistance(dataA.toString(), dataB.toString()));
+    return Long.valueOf(StringUtils.getLevenshteinDistance(dataA.toString(), dataB.toString()));
   }
 
   /**
@@ -145,7 +143,7 @@ public class ValueDataUtil {
     if (dataA == null || dataB == null) {
       return null;
     }
-    return new Long(Utils.getDamerauLevenshteinDistance(dataA.toString(), dataB.toString()));
+    return Long.valueOf(Utils.getDamerauLevenshteinDistance(dataA.toString(), dataB.toString()));
   }
 
   /**
@@ -385,7 +383,6 @@ public class ValueDataUtil {
     try {
       file = HopVfs.getFileObject(dataA.toString());
       throwsErrorOnFileNotFound(file);
-      cis = null;
 
       // Computer CRC32 checksum
       cis = new CheckedInputStream(HopVfs.getInputStream(file), new CRC32());
@@ -431,7 +428,6 @@ public class ValueDataUtil {
     try {
       file = HopVfs.getFileObject(dataA.toString());
       throwsErrorOnFileNotFound(file);
-      cis = null;
 
       // Computer Adler-32 checksum
       cis = new CheckedInputStream(HopVfs.getInputStream(file), new Adler32());
@@ -475,7 +471,7 @@ public class ValueDataUtil {
           } else if (valueA == null) {
             return valueB;
           } else {
-            return new Double(valueA.doubleValue() + valueB.doubleValue());
+            return Double.valueOf(valueA.doubleValue() + valueB.doubleValue());
           }
         }
       case IValueMeta.TYPE_INTEGER:
@@ -487,7 +483,7 @@ public class ValueDataUtil {
           } else if (valueA == null) {
             return valueB;
           } else {
-            return new Long(valueA.longValue() + valueB.longValue());
+            return Long.valueOf(valueA.longValue() + valueB.longValue());
           }
         }
       case IValueMeta.TYPE_BOOLEAN:
@@ -535,12 +531,12 @@ public class ValueDataUtil {
       case IValueMeta.TYPE_STRING:
         return metaA.getString(dataA) + metaB.getString(dataB) + metaC.getString(dataC);
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             metaA.getNumber(dataA).doubleValue()
                 + metaB.getNumber(dataB).doubleValue()
                 + metaC.getNumber(dataC).doubleValue());
       case IValueMeta.TYPE_INTEGER:
-        return new Long(
+        return Long.valueOf(
             metaA.getInteger(dataA).longValue()
                 + metaB.getInteger(dataB).longValue()
                 + metaC.getInteger(dataC).longValue());
@@ -623,14 +619,16 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             metaA.getNumber(dataA).doubleValue() - metaB.getNumber(dataB).doubleValue());
       case IValueMeta.TYPE_INTEGER:
-        return new Long(metaA.getInteger(dataA).longValue() - metaB.getInteger(dataB).longValue());
+        return Long.valueOf(
+            metaA.getInteger(dataA).longValue() - metaB.getInteger(dataB).longValue());
       case IValueMeta.TYPE_BIGNUMBER:
         return metaA.getBigNumber(dataA).subtract(metaB.getBigNumber(dataB));
       default:
-        return new Long(metaA.getInteger(dataA).longValue() - metaB.getInteger(dataB).longValue());
+        return Long.valueOf(
+            metaA.getInteger(dataA).longValue() - metaB.getInteger(dataB).longValue());
     }
   }
 
@@ -664,11 +662,11 @@ public class ValueDataUtil {
   }
 
   public static Double multiplyDoubles(Double a, Double b) {
-    return new Double(a.doubleValue() * b.doubleValue());
+    return Double.valueOf(a.doubleValue() * b.doubleValue());
   }
 
   public static Long multiplyLongs(Long a, Long b) {
-    return new Long(a.longValue() * b.longValue());
+    return Long.valueOf(a.longValue() * b.longValue());
   }
 
   // Get BigNumber size to be considered in mathematical operations
@@ -744,11 +742,11 @@ public class ValueDataUtil {
   }
 
   public static Double divideDoubles(Double a, Double b) {
-    return new Double(a.doubleValue() / b.doubleValue());
+    return Double.valueOf(a.doubleValue() / b.doubleValue());
   }
 
   public static Long divideLongs(Long a, Long b) {
-    return new Long(a.longValue() / b.longValue());
+    return Long.valueOf(a.longValue() / b.longValue());
   }
 
   public static BigDecimal divideBigDecimals(BigDecimal a, BigDecimal b, MathContext mc) {
@@ -767,9 +765,9 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(Math.sqrt(metaA.getNumber(dataA).doubleValue()));
+        return Double.valueOf(Math.sqrt(metaA.getNumber(dataA).doubleValue()));
       case IValueMeta.TYPE_INTEGER:
-        return new Long(Math.round(Math.sqrt(metaA.getNumber(dataA).doubleValue())));
+        return Long.valueOf(Math.round(Math.sqrt(metaA.getNumber(dataA).doubleValue())));
       case IValueMeta.TYPE_BIGNUMBER:
         return BigDecimal.valueOf(Math.sqrt(metaA.getNumber(dataA).doubleValue()));
 
@@ -829,12 +827,12 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             metaA.getNumber(dataA).doubleValue()
                 - divideDoubles(
                     multiplyDoubles(metaA.getNumber(dataA), metaB.getNumber(dataB)), 100.0D));
       case IValueMeta.TYPE_INTEGER:
-        return new Long(
+        return Long.valueOf(
             metaA.getInteger(dataA).longValue()
                 - divideLongs(
                     multiplyLongs(metaA.getInteger(dataA), metaB.getInteger(dataB)), 100L));
@@ -869,12 +867,12 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             metaA.getNumber(dataA).doubleValue()
                 + divideDoubles(
                     multiplyDoubles(metaA.getNumber(dataA), metaB.getNumber(dataB)), 100.0D));
       case IValueMeta.TYPE_INTEGER:
-        return new Long(
+        return Long.valueOf(
             metaA.getInteger(dataA).longValue()
                 + divideLongs(
                     multiplyLongs(metaA.getInteger(dataA), metaB.getInteger(dataB)), 100L));
@@ -915,11 +913,11 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             metaA.getNumber(dataA).doubleValue()
                 + (metaB.getNumber(dataB).doubleValue() * metaC.getNumber(dataC).doubleValue()));
       case IValueMeta.TYPE_INTEGER:
-        return new Long(
+        return Long.valueOf(
             metaA.getInteger(dataA).longValue()
                 + (metaB.getInteger(dataB).longValue() * metaC.getInteger(dataC).longValue()));
       case IValueMeta.TYPE_BIGNUMBER:
@@ -950,13 +948,13 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             Math.sqrt(
                 metaA.getNumber(dataA).doubleValue() * metaA.getNumber(dataA).doubleValue()
                     + metaB.getNumber(dataB).doubleValue() * metaB.getNumber(dataB).doubleValue()));
 
       case IValueMeta.TYPE_INTEGER:
-        return new Long(
+        return Long.valueOf(
             Math.round(
                 Math.sqrt(
                     metaA.getInteger(dataA).longValue() * metaA.getInteger(dataA).longValue()
@@ -989,7 +987,7 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(Math.round(metaA.getNumber(dataA).doubleValue()));
+        return Double.valueOf(Math.round(metaA.getNumber(dataA).doubleValue()));
       case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger(dataA);
       case IValueMeta.TYPE_BIGNUMBER:
@@ -1018,9 +1016,9 @@ public class ValueDataUtil {
     switch (metaA.getType()) {
         // Use overloaded Const.round(value, precision, mode)
       case IValueMeta.TYPE_NUMBER:
-        return new Double(Const.round(metaA.getNumber(dataA), 0, roundingMode));
+        return Double.valueOf(Const.round(metaA.getNumber(dataA), 0, roundingMode));
       case IValueMeta.TYPE_INTEGER:
-        return new Long(Const.round(metaA.getInteger(dataA), 0, roundingMode));
+        return Long.valueOf(Const.round(metaA.getInteger(dataA), 0, roundingMode));
       case IValueMeta.TYPE_BIGNUMBER:
         return Const.round(metaA.getBigNumber(dataA), 0, roundingMode);
       default:
@@ -1065,13 +1063,13 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             Const.round(
                 metaA.getNumber(dataA).doubleValue(),
                 metaB.getInteger(dataB).intValue(),
                 roundingMode));
       case IValueMeta.TYPE_INTEGER:
-        return new Long(
+        return Long.valueOf(
             Const.round(
                 metaA.getInteger(dataA).longValue(),
                 metaB.getInteger(dataB).intValue(),
@@ -1123,11 +1121,11 @@ public class ValueDataUtil {
     }
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(Math.ceil(metaA.getNumber(dataA).doubleValue()));
+        return Double.valueOf(Math.ceil(metaA.getNumber(dataA).doubleValue()));
       case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger(dataA);
       case IValueMeta.TYPE_BIGNUMBER:
-        return new BigDecimal(Math.ceil(metaA.getNumber(dataA).doubleValue()));
+        return BigDecimal.valueOf(Math.ceil(metaA.getNumber(dataA).doubleValue()));
 
       default:
         throw new HopValueException("The 'ceil' function only works on numeric data");
@@ -1140,11 +1138,11 @@ public class ValueDataUtil {
     }
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(Math.floor(metaA.getNumber(dataA).doubleValue()));
+        return Double.valueOf(Math.floor(metaA.getNumber(dataA).doubleValue()));
       case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger(dataA);
       case IValueMeta.TYPE_BIGNUMBER:
-        return new BigDecimal(Math.floor(metaA.getNumber(dataA).doubleValue()));
+        return BigDecimal.valueOf(Math.floor(metaA.getNumber(dataA).doubleValue()));
 
       default:
         throw new HopValueException("The 'floor' function only works on numeric data");
@@ -1158,11 +1156,11 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(Math.abs(metaA.getNumber(dataA).doubleValue()));
+        return Double.valueOf(Math.abs(metaA.getNumber(dataA).doubleValue()));
       case IValueMeta.TYPE_INTEGER:
         return metaA.getInteger(Math.abs(metaA.getNumber(dataA).longValue()));
       case IValueMeta.TYPE_BIGNUMBER:
-        return new BigDecimal(Math.abs(metaA.getNumber(dataA).doubleValue()));
+        return BigDecimal.valueOf(Math.abs(metaA.getNumber(dataA).doubleValue()));
 
       default:
         throw new HopValueException("The 'abs' function only works on numeric data");
@@ -1187,10 +1185,10 @@ public class ValueDataUtil {
 
     switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER:
-        return new Double(
+        return Double.valueOf(
             metaA.getNumber(dataA).doubleValue() % metaB.getNumber(dataB).doubleValue());
       case IValueMeta.TYPE_INTEGER:
-        return new Long(metaA.getInteger(dataA) % metaB.getInteger(dataB));
+        return Long.valueOf(metaA.getInteger(dataA) % metaB.getInteger(dataB));
       case IValueMeta.TYPE_BIGNUMBER:
         BigDecimal aValue = metaA.getBigNumber(dataA);
         BigDecimal bValue = metaA.getBigNumber(dataB);
@@ -1351,7 +1349,7 @@ public class ValueDataUtil {
 
       month += metaB.getInteger(dataB).intValue();
 
-      int newyear = year + (int) Math.floor(month / 12);
+      int newyear = year + (month / 12);
       int newmonth = month % 12;
 
       cal.set(newyear, newmonth, 1);
@@ -1401,17 +1399,17 @@ public class ValueDataUtil {
       long diff = endL - startL;
 
       if (Utils.isEmpty(resultType)) {
-        return new Long(diff / 86400000);
+        return Long.valueOf(diff / 86400000);
       } else if (resultType.equals("ms")) {
-        return new Long(diff);
+        return Long.valueOf(diff);
       } else if (resultType.equals("s")) {
-        return new Long(diff / 1000); // second
+        return Long.valueOf(diff / 1000); // second
       } else if (resultType.equals("mn")) {
-        return new Long(diff / 60000); // minute
+        return Long.valueOf(diff / 60000); // minute
       } else if (resultType.equals("h")) {
-        return new Long(diff / 3600000); // hour
+        return Long.valueOf(diff / 3600000); // hour
       } else if (resultType.equals("d")) {
-        return new Long(diff / 86400000);
+        return Long.valueOf(diff / 86400000);
       } else {
         throw new HopValueException("Unknown result type option '" + resultType + "'");
       }
@@ -1445,7 +1443,7 @@ public class ValueDataUtil {
         }
         calFrom.add(Calendar.DATE, 1);
       } while (calFrom.getTimeInMillis() <= calTo.getTimeInMillis());
-      return new Long(singminus ? -iNoOfWorkingDays : iNoOfWorkingDays);
+      return Long.valueOf(singminus ? -iNoOfWorkingDays : iNoOfWorkingDays);
     } else {
       return null;
     }
@@ -1458,7 +1456,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.YEAR));
+    return Long.valueOf(calendar.get(Calendar.YEAR));
   }
 
   public static Object monthOfDate(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1468,7 +1466,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.MONTH) + 1);
+    return Long.valueOf(calendar.get(Calendar.MONTH) + 1);
   }
 
   public static Object quarterOfDate(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1478,7 +1476,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long((calendar.get(Calendar.MONTH) + 3) / 3);
+    return Long.valueOf((calendar.get(Calendar.MONTH) + 3) / 3);
   }
 
   public static Object dayOfYear(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1488,7 +1486,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.DAY_OF_YEAR));
+    return Long.valueOf(calendar.get(Calendar.DAY_OF_YEAR));
   }
 
   public static Object dayOfMonth(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1498,7 +1496,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.DAY_OF_MONTH));
+    return Long.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
   }
 
   public static Object hourOfDay(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1509,7 +1507,7 @@ public class ValueDataUtil {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
 
-    Boolean oldDateCalculation =
+    boolean oldDateCalculation =
         Boolean.parseBoolean(
             Const.getEnvironmentVariable(
                 Const.HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION, "false"));
@@ -1517,7 +1515,7 @@ public class ValueDataUtil {
       calendar.setTimeZone(metaA.getDateFormatTimeZone());
     }
 
-    return new Long(calendar.get(Calendar.HOUR_OF_DAY));
+    return Long.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
   }
 
   public static Object minuteOfHour(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1527,7 +1525,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.MINUTE));
+    return Long.valueOf(calendar.get(Calendar.MINUTE));
   }
 
   public static Object secondOfMinute(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1537,7 +1535,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.SECOND));
+    return Long.valueOf(calendar.get(Calendar.SECOND));
   }
 
   public static Object dayOfWeek(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1547,7 +1545,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.DAY_OF_WEEK));
+    return Long.valueOf(calendar.get(Calendar.DAY_OF_WEEK));
   }
 
   public static Object weekOfYear(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1557,7 +1555,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.WEEK_OF_YEAR));
+    return Long.valueOf(calendar.get(Calendar.WEEK_OF_YEAR));
   }
 
   public static Object weekOfYearISO8601(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1569,7 +1567,7 @@ public class ValueDataUtil {
     calendar.setMinimalDaysInFirstWeek(4);
     calendar.setFirstDayOfWeek(Calendar.MONDAY);
     calendar.setTime(metaA.getDate(dataA));
-    return new Long(calendar.get(Calendar.WEEK_OF_YEAR));
+    return Long.valueOf(calendar.get(Calendar.WEEK_OF_YEAR));
   }
 
   public static Object yearOfDateISO8601(IValueMeta metaA, Object dataA) throws HopValueException {
@@ -1594,7 +1592,7 @@ public class ValueDataUtil {
       year++;
     }
 
-    return new Long(year);
+    return Long.valueOf(year);
   }
 
   /**
@@ -1625,7 +1623,8 @@ public class ValueDataUtil {
     }
 
     int nibble;
-    int i, j;
+    int i;
+    int j;
     for (i = 0, j = 0; i < len; i++) {
       char c = hexString.charAt(i);
 
@@ -1752,7 +1751,8 @@ public class ValueDataUtil {
     }
 
     int nibble;
-    int i, j;
+    int i;
+    int j;
     for (i = 0, j = 0; i < len; i++) {
       char c = hexString.charAt(i);
 
@@ -1795,7 +1795,7 @@ public class ValueDataUtil {
    * @param limit The desired length of the padded string.
    * @return The padded String.
    */
-  public static final String rightPad(String ret, int limit) {
+  public static String rightPad(String ret, int limit) {
     return Const.rightPad(ret, limit);
   }
 
@@ -1807,7 +1807,7 @@ public class ValueDataUtil {
    * @param limit The desired length of the padded string.
    * @return The padded String.
    */
-  public static final String rightPad(StringBuffer ret, int limit) {
+  public static String rightPad(StringBuffer ret, int limit) {
     return Const.rightPad(ret, limit);
   }
 
@@ -1819,7 +1819,7 @@ public class ValueDataUtil {
    * @param with The new text bit
    * @return The resulting string with the text pieces replaced.
    */
-  public static final String replace(String string, String repl, String with) {
+  public static String replace(String string, String repl, String with) {
     StringBuffer str = new StringBuffer(string);
     for (int i = str.length() - 1; i >= 0; i--) {
       if (str.substring(i).startsWith(repl)) {
@@ -1858,7 +1858,7 @@ public class ValueDataUtil {
    * @param field The text to examine
    * @return The number of leading spaces found.
    */
-  public static final int nrSpacesBefore(String field) {
+  public static int nrSpacesBefore(String field) {
     int nr = 0;
     int len = field.length();
     while (nr < len && field.charAt(nr) == ' ') {
@@ -1888,7 +1888,7 @@ public class ValueDataUtil {
    * @param str The string to check
    * @return true if the string has nothing but spaces.
    */
-  public static final boolean onlySpaces(String str) {
+  public static boolean onlySpaces(String str) {
     for (int i = 0; i < str.length(); i++) {
       if (!Const.isSpace(str.charAt(i))) {
         return false;
@@ -2001,11 +2001,11 @@ public class ValueDataUtil {
     switch (type.getType()) {
       case (IValueMeta.TYPE_INTEGER):
         {
-          return new Long(0);
+          return Long.valueOf(0);
         }
       case (IValueMeta.TYPE_NUMBER):
         {
-          return new Double(0);
+          return Double.valueOf(0);
         }
       case (IValueMeta.TYPE_BIGNUMBER):
         {

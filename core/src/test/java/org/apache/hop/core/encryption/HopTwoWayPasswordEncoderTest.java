@@ -220,6 +220,7 @@ public class HopTwoWayPasswordEncoderTest {
       super();
     }
 
+    @Override
     protected String getSeed() {
       return "123456789012345435987";
     }

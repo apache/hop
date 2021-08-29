@@ -71,6 +71,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     input = (RowGeneratorMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

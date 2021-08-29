@@ -29,8 +29,8 @@ public class UserDefinedJavaClassCodeSnippits {
   private static final Class<?> PKG = UserDefinedJavaClass.class; // For Translator
   private static UserDefinedJavaClassCodeSnippits snippitsHelper = null;
 
-  private final List<Snippit> snippits = new ArrayList<Snippit>();
-  private final Map<String, Snippit> snippitsMap = new HashMap<String, Snippit>();
+  private final List<Snippit> snippits = new ArrayList<>();
+  private final Map<String, Snippit> snippitsMap = new HashMap<>();
   private final LogChannel log = new LogChannel("UserDefinedJavaClassCodeSnippits");
 
   public static synchronized UserDefinedJavaClassCodeSnippits getSnippitsHelper()

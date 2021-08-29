@@ -148,6 +148,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     this.action = (ActionMail) action;
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -482,6 +483,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUseAuth.setLayoutData(fdUseAuth);
     wUseAuth.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setUseAuth();
             action.setChanged();
@@ -535,6 +537,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUseSecAuth.setLayoutData(fdUseSecAuth);
     wUseSecAuth.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setSecureConnectiontype();
             action.setChanged();
@@ -566,6 +569,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wSecureConnectionType.add("TLS 1.2");
     wSecureConnectionType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setSecureConnectiontype();
             action.setChanged();
@@ -644,6 +648,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -667,6 +672,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wOnlyComment.setLayoutData(fdOnlyComment);
     wOnlyComment.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -690,6 +696,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUseHTML.setLayoutData(fdUseHTML);
     wUseHTML.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setEnabledEncoding();
             action.setChanged();
@@ -716,8 +723,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -746,6 +755,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUsePriority.setLayoutData(fdUsePriority);
     wUsePriority.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeUsePriority();
             action.setChanged();
@@ -952,6 +962,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wIncludeFiles.setLayoutData(fdIncludeFiles);
     wIncludeFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setFlags();
@@ -998,6 +1009,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wZipFiles.setLayoutData(fdZipFiles);
     wZipFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setFlags();
@@ -1198,6 +1210,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(new String[] {wImageFilename.getText(), wContentID.getText()});
             wImageFilename.setText("");
@@ -1213,6 +1226,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // Delete files from the list of files...
     wbdImageFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -1224,6 +1238,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     // Edit the selected file & remove from the list...
     wbeImageFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {

@@ -70,6 +70,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
    *
    * @return true if initialization completed successfully, false if there was an error
    */
+  @Override
   public boolean init() {
     // Casting to transform-specific implementation classes is safe
 
@@ -89,6 +90,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
    * @return true to indicate that the function should be called again, false if the transform is
    *     done
    */
+  @Override
   public boolean processRow() throws HopException {
 
     /*
@@ -169,6 +171,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
   }
 
   /** Clear transforms from transform data */
+  @Override
   public void dispose() {
 
     data.outputRowMeta = null;

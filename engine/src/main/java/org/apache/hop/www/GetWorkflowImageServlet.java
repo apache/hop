@@ -41,6 +41,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
 
   public static final String CONTEXT_PATH = "/hop/workflowImage";
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -113,10 +114,12 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
     return "Workflow Image Handler";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

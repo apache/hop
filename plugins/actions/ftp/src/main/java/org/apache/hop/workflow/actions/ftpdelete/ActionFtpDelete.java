@@ -156,11 +156,13 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionFtpDelete je = (ActionFtpDelete) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(550); // 448 characters in spaces and tag names alone
 
@@ -335,6 +337,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the password. */
+  @Override
   public String getPassword() {
     return password;
   }
@@ -350,6 +353,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the serverName. */
+  @Override
   public String getServerName() {
     return serverName;
   }
@@ -368,6 +372,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the userName. */
+  @Override
   public String getUserName() {
     return userName;
   }
@@ -393,6 +398,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the timeout. */
+  @Override
   public int getTimeout() {
     return timeout;
   }
@@ -403,6 +409,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the hostname of the ftp-proxy. */
+  @Override
   public String getProxyHost() {
     return proxyHost;
   }
@@ -421,6 +428,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the password which is used to authenticate at the proxy. */
+  @Override
   public String getProxyPassword() {
     return proxyPassword;
   }
@@ -431,6 +439,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the port of the ftp. */
+  @Override
   public String getServerPort() {
     return serverPort;
   }
@@ -441,6 +450,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the port of the ftp-proxy. */
+  @Override
   public String getProxyPort() {
     return proxyPort;
   }
@@ -451,6 +461,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Returns the username which is used to authenticate at the proxy. */
+  @Override
   public String getProxyUsername() {
     return proxyUsername;
   }
@@ -461,6 +472,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** Needed for the Vector coming from sshclient.ls() * */
+  @Override
   @SuppressWarnings("unchecked")
   public Result execute(Result previousResult, int nr) {
     log.logBasic(BaseMessages.getString(PKG, "ActionFTPDelete.Started", serverName));
@@ -718,6 +730,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return the activeConnection */
+  @Override
   public boolean isActiveConnection() {
     return activeConnection;
   }
@@ -727,6 +740,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     this.activeConnection = activeConnection;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
@@ -774,21 +788,25 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   /** @return Socks proxy host */
+  @Override
   public String getSocksProxyHost() {
     return this.socksProxyHost;
   }
 
   /** @return Socks proxy port */
+  @Override
   public String getSocksProxyPort() {
     return this.socksProxyPort;
   }
 
   /** @return Socks proxy username */
+  @Override
   public String getSocksProxyUsername() {
     return this.socksProxyUsername;
   }
 
   /** @return Socks proxy username */
+  @Override
   public String getSocksProxyPassword() {
     return this.socksProxyPassword;
   }

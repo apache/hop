@@ -176,6 +176,7 @@ public class TableOutputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   // Call the allocate method on the LoadSaveTester meta class
+  @Override
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof TableOutputMeta) {
       ((TableOutputMeta) someMeta).getFields().clear();

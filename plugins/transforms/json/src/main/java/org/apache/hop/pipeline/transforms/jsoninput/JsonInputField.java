@@ -101,6 +101,7 @@ public class JsonInputField extends BaseFileField implements Cloneable {
     return v;
   }
 
+  @Override
   public JsonInputField clone() {
     JsonInputField retval = (JsonInputField) super.clone();
     return retval;

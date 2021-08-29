@@ -44,6 +44,7 @@ public class VariableButtonListenerFactory {
       final IInsertText insertTextInterface,
       final IVariables variables) {
     return new SelectionAdapter() {
+      @Override
       public void widgetSelected(SelectionEvent e) {
         // Before focus is lost, we get the position of where the selected variable needs to be
         // inserted.

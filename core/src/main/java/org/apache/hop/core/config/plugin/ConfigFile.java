@@ -170,6 +170,7 @@ public abstract class ConfigFile implements IConfigFile {
   public abstract String getConfigFilename();
 
   /** @param filename The filename to set */
+  @Override
   public abstract void setConfigFilename(String filename);
 
   /**

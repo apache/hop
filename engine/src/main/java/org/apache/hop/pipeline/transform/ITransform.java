@@ -82,6 +82,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   void stopRunning() throws HopException;
 
   /** @return true if the transform is running after having been initialized */
+  @Override
   boolean isRunning();
 
   /**
@@ -92,6 +93,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   void setRunning(boolean running);
 
   /** @return True if the transform is marked as stopped. Execution should stop immediate. */
+  @Override
   boolean isStopped();
 
   /** @param stopped true if the transform needs to be stopped */
@@ -106,6 +108,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   }
 
   /** @return True if the transform is paused */
+  @Override
   boolean isPaused();
 
   /** Flags all rowsets as stopped/completed/finished. */
@@ -135,6 +138,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @return the number of errors
    */
+  @Override
   long getErrors();
 
   /**
@@ -145,24 +149,30 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   void setErrors(long errors);
 
   /** @return Returns the linesInput. */
+  @Override
   long getLinesInput();
 
   /** @return Returns the linesOutput. */
+  @Override
   long getLinesOutput();
 
   /** @return Returns the linesRead. */
+  @Override
   long getLinesRead();
 
   /** @return Returns the linesWritten. */
+  @Override
   long getLinesWritten();
 
   /** @return Returns the linesUpdated. */
+  @Override
   long getLinesUpdated();
 
   /** @param linesRejected transforms the lines rejected by error handling. */
   void setLinesRejected(long linesRejected);
 
   /** @return Returns the lines rejected by error handling. */
+  @Override
   long getLinesRejected();
 
   /**
@@ -184,6 +194,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param rowListener the rowlistener to add
    */
+  @Override
   void addRowListener(IRowListener rowListener);
 
   /**
@@ -191,6 +202,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @param rowListener the rowlistener to remove
    */
+  @Override
   void removeRowListener(IRowListener rowListener);
 
   /** @return a list of the installed RowListeners */
@@ -265,9 +277,11 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   Map<String, ResultFile> getResultFiles();
 
   /** @return the description as in {@link ITransformData} */
+  @Override
   ComponentExecutionStatus getStatus();
 
   /** @return The number of ms that this transform has been running */
+  @Override
   long getExecutionDuration();
 
   /**
@@ -346,9 +360,11 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @return value of initStartDate
    */
+  @Override
   Date getInitStartDate();
 
   /** @param initStartDate The initStartDate to set */
+  @Override
   void setInitStartDate(Date initStartDate);
 
   /**
@@ -356,9 +372,11 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @return value of executionStartDate
    */
+  @Override
   Date getExecutionStartDate();
 
   /** @param executionStartDate The executionStartDate to set */
+  @Override
   void setExecutionStartDate(Date executionStartDate);
 
   /**
@@ -366,9 +384,11 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @return value of firstRowReadDate
    */
+  @Override
   Date getFirstRowReadDate();
 
   /** @param firstRowReadDate The firstRowReadDate to set */
+  @Override
   void setFirstRowReadDate(Date firstRowReadDate);
 
   /**
@@ -376,9 +396,11 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @return value of lastRowWrittenDate
    */
+  @Override
   Date getLastRowWrittenDate();
 
   /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  @Override
   void setLastRowWrittenDate(Date lastRowWrittenDate);
 
   /**
@@ -386,8 +408,10 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    *
    * @return value of executionEndDate
    */
+  @Override
   Date getExecutionEndDate();
 
   /** @param executionEndDate The executionEndDate to set */
+  @Override
   void setExecutionEndDate(Date executionEndDate);
 }

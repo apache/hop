@@ -90,6 +90,7 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public BeamBigtableOutputMeta clone() {
     return new BeamBigtableOutputMeta(this);
   }

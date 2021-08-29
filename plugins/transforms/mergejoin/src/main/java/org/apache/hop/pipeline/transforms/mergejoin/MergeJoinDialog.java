@@ -67,6 +67,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     input = (MergeJoinMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

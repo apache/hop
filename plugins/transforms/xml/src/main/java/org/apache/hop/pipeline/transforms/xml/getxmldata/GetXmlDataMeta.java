@@ -490,11 +490,13 @@ public class GetXmlDataMeta extends BaseTransformMeta
     this.prunePath = prunePath;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     GetXmlDataMeta retval = (GetXmlDataMeta) super.clone();
 
@@ -534,6 +536,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     return new GetXmlDataData();
   }
 
+  @Override
   public String getXml() {
     StringBuffer retval = new StringBuffer(400);
 
@@ -705,6 +708,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     includeSubFolders = new String[nrfiles];
   }
 
+  @Override
   public void setDefault() {
     shortFileFieldName = null;
     pathFieldName = null;
@@ -754,6 +758,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     prunePath = "";
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -865,6 +870,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     return includeSubFolderBoolean;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -952,6 +958,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
@@ -968,6 +975,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
    * @param metadataProvider the metadata in which shared metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

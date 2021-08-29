@@ -37,6 +37,7 @@ public class FileErrorHandlerContentLineNumber extends AbstractFileErrorHandler 
     super(date, destinationDirectory, fileExtension, encoding, baseTransform);
   }
 
+  @Override
   public void handleLineError(long lineNr, String filePart) throws HopException {
     try {
       getWriter(filePart).write(String.valueOf(lineNr));
@@ -50,7 +51,9 @@ public class FileErrorHandlerContentLineNumber extends AbstractFileErrorHandler 
     }
   }
 
+  @Override
   public void handleNonExistantFile(FileObject file) {}
 
+  @Override
   public void handleNonAccessibleFile(FileObject file) {}
 }

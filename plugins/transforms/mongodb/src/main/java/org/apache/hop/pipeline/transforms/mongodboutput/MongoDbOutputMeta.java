@@ -59,7 +59,7 @@ import java.util.List;
 public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData>
     implements ITransformMeta<MongoDbOutput, MongoDbOutputData> {
 
-  private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   /** Class encapsulating paths to document fields */
   public static class MongoField {
@@ -217,9 +217,9 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
       buff.append(
           pathToFields
               + " (unique = "
-              + new Boolean(unique).toString()
+              + Boolean.toString(unique)
               + " sparse = "
-              + new Boolean(sparse).toString()
+              + Boolean.toString(sparse)
               + ")");
 
       return buff.toString();
@@ -477,7 +477,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     if ((prev == null) || (prev.size() == 0)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.Error.NotReceivingFieldsFromPreviousTransforms"),
               transformMeta);
@@ -485,7 +485,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MongoDbOutput.Messages.ReceivingFields", prev.size()),
               transformMeta);
       remarks.add(cr);
@@ -495,14 +495,14 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MongoDbOutput.Messages.ReceivingInfo"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.Error.NoInputReceivedFromOtherTransforms"),
               transformMeta);

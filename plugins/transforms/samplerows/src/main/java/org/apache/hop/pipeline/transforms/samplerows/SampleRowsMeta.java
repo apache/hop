@@ -65,16 +65,19 @@ public class SampleRowsMeta extends BaseTransformMeta
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode, metadataProvider);
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -119,11 +122,13 @@ public class SampleRowsMeta extends BaseTransformMeta
     this.linenumfield = linenumfield;
   }
 
+  @Override
   public void setDefault() {
     linesrange = DEFAULT_RANGE;
     linenumfield = null;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append("    " + XmlHandler.addTagValue("linesrange", linesrange));
@@ -132,6 +137,7 @@ public class SampleRowsMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -203,6 +209,7 @@ public class SampleRowsMeta extends BaseTransformMeta
     return new SampleRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SampleRowsData getTransformData() {
     return new SampleRowsData();
   }

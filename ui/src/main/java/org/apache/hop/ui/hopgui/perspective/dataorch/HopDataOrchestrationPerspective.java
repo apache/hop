@@ -572,6 +572,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     activeItem = tabItemHandler;
   }
 
+  @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
     return Arrays.asList(pipelineFileType, workflowFileType);
   }
@@ -613,6 +614,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    *
    * @return
    */
+  @Override
   public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     // For every file type we have a context handler...
@@ -694,6 +696,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    *
    * @return value of items
    */
+  @Override
   public List<TabItemHandler> getItems() {
     return items;
   }

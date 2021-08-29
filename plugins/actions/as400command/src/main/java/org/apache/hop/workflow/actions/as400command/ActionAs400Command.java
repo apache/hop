@@ -103,6 +103,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     this.command = other.command;
   }
 
+  @Override
   public Object clone() {
     return new ActionAs400Command(this);
   }

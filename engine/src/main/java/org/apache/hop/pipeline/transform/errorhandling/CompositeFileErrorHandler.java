@@ -30,30 +30,35 @@ public class CompositeFileErrorHandler implements IFileErrorHandler {
     this.handlers = handlers;
   }
 
+  @Override
   public void handleFile(FileObject file) throws HopException {
     for (IFileErrorHandler handler : handlers) {
       handler.handleFile(file);
     }
   }
 
+  @Override
   public void handleLineError(long lineNr, String filePart) throws HopException {
     for (IFileErrorHandler handler : handlers) {
       handler.handleLineError(lineNr, filePart);
     }
   }
 
+  @Override
   public void close() throws HopException {
     for (IFileErrorHandler handler : handlers) {
       handler.close();
     }
   }
 
+  @Override
   public void handleNonExistantFile(FileObject file) throws HopException {
     for (IFileErrorHandler handler : handlers) {
       handler.handleNonExistantFile(file);
     }
   }
 
+  @Override
   public void handleNonAccessibleFile(FileObject file) throws HopException {
     for (IFileErrorHandler handler : handlers) {
       handler.handleNonAccessibleFile(file);

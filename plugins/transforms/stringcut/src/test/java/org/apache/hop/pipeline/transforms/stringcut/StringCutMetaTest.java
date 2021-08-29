@@ -44,8 +44,8 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
     PluginRegistry.init(false);
 
     List<String> attributesList = new ArrayList<>();
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
         "fields", new ListLoadSaveValidator<>(new StringCutFieldInputFieldLoadSaveValidator(), 5));
@@ -65,6 +65,7 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
   }
 
   // Call the allocate method on the LoadSaveTester meta class
+  @Override
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof StringCutMeta) {
       ((StringCutMeta) someMeta).getFields().clear();

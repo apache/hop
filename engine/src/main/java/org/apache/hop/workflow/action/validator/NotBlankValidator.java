@@ -36,6 +36,7 @@ public class NotBlankValidator implements IActionValidator {
 
   private static final String VALIDATOR_NAME = "notBlank";
 
+  @Override
   public boolean validate(
       ICheckResultSource source,
       String propertyName,
@@ -55,6 +56,7 @@ public class NotBlankValidator implements IActionValidator {
     }
   }
 
+  @Override
   public String getName() {
     return VALIDATOR_NAME;
   }

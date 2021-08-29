@@ -65,11 +65,13 @@ public class InjectorMeta extends BaseTransformMeta
     injectorFields = new ArrayList<>();
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
+  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,
@@ -87,6 +89,7 @@ public class InjectorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -117,6 +120,7 @@ public class InjectorMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public Injector createTransform(
       TransformMeta transformMeta,
       InjectorData data,
@@ -126,6 +130,7 @@ public class InjectorMeta extends BaseTransformMeta
     return new Injector(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public InjectorData getTransformData() {
     return new InjectorData();
   }

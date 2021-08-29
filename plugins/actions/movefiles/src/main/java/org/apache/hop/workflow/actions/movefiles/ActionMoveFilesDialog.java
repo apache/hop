@@ -162,6 +162,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -262,6 +263,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             checkIncludeSubFolders();
@@ -289,6 +291,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wMoveEmptyFolders.setLayoutData(fdMoveEmptyFolders);
     wMoveEmptyFolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -313,6 +316,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSimulate.setLayoutData(fdSimulate);
     wSimulate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -338,6 +342,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             RefreshArgFromPrevious();
@@ -572,6 +577,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(
                 new String[] {
@@ -591,6 +597,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Delete files from the list of files...
     wbdSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -602,6 +609,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     // Edit the selected file & remove from the list...
     wbeSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {
@@ -683,6 +691,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wCreateDestinationFolder.setLayoutData(fdCreateDestinationFolder);
     wCreateDestinationFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -709,6 +718,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDestinationIsAFile.setLayoutData(fdDestinationIsAFile);
     wDestinationIsAFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             action.setChanged();
@@ -736,6 +746,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDoNotKeepFolderStructure.setLayoutData(fdDoNotKeepFolderStructure);
     wDoNotKeepFolderStructure.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -760,6 +771,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddDateBeforeExtension();
@@ -784,6 +796,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddDateBeforeExtension();
@@ -810,6 +823,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setDateTimeFormat();
@@ -862,6 +876,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddDateBeforeExtension.setLayoutData(fdAddDateBeforeExtension);
     wAddDateBeforeExtension.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -897,6 +912,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wIfFileExists.setLayoutData(fdIfFileExists);
     wIfFileExists.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             activeDestinationFolder();
@@ -986,6 +1002,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wCreateMoveToFolder.setLayoutData(fdCreateMoveToFolder);
     wCreateMoveToFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -1011,6 +1028,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedDate.setLayoutData(fdAddMovedDate);
     wAddMovedDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddMovedDateBeforeExtension();
@@ -1036,6 +1054,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedTime.setLayoutData(fdAddMovedTime);
     wAddMovedTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setAddMovedDateBeforeExtension();
@@ -1063,6 +1082,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSpecifyMoveFormat.setLayoutData(fdSpecifyMoveFormat);
     wSpecifyMoveFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             setMovedDateTimeFormat();
@@ -1116,6 +1136,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedDateBeforeExtension.setLayoutData(fdAddMovedDateBeforeExtension);
     wAddMovedDateBeforeExtension.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -1228,6 +1249,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }
@@ -1301,6 +1323,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }

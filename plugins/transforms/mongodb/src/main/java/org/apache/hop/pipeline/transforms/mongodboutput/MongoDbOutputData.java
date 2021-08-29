@@ -43,7 +43,7 @@ import java.util.*;
 /** Data class for the MongoDbOutput transform */
 public class MongoDbOutputData extends BaseTransformData implements ITransformData {
 
-  private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   public static final int MONGO_DEFAULT_PORT = 27017;
 
@@ -942,7 +942,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         // remove - we're finished with this part
         pathParts.remove(0);
       }
-      return new Integer(index);
+      return Integer.valueOf(index);
     } else if (part.endsWith("]")) { //
       String fieldName = part.substring(0, part.indexOf('['));
       Object mongoField = current.get(fieldName);

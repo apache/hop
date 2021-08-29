@@ -186,6 +186,7 @@ public class DimensionCache implements Comparator<Object[]> {
    * @param o2
    * @return
    */
+  @Override
   public int compare(Object[] o1, Object[] o2) {
     try {
       // First compare on the natural keys...

@@ -139,6 +139,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -278,6 +279,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wReferral.setItems(LdapOutputMeta.referralTypeDesc);
     wReferral.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -304,6 +306,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wDerefAliases.setItems(LdapOutputMeta.derefAliasesTypeDesc);
     wDerefAliases.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -332,6 +335,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wProtocol.addSelectionListener(
         new SelectionAdapter() {
 
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setProtocol();
           }
@@ -382,6 +386,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
     wUsingAuthentication.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             useAuthentication();
             input.setChanged();
@@ -471,6 +476,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
     wSetTrustStore.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTrustStore();
@@ -552,6 +558,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wTrustAll.setLayoutData(fdTrustAll);
     wTrustAll.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             trustAll();
@@ -640,6 +647,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wOperation.setItems(LdapOutputMeta.operationTypeDesc);
     wOperation.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             updateOperation();
             input.setChanged();
@@ -687,6 +695,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wFailIfNotExist.setLayoutData(fdFailIfNotExist);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -713,8 +722,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wDnField.setLayoutData(fdDnField);
     wDnField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             getPreviousFields();
           }
@@ -763,8 +774,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wOldDnField.setLayoutData(fdOldDnField);
     wOldDnField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             getPreviousFields();
           }
@@ -790,8 +803,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wNewDnField.setLayoutData(fdNewDnField);
     wNewDnField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             getPreviousFields();
           }
@@ -815,6 +830,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wDeleteRDN.setLayoutData(fdDeleteRDN);
     SelectionAdapter lsSeld =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

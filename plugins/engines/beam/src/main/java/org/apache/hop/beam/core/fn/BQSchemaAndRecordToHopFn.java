@@ -69,6 +69,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
     this.xpPluginClasses = xpPluginClasses;
   }
 
+  @Override
   public HopRow apply(SchemaAndRecord schemaAndRecord) {
 
     try {

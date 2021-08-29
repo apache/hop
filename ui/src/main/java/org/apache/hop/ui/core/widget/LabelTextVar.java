@@ -138,15 +138,18 @@ public class LabelTextVar extends Composite {
     wText.setEchoChar(c);
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wText.setEnabled(flag);
     wLabel.setEnabled(flag);
   }
 
+  @Override
   public boolean setFocus() {
     return wText.setFocus();
   }
 
+  @Override
   public void addTraverseListener(TraverseListener tl) {
     wText.addTraverseListener(tl);
   }

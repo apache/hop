@@ -65,6 +65,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
   protected void serverOptionsComposite(Class<?> PKG, String prefix) {}
 
+  @Override
   protected void optionsSectionControls() {
 
     wlLogLevel = new Label(gDetails, SWT.NONE);
@@ -256,6 +257,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     getVariablesData();
   }
 
+  @Override
   public boolean getInfo() {
     try {
       IHopMetadataSerializer<PipelineRunConfiguration> serializer =

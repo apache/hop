@@ -47,6 +47,7 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
@@ -165,10 +166,12 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
     return "Remove pipeline servlet";
   }
 
+  @Override
   public String getService() {
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
+  @Override
   public String getContextPath() {
     return CONTEXT_PATH;
   }

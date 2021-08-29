@@ -119,6 +119,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -222,6 +223,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSourceFiles.setLayoutData(fdSourceFiles);
     wSourceFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             refreshSourceFiles();
@@ -343,6 +345,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wEvaluationType.setLayoutData(fdEvaluationType);
     wEvaluationType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshSize();
             action.setChanged();
@@ -528,6 +531,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(new String[] {wSourceFileFolder.getText(), wWildcard.getText()});
             wSourceFileFolder.setText("");
@@ -544,6 +548,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Delete files from the list of files...
     wbdSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -555,6 +560,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Edit the selected file & remove from the list...
     wbeSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {
@@ -634,6 +640,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wScale.setLayoutData(fdScale);
     wScale.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -662,6 +669,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSuccessNumberCondition.setLayoutData(fdSuccessNumberCondition);
     wSuccessNumberCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refresh();
             action.setChanged();

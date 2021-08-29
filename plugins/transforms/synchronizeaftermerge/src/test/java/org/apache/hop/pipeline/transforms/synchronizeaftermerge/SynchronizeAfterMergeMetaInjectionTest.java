@@ -187,6 +187,7 @@ public class SynchronizeAfterMergeMetaInjectionTest
     check(
         "CONNECTION_NAME",
         new IStringGetter() {
+          @Override
           public String get() {
             return "My Connection";
           }

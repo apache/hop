@@ -51,11 +51,13 @@ public class HopServerServlet extends HttpServlet {
     this.log = new LogChannel(STRING_HOP_SERVER_SERVLET);
   }
 
+  @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     doGet(req, resp);
   }
 
+  @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     String servletPath = req.getPathInfo();

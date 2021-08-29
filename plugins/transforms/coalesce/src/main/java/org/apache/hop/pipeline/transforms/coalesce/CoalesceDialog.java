@@ -125,6 +125,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
 
     SelectionAdapter pathSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             EnterOrderedListDialog dialog = new EnterOrderedListDialog(shell, SWT.OPEN, fieldNames);

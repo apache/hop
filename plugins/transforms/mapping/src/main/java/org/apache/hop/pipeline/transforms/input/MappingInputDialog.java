@@ -50,6 +50,7 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
     input = (MappingInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -59,6 +60,7 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
 
     ModifyListener lsMod =
         new ModifyListener() {
+          @Override
           public void modifyText(ModifyEvent e) {
             input.setChanged();
           }

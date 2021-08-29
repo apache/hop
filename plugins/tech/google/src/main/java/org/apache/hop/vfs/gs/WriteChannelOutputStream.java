@@ -45,6 +45,7 @@ public class WriteChannelOutputStream extends OutputStream {
     bytes.compact();
   }
 
+  @Override
   public synchronized void write(byte[] buf, int off, int len) throws IOException {
     if (channel == null) {
       throw new ClosedChannelException();
@@ -62,6 +63,7 @@ public class WriteChannelOutputStream extends OutputStream {
     }
   }
 
+  @Override
   public synchronized void close() throws IOException {
     if (channel != null) {
       channel.close();

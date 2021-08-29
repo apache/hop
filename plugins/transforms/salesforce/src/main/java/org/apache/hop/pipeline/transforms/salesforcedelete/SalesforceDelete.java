@@ -31,14 +31,11 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author jstairs,Samatar
- * @since 10-06-2007
  */
 public class SalesforceDelete
     extends SalesforceTransform<SalesforceDeleteMeta, SalesforceDeleteData>
     implements ITransform<SalesforceDeleteMeta, SalesforceDeleteData> {
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   public SalesforceDelete(
       TransformMeta transformMeta,
@@ -149,7 +146,7 @@ public class SalesforceDelete
       for (int j = 0; j < nr; j++) {
         if (data.deleteResult[j].isSuccess()) {
 
-          putRow(data.outputRowMeta, data.outputBuffer[j]); // copy row to output rowset(s);
+          putRow(data.outputRowMeta, data.outputBuffer[j]); // copy row to output rowset(s)
           incrementLinesOutput();
 
           if (checkFeedback(getLinesInput())) {
@@ -175,7 +172,7 @@ public class SalesforceDelete
                 BaseMessages.getString(
                     PKG,
                     "SalesforceDelete.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage()));
           }
@@ -188,7 +185,7 @@ public class SalesforceDelete
                 BaseMessages.getString(
                     PKG,
                     "SalesforceDelete.Error.FlushBuffer",
-                    new Integer(j),
+                    j,
                     err.getStatusCode(),
                     err.getMessage());
           }

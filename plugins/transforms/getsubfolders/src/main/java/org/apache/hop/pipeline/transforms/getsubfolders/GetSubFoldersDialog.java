@@ -87,6 +87,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     input = (GetSubFoldersMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -188,6 +189,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wFolderField.setLayoutData(fdFileField);
     SelectionAdapter lsFileField =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateFileField();
             input.setChanged();
@@ -218,8 +220,10 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wFoldernameField.setEnabled(false);
     wFoldernameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -411,6 +415,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wInclRownum.setLayoutData(fdRownum);
     SelectionAdapter linclRownum =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateIncludeRowNum();
             input.setChanged();
@@ -479,6 +484,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFoldernameList.add(new String[] {wFoldername.getText()});
             wFoldername.setText("");

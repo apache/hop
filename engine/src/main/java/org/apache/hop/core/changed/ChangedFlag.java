@@ -62,6 +62,7 @@ public class ChangedFlag implements IChanged {
   }
 
   /** Sets this as being changed. */
+  @Override
   public void setChanged() {
     changed.set(true);
   }
@@ -71,11 +72,13 @@ public class ChangedFlag implements IChanged {
    *
    * @param ch true if you want to mark this as changed, false otherwise
    */
+  @Override
   public void setChanged(boolean b) {
     changed.set(b);
   }
 
   /** Clears the changed flags. */
+  @Override
   public void clearChanged() {
     changed.set(false);
   }
@@ -85,6 +88,7 @@ public class ChangedFlag implements IChanged {
    *
    * @return true if the this has changed, false otherwise
    */
+  @Override
   public boolean hasChanged() {
     return changed.get();
   }

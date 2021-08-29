@@ -63,6 +63,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (first) {
       first = false;
@@ -245,6 +246,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData>
    * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform,
    *     org.apache.hop.pipeline.transform.ITransformData)
    */
+  @Override
   public boolean init() {
 
     if (super.init()) {

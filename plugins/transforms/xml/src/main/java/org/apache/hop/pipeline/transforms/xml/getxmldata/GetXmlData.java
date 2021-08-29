@@ -113,10 +113,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
         reader.addHandler(
             data.prunePath,
             new ElementHandler() {
+              @Override
               public void onStart(ElementPath path) {
                 // do nothing here...
               }
 
+              @Override
               public void onEnd(ElementPath path) {
                 long rowLimit = meta.getRowLimit();
                 if (isStopped() || (rowLimit > 0 && data.rownr > rowLimit)) {
@@ -681,6 +683,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
     return true;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (first && !meta.isInFields()) {
       first = false;
@@ -971,6 +974,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
     return buffer.toString();
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -1036,6 +1040,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
     return false;
   }
 
+  @Override
   public void dispose() {
     if (data.file != null) {
       try {

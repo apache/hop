@@ -67,11 +67,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Class to allow non-developers to edit translation messages files.
- *
- * @author matt
- */
+/** Class to allow non-developers to edit translation messages files. */
 public class Translator {
   private static final Class<?> PKG = Translator.class; // For Translator
 
@@ -114,18 +110,7 @@ public class Translator {
   private Button wClose;
   private Button wApply;
   private Button wRevert;
-  private Button wSave;
   private Button wZip;
-
-  private Button wSearch;
-  private Button wNext;
-
-  private Button wSearchV;
-  private Button wNextV;
-
-  /*
-   * private Button wSearchG; private Button wNextG;
-   */
 
   private Button wAll;
 
@@ -215,7 +200,7 @@ public class Translator {
             }
           }
         }
-        nrKeysPerFolder.put(sourceFolder, new Integer(nrKeys));
+        nrKeysPerFolder.put(sourceFolder, nrKeys);
       }
 
       DecimalFormat pctFormat = new DecimalFormat("#00.00");
@@ -355,6 +340,7 @@ public class Translator {
     // In case someone dares to press the [X] in the corner ;-)
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             e.doit = quitFile();
           }
@@ -362,6 +348,7 @@ public class Translator {
 
     wReload.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wPackages.table.getSelectionIndices();
             reload();
@@ -371,6 +358,7 @@ public class Translator {
 
     wZip.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             saveFilesToZip();
           }
@@ -378,6 +366,7 @@ public class Translator {
 
     wClose.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             quitFile();
           }
@@ -479,12 +468,14 @@ public class Translator {
     // Add a selection listener.
     wLocale.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshGrid();
           }
         });
     wPackages.table.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshGrid();
           }
@@ -504,7 +495,7 @@ public class Translator {
 
     wReload = new Button(composite, SWT.NONE);
     wReload.setText(BaseMessages.getString(PKG, "i18nDialog.Reload"));
-    wSave = new Button(composite, SWT.NONE);
+    Button wSave = new Button(composite, SWT.NONE);
     wSave.setText(BaseMessages.getString(PKG, "i18nDialog.Save"));
     wZip = new Button(composite, SWT.NONE);
     wZip.setText(BaseMessages.getString(PKG, "i18nDialog.Zip"));
@@ -519,16 +510,6 @@ public class Translator {
         },
         props.getMargin() * 3,
         null);
-
-    /*
-     * wSearchG = new Button(composite, SWT.PUSH); wSearchG.setText("   Search &key  "); FormData fdSearchG = new
-     * FormData(); fdSearchG.left = new FormAttachment(0, 0); fdSearchG.bottom = new FormAttachment(100, 0);
-     * wSearchG.setLayoutData(fdSearchG);
-     *
-     * wNextG = new Button(composite, SWT.PUSH); wNextG.setText("   Next ke&y  "); FormData fdNextG = new FormData();
-     * fdNextG.left = new FormAttachment(wSearchG, props.getMargin()); fdNextG.bottom = new FormAttachment(100, 0);
-     * wNextG.setLayoutData(fdNextG);
-     */
 
     int left = 30;
     int middle = 45;
@@ -667,7 +648,7 @@ public class Translator {
     wMain.setLayoutData(fdMain);
     wMain.setEditable(false);
 
-    wSearch = new Button(composite, SWT.PUSH);
+    Button wSearch = new Button(composite, SWT.PUSH);
     wSearch.setText(BaseMessages.getString(PKG, "i18nDialog.Search"));
     FormData fdSearch = new FormData();
     fdSearch.left = new FormAttachment(left, 3 * props.getMargin());
@@ -675,7 +656,7 @@ public class Translator {
     fdSearch.top = new FormAttachment(wMain, 0, SWT.CENTER);
     wSearch.setLayoutData(fdSearch);
 
-    wNext = new Button(composite, SWT.PUSH);
+    Button wNext = new Button(composite, SWT.PUSH);
     wNext.setText(BaseMessages.getString(PKG, "i18nDialog.Next"));
     FormData fdNext = new FormData();
     fdNext.left = new FormAttachment(left, 3 * props.getMargin());
@@ -785,7 +766,7 @@ public class Translator {
     wRevert.setLayoutData(fdRevert);
     wRevert.setEnabled(false);
 
-    wSearchV = new Button(composite, SWT.PUSH);
+    Button wSearchV = new Button(composite, SWT.PUSH);
     wSearchV.setText(BaseMessages.getString(PKG, "i18nDialog.Search"));
     FormData fdSearchV = new FormData();
     fdSearchV.left = new FormAttachment(left, 3 * props.getMargin());
@@ -793,7 +774,7 @@ public class Translator {
     fdSearchV.top = new FormAttachment(wRevert, props.getMargin() * 4);
     wSearchV.setLayoutData(fdSearchV);
 
-    wNextV = new Button(composite, SWT.PUSH);
+    Button wNextV = new Button(composite, SWT.PUSH);
     wNextV.setText(BaseMessages.getString(PKG, "i18nDialog.Next"));
     FormData fdNextV = new FormData();
     fdNextV.left = new FormAttachment(left, 3 * props.getMargin());
@@ -803,6 +784,7 @@ public class Translator {
 
     wAll.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             refreshGrid();
           }
@@ -810,6 +792,7 @@ public class Translator {
 
     wTodo.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             // If someone clicks on the todo list, we set the appropriate values
             //
@@ -836,6 +819,7 @@ public class Translator {
 
     wApply.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             applyChangedValue();
           }
@@ -843,6 +827,7 @@ public class Translator {
 
     wRevert.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             revertChangedValue();
           }
@@ -850,6 +835,7 @@ public class Translator {
 
     wSave.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent event) {
             saveFiles();
           }
@@ -857,6 +843,7 @@ public class Translator {
 
     wSearch.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             search(referenceLocale);
           }
@@ -864,6 +851,7 @@ public class Translator {
 
     wNext.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             searchAgain(referenceLocale);
           }
@@ -871,6 +859,7 @@ public class Translator {
 
     wSearchV.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             search(selectedLocale);
           }
@@ -878,6 +867,7 @@ public class Translator {
 
     wNextV.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             searchAgain(selectedLocale);
           }

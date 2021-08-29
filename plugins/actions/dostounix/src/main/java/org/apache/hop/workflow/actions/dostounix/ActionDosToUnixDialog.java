@@ -205,6 +205,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
           }
@@ -230,6 +231,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wPrevious.setLayoutData(fdPrevious);
     wPrevious.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             refreshArgFromPrevious();
@@ -416,6 +418,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(new String[] {wSourceFileFolder.getText(), wWildcard.getText()});
             wSourceFileFolder.setText("");
@@ -432,6 +435,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Delete files from the list of files...
     wbdSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFields.getSelectionIndices();
             wFields.remove(idx);
@@ -443,6 +447,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     // Edit the selected file & remove from the list...
     wbeSourceFileFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {
@@ -526,6 +531,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeSuccessCondition();
           }
@@ -608,6 +614,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
     wAddFilenameToResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {}
         });
 

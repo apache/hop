@@ -262,13 +262,13 @@ public class Rest extends BaseTransform<RestMeta, RestData>
 
       // add status to output
       if (!Utils.isEmpty(data.resultCodeFieldName)) {
-        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, new Long(status));
+        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(status));
         returnFieldsOffset++;
       }
 
       // add response time to output
       if (!Utils.isEmpty(data.resultResponseFieldName)) {
-        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, new Long(responseTime));
+        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(responseTime));
         returnFieldsOffset++;
       }
       // add response header to output
@@ -366,6 +366,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     return response.getHeaders();
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -494,11 +495,9 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     } // end if first
     try {
       Object[] outputRowData = callRest(r);
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
-      if (checkFeedback(getLinesRead())) {
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "Rest.LineNumber") + getLinesRead());
-        }
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "Rest.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       boolean sendToErrorRow = false;
@@ -522,6 +521,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -579,6 +579,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     data.config = null;

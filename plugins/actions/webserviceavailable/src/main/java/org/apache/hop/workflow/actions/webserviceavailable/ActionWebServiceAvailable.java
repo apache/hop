@@ -66,11 +66,13 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionWebServiceAvailable je = (ActionWebServiceAvailable) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -81,6 +83,7 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -120,6 +123,7 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return readTimeOut;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);

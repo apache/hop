@@ -62,6 +62,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     int compare;
 
@@ -427,6 +428,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

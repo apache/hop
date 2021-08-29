@@ -39,6 +39,7 @@ public class TransformDefinition implements Cloneable {
     this.description = description;
   }
 
+  @Override
   public Object clone() throws CloneNotSupportedException {
     TransformDefinition retval;
     retval = (TransformDefinition) super.clone();

@@ -98,6 +98,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
           fieldValue == null && isEmptyAndNullDiffer ? Const.EMPTY_STRING : fieldValue;
     }
 
+    @Override
     public Field clone() {
       try {
         return (Field) super.clone();
@@ -121,6 +122,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     this.fields = fields;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -133,6 +135,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     }
   }
 
+  @Override
   public Object clone() {
     NullIfMeta retval = (NullIfMeta) super.clone();
 
@@ -165,6 +168,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     }
   }
 
+  @Override
   public void setDefault() {
     int count = 0;
 
@@ -176,6 +180,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -191,6 +196,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     return;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -207,6 +213,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -254,6 +261,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     }
   }
 
+  @Override
   public NullIfData getTransformData() {
     return new NullIfData();
   }

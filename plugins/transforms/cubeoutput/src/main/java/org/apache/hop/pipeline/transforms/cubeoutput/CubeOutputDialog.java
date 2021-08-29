@@ -61,6 +61,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     }
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -147,6 +148,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -172,6 +174,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

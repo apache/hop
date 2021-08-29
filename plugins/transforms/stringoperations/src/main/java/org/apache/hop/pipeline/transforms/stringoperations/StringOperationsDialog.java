@@ -65,6 +65,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();

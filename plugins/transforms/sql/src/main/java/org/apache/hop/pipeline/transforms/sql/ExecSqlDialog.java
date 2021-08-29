@@ -95,6 +95,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -110,6 +111,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     SelectionAdapter lsSel =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -167,34 +169,41 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     wSql.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wSql.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wSql.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }
@@ -394,6 +403,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wSetParams.setLayoutData(fdSetParams);
     wSetParams.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setExecutedSetParams();
             input.setChanged();
@@ -497,6 +507,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     //
     wEachRow.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             ExecSqlDialog.this.setExecutedEachInputRow();
             ExecSqlDialog.this.input.setChanged();

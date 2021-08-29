@@ -45,9 +45,6 @@ import java.util.Properties;
 /**
  * Read all Properties files (& INI files) , convert them to rows and writes these to one or more
  * output streams.
- *
- * @author Samatar
- * @since 24-03-2008
  */
 public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInputData>
     implements ITransform<PropertyInputMeta, PropertyInputData> {
@@ -63,6 +60,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (first && !meta.isFileField()) {
       data.files = meta.getFiles(this);
@@ -100,7 +98,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         return false; // end of data or error.
       }
 
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (meta.getRowLimit() > 0
           && data.rownr > meta.getRowLimit()) { // limit has been reached: stop now.
@@ -158,7 +156,6 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         while ((data.readrow == null)
             || ((data.propfiles && !data.it.hasNext())
                 || (!data.propfiles && !data.iniIt.hasNext()))) {
-          // if (!openNextFile()) return null;
 
           // In case we read all sections
           // maybe we have to change section for ini files...
@@ -193,8 +190,8 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
           }
         }
       }
-    } catch (Exception IO) {
-      logError("Unable to read row from file : " + IO.getMessage());
+    } catch (Exception e) {
+      logError("Unable to read row from file : " + e.getMessage());
       return null;
     }
     // Build an empty row based on the meta-data
@@ -281,7 +278,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
 
       // See if we need to add the row number to the row...
       if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-        r[data.totalpreviousfields + rowIndex++] = new Long(data.rownr);
+        r[data.totalpreviousfields + rowIndex++] = Long.valueOf(data.rownr);
       }
 
       // See if we need to add the section for INI files ...
@@ -302,11 +299,11 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       }
       // Add Size
       if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = new Long(data.size);
+        r[data.totalpreviousfields + rowIndex++] = Long.valueOf(data.size);
       }
       // add Hidden
       if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = new Boolean(data.hidden);
+        r[data.totalpreviousfields + rowIndex++] = Boolean.valueOf(data.hidden);
       }
       // Add modification date
       if (meta.getLastModificationDateField() != null
@@ -420,7 +417,6 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       }
 
       // Check if file is empty
-      // long fileSize= data.file.getContent().getSize();
       data.filename = HopVfs.getFilename(data.file);
       // Add additional fields?
       if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
@@ -446,7 +442,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         data.rootUriName = data.file.getName().getRootURI();
       }
       if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
-        data.size = new Long(data.file.getContent().getSize());
+        data.size = data.file.getContent().getSize();
       }
 
       if (meta.resetRowNumber()) {
@@ -544,6 +540,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     return rowData;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -567,6 +564,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.readrow != null) {

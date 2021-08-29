@@ -49,6 +49,7 @@ public class RowsFromResultDialog extends BaseTransformDialog implements ITransf
     input = (RowsFromResultMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

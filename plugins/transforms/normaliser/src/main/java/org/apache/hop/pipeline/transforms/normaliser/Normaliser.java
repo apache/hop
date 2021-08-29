@@ -51,6 +51,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row from rowset, wait for our turn, indicate busy!
@@ -191,6 +192,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData>
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       // Add init code here.

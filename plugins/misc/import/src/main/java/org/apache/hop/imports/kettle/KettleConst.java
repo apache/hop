@@ -136,7 +136,7 @@ public class KettleConst {
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
-  public static final HashMap<String, String> replacements = new HashMap<String, String>();
+  public static final HashMap<String, String> replacements = new HashMap<>();
 
   public static final List<String> repositoryTypes = Arrays.asList("JOB", "TRANS");
 

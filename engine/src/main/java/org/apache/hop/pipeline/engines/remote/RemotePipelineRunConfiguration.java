@@ -150,6 +150,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return names;
   }
 
+  @Override
   public RemotePipelineRunConfiguration clone() {
     return new RemotePipelineRunConfiguration(this);
   }

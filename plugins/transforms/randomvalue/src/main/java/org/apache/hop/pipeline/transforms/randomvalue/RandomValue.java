@@ -146,6 +146,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     return encoded.toString();
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] row;
     if (data.readsRows) {
@@ -196,6 +197,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

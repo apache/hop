@@ -41,12 +41,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
-/**
- * Read data from POP3/IMAP server and input data to the next transforms.
- *
- * @author Samatar
- * @since 21-08-2009
- */
+/** Read data from POP3/IMAP server and input data to the next transforms. */
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     implements ITransform<MailInputMeta, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
@@ -63,6 +58,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] outputRowData = getOneRow();
@@ -79,7 +75,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
           BaseMessages.getString(
               PKG, "MailInput.Log.OutputRow", data.outputRowMeta.getString(outputRowData)));
     }
-    putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
     if (data.rowlimit > 0 && data.rownr >= data.rowlimit) { // limit has been reached: stop now.
       setOutputDone();
@@ -374,6 +370,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     return true;
   }
 
+  @Override
   public boolean init() {
 
     if (!super.init()) {
@@ -504,6 +501,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
     return 0;
   }
 
+  @Override
   public void dispose() {
 
     if (data.mailConn != null) {
@@ -543,7 +541,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
 
           switch (meta.getInputFields()[i].getColumn()) {
             case MailInputField.COLUMN_MESSAGE_NR:
-              r[index] = new Long(message.getMessageNumber());
+              r[index] = Long.valueOf(message.getMessageNumber());
               break;
             case MailInputField.COLUMN_SUBJECT:
               r[index] = message.getSubject();
@@ -578,25 +576,25 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
               r[index] = data.mailConn.getFolderName();
               break;
             case MailInputField.COLUMN_SIZE:
-              r[index] = new Long(message.getSize());
+              r[index] = Long.valueOf(message.getSize());
               break;
             case MailInputField.COLUMN_FLAG_DRAFT:
-              r[index] = new Boolean(data.mailConn.isMessageDraft(message));
+              r[index] = Boolean.valueOf(data.mailConn.isMessageDraft(message));
               break;
             case MailInputField.COLUMN_FLAG_FLAGGED:
-              r[index] = new Boolean(data.mailConn.isMessageFlagged(message));
+              r[index] = Boolean.valueOf(data.mailConn.isMessageFlagged(message));
               break;
             case MailInputField.COLUMN_FLAG_NEW:
-              r[index] = new Boolean(data.mailConn.isMessageNew(message));
+              r[index] = Boolean.valueOf(data.mailConn.isMessageNew(message));
               break;
             case MailInputField.COLUMN_FLAG_READ:
-              r[index] = new Boolean(data.mailConn.isMessageRead(message));
+              r[index] = Boolean.valueOf(data.mailConn.isMessageRead(message));
               break;
             case MailInputField.COLUMN_FLAG_DELETED:
-              r[index] = new Boolean(data.mailConn.isMessageDeleted(message));
+              r[index] = Boolean.valueOf(data.mailConn.isMessageDeleted(message));
               break;
             case MailInputField.COLUMN_ATTACHED_FILES_COUNT:
-              r[index] = new Long(data.mailConn.getAttachedFilesCount(message, null));
+              r[index] = Long.valueOf(data.mailConn.getAttachedFilesCount(message, null));
               break;
             case MailInputField.COLUMN_HEADER:
               String name = meta.getInputFields()[i].getName();

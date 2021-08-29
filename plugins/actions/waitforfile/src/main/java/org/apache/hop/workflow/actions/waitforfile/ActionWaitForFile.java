@@ -83,11 +83,13 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionWaitForFile je = (ActionWaitForFile) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(100);
 
@@ -104,6 +106,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -125,14 +128,17 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     this.filename = filename;
   }
 
+  @Override
   public String getFilename() {
     return filename;
   }
 
+  @Override
   public String getRealFilename() {
     return resolve(getFilename());
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -372,6 +378,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     this.addFilenameToResult = addFilenameToResult;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

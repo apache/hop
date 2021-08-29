@@ -151,11 +151,13 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   }
 
   /** @return Returns the extension. */
+  @Override
   public String getExtension() {
     return extension;
   }
 
   /** @param extension The extension to set. */
+  @Override
   public void setExtension(String extension) {
     this.extension = extension;
   }
@@ -171,16 +173,19 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   }
 
   /** @return Returns the fileName. */
+  @Override
   public String getFileName() {
     return fileName;
   }
 
   /** @return Returns the timeInFilename. */
+  @Override
   public boolean isTimeInFilename() {
     return timeInFilename;
   }
 
   /** @return Returns the dateInFilename. */
+  @Override
   public boolean isDateInFilename() {
     return dateInFilename;
   }
@@ -196,6 +201,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   }
 
   /** @param fileName The fileName to set. */
+  @Override
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
@@ -275,6 +281,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     this.keyFields = keyFields;
   }
 
+  @Override
   public void loadXml(Node transformnode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformnode);
@@ -288,6 +295,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     keyFields = new JsonOutputKeyField[nrfields];
   }
 
+  @Override
   public Object clone() {
 
     JsonOutputMeta retval = (JsonOutputMeta) super.clone();
@@ -315,6 +323,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     this.addToResult = AddToResult;
   }
 
+  @Override
   public JsonOutputData getTransformData() {
     return new JsonOutputData();
   }
@@ -395,6 +404,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     }
   }
 
+  @Override
   public void setDefault() {
 
     encoding = Const.XML_ENCODING;
@@ -426,6 +436,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -456,6 +467,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuffer retval = new StringBuffer(500);
 
@@ -538,6 +550,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     return operationTypeCode[i];
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,

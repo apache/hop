@@ -273,10 +273,12 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
   }
 
   private class TextOneToOneFileSelector implements FileSelector {
+    @Override
     public boolean includeFile(FileSelectInfo info) throws Exception {
       return true;
     }
 
+    @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return false;
     }

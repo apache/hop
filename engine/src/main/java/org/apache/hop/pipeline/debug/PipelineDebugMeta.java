@@ -90,6 +90,7 @@ public class PipelineDebugMeta {
           ITransform baseTransform = (ITransform) component;
           baseTransform.addRowListener(
               new RowAdapter() {
+                @Override
                 public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                     throws HopTransformException {
                   try {

@@ -147,12 +147,14 @@ public class SalesforceUpsertMeta
     this.salesforceIDFieldName = salesforceIDFieldName;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     SalesforceUpsertMeta retval = (SalesforceUpsertMeta) super.clone();
 
@@ -169,6 +171,7 @@ public class SalesforceUpsertMeta
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(super.getXml());
     retval.append("    " + XmlHandler.addTagValue("upsertfield", getUpsertField()));
@@ -240,6 +243,7 @@ public class SalesforceUpsertMeta
     setUseExternalId(new Boolean[nrvalues]);
   }
 
+  @Override
   public void setDefault() {
     super.setDefault();
     setUpsertField("Id");
@@ -252,6 +256,7 @@ public class SalesforceUpsertMeta
   }
 
   /* This function adds meta data to the rows being pushed out */
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -336,10 +341,12 @@ public class SalesforceUpsertMeta
     return new SalesforceUpsert(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SalesforceUpsertData getTransformData() {
     return new SalesforceUpsertData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

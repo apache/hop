@@ -31,6 +31,7 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
   protected MetadataType2 object4;
   protected MetadataType1 object5;
 
+  @Override
   protected void setUp() throws Exception {
     super.setUp();
 

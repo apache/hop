@@ -73,6 +73,7 @@ public class TransformPartitioningMeta implements Cloneable {
     hasChanged = false;
   }
 
+  @Override
   public TransformPartitioningMeta clone() {
     try {
       TransformPartitioningMeta transformPartitioningMeta =

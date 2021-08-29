@@ -151,6 +151,7 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
@@ -246,10 +247,12 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
     return true;
   }
 
+  @Override
   public boolean init() {
     return super.init();
   }
 
+  @Override
   public void dispose() {
 
     data.outStreamNrs = null;

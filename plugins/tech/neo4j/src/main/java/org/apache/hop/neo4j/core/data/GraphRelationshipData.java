@@ -146,6 +146,7 @@ public class GraphRelationshipData {
     propertySetId = (String) jRelationship.get("property_set");
   }
 
+  @Override
   public GraphRelationshipData clone() {
     return new GraphRelationshipData(this);
   }

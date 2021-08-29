@@ -56,6 +56,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
     input = (SystemDataMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -141,6 +142,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
             false);
     colinf[1].setSelectionAdapter(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             EnterSelectionDialog esd =
                 new EnterSelectionDialog(

@@ -100,6 +100,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -115,6 +116,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
         };
     SelectionAdapter lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             moduleFields = null;
@@ -362,8 +364,10 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wModule.setLayoutData(fdModule);
     wModule.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             // check if the URL and login credentials passed and not just had error
             if (skipFetchModules()) {
@@ -399,8 +403,10 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wUpsertField.setLayoutData(fdUpsertField);
     wUpsertField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             getFieldsList();
           }

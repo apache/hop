@@ -51,9 +51,11 @@ public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvid
     super();
   }
 
+  @Override
   protected abstract FileSystem doCreateFileSystem(
       final FileName name, final FileSystemOptions fileSystemOptions) throws FileSystemException;
 
+  @Override
   public Collection<Capability> getCapabilities() {
     return capabilities;
   }

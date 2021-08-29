@@ -91,6 +91,7 @@ public class MergeJoinMeta extends BaseTransformMeta
       injectionKeyDescription = "MergeJoin.Injection.KEY_FIELD2")
   private List<String> keyFields2;
 
+  @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
   }
@@ -110,6 +111,7 @@ public class MergeJoinMeta extends BaseTransformMeta
     keyFields2 = new ArrayList<>();
   }
 
+  @Override
   public MergeJoinMeta clone() {
     MergeJoinMeta meta = new MergeJoinMeta();
 
@@ -131,6 +133,7 @@ public class MergeJoinMeta extends BaseTransformMeta
         .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -153,6 +156,7 @@ public class MergeJoinMeta extends BaseTransformMeta
     remarks.add(cr);
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -189,6 +193,7 @@ public class MergeJoinMeta extends BaseTransformMeta
     return new MergeJoin(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public MergeJoinData getTransformData() {
     return new MergeJoinData();
   }
@@ -197,6 +202,7 @@ public class MergeJoinMeta extends BaseTransformMeta
    * Returns the Input/Output metadata for this transform. The generator transform only produces
    * output, does not accept input!
    */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
@@ -223,10 +229,12 @@ public class MergeJoinMeta extends BaseTransformMeta
     return ioMeta;
   }
 
+  @Override
   public void resetTransformIoMeta() {
     // Don't reset!
   }
 
+  @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal,

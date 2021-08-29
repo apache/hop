@@ -93,6 +93,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -102,6 +103,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     SelectionListener lsSel =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }

@@ -104,6 +104,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     arguments = new String[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionShell je = (ActionShell) super.clone();
     if (arguments != null) {
@@ -114,6 +115,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -149,6 +151,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -188,6 +191,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     }
   }
 
+  @Override
   public void clear() {
     super.clear();
 
@@ -210,10 +214,12 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     filename = n;
   }
 
+  @Override
   public String getFilename() {
     return filename;
   }
 
+  @Override
   public String getRealFilename() {
     return resolve(getFilename());
   }
@@ -254,6 +260,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
+  @Override
   public Result execute(Result result, int nr) throws HopException {
     FileLoggingEventListener loggingEventListener = null;
     LogLevel shellLogLevel = parentWorkflow.getLogLevel();
@@ -656,10 +663,12 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return true;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

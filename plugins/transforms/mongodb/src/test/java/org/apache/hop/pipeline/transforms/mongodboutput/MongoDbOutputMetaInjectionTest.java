@@ -56,6 +56,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "TRUNCATE",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.truncate;
           }
@@ -63,6 +64,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "UPDATE",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.update;
           }
@@ -70,6 +72,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "UPSERT",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.upsert;
           }
@@ -77,6 +80,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "MULTI",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.multi;
           }
@@ -84,6 +88,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "MODIFIER_UPDATE",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.modifierUpdate;
           }
@@ -91,6 +96,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "BATCH_INSERT_SIZE",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.batchInsertSize;
           }
@@ -98,6 +104,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "RETRY_NUMBER",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getWriteRetries();
           }
@@ -105,6 +112,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "RETRY_DELAY",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getWriteRetryDelay();
           }
@@ -112,6 +120,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "CONNECTION",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getConnectionName();
           }
@@ -119,6 +128,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "COLLECTION",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getCollection();
           }
@@ -126,6 +136,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "INCOMING_FIELD_NAME",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getMongoFields().get(0).incomingFieldName;
           }
@@ -133,6 +144,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "MONGO_DOCUMENT_PATH",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getMongoFields().get(0).mongoDocPath;
           }
@@ -140,6 +152,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "INCOMING_AS_MONGO",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoFields().get(0).useIncomingFieldNameAsMongoFieldName;
           }
@@ -147,6 +160,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "UPDATE_MATCH_FIELD",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoFields().get(0).updateMatchField;
           }
@@ -154,6 +168,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "MODIFIER_OPERATION",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getMongoFields().get(0).modifierUpdateOperation;
           }
@@ -161,6 +176,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "MODIFIER_POLICY",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getMongoFields().get(0).modifierOperationApplyPolicy;
           }
@@ -168,6 +184,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "INSERT_NULL",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoFields().get(0).insertNull;
           }
@@ -175,6 +192,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "JSON",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoFields().get(0).inputJson;
           }
@@ -182,6 +200,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "INDEX_FIELD",
         new IStringGetter() {
+          @Override
           public String get() {
             return meta.getMongoIndexes().get(0).pathToFields;
           }
@@ -189,6 +208,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "DROP",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoIndexes().get(0).drop;
           }
@@ -196,6 +216,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "UNIQUE",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoIndexes().get(0).unique;
           }
@@ -203,6 +224,7 @@ public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<Mo
     check(
         "SPARSE",
         new IBooleanGetter() {
+          @Override
           public boolean get() {
             return meta.getMongoIndexes().get(0).sparse;
           }

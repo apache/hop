@@ -63,6 +63,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     input = (GetLoggingInfoMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -72,6 +73,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
 
     ModifyListener lsMod =
         new ModifyListener() {
+          @Override
           public void modifyText(ModifyEvent e) {
             input.setChanged();
           }
@@ -153,6 +155,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
             false);
     colinf[1].setSelectionAdapter(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             EnterSelectionDialog esd =
                 new EnterSelectionDialog(

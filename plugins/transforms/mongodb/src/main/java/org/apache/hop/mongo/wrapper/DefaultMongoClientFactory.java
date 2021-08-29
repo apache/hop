@@ -26,6 +26,7 @@ import java.util.List;
 
 public class DefaultMongoClientFactory implements MongoClientFactory {
 
+  @Override
   public MongoClient getMongoClient(
       List<ServerAddress> serverAddressList,
       List<MongoCredential> credList,

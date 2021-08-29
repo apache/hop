@@ -122,10 +122,12 @@ public class SwitchCaseMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SwitchCaseMeta clone() {
     return new SwitchCaseMeta(this);
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -137,6 +139,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -200,6 +203,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SwitchCaseData getTransformData() {
     return new SwitchCaseData();
   }
@@ -273,6 +277,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
   }
 
   /** Returns the Input/Output metadata for this transform. */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
@@ -353,6 +358,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
           StreamIcon.TARGET,
           null);
 
+  @Override
   public List<IStream> getOptionalStreams() {
     List<IStream> list = new ArrayList<>();
 
@@ -364,6 +370,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
     return list;
   }
 
+  @Override
   public void handleStreamSelection(IStream stream) {
     if (stream == newDefaultStream) {
       defaultTargetTransformName = stream.getTransformMeta().getName();
@@ -425,6 +432,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
    *
    * @since 4.0.0
    */
+  @Override
   public boolean excludeFromCopyDistributeVerification() {
     return true;
   }

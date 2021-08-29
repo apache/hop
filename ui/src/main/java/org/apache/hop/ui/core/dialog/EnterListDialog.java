@@ -163,6 +163,7 @@ public class EnterListDialog extends Dialog {
     wListSource.addListener(SWT.DefaultSelection, e -> addToSelection(wListSource.getSelection()));
     wListSource.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             if (e.character == SWT.CR) {
               addToSelection(wListSource.getSelection());
@@ -260,6 +261,7 @@ public class EnterListDialog extends Dialog {
     wListDest.addListener(SWT.DefaultSelection, e -> delFromSelection(wListDest.getSelection()));
     wListDest.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             if (e.character == SWT.CR) {
               delFromSelection(wListDest.getSelection());
@@ -278,8 +280,10 @@ public class EnterListDialog extends Dialog {
     ddSource.setTransfer(transfers);
     ddSource.addDragListener(
         new DragSourceListener() {
+          @Override
           public void dragStart(DragSourceEvent event) {}
 
+          @Override
           public void dragSetData(DragSourceEvent event) {
             String[] ti = wListSource.getSelection();
             StringBuilder data = new StringBuilder();
@@ -289,20 +293,26 @@ public class EnterListDialog extends Dialog {
             event.data = data.toString();
           }
 
+          @Override
           public void dragFinished(DragSourceEvent event) {}
         });
     DropTarget ddTarget = new DropTarget(wListDest, DND.DROP_MOVE | DND.DROP_COPY);
     ddTarget.setTransfer(transfers);
     ddTarget.addDropListener(
         new DropTargetListener() {
+          @Override
           public void dragEnter(DropTargetEvent event) {}
 
+          @Override
           public void dragLeave(DropTargetEvent event) {}
 
+          @Override
           public void dragOperationChanged(DropTargetEvent event) {}
 
+          @Override
           public void dragOver(DropTargetEvent event) {}
 
+          @Override
           public void drop(DropTargetEvent event) {
             if (event.data == null) { // no data to copy, indicate failure in event.detail
               event.detail = DND.DROP_NONE;
@@ -315,6 +325,7 @@ public class EnterListDialog extends Dialog {
             }
           }
 
+          @Override
           public void dropAccept(DropTargetEvent event) {}
         });
 

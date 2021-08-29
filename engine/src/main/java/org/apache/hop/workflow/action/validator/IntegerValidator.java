@@ -32,6 +32,7 @@ public class IntegerValidator implements IActionValidator {
 
   private String VALIDATOR_NAME = "integer";
 
+  @Override
   public boolean validate(
       ICheckResultSource source,
       String propertyName,
@@ -61,6 +62,7 @@ public class IntegerValidator implements IActionValidator {
     return true;
   }
 
+  @Override
   public String getName() {
     return VALIDATOR_NAME;
   }

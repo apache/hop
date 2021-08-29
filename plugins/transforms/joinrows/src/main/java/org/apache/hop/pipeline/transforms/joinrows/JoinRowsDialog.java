@@ -71,6 +71,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     condition = input.getCondition();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

@@ -71,6 +71,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     input = (XsdValidatorMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -190,8 +191,10 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wXMLStream.setLayoutData(fdXMLStream);
     wXMLStream.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -259,6 +262,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wOutputStringField.setLayoutData(fdOutputStringField);
     wOutputStringField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activateOutputStringField();
             input.setChanged();
@@ -315,6 +319,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wAddValidationMsg.setLayoutData(fdAddValidationMsg);
     wAddValidationMsg.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activateValidationMsg();
             input.setChanged();
@@ -378,6 +383,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wAllowExternalEntities.setLayoutData(fdAllowExternalEntities);
     wAllowExternalEntities.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -406,6 +412,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wXSDSource.add(BaseMessages.getString(PKG, "XsdValidatorDialog.XSDSource.NO_NEED"));
     wXSDSource.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setXSDSource();
           }
@@ -461,8 +468,10 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wXSDDefinedColumn.setLayoutData(fdXSDDefinedColumn);
     wXSDDefinedColumn.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -516,6 +525,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     // Listen to the Browse... button
     wbbFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
 
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);

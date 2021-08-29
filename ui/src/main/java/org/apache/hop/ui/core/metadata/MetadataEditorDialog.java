@@ -49,6 +49,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     this.editor = editor;
   }
 
+  @Override
   public String open() {
     PropsUi props = PropsUi.getInstance();
 

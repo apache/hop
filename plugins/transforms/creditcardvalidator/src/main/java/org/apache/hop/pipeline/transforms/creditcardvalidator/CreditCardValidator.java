@@ -50,6 +50,7 @@ public class CreditCardValidator
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -178,6 +179,7 @@ public class CreditCardValidator
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       if (Utils.isEmpty(meta.getResultFieldName())) {

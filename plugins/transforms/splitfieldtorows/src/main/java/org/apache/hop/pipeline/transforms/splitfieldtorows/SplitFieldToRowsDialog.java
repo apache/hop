@@ -64,6 +64,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     input = (SplitFieldToRowsMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -135,10 +136,12 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     wSplitField.setLayoutData(fdSplitfield);
     wSplitField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // do nothing when focus is lost
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

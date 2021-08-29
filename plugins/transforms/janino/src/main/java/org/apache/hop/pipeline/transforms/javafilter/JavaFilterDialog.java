@@ -62,6 +62,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     input = (JavaFilterMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

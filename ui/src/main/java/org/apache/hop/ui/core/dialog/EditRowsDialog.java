@@ -51,9 +51,6 @@ import java.util.List;
 
 /**
  * Allows the user to edit a list of rows in a TableView.
- *
- * @author Matt
- * @since 19-03-2014
  */
 public class EditRowsDialog {
   private static final Class<?> PKG = EditRowsDialog.class; // For Translator
@@ -72,12 +69,15 @@ public class EditRowsDialog {
 
   private final PropsUi props;
 
-  private String title, message;
+  private String title;
+  private String message;
 
   private Rectangle bounds;
 
-  private int hscroll, vscroll;
-  private int hmax, vmax;
+  private int hscroll;
+  private int vscroll;
+  private int hmax;
+  private int vmax;
 
   private IRowMeta rowMeta;
 
@@ -164,7 +164,6 @@ public class EditRowsDialog {
   }
 
   private boolean addFields() {
-    // int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     if (wlMessage == null) {
@@ -193,7 +192,6 @@ public class EditRowsDialog {
       return true;
     }
 
-    // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
     ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {
       IValueMeta v = rowMeta.getValueMeta(i);
@@ -257,7 +255,7 @@ public class EditRowsDialog {
     String strNr;
     lineNr++;
     try {
-      strNr = wFields.getNumberColumn().getValueMeta().getString(new Long(lineNr));
+      strNr = wFields.getNumberColumn().getValueMeta().getString(Long.valueOf(lineNr));
     } catch (Exception e) {
       strNr = Integer.toString(lineNr);
     }

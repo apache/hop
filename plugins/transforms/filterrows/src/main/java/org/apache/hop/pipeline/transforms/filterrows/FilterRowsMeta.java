@@ -78,6 +78,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     condition = new Condition();
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -97,6 +98,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     condition = new Condition();
   }
 
+  @Override
   public Object clone() {
     FilterRowsMeta retval = (FilterRowsMeta) super.clone();
 
@@ -112,6 +114,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public String getXml() throws HopException {
     StringBuilder retval = new StringBuilder(200);
 
@@ -188,6 +191,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     allocate();
   }
@@ -201,6 +205,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -222,6 +227,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -330,6 +336,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     return Optional.empty();
   }
 
+  @Override
   public FilterRows createTransform(
       TransformMeta transformMeta,
       FilterRowsData data,
@@ -339,11 +346,13 @@ public class FilterRowsMeta extends BaseTransformMeta
     return new FilterRows(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public FilterRowsData getTransformData() {
     return new FilterRowsData();
   }
 
   /** Returns the Input/Output metadata for this transform. */
+  @Override
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
@@ -379,6 +388,7 @@ public class FilterRowsMeta extends BaseTransformMeta
    *
    * @param stream The optional stream to handle.
    */
+  @Override
   public void handleStreamSelection(IStream stream) {
     // This transform targets another transform.
     // Make sure that we don't specify the same transform for true and false...

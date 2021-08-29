@@ -73,6 +73,7 @@ public class UserDefinedJavaClassDef implements Cloneable {
     return this.source;
   }
 
+  @Override
   public Object clone() throws CloneNotSupportedException {
     return super.clone();
   }

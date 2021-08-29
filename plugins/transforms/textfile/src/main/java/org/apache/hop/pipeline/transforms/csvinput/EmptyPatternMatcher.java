@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 public class EmptyPatternMatcher implements IPatternMatcher {
 
+  @Override
   public boolean matchesPattern(byte[] source, int location, byte[] pattern) {
     return false;
   }

@@ -56,11 +56,13 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
     super(); // allocate BaseTransformMeta
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
@@ -68,8 +70,10 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
 
   private void readData(Node transformNode) {}
 
+  @Override
   public void setDefault() {}
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,
@@ -81,6 +85,7 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
     // Default: nothing changes to rowMeta
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -128,11 +133,13 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
     }
   }
 
+  @Override
   public ITransform createTransform(
       TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
     return new Dummy(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public DummyData getTransformData() {
     return new DummyData();
   }

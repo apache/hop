@@ -67,6 +67,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     showingSubComponents = true;
   }
 
+  @Override
   public Object clone() {
     try {
       PipelineExecutionConfiguration configuration = (PipelineExecutionConfiguration) super.clone();
@@ -84,25 +85,30 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
   }
 
   /** @param parametersMap the parameters to set */
+  @Override
   public void setParametersMap(Map<String, String> parametersMap) {
     this.parametersMap = parametersMap;
   }
 
   /** @return the parameters. */
+  @Override
   public Map<String, String> getParametersMap() {
     return parametersMap;
   }
 
   /** @return the variables */
+  @Override
   public Map<String, String> getVariablesMap() {
     return variablesMap;
   }
 
   /** @param variablesMap the variables to set */
+  @Override
   public void setVariablesMap(Map<String, String> variablesMap) {
     this.variablesMap = variablesMap;
   }
 
+  @Override
   public void setVariablesMap(IVariables variablesMap) {
     this.variablesMap = new HashMap<>();
 
@@ -179,11 +185,13 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
   }
 
   /** @return the logLevel */
+  @Override
   public LogLevel getLogLevel() {
     return logLevel;
   }
 
   /** @param logLevel the logLevel to set */
+  @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
@@ -302,21 +310,25 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
   }
 
   /** @return the previousResult */
+  @Override
   public Result getPreviousResult() {
     return previousResult;
   }
 
   /** @param previousResult the previousResult to set */
+  @Override
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
   }
 
   /** @return the clearingLog */
+  @Override
   public boolean isClearingLog() {
     return clearingLog;
   }
 
   /** @param clearingLog the clearingLog to set */
+  @Override
   public void setClearingLog(boolean clearingLog) {
     this.clearingLog = clearingLog;
   }
@@ -373,10 +385,12 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     this.createParentFolder = createParentFolder;
   }
 
+  @Override
   public String getRunConfiguration() {
     return runConfiguration;
   }
 
+  @Override
   public void setRunConfiguration(String runConfiguration) {
     this.runConfiguration = runConfiguration;
   }

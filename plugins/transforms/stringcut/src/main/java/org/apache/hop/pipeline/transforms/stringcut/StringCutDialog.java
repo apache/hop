@@ -63,6 +63,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

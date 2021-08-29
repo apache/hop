@@ -32,6 +32,7 @@ public class SimpleWarningMessage implements IWarningMessage {
   }
 
   /** @return the warningMessage */
+  @Override
   public String getWarningMessage() {
     return warningMessage;
   }
@@ -42,6 +43,7 @@ public class SimpleWarningMessage implements IWarningMessage {
   }
 
   /** @return the warning */
+  @Override
   public boolean isWarning() {
     return warning;
   }

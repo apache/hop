@@ -38,6 +38,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see java.lang.Object#clone()
    */
+  @Override
   public IPartitioner clone() {
     IPartitioner partitioner = getInstance();
     partitioner.setId(id);
@@ -92,6 +93,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#setMeta(org.apache.hop.pipeline.transform.TransformPartitioningMeta)
    */
+  @Override
   public void setMeta(TransformPartitioningMeta meta) {
     this.meta = meta;
   }
@@ -101,6 +103,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#getInstance()
    */
+  @Override
   public abstract IPartitioner getInstance();
 
   /*
@@ -108,6 +111,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#getDescription()
    */
+  @Override
   public String getDescription() {
     return description;
   }
@@ -117,6 +121,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#setDescription(java.lang.String)
    */
+  @Override
   public void setDescription(String description) {
     this.description = description;
   }
@@ -126,6 +131,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#getId()
    */
+  @Override
   public String getId() {
     return id;
   }
@@ -135,6 +141,7 @@ public abstract class BasePartitioner implements IPartitioner {
    *
    * @see org.apache.hop.pipeline.IPartitioner#setId(java.lang.String)
    */
+  @Override
   public void setId(String id) {
     this.id = id;
   }

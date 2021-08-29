@@ -24,26 +24,32 @@ public class ProgressMonitorAdapter implements IProgressMonitor {
     this.monitor = monitor;
   }
 
+  @Override
   public void beginTask(String message, int nrWorks) {
     monitor.beginTask(message, nrWorks);
   }
 
+  @Override
   public void done() {
     monitor.done();
   }
 
+  @Override
   public boolean isCanceled() {
     return monitor.isCanceled();
   }
 
+  @Override
   public void subTask(String message) {
     monitor.subTask(message);
   }
 
+  @Override
   public void worked(int nrWorks) {
     monitor.worked(nrWorks);
   }
 
+  @Override
   public void setTaskName(String taskName) {
     monitor.setTaskName(taskName);
   }

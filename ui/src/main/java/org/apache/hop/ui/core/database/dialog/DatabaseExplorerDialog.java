@@ -275,6 +275,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bPrev.setEnabled(activeSchemaTable != null);
     bPrev.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             previewTable(activeSchemaTable, false);
           }
@@ -292,6 +293,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bPrevN.setEnabled(activeSchemaTable != null);
     bPrevN.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             previewTable(activeSchemaTable, true);
           }
@@ -309,6 +311,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bCount.setEnabled(activeSchemaTable != null);
     bCount.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             showCount(activeSchemaTable);
           }
@@ -326,6 +329,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bShow.setEnabled(activeSchemaTable != null);
     bShow.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             showTable(activeSchemaTable);
           }
@@ -341,6 +345,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bDDL.setEnabled(activeSchemaTable != null);
     bDDL.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getDDL(activeSchemaTable);
           }
@@ -356,6 +361,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bDDL2.setEnabled(activeSchemaTable != null);
     bDDL2.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getDDLForOther(activeSchemaTable);
           }
@@ -374,6 +380,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bSql.setEnabled(activeSchemaTable != null);
     bSql.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSql(activeSchemaTable);
           }
@@ -391,6 +398,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bTruncate.setEnabled(activeSchemaTable != null);
     bTruncate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTruncate(activeSchemaTable);
           }
@@ -646,6 +654,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miPrev.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.Preview100", table));
       miPrev.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               previewTable(table, false);
             }
@@ -654,6 +663,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miPrevN.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.PreviewN", table));
       miPrevN.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               previewTable(table, true);
             }
@@ -666,6 +676,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miCount.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.ShowSize", table));
       miCount.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               showCount(table);
             }
@@ -677,6 +688,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miShow.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.ShowLayout", table));
       miShow.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               showTable(table);
             }
@@ -685,6 +697,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miDDL.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.GenDDL"));
       miDDL.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               getDDL(table);
             }
@@ -693,6 +706,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miDDL2.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.GenDDLOtherConn"));
       miDDL2.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               getDDLForOther(table);
             }
@@ -702,6 +716,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miSql.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.OpenSQL", table));
       miSql.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               getSql(table);
             }

@@ -35,12 +35,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import java.util.HashSet;
 
-/**
- * Read LDAP Host, convert them to rows and writes these to one or more output streams.
- *
- * @author Samatar
- * @since 21-09-2007
- */
+/** Read LDAP Host, convert them to rows and writes these to one or more output streams. */
 public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     implements ITransform<LdapInputMeta, LdapInputData> {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
@@ -87,7 +82,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
         return false;
       }
 
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(
@@ -260,7 +255,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
 
       // See if we need to add the row number to the row...
       if (meta.isIncludeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-        outputRowData[fIndex] = new Long(data.rownr);
+        outputRowData[fIndex] = data.rownr;
       }
 
       IRowMeta irow = getInputRowMeta();

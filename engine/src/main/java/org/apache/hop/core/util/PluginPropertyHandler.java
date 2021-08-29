@@ -34,6 +34,7 @@ public final class PluginPropertyHandler {
      * @throws FunctorException if HopException in handle thrown.
      * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
      */
+    @Override
     public final void execute(final Object property)
         throws IllegalArgumentException, FunctorException {
       Assert.assertNotNull(property, "Plugin property cannot be null");

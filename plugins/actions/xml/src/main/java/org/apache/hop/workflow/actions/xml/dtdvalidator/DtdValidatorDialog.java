@@ -85,6 +85,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -154,6 +155,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
     wbxmlFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
@@ -188,6 +190,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wDTDIntern.setLayoutData(fdDTDIntern);
     wDTDIntern.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             activeDTDFilename();
             action.setChanged();
@@ -225,6 +228,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
     wbdtdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             FileDialog dialog = new FileDialog(shell, SWT.OPEN);
             dialog.setFilterExtensions(new String[] {"*.dtd;*.DTD", "*"});

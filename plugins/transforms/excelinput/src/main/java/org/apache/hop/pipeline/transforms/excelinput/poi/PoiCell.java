@@ -34,6 +34,7 @@ public class PoiCell implements IKCell {
     this.cell = cell;
   }
 
+  @Override
   public KCellType getType() {
     // For POI version 4.1.2
     // switch ( cell.getCellType() ) {
@@ -80,6 +81,7 @@ public class PoiCell implements IKCell {
     }
   }
 
+  @Override
   public Object getValue() {
     try {
       switch (getType()) {
@@ -111,6 +113,7 @@ public class PoiCell implements IKCell {
     }
   }
 
+  @Override
   public String getContents() {
     try {
       Object value = getValue();
@@ -129,6 +132,7 @@ public class PoiCell implements IKCell {
     }
   }
 
+  @Override
   public int getRow() {
     Row row = cell.getRow();
     return row.getRowNum();

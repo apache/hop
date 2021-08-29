@@ -47,6 +47,7 @@ public class FilesFromResultDialog extends BaseTransformDialog implements ITrans
     input = (FilesFromResultMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

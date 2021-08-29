@@ -415,8 +415,8 @@ public class StringOperationsMeta extends BaseTransformMeta
 
     for (int i = 0; i < fieldInStream.length; i++) {
       // defaults when not present
-      String lPadChar = ((padChar.length == 0 || padChar.length <= i)) ? "" : padChar[i];
-      String lPadLen = ((padLen.length == 0 || padLen.length <= i)) ? "" : padLen[i];
+      String lPadChar = (padChar.length == 0 || padChar.length <= i) ? "" : padChar[i];
+      String lPadLen = (padLen.length == 0 || padLen.length <= i) ? "" : padLen[i];
 
       retval.append("      <field>").append(Const.CR);
       retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
@@ -516,7 +516,7 @@ public class StringOperationsMeta extends BaseTransformMeta
       errorMessage +=
           BaseMessages.getString(PKG, "StringOperationsMeta.CheckResult.NoInputReceived")
               + Const.CR;
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
       remarks.add(cr);
     } else {
 
@@ -537,11 +537,11 @@ public class StringOperationsMeta extends BaseTransformMeta
         }
       }
       if (errorFound) {
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "StringOperationsMeta.CheckResult.FoundInStreamFields"),
                 transforminfo);
       }
@@ -569,11 +569,11 @@ public class StringOperationsMeta extends BaseTransformMeta
         }
       }
       if (errorFound) {
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "StringOperationsMeta.CheckResult.AllOperationsOnStringFields"),
                 transforminfo);
@@ -585,11 +585,11 @@ public class StringOperationsMeta extends BaseTransformMeta
           if (Utils.isEmpty(fieldInStream[idx])) {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_ERROR,
+                    ICheckResult.TYPE_RESULT_ERROR,
                     BaseMessages.getString(
                         PKG,
                         "StringOperationsMeta.CheckResult.InStreamFieldMissing",
-                        new Integer(idx + 1).toString()),
+                        Integer.toString(idx + 1)),
                     transforminfo);
             remarks.add(cr);
           }
@@ -603,7 +603,7 @@ public class StringOperationsMeta extends BaseTransformMeta
             errorMessage =
                 BaseMessages.getString(
                     PKG, "StringOperationsMeta.CheckResult.FieldInputError", fieldInStream[idx]);
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
             remarks.add(cr);
           }
         }

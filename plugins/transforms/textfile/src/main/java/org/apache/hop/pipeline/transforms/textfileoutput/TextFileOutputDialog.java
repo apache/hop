@@ -153,6 +153,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     inputFields = new HashMap<>();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -270,6 +271,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wServletOutput.setLayoutData(fdServletOutput);
     wServletOutput.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setFlagsServletOption();
@@ -297,6 +299,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -323,6 +326,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -349,6 +353,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFileNameInField.setLayoutData(fdFileNameInField);
     wFileNameInField.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activeFileNameField();
@@ -377,8 +382,10 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFileNameField.setEnabled(false);
     wFileNameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -427,6 +434,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wAddTransformNr.setLayoutData(fdAddTransformNr);
     wAddTransformNr.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -450,6 +458,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wAddPartnr.setLayoutData(fdAddPartnr);
     wAddPartnr.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -473,6 +482,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -495,6 +505,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -521,6 +532,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setDateTimeFormat();
@@ -560,6 +572,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             TextFileOutputMeta tfoi = new TextFileOutputMeta();
             saveInfoInMeta(tfoi);
@@ -606,6 +619,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -658,6 +672,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -686,6 +701,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wbSeparator.setLayoutData(fdbSeparator);
     wbSeparator.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent se) {
             // wSeparator.insert("\t");
             wSeparator.getTextWidget().insert("\t");
@@ -736,6 +752,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wEnclForced.setLayoutData(fdEnclForced);
     wEnclForced.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -759,6 +776,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wDisableEnclosureFix.setLayoutData(fdDisableEnclosureFix);
     wDisableEnclosureFix.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -781,6 +799,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wHeader.setLayoutData(fdHeader);
     wHeader.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -802,6 +821,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFooter.setLayoutData(fdFooter);
     wFooter.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -873,8 +893,10 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -901,6 +923,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wPad.setLayoutData(fdPad);
     wPad.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -923,6 +946,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFastDump.setLayoutData(fdFastDump);
     wFastDump.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -999,6 +1023,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
     wMinWidth.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

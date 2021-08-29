@@ -55,6 +55,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!
@@ -229,6 +230,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData>
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

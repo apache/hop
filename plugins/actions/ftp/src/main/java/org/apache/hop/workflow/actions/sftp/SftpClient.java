@@ -185,7 +185,7 @@ public class SftpClient {
 
     try {
       java.util.Vector<?> v = c.ls(".");
-      java.util.Vector<String> o = new java.util.Vector<String>();
+      java.util.Vector<String> o = new java.util.Vector<>();
       if (v != null) {
         for (int i = 0; i < v.size(); i++) {
           Object obj = v.elementAt(i);

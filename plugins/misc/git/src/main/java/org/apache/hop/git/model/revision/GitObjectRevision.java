@@ -87,6 +87,7 @@ public class GitObjectRevision implements ObjectRevision {
    *
    * @return value of comment
    */
+  @Override
   public String getComment() {
     return comment;
   }

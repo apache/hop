@@ -121,6 +121,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     wTransformList.setLayoutData(fdTransformList);
     wTransformList.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetDefaultSelected(SelectionEvent arg0) {
             show();
           }
@@ -143,6 +144,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             close();
           }

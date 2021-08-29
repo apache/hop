@@ -197,6 +197,7 @@ public class HopConfig extends ConfigFile implements IConfigFile {
   }
 
   /** @param configFilename The configFilename to set */
+  @Override
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
   }

@@ -53,6 +53,7 @@ public class UIGitTest extends RepositoryTestCase {
   private UIGit uiGit;
   Repository db2;
 
+  @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();

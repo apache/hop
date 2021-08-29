@@ -162,6 +162,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.transactional = config.transactional;
   }
 
+  @Override
   public LocalPipelineRunConfiguration clone() {
     return new LocalPipelineRunConfiguration(this);
   }

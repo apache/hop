@@ -110,10 +110,12 @@ public class OdfSheet implements IKSheet {
     return result;
   }
 
+  @Override
   public String getName() {
     return table.getTableName();
   }
 
+  @Override
   public IKCell[] getRow(int rownr) {
     if (rownr >= nrOfRows) {
       throw new ArrayIndexOutOfBoundsException("Read beyond last row: " + rownr);
@@ -130,10 +132,12 @@ public class OdfSheet implements IKSheet {
     return xlsCells;
   }
 
+  @Override
   public int getRows() {
     return nrOfRows;
   }
 
+  @Override
   public IKCell getCell(int colnr, int rownr) {
     OdfTableCell cell = table.getCellByPosition(colnr, rownr);
     if (cell == null) {

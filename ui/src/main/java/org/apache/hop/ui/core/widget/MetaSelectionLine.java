@@ -400,16 +400,19 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     return wCombo.getSelectionIndex();
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wLabel.setEnabled(flag);
     wCombo.setEnabled(flag);
     wToolBar.setEnabled(flag);
   }
 
+  @Override
   public boolean setFocus() {
     return wCombo.setFocus();
   }
 
+  @Override
   public void addTraverseListener(TraverseListener tl) {
     wCombo.addTraverseListener(tl);
   }

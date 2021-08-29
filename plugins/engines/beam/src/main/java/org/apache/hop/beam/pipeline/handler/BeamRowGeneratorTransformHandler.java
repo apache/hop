@@ -51,10 +51,12 @@ import java.util.Map;
 public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
 
+  @Override
   public boolean isInput() {
     return true;
   }
 
+  @Override
   public boolean isOutput() {
     return false;
   }

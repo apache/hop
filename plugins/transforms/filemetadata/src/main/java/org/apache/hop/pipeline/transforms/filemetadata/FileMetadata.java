@@ -71,10 +71,12 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
     return super.init();
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // get incoming row, getRow() potentially blocks waiting for more rows
@@ -362,6 +364,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     }
   }
 
+  @Override
   public void dispose() {
     super.dispose();
   }

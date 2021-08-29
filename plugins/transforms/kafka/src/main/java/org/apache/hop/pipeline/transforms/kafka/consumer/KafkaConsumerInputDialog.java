@@ -117,6 +117,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     hopGui = HopGui.getInstance();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

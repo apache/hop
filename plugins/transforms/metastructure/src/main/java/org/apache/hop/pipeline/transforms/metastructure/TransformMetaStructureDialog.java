@@ -69,6 +69,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     input = (TransformMetaStructureMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -128,6 +129,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wOutputRowcount.setLayoutData(fdOutputRowcount);
     wOutputRowcount.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -183,6 +185,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wIncludePosition.setLayoutData(fdIncludePosition);
     wIncludePosition.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -239,6 +242,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     wIncludeFieldname.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -295,6 +299,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     wIncludeComments.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -351,6 +356,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     wIncludeType.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -406,6 +412,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     wIncludeLength.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -462,6 +469,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     wIncludePrecision.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 
@@ -518,6 +526,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     wIncludeOrigin.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
 

@@ -107,7 +107,7 @@ public class Cql3SsTableWriterTest {
     IRowMeta rmi = mock(IRowMeta.class);
     IValueMeta one = new ValueMetaBase(KEY_FIELD, ValueMetaBase.TYPE_INTEGER);
     IValueMeta two = new ValueMetaBase(COLUMN, ValueMetaBase.TYPE_STRING);
-    List<IValueMeta> valueMetaList = new ArrayList<IValueMeta>();
+    List<IValueMeta> valueMetaList = new ArrayList<>();
     valueMetaList.add(one);
     valueMetaList.add(two);
     String[] fieldNames = new String[] {"key", "two"};
@@ -126,7 +126,7 @@ public class Cql3SsTableWriterTest {
   public void testProcessRow() throws Exception {
     Cql3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
-    Map<String, Object> input = new HashMap<String, Object>();
+    Map<String, Object> input = new HashMap<>();
     input.put(KEY_FIELD, 1);
     input.put(COLUMN, "someColumnValue");
     checker.set(false);

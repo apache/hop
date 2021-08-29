@@ -55,6 +55,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    *
    * @see Iterable#iterator()
    */
+  @Override
   public Iterator<KeyValue<?>> iterator() {
     return this.keyValues().iterator();
   }

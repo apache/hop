@@ -60,6 +60,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     super(s, meta, data, c, t, dis);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] row = getRow();
@@ -824,6 +825,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     return super.init();
   }
 
+  @Override
   public void dispose() {
     if (!isStopped()) {
       try {

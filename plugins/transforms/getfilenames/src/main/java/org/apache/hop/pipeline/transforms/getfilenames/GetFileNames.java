@@ -42,9 +42,6 @@ import java.util.List;
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Matt
- * @since 4-apr-2003
  */
 public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData>
     implements ITransform<GetFileNamesMeta, GetFileNamesData> {
@@ -72,6 +69,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     return rowData;
   }
 
+  @Override
   public boolean processRow() throws HopException {
     if (!meta.isFileField()) {
       if (data.filenr >= data.filessize) {
@@ -246,7 +244,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
           // size
           Long size = null;
           if (data.file.getType().equals(FileType.FILE)) {
-            size = new Long(data.file.getContent().getSize());
+            size = Long.valueOf(data.file.getContent().getSize());
           }
 
           extraData[outputIndex++] = size;
@@ -266,7 +264,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
         // See if we need to add the row number to the row...
         if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-          extraData[outputIndex++] = new Long(data.rownr);
+          extraData[outputIndex++] = Long.valueOf(data.rownr);
         }
 
         data.rownr++;
@@ -287,10 +285,8 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
     data.filenr++;
 
-    if (checkFeedback(getLinesInput())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "GetFileNames.Log.NrLine", "" + getLinesInput()));
-      }
+    if (checkFeedback(getLinesInput()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "GetFileNames.Log.NrLine", "" + getLinesInput()));
     }
 
     return true;
@@ -317,6 +313,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -353,6 +350,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.file != null) {

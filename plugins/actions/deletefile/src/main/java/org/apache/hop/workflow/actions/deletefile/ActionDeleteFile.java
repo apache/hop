@@ -70,11 +70,13 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionDeleteFile je = (ActionDeleteFile) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(50);
 
@@ -87,6 +89,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -106,14 +109,17 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     this.filename = filename;
   }
 
+  @Override
   public String getFilename() {
     return filename;
   }
 
+  @Override
   public String getRealFilename() {
     return resolve(getFilename());
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -189,10 +195,12 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     this.failIfFileNotExists = failIfFileExists;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
@@ -205,6 +213,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     return references;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

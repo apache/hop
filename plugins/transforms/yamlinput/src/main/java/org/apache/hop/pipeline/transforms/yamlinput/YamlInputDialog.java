@@ -137,6 +137,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     input = (YamlInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -238,6 +239,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wYAMLStreamField.setLayoutData(fdYAMLStreamField);
     SelectionAdapter lsyamlstream =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateStreamField();
             input.setChanged();
@@ -263,6 +265,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wYAMLIsAFile.setLayoutData(fdYAMLIsAFile);
     SelectionAdapter lsyamlisafile =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
             enableFileSettings();
@@ -291,8 +294,10 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wYAMLLField.setLayoutData(fdXMLField);
     wYAMLLField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {}
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -821,6 +826,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(new String[] {wFilename.getText(), wFilemask.getText()});
             wFilename.setText("");
@@ -836,6 +842,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -847,6 +854,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -863,6 +871,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             try {
               YamlInputMeta tfii = new YamlInputMeta();
@@ -899,6 +908,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // Enable/disable the right fields to allow a filename to be added to each row...
     wInclFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeFilename();
           }
@@ -907,6 +917,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // Enable/disable the right fields to allow a row number to be added to each row...
     wInclRownum.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeRownum();
           }

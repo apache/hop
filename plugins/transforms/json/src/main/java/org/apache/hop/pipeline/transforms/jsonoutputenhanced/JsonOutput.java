@@ -51,7 +51,8 @@ import java.util.List;
 
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     implements ITransform<JsonOutputMeta, JsonOutputData> {
-  private static Class<?> PKG = JsonOutput.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      JsonOutput.class; // for i18n purposes, needed by Translator2!!
 
   public Object[] prevRow;
   private JsonNodeFactory nc;
@@ -67,6 +68,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -102,6 +104,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     return false;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // This also waits for a row to be finished.
@@ -286,7 +289,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
           }
         } catch (HopValueException e) {
           // TODO - Properly handle the exception
-          // e.printStackTrace();
         }
       }
 
@@ -310,7 +312,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
 
       // Fill accessory fields
       if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
-        additionalRowFields[nextFieldPos] = new Long(jsonLength);
+        additionalRowFields[nextFieldPos] = Long.valueOf(jsonLength);
         nextFieldPos++;
       }
 
@@ -460,7 +462,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
       data.keysGroupIndexes[i] =
           data.inputRowMeta.indexOfValue(meta.getKeyFields()[i].getFieldName());
       if ((r != null) && (data.keysGroupIndexes[i] < 0)) {
-        /* logError( BaseMessages.getString( PKG, "GroupBy.Log.GroupFieldCouldNotFound", meta.getGroupField()[ i ] ) );*/
         setErrors(1);
         stopAll();
         return true;
@@ -469,6 +470,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
     return false;
   }
 
+  @Override
   public void dispose() {
 
     if (data.jsonKeyGroupItems != null) {

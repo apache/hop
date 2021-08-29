@@ -276,11 +276,13 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     this.rowsCountFieldName = rowsCountFieldName;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     GetFilesRowsCountMeta retval = (GetFilesRowsCountMeta) super.clone();
 
@@ -296,6 +298,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     return retval;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -402,6 +405,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     includeSubFolders = new String[nrfiles];
   }
 
+  @Override
   public void setDefault() {
     smartCount = false;
     outputFilenameField = "";
@@ -425,6 +429,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta r,
       String name,
@@ -460,6 +465,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     return includeSubFolderBoolean;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -528,6 +534,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public GetFilesRowsCount createTransform(
       TransformMeta transformMeta,
       GetFilesRowsCountData data,
@@ -537,6 +544,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     return new GetFilesRowsCount(transformMeta, this, data, cnr, tr, pipeline);
   }
 
+  @Override
   public GetFilesRowsCountData getTransformData() {
     return new GetFilesRowsCountData();
   }
@@ -553,6 +561,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
+  @Override
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

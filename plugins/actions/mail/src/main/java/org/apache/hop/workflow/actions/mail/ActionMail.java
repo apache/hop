@@ -163,6 +163,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     contentids = new String[nrImages];
   }
 
+  @Override
   public Object clone() {
     ActionMail je = (ActionMail) super.clone();
     if (fileType != null) {
@@ -179,6 +180,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(600);
 
@@ -249,6 +251,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -568,6 +571,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     this.priority = priority;
   }
 
+  @Override
   public Result execute(Result result, int nr) {
     File masterZipfile = null;
 
@@ -1155,6 +1159,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return true;
   }
@@ -1179,6 +1184,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     this.port = port;
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);

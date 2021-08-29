@@ -103,13 +103,13 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     parameter_description,
   }
 
-  @InjectionDeep private List<FieldInfo> fields = new ArrayList<FieldInfo>();
+  @InjectionDeep private List<FieldInfo> fields = new ArrayList<>();
 
   @InjectionDeep
-  private List<UserDefinedJavaClassDef> definitions = new ArrayList<UserDefinedJavaClassDef>();
+  private List<UserDefinedJavaClassDef> definitions = new ArrayList<>();
 
   public Class<TransformClassBase> cookedTransformClass;
-  public List<Exception> cookErrors = new ArrayList<Exception>(0);
+  public List<Exception> cookErrors = new ArrayList<>(0);
   private static final Cache<String, Class<?>> classCache;
 
   @Injection(name = "CLEAR_RESULT_FIELDS")
@@ -172,6 +172,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       this.precision = precision;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
       return super.clone();
     }
@@ -338,18 +339,20 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     changed = true;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     try {
 
       UserDefinedJavaClassMeta retval = (UserDefinedJavaClassMeta) super.clone();
 
       if (fields != null) {
-        List<FieldInfo> newFields = new ArrayList<FieldInfo>(fields.size());
+        List<FieldInfo> newFields = new ArrayList<>(fields.size());
         for (FieldInfo field : fields) {
           newFields.add((FieldInfo) field.clone());
         }
@@ -357,7 +360,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       }
 
       if (definitions != null) {
-        List<UserDefinedJavaClassDef> newDefinitions = new ArrayList<UserDefinedJavaClassDef>();
+        List<UserDefinedJavaClassDef> newDefinitions = new ArrayList<>();
         for (UserDefinedJavaClassDef def : definitions) {
           newDefinitions.add((UserDefinedJavaClassDef) def.clone());
         }
@@ -365,7 +368,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       }
 
       retval.cookedTransformClass = null;
-      retval.cookErrors = new ArrayList<Exception>(0);
+      retval.cookErrors = new ArrayList<>(0);
 
       if (infoTransformDefinitions != null) {
         List<InfoTransformDefinition> newInfoTransformDefinitions = new ArrayList<>();
@@ -384,7 +387,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
       }
 
       if (usageParameters != null) {
-        List<UsageParameter> newUsageParameters = new ArrayList<UsageParameter>();
+        List<UsageParameter> newUsageParameters = new ArrayList<>();
         for (UsageParameter param : usageParameters) {
           newUsageParameters.add((UsageParameter) param.clone());
         }
@@ -494,6 +497,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     // Moved the default code generation out of Meta since the Snippits class is in the UI package
     // which isn't in the
@@ -555,6 +559,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String originTransformName,
@@ -597,6 +602,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
 
@@ -695,6 +701,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -742,10 +749,12 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
     return userDefinedJavaClass;
   }
 
+  @Override
   public UserDefinedJavaClassData getTransformData() {
     return new UserDefinedJavaClassData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

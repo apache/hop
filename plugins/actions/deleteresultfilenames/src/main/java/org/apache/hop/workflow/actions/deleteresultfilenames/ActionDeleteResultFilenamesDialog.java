@@ -73,6 +73,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 
@@ -132,6 +133,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wSpecifyWildcard.setLayoutData(fdSpecifyWildcard);
     wSpecifyWildcard.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
             CheckLimit();

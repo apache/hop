@@ -69,6 +69,7 @@ public class Lookup {
     returnValues = new ArrayList<>();
   }
 
+  @Override
   public Lookup clone() {
     return new Lookup(this);
   }

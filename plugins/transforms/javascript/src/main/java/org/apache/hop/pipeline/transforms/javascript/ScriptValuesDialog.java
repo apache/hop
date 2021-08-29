@@ -168,6 +168,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     }
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -409,6 +410,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
     folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
+          @Override
           public void close(CTabFolderEvent event) {
             CTabItem cItem = (CTabItem) event.item;
             event.doit = false;
@@ -507,6 +509,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     ds.addDragListener(
         new DragSourceAdapter() {
 
+          @Override
           public void dragStart(DragSourceEvent event) {
             TreeItem item = wTree.getSelection()[0];
 
@@ -529,6 +532,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
             }
           }
 
+          @Override
           public void dragSetData(DragSourceEvent event) {
             // Set the data to be the first selected item's text
             event.data = wTree.getSelection()[0].getText();
@@ -575,34 +579,41 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
     wScript.addKeyListener(
         new KeyAdapter() {
+          @Override
           public void keyPressed(KeyEvent e) {
             setPosition();
           }
 
+          @Override
           public void keyReleased(KeyEvent e) {
             setPosition();
           }
         });
     wScript.addFocusListener(
         new FocusAdapter() {
+          @Override
           public void focusGained(FocusEvent e) {
             setPosition();
           }
 
+          @Override
           public void focusLost(FocusEvent e) {
             setPosition();
           }
         });
     wScript.addMouseListener(
         new MouseAdapter() {
+          @Override
           public void mouseDoubleClick(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseDown(MouseEvent e) {
             setPosition();
           }
 
+          @Override
           public void mouseUp(MouseEvent e) {
             setPosition();
           }

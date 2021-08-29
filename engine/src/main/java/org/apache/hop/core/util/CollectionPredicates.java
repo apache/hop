@@ -35,6 +35,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return ((Collection<?>) object).isEmpty();
         }
@@ -59,6 +60,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return !EMPTY_COLLECTION.evaluate(object);
         }
@@ -83,6 +85,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return ((Object[]) object).length == 0;
         }
@@ -106,6 +109,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return !EMPTY_ARRAY.evaluate(object);
         }
@@ -130,6 +134,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return ((Map<?, ?>) object).isEmpty();
         }
@@ -153,6 +158,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return !EMPTY_MAP.evaluate(object);
         }
@@ -177,6 +183,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return object != null && !EMPTY_COLLECTION.evaluate(object);
         }
@@ -200,6 +207,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return object != null && !EMPTY_ARRAY.evaluate(object);
         }
@@ -223,6 +231,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return object != null && !EMPTY_MAP.evaluate(object);
         }
@@ -246,6 +255,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return object == null || EMPTY_COLLECTION.evaluate(object);
         }
@@ -269,6 +279,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return object == null || EMPTY_ARRAY.evaluate(object);
         }
@@ -292,6 +303,7 @@ public final class CollectionPredicates { // NOPMD
          *
          * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
          */
+        @Override
         public boolean evaluate(final Object object) {
           return object == null || EMPTY_MAP.evaluate(object);
         }

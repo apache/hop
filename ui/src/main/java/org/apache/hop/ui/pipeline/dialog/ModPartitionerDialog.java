@@ -78,6 +78,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     fieldName = partitioner.getFieldName();
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

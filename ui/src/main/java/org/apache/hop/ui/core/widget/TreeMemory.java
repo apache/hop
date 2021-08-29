@@ -142,6 +142,7 @@ public class TreeMemory {
   public static final TreeListener addTreeListener(final Tree tree, final String treeName) {
     TreeListener treeListener =
         new TreeListener() {
+          @Override
           public void treeExpanded(TreeEvent e) {
             TreeItem treeItem = (TreeItem) e.item;
             String[] path = ConstUi.getTreeStrings(treeItem);
@@ -149,6 +150,7 @@ public class TreeMemory {
             treeMemory.storeExpanded(treeName, path, true);
           }
 
+          @Override
           public void treeCollapsed(TreeEvent e) {
             TreeItem treeItem = (TreeItem) e.item;
             String[] path = ConstUi.getTreeStrings(treeItem);

@@ -52,6 +52,7 @@ public class TransformInitThread implements Runnable {
     return combi.transformName;
   }
 
+  @Override
   public void run() {
     // Set the internal variables also on the initialization thread!
     // ((BaseTransform)combi.transform).setInternalVariables();

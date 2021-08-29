@@ -27,6 +27,7 @@ public class WebServiceField implements Cloneable {
 
   private String xsdType;
 
+  @Override
   public WebServiceField clone() {
     try {
       return (WebServiceField) super.clone();

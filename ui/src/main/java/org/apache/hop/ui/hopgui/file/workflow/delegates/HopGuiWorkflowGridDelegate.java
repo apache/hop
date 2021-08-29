@@ -144,6 +144,7 @@ public class HopGuiWorkflowGridDelegate {
     final Timer tim = new Timer("JobGrid: " + workflowGraph.getMeta().getName());
     TimerTask timtask =
         new TimerTask() {
+          @Override
           public void run() {
             Display display = workflowGraph.getDisplay();
             if (display != null && !display.isDisposed()) {

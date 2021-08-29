@@ -122,6 +122,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     input = (MonetDbBulkLoaderMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

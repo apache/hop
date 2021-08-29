@@ -108,6 +108,7 @@ public class LabelText extends Composite {
     wText.addSelectionListener(lsDef);
   }
 
+  @Override
   public void setEnabled(boolean flag) {
     wText.setEnabled(flag);
     wLabel.setEnabled(flag);
@@ -117,6 +118,7 @@ public class LabelText extends Composite {
     wText.selectAll();
   }
 
+  @Override
   public boolean setFocus() {
     return wText.setFocus();
   }

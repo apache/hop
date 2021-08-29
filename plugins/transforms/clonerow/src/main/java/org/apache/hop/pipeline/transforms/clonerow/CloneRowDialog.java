@@ -184,10 +184,12 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     wNrCloneField.setLayoutData(fdNrCloneField);
     wNrCloneField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // disable focusLost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

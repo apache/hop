@@ -55,6 +55,7 @@ public class BeamBigtableOutputDialog extends BaseTransformDialog implements ITr
     input = (BeamBigtableOutputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

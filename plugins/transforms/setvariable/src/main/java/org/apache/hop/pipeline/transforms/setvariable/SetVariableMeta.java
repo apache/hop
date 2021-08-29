@@ -160,6 +160,7 @@ public class SetVariableMeta extends BaseTransformMeta
     return variableTypeDesc;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
@@ -172,6 +173,7 @@ public class SetVariableMeta extends BaseTransformMeta
     defaultValue = new String[count];
   }
 
+  @Override
   public Object clone() {
     SetVariableMeta retval = (SetVariableMeta) super.clone();
 
@@ -214,6 +216,7 @@ public class SetVariableMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     int count = 0;
 
@@ -229,6 +232,7 @@ public class SetVariableMeta extends BaseTransformMeta
     usingFormatting = true;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(150);
 
@@ -251,6 +255,7 @@ public class SetVariableMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -302,6 +307,7 @@ public class SetVariableMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public SetVariable createTransform(
       TransformMeta transformMeta,
       SetVariableData data,
@@ -311,6 +317,7 @@ public class SetVariableMeta extends BaseTransformMeta
     return new SetVariable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public SetVariableData getTransformData() {
     return new SetVariableData();
   }

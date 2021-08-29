@@ -137,6 +137,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     input = (LoadFileInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 
@@ -238,6 +239,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wFilenameInField.setLayoutData(fdFileNameInField);
     SelectionAdapter lsxmlstream =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             activateXmlStreamField();
             input.setChanged();
@@ -266,8 +268,10 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wFilenameField.setLayoutData(fdXMLField);
     wFilenameField.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setDynamicFilenameField();
           }
@@ -514,8 +518,10 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
 
+          @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             setEncodings();
           }
@@ -541,6 +547,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wIgnoreEmptyFile.setLayoutData(fdIgnoreEmptyFile);
     wIgnoreEmptyFile.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -566,6 +573,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wIgnoreMissingPath.setLayoutData(fdIgnoreMissingPath);
     wIgnoreMissingPath.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -723,6 +731,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }
@@ -888,6 +897,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
                 wFilename.getText(),
@@ -909,6 +919,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -920,6 +931,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -937,6 +949,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             try {
               LoadFileInputMeta tfii = new LoadFileInputMeta();
@@ -973,6 +986,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Enable/disable the right fields to allow a filename to be added to each row...
     wInclFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeFilename();
             input.setChanged();
@@ -982,6 +996,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Enable/disable the right fields to allow a row number to be added to each row...
     wInclRownum.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             setIncludeRownum();
             input.setChanged();
@@ -994,6 +1009,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     // Listen to the Browse... button
     wbbFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             if (!Utils.isEmpty(wFilemask.getText())
                 || !Utils.isEmpty(wExcludeFilemask.getText())) { // A mask: a directory!

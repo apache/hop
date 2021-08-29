@@ -107,6 +107,7 @@ public class HopServerSingleton {
       final AtomicBoolean busy = new AtomicBoolean(false);
       TimerTask timerTask =
           new TimerTask() {
+            @Override
             public void run() {
               if (!busy.get()) {
                 busy.set(true);

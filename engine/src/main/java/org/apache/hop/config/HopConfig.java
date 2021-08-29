@@ -56,6 +56,7 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
   private IVariables variables;
   private IHopMetadataProvider metadataProvider;
 
+  @Override
   public void run() {
 
     try {

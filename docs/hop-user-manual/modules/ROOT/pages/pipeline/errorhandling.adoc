@@ -1,0 +1,63 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[PipelineErrorHandling]]
+:imagesdir: ../assets/images
+
+= Pipeline Error Handling
+
+When a major failure occurs in one of the transforms, the pipeline is notified and halts all active operations. This is fine in most cases, pipeline failures are typically handled in the parent workflow (check the xref:/workflow/create-workflow.adoc[create workflow] page to learn about error hops in workflows).
+In some cases however, there are errors you'll want to handle gracefully without halting the entire pipeline.
+
+In these cases where you don't want your pipeline to fail when an error occurs, Hop pipelines support error handling on transforms and hops.
+
+When you create a hop from a transform that supports error handling to another transform, the Hop pipeline editor will ask you if you want to create a hop for the main output or for the error handling of your transform.
+
+image:error-handling-hop-option.png[Error handling hop option, width="40%"]
+
+If you choose to create an error handling transform, the hop will be shown in red instead of the default black (or white, if you're in dark mode).
+
+image:error-handling-hop.png[Error handling hop, width="40%"]
+
+For each transform that supports error handling, there are a number of options you can configure.
+Click on the transform icon to open the context dialog and selected the 'Error handling' icon.
+
+image:error-handling-context-dialog.png[Error handling context dialog, width="60%"]
+
+In the error handling dialog, you can specify additional fields that will be added to your pipeline stream.
+
+image:error-handling-dialog.png[Error handling dialog, width="75%"]
+
+The available options are:
+
+[options="header", width="90%"]
+|===
+|option|description
+|target transform|the transform that will receive the error information
+|enable the error handling|enable error handling from this transform
+|nr of errors fieldname|the nummer of errors that occurred in the pipeline
+|error description fieldname|fieldname to contain the error description
+|error fields fieldname|the pipeline field where an error occurred
+|error codes fieldname|the error code for the error that occurred
+|max nr errors allowed|max number of errors allowed before the pipeline fails.
+|max % errors allowed (empty = 100%)|the percentage of errors that is allowed before the pipeline fails
+|min nr of rows to read before doing % evaluation|number of rows to read before doing the percentage evaluation. These rows will be taken into account in the evaluation, but the evaluation will only be performed once the specified number of rows has been processed.
+|===
+
+An example output when trying to cast an invalid date string to a date is shown below.
+
+image:error-handling-output.png[Error handling output, width="90%"]
+

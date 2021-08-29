@@ -240,10 +240,12 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wTableName.setLayoutData(fdTableName);
     wTableName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable Focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
@@ -273,10 +275,12 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wColumnName.setLayoutData(fdColumnName);
     wColumnName.addFocusListener(
         new FocusListener() {
+          @Override
           public void focusLost(FocusEvent e) {
             // Disable Focuslost event
           }
 
+          @Override
           public void focusGained(FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);

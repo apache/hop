@@ -51,6 +51,7 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
     input = (SampleRowsMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

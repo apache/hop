@@ -67,6 +67,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     input = (SasInputMeta) in;
   }
 
+  @Override
   public String open() {
     Shell parent = getParent();
 

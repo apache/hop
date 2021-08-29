@@ -48,6 +48,7 @@ public class ActionDummy extends ActionBase implements IAction {
     super(name, "");
   }
 
+  @Override
   public Result execute(Result prevResult, int nr) throws HopException {
     prevResult.setResult(true);
     prevResult.setNrErrors(0);
@@ -55,15 +56,18 @@ public class ActionDummy extends ActionBase implements IAction {
     return prevResult;
   }
 
+  @Override
   public String getXml() {
     return super.getXml();
   }
 
+  @Override
   public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     super.loadXml(actionNode);
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

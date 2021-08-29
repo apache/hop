@@ -47,6 +47,7 @@ public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromRe
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Result previousResult = getPipeline().getPreviousResult();
     if (previousResult == null || getLinesRead() >= previousResult.getRows().size()) {

@@ -75,7 +75,7 @@ public class CqlUtils {
   };
 
   private static ArrayList<Selector> getSelectors(String selectExpression, boolean isCql3) {
-    ArrayList<Selector> sList = new ArrayList<Selector>();
+    ArrayList<Selector> sList = new ArrayList<>();
     selectExpression = clean(selectExpression);
     while (selectExpression.length() > 0) {
       int possibleEnd = selectExpression.indexOf(COMMA);

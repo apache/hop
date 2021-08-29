@@ -276,6 +276,7 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
     }
   }
 
+  @Override
   public ZipFileData getTransformData() {
     return new ZipFileData();
   }

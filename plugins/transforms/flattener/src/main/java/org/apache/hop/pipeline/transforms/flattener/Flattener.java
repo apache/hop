@@ -46,6 +46,7 @@ public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // get row!
     if (r == null) { // no more input to be expected...

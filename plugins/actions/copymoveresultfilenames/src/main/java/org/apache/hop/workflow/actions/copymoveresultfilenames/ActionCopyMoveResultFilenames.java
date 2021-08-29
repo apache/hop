@@ -125,11 +125,13 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionCopyMoveResultFilenames je = (ActionCopyMoveResultFilenames) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(500); // 358 chars in just tags and spaces alone
 
@@ -159,6 +161,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -334,6 +337,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     this.dateTimeFormat = dateTimeFormat;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setNrErrors(1);
@@ -679,10 +683,12 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     return getIt;
   }
 
+  @Override
   public boolean isEvaluation() {
     return true;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,

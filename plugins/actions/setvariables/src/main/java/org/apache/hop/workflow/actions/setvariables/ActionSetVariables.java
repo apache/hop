@@ -110,6 +110,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     variableType = new int[nrFields];
   }
 
+  @Override
   public Object clone() {
     ActionSetVariables je = (ActionSetVariables) super.clone();
     if (variableName != null) {
@@ -122,6 +123,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(300);
     retval.append(super.getXml());
@@ -154,6 +156,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -183,6 +186,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     }
   }
 
+  @Override
   public Result execute(Result result, int nr) throws HopException {
     result.setResult(true);
     result.setNrErrors(0);
@@ -415,6 +419,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     return variableTypeDesc;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
@@ -442,6 +447,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     }
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
@@ -460,6 +466,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
   }
 
   /** @return the filename */
+  @Override
   public String getFilename() {
     return filename;
   }

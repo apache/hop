@@ -107,11 +107,13 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
     return errorDescription;
   }
 
+  @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     readData(transformNode);
   }
 
+  @Override
   public Object clone() {
     UniqueRowsByHashSetMeta retval = (UniqueRowsByHashSetMeta) super.clone();
 
@@ -159,6 +161,7 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void setDefault() {
     rejectDuplicateRow = false;
     errorDescription = null;
@@ -171,6 +174,7 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -180,6 +184,7 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {}
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -197,6 +202,7 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
     return retval.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -229,10 +235,12 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public UniqueRowsByHashSetData getTransformData() {
     return new UniqueRowsByHashSetData();
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return isRejectDuplicateRow();
   }

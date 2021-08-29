@@ -133,12 +133,9 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData>
         }
       }
 
-      if (checkFeedback(getLinesRead())) {
-        if (log.isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(
-                  PKG, "CheckSum.Log.LineNumber", Long.toString(getLinesRead())));
-        }
+      if (checkFeedback(getLinesRead()) && log.isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "CheckSum.Log.LineNumber", Long.toString(getLinesRead())));
       }
 
       // add new values to the row.
@@ -230,11 +227,11 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData>
     if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.CRC32) {
       CRC32 crc32 = new CRC32();
       crc32.update(byteArray);
-      retval = new Long(crc32.getValue());
+      retval = Long.valueOf(crc32.getValue());
     } else {
       Adler32 adler32 = new Adler32();
       adler32.update(byteArray);
-      retval = new Long(adler32.getValue());
+      retval = Long.valueOf(adler32.getValue());
     }
 
     return retval;

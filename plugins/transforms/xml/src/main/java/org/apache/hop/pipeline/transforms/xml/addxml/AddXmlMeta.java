@@ -127,6 +127,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     outputFields = new XmlField[nrFields];
   }
 
+  @Override
   public Object clone() {
     AddXmlMeta retval = (AddXmlMeta) super.clone();
     int nrFields = outputFields.length;
@@ -197,6 +198,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     }
   }
 
+  @Override
   public void setDefault() {
     omitXMLheader = true;
     omitNullValues = false;
@@ -227,6 +229,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     }
   }
 
+  @Override
   public void getFields(
       IRowMeta row,
       String name,
@@ -281,6 +284,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     return xml.toString();
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,

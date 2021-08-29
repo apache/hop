@@ -119,6 +119,7 @@ public class XmlField implements Cloneable {
     return fieldName.equals(field.getFieldName());
   }
 
+  @Override
   public Object clone() {
     try {
       Object retval = super.clone();

@@ -105,11 +105,13 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     XmlWellFormed je = (XmlWellFormed) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder(300);
 
@@ -134,6 +136,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return xml.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -169,6 +172,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;
     result.setNrErrors(1);
@@ -374,10 +378,12 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           FileObject[] fileObjects =
               sourcefilefolder.findFiles(
                   new AllFileSelector() {
+                    @Override
                     public boolean traverseDescendents(FileSelectInfo info) {
                       return true;
                     }
 
+                    @Override
                     public boolean includeFile(FileSelectInfo info) {
 
                       FileObject fileObject = info.getFile();
@@ -634,6 +640,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
+  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta jobMeta,

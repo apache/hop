@@ -168,6 +168,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     this.sparkStorageLevel = config.sparkStorageLevel;
   }
 
+  @Override
   public BeamSparkPipelineRunConfiguration clone() {
     return new BeamSparkPipelineRunConfiguration(this);
   }

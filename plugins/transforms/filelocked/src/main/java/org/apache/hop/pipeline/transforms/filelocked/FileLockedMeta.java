@@ -179,6 +179,7 @@ public class FileLockedMeta extends BaseTransformMeta
     }
   }
 
+  @Override
   public FileLocked createTransform(
       TransformMeta transformMeta,
       FileLockedData data,
@@ -188,6 +189,7 @@ public class FileLockedMeta extends BaseTransformMeta
     return new FileLocked(transformMeta, this, data, cnr, pipelineMeta, pipeline);
   }
 
+  @Override
   public FileLockedData getTransformData() {
     return new FileLockedData();
   }

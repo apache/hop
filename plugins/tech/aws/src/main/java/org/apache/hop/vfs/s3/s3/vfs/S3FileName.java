@@ -63,10 +63,12 @@ public class S3FileName extends AbstractFileName {
     return bucketRelativePath;
   }
 
+  @Override
   public FileName createName(String absPath, FileType type) {
     return new S3FileName(getScheme(), bucketId, absPath, type);
   }
 
+  @Override
   protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
     buffer.append(getScheme());
     // Only 1 slash is needed here, because this class is not expecting an authority,

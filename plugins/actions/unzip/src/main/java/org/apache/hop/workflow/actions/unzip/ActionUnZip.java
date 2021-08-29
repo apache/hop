@@ -166,11 +166,13 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionUnZip je = (ActionUnZip) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(550); // 450 chars in just spaces and tag names alone
 
@@ -208,6 +210,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
+  @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
     try {
@@ -245,6 +248,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
@@ -629,10 +633,12 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       FileObject[] items =
           zipFile.findFiles(
               new AllFileSelector() {
+                @Override
                 public boolean traverseDescendents(FileSelectInfo info) {
                   return true;
                 }
 
+                @Override
                 public boolean includeFile(FileSelectInfo info) {
                   // Never return the parent directory of a file list.
                   if (info.getDepth() == 0) {

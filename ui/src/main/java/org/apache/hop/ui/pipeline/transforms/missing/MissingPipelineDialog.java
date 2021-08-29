@@ -108,6 +108,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     return message.toString();
   }
 
+  @Override
   public String open() {
     this.props = PropsUi.getInstance();
     Display display = shellParent.getDisplay();
@@ -160,6 +161,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     closeButton.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.Close"));
     closeButton.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             cancel();
           }
@@ -176,6 +178,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
       openButton.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.OpenFile"));
       openButton.addSelectionListener(
           new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent e) {
               ok();
             }
@@ -193,6 +196,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     searchButton.setLayoutData(fdSearch);
     searchButton.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             try {
               shell.dispose();

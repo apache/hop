@@ -107,11 +107,13 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  @Override
   public Object clone() {
     ActionSftp je = (ActionSftp) super.clone();
     return je;
   }
 
+  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(200);
 
@@ -378,6 +380,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     this.proxyPassword = value;
   }
 
+  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -389,7 +392,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     if (log.isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.StartAction"));
     }
-    HashSet<String> listPreviousFilenames = new HashSet<String>();
+    HashSet<String> listPreviousFilenames = new HashSet<>();
 
     if (copyprevious) {
       if (rows.size() == 0) {

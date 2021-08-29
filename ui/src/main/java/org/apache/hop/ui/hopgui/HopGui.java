@@ -1127,11 +1127,13 @@ public class HopGui
    *
    * @return value of metadataProvider
    */
+  @Override
   public IHopMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
   /** @param metadataProvider The metadataProvider to set */
+  @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
     updateMetadataManagers();

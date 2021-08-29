@@ -261,16 +261,19 @@ public class DtdValidatorUtil {
     int error = -1;
     int nrErrors = 0;
 
+    @Override
     public void warning(SAXParseException e) throws SAXException {
       error = 0;
       allErrors(e);
     }
 
+    @Override
     public void error(SAXParseException e) throws SAXException {
       error = 1;
       allErrors(e);
     }
 
+    @Override
     public void fatalError(SAXParseException e) throws SAXException {
       error = 2;
       allErrors(e);

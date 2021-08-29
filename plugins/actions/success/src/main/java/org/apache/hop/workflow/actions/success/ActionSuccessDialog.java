@@ -62,6 +62,7 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public IAction open() {
     Shell parent = getParent();
 

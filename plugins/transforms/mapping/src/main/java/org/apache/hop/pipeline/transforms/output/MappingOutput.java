@@ -45,6 +45,7 @@ public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutpu
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!

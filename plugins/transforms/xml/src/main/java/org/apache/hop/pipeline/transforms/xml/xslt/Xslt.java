@@ -64,6 +64,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, trans);
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] row = getRow();
@@ -288,6 +289,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData>
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       // Specify weither or not we have to deal with XSL filename
@@ -298,6 +300,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData>
     return false;
   }
 
+  @Override
   public void dispose() {
     data.dispose();
     super.dispose();

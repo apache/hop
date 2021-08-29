@@ -53,6 +53,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData>
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] r;
     boolean result = true;
@@ -151,6 +152,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData>
     return true;
   }
 
+  @Override
   public boolean init() {
     if (super.init()) {
       if (!meta.isDoNotOpenNewFileInit()) {
@@ -193,6 +195,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData>
     }
   }
 
+  @Override
   public void dispose() {
     if (data.oneFileOpened) {
       try {
