@@ -542,7 +542,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -700,7 +700,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     inf.setDelimiter(wDelimiter.getText());
     inf.setEnclosure(wEnclosure.getText());
     inf.setStopOnError(wStopOnError.getSelection());
@@ -747,7 +747,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       logDebug(
           BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.LookingAtConnection")
@@ -856,7 +856,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database db = new Database(loggingObject, variables, databaseMeta);
                 try {

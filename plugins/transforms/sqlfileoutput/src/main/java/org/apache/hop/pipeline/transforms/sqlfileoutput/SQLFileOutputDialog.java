@@ -860,7 +860,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
   private void getInfo(SQLFileOutputMeta info) {
     info.setSchemaName(wSchema.getText());
     info.setTablename(wTable.getText());
-    info.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    info.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     info.setTruncateTable(wTruncate.getSelection());
     info.setCreateParentFolder(wCreateParentFolder.getSelection());
 
@@ -903,7 +903,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
 
       logDebug(

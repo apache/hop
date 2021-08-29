@@ -542,7 +542,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wlIgnoreFlagField.setEnabled(wErrorIgnored.getSelection());
     wIgnoreFlagField.setEnabled(wErrorIgnored.getSelection());
 
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     boolean hasErrorHandling = pipelineMeta.findTransform(transformName).isDoingErrorHandling();
 
     // Can't use batch yet when grabbing auto-generated keys...
@@ -570,7 +570,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
@@ -716,7 +716,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     inf.setErrorIgnored(wErrorIgnored.getSelection());
     inf.setIgnoreFlagField(wIgnoreFlagField.getText());
@@ -748,7 +748,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
@@ -858,7 +858,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

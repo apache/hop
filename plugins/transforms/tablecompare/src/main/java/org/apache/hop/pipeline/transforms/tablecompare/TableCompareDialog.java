@@ -453,10 +453,10 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     }
     transformName = wTransformName.getText(); // return value
 
-    input.setReferenceConnection(pipelineMeta.findDatabase(wReferenceDB.getText()));
+    input.setReferenceConnection(pipelineMeta.findDatabase(wReferenceDB.getText(), variables));
     input.setReferenceSchemaField(wReferenceSchema.getText());
     input.setReferenceTableField(wReferenceTable.getText());
-    input.setCompareConnection(pipelineMeta.findDatabase(wCompareDB.getText()));
+    input.setCompareConnection(pipelineMeta.findDatabase(wCompareDB.getText(), variables));
     input.setCompareSchemaField(wCompareSchema.getText());
     input.setCompareTableField(wCompareTable.getText());
     input.setKeyFieldsField(wKeyFields.getText());

@@ -413,7 +413,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.meta
         .getTruncateTable()
         .setValue(this.wbTruncateTable.getSelection() && this.wbTruncateTable.getEnabled());
-    this.meta.setDbMeta(this.pipelineMeta.findDatabase(this.wConnection.getText()));
+    this.meta.setDbMeta(this.pipelineMeta.findDatabase(this.wConnection.getText(), variables));
 
     this.meta.getTableFieldList().getValue().clear();
     this.meta.getStreamFieldList().getValue().clear();
