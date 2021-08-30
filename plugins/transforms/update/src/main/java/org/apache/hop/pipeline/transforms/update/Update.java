@@ -523,30 +523,48 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
   }
 
   @Override
-  public void dispose() {
+  public void batchComplete() throws HopException {
+    // This is needed to properly handle transactions when we are using SingleThreadedExecutor
+    commitBatch(false);
+  }
 
+  @Override
+  public void dispose() {
+    // This is needed to properly handle transactions when we are using SingleThreadedExecutor
+    commitBatch(true);
+    super.dispose();
+  }
+
+  private void commitBatch(boolean dispose) {
     if (data.db != null) {
       try {
         if (!data.db.isAutoCommit()) {
           if (getErrors() == 0) {
-            data.db.emptyAndCommit(data.prepStatementUpdate, meta.useBatchUpdate());
+            if (dispose) {
+              data.db.emptyAndCommit(data.prepStatementUpdate, meta.useBatchUpdate());
+            } else {
+              data.db.commit();
+            }
           } else {
             data.db.rollback();
           }
         }
-        data.db.closePreparedStatement(data.prepStatementUpdate);
-        data.db.closePreparedStatement(data.prepStatementLookup);
+        if (dispose) {
+          data.db.closePreparedStatement(data.prepStatementUpdate);
+          data.db.closePreparedStatement(data.prepStatementLookup);
+        }
       } catch (HopDatabaseException e) {
         logError(
-            BaseMessages.getString(PKG, "Update.Log.UnableToCommitUpdateConnection")
-                + data.db
-                + "] :"
-                + e.toString());
+                BaseMessages.getString(PKG, "Update.Log.UnableToCommitUpdateConnection")
+                        + data.db
+                        + "] :"
+                        + e.toString());
         setErrors(1);
       } finally {
-        data.db.disconnect();
+        if (dispose)
+          data.db.disconnect();
       }
     }
-    super.dispose();
+
   }
 }
