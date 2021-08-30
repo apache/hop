@@ -514,8 +514,17 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
   }
 
   @Override
-  public void dispose() {
+  public void batchComplete() throws HopException {
+    commitBatch(false);
+  }
 
+  @Override
+  public void dispose() {
+    commitBatch(true);
+    super.dispose();
+  }
+
+  private void commitBatch(boolean dispose) {
     if (data.db != null) {
       try {
         if (!data.db.isAutoCommit()) {
@@ -525,17 +534,18 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
             data.db.rollback();
           }
         }
-        data.db.closeUpdate();
-        data.db.closeInsert();
+        if (dispose) {
+          data.db.closeUpdate();
+          data.db.closeInsert();
+        }
       } catch (HopDatabaseException e) {
         logError(
             BaseMessages.getString(PKG, "InsertUpdate.Log.UnableToCommitConnection")
                 + e.toString());
         setErrors(1);
       } finally {
-        data.db.disconnect();
+        if (dispose) data.db.disconnect();
       }
     }
-    super.dispose();
   }
 }
