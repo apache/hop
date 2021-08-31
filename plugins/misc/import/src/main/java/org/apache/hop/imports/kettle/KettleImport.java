@@ -70,6 +70,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private String variablesTargetConfigFile;
   private String connectionsReportFileName;
 
+  private enum EntryType {
+    START,
+    DUMMY,
+    OTHER
+  };
+
   public KettleImport() {
     super();
   }
@@ -155,7 +161,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
       //
       documentElement.insertBefore(nameSync, XmlHandler.getSubNode(documentElement, "description"));
     }
-    processNode(doc, documentElement);
+
+    processNode(doc, documentElement, EntryType.OTHER);
 
     // Align x/y locations with a grid size...
     //
@@ -452,7 +459,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
     doc.renameNode(element, null, newElementName);
   }
 
-  private void processNode(Document doc, Node node) {
+  private void processNode(Document doc, Node node, EntryType entryType) {
     Node nodeToProcess = node;
     NodeList nodeList = nodeToProcess.getChildNodes();
 
@@ -478,33 +485,70 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
     for (int i = 0; i < nodeList.getLength(); i++) {
       Node currentNode = nodeList.item(i);
-
       if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+        // Identify if an entry is of type START or DUMMY type because they must be managed properly
+        if (currentNode.getNodeName().equals("entry")) {
+          entryType = EntryType.OTHER;
+          Node entryTypeNode = null;
+          boolean isEntryTypeSpecial = false;
+          NodeList currentNodeChildNodes = currentNode.getChildNodes();
+          for (int i1 = 0; i1 < currentNodeChildNodes.getLength(); i1++) {
+            Node childNode = currentNodeChildNodes.item(i1);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("SPECIAL")) {
+                isEntryTypeSpecial = true;
+                entryTypeNode = childNode;
+              } else if (isEntryTypeSpecial
+                  && childNode.getNodeName().equals("start")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("Y")) {
+                entryType = EntryType.START;
+              } else if (isEntryTypeSpecial
+                  && childNode.getNodeName().equals("dummy")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("Y")) {
+                entryType = EntryType.DUMMY;
+                // Immediately change entry type to DUMMY to not bother about it later on
+                entryTypeNode.getFirstChild().setTextContent("DUMMY");
+              }
+            }
+          }
+        }
 
         // remove superfluous elements
-        if (KettleConst.kettleElementsToRemove.containsKey(currentNode.getNodeName())) {
-          if (!StringUtils.isEmpty(
-              KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))) {
-            // see if we have multiple parent nodes to check for:
-            if (KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).contains(",")) {
-              Node parentNode = currentNode.getParentNode();
-              String[] parentNodeNames =
-                  KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).split(",");
-              for (String parentNodeName : parentNodeNames) {
-                if (parentNode.getNodeName().equals(parentNodeName)) {
-                  parentNode.removeChild(currentNode);
+        if (entryType == EntryType.OTHER) {
+          if (KettleConst.kettleElementsToRemove.containsKey(currentNode.getNodeName())) {
+            if (!StringUtils.isEmpty(
+                KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))) {
+              // see if we have multiple parent nodes to check for:
+              if (KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).contains(",")) {
+                Node parentNode = currentNode.getParentNode();
+                String[] parentNodeNames =
+                    KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()).split(",");
+                for (String parentNodeName : parentNodeNames) {
+                  if (parentNode.getNodeName().equals(parentNodeName)) {
+                    parentNode.removeChild(currentNode);
+                  }
+                }
+              } else {
+                if (currentNode
+                    .getParentNode()
+                    .getNodeName()
+                    .equals(KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))) {
+                  currentNode.getParentNode().removeChild(currentNode);
                 }
               }
             } else {
-              if (currentNode
-                  .getParentNode()
-                  .getNodeName()
-                  .equals(KettleConst.kettleElementsToRemove.get(currentNode.getNodeName()))) {
-                currentNode.getParentNode().removeChild(currentNode);
-              }
+              currentNode.getParentNode().removeChild(currentNode);
             }
-          } else {
+          }
+        } else if (entryType == EntryType.START) {
+          if (KettleConst.kettleStartEntryElementsToRemove.containsKey(currentNode.getNodeName())) {
             currentNode.getParentNode().removeChild(currentNode);
+          }
+        } else if (entryType == EntryType.DUMMY) {
+          if (KettleConst.kettleDummyEntryElementsToRemove.containsKey(currentNode.getNodeName())) {
+            currentNode.getParentNode().removeChild(currentNode);
+
           }
         }
 
@@ -522,7 +566,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
               KettleConst.kettleReplaceContent.get(currentNode.getTextContent()));
         }
 
-        processNode(doc, currentNode);
+        processNode(doc, currentNode, entryType);
       }
 
       // partial node content replacement
