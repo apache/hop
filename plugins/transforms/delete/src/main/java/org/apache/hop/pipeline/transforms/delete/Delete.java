@@ -252,8 +252,17 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
   }
 
   @Override
-  public void dispose() {
+  public void batchComplete() throws HopException {
+    commitBatch(false);
+  }
 
+  @Override
+  public void dispose() {
+    commitBatch(true);
+    super.dispose();
+  }
+
+  private void commitBatch(boolean dispose) {
     if (data.db != null) {
       try {
         if (!data.db.isAutoCommit()) {
@@ -263,18 +272,20 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
             data.db.rollback();
           }
         }
-        data.db.closeUpdate();
+        if (dispose)
+          data.db.closeUpdate();
       } catch (HopDatabaseException e) {
         logError(
-            BaseMessages.getString(PKG, "Delete.Log.UnableToCommitUpdateConnection")
-                + data.db
-                + "] :"
-                + e.toString());
+                BaseMessages.getString(PKG, "Delete.Log.UnableToCommitUpdateConnection")
+                        + data.db
+                        + "] :"
+                        + e.toString());
         setErrors(1);
       } finally {
-        data.db.disconnect();
+        if (dispose)
+          data.db.disconnect();
       }
     }
-    super.dispose();
+
   }
 }
