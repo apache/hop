@@ -167,7 +167,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
 
       if (!Utils.isEmpty(meta.getSourceTransformName())) {
         ITransform transformInterface =
-            injectPipeline.getTransformInterface(meta.getSourceTransformName(), 0);
+            injectPipeline.getTransform(meta.getSourceTransformName(), 0);
         if (transformInterface == null) {
           throw new HopException(
               "Unable to find transform '" + meta.getSourceTransformName() + "' to read from.");

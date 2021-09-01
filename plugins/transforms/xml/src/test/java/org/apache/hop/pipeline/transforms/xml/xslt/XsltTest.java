@@ -353,7 +353,7 @@ public class XsltTest extends TestCase {
 
     pipeline.prepareExecution();
 
-    ITransform si = pipeline.getTransformInterface(dummyTransformName1, 0);
+    ITransform si = pipeline.getTransform(dummyTransformName1, 0);
     RowTransformCollector dummyRc1 = new RowTransformCollector();
     si.addRowListener(dummyRc1);
 

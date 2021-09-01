@@ -152,7 +152,7 @@ public class PipelineTestFactory {
 
     // Capture the rows that come out of the dummy transform...
     //
-    ITransform si = pipeline.getTransformInterface(dummyTransformName, 0);
+    ITransform si = pipeline.getTransform(dummyTransformName, 0);
     RowTransformCollector dummyRc = new RowTransformCollector();
     si.addRowListener(dummyRc);
 
@@ -216,16 +216,16 @@ public class PipelineTestFactory {
 
     // Capture the rows that come out of the dummy transform...
     //
-    ITransform si = pipeline.getTransformInterface(dummyTransformName, 0);
+    ITransform si = pipeline.getTransform(dummyTransformName, 0);
     RowTransformCollector dummyRc = new RowTransformCollector();
     si.addRowListener(dummyRc);
 
-    ITransform junit = pipeline.getTransformInterface(testTransformName, 0);
+    ITransform junit = pipeline.getTransform(testTransformName, 0);
     RowTransformCollector dummyJu = new RowTransformCollector();
     junit.addRowListener(dummyJu);
 
     // add error handler
-    ITransform er = pipeline.getTransformInterface(errorTransformName, 0);
+    ITransform er = pipeline.getTransform(errorTransformName, 0);
     RowTransformCollector erColl = new RowTransformCollector();
     er.addRowListener(erColl);
 

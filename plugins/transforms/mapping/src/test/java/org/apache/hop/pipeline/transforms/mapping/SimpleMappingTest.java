@@ -89,7 +89,7 @@ public class SimpleMappingTest {
 
     Mockito.doReturn(mpOutputMock)
         .when(transformMockHelper.pipeline)
-        .findTransformInterface(MAPPING_OUTPUT_TRANSFORM_NAME, 0);
+        .getTransform(MAPPING_OUTPUT_TRANSFORM_NAME, 0);
     Mockito.doReturn(rProducerMock)
         .when(transformMockHelper.pipeline)
         .addRowProducer(MAPPING_INPUT_TRANSFORM_NAME, 0);
@@ -166,11 +166,11 @@ public class SimpleMappingTest {
     when(rowProducer.putRow(any(IRowMeta.class), any(Object[].class), anyBoolean()))
         .thenReturn(true);
 
-    ITransform iTransform = mock(ITransform.class);
+    ITransform transform = mock(ITransform.class);
 
     Pipeline mappingPipeline = mock(Pipeline.class);
     when(mappingPipeline.addRowProducer(anyString(), anyInt())).thenReturn(rowProducer);
-    when(mappingPipeline.findTransformInterface(anyString(), anyInt())).thenReturn(iTransform);
+    when(mappingPipeline.getTransform(anyString(), anyInt())).thenReturn(transform);
     when(mappingPipeline.isFinishedOrStopped()).thenReturn(Boolean.FALSE).thenReturn(Boolean.TRUE);
     transformMockHelper.iTransformData.mappingPipeline = mappingPipeline;
 
