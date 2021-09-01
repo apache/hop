@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
@@ -509,6 +510,7 @@ public class Result implements Cloneable {
    *
    * @return This Result object serialized as XML
    */
+  @JsonIgnore
   public String getXml() {
     try {
 
@@ -572,6 +574,7 @@ public class Result implements Cloneable {
     return xml;
   }
 
+  @JsonIgnore
   public String getBasicXml() {
     StringBuilder xml = new StringBuilder();
     xml.append(XmlHandler.openTag(XML_TAG));

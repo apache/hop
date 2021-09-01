@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -58,6 +59,7 @@ public class HopServerWorkflowStatus {
     this.statusDescription = statusDescription;
   }
 
+  @JsonIgnore
   public String getXml() throws HopException {
     boolean sendResultXmlWithStatus =
         EnvUtil.getSystemProperty("HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N")
@@ -253,7 +255,7 @@ public class HopServerWorkflowStatus {
     return logDate;
   }
 
-  /** @param the logDate */
+  /** @param logDate */
   public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }

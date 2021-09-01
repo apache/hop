@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
@@ -34,7 +35,7 @@ public class HopServerStatus {
   private String errorDescription;
 
   private List<HopServerPipelineStatus> pipelineStatusList;
-  private List<HopServerWorkflowStatus> jobStatusList;
+  private List<HopServerWorkflowStatus> workflowStatusList;
 
   private long memoryFree;
   private long memoryTotal;
@@ -56,7 +57,7 @@ public class HopServerStatus {
 
   public HopServerStatus() {
     pipelineStatusList = new ArrayList<>();
-    jobStatusList = new ArrayList<>();
+    workflowStatusList = new ArrayList<>();
   }
 
   public HopServerStatus(String statusDescription) {
@@ -75,9 +76,10 @@ public class HopServerStatus {
       List<HopServerWorkflowStatus> jobStatusList) {
     this.statusDescription = statusDescription;
     this.pipelineStatusList = pipelineStatusList;
-    this.jobStatusList = jobStatusList;
+    this.workflowStatusList = jobStatusList;
   }
 
+  @JsonIgnore
   public String getXml() throws HopException {
     StringBuilder xml = new StringBuilder();
 
@@ -107,8 +109,8 @@ public class HopServerStatus {
     xml.append("  </pipeline_status_list>").append(Const.CR);
 
     xml.append("  <job_status_list>").append(Const.CR);
-    for (int i = 0; i < jobStatusList.size(); i++) {
-      HopServerWorkflowStatus jobStatus = jobStatusList.get(i);
+    for (int i = 0; i < workflowStatusList.size(); i++) {
+      HopServerWorkflowStatus jobStatus = workflowStatusList.get(i);
       xml.append("    ").append(jobStatus.getXml()).append(Const.CR);
     }
     xml.append("  </job_status_list>").append(Const.CR);
@@ -153,7 +155,7 @@ public class HopServerStatus {
     for (int i = 0; i < nrWorkflows; i++) {
       Node jobStatusNode =
           XmlHandler.getSubNodeByNr(listWorkflowsNode, HopServerWorkflowStatus.XML_TAG, i);
-      jobStatusList.add(new HopServerWorkflowStatus(jobStatusNode));
+      workflowStatusList.add(new HopServerWorkflowStatus(jobStatusNode));
     }
   }
 
@@ -204,8 +206,8 @@ public class HopServerStatus {
   }
 
   public HopServerWorkflowStatus findJobStatus(String workflowName, String id) {
-    for (int i = 0; i < jobStatusList.size(); i++) {
-      HopServerWorkflowStatus jobStatus = jobStatusList.get(i);
+    for (int i = 0; i < workflowStatusList.size(); i++) {
+      HopServerWorkflowStatus jobStatus = workflowStatusList.get(i);
       if (jobStatus.getWorkflowName().equalsIgnoreCase(workflowName)
           && (Utils.isEmpty(id) || jobStatus.getId().equals(id))) {
         return jobStatus;
@@ -215,13 +217,13 @@ public class HopServerStatus {
   }
 
   /** @return the jobStatusList */
-  public List<HopServerWorkflowStatus> getJobStatusList() {
-    return jobStatusList;
+  public List<HopServerWorkflowStatus> getWorkflowStatusList() {
+    return workflowStatusList;
   }
 
-  /** @param jobStatusList the jobStatusList to set */
-  public void setJobStatusList(List<HopServerWorkflowStatus> jobStatusList) {
-    this.jobStatusList = jobStatusList;
+  /** @param workflowStatusList the jobStatusList to set */
+  public void setWorkflowStatusList(List<HopServerWorkflowStatus> workflowStatusList) {
+    this.workflowStatusList = workflowStatusList;
   }
 
   /** @return the memoryFree */
