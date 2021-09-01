@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -100,7 +101,9 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
       case IValueMeta.TYPE_STRING:
         {
           String string = (String) object;
-          out.writeUTF(string);
+          byte[] data = string.getBytes(StandardCharsets.UTF_8);
+          out.writeInt(data.length);
+          out.write(data);
         }
         break;
       case IValueMeta.TYPE_INTEGER:
@@ -143,7 +146,10 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     switch (objectType) {
       case IValueMeta.TYPE_STRING:
         {
-          String string = in.readUTF();
+          int length = in.readInt();
+          byte[] data = new byte[length];
+          in.readFully(data);
+          String string = new String(data, StandardCharsets.UTF_8);
           return string;
         }
 
