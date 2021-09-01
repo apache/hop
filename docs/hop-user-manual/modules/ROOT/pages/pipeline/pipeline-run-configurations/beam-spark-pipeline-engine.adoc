@@ -125,3 +125,24 @@ spark-submit \
   metadata-export.json \
   SparkRunConfig
 ----
+
+== Spark embedded
+
+You can specify a master of `local[4]` to run using an embedded Spark engine.
+It's primarily used for testing locally.
+The number 4 in the example is the desired number of threads to use when executing.
+You can also specify `*` to automatically figure that out for your system.
+
+Please note that you can get an error like the following:
+
+[source]
+----
+Cannot assign requested address: Service 'sparkDriver' failed after 16 retries
+----
+
+In this case you can set system environment variable `SPARK_LOCAL_IP` to `127.0.0.1`.
+
+[source,bash]
+----
+export SPARK_LOCAL_IP="127.0.0.1"
+----
