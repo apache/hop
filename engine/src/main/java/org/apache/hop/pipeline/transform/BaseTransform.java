@@ -903,13 +903,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return getStatus().getDescription();
   }
 
-  /** @return Returns the transformMetaInterface. */
+  /** @return Returns the transformMeta. */
   @Override
   public Meta getMeta() {
     return meta;
   }
 
-  /** @param meta The transformMetaInterface to set. */
+  /** @param meta The transformMeta to set. */
   @Override
   public void setMeta(Meta meta) {
     this.meta = meta;

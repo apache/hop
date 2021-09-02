@@ -345,9 +345,9 @@ public class PipelineMeta extends AbstractMeta
       }
       // Transform references are original yet. Set them to the clones.
       for (TransformMeta transform : pipelineMeta.getTransforms()) {
-        final ITransformMeta transformMetaInterface = transform.getTransform();
-        if (transformMetaInterface != null) {
-          final ITransformIOMeta transformIOMeta = transformMetaInterface.getTransformIOMeta();
+        final ITransformMeta transformMeta = transform.getTransform();
+        if (transformMeta != null) {
+          final ITransformIOMeta transformIOMeta = transformMeta.getTransformIOMeta();
           if (transformIOMeta != null) {
             for (IStream stream : transformIOMeta.getInfoStreams()) {
               String streamTransformName = stream.getTransformName();

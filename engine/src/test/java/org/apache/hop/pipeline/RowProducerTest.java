@@ -90,12 +90,12 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testGetSetTransformInterface() throws Exception {
-    assertEquals(iTransform, rowProducer.getTransformInterface());
-    rowProducer.setTransformInterface(null);
-    assertNull(rowProducer.getTransformInterface());
-    ITransform newTransformInterface = mock(ITransform.class);
-    rowProducer.setTransformInterface(newTransformInterface);
-    assertEquals(newTransformInterface, rowProducer.getTransformInterface());
+  public void testGetSetTransform() throws Exception {
+    assertEquals(iTransform, rowProducer.getTransform());
+    rowProducer.setTransform(null);
+    assertNull(rowProducer.getTransform());
+    ITransform newTransform = mock(ITransform.class);
+    rowProducer.setTransform(newTransform);
+    assertEquals(newTransform, rowProducer.getTransform());
   }
 }

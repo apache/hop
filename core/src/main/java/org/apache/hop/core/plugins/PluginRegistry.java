@@ -1056,10 +1056,10 @@ public class PluginRegistry {
       Class<? extends IPluginType> pluginType,
       String pluginId,
       boolean waitForPluginToBeAvailable) {
-    IPlugin pluginInterface = findPluginWithId(pluginType, pluginId);
-    return waitForPluginToBeAvailable && pluginInterface == null
+    IPlugin plugin = findPluginWithId(pluginType, pluginId);
+    return waitForPluginToBeAvailable && plugin == null
         ? waitForPluginToBeAvailable(pluginType, pluginId, WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT)
-        : pluginInterface;
+        : plugin;
   }
 
   private IPlugin waitForPluginToBeAvailable(
@@ -1073,11 +1073,11 @@ public class PluginRegistry {
       Thread.currentThread().interrupt();
       return null;
     }
-    IPlugin pluginInterface = findPluginWithId(pluginType, pluginId);
-    return waitLimit <= 0 && pluginInterface == null
+    IPlugin plugin = findPluginWithId(pluginType, pluginId);
+    return waitLimit <= 0 && plugin == null
         ? null
-        : pluginInterface != null
-            ? pluginInterface
+        : plugin != null
+            ? plugin
             : waitForPluginToBeAvailable(pluginType, pluginId, waitLimit);
   }
 
