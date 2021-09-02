@@ -160,7 +160,7 @@ After `prepareExecution()` you can add row listeners to the various transforms:
 
 [source,java]
 ----
-ITransform transform = localPipeline.findTransformInterface("transform-name", 0);
+ITransform transform = localPipeline.getTransform("transform-name", 0);
 transform.addRowListener(new RowAdapter() {
   void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
     // A row was written during execution

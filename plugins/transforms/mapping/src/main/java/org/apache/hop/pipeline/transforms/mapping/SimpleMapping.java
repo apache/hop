@@ -80,7 +80,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         //
         String mappingOutputTransformName = data.mappingOutput.getTransformName();
         ITransform iOutputTransform =
-            data.mappingPipeline.findTransformInterface(mappingOutputTransformName, 0);
+            data.mappingPipeline.getTransform(mappingOutputTransformName, 0);
         RowOutputDataMapper outputDataMapper =
             new RowOutputDataMapper(meta.getInputMapping(), meta.getOutputMapping(), this::putRow);
         iOutputTransform.addRowListener(outputDataMapper);

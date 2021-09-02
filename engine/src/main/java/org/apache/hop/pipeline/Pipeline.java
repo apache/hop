@@ -1744,92 +1744,6 @@ public abstract class Pipeline
   }
 
   /**
-   * Find the base transforms for the transform with the specified name.
-   *
-   * @param transformName the transform name
-   * @return the list of base transforms for the specified transform
-   */
-  public List<ITransform> findBaseTransforms(String transformName) {
-    List<ITransform> baseTransforms = new ArrayList<>();
-
-    if (transforms == null) {
-      return baseTransforms;
-    }
-
-    for (TransformMetaDataCombi sid : transforms) {
-      ITransform iTransform = sid.transform;
-      if (iTransform.getTransformName().equalsIgnoreCase(transformName)) {
-        baseTransforms.add(iTransform);
-      }
-    }
-    return baseTransforms;
-  }
-
-  /**
-   * Find the executing transform copy for the transform with the specified name and copy number
-   *
-   * @param transformName the transform name
-   * @param copyNr
-   * @return the executing transform found or null if no copy could be found.
-   */
-  public ITransform findTransformInterface(String transformName, int copyNr) {
-    if (transforms == null) {
-      return null;
-    }
-
-    for (TransformMetaDataCombi sid : transforms) {
-      ITransform iTransform = sid.transform;
-      if (iTransform.getTransformName().equalsIgnoreCase(transformName) && sid.copy == copyNr) {
-        return iTransform;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find the available executing transform copies for the transform with the specified name
-   *
-   * @param transformName the transform name
-   * @return the list of executing transform copies found or null if no transforms are available yet
-   *     (incorrect usage)
-   */
-  public List<ITransform> findTransformInterfaces(String transformName) {
-    if (transforms == null) {
-      return null;
-    }
-
-    List<ITransform> list = new ArrayList<>();
-
-    for (TransformMetaDataCombi sid : transforms) {
-      ITransform iTransform = sid.transform;
-      if (iTransform.getTransformName().equalsIgnoreCase(transformName)) {
-        list.add(iTransform);
-      }
-    }
-    return list;
-  }
-
-  /**
-   * Find the data interface for the transform with the specified name.
-   *
-   * @param name the transform name
-   * @return the transform data interface
-   */
-  public ITransformData findDataInterface(String name) {
-    if (transforms == null) {
-      return null;
-    }
-
-    for (TransformMetaDataCombi sid : transforms) {
-      ITransform rt = sid.transform;
-      if (rt.getTransformName().equalsIgnoreCase(name)) {
-        return sid.data;
-      }
-    }
-    return null;
-  }
-
-  /**
    * Gets sortingTransformsTopologically
    *
    * @return value of sortingTransformsTopologically
@@ -1962,25 +1876,51 @@ public abstract class Pipeline
   /**
    * Find the ITransform (thread) by looking it up using the name.
    *
-   * @param transformName The name of the transform to look for
-   * @param copy the copy number of the transform to look for
+   * @param name The name of the transform to look for
+   * @param copyNr The copy number of the transform to look for
    * @return the ITransform or null if nothing was found.
    */
-  public ITransform getTransformInterface(String transformName, int copy) {
+  public ITransform getTransform(String name, int copyNr) {
     if (transforms == null) {
       return null;
     }
 
     // Now start all the threads...
     for (TransformMetaDataCombi sid : transforms) {
-      if (sid.transformName.equalsIgnoreCase(transformName) && sid.copy == copy) {
-        return sid.transform;
+      ITransform transform = sid.transform;
+      if (transform.getTransformName().equalsIgnoreCase(name) && sid.copy == copyNr) {
+        return transform;
       }
     }
 
     return null;
   }
 
+
+
+  /**
+   * Find the available executing transform copies for the transform with the specified name
+   *
+   * @param name The transform name
+   * @return the list of executing transform copies found or null if no transforms are available yet
+   *     (incorrect usage)
+   */
+  public List<ITransform> getTransforms(String name) {
+    if (transforms == null) {
+      return null;
+    }
+
+    List<ITransform> list = new ArrayList<>();
+
+    for (TransformMetaDataCombi sid : transforms) {
+      ITransform transform = sid.transform;
+      if (transform.getTransformName().equalsIgnoreCase(name)) {
+        list.add(transform);
+      }
+    }
+    return list;
+  }
+  
   /**
    * Turn on safe mode during running: the pipeline will run slower but with more checking enabled.
    *
@@ -2014,8 +1954,8 @@ public abstract class Pipeline
    * @see Pipeline#prepareExecution()
    */
   public RowProducer addRowProducer(String transformName, int copynr) throws HopException {
-    ITransform iTransform = getTransformInterface(transformName, copynr);
-    if (iTransform == null) {
+    ITransform transform = getTransform(transformName, copynr);
+    if (transform == null) {
       throw new HopException(
           "Unable to find thread with name " + transformName + " and copy number " + copynr);
     }
@@ -2034,9 +1974,9 @@ public abstract class Pipeline
     }
 
     // Add this rowset to the list of active rowsets for the selected transform
-    iTransform.addRowSetToInputRowSets(rowSet);
+    transform.addRowSetToInputRowSets(rowSet);
 
-    return new RowProducer(iTransform, rowSet);
+    return new RowProducer(transform, rowSet);
   }
 
   /**
@@ -2062,17 +2002,18 @@ public abstract class Pipeline
   /**
    * Finds the ITransformData (currently) associated with the specified transform.
    *
-   * @param transformName The name of the transform to look for
-   * @param transformcopy The copy number (0 based) of the transform
+   * @param name The name of the transform to look for
+   * @param copyNr The copy number (0 based) of the transform
    * @return The ITransformData or null if non found.
    */
-  public ITransformData getTransformDataInterface(String transformName, int transformcopy) {
+  public ITransformData getTransformData(String name, int copyNr) {
     if (transforms == null) {
       return null;
     }
 
     for (TransformMetaDataCombi sid : transforms) {
-      if (sid.transformName.equals(transformName) && sid.copy == transformcopy) {
+      ITransform transform = sid.transform;
+      if (transform.getTransformName().equalsIgnoreCase(name) && sid.copy == copyNr) {
         return sid.data;
       }
     }
@@ -3389,7 +3330,7 @@ public abstract class Pipeline
 
   @Override
   public String getComponentLogText(String componentName, int copyNr) {
-    ITransform transform = findTransformInterface(componentName, copyNr);
+    ITransform transform = getTransform(componentName, copyNr);
     if (transform == null) {
       return null;
     }
@@ -3416,7 +3357,7 @@ public abstract class Pipeline
 
   @Override
   public IEngineComponent findComponent(String name, int copyNr) {
-    return findTransformInterface(name, copyNr);
+    return getTransform(name, copyNr);
   }
 
   @Override
@@ -3461,7 +3402,7 @@ public abstract class Pipeline
       int nrRows,
       IPipelineComponentRowsReceived rowsReceived)
       throws HopException {
-    ITransform iTransform = findTransformInterface(componentName, copyNr);
+    ITransform iTransform = getTransform(componentName, copyNr);
     if (iTransform == null) {
       throw new HopException(
           "Unable to find transform '"

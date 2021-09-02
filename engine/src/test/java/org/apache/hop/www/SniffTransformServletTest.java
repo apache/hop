@@ -89,9 +89,9 @@ public class SniffTransformServletTest {
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
     Pipeline mockPipeline = mock(Pipeline.class);
     PipelineMeta mockPipelineMeta = mock(PipelineMeta.class);
-    ITransform mockTransformInterface = mock(ITransform.class);
-    List<ITransform> transformInterfaces = new ArrayList<>();
-    transformInterfaces.add(mockTransformInterface);
+    ITransform mockTransform = mock(ITransform.class);
+    List<ITransform> transforms = new ArrayList<>();
+    transforms.add(mockTransform);
     ILogChannel mockChannelInterface = mock(ILogChannel.class);
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
@@ -106,8 +106,8 @@ public class SniffTransformServletTest {
     when(mockPipeline.getLogChannelId()).thenReturn("test");
     when(mockPipeline.getPipelineMeta()).thenReturn(mockPipelineMeta);
     when(mockPipelineMeta.getMaximum()).thenReturn(new Point(10, 10));
-    when(mockPipeline.findBaseTransforms(ServletTestUtils.BAD_STRING_TO_TEST))
-        .thenReturn(transformInterfaces);
+    when(mockPipeline.getTransforms(ServletTestUtils.BAD_STRING_TO_TEST))
+        .thenReturn(transforms);
 
     sniffTransformServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
