@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -154,6 +155,7 @@ public class TransformStatus {
         + "</tr>";
   }
 
+  @JsonIgnore
   public String getXml() throws HopException {
     try {
       StringBuilder xml = new StringBuilder();
@@ -241,6 +243,7 @@ public class TransformStatus {
     return new TransformStatus(XmlHandler.getSubNode(document, XML_TAG));
   }
 
+  @JsonIgnore
   public String[] getPipelineLogFields() {
     return getPipelineLogFields(statusDescription);
   }
@@ -293,6 +296,7 @@ public class TransformStatus {
     return retval;
   }
 
+  @JsonIgnore
   public String[] getPeekFields() {
     String[] fields =
         new String[] {

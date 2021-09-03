@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -71,11 +72,16 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             : request.getRequestURI().substring(0, request.getRequestURI().indexOf(CONTEXT_PATH));
     String prefix =
         isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
-    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
+    boolean useXml = "Y".equalsIgnoreCase(request.getParameter("xml"));
+    boolean useJson = "Y".equalsIgnoreCase(request.getParameter("json"));
     boolean useLightTheme = "Y".equalsIgnoreCase(request.getParameter("useLightTheme"));
 
-    if (useXML) {
+    if (useXml) {
       response.setContentType("text/xml");
+      response.setCharacterEncoding(Const.XML_ENCODING);
+    }
+    if (useJson) {
+      response.setContentType("application/json");
       response.setCharacterEncoding(Const.XML_ENCODING);
     } else {
       response.setContentType("text/html;charset=UTF-8");
@@ -86,8 +92,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     List<HopServerObjectEntry> pipelineEntries = getPipelineMap().getPipelineObjects();
     List<HopServerObjectEntry> actions = getWorkflowMap().getWorkflowObjects();
 
-    if (useXML) {
-      out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+    if (useXml || useJson) {
       HopServerStatus serverStatus = new HopServerStatus();
       serverStatus.setStatusDescription("Online");
 
@@ -110,13 +115,24 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         HopServerWorkflowStatus jobStatus =
             new HopServerWorkflowStatus(entry.getName(), entry.getId(), status);
         jobStatus.setLogDate(workflow.getExecutionStartDate());
-        serverStatus.getJobStatusList().add(jobStatus);
+        serverStatus.getWorkflowStatusList().add(jobStatus);
       }
 
-      try {
-        out.println(serverStatus.getXml());
-      } catch (HopException e) {
-        throw new ServletException("Unable to get the server status in XML format", e);
+      if (useXml) {
+        // XML
+        try {
+          out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+          out.println(serverStatus.getXml());
+        } catch (HopException e) {
+          throw new ServletException("Unable to get the server status in XML format", e);
+        }
+      } else {
+        // JSON
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString =
+            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(serverStatus);
+        out.println(jsonString);
       }
     } else {
       out.println("<HTML>");

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -84,13 +85,18 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             : request.getRequestURI().substring(0, request.getRequestURI().indexOf(CONTEXT_PATH));
     String prefix =
         isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
-    boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
+    boolean useXml = "Y".equalsIgnoreCase(request.getParameter("xml"));
+    boolean useJson = "Y".equalsIgnoreCase(request.getParameter("json"));
     int startLineNr = Const.toInt(request.getParameter("from"), 0);
 
     response.setStatus(HttpServletResponse.SC_OK);
 
-    if (useXML) {
+    if (useXml) {
       response.setContentType("text/xml");
+      response.setCharacterEncoding(Const.XML_ENCODING);
+    }
+    if (useJson) {
+      response.setContentType("application/json");
       response.setCharacterEncoding(Const.XML_ENCODING);
     } else {
       response.setCharacterEncoding("UTF-8");
@@ -119,15 +125,12 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
     }
 
     if (pipeline != null) {
-      if (useXML) {
+      if (useXml || useJson) {
         try {
           boolean sendResultXmlWithStatus = "Y".equalsIgnoreCase(request.getParameter(SEND_RESULT));
           int lastLineNr = HopLogStore.getLastBufferLineNr();
 
           String logText = getLogText(pipeline, startLineNr, lastLineNr);
-
-          response.setContentType("text/xml");
-          response.setCharacterEncoding(Const.XML_ENCODING);
 
           HopServerPipelineStatus pipelineStatus =
               new HopServerPipelineStatus(
@@ -162,21 +165,32 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           //
           pipelineStatus.setPaused(pipeline.isPaused());
 
-          // Send the result back as XML
+          // Send the result back as XML or JSON
           //
-          String xml = pipelineStatus.getXML(sendResultXmlWithStatus);
-          byte[] data = xml.getBytes(Charset.forName(Const.XML_ENCODING));
           OutputStream out = response.getOutputStream();
-          response.setContentLength(XML_HEADER.length + data.length);
-          out.write(XML_HEADER);
-          out.write(data);
+          if (useXml) {
+            // XML
+            //
+            String xml = pipelineStatus.getXml(sendResultXmlWithStatus);
+            byte[] data = xml.getBytes(Charset.forName(Const.XML_ENCODING));
+            response.setContentLength(XML_HEADER.length + data.length);
+            out.write(XML_HEADER);
+            out.write(data);
+          } else {
+            // JSON
+            //
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonString =
+                mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pipelineStatus);
+            byte[] data = jsonString.getBytes(Charset.forName(Const.XML_ENCODING));
+            response.setContentLength(data.length);
+            out.write(data);
+          }
           out.flush();
-
           response.flushBuffer();
         } catch (HopException e) {
-          throw new ServletException("Unable to get the pipeline status in XML format", e);
+          throw new ServletException("Unable to get the pipeline status in XML or JSON format", e);
         }
-
       } else {
         PrintWriter out = response.getWriter();
 
@@ -504,7 +518,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
       }
     } else {
       PrintWriter out = response.getWriter();
-      if (useXML) {
+      if (useXml) {
         out.println(
             new WebResult(
                 WebResult.STRING_ERROR,
