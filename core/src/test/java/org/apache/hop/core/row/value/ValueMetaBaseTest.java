@@ -1138,21 +1138,6 @@ public class ValueMetaBaseTest {
     assertEquals(3, valueMeta.getLength());
   }
 
-  @Ignore // TODO: test was based on oracleVariant does not change type to bignumber for generic
-          // Database
-  @Test
-  public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision()
-      throws SQLException, HopDatabaseException {
-    doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
-    doReturn(128).when(resultSet).getInt("COLUMN_SIZE");
-    doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
-    doReturn(127).when(resultSet).getInt("DECIMAL_DIGITS");
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
-    assertTrue(valueMeta.isBigNumber());
-    assertEquals(-1, valueMeta.getPrecision());
-    assertEquals(-1, valueMeta.getLength());
-  }
-
   @Test
   public void testMetdataPreviewSqlDoubleToHopBigNumber()
       throws SQLException, HopDatabaseException {

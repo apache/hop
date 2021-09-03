@@ -23,7 +23,6 @@ import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -33,7 +32,6 @@ import static org.junit.Assert.assertEquals;
 public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
   @Test
-  @Ignore
   public void testSparkPipelineEngine() throws Exception {
 
     BeamSparkPipelineRunConfiguration configuration = new BeamSparkPipelineRunConfiguration();

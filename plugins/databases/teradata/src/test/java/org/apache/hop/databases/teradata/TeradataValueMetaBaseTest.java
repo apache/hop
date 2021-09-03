@@ -88,7 +88,8 @@ public class TeradataValueMetaBaseTest {
     HopLogStore.getAppender().addLoggingEventListener(listener);
 
     valueMetaBase = new ValueMetaBase();
-    dbMeta = new DatabaseMeta("teradata", "TERADATA", "", "", "", "", "", "");
+    dbMeta = spy(new DatabaseMeta());
+    dbMeta.setIDatabase(spy(TeradataDatabaseMeta.class));
     resultSet = mock(ResultSet.class);
     variables = spy(new Variables());
   }
@@ -99,12 +100,10 @@ public class TeradataValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
   }
 
-  @Ignore
   @Test
   public void testMetdataPreviewSqlDateToHopDateUsingTeradata()
       throws SQLException, HopDatabaseException {
     doReturn(Types.DATE).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(TeradataDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isDate());
     assertEquals(1, valueMeta.getPrecision());

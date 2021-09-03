@@ -36,7 +36,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   protected ILogChannel log = new LogChannel("junit");
 
   @Test
-  @Ignore
   public void setParentScopeVariable_ParentIsPipeline() {
     Pipeline parent = createPipeline();
     Pipeline child = createPipeline(parent);
@@ -48,7 +47,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setParentScopeVariable_ParentIsJob() {
     Workflow parent = createWorkflow();
     Pipeline child = createPipeline(parent);
@@ -60,7 +58,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setParentScopeVariable_NoParent() {
     Pipeline pipeline = createPipeline();
 
@@ -70,7 +67,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setGrandParentScopeVariable_TwoLevelHierarchy() {
     Pipeline parent = createPipeline();
     Pipeline child = createPipeline(parent);
@@ -82,7 +78,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setGrandParentScopeVariable_ThreeLevelHierarchy() {
     Workflow grandParent = createWorkflow();
     Pipeline parent = createPipeline(grandParent);
@@ -96,7 +91,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setGrandParentScopeVariable_FourLevelHierarchy() {
     Workflow grandGrandParent = createWorkflow();
     Pipeline grandParent = createPipeline(grandGrandParent);
@@ -112,7 +106,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setGrandParentScopeVariable_NoParent() {
     Pipeline pipeline = createPipeline();
 
@@ -134,7 +127,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setRootScopeVariable_FourLevelHierarchy() {
     Workflow grandGrandParent = createWorkflow();
     Pipeline grandParent = createPipeline(grandGrandParent);
@@ -150,7 +142,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setRootScopeVariable_NoParent() {
     Pipeline pipeline = createPipeline();
 
@@ -160,7 +151,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setSystemScopeVariable_NoParent() {
     Pipeline pipeline = createPipeline();
 
@@ -177,7 +167,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Ignore
   public void setSystemScopeVariable_FourLevelHierarchy() {
     Workflow grandGrandParent = createWorkflow();
     Pipeline grandParent = createPipeline(grandGrandParent);

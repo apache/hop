@@ -29,7 +29,10 @@ import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.sql.*;
 import java.util.Map;
@@ -524,8 +527,9 @@ public class MySqlDatabaseMetaTest {
   }
 
   @Test
-  @Ignore // TODO: Fix test extra options
   public void testExtraOptions() {
+    DatabaseMeta nativeMeta =
+        new DatabaseMeta("", "MYSQL", "JDBC", null, "stub:stub", null, null, null);
     Map<String, String> opts = nativeMeta.getExtraOptions();
     assertNotNull(opts);
     assertEquals("500", opts.get("MYSQL.defaultFetchSize"));

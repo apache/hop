@@ -17,8 +17,12 @@
 package org.apache.hop.databases.mariadb;
 
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.junit.Ignore;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.DatabaseMetaData;
@@ -31,6 +35,14 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.*;
 
 public class MariaDBDatabaseMetaTest {
+
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopException {
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.addPluginType(DatabasePluginType.getInstance());
+    PluginRegistry.init();
+  }
+
   /**
    * @return
    * @throws Exception
@@ -145,7 +157,6 @@ public class MariaDBDatabaseMetaTest {
     // The fullExceptionLog method is covered by another test case.
   }
 
-  @Ignore
   @Test
   public void testAddOptionsMariaDB() {
     DatabaseMeta databaseMeta =
