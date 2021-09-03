@@ -127,7 +127,7 @@ Examples
 //
 // HDFS
 //
-|HDFS|Provides (read-only) access to files in an Apache Hadoop File System (HDFS).
+|HDFS|Provides access to files in an Apache Hadoop File System (HDFS).
 On Windows the integration test is disabled by default, as it requires binaries.
 a|
 URI Format
