@@ -70,32 +70,32 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
 
     switch (sourceValueMetaType) {
       case IValueMeta.TYPE_INET:
-        return convertFromInetMetaInterface(targetValueMetaType, value);
+        return convertFromInetMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_STRING:
-        return convertFromStringMetaInterface(targetValueMetaType, value);
+        return convertFromStringMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_INTEGER:
-        return convertFromIntegerMetaInterface(targetValueMetaType, value);
+        return convertFromIntegerMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_NUMBER:
-        return convertFromNumberMetaInterface(targetValueMetaType, value);
+        return convertFromNumberMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_BIGNUMBER:
-        return convertFromBigNumberMetaInterface(targetValueMetaType, value);
+        return convertFromBigNumberMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_TIMESTAMP:
-        return convertFromTimestampMetaInterface(targetValueMetaType, value);
+        return convertFromTimestampMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_DATE:
-        return convertFromDateMetaInterface(targetValueMetaType, value);
+        return convertFromDateMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_BOOLEAN:
-        return convertFromBooleanMetaInterface(targetValueMetaType, value);
+        return convertFromBooleanMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_BINARY:
-        return convertFromBinaryMetaInterface(targetValueMetaType, value);
+        return convertFromBinaryMeta(targetValueMetaType, value);
       case IValueMeta.TYPE_SERIALIZABLE:
-        return convertFromSerializableMetaInterface(targetValueMetaType, value);
+        return convertFromSerializableMeta(targetValueMetaType, value);
       default:
         throwBadConversionCombination(sourceValueMetaType, targetValueMetaType, value);
     }
     return null;
   }
 
-  protected Object convertFromStringMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromStringMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
     if (value == null) {
       return null;
@@ -150,7 +150,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return null;
   }
 
-  protected Object convertFromDateMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromDateMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -187,7 +187,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return null;
   }
 
-  protected Object convertFromNumberMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromNumberMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -227,7 +227,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return null;
   }
 
-  protected Object convertFromBooleanMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromBooleanMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -259,7 +259,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return null;
   }
 
-  protected Object convertFromIntegerMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromIntegerMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -304,7 +304,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return value;
   }
 
-  protected Object convertFromBigNumberMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromBigNumberMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -345,7 +345,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return value;
   }
 
-  protected Object convertFromTimestampMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromTimestampMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -383,7 +383,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return value;
   }
 
-  protected Object convertFromInetMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromInetMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -420,7 +420,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return null;
   }
 
-  protected Object convertFromBinaryMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromBinaryMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {
@@ -452,7 +452,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
     return null;
   }
 
-  protected Object convertFromSerializableMetaInterface(int targetValueMetaType, Object value)
+  protected Object convertFromSerializableMeta(int targetValueMetaType, Object value)
       throws ValueMetaConversionException {
 
     if (value == null) {

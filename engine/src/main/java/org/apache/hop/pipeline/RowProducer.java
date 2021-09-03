@@ -30,10 +30,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class RowProducer {
   private IRowSet rowSet;
-  private ITransform iTransform;
+  private ITransform transform;
 
-  public RowProducer(ITransform iTransform, IRowSet rowSet) {
-    this.iTransform = iTransform;
+  public RowProducer(ITransform transform, IRowSet rowSet) {
+    this.transform = transform;
     this.rowSet = rowSet;
   }
 
@@ -89,13 +89,13 @@ public class RowProducer {
     this.rowSet = rowSet;
   }
 
-  /** @return Returns the iTransform. */
-  public ITransform getTransformInterface() {
-    return iTransform;
+  /** @return Returns the ITransform. */
+  public ITransform getTransform() {
+    return transform;
   }
 
-  /** @param iTransform The iTransform to set. */
-  public void setTransformInterface(ITransform iTransform) {
-    this.iTransform = iTransform;
+  /** @param transform The ITransform to set. */
+  public void setTransform(ITransform transform) {
+    this.transform = transform;
   }
 }
