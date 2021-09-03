@@ -25,7 +25,10 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.*;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 import java.util.*;
@@ -118,12 +121,6 @@ public class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
     if (someMeta instanceof ScriptValuesMeta) {
       ((ScriptValuesMeta) someMeta).allocate(5);
     }
-  }
-
-  @Test
-  @Ignore
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
   }
 
   public class ScriptValuesScriptLoadSaveValidator

@@ -76,6 +76,7 @@ public class SQLiteValueMetaBaseTest {
 
     valueMetaBase = new ValueMetaBase();
     dbMeta = spy(new DatabaseMeta());
+    dbMeta.setIDatabase(spy(SqliteDatabaseMeta.class));
     resultSet = mock(ResultSet.class);
     variables = spy(new Variables());
   }
@@ -100,12 +101,10 @@ public class SQLiteValueMetaBaseTest {
     }
   }
 
-  @Ignore
   @Test
   public void testMetdataPreviewSqlBinaryToHopStringUsingSqlite()
       throws SQLException, HopDatabaseException {
     doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(SqliteDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
   }

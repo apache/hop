@@ -122,4 +122,17 @@ public class OracleValueMetaBaseTest {
     assertEquals(-1, valueMeta.getPrecision());
     assertEquals(19, valueMeta.getLength());
   }
+
+  @Test
+  public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision()
+          throws SQLException, HopDatabaseException {
+    doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
+    doReturn(128).when(resultSet).getInt("COLUMN_SIZE");
+    doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
+    doReturn(127).when(resultSet).getInt("DECIMAL_DIGITS");
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, databaseMeta, resultSet);
+    assertTrue(valueMeta.isBigNumber());
+    assertEquals(-1, valueMeta.getPrecision());
+    assertEquals(-1, valueMeta.getLength());
+  }
 }

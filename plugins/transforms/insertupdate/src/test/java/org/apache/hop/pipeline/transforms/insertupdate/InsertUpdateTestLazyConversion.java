@@ -37,10 +37,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * @author Pavel Sakun
  * @see InsertUpdate
  */
-public class PDI3499Test {
+public class InsertUpdateTestLazyConversion {
   TransformMockHelper<InsertUpdateMeta, InsertUpdateData> smh;
 
   @Before
@@ -57,7 +56,6 @@ public class PDI3499Test {
   }
 
   @Test
-  @Ignore
   public void testDateLazyConversion() throws HopException {
     Database db = mock(Database.class);
     RowMeta returnRowMeta = new RowMeta();

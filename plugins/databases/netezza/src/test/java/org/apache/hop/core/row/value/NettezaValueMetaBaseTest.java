@@ -73,6 +73,7 @@ public class NettezaValueMetaBaseTest {
 
     valueMetaBase = new ValueMetaBase();
     dbMeta = spy(new DatabaseMeta());
+    dbMeta.setIDatabase(spy(NetezzaDatabaseMeta.class));
     resultSet = mock(ResultSet.class);
   }
 
@@ -101,7 +102,6 @@ public class NettezaValueMetaBaseTest {
    *
    * @throws Exception
    */
-  @Ignore
   @Test
   public void testGetValueFromSqlTypeNetezza() throws Exception {
     ValueMetaBase obj = new ValueMetaBase();

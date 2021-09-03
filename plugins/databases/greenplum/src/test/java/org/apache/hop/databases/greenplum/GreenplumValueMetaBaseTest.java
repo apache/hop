@@ -91,9 +91,9 @@ public class GreenplumValueMetaBaseTest {
   public void setUp() {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
-
+    dbMeta = spy(DatabaseMeta.class);
+    dbMeta.setIDatabase(spy(GreenplumDatabaseMeta.class));
     valueMetaBase = new ValueMetaBase();
-    dbMeta = spy(new DatabaseMeta());
     resultSet = mock(ResultSet.class);
     variables = spy(new Variables());
   }
@@ -104,7 +104,6 @@ public class GreenplumValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
   }
 
-  @Ignore
   @Test
   public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum()
       throws SQLException, HopDatabaseException {
@@ -112,7 +111,6 @@ public class GreenplumValueMetaBaseTest {
     doReturn(0).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
     doReturn(0).when(resultSet).getInt("DECIMAL_DIGITS");
-    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBigNumber());
     assertEquals(-1, valueMeta.getPrecision());
@@ -122,7 +120,6 @@ public class GreenplumValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }
@@ -130,7 +127,6 @@ public class GreenplumValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BLOB).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
     assertTrue(valueMeta.isBinary());
@@ -140,7 +136,6 @@ public class GreenplumValueMetaBaseTest {
   public void testMetdataPreviewSqlVarBinaryToHopBinary()
       throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(GreenplumDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }

@@ -53,7 +53,7 @@
         <javax.websocket-api.version>1.1</javax.websocket-api.version>
         <picocli-version>3.7.0</picocli-version>
         <json-simple.version>1.1.1</json-simple.version>
-        <commons-vfs2.version>2.4.1</commons-vfs2.version>
+        <commons-vfs2.version>2.9.0</commons-vfs2.version>
     </properties>
 
     <dependencies>
