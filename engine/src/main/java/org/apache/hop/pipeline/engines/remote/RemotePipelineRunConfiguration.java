@@ -54,7 +54,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       comboValuesMethod = "getRunConfigurationNames",
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label")
-  @HopMetadataProperty(key = "safe_mode")
+  @HopMetadataProperty(key = "run_config")
   protected String runConfigurationName;
 
   @GuiWidgetElement(

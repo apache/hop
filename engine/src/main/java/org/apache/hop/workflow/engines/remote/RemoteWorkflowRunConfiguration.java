@@ -53,7 +53,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
       comboValuesMethod = "getRunConfigurationNames",
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.RunConfiguration.Label")
-  @HopMetadataProperty(key = "safe_mode")
+  @HopMetadataProperty(key = "run_config")
   protected String runConfigurationName;
 
   @GuiWidgetElement(

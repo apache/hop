@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.*;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -237,12 +238,21 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         workflowExecutionConfiguration.setLogLevel(logLevel);
       }
       if (previousResult != null) {
+        // This contains result rows, files, ...
+        //
         workflowExecutionConfiguration.setPreviousResult(previousResult);
       }
       workflowExecutionConfiguration.setGatheringMetrics(gatheringMetrics);
 
-      // TODO: pass variables and source rows as well...
+      // Pass all variables to the parameters map...
       //
+      Map<String, String> parametersMap = workflowExecutionConfiguration.getParametersMap();
+      for (String variableName : this.getVariableNames()) {
+        String variableValue = this.getVariable(variableName);
+        if (variableName != null && variableValue != null) {
+          parametersMap.put(variableName, variableValue);
+        }
+      }
 
       sendToHopServer(this, workflowMeta, workflowExecutionConfiguration, metadataProvider);
       fireWorkflowStartedListeners();
@@ -285,15 +295,17 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   public synchronized void getWorkflowStatus() throws HopException {
+    if (containerId == null) {
+      // Nothing to look for yet...
+      return;
+    }
     try {
       workflowStatus =
           hopServer.getWorkflowStatus(this, workflowMeta.getName(), containerId, lastLogLineNr);
       lastLogLineNr = workflowStatus.getLastLoggingLineNr();
       if (StringUtils.isNotEmpty(workflowStatus.getLoggingString())) {
-        logChannel.logBasic(
-            workflowStatus
-                .getLoggingString()); // TODO implement detailed logging and add option to log at
-        // all
+        // TODO implement detailed logging and add option to log at all
+        logChannel.logBasic(workflowStatus.getLoggingString());
       }
       finished = workflowStatus.isFinished();
       stopped = workflowStatus.isStopped();

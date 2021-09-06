@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -114,10 +114,12 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
                 getWorkflowMap().getConfiguration(workflowName);
             IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
 
-            String serverObjectId = UUID.randomUUID().toString();
+            // This new workflow execution engine instance needs a new container ID...
+            //
+            String containerId = UUID.randomUUID().toString();
             SimpleLoggingObject servletLoggingObject =
                 new SimpleLoggingObject(CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null);
-            servletLoggingObject.setContainerObjectId(serverObjectId);
+            servletLoggingObject.setContainerObjectId(containerId);
 
             String runConfigurationName =
                 workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
@@ -128,11 +130,16 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
                     metadataProvider,
                     workflow.getWorkflowMeta(),
                     servletLoggingObject);
+
             newWorkflow.setLogLevel(workflow.getLogLevel());
 
-            // TODO: start workflow with parameters and variables?
+            // Variables are set in AddWorkflowServlet
             //
             newWorkflow.activateParameters(newWorkflow);
+
+            // Set the new container ID in the workflow...
+            //
+            newWorkflow.setContainerId(containerId);
 
             // Discard old log lines from the old workflow
             //
@@ -148,7 +155,8 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
         String message =
             BaseMessages.getString(PKG, "StartWorkflowServlet.Log.WorkflowStarted", workflowName);
         if (useXML) {
-          out.println(new WebResult(WebResult.STRING_OK, message, id).getXml());
+          out.println(
+              new WebResult(WebResult.STRING_OK, message, workflow.getContainerId()).getXml());
         } else {
 
           out.println("<H1>" + Encode.forHtml(message) + "</H1>");
