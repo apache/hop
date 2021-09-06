@@ -100,7 +100,7 @@ public class ActionDialog extends Dialog {
             parent,
             SWT.NONE,
             BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
-            "Select the relational database connection to use" // TODO : i18n
+            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip")
             );
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
