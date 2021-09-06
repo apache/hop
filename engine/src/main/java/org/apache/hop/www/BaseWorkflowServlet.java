@@ -89,6 +89,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     getWorkflowMap()
         .addWorkflow(workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration);
 
+    // Remember the generated container ID
+    //
+    workflow.setContainerId(serverObjectId);
+
     return workflow;
   }
 
