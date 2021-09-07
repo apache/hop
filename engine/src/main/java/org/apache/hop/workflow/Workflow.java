@@ -909,7 +909,17 @@ public abstract class Workflow extends Variables
   @Override
   public boolean isStopped() {
     int exist = status.get() & BitMaskStatus.STOPPED.mask;
-    return exist != 0;
+    boolean stopped = exist != 0;
+
+    // Keep an eye on the stopped state of a parent workflow and pipeline as well
+    //
+    if (parentWorkflow != null && parentWorkflow.isStopped()) {
+      stopped |= true;
+    }
+    if (parentPipeline != null && parentPipeline.isStopped()) {
+      stopped |= true;
+    }
+    return stopped;
   }
 
   /** Stop all activity by setting the stopped property to true. */
