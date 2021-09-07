@@ -163,3 +163,7 @@ ok;
 ----
 
 This script reads the log returned by the previous pipeline and parses it to search for values.
+
+
+// Include hop license header snippet
+include::snippets/hop-license-header-file.adoc[]
