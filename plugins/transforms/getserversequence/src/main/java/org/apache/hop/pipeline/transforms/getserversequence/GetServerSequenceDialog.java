@@ -126,8 +126,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
             shell,
             SWT.BORDER,
             BaseMessages.getString(PKG, "GetSequenceDialog.HopServer.Label"),
-            "Select the server to use" // TODO : i18n
-            ,
+            BaseMessages.getString(PKG, "GetSequenceDialog.HopServer.Tooltip"),
             false);
     FormData fdHopServer = new FormData();
     fdHopServer.left = new FormAttachment(0, 0);
