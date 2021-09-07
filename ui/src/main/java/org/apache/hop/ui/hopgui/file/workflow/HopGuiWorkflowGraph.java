@@ -3149,7 +3149,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @Override
-  public void save() throws HopException {
+  public synchronized void save() throws HopException {
     try {
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta);
