@@ -82,7 +82,7 @@ pipeline {
         }
         stage('Get POM Version') {
             when {
-                  anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: ${params.FORCE_BUILD} }
+                  anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
                 }
             steps{
                 script {
@@ -93,7 +93,7 @@ pipeline {
         }
         stage('Test & Build') {
             when {
-                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: ${params.FORCE_BUILD} }
+                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
                 }
             steps {
                 echo 'Test & Build'
@@ -113,7 +113,7 @@ pipeline {
         }
         stage('Unzip Apache Hop'){
             when {
-                  anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: ${params.FORCE_BUILD} }
+                  anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
                 }
             steps{
                 sh "unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
@@ -124,7 +124,7 @@ pipeline {
         stage('Build Hop Docker Image') {
             when {
                 branch 'master'
-                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: ${params.FORCE_BUILD} }
+                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
                 echo 'Building Hop Docker Image'
@@ -140,7 +140,7 @@ pipeline {
         stage('Build Hop Web Docker Image') {
             when {
                 branch 'master'
-                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: ${params.FORCE_BUILD} }
+                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
                 echo 'Building Hop Web Docker Image'
@@ -156,7 +156,7 @@ pipeline {
         stage('Deploy'){
             when {
                 branch 'master'
-               anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: ${params.FORCE_BUILD} }
+               anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps{
                 echo 'Deploying'
