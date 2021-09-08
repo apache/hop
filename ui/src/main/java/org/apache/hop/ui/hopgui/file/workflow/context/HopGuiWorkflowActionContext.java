@@ -17,13 +17,13 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
@@ -41,6 +41,7 @@ import java.util.List;
 public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     implements IGuiContextHandler {
 
+  public static final Class<?> PKG = HopGuiWorkflowActionContext.class; // i18n
   public static final String CONTEXT_ID = "HopGuiWorkflowActionContext";
 
   private WorkflowMeta workflowMeta;
@@ -88,10 +89,12 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
             new GuiAction(
                 "action-open-referenced-" + objectDescription,
                 GuiActionType.Info,
-                "open: " + objectDescription,
-                "This opens up the file referenced in the action."
-                    + Const.CR
-                    + "You can hit key 'z' with the cursor over an Action icon or use CTRL+SHIFT+Click",
+                BaseMessages.getString(
+                    PKG,
+                    "HopGuiWorkflowTransformContext.OpenReferencedAction.Name",
+                    objectDescription),
+                BaseMessages.getString(
+                    PKG, "HopGuiWorkflowTransformContext.OpenReferencedAction.Tooltip"),
                 "ui/images/open.svg",
                 (shiftAction, controlAction, t) ->
                     openReferencedObject(
