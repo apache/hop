@@ -32,21 +32,52 @@ import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.*;
-import org.apache.hop.core.parameters.*;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.parameters.DuplicateParamException;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.*;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
+import org.apache.hop.pipeline.IExecutionStartedListener;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.*;
+import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
+import org.apache.hop.pipeline.engine.EngineMetrics;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.joda.time.Duration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BeamPipelineEngine extends Variables
     implements IPipelineEngine<PipelineMeta> {
@@ -225,24 +256,30 @@ public abstract class BeamPipelineEngine extends Variables
       throws HopException {
 
     RunnerType runnerType = beamEngineRunConfiguration.getRunnerType();
-    switch (runnerType) {
-      case Direct:
-        return DirectRunner.fromOptions(pipeline.getOptions()).run(pipeline);
-      case Flink:
-        return FlinkRunner.fromOptions(pipeline.getOptions()).run(pipeline);
-      case DataFlow:
-        return DataflowRunner.fromOptions(pipeline.getOptions()).run(pipeline);
-      case Spark:
-        return SparkRunner.fromOptions(pipeline.getOptions()).run(pipeline);
-      default:
-        throw new HopException(
-            "Execution on runner '" + runnerType.name() + "' is not supported yet.");
+    try {
+      switch (runnerType) {
+        case Direct:
+          return DirectRunner.fromOptions(pipeline.getOptions()).run(pipeline);
+        case Flink:
+          return FlinkRunner.fromOptions(pipeline.getOptions()).run(pipeline);
+        case DataFlow:
+          return DataflowRunner.fromOptions(pipeline.getOptions()).run(pipeline);
+        case Spark:
+          return SparkRunner.fromOptions(pipeline.getOptions()).run(pipeline);
+        default:
+          throw new HopException(
+              "Execution on runner '" + runnerType.name() + "' is not supported yet.");
+      }
+    } catch (Throwable e) {
+      throw new HopException("Error executing pipeline with runner " + runnerType.name(), e);
     }
   }
 
   @Override
   public void startThreads() throws HopException {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+    final AtomicBoolean hasStartupErrors = new AtomicBoolean(false);
+
     try {
       // Explain to various classes in the Beam API (@see org.apache.beam.sdk.io.FileSystems)
       // what the context classloader is.
@@ -259,6 +296,8 @@ public abstract class BeamPipelineEngine extends Variables
         try {
           beamPipelineResults = executePipeline(beamPipeline);
         } catch (Throwable e) {
+          hasStartupErrors.set(true);
+
           // Reset the flags so the user can correct and retry
           //
           setRunning(false);
@@ -268,63 +307,56 @@ public abstract class BeamPipelineEngine extends Variables
           setReadyToStart(false);
           setErrors(getErrors() + 1);
 
-          throw new HopException("Error starting the Beam pipeline", e);
+          logChannel.logError("Error starting the Beam pipeline", e);
         }
         firePipelineExecutionStartedListeners();
 
       } else {
         // The running pipeline will block
         //
-        try {
-          beamThread =
-              new Thread(
-                  () -> {
-                    try {
-                      beamPipelineResults = executePipeline(beamPipeline);
-                    } catch (Throwable e) {
-                      throw new RuntimeException("Error starting the Beam pipeline", e);
+        beamThread =
+            new Thread(
+                () -> {
+                  try {
+                    beamPipelineResults = executePipeline(beamPipeline);
+                  } catch (Throwable e) {
+                    logChannel.logError("Error starting the Beam pipeline", e);
+                    // Reset the flags so the user can correct and retry
+                    //
+                    setRunning(false);
+                    setStopped(true);
+                    setPreparing(false);
+                    setPaused(false);
+                    setReadyToStart(true);
+                    setErrors(getErrors() + 1);
+                  }
+                });
+        beamThread.start();
+
+        // Keep track of when this thread is done...
+        //
+        new Thread(
+                () -> {
+                  try {
+                    // Wait for the execution thread to finish
+                    //
+                    beamThread.join();
+
+                    // In any case, fire the finished listeners...
+                    // This basically sets the finished flag in this pipeline
+                    //
+                    firePipelineExecutionFinishedListeners();
+                    populateEngineMetrics(); // get the final state
+                    if (refreshTimer != null) {
+                      refreshTimer.cancel(); // no more needed
                     }
-
-                    try {
-                      firePipelineExecutionFinishedListeners();
-                    } catch (HopException e) {
-                      throw new RuntimeException(
-                          "Error firing pipeline finished listeners in a Beam pipeline engine", e);
-                    }
-                  });
-          beamThread.start();
-
-          // Keep track of when this thread is done...
-          //
-          new Thread(
-                  () -> {
-                    try {
-                      beamThread.join();
-                      firePipelineExecutionFinishedListeners();
-                      populateEngineMetrics(); // get the final state
-                      if (refreshTimer != null) {
-                        refreshTimer.cancel(); // no more needed
-                      }
-                      setRunning(false);
-                      executionEndDate = new Date();
-                    } catch (Exception e) {
-                      throw new RuntimeException("Error post-processing a beam pipeline", e);
-                    }
-                  })
-              .start();
-
-        } catch (Exception e) {
-          // Reset the flags so the user can correct and retry
-          //
-          setRunning(false);
-          setStopped(true);
-          setPreparing(false);
-          setPaused(false);
-          setReadyToStart(false);
-          setErrors(getErrors() + 1);
-
-          throw new HopException("Unable to start Beam pipeline", e);
-        }
+                    setRunning(false);
+                    executionEndDate = new Date();
+                  } catch (Exception e) {
+                    throw new RuntimeException("Error post-processing a beam pipeline", e);
+                  }
+                })
+            .start();
       }
 
       // We have stuff running in the background, let's keep track of the progress regularly
@@ -336,6 +368,12 @@ public abstract class BeamPipelineEngine extends Variables
             public void run() {
               try {
                 populateEngineMetrics();
+
+                // Stop this timer in case of error (hardening in case of race condition)
+                //
+                if (hasStartupErrors.get()) {
+                  refreshTimer.cancel(); // no more needed
+                }
               } catch (Throwable e) {
                 throw new RuntimeException(
                     "Error refreshing engine metrics in the Beam pipeline engine", e);
@@ -478,6 +516,7 @@ public abstract class BeamPipelineEngine extends Variables
     PipelineResult.State pipelineState = beamPipelineResults.waitUntilFinish(Duration.millis(1));
     if (pipelineState != null) {
       boolean cancelPipeline = false;
+      boolean cancelRefreshTimer = false;
       switch (pipelineState) {
         case DONE:
           if (isRunning()) {
@@ -495,20 +534,18 @@ public abstract class BeamPipelineEngine extends Variables
         case CANCELLED:
           if (!isStopped()) {
             firePipelineExecutionStoppedListeners();
-            if (refreshTimer != null) {
-              refreshTimer.cancel();
-            }
+            cancelRefreshTimer = true;
           }
           setStopped(true);
           setRunning(false);
           setStatus(ComponentExecutionStatus.STATUS_STOPPED);
-          cancelPipeline = true;
           break;
         case FAILED:
           setStopped(true);
           setFinished(true);
+          setErrors(getErrors() + 1);
+          cancelRefreshTimer = true;
           logChannel.logBasic("Beam pipeline execution failed.");
-          cancelPipeline = true;
           break;
         case UNKNOWN:
           break;
@@ -527,6 +564,11 @@ public abstract class BeamPipelineEngine extends Variables
           logChannel.logBasic("Pipeline execution cancelled");
         } catch (Exception e) {
           logChannel.logError("Cancellation of pipeline failed", e);
+        }
+      }
+      if (cancelRefreshTimer) {
+        if (refreshTimer != null) {
+          refreshTimer.cancel();
         }
       }
     }

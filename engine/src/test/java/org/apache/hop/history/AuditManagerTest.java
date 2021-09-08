@@ -19,6 +19,7 @@ package org.apache.hop.history;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.local.LocalAuditManager;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -87,7 +88,7 @@ public class AuditManagerTest {
     assertEquals("Not getting unique events", 2, uniqueEvents.size());
   }
 
-  // @Ignore // TODO Race condition with other test data, works fine when run stand-alone
+  @Ignore // TODO Race condition with other test data, works fine when run stand-alone
   @Test
   public void testFindAllEventsWithDefaultAuditManager() throws HopException {
     AuditManager.getInstance()
