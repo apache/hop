@@ -585,7 +585,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (data.db != null) {
       try {
-        emptyAndCommitBatchBuffers();
+        emptyAndCommitBatchBuffers(true);
       } finally {
         data.db.disconnect();
       }
@@ -593,7 +593,15 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
   }
 
-  private void emptyAndCommitBatchBuffers() {
+  // Force the batched up rows to the database in a single-threaded scenario
+  // (Beam as well)
+  //
+  @Override
+  public void batchComplete() throws HopException {
+    emptyAndCommitBatchBuffers(false);
+  }
+
+  private void emptyAndCommitBatchBuffers(boolean dispose) {
     try {
       for (String schemaTable : data.preparedStatements.keySet()) {
         // Get a commit counter per prepared statement to keep track of separate tables, etc.
@@ -604,7 +612,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
 
         PreparedStatement insertStatement = data.preparedStatements.get(schemaTable);
-        data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter);
+        data.db.emptyAndCommit(insertStatement, data.batchMode, batchCounter, dispose);
         data.commitCounterMap.put(schemaTable, 0);
       }
       for (int i = 0; i < data.batchBuffer.size(); i++) {
@@ -648,11 +656,4 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
   }
 
-  // Force the batched up rows to the database in a single-threaded scenario
-  // (Beam as well)
-  //
-  @Override
-  public void batchComplete() throws HopException {
-    emptyAndCommitBatchBuffers();
-  }
 }
