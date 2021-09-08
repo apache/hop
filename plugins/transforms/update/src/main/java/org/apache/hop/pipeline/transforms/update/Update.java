@@ -24,9 +24,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -185,7 +185,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
                   + data.lookupParameterRowMeta.getString(lookupRow));
         }
         data.db.setValues(data.updateParameterRowMeta, updateRow, data.prepStatementUpdate);
-        data.db.insertRow(data.prepStatementUpdate, meta.useBatchUpdate(), true);
+        data.db.insertRow(data.prepStatementUpdate, meta.isUseBatchUpdate(), true);
         incrementLinesUpdated();
       } else {
         incrementLinesSkipped();
@@ -200,7 +200,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     return outputRow;
   }
 
-  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -222,7 +221,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
 
       data.schemaTable =
           meta.getDatabaseMeta()
-              .getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
+              .getQuotedSchemaTableCombination(this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
 
       // lookup the values!
       if (log.isDetailed()) {
@@ -230,44 +229,45 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
             BaseMessages.getString(PKG, "Update.Log.CheckingRow") + getInputRowMeta().getString(r));
       }
 
-      ArrayList<Integer> keynrs = new ArrayList<>(meta.getKeyStream().length);
-      ArrayList<Integer> keynrs2 = new ArrayList<>(meta.getKeyStream().length);
+      ArrayList<Integer> keynrs = new ArrayList<>(meta.getLookupField().getLookupKeys().size());
+      ArrayList<Integer> keynrs2 = new ArrayList<>(meta.getLookupField().getLookupKeys().size());
 
-      for (int i = 0; i < meta.getKeyStream().length; i++) {
-        int keynr = getInputRowMeta().indexOfValue(meta.getKeyStream()[i]);
+      for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
+        UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
+        int keynr = getInputRowMeta().indexOfValue(keyItem.getKeyStream());
 
         if (keynr < 0
             && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
+            !"IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
             && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i]) // No field needed!
+            !"IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition()) // No field needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "Update.Exception.FieldRequired", meta.getKeyStream()[i]));
+                  PKG, "Update.Exception.FieldRequired", keyItem.getKeyStream()));
         }
         keynrs.add(keynr);
 
         // this operator needs two bindings
-        if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
           keynrs.add(keynr);
           keynrs2.add(-1);
         }
 
-        int keynr2 = getInputRowMeta().indexOfValue(meta.getKeyStream2()[i]);
+        int keynr2 = getInputRowMeta().indexOfValue(keyItem.getKeyStream2());
         if (keynr2 < 0
             && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i]) // 2 fields needed!
+            "BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition()) // 2 fields needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "Update.Exception.FieldRequired", meta.getKeyStream2()[i]));
+                  PKG, "Update.Exception.FieldRequired", keyItem.getKeyStream2()));
         }
         keynrs2.add(keynr2);
 
         if (log.isDebug()) {
           logDebug(
-              BaseMessages.getString(PKG, "Update.Log.FieldHasDataNumbers", meta.getKeyStream()[i])
+              BaseMessages.getString(PKG, "Update.Log.FieldHasDataNumbers", keyItem.getKeyStream())
                   + ""
                   + keynrs.get(keynrs.size() - 1));
         }
@@ -278,19 +278,20 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
 
       // ICache the position of the compare fields in Row row
       //
-      data.valuenrs = new int[meta.getUpdateLookup().length];
-      for (int i = 0; i < meta.getUpdateLookup().length; i++) {
-        data.valuenrs[i] = getInputRowMeta().indexOfValue(meta.getUpdateStream()[i]);
+      data.valuenrs = new int[meta.getLookupField().getUpdateFields().size()];
+      for (int i = 0; i < meta.getLookupField().getUpdateFields().size(); i++) {
+        UpdateField fieldItem = meta.getLookupField().getUpdateFields().get(i);
+        data.valuenrs[i] = getInputRowMeta().indexOfValue(fieldItem.getUpdateStream());
         if (data.valuenrs[i] < 0) { // couldn't find field!
 
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "Update.Exception.FieldRequired", meta.getUpdateStream()[i]));
+                  PKG, "Update.Exception.FieldRequired", fieldItem.getUpdateStream()));
         }
         if (log.isDebug()) {
           logDebug(
               BaseMessages.getString(
-                      PKG, "Update.Log.FieldHasDataNumbers", meta.getUpdateStream()[i])
+                      PKG, "Update.Log.FieldHasDataNumbers", fieldItem.getUpdateStream())
                   + ""
                   + data.valuenrs[i]);
         }
@@ -299,22 +300,23 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
         // We skip lookup
         // but we need fields for update
         data.lookupParameterRowMeta = new RowMeta();
-        for (int i = 0; i < meta.getKeyLookup().length; i++) {
-          if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
+          UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
+          if ("BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition())) {
             data.lookupParameterRowMeta.addValueMeta(
-                getInputRowMeta().searchValueMeta(meta.getKeyStream()[i]));
+                getInputRowMeta().searchValueMeta(keyItem.getKeyStream()));
             data.lookupParameterRowMeta.addValueMeta(
-                getInputRowMeta().searchValueMeta(meta.getKeyStream2()[i]));
+                getInputRowMeta().searchValueMeta(keyItem.getKeyStream2()));
           } else {
-            if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+            if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
               data.lookupParameterRowMeta.addValueMeta(
-                  getInputRowMeta().searchValueMeta(meta.getKeyStream()[i]));
+                  getInputRowMeta().searchValueMeta(keyItem.getKeyStream()));
               data.lookupParameterRowMeta.addValueMeta(
-                  getInputRowMeta().searchValueMeta(meta.getKeyStream()[i]).clone());
-            } else if (!"IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-                && !"IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+                  getInputRowMeta().searchValueMeta(keyItem.getKeyStream()).clone());
+            } else if (!"IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
+                && !"IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
               data.lookupParameterRowMeta.addValueMeta(
-                  getInputRowMeta().searchValueMeta(meta.getKeyStream()[i]));
+                  getInputRowMeta().searchValueMeta(keyItem.getKeyStream()));
             }
           }
         }
@@ -364,33 +366,36 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
 
     String sql = "SELECT ";
 
-    for (int i = 0; i < meta.getUpdateLookup().length; i++) {
+    for (int i = 0; i < meta.getLookupField().getUpdateFields().size(); i++) {
+      UpdateField fieldItem = meta.getLookupField().getUpdateFields().get(i);
+
       if (i != 0) {
         sql += ", ";
       }
-      sql += databaseMeta.quoteField(meta.getUpdateLookup()[i]);
-      data.lookupReturnRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getUpdateStream()[i]));
+      sql += databaseMeta.quoteField(fieldItem.getUpdateLookup());
+      data.lookupReturnRowMeta.addValueMeta(rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
     }
 
     sql += " FROM " + data.schemaTable + " WHERE ";
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
+      UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
       if (i != 0) {
         sql += " AND ";
       }
 
       sql += " ( ( ";
 
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      sql += databaseMeta.quoteField(keyItem.getKeyLookup());
+      if ("BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
-        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
+        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
+        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream2()));
       } else {
-        if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-            || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-          sql += " " + meta.getKeyCondition()[i] + " ";
-        } else if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        if ("IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
+            || "IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+          sql += " " + keyItem.getKeyCondition() + " ";
+        } else if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
 
           sql += " IS NULL AND ";
 
@@ -400,16 +405,16 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
             sql += "? IS NULL";
           }
           // null check
-          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-          sql += " ) OR ( " + databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ?";
+          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
+          sql += " ) OR ( " + databaseMeta.quoteField(keyItem.getKeyLookup()) + " = ?";
           // equality check, cloning so auto-rename because of adding same fieldname does not cause
           // problems
           data.lookupParameterRowMeta.addValueMeta(
-              rowMeta.searchValueMeta(meta.getKeyStream()[i]).clone());
+              rowMeta.searchValueMeta(keyItem.getKeyStream()).clone());
 
         } else {
-          sql += " " + meta.getKeyCondition()[i] + " ? ";
-          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
+          sql += " " + keyItem.getKeyCondition() + " ? ";
+          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
         }
       }
       sql += " ) ) ";
@@ -435,31 +440,37 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     String sql = "UPDATE " + data.schemaTable + Const.CR;
     sql += "SET ";
 
-    for (int i = 0; i < meta.getUpdateLookup().length; i++) {
+    for (int i = 0; i < meta.getLookupField().getUpdateFields().size(); i++) {
+
+      UpdateField fieldItem = meta.getLookupField().getUpdateFields().get(i);
+
       if (i != 0) {
         sql += ",   ";
       }
-      sql += databaseMeta.quoteField(meta.getUpdateLookup()[i]);
+      sql += databaseMeta.quoteField(fieldItem.getUpdateLookup());
       sql += " = ?" + Const.CR;
-      data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getUpdateStream()[i]));
+      data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
     }
 
     sql += "WHERE ";
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < meta.getLookupField().getLookupKeys().size(); i++) {
+
+      UpdateKeyField keyItem = meta.getLookupField().getLookupKeys().get(i);
+
       if (i != 0) {
         sql += "AND   ";
       }
       sql += " ( ( ";
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      sql += databaseMeta.quoteField(keyItem.getKeyLookup());
+      if ("BETWEEN".equalsIgnoreCase(keyItem.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
-      } else if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-          || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
-      } else if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream2()));
+      } else if ("IS NULL".equalsIgnoreCase(keyItem.getKeyCondition())
+          || "IS NOT NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
+        sql += " " + keyItem.getKeyCondition() + " ";
+      } else if ("= ~NULL".equalsIgnoreCase(keyItem.getKeyCondition())) {
 
         sql += " IS NULL AND ";
 
@@ -469,16 +480,16 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
           sql += "? IS NULL";
         }
         // null check
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        sql += " ) OR ( " + databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ?";
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
+        sql += " ) OR ( " + databaseMeta.quoteField(keyItem.getKeyLookup()) + " = ?";
         // equality check, cloning so auto-rename because of adding same fieldname does not cause
         // problems
         data.updateParameterRowMeta.addValueMeta(
-            rowMeta.searchValueMeta(meta.getKeyStream()[i]).clone());
+            rowMeta.searchValueMeta(keyItem.getKeyStream()).clone());
 
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
+        sql += " " + keyItem.getKeyCondition() + " ? ";
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyItem.getKeyStream()));
       }
       sql += " ) ) ";
     }
@@ -494,14 +505,16 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     }
   }
 
-  @Override
   public boolean init() {
 
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+      if (meta.getConnection() == null) {
         logError(BaseMessages.getString(PKG, "Update.Init.ConnectionMissing", getTransformName()));
         return false;
       }
+      meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
+
+      // TODO DatabaseMeta
       data.db = new Database(this, this, meta.getDatabaseMeta());
       try {
         data.db.connect();
@@ -541,7 +554,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
         if (!data.db.isAutoCommit()) {
           if (getErrors() == 0) {
             if (dispose) {
-              data.db.emptyAndCommit(data.prepStatementUpdate, meta.useBatchUpdate());
+              data.db.emptyAndCommit(data.prepStatementUpdate, meta.isUseBatchUpdate());
             } else {
               data.db.commit();
             }
