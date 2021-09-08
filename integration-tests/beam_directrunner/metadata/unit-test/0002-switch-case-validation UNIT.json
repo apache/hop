@@ -1,0 +1,68 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "comment",
+          "data_set_field": "comment"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "0002-switch-case-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-switch-case-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0002-switch-case-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
