@@ -21,7 +21,7 @@ under the License.
 
 == Description
 
-The Beam BigQuery Input transform can be used to input data from link:https://cloud.google.com/bigquery[BigQuery] using the Beam execution engine.
+The Beam BigQuery Output transform can be used to write data to a link:https://cloud.google.com/bigquery[BigQuery] table using the Beam execution engine.
 
 == Options
 
@@ -32,7 +32,7 @@ The Beam BigQuery Input transform can be used to input data from link:https://cl
 |Project ID|The Google Cloud Platform project.
 |Data set ID|The BigQuery dataset ID.
 |Table ID|The BigQuery table ID.
-|Create table if needed|Whether or not to create the table if it does not exist.
+|Create table if needed|Whether or not to create the table if it does not exist. (default: true)
 |Truncate table|Whether or not to truncate the table before inserting.
 |Fail if the table is not empty|Throws an error if the table is not empty.
 |===
