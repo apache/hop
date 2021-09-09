@@ -1237,45 +1237,27 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
           }
         });
 
-    wbInputFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wInputFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wInputFilename.getText()));
-            }
-            dialog.setFilterNames(
-                new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")});
-            if (dialog.open() != null) {
-              wInputFilename.setText(
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName());
-            }
-          }
-        });
+    wbInputFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wInputFilename,
+                variables,
+                new String[] {"*"},
+                new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")},
+                true));
 
-    wbOutputFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wOutputFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wOutputFilename.getText()));
-            }
-            dialog.setFilterNames(
-                new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")});
-            if (dialog.open() != null) {
-              wOutputFilename.setText(
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName());
-            }
-          }
-        });
+    wbOutputFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wOutputFilename,
+                variables,
+                new String[] {"*"},
+                new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")},
+                true));
 
     lsResize =
         new Listener() {
