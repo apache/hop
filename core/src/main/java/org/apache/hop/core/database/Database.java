@@ -1165,6 +1165,21 @@ public class Database implements IVariables, ILoggingObject {
    */
   public void emptyAndCommit(PreparedStatement ps, boolean batch, int batchCounter)
       throws HopDatabaseException {
+    emptyAndCommit(ps, batch, batchCounter, true);
+  }
+
+
+  /**
+   * Close the prepared statement of the insert statement.
+   *
+   * @param ps The prepared statement to empty and close.
+   * @param batch true if you are using batch processing
+   * @param batchCounter The number of rows on the batch queue
+   * @param closeStatement Set to true if we want to close the statement
+   * @throws HopDatabaseException
+   */
+  public void emptyAndCommit(PreparedStatement ps, boolean batch, int batchCounter, boolean closeStatement)
+          throws HopDatabaseException {
     boolean isBatchUpdate = false;
     try {
       if (ps != null) {
@@ -1189,9 +1204,10 @@ public class Database implements IVariables, ILoggingObject {
           }
         }
 
-        // Let's not forget to close the prepared statement.
+        // Close statement only if explicitly needed
         //
-        ps.close();
+        if (closeStatement)
+          ps.close();
       }
     } catch (BatchUpdateException ex) {
       throw createHopDatabaseBatchException("Error updating batch", ex);
