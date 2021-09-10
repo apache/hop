@@ -28,10 +28,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -43,8 +40,7 @@ import org.w3c.dom.Node;
     documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
     image = "probe.svg",
     keywords = "audit,log,metrics,profile,probe,stream")
-public class PipelineDataProbeMeta extends BaseTransformMeta
-    implements ITransformMeta<PipelineDataProbe, PipelineDataProbeData> {
+public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, PipelineDataProbeData> {
 
   private boolean loggingTransforms;
 
@@ -116,21 +112,6 @@ public class PipelineDataProbeMeta extends BaseTransformMeta
 
     loggingTransforms =
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
-  }
-
-  @Override
-  public PipelineDataProbe createTransform(
-      TransformMeta transformMeta,
-      PipelineDataProbeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PipelineDataProbe(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public PipelineDataProbeData getTransformData() {
-    return new PipelineDataProbeData();
   }
 
   /**

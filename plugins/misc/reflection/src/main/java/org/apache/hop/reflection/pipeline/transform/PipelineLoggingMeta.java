@@ -44,8 +44,7 @@ import org.w3c.dom.Node;
     image = "pipeline-log.svg",
     documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
     keywords = "audit,log,metrics")
-public class PipelineLoggingMeta extends BaseTransformMeta
-    implements ITransformMeta<PipelineLogging, PipelineLoggingData> {
+public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, PipelineLoggingData> {
 
   private boolean loggingTransforms;
 
@@ -164,21 +163,6 @@ public class PipelineLoggingMeta extends BaseTransformMeta
 
     loggingTransforms =
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
-  }
-
-  @Override
-  public PipelineLogging createTransform(
-      TransformMeta transformMeta,
-      PipelineLoggingData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PipelineLogging(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public PipelineLoggingData getTransformData() {
-    return new PipelineLoggingData();
   }
 
   /**

@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
+public class SSH extends BaseTransform<SSHMeta, SSHData> {
   private static final Class<?> PKG = SSHMeta.class; // For Translator
 
   public SSH(

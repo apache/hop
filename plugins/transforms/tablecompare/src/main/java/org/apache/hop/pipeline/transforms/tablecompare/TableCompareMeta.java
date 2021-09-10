@@ -31,14 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +45,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.TableCompare",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/tablecompare.html")
-public class TableCompareMeta extends BaseTransformMeta
-    implements ITransformMeta<TableCompare, TableCompareData> {
+public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // For Translator
 
   private DatabaseMeta referenceConnection;
@@ -282,16 +277,6 @@ public class TableCompareMeta extends BaseTransformMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      TableCompareData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TableCompare(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String origin,
@@ -518,11 +503,6 @@ public class TableCompareMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public TableCompareData getTransformData() {
-    return new TableCompareData();
   }
 
   @Override

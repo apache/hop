@@ -51,8 +51,7 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/analyticquery.html")
-public class AnalyticQueryMeta extends BaseTransformMeta
-    implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
+public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class; // For Translator
 
@@ -149,21 +148,6 @@ public class AnalyticQueryMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public AnalyticQuery createTransform(
-      TransformMeta transformMeta,
-      AnalyticQueryData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AnalyticQuery(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AnalyticQueryData getTransformData() {
-    return new AnalyticQueryData();
   }
 
   @Override

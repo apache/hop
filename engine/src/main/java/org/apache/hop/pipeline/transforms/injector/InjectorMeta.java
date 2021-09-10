@@ -27,12 +27,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,8 +50,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline",
     keywords = "",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/injector.html")
-public class InjectorMeta extends BaseTransformMeta
-    implements ITransformMeta<Injector, InjectorData> {
+public class InjectorMeta extends BaseTransformMeta<Injector, InjectorData>
+{
 
   private static final Class<?> PKG = InjectorMeta.class; // For Translator
 
@@ -118,21 +115,6 @@ public class InjectorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public Injector createTransform(
-      TransformMeta transformMeta,
-      InjectorData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Injector(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public InjectorData getTransformData() {
-    return new InjectorData();
   }
 
   /**

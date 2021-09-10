@@ -34,18 +34,19 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData>
-    implements ITransform<TeraFastMeta, GenericTransformData> {
+public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData> {
 
   private static final Class<?> PKG = TeraFastMeta.class; // For Translator
 

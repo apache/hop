@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -39,8 +38,7 @@ import java.sql.ResultSet;
  * @author Matt
  * @since 26-apr-2003
  */
-public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData>
-    implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
+public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 

@@ -257,29 +257,12 @@ public class MetaInjectTest {
   }
 
   @InjectionSupported(localizationPrefix = "", groups = "groups")
-  private static class InjectableTestTransformMeta extends BaseTransformMeta
-      implements ITransformMeta<MetaInject, MetaInjectData> {
+  private static class InjectableTestTransformMeta extends BaseTransformMeta<MetaInject, MetaInjectData> {
 
     @Injection(name = "THERE")
     private String there;
 
     @Override
     public void setDefault() {}
-
-    @Override
-    public ITransform createTransform(
-        TransformMeta transformMeta,
-        MetaInjectData data,
-        int copyNr,
-        PipelineMeta pipelineMeta,
-        Pipeline pipeline) {
-      return new MetaInject(
-          transformMeta, new MetaInjectMeta(), data, copyNr, pipelineMeta, pipeline);
-    }
-
-    @Override
-    public MetaInjectData getTransformData() {
-      return null;
-    }
   }
 }

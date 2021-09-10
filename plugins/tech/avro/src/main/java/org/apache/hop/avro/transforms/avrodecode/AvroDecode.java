@@ -30,13 +30,11 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Map;
 
-public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData>
-    implements ITransform<AvroDecodeMeta, AvroDecodeData> {
+public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
   public AvroDecode(
       TransformMeta transformMeta,
       AvroDecodeMeta meta,

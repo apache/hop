@@ -42,8 +42,7 @@ import java.util.ArrayList;
  * @author aoverton
  * @since 18-aug-2015
  */
-public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData>
-    implements ITransform<StreamSchemaMeta, StreamSchemaData> {
+public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData> {
 
   /**
    * The constructor should simply pass on its arguments to the parent class.

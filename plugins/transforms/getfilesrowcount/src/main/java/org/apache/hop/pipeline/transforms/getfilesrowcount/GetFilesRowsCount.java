@@ -38,8 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 24-05-2007
  */
-public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData>
-    implements ITransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
+public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
 
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
 

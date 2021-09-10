@@ -45,8 +45,7 @@ import java.util.Date;
 import java.util.List;
 
 /** Reads data from a SAS file in SAS7BAT format. */
-public class SasInput extends BaseTransform<SasInputMeta, SasInputData>
-    implements ITransform<SasInputMeta, SasInputData> {
+public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
   private static final Class<?> PKG = SasInputMeta.class; // for Translator
 
   public SasInput(

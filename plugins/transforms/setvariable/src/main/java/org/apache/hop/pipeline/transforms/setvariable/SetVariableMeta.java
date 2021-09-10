@@ -48,8 +48,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SetVariable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/setvariable.html")
-public class SetVariableMeta extends BaseTransformMeta
-    implements ITransformMeta<SetVariable, SetVariableData> {
+public class SetVariableMeta extends BaseTransformMeta<SetVariable, SetVariableData> {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
 
   public static final int VARIABLE_TYPE_JVM = 0;
@@ -305,21 +304,6 @@ public class SetVariableMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SetVariable createTransform(
-      TransformMeta transformMeta,
-      SetVariableData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SetVariable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SetVariableData getTransformData() {
-    return new SetVariableData();
   }
 
   /** @return the usingFormatting */

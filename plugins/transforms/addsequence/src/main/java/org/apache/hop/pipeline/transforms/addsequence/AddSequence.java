@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -40,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 13-may-2003
  */
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
-    implements ITransform<AddSequenceMeta, AddSequenceData> {
+{
 
   private static final Class<?> PKG = AddSequence.class; // For Translator
 

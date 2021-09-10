@@ -55,8 +55,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/propertyoutput.html")
-public class PropertyOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<PropertyOutput, PropertyOutputData> {
+public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
 
   private String keyfield;
@@ -108,16 +107,6 @@ public class PropertyOutputMeta extends BaseTransformMeta
 
     PropertyOutputMeta retval = (PropertyOutputMeta) super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PropertyOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PropertyOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   /** @return Returns the extension. */
@@ -467,11 +456,6 @@ public class PropertyOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public PropertyOutputData getTransformData() {
-    return new PropertyOutputData();
   }
 
   /** @return the keyfield */

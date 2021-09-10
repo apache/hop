@@ -37,16 +37,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +54,7 @@ import java.util.Map;
     description = "i18n::YamlInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/yamlinput.html")
-public class YamlInputMeta extends BaseTransformMeta
-    implements ITransformMeta<YamlInput, YamlInputData> {
+public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
   private static final Class<?> PKG = YamlInputMeta.class; // For Translator
 
   private static final String YES = "Y";
@@ -70,16 +65,6 @@ public class YamlInputMeta extends BaseTransformMeta
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      YamlInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new YamlInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
   /** Array of filenames */
   private String[] fileName;
@@ -639,11 +624,6 @@ public class YamlInputMeta extends BaseTransformMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public YamlInputData getTransformData() {
-    return new YamlInputData();
   }
 
   @Override

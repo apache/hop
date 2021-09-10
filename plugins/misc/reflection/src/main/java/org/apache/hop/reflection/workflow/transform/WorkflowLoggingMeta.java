@@ -45,8 +45,7 @@ import org.w3c.dom.Node;
     documentationUrl = "https://hop.apache.org/manual/latest/logging/logging-reflection.html",
     image = "workflow-log.svg",
     keywords = "audit,log,metrics")
-public class WorkflowLoggingMeta extends BaseTransformMeta
-    implements ITransformMeta<WorkflowLogging, WorkflowLoggingData> {
+public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, WorkflowLoggingData> {
 
   private boolean loggingActionResults;
 
@@ -159,21 +158,6 @@ public class WorkflowLoggingMeta extends BaseTransformMeta
 
     loggingActionResults =
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
-  }
-
-  @Override
-  public WorkflowLogging createTransform(
-      TransformMeta transformMeta,
-      WorkflowLoggingData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new WorkflowLogging(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public WorkflowLoggingData getTransformData() {
-    return new WorkflowLoggingData();
   }
 
   /**

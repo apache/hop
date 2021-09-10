@@ -26,7 +26,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -35,8 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 4-apr-2003
  */
-public class DataGrid extends BaseTransform<DataGridMeta, DataGridData>
-    implements ITransform<DataGridMeta, DataGridData> {
+public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> {
 
   private static final Class<?> PKG = DataGridMeta.class; // For Translator
 

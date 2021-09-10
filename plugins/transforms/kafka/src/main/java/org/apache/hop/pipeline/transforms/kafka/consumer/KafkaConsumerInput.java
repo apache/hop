@@ -41,8 +41,7 @@ import java.util.stream.Collectors;
 
 /** Consume messages from a Kafka topic */
 public class KafkaConsumerInput
-    extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData>
-    implements ITransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
+    extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
 
   private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
 

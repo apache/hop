@@ -50,8 +50,7 @@ import java.util.List;
     description = "i18n::ClosureGenerator.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/closure.html")
-public class ClosureGeneratorMeta extends BaseTransformMeta
-    implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
+public class ClosureGeneratorMeta extends BaseTransformMeta<ClosureGenerator, ClosureGeneratorData> {
 
   private boolean rootIdZero;
 
@@ -184,21 +183,6 @@ public class ClosureGeneratorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ClosureGenerator createTransform(
-      TransformMeta transformMeta,
-      ClosureGeneratorData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ClosureGenerator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ClosureGeneratorData getTransformData() {
-    return new ClosureGeneratorData();
   }
 
   /** @return the rootIdZero */

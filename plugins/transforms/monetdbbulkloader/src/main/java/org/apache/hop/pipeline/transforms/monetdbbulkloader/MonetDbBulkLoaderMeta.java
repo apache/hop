@@ -57,8 +57,7 @@ import java.util.List;
         "https://hop.apache.org/manual/latest/pipeline/transforms/monetdbbulkloader.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
-public class MonetDbBulkLoaderMeta extends BaseTransformMeta
-    implements ITransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
+public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -170,16 +169,6 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
    * one.
    */
   private boolean compatibilityDbVersionMode = false;
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MonetDbBulkLoaderData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MonetDbBulkLoader(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
   /** @return Returns the database. */
   public DatabaseMeta getDatabaseMeta() {
@@ -698,11 +687,6 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
         impact.add(ii);
       }
     }
-  }
-
-  @Override
-  public MonetDbBulkLoaderData getTransformData() {
-    return new MonetDbBulkLoaderData();
   }
 
   @Override

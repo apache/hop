@@ -48,8 +48,7 @@ import org.w3c.dom.Node;
     categoryDescription = "Streaming",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/azure-event-hubs-listener.html")
-public class AzureListenerMeta extends BaseTransformMeta
-    implements ITransformMeta<AzureListener, AzureListenerData> {
+public class AzureListenerMeta extends BaseTransformMeta<AzureListener, AzureListenerData> {
 
   public static final String NAMESPACE = "namespace";
   public static final String EVENT_HUB_NAME = "event_hub_name";
@@ -109,21 +108,6 @@ public class AzureListenerMeta extends BaseTransformMeta
     sequenceNumberField = "sequenceNumber";
     hostField = "host";
     enqueuedTimeField = "enqueuedTime";
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      AzureListenerData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AzureListener(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AzureListenerData getTransformData() {
-    return new AzureListenerData();
   }
 
   @Override

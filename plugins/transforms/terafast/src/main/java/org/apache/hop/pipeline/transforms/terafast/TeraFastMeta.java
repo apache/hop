@@ -42,8 +42,7 @@ import java.util.List;
     name = "i18n::TeraFast.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/terafast.html")
-public class TeraFastMeta extends AbstractTransformMeta
-    implements ITransformMeta<ITransform, ITransformData> {
+public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformData> {
 
   public static final PluginMessages MESSAGES = PluginMessages.getMessages(TeraFastMeta.class);
 
@@ -234,31 +233,6 @@ public class TeraFastMeta extends AbstractTransformMeta
       return db;
     }
     throw new HopException(MESSAGES.getString("TeraFastMeta.Exception.ConnectionNotDefined"));
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see ITransformMeta#createTransform(TransformMeta, ITransformData, int, PipelineMeta, Pipeline)
-   */
-  @Override
-  public ITransform createTransform(
-      final TransformMeta transformMeta,
-      final ITransformData data,
-      final int cnr,
-      final PipelineMeta pipelineMeta,
-      final Pipeline disp) {
-    return new TeraFast(transformMeta, this, (GenericTransformData) data, cnr, pipelineMeta, disp);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see ITransformMeta#getTransformData()
-   */
-  @Override
-  public GenericTransformData getTransformData() {
-    return new GenericTransformData();
   }
 
   /**

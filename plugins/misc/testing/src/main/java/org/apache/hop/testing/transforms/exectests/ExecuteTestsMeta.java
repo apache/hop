@@ -41,8 +41,7 @@ import org.w3c.dom.Node;
     image = "executetests.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/exectests.html")
-public class ExecuteTestsMeta extends BaseTransformMeta
-    implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
+public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTestsData> {
 
   public static final String TAG_TEST_NAME_INPUT_FIELD = "test_name_input_field";
   public static final String TAG_TYPE_TO_EXECUTE = "type_to_execute";
@@ -127,21 +126,6 @@ public class ExecuteTestsMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopXmlException("Unable to load execute test transform details", e);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ExecuteTestsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExecuteTests(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExecuteTestsData getTransformData() {
-    return new ExecuteTestsData();
   }
 
   @Override

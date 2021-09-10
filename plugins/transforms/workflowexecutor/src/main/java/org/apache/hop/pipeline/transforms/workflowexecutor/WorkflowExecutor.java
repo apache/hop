@@ -52,8 +52,7 @@ import java.util.ArrayList;
  * @author Matt
  * @since 22-nov-2005
  */
-public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData>
-    implements ITransform<WorkflowExecutorMeta, WorkflowExecutorData> {
+public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData> {
 
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 

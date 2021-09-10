@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 
 /** Base class for test metadata injection. */
 @Ignore
-public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta<?, ?>> {
+public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta> {
   protected BeanInjectionInfo<Meta> info;
   protected BeanInjector<Meta> injector;
   protected Meta meta;

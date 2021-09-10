@@ -37,8 +37,7 @@ import java.util.List;
  * @author Samatar
  * @since 21-09-2007
  */
-public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
-    implements ITransform<LdapOutputMeta, LdapOutputData> {
+public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
   private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // For Translator
 
   public LdapOutput(

@@ -27,7 +27,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetFileWriter;
@@ -42,8 +41,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData>
-    implements ITransform<ParquetOutputMeta, ParquetOutputData> {
+public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData> {
 
   public ParquetOutput(
       TransformMeta transformMeta,

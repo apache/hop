@@ -28,17 +28,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Properties;
 
 /**
  * Executes a XSL Transform on the values in the input stream.
@@ -46,8 +44,7 @@ import java.util.Properties;
  * @author Samatar
  * @since 15-Oct-2007
  */
-public class Xslt extends BaseTransform<XsltMeta, XsltData>
-    implements ITransform<XsltMeta, XsltData> {
+public class Xslt extends BaseTransform<XsltMeta, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   static final String JAXP_SCHEMA_LANGUAGE =

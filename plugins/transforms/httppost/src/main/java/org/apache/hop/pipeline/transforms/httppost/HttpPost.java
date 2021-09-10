@@ -63,8 +63,7 @@ import java.util.List;
 import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_ENCODING;
 
 /** Make a HTTP Post call */
-public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData>
-    implements ITransform<HttpPostMeta, HttpPostData> {
+public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
   private static final Class<?> PKG = HttpPostMeta.class; // For Translator
 

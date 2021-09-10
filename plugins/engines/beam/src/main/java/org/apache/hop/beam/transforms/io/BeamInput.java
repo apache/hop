@@ -24,8 +24,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class BeamInput extends BaseTransform<BeamInputMeta, BeamInputData>
-    implements ITransform<BeamInputMeta, BeamInputData> {
+public class BeamInput extends BaseTransform<BeamInputMeta, BeamInputData> {
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this

@@ -72,8 +72,7 @@ import java.util.Map;
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/workflowexecutor.html",
     keywords = "")
-public class WorkflowExecutorMeta extends BaseTransformMeta
-    implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
+public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
@@ -628,16 +627,6 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      WorkflowExecutorData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new WorkflowExecutor(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, TransformMeta transformMeta) {
     List<ResourceReference> references = new ArrayList<>(5);
@@ -717,11 +706,6 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
           BaseMessages.getString(
               PKG, "WorkflowExecutorMeta.Exception.UnableToLoadWorkflow", filename));
     }
-  }
-
-  @Override
-  public WorkflowExecutorData getTransformData() {
-    return new WorkflowExecutorData();
   }
 
   @Override

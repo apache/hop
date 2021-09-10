@@ -106,8 +106,7 @@ import java.util.List;
     description = "i18n::SplitFields.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/splitfields.html")
-public class FieldSplitterMeta extends BaseTransformMeta
-    implements ITransformMeta<FieldSplitter, FieldSplitterData> {
+public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSplitterData> {
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   /** Field to split */
@@ -631,21 +630,6 @@ public class FieldSplitterMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FieldSplitter createTransform(
-      TransformMeta transformMeta,
-      FieldSplitterData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FieldSplitter(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FieldSplitterData getTransformData() {
-    return new FieldSplitterData();
   }
 
   /**

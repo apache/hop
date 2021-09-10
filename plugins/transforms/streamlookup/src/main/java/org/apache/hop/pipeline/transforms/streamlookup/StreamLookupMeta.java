@@ -33,7 +33,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
@@ -52,8 +51,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.StreamLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/streamlookup.html")
-public class StreamLookupMeta extends BaseTransformMeta
-    implements ITransformMeta<StreamLookup, StreamLookupData> {
+public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLookupData> {
   private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
 
   /** fields in input streams with which we look up values */
@@ -495,30 +493,9 @@ public class StreamLookupMeta extends BaseTransformMeta
     }
   }
 
-  //  @Override
-  //  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-  //                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-  //    return new StreamLookup( transformMeta, this, data, cnr, pipelineMeta, pipeline );
-  //  }
-
-  @Override
-  public StreamLookupData getTransformData() {
-    return new StreamLookupData();
-  }
-
   @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
-  }
-
-  @Override
-  public StreamLookup createTransform(
-      TransformMeta transformMeta,
-      StreamLookupData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new StreamLookup(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   /**

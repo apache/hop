@@ -60,8 +60,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/synchronizeaftermerge.html")
-public class SynchronizeAfterMergeMeta extends BaseTransformMeta
-    implements ITransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
+public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
 
   /** what's the lookup schema? */
@@ -1005,21 +1004,6 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
         impact.add(ii);
       }
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SynchronizeAfterMergeData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SynchronizeAfterMerge(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SynchronizeAfterMergeData getTransformData() {
-    return new SynchronizeAfterMergeData();
   }
 
   @Override

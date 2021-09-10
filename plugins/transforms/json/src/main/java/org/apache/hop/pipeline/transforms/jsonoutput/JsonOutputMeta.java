@@ -31,12 +31,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 /**
@@ -52,8 +49,7 @@ import java.util.List;
     categoryDescription = "i18n::JsonOutput.category",
     keywords = {"json", "javascript", "object", "notation"},
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/jsonoutput.html")
-public class JsonOutputMeta extends BaseFileOutputMeta
-    implements ITransformMeta<JsonOutput, JsonOutputData> {
+public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
 
   /** Operations type */
@@ -457,21 +453,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta
             BaseMessages.getString(PKG, "JsonOutputMeta.CheckResult.FilesNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  @Override
-  public JsonOutput createTransform(
-      TransformMeta transformMeta,
-      JsonOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new JsonOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public JsonOutputData getTransformData() {
-    return new JsonOutputData();
   }
 
   public String getEncoding() {

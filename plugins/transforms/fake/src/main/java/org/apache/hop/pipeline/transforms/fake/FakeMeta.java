@@ -42,7 +42,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"fake", "data", "generator", "synthetic"}, // TODO : i18n
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/fake.html")
-public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, FakeData> {
+public class FakeMeta extends BaseTransformMeta<Fake, FakeData> {
 
   @HopMetadataProperty(injectionKeyDescription = "Fake.Injection.Locale")
   private String locale;
@@ -90,21 +90,6 @@ public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, 
         rowMeta.addValueMeta(v);
       }
     }
-  }
-
-  @Override
-  public Fake createTransform(
-      TransformMeta transformMeta,
-      FakeData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Fake(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FakeData getTransformData() {
-    return new FakeData();
   }
 
   public static final String[] getFakerLocales() {

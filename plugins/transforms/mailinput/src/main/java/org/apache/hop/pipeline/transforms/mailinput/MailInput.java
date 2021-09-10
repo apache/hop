@@ -42,8 +42,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 /** Read data from POP3/IMAP server and input data to the next transforms. */
-public class MailInput extends BaseTransform<MailInputMeta, MailInputData>
-    implements ITransform<MailInputMeta, MailInputData> {
+public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
 
   private MessageParser instance = new MessageParser();

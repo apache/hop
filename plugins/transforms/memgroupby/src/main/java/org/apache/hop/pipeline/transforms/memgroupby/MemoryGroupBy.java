@@ -38,8 +38,7 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry
 import java.util.*;
 
 /** Groups information based on aggregation rules. (sum, count, ...) */
-public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData>
-    implements ITransform<MemoryGroupByMeta, MemoryGroupByData> {
+public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
 
   private boolean allNullsAreZero = false;

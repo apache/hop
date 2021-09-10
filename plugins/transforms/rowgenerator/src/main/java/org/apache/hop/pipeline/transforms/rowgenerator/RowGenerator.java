@@ -50,8 +50,7 @@ import java.util.List;
  * @author Matt
  * @since 4-apr-2003
  */
-public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData>
-    implements ITransform<RowGeneratorMeta, RowGeneratorData> {
+public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> {
 
   private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 

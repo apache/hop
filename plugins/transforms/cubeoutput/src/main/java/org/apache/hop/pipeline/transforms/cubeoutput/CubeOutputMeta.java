@@ -53,8 +53,7 @@ import java.util.Map;
     description = "i18n::CubeOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cubeoutput.html")
-public class CubeOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<CubeOutput, CubeOutputData> {
+public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData> {
 
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 
@@ -185,21 +184,6 @@ public class CubeOutputMeta extends BaseTransformMeta
             BaseMessages.getString(PKG, "CubeOutputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  @Override
-  public CubeOutput createTransform(
-      TransformMeta transformMeta,
-      CubeOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CubeOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CubeOutputData getTransformData() {
-    return new CubeOutputData();
   }
 
   /**

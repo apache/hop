@@ -46,8 +46,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.HTTPPOST",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/httppost.html")
-public class HttpPostMeta extends BaseTransformMeta
-    implements ITransformMeta<HttpPost, HttpPostData> {
+public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   private static final Class<?> PKG = HttpPostMeta.class; // For Translator
 
   // the timeout for waiting for data (milliseconds)
@@ -329,21 +328,6 @@ public class HttpPostMeta extends BaseTransformMeta
       }
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public HttpPost createTransform(
-      TransformMeta transformMeta,
-      HttpPostData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new HttpPost(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public HttpPostData getTransformData() {
-    return new HttpPostData();
   }
 
   @Override

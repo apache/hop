@@ -46,8 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/checkfilelocked.html")
-public class FileLockedMeta extends BaseTransformMeta
-    implements ITransformMeta<FileLocked, FileLockedData> {
+public class FileLockedMeta extends BaseTransformMeta<FileLocked, FileLockedData> {
   private static final Class<?> PKG = FileLockedMeta.class; // For Translator
 
   @HopMetadataProperty(
@@ -177,21 +176,6 @@ public class FileLockedMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FileLocked createTransform(
-      TransformMeta transformMeta,
-      FileLockedData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FileLocked(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FileLockedData getTransformData() {
-    return new FileLockedData();
   }
 
   @Override

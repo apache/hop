@@ -44,8 +44,7 @@ import java.util.List;
     description = "i18n::ColumnExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/columnexists.html")
-public class ColumnExistsMeta extends BaseTransformMeta
-    implements ITransformMeta<ColumnExists, ColumnExistsData> {
+public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
 
@@ -266,21 +265,6 @@ public class ColumnExistsMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ColumnExists createTransform(
-      TransformMeta transformMeta,
-      ColumnExistsData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ColumnExists(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ColumnExistsData getTransformData() {
-    return new ColumnExistsData();
   }
 
   @Override

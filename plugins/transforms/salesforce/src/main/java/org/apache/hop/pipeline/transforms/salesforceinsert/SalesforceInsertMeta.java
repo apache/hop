@@ -31,13 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 @Transform(
@@ -313,22 +310,6 @@ public class SalesforceInsertMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SalesforceInsertData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-
-    return new SalesforceInsert(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SalesforceInsertData getTransformData() {
-    return new SalesforceInsertData();
   }
 
   @Override

@@ -61,8 +61,8 @@ import java.util.Locale;
     description = "i18n::BaseTransform.TypeTooltipDesc.SortRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sort.html")
-public class SortRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<SortRows, SortRowsData>, Serializable {
+public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
+    implements Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
@@ -197,16 +197,6 @@ public class SortRowsMeta extends BaseTransformMeta
     System.arraycopy(preSortedField, 0, retval.preSortedField, 0, nrFields);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SortRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SortRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -478,11 +468,6 @@ public class SortRowsMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SortRowsData getTransformData() {
-    return new SortRowsData();
   }
 
   /** @return Returns the sortSize. */

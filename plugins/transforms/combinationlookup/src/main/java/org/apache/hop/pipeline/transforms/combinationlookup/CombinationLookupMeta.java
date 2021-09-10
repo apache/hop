@@ -67,8 +67,8 @@ import java.util.Objects;
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/combinationlookup.html")
 @InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
-public class CombinationLookupMeta extends BaseTransformMeta
-    implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
+public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, CombinationLookupData>
+    implements IProvidesModelerMeta {
 
   private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 
@@ -910,21 +910,6 @@ public class CombinationLookupMeta extends BaseTransformMeta
     }
 
     return retval;
-  }
-
-  @Override
-  public CombinationLookup createTransform(
-      TransformMeta transformMeta,
-      CombinationLookupData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CombinationLookup(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CombinationLookupData getTransformData() {
-    return new CombinationLookupData();
   }
 
   @Override

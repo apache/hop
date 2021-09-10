@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 /** Get information from the System or the supervising pipeline. */
-public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData>
-    implements ITransform<SystemDataMeta, SystemDataData> {
+public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
 
   public SystemData(
       TransformMeta transformMeta,

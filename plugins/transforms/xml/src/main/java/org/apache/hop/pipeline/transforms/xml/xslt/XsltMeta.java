@@ -31,14 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.io.File;
 import java.util.List;
 
@@ -53,7 +49,7 @@ import java.util.List;
     description = "i18n::XSLT.description",
     categoryDescription = "i18n::XSLT.category",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xslt.html")
-public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
+public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   public static final String[] outputProperties =
@@ -201,21 +197,6 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     }
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      XsltData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Xslt(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public XsltData getTransformData() {
-    return new XsltData();
   }
 
   public boolean useXSLField() {

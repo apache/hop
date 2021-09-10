@@ -129,11 +129,8 @@ import java.util.Map;
  *       implementation of IValueMeta), and appending them to the IRowMeta object. The section
  *       Working with Fields goes into deeper detail on IValueMeta.
  * </ul>
- *
- * @author Matt
- * @since 4-aug-2004
  */
-public interface ITransformMeta<Main extends ITransform, Data extends ITransformData> {
+public interface ITransformMeta {
   /** Set default values */
   void setDefault();
 
@@ -229,7 +226,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
 
   ITransform createTransform(
       TransformMeta transformMeta,
-      Data data,
+      ITransformData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline);
@@ -241,7 +238,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    *
    * @return The appropriate ITransformData class.
    */
-  Data getTransformData();
+  ITransformData getTransformData();
 
   /**
    * Each transform must be able to report on the impact it has on a database, table field, etc.

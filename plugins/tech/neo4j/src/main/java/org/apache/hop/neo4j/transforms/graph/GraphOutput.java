@@ -44,8 +44,7 @@ import org.neo4j.driver.summary.ResultSummary;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData>
-    implements ITransform<GraphOutputMeta, GraphOutputData> {
+public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData> {
 
   public GraphOutput(
       TransformMeta transformMeta,

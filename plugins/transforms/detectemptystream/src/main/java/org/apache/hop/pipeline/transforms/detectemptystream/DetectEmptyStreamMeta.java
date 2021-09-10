@@ -43,8 +43,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/detectemptystream.html")
-public class DetectEmptyStreamMeta extends BaseTransformMeta
-    implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
+public class DetectEmptyStreamMeta extends BaseTransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   public DetectEmptyStreamMeta() {
@@ -115,21 +114,6 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public DetectEmptyStream createTransform(
-      TransformMeta transformMeta,
-      DetectEmptyStreamData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DetectEmptyStream(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DetectEmptyStreamData getTransformData() {
-    return new DetectEmptyStreamData();
   }
 
   @Override

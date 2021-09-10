@@ -49,7 +49,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.Rest",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/rest.html")
-public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
+public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private static final Class<?> PKG = RestMeta.class; // For Translator
 
   public static final String[] APPLICATION_TYPES =
@@ -323,16 +323,6 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
     System.arraycopy(matrixParameterName, 0, retval.matrixParameterName, 0, nrmatrixparameters);
 
     return retval;
-  }
-
-  @Override
-  public Rest createTransform(
-      TransformMeta transformMeta,
-      RestData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Rest(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -614,11 +604,6 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
       }
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public RestData getTransformData() {
-    return new RestData();
   }
 
   @Override

@@ -41,8 +41,7 @@ import java.util.List;
  * Read YAML files, parse them and convert them to rows and writes these to one or more output
  * streams.
  */
-public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData>
-    implements ITransform<YamlInputMeta, YamlInputData> {
+public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
   private static final Class<?> PKG = YamlInputMeta.class; // For Translator
 
   public YamlInput(

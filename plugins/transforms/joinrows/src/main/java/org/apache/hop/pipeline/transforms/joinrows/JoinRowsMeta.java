@@ -32,14 +32,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.io.File;
 import java.util.List;
 
@@ -55,8 +51,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.JoinRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/joinrows.html")
-public class JoinRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<JoinRows, JoinRowsData> {
+public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
 
   @Injection(name = "TEMP_DIR")
@@ -345,23 +340,8 @@ public class JoinRowsMeta extends BaseTransformMeta
   }
 
   @Override
-  public JoinRowsData getTransformData() {
-    return new JoinRowsData();
-  }
-
-  @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      JoinRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new JoinRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override

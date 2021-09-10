@@ -52,8 +52,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 /** This class reads data from one or more Microsoft Excel files. */
-public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData>
-    implements ITransform<ExcelInputMeta, ExcelInputData> {
+public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 

@@ -41,8 +41,7 @@ import org.w3c.dom.Node;
     image = "neo4j_split.svg",
     categoryDescription = "Neo4j",
     documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/split-graph.html")
-public class SplitGraphMeta extends BaseTransformMeta
-    implements ITransformMeta<SplitGraph, SplitGraphData> {
+public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData> {
 
   public static final String GRAPH_FIELD = "graph_field";
   public static final String TYPE_FIELD = "type_field";
@@ -105,21 +104,6 @@ public class SplitGraphMeta extends BaseTransformMeta
     typeField = XmlHandler.getTagValue(transformNode, TYPE_FIELD);
     idField = XmlHandler.getTagValue(transformNode, ID_FIELD);
     propertySetField = XmlHandler.getTagValue(transformNode, PROPERTY_SET_FIELD);
-  }
-
-  @Override
-  public SplitGraph createTransform(
-      TransformMeta transformMeta,
-      SplitGraphData iTransformData,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SplitGraph(transformMeta, this, iTransformData, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SplitGraphData getTransformData() {
-    return new SplitGraphData();
   }
 
   /**

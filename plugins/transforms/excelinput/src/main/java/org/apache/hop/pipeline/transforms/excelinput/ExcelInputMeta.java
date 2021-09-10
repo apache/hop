@@ -66,8 +66,7 @@ import java.util.Map;
 @InjectionSupported(
     localizationPrefix = "ExcelInput.Injection.",
     groups = {"FIELDS", "SHEETS", "FILENAME_LINES"})
-public class ExcelInputMeta extends BaseTransformMeta
-    implements ITransformMeta<ExcelInput, ExcelInputData> {
+public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData> {
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
@@ -1143,21 +1142,6 @@ public class ExcelInputMeta extends BaseTransformMeta
     }
 
     return row;
-  }
-
-  @Override
-  public ExcelInput createTransform(
-      TransformMeta transformMeta,
-      ExcelInputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExcelInput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExcelInputData getTransformData() {
-    return new ExcelInputData();
   }
 
   public String getWarningFilesDestinationDirectory() {

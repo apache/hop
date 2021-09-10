@@ -28,11 +28,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -45,8 +41,7 @@ import java.util.ArrayList;
     description = "i18n::FileMetadata.Name.Desc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/filemetadata.html")
-public class FileMetadataMeta extends BaseTransformMeta
-    implements ITransformMeta<FileMetadata, FileMetadataData> {
+public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetadataData> {
 
   //  public enum DetectionMethod {
   //    FILE_FORMAT,          // delimited or fixed width?
@@ -117,21 +112,6 @@ public class FileMetadataMeta extends BaseTransformMeta
     copy.setDelimiterCandidates(new ArrayList<>(this.delimiterCandidates));
     copy.setEnclosureCandidates(new ArrayList<>(this.enclosureCandidates));
     return copy;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      FileMetadataData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FileMetadata(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FileMetadataData getTransformData() {
-    return new FileMetadataData();
   }
 
   @Override

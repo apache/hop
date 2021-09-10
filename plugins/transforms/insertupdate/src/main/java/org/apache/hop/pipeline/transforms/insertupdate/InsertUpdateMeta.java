@@ -62,8 +62,8 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/insertupdate.html")
-public class InsertUpdateMeta extends BaseTransformMeta
-    implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
+public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData>
+    implements IProvidesModelerMeta {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
@@ -269,16 +269,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
     System.arraycopy(update, 0, retval.update, 0, nrvalues);
 
     return retval;
-  }
-
-  @Override
-  public InsertUpdate createTransform(
-      TransformMeta transformMeta,
-      InsertUpdateData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new InsertUpdate(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
@@ -789,11 +779,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
         impact.add(ii);
       }
     }
-  }
-
-  @Override
-  public InsertUpdateData getTransformData() {
-    return new InsertUpdateData();
   }
 
   @Override

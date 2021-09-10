@@ -24,7 +24,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -33,8 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 4-aug-2003
  */
-public class NullIf extends BaseTransform<NullIfMeta, NullIfData>
-    implements ITransform<NullIfMeta, NullIfData> {
+public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
   private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
   public NullIf(

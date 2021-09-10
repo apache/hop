@@ -56,8 +56,7 @@ import java.util.List;
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-getloginfo.html")
 @InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
-public class GetLoggingInfoMeta extends BaseTransformMeta
-    implements ITransformMeta<GetLoggingInfo, GetLoggingInfoData> {
+public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLoggingInfoData> {
   private static Class<?> PKG =
       GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -250,21 +249,6 @@ public class GetLoggingInfoMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public GetLoggingInfo createTransform(
-      TransformMeta transformMeta,
-      GetLoggingInfoData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetLoggingInfo(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetLoggingInfoData getTransformData() {
-    return new GetLoggingInfoData();
   }
 
   @Override

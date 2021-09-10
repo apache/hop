@@ -49,8 +49,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beamgcppublisher.html")
-public class BeamPublishMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamPublish, BeamPublishData>, IBeamPipelineTransformHandler {
+public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishData>
+    implements IBeamPipelineTransformHandler {
 
   public static final String TOPIC = "topic";
   public static final String MESSAGE_TYPE = "message_type";
@@ -68,21 +68,6 @@ public class BeamPublishMeta extends BaseTransformMeta
     topic = "Topic";
     messageType = "String";
     messageField = "message";
-  }
-
-  @Override
-  public BeamPublish createTransform(
-      TransformMeta transformMeta,
-      BeamPublishData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamPublish(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamPublishData getTransformData() {
-    return new BeamPublishData();
   }
 
   @Override

@@ -40,8 +40,7 @@ import java.util.UUID;
  * @author Matt, Samatar
  * @since 8-8-2008
  */
-public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
-    implements ITransform<RandomValueMeta, RandomValueData> {
+public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> {
 
   private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 

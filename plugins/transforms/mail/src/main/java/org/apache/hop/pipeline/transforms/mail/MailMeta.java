@@ -53,7 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.Mail",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mail.html")
-public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
+public class MailMeta extends BaseTransformMeta<Mail, MailData> {
   private static final Class<?> PKG = MailMeta.class; // For Translator
 
   private String server;
@@ -161,16 +161,6 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
   public Object clone() {
     Object retval = super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MailData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Mail(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public void allocate(int value) {
@@ -937,11 +927,6 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public MailData getTransformData() {
-    return new MailData();
   }
 
   @Override

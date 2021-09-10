@@ -53,7 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.HTTP",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getvariable.html")
-public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
+public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
   private static final Class<?> PKG = HttpMeta.class; // For Translator
 
   // the timeout for waiting for data (milliseconds)
@@ -469,21 +469,6 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
       }
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public Http createTransform(
-      TransformMeta transformMeta,
-      HttpData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Http(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public HttpData getTransformData() {
-    return new HttpData();
   }
 
   @Override

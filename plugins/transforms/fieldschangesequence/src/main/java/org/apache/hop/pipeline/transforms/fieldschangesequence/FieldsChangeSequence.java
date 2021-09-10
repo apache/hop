@@ -30,8 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Add sequence to each input row. */
 public class FieldsChangeSequence
-    extends BaseTransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData>
-    implements ITransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> {
+    extends BaseTransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> {
 
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 

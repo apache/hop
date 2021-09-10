@@ -46,8 +46,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.StringCut",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/stringcut.html")
-public class StringCutMeta extends BaseTransformMeta
-    implements ITransformMeta<StringCut, StringCutData> {
+public class StringCutMeta extends BaseTransformMeta<StringCut, StringCutData> {
 
   private static final Class<?> PKG = StringCutMeta.class; // For Translator
 
@@ -217,21 +216,6 @@ public class StringCutMeta extends BaseTransformMeta
         }
       }
     }
-  }
-
-  @Override
-  public StringCut createTransform(
-      TransformMeta transformMeta,
-      StringCutData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new StringCut(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public StringCutData getTransformData() {
-    return new StringCutData();
   }
 
   @Override

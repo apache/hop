@@ -39,8 +39,7 @@ import java.util.zip.CRC32;
  * @author Samatar Hassan
  * @since 30-06-2008
  */
-public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData>
-    implements ITransform<CheckSumMeta, CheckSumData> {
+public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
   private static final Class<?> PKG = CheckSumMeta.class; // For Translator
 

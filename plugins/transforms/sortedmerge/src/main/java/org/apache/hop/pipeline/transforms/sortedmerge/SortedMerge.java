@@ -38,8 +38,7 @@ import java.util.List;
  * @author Matt
  * @since 2-jun-2003
  */
-public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
-    implements ITransform<SortedMergeMeta, SortedMergeData> {
+public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   public SortedMerge(

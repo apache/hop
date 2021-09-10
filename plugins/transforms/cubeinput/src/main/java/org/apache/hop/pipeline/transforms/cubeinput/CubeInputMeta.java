@@ -60,8 +60,7 @@ import java.util.zip.GZIPInputStream;
     description = "i18n::CubeInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cubeinput.html")
-public class CubeInputMeta extends BaseTransformMeta
-    implements ITransformMeta<CubeInput, CubeInputData> {
+public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
 
   private static final Class<?> PKG = CubeInputMeta.class; // For Translator
 
@@ -209,21 +208,6 @@ public class CubeInputMeta extends BaseTransformMeta
             BaseMessages.getString(PKG, "CubeInputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  @Override
-  public CubeInput createTransform(
-      TransformMeta transformMeta,
-      CubeInputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new CubeInput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public CubeInputData getTransformData() {
-    return new CubeInputData();
   }
 
   /**

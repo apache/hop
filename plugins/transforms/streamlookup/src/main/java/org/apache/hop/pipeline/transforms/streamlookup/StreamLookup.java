@@ -49,8 +49,7 @@ import java.util.Collections;
  * @author Matt
  * @since 26-apr-2003
  */
-public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData>
-    implements ITransform<StreamLookupMeta, StreamLookupData> {
+public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData> {
   private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
 
   public StreamLookup(

@@ -62,8 +62,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/getsubfolders.html")
-public class GetSubFoldersMeta extends BaseTransformMeta
-    implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
+public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFoldersData> {
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 
   public static final String[] RequiredFoldersDesc =
@@ -450,21 +449,6 @@ public class GetSubFoldersMeta extends BaseTransformMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public GetSubFolders createTransform(
-      TransformMeta transformMeta,
-      GetSubFoldersData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetSubFolders(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetSubFoldersData getTransformData() {
-    return new GetSubFoldersData();
   }
 
   /**

@@ -37,7 +37,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -63,8 +62,8 @@ import java.util.Map.Entry;
 @InjectionSupported(
     localizationPrefix = "MetaInject.Injection.",
     groups = {"SOURCE_OUTPUT_FIELDS", "MAPPING_FIELDS"})
-public class MetaInjectMeta extends BaseTransformMeta
-    implements ITransformMeta<MetaInject, MetaInjectData>,
+public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData>
+    implements 
         ITransformMetaChangeListener,
         ISubPipelineAwareMeta {
 
@@ -269,11 +268,6 @@ public class MetaInjectMeta extends BaseTransformMeta
     }
   }
 
-  @Override
-  public MetaInjectData getTransformData() {
-    return new MetaInjectData();
-  }
-
   public Map<TargetTransformAttribute, SourceTransformField> getTargetSourceMapping() {
     return targetSourceMapping;
   }
@@ -403,16 +397,6 @@ public class MetaInjectMeta extends BaseTransformMeta
   @Override
   public boolean excludeFromCopyDistributeVerification() {
     return true;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MetaInjectData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MetaInject(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override

@@ -45,8 +45,7 @@ import java.util.Set;
  * truncate, upsert, multi-update (update all matching docs) and modifier update (update only
  * certain fields) operations. Can also create and drop indexes based on one or more fields.
  */
-public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData>
-    implements ITransform<MongoDbOutputMeta, MongoDbOutputData> {
+public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData> {
   private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   protected MongoDbOutputData.MongoTopLevel mongoTopLevelStructure =

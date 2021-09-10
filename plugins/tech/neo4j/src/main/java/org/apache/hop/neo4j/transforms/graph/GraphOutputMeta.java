@@ -53,8 +53,7 @@ import java.util.List;
     groups = {
       "MAPPINGS",
     })
-public class GraphOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<GraphOutput, GraphOutputData> {
+public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputData> {
 
   private static final String RETURNING_GRAPH = "returning_graph";
   private static final String RETURN_GRAPH_FIELD = "return_graph_field";
@@ -106,21 +105,6 @@ public class GraphOutputMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {}
-
-  @Override
-  public GraphOutput createTransform(
-      TransformMeta transformMeta,
-      GraphOutputData iTransformData,
-      int i,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GraphOutput(transformMeta, this, iTransformData, i, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GraphOutputData getTransformData() {
-    return new GraphOutputData();
-  }
 
   @Override
   public String getDialogClassName() {

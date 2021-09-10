@@ -27,8 +27,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Business logic for the NumberRange */
-public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
-    implements ITransform<NumberRangeMeta, NumberRangeData> {
+public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData> {
   private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
 
   private NumberRangeSet numberRange;

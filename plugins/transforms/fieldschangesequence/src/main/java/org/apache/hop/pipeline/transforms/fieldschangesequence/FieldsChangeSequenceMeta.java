@@ -47,8 +47,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/addfieldschangesequence.html")
-public class FieldsChangeSequenceMeta extends BaseTransformMeta
-    implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
+public class FieldsChangeSequenceMeta extends BaseTransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 
   /** by which fields to display? */
@@ -257,21 +256,6 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FieldsChangeSequence createTransform(
-      TransformMeta transformMeta,
-      FieldsChangeSequenceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FieldsChangeSequence(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FieldsChangeSequenceData getTransformData() {
-    return new FieldsChangeSequenceData();
   }
 
   @Override

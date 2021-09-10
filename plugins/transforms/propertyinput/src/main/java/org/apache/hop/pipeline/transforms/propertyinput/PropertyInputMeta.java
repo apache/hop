@@ -56,8 +56,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/propertyinput.html")
-public class PropertyInputMeta extends BaseTransformMeta
-    implements ITransformMeta<PropertyInput, PropertyInputData> {
+public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, PropertyInputData> {
   private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
@@ -539,16 +538,6 @@ public class PropertyInputMeta extends BaseTransformMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PropertyInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PropertyInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
     retval.append("    ").append(XmlHandler.addTagValue("file_type", fileType));
@@ -971,12 +960,6 @@ public class PropertyInputMeta extends BaseTransformMeta
       remarks.add(cr);
     }
   }
-
-  @Override
-  public PropertyInputData getTransformData() {
-    return new PropertyInputData();
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;

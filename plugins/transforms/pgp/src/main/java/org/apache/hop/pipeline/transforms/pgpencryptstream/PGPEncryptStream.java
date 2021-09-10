@@ -34,8 +34,7 @@ import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
  * @author Samatar
  * @since 03-Juin-2008
  */
-public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEncryptStreamData>
-    implements ITransform<PGPEncryptStreamMeta, PGPEncryptStreamData> {
+public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
 
   public PGPEncryptStream(

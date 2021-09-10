@@ -36,8 +36,7 @@ import javax.naming.directory.Attribute;
 import java.util.HashSet;
 
 /** Read LDAP Host, convert them to rows and writes these to one or more output streams. */
-public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
-    implements ITransform<LdapInputMeta, LdapInputData> {
+public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   public LdapInput(

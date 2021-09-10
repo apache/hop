@@ -52,8 +52,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/filesfromresult.html")
-public class FilesFromResultMeta extends BaseTransformMeta
-    implements ITransformMeta<FilesFromResult, FilesFromResultData> {
+public class FilesFromResultMeta extends BaseTransformMeta<FilesFromResult, FilesFromResultData> {
   private static final Class<?> PKG = FilesFromResult.class; // For Translator
 
   public FilesFromResultMeta() {
@@ -136,20 +135,5 @@ public class FilesFromResultMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FilesFromResult createTransform(
-      TransformMeta transformMeta,
-      FilesFromResultData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FilesFromResult(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FilesFromResultData getTransformData() {
-    return new FilesFromResultData();
   }
 }

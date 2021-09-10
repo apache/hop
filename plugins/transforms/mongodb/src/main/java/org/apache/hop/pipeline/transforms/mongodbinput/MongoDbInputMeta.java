@@ -57,8 +57,7 @@ import java.util.List;
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mongodbinput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
-public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>
-    implements ITransformMeta<MongoDbInput, MongoDbInputData> {
+public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData> {
   protected static Class<?> PKG = MongoDbInputMeta.class; // For Translator
 
   @Injection(name = "JSON_OUTPUT_FIELD")
@@ -225,21 +224,6 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       xml.append("\n    ").append(XmlHandler.closeTag("mongo_fields"));
     }
     return xml.toString();
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MongoDbInputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new MongoDbInput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MongoDbInputData getTransformData() {
-    return new MongoDbInputData();
   }
 
   @Override

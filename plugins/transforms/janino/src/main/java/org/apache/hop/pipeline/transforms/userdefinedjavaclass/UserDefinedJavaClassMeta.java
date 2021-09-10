@@ -67,8 +67,7 @@ import java.util.stream.Collectors;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/userdefinedjavaclass.html")
-public class UserDefinedJavaClassMeta extends BaseTransformMeta
-    implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
+public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   public enum ElementNames {
@@ -731,27 +730,6 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
               transforminfo);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public UserDefinedJavaClass createTransform(
-      TransformMeta transformMeta,
-      UserDefinedJavaClassData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    UserDefinedJavaClass userDefinedJavaClass =
-        new UserDefinedJavaClass(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-    if (pipeline.hasHaltedComponents()) {
-      return null;
-    }
-
-    return userDefinedJavaClass;
-  }
-
-  @Override
-  public UserDefinedJavaClassData getTransformData() {
-    return new UserDefinedJavaClassData();
   }
 
   @Override

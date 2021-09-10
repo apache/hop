@@ -47,8 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.NumberRange",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/numberrange.html")
-public class NumberRangeMeta extends BaseTransformMeta
-    implements ITransformMeta<NumberRange, NumberRangeData> {
+public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeData> {
 
   private String inputField;
 
@@ -111,16 +110,6 @@ public class NumberRangeMeta extends BaseTransformMeta
   public Object clone() {
     Object retval = super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      NumberRangeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new NumberRange(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -209,11 +198,6 @@ public class NumberRangeMeta extends BaseTransformMeta
               transforminfo);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public NumberRangeData getTransformData() {
-    return new NumberRangeData();
   }
 
   public String getInputField() {

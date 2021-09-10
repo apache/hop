@@ -53,8 +53,7 @@ import java.util.List;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/samplerows.html")
-public class SampleRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<SampleRows, SampleRowsData> {
+public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
   private String linesrange;
@@ -197,20 +196,5 @@ public class SampleRowsMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SampleRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SampleRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SampleRowsData getTransformData() {
-    return new SampleRowsData();
   }
 }

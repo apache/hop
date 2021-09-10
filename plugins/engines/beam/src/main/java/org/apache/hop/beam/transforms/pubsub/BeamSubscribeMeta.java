@@ -53,8 +53,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beamgcpsubscriber.html")
-public class BeamSubscribeMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamSubscribe, BeamSubscribeData>, IBeamPipelineTransformHandler {
+public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty private String topic;
   @HopMetadataProperty private String subscription;
@@ -70,21 +70,6 @@ public class BeamSubscribeMeta extends BaseTransformMeta
     topic = "Topic";
     messageType = "String";
     messageField = "message";
-  }
-
-  @Override
-  public BeamSubscribe createTransform(
-      TransformMeta transformMeta,
-      BeamSubscribeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamSubscribe(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamSubscribeData getTransformData() {
-    return new BeamSubscribeData();
   }
 
   @Override

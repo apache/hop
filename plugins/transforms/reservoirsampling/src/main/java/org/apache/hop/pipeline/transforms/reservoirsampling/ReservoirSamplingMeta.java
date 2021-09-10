@@ -47,8 +47,7 @@ import java.util.Objects;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/reservoirsampling.html")
-public class ReservoirSamplingMeta extends BaseTransformMeta
-    implements ITransformMeta<ReservoirSampling, ReservoirSamplingData> {
+public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, ReservoirSamplingData> {
 
   public static final String XML_TAG = "reservoir_sampling";
 
@@ -154,16 +153,6 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
     return retval;
   }
 
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ReservoirSamplingData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ReservoirSampling(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
   /**
    * Loads the meta data for this (configured) transform from XML.
    *
@@ -243,17 +232,5 @@ public class ReservoirSamplingMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * Get a new instance of the appropriate data class. This data class implements the
-   * ITransformData. It basically contains the persisting data that needs to live on, even if a
-   * worker thread is terminated.
-   *
-   * @return a <code>ITransformData</code> value
-   */
-  @Override
-  public ReservoirSamplingData getTransformData() {
-    return new ReservoirSamplingData();
   }
 }

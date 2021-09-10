@@ -30,8 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class MappingInput extends BaseTransform<MappingInputMeta, MappingInputData>
-    implements ITransform<MappingInputMeta, MappingInputData> {
+public class MappingInput extends BaseTransform<MappingInputMeta, MappingInputData> {
 
   private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 

@@ -58,8 +58,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SortedMerge",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sortedmerge.html")
-public class SortedMergeMeta extends BaseTransformMeta
-    implements ITransformMeta<SortedMerge, SortedMergeData> {
+public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   /** order by which fields? */
@@ -102,16 +101,6 @@ public class SortedMergeMeta extends BaseTransformMeta
     System.arraycopy(ascending, 0, retval.ascending, 0, nrFields);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SortedMergeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SortedMerge(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -256,11 +245,6 @@ public class SortedMergeMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SortedMergeData getTransformData() {
-    return new SortedMergeData();
   }
 
   /** @return the ascending */

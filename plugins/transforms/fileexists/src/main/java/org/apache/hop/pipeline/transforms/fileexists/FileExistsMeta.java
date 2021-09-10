@@ -30,10 +30,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -45,8 +43,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.FileExists",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/fileexists.html")
-public class FileExistsMeta extends BaseTransformMeta
-    implements ITransformMeta<FileExists, FileExistsData> {
+public class FileExistsMeta extends BaseTransformMeta<FileExists, FileExistsData> {
   private static final Class<?> PKG = FileExistsMeta.class; // For Translator
 
   @HopMetadataProperty(
@@ -212,21 +209,6 @@ public class FileExistsMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FileExists createTransform(
-      TransformMeta transformMeta,
-      FileExistsData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FileExists(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FileExistsData getTransformData() {
-    return new FileExistsData();
   }
 
   @Override

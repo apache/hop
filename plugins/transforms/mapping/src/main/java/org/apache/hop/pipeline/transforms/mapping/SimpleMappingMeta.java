@@ -65,7 +65,7 @@ import java.util.List;
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/simple-mapping.html")
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
-    implements ITransformMeta<SimpleMapping, SimpleMappingData>, ISubPipelineAwareMeta {
+    implements ISubPipelineAwareMeta {
 
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
@@ -313,21 +313,6 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SimpleMapping createTransform(
-      TransformMeta transformMeta,
-      SimpleMappingData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new SimpleMapping(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public SimpleMappingData getTransformData() {
-    return new SimpleMappingData();
   }
 
   /** @return the mappingParameters */

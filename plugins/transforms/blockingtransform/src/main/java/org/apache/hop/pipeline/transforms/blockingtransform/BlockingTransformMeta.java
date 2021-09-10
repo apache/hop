@@ -44,8 +44,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/blockingtransform.html")
-public class BlockingTransformMeta extends BaseTransformMeta
-    implements ITransformMeta<BlockingTransform, BlockingTransformData> {
+public class BlockingTransformMeta extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
 
   private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 
@@ -165,21 +164,6 @@ public class BlockingTransformMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Default: no values are added to the row in the transform
-  }
-
-  @Override
-  public BlockingTransform createTransform(
-      TransformMeta transformMeta,
-      BlockingTransformData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BlockingTransform(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BlockingTransformData getTransformData() {
-    return new BlockingTransformData();
   }
 
   /** @return Returns the cacheSize. */

@@ -45,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/mapping-output.html")
-public class MappingOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<MappingOutput, MappingOutputData> {
+public class MappingOutputMeta extends BaseTransformMeta<MappingOutput, MappingOutputData> {
 
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
@@ -109,20 +108,5 @@ public class MappingOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public MappingOutput createTransform(
-      TransformMeta transformMeta,
-      MappingOutputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new MappingOutput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MappingOutputData getTransformData() {
-    return new MappingOutputData();
   }
 }

@@ -54,8 +54,7 @@ import java.util.List;
     description = "i18n::CheckSum.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/addchecksum.html")
-public class CheckSumMeta extends BaseTransformMeta
-    implements ITransformMeta<CheckSum, CheckSumData> {
+public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
 
   private static final Class<?> PKG = CheckSumMeta.class; // For Translator
 
@@ -336,17 +335,6 @@ public class CheckSumMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public CheckSum createTransform(
-      TransformMeta transformMeta, CheckSumData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new CheckSum(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public CheckSumData getTransformData() {
-    return new CheckSumData();
   }
 
   @Override

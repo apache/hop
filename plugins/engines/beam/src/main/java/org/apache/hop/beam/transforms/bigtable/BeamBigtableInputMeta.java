@@ -23,14 +23,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
-import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 @Transform(
     id = "BeamBigtableInput",
@@ -40,8 +36,7 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beam-bigtable-input.html")
-public class BeamBigtableInputMeta extends BaseTransformMeta
-    implements ITransformMeta<Dummy, DummyData> {
+public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData> {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -54,21 +49,6 @@ public class BeamBigtableInputMeta extends BaseTransformMeta
 
   public BeamBigtableInputMeta() {
     super();
-  }
-
-  @Override
-  public Dummy createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Dummy(transformMeta, new DummyMeta(), data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

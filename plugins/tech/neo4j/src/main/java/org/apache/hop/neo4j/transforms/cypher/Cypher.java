@@ -49,8 +49,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-public class Cypher extends BaseTransform<CypherMeta, CypherData>
-    implements ITransform<CypherMeta, CypherData> {
+public class Cypher extends BaseTransform<CypherMeta, CypherData> {
 
   public Cypher(
       TransformMeta transformMeta,

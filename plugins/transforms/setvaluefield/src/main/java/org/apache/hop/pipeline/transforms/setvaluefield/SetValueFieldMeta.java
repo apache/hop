@@ -51,8 +51,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/setvaluefield.html")
-public class SetValueFieldMeta extends BaseTransformMeta
-    implements ITransformMeta<SetValueField, SetValueFieldData> {
+public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValueFieldData> {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
 
   @Injection(name = "FIELD_NAME", group = "FIELDS")
@@ -107,16 +106,6 @@ public class SetValueFieldMeta extends BaseTransformMeta
     System.arraycopy(replaceByFieldValue, 0, retval.replaceByFieldValue, 0, count);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SetValueFieldData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SetValueField(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
@@ -240,11 +229,6 @@ public class SetValueFieldMeta extends BaseTransformMeta
         }
       }
     }
-  }
-
-  @Override
-  public SetValueFieldData getTransformData() {
-    return new SetValueFieldData();
   }
 
   @Override

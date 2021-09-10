@@ -47,8 +47,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/splitfieldtorows.html")
-public class SplitFieldToRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
+public class SplitFieldToRowsMeta extends BaseTransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   /** Field to split */
@@ -264,21 +263,6 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta
       }
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SplitFieldToRows createTransform(
-      TransformMeta transformMeta,
-      SplitFieldToRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SplitFieldToRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SplitFieldToRowsData getTransformData() {
-    return new SplitFieldToRowsData();
   }
 
   /** @return the newFieldname */

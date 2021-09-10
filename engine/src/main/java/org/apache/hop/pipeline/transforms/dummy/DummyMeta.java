@@ -26,14 +26,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 /*
@@ -48,7 +44,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/dummy.html")
-public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
+public class DummyMeta extends BaseTransformMeta<Dummy, DummyData> {
 
   private static final Class<?> PKG = DummyMeta.class; // For Translator
 
@@ -131,16 +127,5 @@ public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta, DummyData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new Dummy(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 }

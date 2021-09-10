@@ -48,8 +48,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/webservices.html")
-public class WebServiceMeta extends BaseTransformMeta
-    implements ITransformMeta<WebService, WebServiceData> {
+public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
   public static final int DEFAULT_TRANSFORM = 1000;
@@ -352,21 +351,6 @@ public class WebServiceMeta extends BaseTransformMeta
 
   public void setOperationName(String operationName) {
     this.operationName = operationName;
-  }
-
-  @Override
-  public WebService createTransform(
-      TransformMeta transformMeta,
-      WebServiceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline disp) {
-    return new WebService(transformMeta, this, data, cnr, pipelineMeta, disp);
-  }
-
-  @Override
-  public WebServiceData getTransformData() {
-    return new WebServiceData();
   }
 
   public WebServiceField getFieldInFromName(String name) {

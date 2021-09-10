@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.w3c.dom.Document;
@@ -54,8 +53,7 @@ import java.util.List;
  * @author Matt
  * @since 14-jan-2006
  */
-public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData>
-    implements ITransform<XmlJoinMeta, XmlJoinData> {
+public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
 
   private Transformer transformer;

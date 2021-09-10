@@ -37,13 +37,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 /** Created on 02-jun-2003 */
@@ -58,8 +55,7 @@ import java.util.List;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/memgroupby.html")
-public class MemoryGroupByMeta extends BaseTransformMeta
-    implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {
+public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData> {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
 
   public static final int TYPE_GROUP_NONE = 0;
@@ -242,16 +238,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta
     System.arraycopy(aggregateType, 0, retval.aggregateType, 0, nrFields);
     System.arraycopy(valueField, 0, retval.valueField, 0, nrFields);
     return retval;
-  }
-
-  @Override
-  public MemoryGroupBy createTransform(
-      TransformMeta transformMeta,
-      MemoryGroupByData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MemoryGroupBy(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -509,11 +495,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public MemoryGroupByData getTransformData() {
-    return new MemoryGroupByData();
   }
 
   /** @return the alwaysGivingBackOneRow */

@@ -36,8 +36,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.zip.GZIPInputStream;
 
-public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData>
-    implements ITransform<CubeInputMeta, CubeInputData> {
+public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
 
   private static final Class<?> PKG = CubeInputMeta.class; // For Translator
 

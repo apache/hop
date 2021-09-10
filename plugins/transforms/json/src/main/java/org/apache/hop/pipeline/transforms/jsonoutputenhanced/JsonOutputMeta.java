@@ -35,12 +35,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 @Transform(
@@ -55,8 +52,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "JsonOutput.Injection.",
     groups = {"GENERAL", "FIELDS"})
-public class JsonOutputMeta extends BaseFileOutputMeta
-    implements ITransformMeta<JsonOutput, JsonOutputData> {
+public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
   private static Class<?> PKG = JsonOutputMeta.class;
 
   /** Operations type */
@@ -215,16 +211,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     return operationType;
   }
 
-  @Override
-  public JsonOutput createTransform(
-      TransformMeta transformMeta,
-      JsonOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new JsonOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
   public static int getOperationTypeByDesc(String tt) {
     if (tt == null) {
       return 0;
@@ -321,11 +307,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   /** @param AddToResult The Add file to result to set. */
   public void setAddToResult(boolean AddToResult) {
     this.addToResult = AddToResult;
-  }
-
-  @Override
-  public JsonOutputData getTransformData() {
-    return new JsonOutputData();
   }
 
   private void readData(Node transformnode) throws HopXmlException {

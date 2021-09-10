@@ -50,8 +50,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.DatabaseJoin",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/databasejoin.html")
-public class DatabaseJoinMeta extends BaseTransformMeta
-    implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
+public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 
@@ -506,21 +505,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       }
     }
     return fields;
-  }
-
-  @Override
-  public DatabaseJoin createTransform(
-      TransformMeta transformMeta,
-      DatabaseJoinData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DatabaseJoin(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DatabaseJoinData getTransformData() {
-    return new DatabaseJoinData();
   }
 
   @Override

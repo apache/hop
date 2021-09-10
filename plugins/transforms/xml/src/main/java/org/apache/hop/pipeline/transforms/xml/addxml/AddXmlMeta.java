@@ -34,14 +34,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 /**
@@ -59,7 +55,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "AddXMLMeta.Injection.",
     groups = {"OUTPUT_FIELDS"})
-public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddXml, AddXmlData> {
+public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
   private static final Class<?> PKG = AddXmlMeta.class; // For Translator
 
   /** The base name of the output file */
@@ -139,21 +135,6 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     }
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      AddXmlData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AddXml(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AddXmlData getTransformData() {
-    return new AddXmlData();
   }
 
   @Override

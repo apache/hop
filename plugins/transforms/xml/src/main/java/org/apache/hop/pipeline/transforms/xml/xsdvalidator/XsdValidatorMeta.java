@@ -34,16 +34,12 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
 import java.util.List;
 import java.util.Map;
 
@@ -58,8 +54,7 @@ import java.util.Map;
     description = "i18n::XSDValidator.description",
     categoryDescription = "i18n::XSDValidator.category",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xsdvalidator.html")
-public class XsdValidatorMeta extends BaseTransformMeta
-    implements ITransformMeta<XsdValidator, XsdValidatorData> {
+public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidatorData> {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
 
   private String xsdFilename;
@@ -198,21 +193,6 @@ public class XsdValidatorMeta extends BaseTransformMeta
     XsdValidatorMeta retval = (XsdValidatorMeta) super.clone();
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      XsdValidatorData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new XsdValidator(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public XsdValidatorData getTransformData() {
-    return new XsdValidatorData();
   }
 
   @Override

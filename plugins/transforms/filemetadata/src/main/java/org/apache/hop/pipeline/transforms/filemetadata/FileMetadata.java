@@ -40,8 +40,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataData>
-    implements ITransform<FileMetadataMeta, FileMetadataData> {
+public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataData> {
 
   private Object[] r;
   private int idx;

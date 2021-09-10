@@ -42,8 +42,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 
-public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListenerData>
-    implements ITransform<AzureListenerMeta, AzureListenerData> {
+public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListenerData> {
 
   public AzureListener(
       TransformMeta TransformMeta,

@@ -50,8 +50,7 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/pgpdecryptstream.html")
-public class PGPEncryptStreamMeta extends BaseTransformMeta
-    implements ITransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
+public class PGPEncryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
 
   /** GPG location */
@@ -275,21 +274,6 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PGPEncryptStreamData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PGPEncryptStream(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public PGPEncryptStreamData getTransformData() {
-    return new PGPEncryptStreamData();
   }
 
   @Override

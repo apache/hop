@@ -145,7 +145,7 @@ public abstract class Pipeline
   public List<IRowSet> rowsets;
 
   /** A list of all the transforms. */
-  private List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
+  private List<TransformMetaDataCombi> transforms;
 
   /** Constant indicating a dispatch type of 1-to-1. */
   public static final int TYPE_DISP_1_1 = 1;
@@ -875,7 +875,6 @@ public abstract class Pipeline
       PartitionSchema nextPartitionSchema = null;
 
       List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transformMeta);
-      int nrNext = nextTransforms.size();
       for (TransformMeta nextTransform : nextTransforms) {
         if (nextTransform.isPartitioned()) {
           isNextPartitioned = true;
@@ -1311,7 +1310,7 @@ public abstract class Pipeline
       // get the statistics from the transforms and keep them...
       //
       int seqNr = transformPerformanceSnapshotSeqNr.incrementAndGet();
-      for (TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>
+      for (TransformMetaDataCombi
           iTransformITransformMetaITransformDataTransformMetaDataCombi : transforms) {
         TransformMeta transformMeta =
             iTransformITransformMetaITransformDataTransformMetaDataCombi.transformMeta;
@@ -1791,12 +1790,11 @@ public abstract class Pipeline
    *
    * @return a list of the transforms in the pipeline
    */
-  public List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> getTransforms() {
+  public List<TransformMetaDataCombi> getTransforms() {
     return transforms;
   }
 
-  protected void setTransforms(
-      List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms) {
+  protected void setTransforms(List<TransformMetaDataCombi> transforms) {
     this.transforms = transforms;
   }
 
@@ -2943,7 +2941,7 @@ public abstract class Pipeline
     errors.set(0);
     setFinished(false);
     for (TransformMetaDataCombi combi : transforms) {
-      ITransform<ITransformMeta, ITransformData> transform = combi.transform;
+      ITransform transform = combi.transform;
       for (IRowSet rowSet : transform.getInputRowSets()) {
         rowSet.clear();
       }
@@ -3244,9 +3242,9 @@ public abstract class Pipeline
 
     if (transforms != null) {
       synchronized (transforms) {
-        for (TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData> combi :
+        for (TransformMetaDataCombi combi :
             transforms) {
-          ITransform<ITransformMeta, ITransformData> transform = combi.transform;
+          ITransform transform = combi.transform;
 
           boolean collect = true;
           if (copyNr >= 0) {

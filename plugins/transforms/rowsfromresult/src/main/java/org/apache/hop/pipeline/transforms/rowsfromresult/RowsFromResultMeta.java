@@ -54,8 +54,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/getrowsfromresult.html")
-public class RowsFromResultMeta extends BaseTransformMeta
-    implements ITransformMeta<RowsFromResult, RowsFromResultData> {
+public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class; // For Translator
 
   private String[] fieldname;
@@ -123,16 +122,6 @@ public class RowsFromResultMeta extends BaseTransformMeta
     System.arraycopy(length, 0, retval.length, 0, nrFields);
     System.arraycopy(precision, 0, retval.precision, 0, nrFields);
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      RowsFromResultData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new RowsFromResult(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public void allocate(int nrFields) {
@@ -230,10 +219,5 @@ public class RowsFromResultMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public RowsFromResultData getTransformData() {
-    return new RowsFromResultData();
   }
 }

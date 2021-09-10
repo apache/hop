@@ -45,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/checkwebserviceavailable.html")
-public class WebServiceAvailableMeta extends BaseTransformMeta
-    implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
+public class WebServiceAvailableMeta extends BaseTransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
 
   /** dynamic filename */
@@ -187,21 +186,6 @@ public class WebServiceAvailableMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public WebServiceAvailable createTransform(
-      TransformMeta transformMeta,
-      WebServiceAvailableData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new WebServiceAvailable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public WebServiceAvailableData getTransformData() {
-    return new WebServiceAvailableData();
   }
 
   @Override

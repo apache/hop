@@ -14,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.core.injection.inheritance;
 
-import org.apache.hop.core.injection.InjectionSupported;
+package org.apache.hop.pipeline.transforms.missing;
 
-@InjectionSupported(localizationPrefix = "")
-public class MetaBeanChild extends MetaBeanMiddle<String> {
+import org.apache.hop.pipeline.transform.BaseTransformData;
+
+public class MissingData extends BaseTransformData {
+  public MissingData() {
+    super();
+  }
 }

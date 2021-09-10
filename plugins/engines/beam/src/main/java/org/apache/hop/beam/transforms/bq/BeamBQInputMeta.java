@@ -52,8 +52,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beambigqueryinput.html")
-public class BeamBQInputMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamBQInput, BeamBQInputData>, IBeamPipelineTransformHandler {
+public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -73,21 +73,6 @@ public class BeamBQInputMeta extends BaseTransformMeta
   public BeamBQInputMeta() {
     super();
     fields = new ArrayList<>();
-  }
-
-  @Override
-  public BeamBQInput createTransform(
-      TransformMeta transformMeta,
-      BeamBQInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamBQInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamBQInputData getTransformData() {
-    return new BeamBQInputData();
   }
 
   @Override

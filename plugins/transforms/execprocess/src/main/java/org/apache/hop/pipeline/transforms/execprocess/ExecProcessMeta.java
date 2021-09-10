@@ -53,8 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/execprocess.html")
-public class ExecProcessMeta extends BaseTransformMeta
-    implements ITransformMeta<ExecProcess, ExecProcessData> {
+public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessData> {
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
 
   /** dynamic process field name */
@@ -300,21 +299,6 @@ public class ExecProcessMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ExecProcess createTransform(
-      TransformMeta transformMeta,
-      ExecProcessData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExecProcess(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExecProcessData getTransformData() {
-    return new ExecProcessData();
   }
 
   @Override

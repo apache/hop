@@ -51,8 +51,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.FuzzyMatch",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/fuzzymatch.html")
-public class FuzzyMatchMeta extends BaseTransformMeta
-    implements ITransformMeta<FuzzyMatch, FuzzyMatchData> {
+public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData> {
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
 
   public static final String DEFAULT_SEPARATOR = ",";
@@ -693,21 +692,6 @@ public class FuzzyMatchMeta extends BaseTransformMeta
       stream.setTransformMeta(
           TransformMeta.findTransform(transforms, (String) stream.getSubject()));
     }
-  }
-
-  @Override
-  public FuzzyMatch createTransform(
-      TransformMeta transformMeta,
-      FuzzyMatchData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FuzzyMatch(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FuzzyMatchData getTransformData() {
-    return new FuzzyMatchData();
   }
 
   @Override

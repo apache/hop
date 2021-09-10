@@ -37,7 +37,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 
@@ -50,8 +49,7 @@ import java.util.List;
  * @author Matt
  * @since 26-apr-2003
  */
-public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData>
-    implements ITransform<DatabaseLookupMeta, DatabaseLookupData> {
+public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
 

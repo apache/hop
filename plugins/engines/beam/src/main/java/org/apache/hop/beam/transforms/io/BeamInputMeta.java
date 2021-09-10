@@ -51,8 +51,8 @@ import java.util.Map;
     image = "beam-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beaminput.html")
-public class BeamInputMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamInput, BeamInputData>, IBeamPipelineTransformHandler {
+public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "input_location")
   private String inputLocation;
@@ -61,21 +61,6 @@ public class BeamInputMeta extends BaseTransformMeta
   private String fileDefinitionName;
 
   public BeamInputMeta() {}
-
-  @Override
-  public BeamInput createTransform(
-      TransformMeta transformMeta,
-      BeamInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamInputData getTransformData() {
-    return new BeamInputData();
-  }
 
   @Override
   public String getDialogClassName() {

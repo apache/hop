@@ -63,7 +63,7 @@ import java.util.stream.IntStream;
     groups = {"CONFIGURATION_PROPERTIES"})
 public class KafkaConsumerInputMeta
     extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
-    implements ITransformMeta<KafkaConsumerInput, KafkaConsumerInputData>, Cloneable {
+    implements Cloneable {
 
   private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
 
@@ -474,21 +474,6 @@ public class KafkaConsumerInputMeta
               BaseMessages.getString(PKG, "KafkaConsumerInputMeta.CheckResult.NoBatchDefined"),
               transformMeta));
     }
-  }
-
-  @Override
-  public KafkaConsumerInput createTransform(
-      TransformMeta transformMeta,
-      KafkaConsumerInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new KafkaConsumerInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public KafkaConsumerInputData getTransformData() {
-    return new KafkaConsumerInputData();
   }
 
   @Override

@@ -45,8 +45,7 @@ import java.util.List;
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/metastructure.html",
     image = "MetaStructure.svg")
-public class TransformMetaStructureMeta extends BaseTransformMeta
-    implements ITransformMeta<TransformMetaStructure, TransformMetaStructureData> {
+public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaStructure, TransformMetaStructureData> {
 
   private static Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
 
@@ -110,21 +109,6 @@ public class TransformMetaStructureMeta extends BaseTransformMeta
   @Override
   public TransformMetaStructureMeta clone() {
     return (TransformMetaStructureMeta) super.clone();
-  }
-
-  @Override
-  public TransformMetaStructure createTransform(
-      TransformMeta transformMeta,
-      TransformMetaStructureData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TransformMetaStructure(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TransformMetaStructureData getTransformData() {
-    return new TransformMetaStructureData();
   }
 
   @Override

@@ -52,8 +52,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/getsystemdata.html")
-public class SystemDataMeta extends BaseTransformMeta
-    implements ITransformMeta<SystemData, SystemDataData> {
+public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData> {
   private static final Class<?> PKG = SystemDataMeta.class; // For Translator
 
   @Injection(name = "FIELD_NAME")
@@ -109,16 +108,6 @@ public class SystemDataMeta extends BaseTransformMeta
     System.arraycopy(fieldType, 0, retval.fieldType, 0, count);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SystemDataData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SystemData(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -315,11 +304,6 @@ public class SystemDataMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SystemDataData getTransformData() {
-    return new SystemDataData();
   }
 
   @Override

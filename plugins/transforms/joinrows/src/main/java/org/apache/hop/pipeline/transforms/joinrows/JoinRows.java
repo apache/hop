@@ -40,8 +40,7 @@ import java.util.List;
  * @author Matt
  * @since 29-apr-2003
  */
-public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
-    implements ITransform<JoinRowsMeta, JoinRowsData> {
+public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
 
   public JoinRows(

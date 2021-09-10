@@ -48,8 +48,7 @@ import java.util.Iterator;
  * Performs a fuzzy match for each main stream field row An approximative match is done in a lookup
  * stream
  */
-public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
-    implements ITransform<FuzzyMatchMeta, FuzzyMatchData> {
+public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
 
   public FuzzyMatch(

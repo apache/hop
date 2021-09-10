@@ -58,8 +58,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.ConcatFields",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/concatfields.html")
-public class ConcatFieldsMeta extends BaseTransformMeta
-    implements ITransformMeta<ConcatFields, ConcatFieldsData> {
+public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFieldsData> {
 
   private static final Class<?> PKG = ConcatFieldsMeta.class; // For Translator
 
@@ -422,21 +421,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta
 
   public void allocate(int nrFields) {
     outputFields = new TextFileField[nrFields];
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ConcatFieldsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ConcatFields(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ConcatFieldsData getTransformData() {
-    return new ConcatFieldsData();
   }
 
   public void setSpecifyingFormat(boolean specifyingFormat) {

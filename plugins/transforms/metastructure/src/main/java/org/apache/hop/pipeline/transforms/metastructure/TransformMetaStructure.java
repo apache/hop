@@ -30,8 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Return the structure of the stream */
 public class TransformMetaStructure
-    extends BaseTransform<TransformMetaStructureMeta, TransformMetaStructureData>
-    implements ITransform<TransformMetaStructureMeta, TransformMetaStructureData> {
+    extends BaseTransform<TransformMetaStructureMeta, TransformMetaStructureData> {
 
   public TransformMetaStructure(
       TransformMeta transformMeta,

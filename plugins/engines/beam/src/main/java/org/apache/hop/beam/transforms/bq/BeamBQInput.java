@@ -33,8 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.Date;
 import java.util.UUID;
 
-public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData>
-    implements ITransform<BeamBQInputMeta, BeamBQInputData> {
+public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData> {
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this

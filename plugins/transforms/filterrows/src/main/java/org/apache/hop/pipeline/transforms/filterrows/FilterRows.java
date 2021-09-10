@@ -37,8 +37,7 @@ import java.util.List;
  * @author Matt
  * @since 16-apr-2003, 07-nov-2004 (rewrite)
  */
-public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
-    implements ITransform<FilterRowsMeta, FilterRowsData> {
+public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
 
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 

@@ -46,8 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/getserversequence.html")
-public class GetServerSequenceMeta extends BaseTransformMeta
-    implements ITransformMeta<GetServerSequence, GetServerSequenceData> {
+public class GetServerSequenceMeta extends BaseTransformMeta<GetServerSequence, GetServerSequenceData> {
   private static final Class<?> PKG = GetServerSequenceMeta.class; // For Translator
 
   private String valuename;
@@ -142,21 +141,6 @@ public class GetServerSequenceMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public GetServerSequence createTransform(
-      TransformMeta transformMeta,
-      GetServerSequenceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetServerSequence(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetServerSequenceData getTransformData() {
-    return new GetServerSequenceData();
   }
 
   /** @return the valuename */

@@ -45,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/uniquerowsbyhashset.html")
-public class UniqueRowsByHashSetMeta extends BaseTransformMeta
-    implements ITransformMeta<UniqueRowsByHashSet, UniqueRowsByHashSetData> {
+public class UniqueRowsByHashSetMeta extends BaseTransformMeta<UniqueRowsByHashSet, UniqueRowsByHashSetData> {
   private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // For Translator
 
   /**
@@ -123,16 +122,6 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
 
     System.arraycopy(compareFields, 0, retval.compareFields, 0, nrFields);
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      UniqueRowsByHashSetData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new UniqueRowsByHashSet(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -233,11 +222,6 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public UniqueRowsByHashSetData getTransformData() {
-    return new UniqueRowsByHashSetData();
   }
 
   @Override

@@ -53,8 +53,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/creditcardvalidator.html")
-public class CreditCardValidatorMeta extends BaseTransformMeta
-    implements ITransformMeta<CreditCardValidator, CreditCardValidatorData> {
+public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidator, CreditCardValidatorData> {
 
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
@@ -254,21 +253,6 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public CreditCardValidator createTransform(
-      TransformMeta transformMeta,
-      CreditCardValidatorData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CreditCardValidator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CreditCardValidatorData getTransformData() {
-    return new CreditCardValidatorData();
   }
 
   @Override

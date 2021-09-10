@@ -34,8 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 30-06-2008
  */
-public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData>
-    implements ITransform<WriteToLogMeta, WriteToLogData> {
+public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class; // For Translator
 
   private int rowCounter = 0;

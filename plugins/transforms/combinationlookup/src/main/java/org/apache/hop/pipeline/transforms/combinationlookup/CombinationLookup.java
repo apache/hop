@@ -32,7 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -57,8 +56,7 @@ import java.util.*;
  *
  * <p>
  */
-public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData>
-    implements ITransform<CombinationLookupMeta, CombinationLookupData> {
+public class CombinationLookup extends BaseTransform<CombinationLookupMeta, CombinationLookupData> {
 
   private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 

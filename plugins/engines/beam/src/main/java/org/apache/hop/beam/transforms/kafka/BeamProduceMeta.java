@@ -49,8 +49,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beamkafkaproduce.html")
-public class BeamProduceMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamProduce, DummyData>, IBeamPipelineTransformHandler {
+public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "bootstrap_servers")
   private String bootstrapServers;
@@ -68,21 +68,6 @@ public class BeamProduceMeta extends BaseTransformMeta
     topic = "Topic1";
     keyField = "";
     messageField = "";
-  }
-
-  @Override
-  public BeamProduce createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamProduce(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

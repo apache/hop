@@ -46,8 +46,7 @@ import java.util.List;
     description = "i18n::WriteToLog.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/writetolog.html")
-public class WriteToLogMeta extends BaseTransformMeta
-    implements ITransformMeta<WriteToLog, WriteToLogData> {
+public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class; // For Translator
 
   /** by which fields to display? */
@@ -125,16 +124,6 @@ public class WriteToLogMeta extends BaseTransformMeta
     System.arraycopy(fieldName, 0, retval.fieldName, 0, nrFields);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      WriteToLogData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new WriteToLog(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public void allocate(int nrFields) {
@@ -328,10 +317,5 @@ public class WriteToLogMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public WriteToLogData getTransformData() {
-    return new WriteToLogData();
   }
 }

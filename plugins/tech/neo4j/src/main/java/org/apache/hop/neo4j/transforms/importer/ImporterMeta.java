@@ -39,8 +39,7 @@ import org.w3c.dom.Node;
     image = "neo4j_import.svg",
     categoryDescription = "Neo4j",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-import.html")
-public class ImporterMeta extends BaseTransformMeta
-    implements ITransformMeta<Importer, ImporterData> {
+public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
 
   public static final String DB_NAME = "db_name";
   public static final String FILENAME_FIELD = "filename_field_name";
@@ -184,21 +183,6 @@ public class ImporterMeta extends BaseTransformMeta
     maxMemory = XmlHandler.getTagValue(transformNode, MAX_MEMORY);
     readBufferSize = XmlHandler.getTagValue(transformNode, READ_BUFFER_SIZE);
     processors = XmlHandler.getTagValue(transformNode, PROCESSORS);
-  }
-
-  @Override
-  public Importer createTransform(
-      TransformMeta transformMeta,
-      ImporterData iTransformData,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Importer(transformMeta, this, iTransformData, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ImporterData getTransformData() {
-    return new ImporterData();
   }
 
   /**

@@ -690,19 +690,4 @@ public class SalesforceInputMeta
       remarks.add(cr);
     }
   }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SalesforceInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SalesforceInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SalesforceInputData getTransformData() {
-    return new SalesforceInputData();
-  }
 }

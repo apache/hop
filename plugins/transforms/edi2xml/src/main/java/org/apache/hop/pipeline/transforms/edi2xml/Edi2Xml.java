@@ -35,8 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLLexer;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLParser;
 
-public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData>
-    implements ITransform<Edi2XmlMeta, Edi2XmlData> {
+public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
 
   private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
 

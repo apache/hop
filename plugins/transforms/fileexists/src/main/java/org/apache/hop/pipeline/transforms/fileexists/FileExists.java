@@ -31,8 +31,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Check if a file exists* */
-public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData>
-    implements ITransform<FileExistsMeta, FileExistsData> {
+public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> {
 
   private static final Class<?> PKG = FileExistsMeta.class; // For Translator
 

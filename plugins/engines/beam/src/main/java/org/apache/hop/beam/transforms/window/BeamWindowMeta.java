@@ -18,7 +18,11 @@
 package org.apache.hop.beam.transforms.window;
 
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.windowing.*;
+import org.apache.beam.sdk.transforms.windowing.FixedWindows;
+import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
+import org.apache.beam.sdk.transforms.windowing.Sessions;
+import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
+import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamDefaults;
@@ -38,16 +42,12 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
-import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.joda.time.Duration;
-
 import java.util.List;
 import java.util.Map;
 
@@ -58,8 +58,8 @@ import java.util.Map;
     image = "beam-window.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beamwindow.html")
-public class BeamWindowMeta extends BaseTransformMeta
-    implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
+public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "window_type")
   private String windowType;
@@ -83,21 +83,6 @@ public class BeamWindowMeta extends BaseTransformMeta
     startWindowField = "startWindow";
     endWindowField = "endWindow";
     maxWindowField = "maxWindow";
-  }
-
-  @Override
-  public Dummy createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Dummy(transformMeta, new DummyMeta(), data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

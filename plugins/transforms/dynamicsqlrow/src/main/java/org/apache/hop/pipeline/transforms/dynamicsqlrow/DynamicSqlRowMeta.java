@@ -52,8 +52,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/dynamicsqlrow.html")
-public class DynamicSqlRowMeta extends BaseTransformMeta
-    implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
+public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicSqlRowData> {
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 
   /** database connection */
@@ -372,21 +371,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
       cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public DynamicSqlRow createTransform(
-      TransformMeta transformMeta,
-      DynamicSqlRowData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DynamicSqlRow(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DynamicSqlRowData getTransformData() {
-    return new DynamicSqlRowData();
   }
 
   @Override

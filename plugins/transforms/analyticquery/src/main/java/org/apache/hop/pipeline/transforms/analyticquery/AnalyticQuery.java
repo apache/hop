@@ -36,8 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author ngoodman
  * @since 27-jan-2009
  */
-public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData>
-    implements ITransform<AnalyticQueryMeta, AnalyticQueryData> {
+public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class; // For Translator
 

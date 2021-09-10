@@ -29,10 +29,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -51,8 +49,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.RowFlattener",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/rowflattener.html")
-public class FlattenerMeta extends BaseTransformMeta
-    implements ITransformMeta<Flattener, FlattenerData> {
+public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
   private static final Class<?> PKG = FlattenerMeta.class; // For Translator
 
   /** The field to flatten */
@@ -208,20 +205,5 @@ public class FlattenerMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public Flattener createTransform(
-      TransformMeta transformMeta,
-      FlattenerData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Flattener(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FlattenerData getTransformData() {
-    return new FlattenerData();
   }
 }

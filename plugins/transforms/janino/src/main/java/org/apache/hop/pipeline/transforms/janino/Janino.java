@@ -29,7 +29,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.codehaus.janino.ExpressionEvaluator;
 
@@ -42,8 +41,7 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class Janino extends BaseTransform<JaninoMeta, JaninoData>
-    implements ITransform<JaninoMeta, JaninoData> {
+public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   public Janino(

@@ -51,8 +51,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BigData",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/beambigqueryoutput.html")
-public class BeamBQOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
+public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -90,21 +90,6 @@ public class BeamBQOutputMeta extends BaseTransformMeta
     // This is an endpoint in Beam, produces no further output
     //
     inputRowMeta.clear();
-  }
-
-  @Override
-  public Dummy createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Dummy(transformMeta, new DummyMeta(), data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

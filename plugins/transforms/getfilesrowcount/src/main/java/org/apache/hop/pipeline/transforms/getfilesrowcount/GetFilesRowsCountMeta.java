@@ -55,8 +55,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/getfilesrowcount.html")
-public class GetFilesRowsCountMeta extends BaseTransformMeta
-    implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
+public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
@@ -532,21 +531,6 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public GetFilesRowsCount createTransform(
-      TransformMeta transformMeta,
-      GetFilesRowsCountData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new GetFilesRowsCount(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public GetFilesRowsCountData getTransformData() {
-    return new GetFilesRowsCountData();
   }
 
   /**

@@ -26,10 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -52,8 +49,7 @@ import java.util.stream.IntStream;
 @InjectionSupported(
     localizationPrefix = "KafkaProducerOutputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})
-public class KafkaProducerOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<KafkaProducerOutput, KafkaProducerOutputData> {
+public class KafkaProducerOutputMeta extends BaseTransformMeta<KafkaProducerOutput, KafkaProducerOutputData> {
 
   public static final String DIRECT_BOOTSTRAP_SERVERS = "directBootstrapServers";
   public static final String CLIENT_ID = "clientId";
@@ -135,21 +131,6 @@ public class KafkaProducerOutputMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     // Default: nothing changes to rowMeta
-  }
-
-  @Override
-  public KafkaProducerOutput createTransform(
-      TransformMeta transformMeta,
-      KafkaProducerOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new KafkaProducerOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public KafkaProducerOutputData getTransformData() {
-    return new KafkaProducerOutputData();
   }
 
   public String getClientId() {

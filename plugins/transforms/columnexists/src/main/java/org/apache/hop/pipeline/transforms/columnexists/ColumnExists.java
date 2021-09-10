@@ -26,12 +26,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Check if a column exists in table on a specified connection * */
-public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsData>
-    implements ITransform<ColumnExistsMeta, ColumnExistsData> {
+public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
 

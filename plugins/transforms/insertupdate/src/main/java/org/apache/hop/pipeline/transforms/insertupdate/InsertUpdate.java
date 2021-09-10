@@ -42,8 +42,7 @@ import java.util.List;
  * Performs a lookup in a database table. If the key doesn't exist it inserts values into the table,
  * otherwise it performs an update of the changed values. If nothing changed, do nothing.
  */
-public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateData>
-    implements ITransform<InsertUpdateMeta, InsertUpdateData> {
+public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateData> {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
   public InsertUpdate(

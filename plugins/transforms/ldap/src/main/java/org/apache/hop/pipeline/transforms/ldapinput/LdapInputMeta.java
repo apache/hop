@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
+import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
+import static org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -33,16 +36,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
-
-import static org.apache.hop.core.ICheckResult.*;
 
 @Transform(
     id = "LDAPInput",
@@ -52,8 +50,8 @@ import static org.apache.hop.core.ICheckResult.*;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = {"ldap", "input"},
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/ldapinput.html")
-public class LdapInputMeta extends BaseTransformMeta
-    implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
+public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
+    implements ILdapMeta {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
@@ -851,21 +849,6 @@ public class LdapInputMeta extends BaseTransformMeta
       }
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public LdapInput createTransform(
-      TransformMeta transformMeta,
-      LdapInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new LdapInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public LdapInputData getTransformData() {
-    return new LdapInputData();
   }
 
   @Override

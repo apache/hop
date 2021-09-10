@@ -50,8 +50,7 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/mailvalidator.html")
-public class MailValidatorMeta extends BaseTransformMeta
-    implements ITransformMeta<MailValidator, MailValidatorData> {
+public class MailValidatorMeta extends BaseTransformMeta<MailValidator, MailValidatorData> {
   private static final Class<?> PKG = MailValidatorMeta.class; // For Translator
 
   /** dynamic email address */
@@ -203,16 +202,6 @@ public class MailValidatorMeta extends BaseTransformMeta
     MailValidatorMeta retval = (MailValidatorMeta) super.clone();
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MailValidatorData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MailValidator(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -471,11 +460,6 @@ public class MailValidatorMeta extends BaseTransformMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public MailValidatorData getTransformData() {
-    return new MailValidatorData();
   }
 
   @Override

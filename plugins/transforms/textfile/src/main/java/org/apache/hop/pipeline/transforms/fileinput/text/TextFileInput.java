@@ -34,8 +34,7 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
  * @author Matt
  * @since 4-apr-2003
  */
-public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData>
-    implements ITransform<TextFileInputMeta, TextFileInputData> {
+public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> {
 
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 

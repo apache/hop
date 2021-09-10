@@ -31,10 +31,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -48,8 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/execsqlrow.html")
 @InjectionSupported(localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS")
-public class ExecSqlRowMeta extends BaseTransformMeta
-    implements ITransformMeta<ExecSqlRow, ExecSqlRowData> {
+public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData> {
   private static final Class<?> PKG = ExecSqlRowMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
@@ -352,21 +349,6 @@ public class ExecSqlRowMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ExecSqlRow createTransform(
-      TransformMeta transformMeta,
-      ExecSqlRowData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExecSqlRow(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExecSqlRowData getTransformData() {
-    return new ExecSqlRowData();
   }
 
   @Override

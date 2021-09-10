@@ -24,7 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
 
@@ -33,8 +32,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
  * streams.
  */
 public class SalesforceDelete
-    extends SalesforceTransform<SalesforceDeleteMeta, SalesforceDeleteData>
-    implements ITransform<SalesforceDeleteMeta, SalesforceDeleteData> {
+    extends SalesforceTransform<SalesforceDeleteMeta, SalesforceDeleteData> {
   private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   public SalesforceDelete(

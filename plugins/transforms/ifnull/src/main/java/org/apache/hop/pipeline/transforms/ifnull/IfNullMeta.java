@@ -31,13 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 @Transform(
@@ -50,19 +47,9 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "IfNull.Injection.",
     groups = {"FIELDS", "VALUE_TYPES"})
-public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNull, IfNullData> {
+public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
 
   private static final Class<?> PKG = IfNullMeta.class; // For Translator
-
-  @Override
-  public IfNull createTransform(
-      TransformMeta transformMeta,
-      IfNullData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new IfNull(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
   public static class Fields implements Cloneable {
 
@@ -495,11 +482,6 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public IfNullData getTransformData() {
-    return new IfNullData();
   }
 
   @Override

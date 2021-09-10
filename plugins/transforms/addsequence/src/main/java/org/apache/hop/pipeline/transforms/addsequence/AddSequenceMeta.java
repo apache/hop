@@ -33,12 +33,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.List;
 
 /**
@@ -54,8 +51,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/addsequence.html",
     keywords = {"id", "unique"})
-public class AddSequenceMeta extends BaseTransformMeta
-    implements ITransformMeta<AddSequence, AddSequenceData> {
+public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceData> {
 
   private static final Class<?> PKG = AddSequenceMeta.class; // For Translator
 
@@ -344,21 +340,6 @@ public class AddSequenceMeta extends BaseTransformMeta
     }
 
     return retval;
-  }
-
-  @Override
-  public AddSequence createTransform(
-      TransformMeta transformMeta,
-      AddSequenceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AddSequence(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AddSequenceData getTransformData() {
-    return new AddSequenceData();
   }
 
   @Override

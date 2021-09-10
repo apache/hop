@@ -42,7 +42,7 @@ import java.util.List;
     description = "i18n::ZipFile.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/zipfile.html")
-public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<ZipFile, ZipFileData> {
+public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
   private static final Class<?> PKG = ZipFileMeta.class; // For Translator
 
   /** dynamic filename */
@@ -94,16 +94,6 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
 
   public ZipFileMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ZipFileData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ZipFile(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   /** @return Returns the sourcefilenamefield. */
@@ -274,11 +264,6 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ZipFileData getTransformData() {
-    return new ZipFileData();
   }
 
   @Override

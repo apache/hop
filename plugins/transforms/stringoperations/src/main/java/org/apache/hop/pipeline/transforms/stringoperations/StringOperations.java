@@ -28,12 +28,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Apply certain operations too string. */
-public class StringOperations extends BaseTransform<StringOperationsMeta, StringOperationsData>
-    implements ITransform<StringOperationsMeta, StringOperationsData> {
+public class StringOperations extends BaseTransform<StringOperationsMeta, StringOperationsData> {
   private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
 
   public StringOperations(

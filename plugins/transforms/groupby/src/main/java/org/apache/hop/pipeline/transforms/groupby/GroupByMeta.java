@@ -61,7 +61,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "GroupByMeta.Injection.",
     groups = {"GROUPS", "AGGREGATIONS"})
-public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<GroupBy, GroupByData> {
+public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class; // For Translator
 
@@ -576,21 +576,6 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      GroupByData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GroupBy(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GroupByData getTransformData() {
-    return new GroupByData();
   }
 
   /** @return Returns the directory. */

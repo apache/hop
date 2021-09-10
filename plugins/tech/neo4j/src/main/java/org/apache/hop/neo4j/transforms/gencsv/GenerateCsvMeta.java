@@ -42,8 +42,7 @@ import org.w3c.dom.Node;
     categoryDescription = "Neo4j",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/generate-csvs.html")
-public class GenerateCsvMeta extends BaseTransformMeta
-    implements ITransformMeta<GenerateCsv, GenerateCsvData> {
+public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvData> {
 
   public static final String GRAPH_FIELD_NAME = "graph_field_name";
   public static final String BASE_FOLDER = "base_folder";
@@ -114,21 +113,6 @@ public class GenerateCsvMeta extends BaseTransformMeta
     filesPrefix = XmlHandler.getTagValue(transformNode, FILES_PREFIX);
     filenameField = XmlHandler.getTagValue(transformNode, FILENAME_FIELD);
     fileTypeField = XmlHandler.getTagValue(transformNode, FILE_TYPE_FIELD);
-  }
-
-  @Override
-  public GenerateCsv createTransform(
-      TransformMeta transformMeta,
-      GenerateCsvData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GenerateCsv(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GenerateCsvData getTransformData() {
-    return new GenerateCsvData();
   }
 
   /**

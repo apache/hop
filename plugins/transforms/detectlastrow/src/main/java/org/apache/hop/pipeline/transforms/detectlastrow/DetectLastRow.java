@@ -33,8 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 03June2008
  */
-public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData>
-    implements ITransform<DetectLastRowMeta, DetectLastRowData> {
+public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> {
 
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
 

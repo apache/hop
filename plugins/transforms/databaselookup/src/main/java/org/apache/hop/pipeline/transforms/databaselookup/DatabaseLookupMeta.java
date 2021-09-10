@@ -57,8 +57,8 @@ import java.util.Set;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/databaselookup.html")
-public class DatabaseLookupMeta extends BaseTransformMeta
-    implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
+public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData>
+    implements IProvidesModelerMeta {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
 
@@ -366,21 +366,6 @@ public class DatabaseLookupMeta extends BaseTransformMeta
       }
     }
     return fields;
-  }
-
-  @Override
-  public DatabaseLookup createTransform(
-      TransformMeta transformMeta,
-      DatabaseLookupData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new DatabaseLookup(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DatabaseLookupData getTransformData() {
-    return new DatabaseLookupData();
   }
 
   @Override
