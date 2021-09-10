@@ -21,7 +21,9 @@ under the License.
 
 == Description
 
-The PostgreSQL bulk loader is a transform in which we will stream data from Hop to the psql command using "COPY DATA FROM STDIN" into the database.
+The PostgreSQL bulk loader is a transform in which we will stream data from Hop to postgresql using https://www.postgresql.org/docs/current/sql-copy.html["COPY DATA FROM STDIN"^] into the database.
+
+TIP: replace boolean fields in your pipeline stream by string fields with "Y" or "N" values to avoid errors.
 
 == Options
 
@@ -33,9 +35,12 @@ The PostgreSQL bulk loader is a transform in which we will stream data from Hop 
 |Target schema|The name of the Schema for the table to write data to.
 This is important for data sources that allow for table names with dots '.' in it.
 |Target table|Name of the target table.
-|psql path|Full path to the psql utility.
 |Load action|Insert, Truncate.
 Insert inserts, truncate first truncates the table.
+|DB Name Override|(optional) database name to override the database name used in this transform's connection.
+|Enclosure|the enclosure character to use in the `QUOTE AS` part of the copy command
+|Delimiter|the delimiter character to use in the `DELIMITER AS` part of the copy command
+|Stop on error|Stop the execution of this transform when an error occurs
 |Fields to load a|This table contains a list of fields to load data from, properties include:
 
 * Table field: Table field to be loaded in the PostgreSQL table;
@@ -48,40 +53,3 @@ Insert inserts, truncate first truncates the table.
 
 All fields of this transform support metadata injection.
 You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.
-
-== Set Up Authentication
-
-"psql" doesn't allow you to specify the password.
-Here is a part of the connection options:
-
-[source,bash]
-----
- Connection options:
-  -h HOSTNAME     database server host or socket directory (default: "/var/run/postgresql")
-  -p PORT         database server port (default: "5432")
-  -U NAME         database user name
-  -W              prompt for password (should happen automatically)
-----
-
-As you can see there is no way to specify a password for the database.
-It will always prompt for a password on the console no matter what.
-
-To overcome this you need to set up trusted authentication on the PostgreSQL server.
-
-To make this happen, change the pg_hba.conf file (on my box this is /etc/postgresql/8.2/main/pg_hba.conf) and add a line like this:
-
-[source,bash]
-----
-host    all         all         192.168.1.0/24        trust
-----
-
-This basically means that everyone from the 192.168.1.0 network (mask 255.255.255.0) can log into postgres on all databases with any username.
-If you are running Hop on the same server, change it to localhost:
-
-[source,bash]
-----
-host    all         all         127.0.0.1/32        trust
-----
-
-This is much safer of-course.
-Make sure you don't invite any strangers onto your PostgreSQL database!

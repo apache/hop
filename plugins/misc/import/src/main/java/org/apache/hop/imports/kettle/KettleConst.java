@@ -98,6 +98,34 @@ public class KettleConst {
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
+  public static final Map<String, String> kettleStartEntryElementsToRemove =
+      Stream.of(
+              new Object[][] {
+                {"start", ""},
+                {"draw", ""},
+                {"nr", ""},
+                {"dummy", ""}
+              })
+          .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
+
+  public static final Map<String, String> kettleDummyEntryElementsToRemove =
+      Stream.of(
+              new Object[][] {
+                {"start", ""},
+                {"dummy", ""},
+                {"repeat", ""},
+                {"schedulerType", ""},
+                {"intervalSeconds", ""},
+                {"intervalMinutes", ""},
+                {"hour", ""},
+                {"minutes", ""},
+                {"weekDay", ""},
+                {"DayOfMonth", ""},
+                {"draw", ""},
+                {"nr", ""}
+              })
+          .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
+
   public static final Map<String, String> kettleReplaceContent =
       Stream.of(
               new Object[][] {

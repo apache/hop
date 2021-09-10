@@ -17,13 +17,13 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.context;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -40,6 +40,8 @@ import java.util.List;
 
 public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     implements IGuiContextHandler {
+
+  public static final Class<?> PKG = HopGuiPipelineTransformContext.class; // i18n
 
   public static final String CONTEXT_ID = "HopGuiPipelineTransformContext";
 
@@ -90,10 +92,12 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
             new GuiAction(
                 "transform-open-referenced-" + objectDescription,
                 GuiActionType.Info,
-                "open: " + objectDescription,
-                "This opens up the file referenced in the transform."
-                    + Const.CR
-                    + "You can hit key 'z' with the cursor over an Action icon or use CTRL+SHIFT+Click",
+                BaseMessages.getString(
+                    PKG,
+                    "HopGuiPipelineTransformContext.OpenReferencedAction.Name",
+                    objectDescription),
+                BaseMessages.getString(
+                    PKG, "HopGuiPipelineTransformContext.OpenReferencedAction.Tooltip"),
                 "ui/images/open.svg",
                 (shiftAction, controlAction, t) ->
                     openReferencedObject(

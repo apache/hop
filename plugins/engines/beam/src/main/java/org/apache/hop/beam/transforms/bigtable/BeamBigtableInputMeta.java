@@ -34,8 +34,7 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
     description = "i18n::BeamBigtableInput.Description",
     image = "beam-gcp-bigtable-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/beam-bigtable-input.html")
+    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beam-bigtable-input.html")
 public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData> {
 
   @HopMetadataProperty(key = "project_id")

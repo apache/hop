@@ -105,16 +105,12 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>Comment</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif>Some comment about California</nullif>
-        <length>-1</length>
-        <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>Comment</name>
+        <precision>-1</precision>
+        <type>String</type>
+        <nullif>Some comment about California</nullif>
       </field>
     </fields>
     <attributes/>
@@ -152,7 +148,7 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <file_description_name>Customers</file_description_name>
-    <input_location>${HOP_DATASETS_FOLDER}/customers-noheader-1k.txt</input_location>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
     <attributes/>
     <GUI>
       <xloc>224</xloc>
@@ -172,16 +168,12 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>Comment</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif>no comment.</nullif>
-        <length>-1</length>
-        <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>Comment</name>
+        <precision>-1</precision>
+        <type>String</type>
+        <nullif>no comment.</nullif>
       </field>
     </fields>
     <attributes/>
@@ -203,16 +195,12 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>Comment</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif>Some remark on Floridians</nullif>
-        <length>-1</length>
-        <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>Comment</name>
+        <precision>-1</precision>
+        <type>String</type>
+        <nullif>Some remark on Floridians</nullif>
       </field>
     </fields>
     <attributes/>
@@ -234,16 +222,12 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>Comment</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif>New York rocks!</nullif>
-        <length>-1</length>
-        <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>Comment</name>
+        <precision>-1</precision>
+        <type>String</type>
+        <nullif>New York rocks!</nullif>
       </field>
     </fields>
     <attributes/>
@@ -298,9 +282,10 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <file_prefix>switch-case</file_prefix>
+    <file_description_name/>
+    <file_prefix>0002-switch-case</file_prefix>
     <file_suffix>.csv</file_suffix>
-    <output_location>${DATA_OUTPUT}</output_location>
+    <output_location>${java.io.tmpdir}/0002-switch-case/</output_location>
     <windowed>N</windowed>
     <attributes/>
     <GUI>

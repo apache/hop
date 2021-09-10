@@ -641,7 +641,7 @@ public class ContextDialog extends Dialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EXPAND_ALL,
-      toolTip = "i18n::ContextDialog.GuiAction.ExpandCategories",
+      toolTip = "i18n::ContextDialog.GuiAction.ExpandCategories.Tooltip",
       image = "ui/images/expand-all.svg")
   public void expandAll() {
     for (CategoryAndOrder category : categories) {

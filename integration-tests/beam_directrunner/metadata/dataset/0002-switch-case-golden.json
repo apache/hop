@@ -1,0 +1,96 @@
+{
+  "base_filename": "0002-switch-case-golden.csv",
+  "name": "0002-switch-case-golden",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 0,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " #",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Last name"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "First name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 0,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "cust_zip_code"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "city"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy/MM/dd",
+      "field_name": "birthdate"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "street"
+    },
+    {
+      "field_comment": "",
+      "field_length": 0,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "housenr"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "stateCode"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "state"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "comment"
+    }
+  ],
+  "folder_name": ""
+}

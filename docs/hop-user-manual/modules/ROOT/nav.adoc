@@ -64,6 +64,8 @@ under the License.
 *** xref:pipeline/transforms/avro-file-input.adoc[Avro File Input]
 *** xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs Listener]
 *** xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Event Hubs Writer]
+*** xref:pipeline/transforms/beambigtableinput.adoc[Beam Bigtable Input]
+*** xref:pipeline/transforms/beambigtableoutput.adoc[Beam Bigtable Output]
 *** xref:pipeline/transforms/beambigqueryinput.adoc[Beam BigQuery Input]
 *** xref:pipeline/transforms/beambigqueryoutput.adoc[Beam BigQuery Output]
 *** xref:pipeline/transforms/beamgcppublisher.adoc[Beam GCP Pub/Sub : Publish]

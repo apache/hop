@@ -68,3 +68,6 @@ Keep things clean.
 * Create notes in pipelines and workflows explaining what happens.
 Make the note font large enough: 11 or higher.
 
+
+// Include hop license header snippet
+include::snippets/hop-license-header-file.adoc[]

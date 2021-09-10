@@ -1385,11 +1385,22 @@ public abstract class Pipeline
       }
       boolean wait = true;
       while (wait) {
-        wait = pipelineWaitUntilFinishedBlockingQueue.poll(1, TimeUnit.DAYS) == null;
+        // Wait a little while
+        //
+        wait = pipelineWaitUntilFinishedBlockingQueue.poll(50, TimeUnit.MILLISECONDS) == null;
         if (wait) {
           // poll returns immediately - this was hammering the CPU with poll checks. Added
           // a sleep to let the CPU breathe
           Thread.sleep(1);
+
+          // If a parent workflow or pipeline has a stopped state, stop this pipeline as well
+          //
+          if (parentWorkflow != null && parentWorkflow.isStopped() && !isStopped()) {
+            stopAll();
+          }
+          if (parentPipeline != null && parentPipeline.isStopped() && !isStopped()) {
+            stopAll();
+          }
         }
       }
     } catch (InterruptedException e) {
@@ -1894,8 +1905,6 @@ public abstract class Pipeline
     return null;
   }
 
-
-
   /**
    * Find the available executing transform copies for the transform with the specified name
    *
@@ -1918,7 +1927,7 @@ public abstract class Pipeline
     }
     return list;
   }
-  
+
   /**
    * Turn on safe mode during running: the pipeline will run slower but with more checking enabled.
    *
