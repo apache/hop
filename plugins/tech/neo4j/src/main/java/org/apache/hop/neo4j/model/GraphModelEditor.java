@@ -826,13 +826,12 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
       HopGuiPipelineGraph activePipelineGraph = HopGui.getActivePipelineGraph();
       if (activePipelineGraph == null) {
-        return;
-      } else {
         MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
         messageBox.setText("Sorry");
         messageBox.setMessage(
             "Sorry, I couldn't find an active pipeline to use to import output fields from a transform");
         messageBox.open();
+        return;
       }
       PipelineMeta pipelineMeta = activePipelineGraph.getPipelineMeta();
       String[] transformNames = pipelineMeta.getTransformNames();
@@ -847,7 +846,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       if (transformName == null) {
         return;
       }
-      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(getVariables(), transformName);
+      IRowMeta inputRowMeta = pipelineMeta.getTransformFields(getVariables(), transformName);
 
       String[] fieldNames = inputRowMeta.getFieldNames();
 
