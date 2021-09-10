@@ -47,9 +47,47 @@ Please note that you don't *have* to specify a variable in these places and that
 [source]
 ${ENVIRONMENT_HOME}/input/source-file.txt
 
+== Hexadecimal values
+
+In rare cases you might have a need to enter non-character values as separators in 'binary' text files with for example a zero byte as a separator.
+In those scenarios you can use a special 'variable' format:
+
+[source]
+$[<hexadecimal value>]
+
+A few examples:
+
+|===
+|Value |Meaning
+
+|`$[00]`
+|A single byte with decimal value 0
+
+|`$[FFFF]`
+|Two bytes with decimal value 65535
+
+|`$[CEA3]`
+|The 2 bytes representing UTF-8 character Σ
+
+|`$[e28ca8]`
+|The 3 bytes representing UTF-8 character ⌨
+
+|`$[f09d849e]`
+|The 4 bytes representing UTF-8 character 𝄞
+|===
+
 == How can I define variables?
 
-Variables can be defined in all the places where it makes sense.
+Variables can be defined and set in all the places where it makes sense:
+
+* in hop-config.json when it applies to the installation
+* in an environment configuration file when it concerns a specific lifecycle environment
+* In a xref:projects/projects-environments.adoc[project]
+* In a xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[pipeline run configuration]
+* As a default parameter value in a pipeline or workflow
+* Using the xref:pipeline/transforms/setvariable.adoc[Set Variables] transform in a pipeline
+* Using the xref:workflow/actions/setvariables.adoc[Set Variables] action in a workflow
+* When executing with xref:hop-run/index.adoc[Hop run]
 
 == Locality
 
