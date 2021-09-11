@@ -597,7 +597,10 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlSqlStatements.right = new FormAttachment(100, 0);
     wlSqlStatements.setLayoutData(fdlSqlStatements);
     wSqlStatements =
-        new TextVar(manager.getVariables(), wAdvancedComp, SWT.MULTI | SWT.LEFT | SWT.BORDER);
+        new TextVar(
+            manager.getVariables(),
+            wAdvancedComp,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     props.setLook(wSqlStatements);
     FormData fdSqlStatements = new FormData();
     fdSqlStatements.top = new FormAttachment(wlSqlStatements, margin);

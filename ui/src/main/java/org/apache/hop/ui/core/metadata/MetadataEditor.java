@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -245,17 +245,20 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
       throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.NoName"));
     }
 
+    // The serializer of the metadata
+    //
+    IHopMetadataSerializer<T> serializer = manager.getSerializer();
+
     if (StringUtils.isEmpty(originalName)) {
       isCreated = true;
     }
+
     // If rename
     //
     else if (!originalName.equals(name)) {
 
       // See if the name collides with an existing one...
       //
-      IHopMetadataSerializer<T> serializer = manager.getSerializer();
-
       if (serializer.exists(name)) {
         throw new HopException(
             BaseMessages.getString(PKG, "MetadataEditor.Error.NameAlreadyExists", name));
@@ -265,7 +268,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     }
 
     // Save it in the metadata
-    manager.getSerializer().save(metadata);
+    serializer.save(metadata);
 
     if (isCreated)
       ExtensionPointHandler.callExtensionPoint(
@@ -285,7 +288,12 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     this.title = metadata.getName();
 
     if (isRename) {
-      manager.getSerializer().delete(originalName);
+      // Code hardening for scenario where a new metadata object isn't yet persisted on disk yet.
+      // The delete command can throw an error otherwise.
+      //
+      if (serializer.exists(originalName)) {
+        serializer.delete(originalName);
+      }
       this.originalName = metadata.getName();
     }
 
