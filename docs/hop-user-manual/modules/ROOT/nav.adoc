@@ -418,3 +418,4 @@ under the License.
 ** xref:snippets/hop-tools/hop-translator.adoc[hop-translator]
 * xref:best-practices/index.adoc[Best Practices]
 * xref:protips/index.adoc[Pro Tips]
+* xref:hop-usps.adoc[Unique Selling Propositions]
