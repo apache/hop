@@ -24,11 +24,13 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
@@ -48,7 +50,9 @@ public class ZipFileMetaTest {
   private static final boolean CREATE_PARENT_FOLDER = true;
   private static final boolean KEEP_SOURCE_FOLDER = true;
   private static final String MOVE_TO_FOLDER_FIELD = "movetothisfolder";
-
+  
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  
   @Test
   public void testGettersSetters() {
     ZipFileMeta zipFileMeta = new ZipFileMeta();

@@ -20,8 +20,10 @@ package org.apache.hop.core.logging;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -36,6 +38,8 @@ public class LogMessageTest {
   private static String treeLogChannelId;
   private static String simpleLogChannelId;
 
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  
   @Before
   public void setUp() {
     treeLogChannelId = LoggingRegistry.getInstance().registerLoggingSource(getTreeLoggingObject());
