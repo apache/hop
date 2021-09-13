@@ -21,6 +21,8 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +32,8 @@ public class DatabaseImpactTest {
 
   private Class<?> PKG = Pipeline.class;
 
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  
   @Test
   public void testGetRow() throws HopValueException {
     DatabaseImpact testObject =

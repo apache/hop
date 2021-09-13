@@ -28,11 +28,13 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Node;
 
@@ -45,6 +47,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class XmlOutputMetaTest {
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  
   @BeforeClass
   public static void setUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {
