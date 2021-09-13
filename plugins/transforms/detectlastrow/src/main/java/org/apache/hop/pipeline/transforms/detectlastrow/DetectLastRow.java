@@ -29,9 +29,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * Detect last row in a stream
- *
- * @author Samatar
- * @since 03June2008
  */
 public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData>
     implements ITransform<DetectLastRowMeta, DetectLastRowData> {
@@ -53,7 +50,8 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
   @Override
   public boolean processRow() throws HopException {
 
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
+    // Get row from input rowset & set row busy!
+    Object[] r = getRow();
 
     if (first) {
       if (getInputRowMeta() == null) {
@@ -82,7 +80,8 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
           outputRow = previousRow;
         }
 
-        putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+        // copy row to output rowset(s)
+        putRow(data.outputRowMeta, outputRow); 
 
         if (log.isRowLevel()) {
           logRowlevel(
@@ -102,7 +101,8 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
     if (!first) {
       outputRow =
           RowDataUtil.addRowData(previousRow, getInputRowMeta().size(), data.getFalseArray());
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      // copy row to output rowset(s)
+      putRow(data.outputRowMeta, outputRow); 
 
       if (log.isRowLevel()) {
         logRowlevel(

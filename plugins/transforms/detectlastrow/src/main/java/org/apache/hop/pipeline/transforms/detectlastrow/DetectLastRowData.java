@@ -21,9 +21,9 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+
 /**
- * @author Samatar
- * @since 03June2008
+ * Detect last row data
  */
 public class DetectLastRowData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
