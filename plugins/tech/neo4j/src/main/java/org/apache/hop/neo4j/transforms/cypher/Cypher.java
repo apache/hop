@@ -72,24 +72,28 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
 
     // Connect to Neo4j
     //
-    if (StringUtils.isEmpty(meta.getConnectionName())) {
+    if (StringUtils.isEmpty(resolve(meta.getConnectionName()))) {
       log.logError("You need to specify a Neo4j connection to use in this transform");
       return false;
     }
     try {
       data.neoConnection =
-          metadataProvider.getSerializer(NeoConnection.class).load(meta.getConnectionName());
+          metadataProvider
+              .getSerializer(NeoConnection.class)
+              .load(resolve(meta.getConnectionName()));
       if (data.neoConnection == null) {
         log.logError(
             "Connection '"
-                + meta.getConnectionName()
+                + resolve(meta.getConnectionName())
                 + "' could not be found in the metadata: "
                 + metadataProvider.getDescription());
         return false;
       }
     } catch (HopException e) {
       log.logError(
-          "Could not gencsv Neo4j connection '" + meta.getConnectionName() + "' from the metastore",
+          "Could not gencsv Neo4j connection '"
+              + resolve(meta.getConnectionName())
+              + "' from the metastore",
           e);
       return false;
     }
