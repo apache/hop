@@ -17,6 +17,7 @@ under the License.
 [[DownloadInstall]]
 :imagesdir: ../../assets/images
 :page-pagination:
+:description: "Getting Started (3/8): Installing Hop is as easy and accessible as possible: download, unzip, start."
 
 = Download and Install Hop
 

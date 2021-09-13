@@ -18,6 +18,7 @@ under the License.
 :imagesdir: ../../assets/images
 :page-pagination:
 :page-pagination-no-next:
+:description: "Getting Started (8/8): You now know the basic Hop terminology and tools, and you've created and have run your first pipeline and workflow. Here's an overview of topics you could explore to continue building your Hop knowledge."
 
 = Next Steps
 
