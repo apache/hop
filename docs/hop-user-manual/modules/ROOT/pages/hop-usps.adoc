@@ -1,0 +1,64 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[USPs]]
+
+= Hop Unique Selling Propositions
+
+Hop is not the only data integration and data orchestration platform out there. Many of the tasks that can be performed with Hop can also be achieved with other data platforms.
+
+In the next paragraphs, we’ll take a closer look at what makes Hop unique, and why the Hop team truly believes Hop is exploring the future of data integration and orchestration.
+
+== Metadata Driven
+
+Metadata is the single most important concept in Apache Hop. Metadata is what drives everything: from workflows and pipelines over connections to a large variety of platforms to run configurations, every item you work with in Hop is defined as metadata.
+
+
+Hops metadata driven approach is taken to the next level with metadata injection (MDI). Metadata injection pipelines use a template pipeline and inject the necessary metadata in runtime. This significantly reduces the amount of repetitive manual development, resulting in smaller and more manageable pipeline code.
+
+== Visual Code Editor
+
+Hop GUI is a full-blown visual IDE that is available on the desktop (Windows, Mac OS and Linux) and in your browser (Hop Web). With Hop Gui, data developers can visually design, run and debug workflows and pipelines. This visual way of working give developers the power to be more productive than they could ever be with “real” hand-crafted code.
+
+Not only are Hop workflows and pipelines easy to create with the visual editor, maintaining visual code is a lot easier as well. Identifying and fixing a problem in a well-defined visual layout is a lot easier than it would be if you had to scroll through lines and lines of source code.
+
+== Kernel Architecture and plugins
+
+Hop’s architecture has been designed from the ground up to keep the core functionality in a clean, fast, robust and lightweight kernel. All other functionality is added through plugins that can be added or removed at will. This allows Hop to work from edge devices in IoT scenarios to processing the largest amounts of data in realtime, streaming, batch or hybrid scenarios.
+
+This plugin architecture is open to external developers, enabling them to add their own plugins and taking the already extensive Hop functionality even further.
+
+== Portable Runtime Configurations
+
+Hop’s portable runtime configurations allow data developers to design a workflow or pipeline once and run it on the environment and configuration where it fits best.
+
+Hop supports its own native runtime engine that can be used both locally and on a remote server. Additionally, your pipelines can run on Apache Spark or Flink clusters, or on Google Cloud’s Dataflow over Apache Beam, with support for additional runtimes to be added in later versions. This ability gives you the unparalleled flexibility to let your Hop projects grow with your data volumes and data architecture.
+
+== Unit and Integration Testing
+
+Through proper logging and monitoring, you’ll know if your Hop workflows and errors run without any errors. However, that doesn’t tell you anything about whether your data has been processed correctly. Hop’s unit testing offers data developers a way to validate the data processing against a golden data set, so you’ll not only know your workflows and pipelines run without any errors, but also that the data was processed as expected. Regression tests guarantee that a bug that was once fixed remains fixed. A library of integration tests that are run periodically allow Hop projects to continuously guarantee your workflows and pipelines process your data exactly the way they were designed to.
+
+== Projects and environments
+
+All major data endeavours cover more than a single topic. Typical data teams cover multiple topics and run those in a number of environments. Hop projects and environments allow data teams to organize their work in separate Hop projects, typically with different environment configurations per project.
+
+Hop projects and environments, both in separate version control repositories, allow your projects to be taken over development, through testing into production while keeping complete control and overview.
+
+== Life Cycle Management
+
+Hop offers all the tools required to keep full control over your data project’s life cycle. Hop integrates and evolves with your data architecture and your projects and environments both managed in version control, managed runtime configurations and a library of unit, regression and integration tests, your Hop implementation is in perfect shape.
+
+The workflows and pipelines in your Hop projects can be run continuously from CI/CD pipelines, validating and testing every step in the process and processing your data exactly the way you intend it to. Even though other platforms allow to be implemented this way, Hop is unique in that it was designed exactly to build robust, end-to-end data processing and orchestration solutions.
