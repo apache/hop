@@ -795,18 +795,18 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       // Connect to Neo4j using info metastore Neo4j Connection metadata
       //
-      if (StringUtils.isEmpty(meta.getConnection())) {
+      if (StringUtils.isEmpty(resolve(meta.getConnection()))) {
         log.logError("You need to specify a Neo4j connection to use in this transform");
         return false;
       }
 
       try {
         data.neoConnection =
-            metadataProvider.getSerializer(NeoConnection.class).load(meta.getConnection());
+            metadataProvider.getSerializer(NeoConnection.class).load(resolve(meta.getConnection()));
         if (data.neoConnection == null) {
           log.logError(
               "Connection '"
-                  + meta.getConnection()
+                  + resolve(meta.getConnection())
                   + "' could not be found in the metastore : "
                   + metadataProvider.getDescription());
           return false;
@@ -814,7 +814,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         data.version4 = data.neoConnection.isVersion4();
       } catch (HopException e) {
         log.logError(
-            "Could not gencsv Neo4j connection '" + meta.getConnection() + "' from the metastore",
+            "Could not gencsv Neo4j connection '" + resolve(meta.getConnection()) + "' from the metastore",
             e);
         return false;
       }
