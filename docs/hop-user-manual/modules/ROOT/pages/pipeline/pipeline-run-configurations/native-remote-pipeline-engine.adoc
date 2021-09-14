@@ -16,6 +16,8 @@ under the License.
 ////
 [[RemotePipelineEngine]]
 :imagesdir: ../assets/images
+:description: The remote run configuration runs Hop pipelines on a remote Hop Server. This run configuration requires little configuration, but requires a Hop server and a Hop Server metadata definition.
+
 = Remote Pipeline Engine
 
 == Hop Remote pipeline engine

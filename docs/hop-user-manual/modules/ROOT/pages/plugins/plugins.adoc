@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Hop is built around an eco-system of plugins, this gives the end users and infrastructure team the ability to create a custom version of HOP tailored to the project or company needs.
+
 [[Plugins]]
 = Plugins
 

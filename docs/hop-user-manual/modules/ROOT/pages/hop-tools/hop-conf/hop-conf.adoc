@@ -16,6 +16,7 @@ under the License.
 ////
 :openvar: ${
 :closevar: }
+:description: Hop Conf is a command line tool to manage environments. The hop-conf.sh script can be run with the -h flag (`./hop-conf.sh -h`) to display available options.
 
 = Hop Conf - The Hop command line configuration tool
 

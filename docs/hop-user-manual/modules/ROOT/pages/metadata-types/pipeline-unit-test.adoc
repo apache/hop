@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: Describes a test for a pipeline. During the test, alternative data sets are used as input from a given transform and testing output against a golden data set. When the result set produced by the pipeline execution matches the expected result (golden data set), the test succeeds. If the generated results do not match what was expected, the test fails.
 
 = Pipeline Unit Test
 
@@ -23,7 +24,15 @@ under the License.
 
 image:icons/Test_tube_icon.svg[]
 
-Describes a test for a pipeline with alternative data sets as input from a certain transform and testing output against golden data
+Describes a test for a pipeline. During the test, alternative data sets are used as input from a given transform and testing output against a golden data set.
+
+When the result set produced by the pipeline execution matches the expected result (golden data set), the test succeeds. If the generated results do not match what was expected, the test fails.
+
+Specific transforms in a pipeline can be bypassed or removed for testing for addtional flexibility.
+
+Additionally, unit tests can be executed in bulk.
+
+Check xref:/pipeline/pipeline-unit-testing.adoc[Pipeline Unit Testing^] for more details.
 
 == Related Plugins
 

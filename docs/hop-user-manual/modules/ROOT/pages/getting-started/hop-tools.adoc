@@ -17,7 +17,7 @@ under the License.
 [[HopTools]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: "Getting Started (4/8): Hop comes with a number of GUI and command line tools to not only design and run workflows and pipelines, but also to manage your projects and environments, to search import, translate and more."
+:description: Getting Started (4/8): Hop comes with a number of GUI and command line tools to not only design and run workflows and pipelines, but also to manage your projects and environments, to search import, translate and more.
 
 = Hop Tools
 

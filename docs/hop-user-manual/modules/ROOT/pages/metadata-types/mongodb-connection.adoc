@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: Describes a MongoDB connection. The MongoDB connection, specified on a project level, can be reused across multiple (instances of) a transform or other plugin types.
 
 = MongoDB Connection
 

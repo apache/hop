@@ -16,7 +16,7 @@ under the License.
 ////
 [[Shortcuts]]
 :imagesdir: ../assets/images
-:description: "A lot of actions in Hop can be performed significantly faster through keyboard shortcuts. This page provides an overview of all the available keyboard shortcuts in Hop Gui."
+:description: A lot of actions in Hop can be performed significantly faster through keyboard shortcuts. This page provides an overview of all the available keyboard shortcuts in Hop Gui.
 
 = Hop Shortcuts
 

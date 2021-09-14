@@ -16,6 +16,7 @@ under the License.
 ////
 [[HopServerRestApi]]
 :imagesdir: ../assets/images
+:description: Hop Server has a rich set of web services that can be used to query and manage the server's status, or to manage pipeline and workflow execution details.
 
 = Hop Server Web Services Overview
 

@@ -18,6 +18,8 @@ under the License.
 :imagesdir: ../../../assets/images
 :documentationPath: /projects/
 :language: en_US
+:description: Hop wants to make it as easy as possible for developers to work on multiple project simultaneously. Projects provide a logical grouping of your work, environments contain the configuration for your various deployments.
+
 
 :page-pagination:
 :page-pagination-no-back:
@@ -29,11 +31,11 @@ under the License.
 
 === Projects
 
-Most developers typically work on multiple projects and modules simultenaously.
+Most developers typically work on multiple projects and modules simultaneously.
 For example, while one project matures and is in user acceptance testing, development work on a new project has already started.
 
 Different sets of workflows and pipelines require management for at least development, acceptance and production environments.
-Every project and each environment comes with its own set of variables and configurations for databases, file paths, ..
+Every project and each environment comes with its own set of variables and configurations for databases, file paths ...
 
 Hop wants to make it easy for Hop developers to use one or more projects alongside each other.
 

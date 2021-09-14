@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: Describes all the information needed to connect to a relational database. Hop supports tens of relational databases out of the box. If your specific database doesn't have built in support, you'll probably still be able to connect with the Generic database connection.
 
 = Relational Database Connection
 
@@ -23,7 +24,12 @@ under the License.
 
 image:icons/database.svg[]
 
-Describes all the metadata needed to connect to a relational database.
+Describes all the information needed to connect to a relational database.
+
+Hop supports tens of relational databases out of the box. If your specific database doesn't have built in support, you'll probably still be able to connect with the Generic database connection.
+
+Check the list of xref:database/databases.adoc[databases] for more details.
+
 
 == Related Plugins
 
@@ -63,7 +69,6 @@ Transforms:
 The options describe below are for the Generic database connection.
 
 The options for your selected database depend on the database vendor and/or engine.
-Check the list of xref:database/databases.adoc[databases] for more details.
 
 === General
 

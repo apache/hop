@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Transforms are the cornerstone of HOP, they are used to process and transforming your data, they are the building blocks that are used to create a pipeline.
+
 [[transform-plugins]]
 = Transform Plugins
 

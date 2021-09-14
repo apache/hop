@@ -16,7 +16,7 @@ under the License.
 ////
 [[BestPractices]]
 :imagesdir: ../assets/images
-:description: Apache Hop (Incubating) best practices are a set of guiding principles. These best practices apply to the way you design, run, test, deploy and maintain Hop project.
+:description: Apache Hop (Incubating) best practices are a set of guiding principles. These best practices apply to the way you design, run, test, deploy and maintain a Hop project.
 
 = Best practices
 

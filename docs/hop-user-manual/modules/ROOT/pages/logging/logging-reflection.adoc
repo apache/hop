@@ -16,6 +16,7 @@ under the License.
 ////
 [[LoggingReflection]]
 :imagesdir: ../assets/images/logging
+:description: The Hop Reflection plugin adds easy ways for you to get more information about what's going on inside your pipelines or workflows. It offers 3 main ways of reflecting on what's going on during execution: log pipeline and transform execution information, log workflow and action execution information and listen to what the output is of a particular transform
 
 = Reflection
 

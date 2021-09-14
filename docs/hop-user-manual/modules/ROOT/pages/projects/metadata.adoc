@@ -19,6 +19,8 @@ under the License.
 :page-pagination:
 :openvar: ${
 :closevar: }
+:description: A project's metadata typically contains a number of database connections (relational or NoSQL), logging configurations and so on. This metadata is stored on a project level and is available through the metadata perspective.
+
 
 = Project Metadata
 

@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
-:description: "Hop Web is a browser based alternative for desktop Hop Gui. Hop Web offers exactly the same functionality as the desktop client, you'll hardly notice any difference."
+:description: Hop Web is a browser based alternative for desktop Hop Gui. Hop Web offers exactly the same functionality as the desktop client, you'll hardly notice any difference.
 
 = Hop Web
 

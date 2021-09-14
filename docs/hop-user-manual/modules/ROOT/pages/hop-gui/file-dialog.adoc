@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
-:description: "Hop Gui's file dialog is a powerful tool that not only lets you browse for files and folders, but also shows a lot of metadata about files, allows you to create bookmarks etc."
+:description: Hop Gui's file dialog is a powerful tool that not only lets you browse for files and folders, but also shows a lot of metadata about files, allows you to create bookmarks etc.
 
 = Hop File Dialog
 

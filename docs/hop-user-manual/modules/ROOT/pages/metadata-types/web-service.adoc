@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: Hop's web service is a simple way of exposing data through a servlet.
 
 = Web Service
 
@@ -23,7 +24,7 @@ under the License.
 
 image:icons/server.svg[]
 
-Hop has a simple way of exposing data through a servlet.
+Hop's web service is a simple way of exposing data through a servlet.
 
 == Related Plugins
 

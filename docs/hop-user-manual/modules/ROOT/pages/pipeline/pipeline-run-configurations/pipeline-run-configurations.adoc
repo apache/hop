@@ -16,6 +16,8 @@ under the License.
 ////
 [[PipelineRunConfigurations]]
 :imagesdir: ../assets/images
+:description: Run configurations decouple the design and execution phases of Hop pipeline development. A pipeline is a definition of _how_ data is processed, a run configurations defines _where_ the pipeline is executed.
+
 = Pipeline Run Configurations
 
 == Description

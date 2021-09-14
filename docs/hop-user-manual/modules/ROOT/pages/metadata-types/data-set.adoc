@@ -15,15 +15,14 @@ specific language governing permissions and limitations
 under the License.
 ////
 :page-pagination:
+:description: A Data Set is a static pre-defined collection of rows, used in unit testing, where a data set is used as an alternative input data set. This input set is used to be processed in a unit testing pipeline. After processing the result of the pipeline is compared to a data set that has been specified as the 'golden data set' for the test.
 
 = Data Set
 
 image:icons/dataset.svg[]
 
 
-This defines a data set, a static pre-defined collection of rows
-
-Data sets are used in xref:metadata-types/pipeline-unit-test.adoc[unit testing], where a data set is used as an alternative input data set.
+A Data Set is a static pre-defined collection of rows, used in xref:metadata-types/pipeline-unit-test.adoc[unit testing^], where a data set is used as an alternative input data set.
 This input set is used to be processed in a unit testing pipeline.
 After processing the result of the pipeline is compared to a data set that has been specified as the 'golden data set' for the test.
 

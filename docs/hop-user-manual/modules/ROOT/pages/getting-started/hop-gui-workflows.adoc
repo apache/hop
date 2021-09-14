@@ -17,7 +17,7 @@ under the License.
 [[HopGuiWorkflows]]
 :imagesdir: ../../assets/images
 :page-pagination:
-:description: "Getting Started (7/8): Workflows in Hop are where you'll do most of the orchestration work: set the stage by fetching files, checking resource availability etc before your start to do actually run workflows and pipelines. We'll walk through what it takes to build and run a basic first workflow."
+:description: Getting Started (7/8): Workflows in Hop are where you'll do most of the orchestration work: set the stage by fetching files, checking resource availability etc before your start to do actually run workflows and pipelines. We'll walk through what it takes to build and run a basic first workflow.
 
 = Workflows
 

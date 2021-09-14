@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: Describes how and with which engine a pipeline is to be executed. Pipelines can be executed on a variety of runtime engines. Check Pipeline Run Configurations for more details.
 
 = Pipeline Run Configuration
 

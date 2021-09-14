@@ -16,6 +16,8 @@ under the License.
 ////
 [[BeamFlinkPipelineEngine]]
 :imagesdir: ../assets/images
+:description: Apache Hop supports running pipelines on Apache Flink over Apache Beam. The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner. The Flink Runner and Flink are suitable for large scale, continuous jobs.
+
 = Apache Beam Flink Pipeline Engine
 
 == Beam Flink

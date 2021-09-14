@@ -20,6 +20,7 @@ under the License.
 :page-pagination:
 :openvar: ${
 :closevar: }
+:description: Projects and environments are essential in keeping your work tidy and organized. Learn how to create and manage projects and environments.
 
 = Projects and Environments
 

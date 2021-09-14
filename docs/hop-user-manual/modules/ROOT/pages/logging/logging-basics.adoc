@@ -16,11 +16,13 @@ under the License.
 ////
 [[LoggingBasics]]
 :imagesdir: ../assets/images/logging
+:description: Every workflow or pipeline you execute through Hop Gui or Hop Run and a lot of the other tools generate logging as logging text in the most obvious form.
 
 = Logging
 
-Every workflow or pipeline as well as the tools generate logging.
-Most of the obvious logging is available in the form of logging text.
+Every workflow or pipeline you execute through Hop Gui or Hop Run and a lot of the other tools generate logging as logging text in the most obvious form.
+
+Hop allows data developers to influence how, where and at which level of detail logging information is generated and where it is written to.
 
 == Levels
 

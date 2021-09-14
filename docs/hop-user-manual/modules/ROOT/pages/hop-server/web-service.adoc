@@ -16,6 +16,7 @@ under the License.
 ////
 [[WebService-WebService]]
 :imagesdir: ../assets/images/hop-server/
+:description: Hop has a simple way of exposing data through a servlet.
 
 = Web Service
 

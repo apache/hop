@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :page-pagination:
+:description: Hop Server is a lightweight web server that hosts a Hop runtime for remote execution, with a web interfaces and a set of servlets to check execution status etc.
 
 = Hop Server
 

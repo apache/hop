@@ -22,7 +22,7 @@ under the License.
 
 = Kettle Import
 
-Whenever you want to import metadata from Kettle you can make use of this plugin.
+Whenever you want to import metadata from Kettle you can use this plugin.
 
 == Usage
 
