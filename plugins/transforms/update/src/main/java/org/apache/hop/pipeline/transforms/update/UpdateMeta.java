@@ -26,7 +26,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -44,13 +43,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-
-/*
- * Created on 26-apr-2003
- *
- */
 
 @Transform(
     id = "Update",
@@ -58,7 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Update",
     description = "i18n::BaseTransform.TypeTooltipDesc.Update",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/update.html")
+    documentationUrl = "/pipeline/transforms/update.html")
 public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class; // For Translator
 
@@ -538,13 +531,14 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
             updateStream[i] = lookupField.getUpdateFields().get(i).getUpdateStream();
           }
         }
-          // Copy the row
+        // Copy the row
         IRowMeta tableFields =
             RowMetaUtils.getRowMetaForUpdate(
                 prev, keyLookup, keyStream, updateLookup, updateStream);
         if (!Utils.isEmpty(lookupField.getTableName())) {
           String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination(variables, lookupField.getSchemaName(), lookupField.getTableName());
+              databaseMeta.getQuotedSchemaTableCombination(
+                  variables, lookupField.getSchemaName(), lookupField.getTableName());
 
           Database db = new Database(loggingObject, variables, databaseMeta);
           try {
@@ -630,8 +624,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
                 transformMeta.getName(),
                 databaseMeta.getDatabaseName(),
                 lookupField.getTableName(),
-                    keyFieldItem.getKeyLookup(),
-                    keyFieldItem.getKeyStream(),
+                keyFieldItem.getKeyLookup(),
+                keyFieldItem.getKeyStream(),
                 v != null ? v.getOrigin() : "?",
                 "",
                 "Type = " + v.toStringMeta());
@@ -640,7 +634,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
       // Update fields : read/write
       for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
-        UpdateField  fieldItem = lookupField.getUpdateFields().get(i);
+        UpdateField fieldItem = lookupField.getUpdateFields().get(i);
         IValueMeta v = prev.searchValueMeta(fieldItem.getUpdateStream());
 
         DatabaseImpact ii =

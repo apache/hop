@@ -61,7 +61,7 @@ import java.util.List;
     description =
         "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeTooltipDesc.SelectValues",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/selectvalues.html")
+    documentationUrl = "/pipeline/transforms/selectvalues.html")
 @InjectionSupported(
     localizationPrefix = "SelectValues.Injection.",
     groups = {"FIELDS", "REMOVES", "METAS"})
@@ -471,7 +471,7 @@ public class SelectValuesMeta extends BaseTransformMeta
 
       getSelectFields(inputRowMeta, name);
       getDeleteFields(inputRowMeta);
-      getMetadataFields(inputRowMeta, name,variables);
+      getMetadataFields(inputRowMeta, name, variables);
     } catch (Exception e) {
       throw new HopTransformException(e);
     }

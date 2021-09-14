@@ -50,19 +50,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * This defines a 'Set variables' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'Set variables' action. */
 @Action(
     id = "SET_VARIABLES",
     name = "i18n::ActionSetVariables.Name",
     description = "i18n::ActionSetVariables.Description",
     image = "SetVariables.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/setvariables.html")
+    documentationUrl = "/workflow/actions/setvariables.html")
 public class ActionSetVariables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSetVariables.class; // For Translator
 

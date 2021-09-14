@@ -42,17 +42,13 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.util.List;
 
-/*
- * Created on 15-Oct-2007
- *
- */
 @Transform(
     id = "XSLT",
     image = "XSLT.svg",
     name = "i18n::XSLT.name",
     description = "i18n::XSLT.description",
     categoryDescription = "i18n::XSLT.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xslt.html")
+    documentationUrl = "/pipeline/transforms/xslt.html")
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
 

@@ -49,7 +49,6 @@ import java.util.List;
 
 /*
  * ConcatFieldsMeta
- *
  */
 @Transform(
     id = "ConcatFields",
@@ -57,7 +56,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.ConcatFields",
     description = "i18n::BaseTransform.TypeTooltipDesc.ConcatFields",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/concatfields.html")
+    documentationUrl = "/pipeline/transforms/concatfields.html")
 public class ConcatFieldsMeta extends BaseTransformMeta
     implements ITransformMeta<ConcatFields, ConcatFieldsData> {
 

@@ -50,14 +50,11 @@ import org.w3c.dom.Node;
 import java.util.*;
 
 /**
- * @author Matt
- * @since on 14-may-2003
- *     <p>WANTED: Interconnected Dynamic Lookups -->
- *     http://www.datawarehouse.com/article/?articleId=5354
- *     <p>The idea is here to create a central 'dimension' cache process, seperated from the other
- *     Hop processes. Hop then connects over a socket to this daemon-like process to check wether a
- *     certain dimension entry is present. Perhaps a more general caching service should be
- *     considered.
+ * WANTED: Interconnected Dynamic Lookups --> http://www.datawarehouse.com/article/?articleId=5354
+ *
+ * <p>The idea is here to create a central 'dimension' cache process, seperated from the other Hop
+ * processes. Hop then connects over a socket to this daemon-like process to check wether a certain
+ * dimension entry is present. Perhaps a more general caching service should be considered.
  */
 @Transform(
     id = "DimensionLookup",
@@ -66,8 +63,7 @@ import java.util.*;
     description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/dimensionlookup.html")
+    documentationUrl = "/pipeline/transforms/dimensionlookup.html")
 @InjectionSupported(
     localizationPrefix = "DimensionLookup.Injection.",
     groups = {"KEYS", "FIELDS"})

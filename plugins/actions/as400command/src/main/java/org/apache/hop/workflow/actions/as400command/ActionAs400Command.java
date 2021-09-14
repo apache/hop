@@ -50,7 +50,7 @@ import java.util.List;
     description = "i18n::ActionAs400Command.Description",
     image = "as400command.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/as400command.html")
+    documentationUrl = "/workflow/actions/as400command.html")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class; // For Translator
 

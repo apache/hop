@@ -36,8 +36,7 @@ import java.util.List;
     description = "Create or delete constraints in a Neo4j database",
     image = "neo4j_constraint.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/neo4j-constraint.html")
+    documentationUrl = "/workflow/actions/neo4j-constraint.html")
 public class Neo4jConstraint extends ActionBase implements IAction {
 
   @HopMetadataProperty(key = "connection", storeWithName = true)

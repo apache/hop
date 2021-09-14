@@ -51,19 +51,14 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.util.List;
 
-/**
- * This defines a MySQL action.
- *
- * @author Samatar Hassan
- * @since Jan-2007
- */
+/** This defines a MySQL action. */
 @Action(
     id = "MYSQL_BULK_LOAD",
     name = "i18n::ActionMysqlBulkLoad.Name",
     description = "i18n::ActionMysqlBulkLoad.Description",
     image = "MysqlBulkLoad.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/mysqlbulkload.html")
+    documentationUrl = "/workflow/actions/mysqlbulkload.html")
 public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
 
@@ -263,7 +258,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
               // Get tablename
               String realTablename = resolve(tableName);
 
-              if (db.checkTableExists(realSchemaname,realTablename)) {
+              if (db.checkTableExists(realSchemaname, realTablename)) {
                 // The table existe, We can continue ...
                 if (log.isDetailed()) {
                   logDetailed("Table [" + realTablename + "] exists.");

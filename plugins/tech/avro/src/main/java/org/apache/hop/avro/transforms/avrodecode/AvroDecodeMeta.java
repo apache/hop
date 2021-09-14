@@ -42,7 +42,7 @@ import java.util.List;
     description = "Decodes Avro data types into Hop fields",
     image = "avro_decode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/avro-decode.html",
+    documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = {"Avro", "Decode"})
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroDecodeMeta extends BaseTransformMeta

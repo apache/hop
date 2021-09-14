@@ -37,7 +37,7 @@ import java.util.List;
     name = "i18n::ActionDummy.Name",
     description = "i18n::ActionDummy.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/dummy.html")
+    documentationUrl = "/workflow/actions/dummy.html")
 public class ActionDummy extends ActionBase implements IAction {
 
   public ActionDummy() {

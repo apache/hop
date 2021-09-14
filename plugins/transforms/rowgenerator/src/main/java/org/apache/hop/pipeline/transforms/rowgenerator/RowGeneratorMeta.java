@@ -36,16 +36,13 @@ import org.apache.hop.pipeline.transform.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created on 4-apr-2003
- */
 @Transform(
     id = "RowGenerator",
     image = "rowgenerator.svg",
     name = "i18n::BaseTransform.TypeLongDesc.GenerateRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.GenerateRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/rowgenerator.html")
+    documentationUrl = "/pipeline/transforms/rowgenerator.html")
 public class RowGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<RowGenerator, RowGeneratorData> {
   private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator

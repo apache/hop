@@ -33,19 +33,14 @@ import org.w3c.dom.Node;
 
 import java.util.Date;
 
-/**
- * Action type to output message to the workflow log.
- *
- * @author Samatar
- * @since 08-08-2007
- */
+/** Action type to output message to the workflow log. */
 @Action(
     id = "WRITE_TO_LOG",
     name = "i18n::ActionWriteToLog.Name",
     description = "i18n::ActionWriteToLog.Description",
     image = "WriteToLog.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/writetolog.html")
+    documentationUrl = "/workflow/actions/writetolog.html")
 public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
 

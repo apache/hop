@@ -42,17 +42,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 10-dec-2006
- *
- */
 @Transform(
     id = "Http",
     image = "http.svg",
     name = "i18n::BaseTransform.TypeLongDesc.HTTP",
     description = "i18n::BaseTransform.TypeTooltipDesc.HTTP",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getvariable.html")
+    documentationUrl = "/pipeline/transforms/getvariable.html")
 public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
   private static final Class<?> PKG = HttpMeta.class; // For Translator
 

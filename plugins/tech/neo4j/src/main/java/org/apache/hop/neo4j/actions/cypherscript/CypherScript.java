@@ -40,8 +40,7 @@ import org.w3c.dom.Node;
     description = "Execute a Neo4j Cypher script",
     image = "neo4j_cypher.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/neo4j-cypherscript.html")
+    documentationUrl = "/workflow/actions/neo4j-cypherscript.html")
 public class CypherScript extends ActionBase implements IAction {
 
   private String connectionName;

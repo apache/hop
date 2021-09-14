@@ -31,19 +31,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Action type to success a workflow.
- *
- * @author Samatar
- * @since 12-02-2007
- */
+/** Action type to success a workflow. */
 @Action(
     id = "SUCCESS",
     name = "i18n::ActionSuccess.Name",
     description = "i18n::ActionSuccess.Description",
     image = "Success.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/success.html")
+    documentationUrl = "/workflow/actions/success.html")
 public class ActionSuccess extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSuccess.class; // For Translator
 

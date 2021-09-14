@@ -46,9 +46,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 05-aug-2003
- */
 @InjectionSupported(
     localizationPrefix = "GetVariable.Injection.",
     groups = {"FIELDS"})
@@ -58,7 +55,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.GetVariable",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetVariable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/getvariable.html")
+    documentationUrl = "/pipeline/transforms/getvariable.html")
 public class GetVariableMeta extends BaseTransformMeta
     implements ITransformMeta<GetVariable, GetVariableData> {
   private static final Class<?> PKG = GetVariableMeta.class; // For Translator

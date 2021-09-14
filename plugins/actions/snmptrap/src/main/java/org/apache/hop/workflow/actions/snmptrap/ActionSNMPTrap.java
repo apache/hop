@@ -44,19 +44,14 @@ import org.w3c.dom.Node;
 
 import java.net.InetAddress;
 
-/**
- * This defines an SNMPTrap action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an SNMPTrap action. */
 @Action(
     id = "SNMP_TRAP",
     name = "i18n::ActionSNMPTrap.Name",
     description = "i18n::ActionSNMPTrap.Description",
     image = "SNMP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/snmptrap.html")
+    documentationUrl = "/workflow/actions/snmptrap.html")
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
 

@@ -38,8 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "Reads file serialized in the Apache Avro file format",
     image = "avro_input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/avro-file-input.html",
+    documentationUrl = "/pipeline/transforms/avro-file-input.html",
     keywords = {"Avro", "Read Avro"})
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroFileInputMeta extends BaseTransformMeta

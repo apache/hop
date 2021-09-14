@@ -38,18 +38,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 19-Sep-2007
- *
- */
-
 @Transform(
     id = "ClosureGenerator",
     image = "closuregenerator.svg",
     name = "i18n::ClosureGenerator.Name",
     description = "i18n::ClosureGenerator.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/closure.html")
+    documentationUrl = "/pipeline/transforms/closure.html")
 public class ClosureGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
 

@@ -40,11 +40,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2008
- *
- */
-
 @Transform(
     id = "SampleRows",
     image = "samplerows.svg",
@@ -52,7 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SampleRows",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/samplerows.html")
+    documentationUrl = "/pipeline/transforms/samplerows.html")
 public class SampleRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SampleRows, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator

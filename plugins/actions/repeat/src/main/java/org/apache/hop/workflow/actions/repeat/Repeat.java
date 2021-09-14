@@ -54,7 +54,7 @@ import java.util.*;
     description = "Repeat execution of a workflow or a transformation",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     image = "repeat.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/repeat.html")
+    documentationUrl = "/workflow/actions/repeat.html")
 public class Repeat extends ActionBase implements IAction, Cloneable {
 
   public static final String REPEAT_END_LOOP = "_REPEAT_END_LOOP_";

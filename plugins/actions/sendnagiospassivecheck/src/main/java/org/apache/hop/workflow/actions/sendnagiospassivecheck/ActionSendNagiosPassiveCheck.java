@@ -47,20 +47,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines an SendNagiosPassiveCheck action.
- *
- * @author Samatar
- * @since 01-10-2011
- */
+/** This defines an SendNagiosPassiveCheck action. */
 @Action(
     id = "SEND_NAGIOS_PASSIVE_CHECK",
     name = "i18n::ActionSendNagiosPassiveCheck.Name",
     description = "i18n::ActionSendNagiosPassiveCheck.Description",
     image = "SendNagiosPassiveCheck.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/sendnagiospassivecheck.html")
+    documentationUrl = "/workflow/actions/sendnagiospassivecheck.html")
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator
 

@@ -58,8 +58,7 @@ import java.util.List;
     name = "i18n::SynchronizeAfterMerge.Name",
     description = "i18n::SynchronizeAfterMerge.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/synchronizeaftermerge.html")
+    documentationUrl = "/pipeline/transforms/synchronizeaftermerge.html")
 public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     implements ITransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator

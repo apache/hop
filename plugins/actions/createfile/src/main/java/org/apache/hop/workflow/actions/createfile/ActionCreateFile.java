@@ -45,9 +45,6 @@ import java.util.List;
 /**
  * This defines a 'create file' action. Its main use would be to create empty trigger files that can
  * be used to control the flow in ETL cycles.
- *
- * @author Sven Boden
- * @since 28-01-2007
  */
 @Action(
     id = "CREATE_FILE",
@@ -55,7 +52,7 @@ import java.util.List;
     description = "i18n::ActionCreateFile.Description",
     image = "CreateFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/createfile.html")
+    documentationUrl = "/workflow/actions/createfile.html")
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCreateFile.class; // For Translator
   private String filename;

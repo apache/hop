@@ -40,19 +40,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-Juin-2008
- *
- */
-
 @Transform(
     id = "CreditCardValidator",
     image = "creditcardvalidator.svg",
     name = "i18n::BaseTransform.TypeLongDesc.CreditCardValidator",
     description = "i18n::BaseTransform.TypeTooltipDesc.CreditCardValidator",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/creditcardvalidator.html")
+    documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
 public class CreditCardValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<CreditCardValidator, CreditCardValidatorData> {
 

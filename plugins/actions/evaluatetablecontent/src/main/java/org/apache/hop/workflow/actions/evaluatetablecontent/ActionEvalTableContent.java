@@ -45,20 +45,14 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This defines a Table content evaluation action
- *
- * @author Samatar
- * @since 22-07-2008
- */
+/** This defines a Table content evaluation action */
 @Action(
     id = "EVAL_TABLE_CONTENT",
     name = "i18n::ActionEvalTableContent.Name",
     description = "i18n::ActionEvalTableContent.Description",
     image = "EvalTableContent.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/evaluatetablecontent.html")
+    documentationUrl = "/workflow/actions/evaluatetablecontent.html")
 public class ActionEvalTableContent extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
 

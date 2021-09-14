@@ -34,20 +34,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-/**
- * This defines a webservice available action.
- *
- * @author Samatar
- * @since 05-11-2009
- */
+/** This defines a webservice available action. */
 @Action(
     id = "WEBSERVICE_AVAILABLE",
     name = "i18n::ActionWebServiceAvailable.Name",
     description = "i18n::ActionWebServiceAvailable.Description",
     image = "WebServiceAvailable.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/webserviceavailable.html")
+    documentationUrl = "/workflow/actions/webserviceavailable.html")
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
 

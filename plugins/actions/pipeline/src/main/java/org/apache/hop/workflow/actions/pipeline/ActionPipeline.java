@@ -59,19 +59,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This is the action that defines a pipeline to be run.
- *
- * @author Matt Casters
- * @since 1-Oct-2003, rewritten on 18-June-2004
- */
+/** This is the action that defines a pipeline to be run. */
 @Action(
     id = "PIPELINE",
     image = "ui/images/pipeline.svg",
     name = "i18n::ActionPipeline.Name",
     description = "i18n::ActionPipeline.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pipeline.html")
+    documentationUrl = "/workflow/actions/pipeline.html")
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
 

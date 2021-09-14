@@ -43,10 +43,8 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*******************************************************************************
+/*
  * Contains meta-data to execute arbitrary SQL, optionally each row again.
- *
- * Created on 10-sep-2005
  */
 
 @Transform(
@@ -55,7 +53,7 @@ import java.util.List;
     name = "i18n::ExecSql.Name",
     description = "i18n::ExecSql.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/execsql.html")
+    documentationUrl = "/pipeline/transforms/execsql.html")
 @InjectionSupported(
     localizationPrefix = "ExecSqlMeta.Injection.",
     groups = {"PARAMETERS"})

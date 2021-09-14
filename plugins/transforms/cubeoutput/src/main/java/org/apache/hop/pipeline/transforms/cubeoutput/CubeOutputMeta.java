@@ -42,17 +42,13 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Created on 4-apr-2003
- *
- */
 @Transform(
     id = "CubeOutput",
     image = "cubeoutput.svg",
     name = "i18n::CubeOutput.Name",
     description = "i18n::CubeOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cubeoutput.html")
+    documentationUrl = "/pipeline/transforms/cubeoutput.html")
 public class CubeOutputMeta extends BaseTransformMeta
     implements ITransformMeta<CubeOutput, CubeOutputData> {
 

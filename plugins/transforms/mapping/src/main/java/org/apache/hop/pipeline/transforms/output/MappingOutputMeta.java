@@ -32,19 +32,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
-
 @Transform(
     id = "MappingOutput",
     name = "i18n::BaseTransform.TypeLongDesc.MappingOuptut",
     description = "i18n::BaseTransform.TypeTooltipDesc.MappingOutput",
     image = "MPO.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/mapping-output.html")
+    documentationUrl = "/pipeline/transforms/mapping-output.html")
 public class MappingOutputMeta extends BaseTransformMeta
     implements ITransformMeta<MappingOutput, MappingOutputData> {
 

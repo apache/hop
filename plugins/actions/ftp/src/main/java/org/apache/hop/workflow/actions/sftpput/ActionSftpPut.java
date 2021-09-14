@@ -48,19 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines an SFTP put action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an SFTP put action. */
 @Action(
     id = "SFTPPUT",
     name = "i18n::ActionSFTPPut.Name",
     description = "i18n::ActionSFTPPut.Description",
     image = "SFTPPut.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/sftpput.html")
+    documentationUrl = "/workflow/actions/sftpput.html")
 public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSftpPut.class; // For Translator
 

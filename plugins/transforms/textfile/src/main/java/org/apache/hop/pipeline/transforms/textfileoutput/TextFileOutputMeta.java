@@ -52,18 +52,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Created on 4-apr-2003
- *
- */
 @Transform(
     id = "TextFileOutput",
     image = "textfileoutput.svg",
     name = "i18n::BaseTransform.TypeLongDesc.TextFileOutput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TextFileOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/textfileoutput.html")
+    documentationUrl = "/pipeline/transforms/textfileoutput.html")
 @InjectionSupported(
     localizationPrefix = "TextFileOutput.Injection.",
     groups = {"OUTPUT_FIELDS"})

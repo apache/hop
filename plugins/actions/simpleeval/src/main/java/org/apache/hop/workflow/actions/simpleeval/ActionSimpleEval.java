@@ -39,19 +39,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'simple evaluation' action.
- *
- * @author Samatar Hassan
- * @since 01-01-2009
- */
+/** This defines a 'simple evaluation' action. */
 @Action(
     id = "SIMPLE_EVAL",
     name = "i18n::ActionSimpleEval.Name",
     description = "i18n::ActionSimpleEval.Description",
     image = "SimpleEval.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/simpleeval.html")
+    documentationUrl = "/workflow/actions/simpleeval.html")
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
 

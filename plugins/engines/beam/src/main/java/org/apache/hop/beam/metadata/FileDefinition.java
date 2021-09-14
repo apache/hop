@@ -34,8 +34,7 @@ import java.util.List;
     name = "Beam File Definition",
     description = "Describes a file layout in a Beam pipeline",
     image = "ui/images/folder.svg",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/metadata-types/beam-file-definition.html")
+    documentationUrl = "/metadata-types/beam-file-definition.html")
 public class FileDefinition extends HopMetadataBase implements Serializable, IHopMetadata {
 
   @HopMetadataProperty private String description;

@@ -39,11 +39,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This class knows how to handle the MetaData for the Json output transform
- *
- * @since 14-june-2010
- */
+/** This class knows how to handle the MetaData for the Json output transform */
 @Transform(
     id = "JsonOutput",
     image = "JSO.svg",
@@ -51,7 +47,7 @@ import java.util.List;
     description = "i18n::JsonOutput.description",
     categoryDescription = "i18n::JsonOutput.category",
     keywords = {"json", "javascript", "object", "notation"},
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/jsonoutput.html")
+    documentationUrl = "/pipeline/transforms/jsonoutput.html")
 public class JsonOutputMeta extends BaseFileOutputMeta
     implements ITransformMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class; // For Translator

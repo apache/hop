@@ -46,9 +46,6 @@ import java.util.List;
 /**
  * This defines a 'write to file' action. Its main use would be to create empty trigger files that
  * can be used to control the flow in ETL cycles.
- *
- * @author Samatar Hassan
- * @since 28-01-2007
  */
 @Action(
     id = "WRITE_TO_FILE",
@@ -56,7 +53,7 @@ import java.util.List;
     description = "i18n::ActionWriteToFile.Description",
     image = "WriteToFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/writetofile.html")
+    documentationUrl = "/workflow/actions/writetofile.html")
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 

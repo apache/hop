@@ -49,19 +49,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-/**
- * This defines an SQL action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an SQL action. */
 @Action(
     id = "SQL",
     name = "i18n::ActionSQL.Name",
     description = "i18n::ActionSQL.Description",
     image = "sql.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/sql.html")
+    documentationUrl = "/workflow/actions/sql.html")
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSql.class; // For Translator
 

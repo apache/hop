@@ -50,20 +50,14 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Meta-data for the Mapping transform: contains name of the (sub-) pipeline to execute
- *
- * @author Matt
- * @since 22-nov-2005
- */
+/** Meta-data for the Mapping transform: contains name of the (sub-) pipeline to execute */
 @Transform(
     id = "SimpleMapping",
     name = "i18n::BaseTransform.TypeLongDesc.SimpleMapping",
     description = "i18n::BaseTransform.TypeTooltipDesc.SimpleMapping",
     image = "MAP.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/simple-mapping.html")
+    documentationUrl = "/pipeline/transforms/simple-mapping.html")
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
     implements ITransformMeta<SimpleMapping, SimpleMappingData>, ISubPipelineAwareMeta {
 

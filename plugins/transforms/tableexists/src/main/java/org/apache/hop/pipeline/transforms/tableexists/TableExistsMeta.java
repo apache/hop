@@ -44,7 +44,7 @@ import java.util.List;
     name = "i18n::TableExists.Name",
     description = "i18n::TableExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/tableexists.html")
+    documentationUrl = "/pipeline/transforms/tableexists.html")
 public class TableExistsMeta extends BaseTransformMeta
     implements ITransformMeta<TableExists, TableExistsData> {
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator

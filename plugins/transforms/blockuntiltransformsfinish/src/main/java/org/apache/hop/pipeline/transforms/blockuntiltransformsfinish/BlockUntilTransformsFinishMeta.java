@@ -35,19 +35,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created on 30-06-2008
- *
- */
-
 @Transform(
     id = "BlockUntilTransformsFinish",
     image = "blockinguntiltransformsfinish.svg",
     name = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
     description = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/blockuntiltransformsfinish.html")
+    documentationUrl = "/pipeline/transforms/blockuntiltransformsfinish.html")
 public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     implements ITransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 

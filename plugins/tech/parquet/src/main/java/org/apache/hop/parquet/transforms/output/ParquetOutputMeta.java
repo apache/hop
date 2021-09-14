@@ -37,8 +37,7 @@ import java.util.List;
     name = "i18n::ParquetOutput.Name",
     description = "i18n::ParquetOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/parquet-file-output.html",
+    documentationUrl = "/pipeline/transforms/parquet-file-output.html",
     keywords = {"parquet", "write", "file", "column"})
 public class ParquetOutputMeta extends BaseTransformMeta
     implements ITransformMeta<ParquetOutput, ParquetOutputData> {

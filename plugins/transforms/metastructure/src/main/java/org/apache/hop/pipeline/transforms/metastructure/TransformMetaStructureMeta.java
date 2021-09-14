@@ -42,8 +42,7 @@ import java.util.List;
     name = "i18n::TransformMetaStructure.Transform.Name",
     description = "i18n::TransformMetaStructure.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/metastructure.html",
+    documentationUrl = "/pipeline/transforms/metastructure.html",
     image = "MetaStructure.svg")
 public class TransformMetaStructureMeta extends BaseTransformMeta
     implements ITransformMeta<TransformMetaStructure, TransformMetaStructureData> {

@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::IfNull.Name",
     description = "i18n::IfNull.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/ifnull.html")
+    documentationUrl = "/pipeline/transforms/ifnull.html")
 @InjectionSupported(
     localizationPrefix = "IfNull.Injection.",
     groups = {"FIELDS", "VALUE_TYPES"})

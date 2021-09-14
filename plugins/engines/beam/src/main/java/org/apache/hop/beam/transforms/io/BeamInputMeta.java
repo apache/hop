@@ -50,7 +50,7 @@ import java.util.Map;
     description = "Describes a Beam Input",
     image = "beam-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/beaminput.html")
+    documentationUrl = "/pipeline/transforms/beaminput.html")
 public class BeamInputMeta extends BaseTransformMeta
     implements ITransformMeta<BeamInput, BeamInputData>, IBeamPipelineTransformHandler {
 

@@ -45,7 +45,7 @@ import java.util.List;
     name = "i18n::WriteToLog.Name",
     description = "i18n::WriteToLog.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/writetolog.html")
+    documentationUrl = "/pipeline/transforms/writetolog.html")
 public class WriteToLogMeta extends BaseTransformMeta
     implements ITransformMeta<WriteToLog, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class; // For Translator

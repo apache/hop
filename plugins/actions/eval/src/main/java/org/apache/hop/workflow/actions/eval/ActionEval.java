@@ -42,9 +42,6 @@ import java.util.List;
 /**
  * Action type to evaluate the result of a previous action. It uses a piece of javascript to do
  * this.
- *
- * @author Matt
- * @since 5-11-2003
  */
 @Action(
     id = "EVAL",
@@ -52,7 +49,7 @@ import java.util.List;
     description = "i18n::ActionEval.Description",
     image = "eval.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/eval.html")
+    documentationUrl = "/workflow/actions/eval.html")
 public class ActionEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEval.class; // For Translator
 

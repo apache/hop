@@ -47,8 +47,7 @@ import java.util.Map;
     description = "Send messages to a Kafka Topic (Producer)",
     image = "beam-kafka-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/beamkafkaproduce.html")
+    documentationUrl = "/pipeline/transforms/beamkafkaproduce.html")
 public class BeamProduceMeta extends BaseTransformMeta
     implements ITransformMeta<BeamProduce, DummyData>, IBeamPipelineTransformHandler {
 

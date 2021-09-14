@@ -42,9 +42,6 @@ import java.util.List;
 /**
  * This defines a 'create folder' action. Its main use would be to create empty folder that can be
  * used to control the flow in ETL cycles.
- *
- * @author Sven/Samatar
- * @since 18-10-2007
  */
 @Action(
     id = "CREATE_FOLDER",
@@ -52,7 +49,7 @@ import java.util.List;
     description = "i18n::ActionCreateFolder.Description",
     image = "CreateFolder.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/createfolder.html")
+    documentationUrl = "/workflow/actions/createfolder.html")
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
   private String folderName;
   private boolean failOfFolderExists;

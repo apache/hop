@@ -77,7 +77,7 @@ import java.util.Map;
       "tsv read",
       "text read",
     },
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/csvinput.html")
+    documentationUrl = "/pipeline/transforms/csvinput.html")
 public class CsvInputMeta extends BaseTransformMeta
     implements ITransformMeta<CsvInput, CsvInputData>,
         IInputFileMeta<CsvInput, CsvInputData>,

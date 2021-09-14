@@ -43,10 +43,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-Juin-2008
- *
- */
 @InjectionSupported(
     localizationPrefix = "GetTableNames.Injection.",
     groups = {"FIELDS", "SETTINGS", "OUTPUT"})
@@ -56,8 +52,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.GetTableNames",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetTableNames",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/gettablenames.html")
+    documentationUrl = "/pipeline/transforms/gettablenames.html")
 public class GetTableNamesMeta extends BaseTransformMeta
     implements ITransformMeta<GetTableNames, GetTableNamesData> {
   private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
