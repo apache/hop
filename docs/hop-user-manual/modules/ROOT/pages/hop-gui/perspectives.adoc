@@ -16,10 +16,11 @@ under the License.
 ////
 = Hop Gui Perspectives
 :imagesdir: ../assets/images
+:description: "Hop Gui provides a number of perspectives for a variety of tasks. You'll spend most of your time in the data orchestration perspective, building workflows and pipelines, but other perspectives for metadata management, file management, search etc offer tons of functionality."
 
 Hop comes with a number of perspectives built in.
 
-Change the current perspectives by clicking on the icon in the left hand toolbar, or through the corresponding keyboard shortcut.
+Change the current perspectives by clicking on the icon in the left-hand toolbar, or through the corresponding keyboard shortcut.
 Use the keyboard shortcuts `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down` to cycle through perspectives.
 
 include::perspective-data-orchestration.adoc[]

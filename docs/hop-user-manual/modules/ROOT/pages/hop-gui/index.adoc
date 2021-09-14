@@ -15,13 +15,20 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[HopGui]]
+
+:description: "Hop Gui is Hop's visual development environment where you will mainly design, run and debug workflows and pipelines, but Hop Gui has a lot more to offer: you can configure all of your metadata items like database connections, run configurations etc. You can search, manage files, version control your work and more."
+
+
 = Hop Gui
 
+Hop Gui is Hop's visual development environment. You'll spend a lot of time here in the various perspectives of Hop GUI.
+
+You'll spend most of your time building, previewing running and debugging workflows and pipelines, but there's also a lot of configuration that can be done from Hop Gui's metadata perspective, you can search for any metadata with the search perspective, manage a variety of files and even version control them from the file explorer perspective and much more.
+
 This page covers a number of topics that are very specific to working with Hop Gui.
+Check the chapters on xref:/pipeline/pipelines.adoc[pipelines] and xref:/workflow/workflows.adoc[workflows] to learn more about creating and running pipelines and workflows in Hop Gui.
 
-Refer to the corresponding chapters in the left-hand menu to learn more about creating and managing your Hop work.
-
-Covered here are
+Covered here are:
 
 * xref:hop-gui/file-dialog.adoc[File Dialog]: the versatile Hop file browser and chooser dialog.
 * xref:hop-gui/perspectives.adoc[Perspectives]: the various perspectives in the Hop Gui

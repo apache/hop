@@ -17,6 +17,7 @@ under the License.
 [[WhatIsHop]]
 :imagesdir: ../../assets/images
 :page-pagination:
+:description: "Getting Started (1/8): before we're diving into Hop, we'll have a quick look at the visual design, metadata, kernel + plugin architecture and runtimes"
 
 = What is Apache Hop?
 

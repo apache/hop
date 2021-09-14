@@ -16,6 +16,8 @@ under the License.
 ////
 [[Shortcuts]]
 :imagesdir: ../assets/images
+:description: "A lot of actions in Hop can be performed significantly faster through keyboard shortcuts. This page provides an overview of all the available keyboard shortcuts in Hop Gui."
+
 = Hop Shortcuts
 
 The table below lists the main shortcuts in Hop.
@@ -64,6 +66,10 @@ Most of the times you can replace ctrl with cmd.
 |Ctrl + =|Zoom In on your canvas
 |Ctrl + -|Zoom out on your canvas
 |Ctrl + 0|Reset the zoom percentage to 100%
+|Ctrl + click|On hops to quickly enable/disable
+|Ctr-Shift-Click|Use this shortcut on workflow actions and pipeline transforms that use another workflow or pipeline to open.
+|mouse over + z|Hover over a workflow action or pipeline transform that uses another workflow or pipeline to open (similar to option above)
+|mouse over transform + space|Opens the outgoing fields
 |===
 
 == Perspective Shortcuts

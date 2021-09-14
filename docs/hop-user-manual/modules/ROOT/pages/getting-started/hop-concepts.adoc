@@ -17,6 +17,7 @@ under the License.
 [[HopConcepts]]
 :imagesdir: ../../assets/images
 :page-pagination:
+:description: "Getting Started (2/8): before going into the details of workflows and pipelines, we'll walk through the core terminology used in Hop."
 
 = Hop Concepts
 

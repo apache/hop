@@ -17,6 +17,7 @@ under the License.
 [[HopGuiPipelines]]
 :imagesdir: ../../assets/images
 :page-pagination:
+:description: "Getting Started (6/8): Pipelines are one of the two main file types in Hop. Learn how to add transforms and connect them through hops before your run, preview and debug your first pipeline. "
 
 = Pipelines
 
