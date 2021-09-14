@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,20 +20,29 @@ package org.apache.hop.ui.core.metadata;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MetadataFileTypeHandler implements IHopFileTypeHandler {
+public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFileTypeHandler {
 
   private static final IHopFileType fileType = new MetadataFileType();
 
-  public MetadataFileTypeHandler() {}
+  private T metadata;
+
+  public MetadataFileTypeHandler(T metadata) {
+    this.metadata = metadata;
+  }
 
   @Override
   public Object getSubject() {
@@ -42,11 +51,19 @@ public class MetadataFileTypeHandler implements IHopFileTypeHandler {
 
   @Override
   public String getName() {
-    return null;
+    if (metadata == null) {
+      return null;
+    }
+    return metadata.getName();
   }
 
   @Override
-  public void setName(String name) {}
+  public void setName(String name) {
+    if (metadata == null) {
+      return;
+    }
+    metadata.setName(name);
+  }
 
   @Override
   public IHopFileType getFileType() {
@@ -55,7 +72,7 @@ public class MetadataFileTypeHandler implements IHopFileTypeHandler {
 
   @Override
   public String getFilename() {
-    return "meta";
+    return null;
   }
 
   @Override
@@ -109,13 +126,43 @@ public class MetadataFileTypeHandler implements IHopFileTypeHandler {
   @Override
   public void pasteFromClipboard() {}
 
-  @Override
-  public boolean isCloseable() {
-    return true;
+  private TabItemHandler findTabItemHandler() {
+    if (metadata == null) {
+      return null;
+    }
+    MetadataPerspective perspective = MetadataPerspective.getInstance();
+    for (TabItemHandler tabItemHandler : perspective.getItems()) {
+      CTabItem tabItem = tabItemHandler.getTabItem();
+      MetadataEditor editor = (MetadataEditor) tabItem.getData();
+      IHopMetadata other = editor.getMetadata();
+      if (other.equals(metadata)) {
+        return tabItemHandler;
+      }
+    }
+    return null;
   }
 
   @Override
-  public void close() {}
+  public boolean isCloseable() {
+    TabItemHandler tabItemHandler = findTabItemHandler();
+    if (tabItemHandler == null) {
+      return true;
+    }
+    IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
+    return typeHandler.isCloseable();
+  }
+
+  @Override
+  public void close() {
+    TabItemHandler tabItemHandler = findTabItemHandler();
+    if (tabItemHandler == null) {
+      return;
+    }
+    // Simply close the associated tab
+    //
+    CTabItem tabItem = tabItemHandler.getTabItem();
+    tabItem.dispose();
+  }
 
   @Override
   public boolean hasChanged() {
@@ -143,7 +190,7 @@ public class MetadataFileTypeHandler implements IHopFileTypeHandler {
   }
 
   /**
-   * Metadata doesn't have it's own variables. It should take it elsewhere.
+   * Metadata doesn't have its own variables. It should take it elsewhere.
    *
    * @return An empty variables set
    */

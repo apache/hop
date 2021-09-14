@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
+import org.apache.hop.ui.core.metadata.MetadataFileTypeHandler;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
@@ -839,7 +840,18 @@ public class MetadataPerspective implements IHopPerspective {
 
   @Override
   public List<TabItemHandler> getItems() {
-    return null;
+    List<TabItemHandler> items = new ArrayList<>();
+    for (CTabItem tabItem : tabFolder.getItems()) {
+      for (MetadataEditor<?> editor : editors) {
+        if (tabItem.getData().equals(editor)) {
+          // This is the editor tabItem...
+          //
+          items.add(new TabItemHandler(tabItem, editor));
+        }
+      }
+    }
+
+    return items;
   }
 
   @Override

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,16 +83,18 @@ public class MetadataFileType implements IHopFileType {
     return "true".equalsIgnoreCase(available.toString());
   }
 
+  // Not implemented yet
   @Override
   public IHopFileTypeHandler openFile(
       HopGui hopGui, String filename, IVariables parentVariableSpace) throws HopException {
-    return new MetadataFileTypeHandler();
+    return new MetadataFileTypeHandler(null);
   }
 
+  // Not implemented yet
   @Override
   public IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace)
       throws HopException {
-    return new MetadataFileTypeHandler();
+    return new MetadataFileTypeHandler(null);
   }
 
   @Override
