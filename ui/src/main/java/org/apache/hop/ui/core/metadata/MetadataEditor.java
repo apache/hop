@@ -64,6 +64,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   protected String originalName;
 
   public MetadataEditor(HopGui hopGui, MetadataManager<T> manager, T metadata) {
+    super(metadata);
     this.hopGui = hopGui;
     this.manager = manager;
     this.metadata = metadata;
