@@ -21,14 +21,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -36,15 +35,14 @@ import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
 @Transform(
     id = "DetectLastRow",
     image = "detectlastrow.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DetectLastRow",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DetectLastRow",
+    name = "i18n::DetectLastRow.Name",
+    description = "i18n::DetectLastRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/identifylastrow.html")
@@ -53,22 +51,17 @@ public class DetectLastRowMeta extends BaseTransformMeta
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
 
   /** function result: new value name */
-  private String resultfieldname;
+  @HopMetadataProperty(key = "resultfieldname")
+  private String resultFieldName;
 
   /** @return Returns the resultName. */
   public String getResultFieldName() {
-    return resultfieldname;
+    return resultFieldName;
   }
 
   /** @param resultfieldname The resultfieldname to set. */
   public void setResultFieldName(String resultfieldname) {
-    this.resultfieldname = resultfieldname;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+    this.resultFieldName = resultfieldname;
   }
 
   @Override
@@ -80,7 +73,7 @@ public class DetectLastRowMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    resultfieldname = "result";
+    resultFieldName = "result";
   }
 
   @Override
@@ -93,26 +86,10 @@ public class DetectLastRowMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    if (!Utils.isEmpty(resultfieldname)) {
-      IValueMeta v = new ValueMetaBoolean(variables.resolve(resultfieldname));
+    if (!Utils.isEmpty(resultFieldName)) {
+      IValueMeta v = new ValueMetaBoolean(variables.resolve(resultFieldName));
       v.setOrigin(name);
       row.addValueMeta(v);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "DetectLastRowMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
@@ -130,14 +107,14 @@ public class DetectLastRowMeta extends BaseTransformMeta
     CheckResult cr;
     String errorMessage = "";
 
-    if (Utils.isEmpty(resultfieldname)) {
+    if (Utils.isEmpty(resultFieldName)) {
       errorMessage =
           BaseMessages.getString(PKG, "DetectLastRowMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "DetectLastRowMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -145,7 +122,7 @@ public class DetectLastRowMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "DetectLastRowMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -153,7 +130,7 @@ public class DetectLastRowMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "DetectLastRowMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);
