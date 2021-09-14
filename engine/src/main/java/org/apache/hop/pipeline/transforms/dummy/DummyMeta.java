@@ -36,10 +36,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
 @Transform(
     id = "Dummy",
     image = "ui/images/dummy.svg",
@@ -47,7 +43,7 @@ import java.util.List;
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Dummy",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/dummy.html")
+    documentationUrl = "/pipeline/transforms/dummy.html")
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
   private static final Class<?> PKG = DummyMeta.class; // For Translator

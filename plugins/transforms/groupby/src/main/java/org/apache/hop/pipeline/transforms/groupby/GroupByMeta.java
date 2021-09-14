@@ -48,7 +48,6 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created on 02-jun-2003 */
 @Transform(
     id = "GroupBy",
     image = "groupby.svg",
@@ -56,7 +55,7 @@ import java.util.List;
     description = "i18n::GroupBy.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/groupby.html",
+    documentationUrl = "/pipeline/transforms/groupby.html",
     keywords = "")
 @InjectionSupported(
     localizationPrefix = "GroupByMeta.Injection.",

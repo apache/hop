@@ -44,17 +44,12 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created on 8-apr-2011
- *
- * @since 4.2.0-M1
- */
 @Transform(
     id = "MongoDbInput",
     image = "mongodb-input.svg",
     name = "i18n::MongoDbInput.Name",
     description = "i18n::MongoDbInput.Description",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mongodbinput.html",
+    documentationUrl = "/pipeline/transforms/mongodbinput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>

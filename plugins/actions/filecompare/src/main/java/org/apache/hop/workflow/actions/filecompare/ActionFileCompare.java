@@ -51,9 +51,6 @@ import java.util.List;
 /**
  * This defines a 'file compare' action. It will compare 2 files in a binary way, and will either
  * follow the true flow upon the files being the same or the false flow otherwise.
- *
- * @author Sven Boden
- * @since 01-02-2007
  */
 @Action(
     id = "FILE_COMPARE",
@@ -61,7 +58,7 @@ import java.util.List;
     description = "i18n::ActionFileCompare.Description",
     image = "FileCompare.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/filecompare.html")
+    documentationUrl = "/workflow/actions/filecompare.html")
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileCompare.class; // For Translator
 

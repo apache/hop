@@ -38,18 +38,14 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Contains the meta-data for the Calculator transform: calculates predefined formula's
- *
- * @since 08 september 2005
- */
+/** Contains the meta-data for the Calculator transform: calculates predefined formula's */
 @Transform(
     id = "Calculator",
     image = "calculator.svg",
     name = "i18n::BaseTransform.TypeLongDesc.Calculator",
     description = "i18n::BaseTransform.TypeTooltipDesc.Calculator",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/calculator.html")
+    documentationUrl = "/pipeline/transforms/calculator.html")
 public class CalculatorMeta extends BaseTransformMeta
     implements ITransformMeta<Calculator, CalculatorData> {
 

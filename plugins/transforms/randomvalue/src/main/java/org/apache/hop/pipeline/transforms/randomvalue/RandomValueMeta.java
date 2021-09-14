@@ -42,15 +42,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/** Created on 08-07-2008 */
 @Transform(
     id = "RandomValue",
     image = "randomvalue.svg",
     name = "i18n::BaseTransform.TypeTooltipDesc.RandomValue",
     description = "i18n::BaseTransform.TypeLongDesc.RandomValue",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/generaterandomvalue.html")
+    documentationUrl = "/pipeline/transforms/generaterandomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 

@@ -38,19 +38,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * The flattener transform meta-data
- *
- * @author Matt
- * @since 17-jan-2006
- */
+/** The flattener transform meta-data */
 @Transform(
     id = "Flattener,Flatterner",
     image = "flattener.svg",
     name = "i18n::BaseTransform.TypeLongDesc.RowFlattener",
     description = "i18n::BaseTransform.TypeTooltipDesc.RowFlattener",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/rowflattener.html")
+    documentationUrl = "/pipeline/transforms/rowflattener.html")
 public class FlattenerMeta extends BaseTransformMeta
     implements ITransformMeta<Flattener, FlattenerData> {
   private static final Class<?> PKG = FlattenerMeta.class; // For Translator

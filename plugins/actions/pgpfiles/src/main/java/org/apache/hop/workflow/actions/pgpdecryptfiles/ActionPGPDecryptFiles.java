@@ -50,19 +50,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'PGP decrypt files' action.
- *
- * @author Samatar Hassan
- * @since 25-02-2008
- */
+/** This defines a 'PGP decrypt files' action. */
 @Action(
     id = "PGP_DECRYPT_FILES",
     name = "i18n::ActionPGPDecryptFiles.Name",
     description = "i18n::ActionPGPDecryptFiles.Description",
     image = "PGPDecryptFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pgpdecryptfiles.html")
+    documentationUrl = "/workflow/actions/pgpdecryptfiles.html")
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPDecryptFiles.class; // For Translator
 

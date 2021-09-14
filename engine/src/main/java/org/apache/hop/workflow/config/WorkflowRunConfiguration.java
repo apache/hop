@@ -27,8 +27,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "Workflow Run Configuration",
     description = "Describes how to execute a workflow",
     image = "ui/images/workflow_run_config.svg",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/metadata-types/workflow-run-config.html")
+    documentationUrl = "/metadata-types/workflow-run-config.html")
 public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =

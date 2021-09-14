@@ -32,6 +32,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import static org.apache.hop.core.Const.getDocUrl;
+
 public class HelpUtils {
   private static final Class<?> PKG = HelpUtils.class; // For Translator
 
@@ -71,11 +73,11 @@ public class HelpUtils {
       return;
     }
     if (isPluginDocumented(plugin)) {
-      Program.launch(plugin.getDocumentationUrl());
+      Program.launch(getDocUrl(plugin.getDocumentationUrl()));
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       String msg = "";
-      // TODO currently support only Transform, Action and Metadata - extend if required.
+      // only supports Transform, Action and Metadata - extend if required.
       if (plugin.getPluginType().equals(TransformPluginType.class)) {
         msg = BaseMessages.getString(PKG, "System.Help.Transform.IsNotAvailable", plugin.getName());
       } else if (plugin.getPluginType().equals(ActionPluginType.class)) {

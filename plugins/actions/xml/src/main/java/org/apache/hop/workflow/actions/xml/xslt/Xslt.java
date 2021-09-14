@@ -55,19 +55,14 @@ import static org.apache.hop.workflow.action.validator.AbstractFileValidator.put
 import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
-/**
- * This defines a 'xslt' job entry.
- *
- * @author Samatar Hassan
- * @since 02-03-2007
- */
+/** This defines a 'xslt' job entry. */
 @Action(
     id = "XSLT",
     name = "i18n::XSLT.Name",
     description = "i18n::XSLT.Description",
     image = "XSLT.svg",
     categoryDescription = "i18n::XSLT.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/xslt.html")
+    documentationUrl = "/workflow/actions/xslt.html")
 public class Xslt extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = Xslt.class; // For Translator
 

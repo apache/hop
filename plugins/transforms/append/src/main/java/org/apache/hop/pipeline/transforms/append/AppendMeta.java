@@ -40,17 +40,13 @@ import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 
 import java.util.List;
 
-/**
- * @author Sven Boden
- * @since 3-june-2007
- */
 @Transform(
     id = "Append",
     image = "append.svg",
     name = "i18n::Append.Name",
     description = "i18n::Append.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/append.html")
+    documentationUrl = "/pipeline/transforms/append.html")
 @InjectionSupported(localizationPrefix = "AppendMeta.Injection.")
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 

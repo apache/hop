@@ -65,8 +65,7 @@ import java.util.stream.Collectors;
     name = "i18n::UserDefinedJavaClass.Name",
     description = "i18n::UserDefinedJavaClass.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/userdefinedjavaclass.html")
+    documentationUrl = "/pipeline/transforms/userdefinedjavaclass.html")
 public class UserDefinedJavaClassMeta extends BaseTransformMeta
     implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
@@ -105,8 +104,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
 
   @InjectionDeep private List<FieldInfo> fields = new ArrayList<>();
 
-  @InjectionDeep
-  private List<UserDefinedJavaClassDef> definitions = new ArrayList<>();
+  @InjectionDeep private List<UserDefinedJavaClassDef> definitions = new ArrayList<>();
 
   public Class<TransformClassBase> cookedTransformClass;
   public List<Exception> cookErrors = new ArrayList<>(0);

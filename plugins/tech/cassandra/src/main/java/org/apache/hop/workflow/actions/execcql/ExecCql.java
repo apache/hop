@@ -41,8 +41,7 @@ import org.w3c.dom.Node;
     description = "Execute CQL statements against a Cassandra cluster",
     image = "Cassandra_logo.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/cassandra-exec-cql.html")
+    documentationUrl = "/workflow/actions/cassandra-exec-cql.html")
 public class ExecCql extends ActionBase implements IAction {
 
   private String connectionName;

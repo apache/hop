@@ -49,19 +49,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * This defines an MYSQL Bulk file action.
- *
- * @author Samatar
- * @since 05-03-2006
- */
+/** This defines an MYSQL Bulk file action. */
 @Action(
     id = "MYSQL_BULK_FILE",
     name = "i18n::ActionMysqlBulkFile.Name",
     description = "i18n::ActionMysqlBulkFile.Description",
     image = "MysqlBulkFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/mysqlbulkfile.html")
+    documentationUrl = "/workflow/actions/mysqlbulkfile.html")
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
 
@@ -278,7 +273,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
             // Get tablename
             String realTablename = resolve(tableName);
 
-            if (db.checkTableExists(realSchemaname,realTablename)) {
+            if (db.checkTableExists(realSchemaname, realTablename)) {
               // The table existe, We can continue ...
               if (log.isDetailed()) {
                 logDetailed(

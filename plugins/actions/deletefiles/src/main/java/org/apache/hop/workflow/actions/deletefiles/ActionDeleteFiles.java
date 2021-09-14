@@ -56,19 +56,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'delete files' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'delete files' action. */
 @Action(
     id = "DELETE_FILES",
     name = "i18n::ActionDeleteFiles.Name",
     description = "i18n::ActionDeleteFiles.Description",
     image = "DeleteFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/deletefiles.html")
+    documentationUrl = "/workflow/actions/deletefiles.html")
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 
   private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator

@@ -50,10 +50,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/*
- * Created on 02-jun-2003
- *
- */
 @InjectionSupported(localizationPrefix = "FilterRowsMeta.Injection.")
 @Transform(
     id = "FilterRows",
@@ -61,7 +57,7 @@ import java.util.Optional;
     name = "i18n::BaseTransform.TypeLongDesc.FilterRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.FilterRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/filterrows.html")
+    documentationUrl = "/pipeline/transforms/filterrows.html")
 public class FilterRowsMeta extends BaseTransformMeta
     implements ITransformMeta<FilterRows, FilterRowsData> {
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator

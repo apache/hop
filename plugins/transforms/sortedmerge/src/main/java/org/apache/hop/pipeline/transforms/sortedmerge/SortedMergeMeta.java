@@ -44,10 +44,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
 @InjectionSupported(
     localizationPrefix = "SortedMerge.Injection.",
     groups = {"FIELDS"})
@@ -57,7 +53,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SortedMerge",
     description = "i18n::BaseTransform.TypeTooltipDesc.SortedMerge",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sortedmerge.html")
+    documentationUrl = "/pipeline/transforms/sortedmerge.html")
 public class SortedMergeMeta extends BaseTransformMeta
     implements ITransformMeta<SortedMerge, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator

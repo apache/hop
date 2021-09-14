@@ -43,10 +43,6 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
 @InjectionSupported(localizationPrefix = "JoinRows.Injection.")
 @Transform(
     id = "JoinRows",
@@ -54,7 +50,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.JoinRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.JoinRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/joinrows.html")
+    documentationUrl = "/pipeline/transforms/joinrows.html")
 public class JoinRowsMeta extends BaseTransformMeta
     implements ITransformMeta<JoinRows, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class; // For Translator

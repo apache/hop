@@ -55,9 +55,6 @@ import java.util.zip.ZipOutputStream;
 /**
  * This defines a 'zip file' action. Its main use would be to zip files in a directory and process
  * zipped files (deleted or move).
- *
- * @author Samatar Hassan
- * @since 27-02-2007
  */
 @Action(
     id = "ZIP_FILE",
@@ -65,7 +62,7 @@ import java.util.zip.ZipOutputStream;
     description = "i18n::ActionZipFile.Description",
     image = "Zip.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/zipfile.html")
+    documentationUrl = "/workflow/actions/zipfile.html")
 public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionZipFile.class; // For Translator
 

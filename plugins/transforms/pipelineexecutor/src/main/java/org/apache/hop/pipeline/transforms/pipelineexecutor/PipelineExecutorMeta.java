@@ -53,20 +53,14 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Meta-data for the Pipeline Executor transform.
- *
- * @author Matt
- * @since 18-mar-2013
- */
+/** Meta-data for the Pipeline Executor transform. */
 @Transform(
     id = "PipelineExecutor",
     image = "ui/images/pipelineexecutor.svg",
     name = "i18n::PipelineExecutor.Name",
     description = "i18n::PipelineExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/pipelineexecutor.html",
+    documentationUrl = "/pipeline/transforms/pipelineexecutor.html",
     keywords = "")
 public class PipelineExecutorMeta
     extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>

@@ -28,7 +28,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "Web Service",
     description = "Allows you to run a pipeline to generate output for a servlet on Hop Server",
     image = "ui/images/webservice.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/web-service.html")
+    documentationUrl = "/metadata-types/web-service.html")
 public class WebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

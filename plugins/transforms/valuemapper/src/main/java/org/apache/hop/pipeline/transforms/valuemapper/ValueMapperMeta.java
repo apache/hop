@@ -44,11 +44,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Maps String values of a certain field to new values
- *
- * <p>Created on 03-apr-2006
- */
+/** Maps String values of a certain field to new values */
 @InjectionSupported(
     localizationPrefix = "ValueMapper.Injection.",
     groups = {"VALUES"})
@@ -58,7 +54,7 @@ import java.util.List;
     name = "i18n::ValueMapper.Name",
     description = "i18n::ValueMapper.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/valuemapper.html")
+    documentationUrl = "/pipeline/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta
     implements ITransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator

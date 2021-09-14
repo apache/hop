@@ -40,19 +40,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a Telnet action.
- *
- * @author Samatar
- * @since 05-11-2003
- */
+/** This defines a Telnet action. */
 @Action(
     id = "TELNET",
     name = "i18n::ActionTelnet.Name",
     description = "i18n::ActionTelnet.Description",
     image = "Telnet.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/telnet.html")
+    documentationUrl = "/workflow/actions/telnet.html")
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTelnet.class; // For Translator
 

@@ -52,8 +52,7 @@ import java.util.Map;
     description = "Add timestamps to a bounded data source",
     image = "beam-timestamp.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/beamtimestamp.html")
+    documentationUrl = "/pipeline/transforms/beamtimestamp.html")
 public class BeamTimestampMeta extends BaseTransformMeta
     implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
 

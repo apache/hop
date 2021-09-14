@@ -39,18 +39,14 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Contains the meta-data for the java filter transform: calculates conditions using Janino
- *
- * <p>Created on 30-oct-2009
- */
+/** Contains the meta-data for the java filter transform: calculates conditions using Janino */
 @Transform(
     id = "JavaFilter",
     image = "javafilter.svg",
     name = "i18n::BaseTransform.TypeLongDesc.JavaFilter",
     description = "i18n::BaseTransform.TypeTooltipDesc.JavaFilter",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/javafilter.html")
+    documentationUrl = "/pipeline/transforms/javafilter.html")
 public class JavaFilterMeta extends BaseTransformMeta
     implements ITransformMeta<JavaFilter, JavaFilterData> {
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator

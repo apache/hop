@@ -43,19 +43,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a 'wait for file' action. Its use is to wait for a file to appear.
- *
- * @author Sven Boden
- * @since 10-02-2007
- */
+/** This defines a 'wait for file' action. Its use is to wait for a file to appear. */
 @Action(
     id = "WAIT_FOR_FILE",
     name = "i18n::ActionWaitForFile.Name",
     description = "i18n::ActionWaitForFile.Description",
     image = "WaitForFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/waitforfile.html")
+    documentationUrl = "/workflow/actions/waitforfile.html")
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
 

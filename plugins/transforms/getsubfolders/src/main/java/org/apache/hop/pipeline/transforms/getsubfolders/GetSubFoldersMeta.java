@@ -50,18 +50,13 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Samatar
- * @since 18-July-2008
- */
 @Transform(
     id = "GetSubFolders",
     image = "getsubfolders.svg",
     name = "i18n::BaseTransform.TypeLongDesc.GetSubFolders",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetSubFolders",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/getsubfolders.html")
+    documentationUrl = "/pipeline/transforms/getsubfolders.html")
 public class GetSubFoldersMeta extends BaseTransformMeta
     implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator

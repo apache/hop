@@ -48,20 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'evaluate files metrics' action.
- *
- * @author Samatar Hassan
- * @since 26-02-2010
- */
+/** This defines a 'evaluate files metrics' action. */
 @Action(
     id = "EVAL_FILES_METRICS",
     name = "i18n::ActionEvalFilesMetrics.Name",
     description = "i18n::ActionEvalFilesMetrics.Description",
     image = "EvalFilesMetrics.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/evalfilesmetrics.html")
+    documentationUrl = "/workflow/actions/evalfilesmetrics.html")
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
 

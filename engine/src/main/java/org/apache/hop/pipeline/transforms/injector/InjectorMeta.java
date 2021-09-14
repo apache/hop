@@ -42,8 +42,6 @@ import java.util.List;
 /**
  * Metadata class to allow a java program to inject rows of data into a pipeline. This transform can
  * be used as a starting point in such a "headless" pipeline.
- *
- * @since 22-jun-2006
  */
 @Transform(
     id = "Injector",
@@ -52,7 +50,7 @@ import java.util.List;
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Injector",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline",
     keywords = "",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/injector.html")
+    documentationUrl = "/pipeline/transforms/injector.html")
 public class InjectorMeta extends BaseTransformMeta
     implements ITransformMeta<Injector, InjectorData> {
 

@@ -46,7 +46,7 @@ import java.util.List;
     image = "ldapoutput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = {"ldap", "output"},
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/ldapoutput.html")
+    documentationUrl = "/pipeline/transforms/ldapoutput.html")
 public class LdapOutputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
   private static Class<?> PKG = LdapOutputMeta.class; // For Translator

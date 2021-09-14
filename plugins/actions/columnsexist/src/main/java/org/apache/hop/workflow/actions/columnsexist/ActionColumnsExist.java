@@ -55,7 +55,7 @@ import java.util.List;
     description = "i18n::ActionColumnsExist.Description",
     image = "ColumnsExist.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/columnsexist.html")
+    documentationUrl = "/workflow/actions/columnsexist.html")
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
   private String schemaname;

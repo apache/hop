@@ -42,18 +42,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created on 30-06-2008
- *
- * @author Samatar Hassan
- */
 @Transform(
     id = "CheckSum",
     image = "checksum.svg",
     name = "i18n::CheckSum.Name",
     description = "i18n::CheckSum.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/addchecksum.html")
+    documentationUrl = "/pipeline/transforms/addchecksum.html")
 public class CheckSumMeta extends BaseTransformMeta
     implements ITransformMeta<CheckSum, CheckSumData> {
 

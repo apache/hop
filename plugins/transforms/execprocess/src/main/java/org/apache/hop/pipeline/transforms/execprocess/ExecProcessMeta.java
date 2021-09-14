@@ -41,18 +41,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-11-2008
- *
- */
-
 @Transform(
     id = "ExecProcess",
     image = "execprocess.svg",
     name = "i18n::BaseTransform.TypeLongDesc.ExecProcess",
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/execprocess.html")
+    documentationUrl = "/pipeline/transforms/execprocess.html")
 public class ExecProcessMeta extends BaseTransformMeta
     implements ITransformMeta<ExecProcess, ExecProcessData> {
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator

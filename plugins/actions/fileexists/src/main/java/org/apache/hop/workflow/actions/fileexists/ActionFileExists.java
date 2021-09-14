@@ -44,19 +44,14 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This defines an SQL action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an SQL action. */
 @Action(
     id = "FILE_EXISTS",
     name = "i18n::ActionFileExists.Name",
     description = "i18n::ActionFileExists.Description",
     image = "FileExists.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/fileexists.html")
+    documentationUrl = "/workflow/actions/fileexists.html")
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileExists.class; // For Translator
 

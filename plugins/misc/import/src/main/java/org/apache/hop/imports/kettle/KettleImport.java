@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     id = "kettle",
     name = "Kettle Import",
     description = "Imports Kettle/PDI files, metadata and variables",
-    documentationUrl = "https://hop.apache.org/manual/latest/plugins/import/kettle-import.html")
+    documentationUrl = "/plugins/import/kettle-import.html")
 public class KettleImport extends HopImportBase implements IHopImport {
 
   private int kjbCounter;
@@ -548,7 +548,6 @@ public class KettleImport extends HopImportBase implements IHopImport {
         } else if (entryType == EntryType.DUMMY) {
           if (KettleConst.kettleDummyEntryElementsToRemove.containsKey(currentNode.getNodeName())) {
             currentNode.getParentNode().removeChild(currentNode);
-
           }
         }
 

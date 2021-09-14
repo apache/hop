@@ -45,19 +45,14 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This defines a PGP verify action.
- *
- * @author Samatar
- * @since 25-02-2011
- */
+/** This defines a PGP verify action. */
 @Action(
     id = "PGP_VERIFY_FILES",
     name = "i18n::ActionPGPVerify.Name",
     description = "i18n::ActionPGPVerify.Description",
     image = "PGPVerify.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/pgpverify.html")
+    documentationUrl = "/workflow/actions/pgpverify.html")
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
 

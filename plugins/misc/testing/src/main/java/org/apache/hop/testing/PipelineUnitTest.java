@@ -35,19 +35,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * This class describes a test-case where a pipeline output is verified against golden data.
- *
- * @author matt
- */
+/** This class describes a test-case where a pipeline output is verified against golden data. */
 @HopMetadata(
     key = "unit-test",
     name = "Pipeline Unit Test",
     description =
         "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
     image = "Test_tube_icon.svg",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/metadata-types/pipeline-unit-test.html")
+    documentationUrl = "/metadata-types/pipeline-unit-test.html")
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String description;

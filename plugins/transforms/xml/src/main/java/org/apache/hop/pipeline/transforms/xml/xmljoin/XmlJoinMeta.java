@@ -44,18 +44,14 @@ import org.w3c.dom.Node;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * This class knows how to handle the MetaData for the XML join transform
- *
- * @since 30-04-2008
- */
+/** This class knows how to handle the MetaData for the XML join transform */
 @Transform(
     id = "XMLJoin",
     image = "XJN.svg",
     name = "i18n::XmlJoin.name",
     description = "i18n::XmlJoin.description",
     categoryDescription = "i18n::XmlJoin.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xmljoin.html")
+    documentationUrl = "/pipeline/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator

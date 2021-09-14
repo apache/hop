@@ -38,10 +38,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author ngoodman
- * @since 27-jan-2009
- */
 @Transform(
     id = "AnalyticQuery",
     image = "analyticquery.svg",
@@ -49,8 +45,7 @@ import java.util.List;
     description = "i18n::AnalyticQuery.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/analyticquery.html")
+    documentationUrl = "/pipeline/transforms/analyticquery.html")
 public class AnalyticQueryMeta extends BaseTransformMeta
     implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 

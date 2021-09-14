@@ -38,19 +38,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a 'dtdvalidator' job entry.
- *
- * @author Samatar Hassan
- * @since 30-04-2007
- */
+/** This defines a 'dtdvalidator' job entry. */
 @Action(
     id = "DTD_VALIDATOR",
     name = "i18n::DTD_VALIDATOR.Name",
     description = "i18n::DTD_VALIDATOR.Description",
     image = "DTD.svg",
     categoryDescription = "i18n::DTD_VALIDATOR.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/dtdvalidator.html")
+    documentationUrl = "/workflow/actions/dtdvalidator.html")
 public class DtdValidator extends ActionBase implements Cloneable, IAction {
   private String xmlfilename;
   private String dtdfilename;

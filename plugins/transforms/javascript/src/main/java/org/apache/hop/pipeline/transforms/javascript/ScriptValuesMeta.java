@@ -52,17 +52,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-/*
- * Created on 2-jun-2003
- *
- */
 @Transform(
     id = "ScriptValueMod",
     image = "javascript.svg",
     name = "i18n::ScriptValuesMod.Name",
     description = "i18n::ScriptValuesMod.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/javascript.html")
+    documentationUrl = "/pipeline/transforms/javascript.html")
 @InjectionSupported(
     localizationPrefix = "ScriptValuesMod.Injection.",
     groups = {"FIELDS", "SCRIPTS"})

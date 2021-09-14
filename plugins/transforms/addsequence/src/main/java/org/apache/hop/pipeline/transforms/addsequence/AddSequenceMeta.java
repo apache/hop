@@ -41,18 +41,14 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/**
- * Meta data for the Add Sequence transform.
- *
- * <p>Created on 13-may-2003
- */
+/** Meta data for the Add Sequence transform. */
 @Transform(
     id = "Sequence",
     image = "addsequence.svg",
     name = "i18n::BaseTransform.TypeLongDesc.AddSequence",
     description = "i18n::BaseTransform.TypeTooltipDesc.AddSequence",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/addsequence.html",
+    documentationUrl = "/pipeline/transforms/addsequence.html",
     keywords = {"id", "unique"})
 public class AddSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<AddSequence, AddSequenceData> {

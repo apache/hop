@@ -46,10 +46,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
 @InjectionSupported(localizationPrefix = "MergeRows.Injection.")
 @Transform(
     id = "MergeRows",
@@ -57,7 +53,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.MergeRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.MergeRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mergerows.html")
+    documentationUrl = "/pipeline/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta
     implements ITransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class; // For Translator

@@ -43,19 +43,14 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.List;
 
-/**
- * This defines a ping action.
- *
- * @author Samatar Hassan
- * @since Mar-2007
- */
+/** This defines a ping action. */
 @Action(
     id = "PING",
     name = "i18n::ActionPing.Name",
     description = "i18n::ActionPing.Description",
     image = "Ping.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/ping.html")
+    documentationUrl = "/workflow/actions/ping.html")
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class; // For Translator
 

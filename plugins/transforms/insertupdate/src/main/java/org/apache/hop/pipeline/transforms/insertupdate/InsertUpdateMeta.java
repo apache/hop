@@ -48,10 +48,6 @@ import org.w3c.dom.Node;
 import java.util.Arrays;
 import java.util.List;
 
-/*
- * Created on 26-apr-2003
- *
- */
 @InjectionSupported(
     localizationPrefix = "InsertUpdateMeta.Injection.",
     groups = {"KEYS", "UPDATES"})
@@ -61,7 +57,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.InsertUpdate",
     description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/insertupdate.html")
+    documentationUrl = "/pipeline/transforms/insertupdate.html")
 public class InsertUpdateMeta extends BaseTransformMeta
     implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
