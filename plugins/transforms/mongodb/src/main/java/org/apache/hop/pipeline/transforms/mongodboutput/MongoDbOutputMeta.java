@@ -50,8 +50,7 @@ import java.util.List;
     image = "mongodb-output.svg",
     name = "i18n::MongoDbOutput.Name",
     description = "i18n::MongoDbOutput.Description",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/mongodboutput.html",
+    documentationUrl = "/pipeline/transforms/mongodboutput.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(
     localizationPrefix = "MongoDbOutput.Injection.",

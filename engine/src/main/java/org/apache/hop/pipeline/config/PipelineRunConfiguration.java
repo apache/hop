@@ -33,8 +33,7 @@ import java.util.List;
     name = "Pipeline Run Configuration",
     description = "Describes how and with which engine a pipeline is to be executed",
     image = "ui/images/pipeline_run_config.svg",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/metadata-types/pipeline-run-config.html")
+    documentationUrl = "/metadata-types/pipeline-run-config.html")
 public class PipelineRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =

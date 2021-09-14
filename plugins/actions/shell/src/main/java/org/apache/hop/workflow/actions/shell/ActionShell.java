@@ -52,19 +52,14 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Shell type of Workflow Entry. You can define shell scripts to be executed in a Workflow.
- *
- * @author Matt
- * @since 01-10-2003, rewritten on 18-06-2004
- */
+/** Shell type of Workflow Entry. You can define shell scripts to be executed in a Workflow. */
 @Action(
     id = "SHELL",
     name = "i18n::ActionShell.Name",
     description = "i18n::ActionShell.Description",
     image = "shell.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/shell.html")
+    documentationUrl = "/workflow/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionShell.class; // For Translator
 

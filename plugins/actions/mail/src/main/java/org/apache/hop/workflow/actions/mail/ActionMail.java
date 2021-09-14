@@ -63,18 +63,14 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Describes a Mail Workflow Entry.
- *
- * @author Matt Created on 17-06-2003
- */
+/** Describes a Mail Workflow Entry. */
 @Action(
     id = "MAIL",
     name = "i18n::ActionMail.Name",
     description = "i18n::ActionMail.Description",
     image = "Mail.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/mail.html")
+    documentationUrl = "/workflow/actions/mail.html")
 public class ActionMail extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMail.class; // For Translator
 

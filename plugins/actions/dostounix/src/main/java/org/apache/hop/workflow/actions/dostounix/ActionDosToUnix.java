@@ -48,19 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'Dos to Unix' action.
- *
- * @author Samatar Hassan
- * @since 26-03-2008
- */
+/** This defines a 'Dos to Unix' action. */
 @Action(
     id = "DOS_UNIX_CONVERTER",
     name = "i18n::ActionDosToUnix.Name",
     description = "i18n::ActionDosToUnix.Description",
     image = "DosToUnix.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/dostounix.html")
+    documentationUrl = "/workflow/actions/dostounix.html")
 public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;

@@ -37,7 +37,7 @@ import java.util.List;
     description = "Create or delete indexes in a Neo4j database",
     image = "neo4j_index.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/neo4j-index.html")
+    documentationUrl = "/workflow/actions/neo4j-index.html")
 public class Neo4jIndex extends ActionBase implements IAction {
 
   @HopMetadataProperty(key = "connection", storeWithName = true)

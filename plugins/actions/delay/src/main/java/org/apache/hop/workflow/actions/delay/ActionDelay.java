@@ -35,19 +35,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Action type to sleep for a time. It uses a piece of javascript to do this.
- *
- * @author Samatar
- * @since 21-02-2007
- */
+/** Action type to sleep for a time. It uses a piece of javascript to do this. \ */
 @Action(
     id = "DELAY",
     name = "i18n::ActionDelay.Name",
     description = "i18n::ActionDelay.Description",
     image = "Delay.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/delay.html")
+    documentationUrl = "/workflow/actions/delay.html")
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDelay.class; // For Translator
 

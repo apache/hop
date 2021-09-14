@@ -55,8 +55,7 @@ import java.util.Map;
     description = "i18n::BeamBigtableOutput.Description",
     image = "beam-gcp-bigtable-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/beambigtableoutput.html")
+    documentationUrl = "/pipeline/transforms/beambigtableoutput.html")
 public class BeamBigtableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
 

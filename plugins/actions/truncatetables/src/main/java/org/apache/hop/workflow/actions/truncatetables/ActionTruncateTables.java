@@ -45,19 +45,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a Truncate Tables action.
- *
- * @author Samatar
- * @since 22-07-2008
- */
+/** This defines a Truncate Tables action. */
 @Action(
     id = "TRUNCATE_TABLES",
     name = "i18n::ActionTruncateTables.Name",
     description = "i18n::ActionTruncateTables.Description",
     image = "TruncateTables.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/truncatetables.html")
+    documentationUrl = "/workflow/actions/truncatetables.html")
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
 

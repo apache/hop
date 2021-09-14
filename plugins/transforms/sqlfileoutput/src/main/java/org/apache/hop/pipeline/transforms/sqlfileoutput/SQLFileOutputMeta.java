@@ -58,8 +58,7 @@ import java.util.Map;
     name = "i18n::SQLFileOutput.Name",
     description = "i18n::SQLFileOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/sqlfileoutput.html")
+    documentationUrl = "/pipeline/transforms/sqlfileoutput.html")
 public class SQLFileOutputMeta extends BaseTransformMeta
     implements ITransformMeta<SQLFileOutput, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator

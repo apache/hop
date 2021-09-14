@@ -1529,7 +1529,14 @@ public class Const {
    * @return the fully qualified base documentation URL
    */
   public static String getBaseDocUrl() {
-    return BaseMessages.getString(PKG, "Const.BaseDocUrl");
+    String url = BaseMessages.getString(PKG, "Const.BaseDocUrl");
+    String version = Const.class.getPackage().getImplementationVersion();
+
+    if (version == null || version.endsWith("SNAPSHOT")) {
+      version = "latest";
+    }
+
+    return url + version + "/";
   }
 
   /**

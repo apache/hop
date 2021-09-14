@@ -52,7 +52,7 @@ import java.util.List;
         "Reads from or writes to Neo4j using Cypher with parameter data from input fields",
     image = "neo4j_cypher.svg",
     categoryDescription = "Neo4j",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/neo4j-cypher.html")
+    documentationUrl = "/pipeline/transforms/neo4j-cypher.html")
 @InjectionSupported(
     localizationPrefix = "Cypher.Injection.",
     groups = {"PARAMETERS", "RETURNS"})

@@ -29,7 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description =
         "This metadata object type allows you to log activity of a workflow with a pipeline",
     image = "workflow-log.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/workflow-log.html")
+    documentationUrl = "/metadata-types/workflow-log.html")
 public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;

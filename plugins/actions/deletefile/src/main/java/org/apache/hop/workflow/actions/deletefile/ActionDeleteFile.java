@@ -43,9 +43,6 @@ import java.util.List;
 /**
  * This defines a 'delete file' action. Its main use would be to delete trigger files, but it will
  * delete any file.
- *
- * @author Sven Boden
- * @since 10-02-2007
  */
 @Action(
     id = "DELETE_FILE",
@@ -53,7 +50,7 @@ import java.util.List;
     description = "i18n::ActionDeleteFile.Description",
     image = "DeleteFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/deletefile.html")
+    documentationUrl = "/workflow/actions/deletefile.html")
 public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFile.class; // For Translator
 

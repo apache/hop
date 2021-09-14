@@ -50,7 +50,7 @@ import java.util.List;
     name = "i18n::RegexEval.Name",
     description = "i18n::RegexEval.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/regexeval.html")
+    documentationUrl = "/pipeline/transforms/regexeval.html")
 public class RegexEvalMeta extends BaseTransformMeta
     implements ITransformMeta<RegexEval, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator

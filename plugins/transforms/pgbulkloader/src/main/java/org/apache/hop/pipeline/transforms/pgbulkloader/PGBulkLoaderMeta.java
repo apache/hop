@@ -47,8 +47,7 @@ import java.util.List;
     description = "i18n::PGBulkLoader.Description",
     name = "i18n::PGBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/postgresbulkloader.html")
+    documentationUrl = "/pipeline/transforms/postgresbulkloader.html")
 public class PGBulkLoaderMeta extends BaseTransformMeta
     implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
         IProvidesDatabaseConnectionInformation {
@@ -488,7 +487,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
                   variables, realSchemaName, realTableName);
 
           // Check if this table exists...
-          if (db.checkTableExists(realSchemaName,realTableName)) {
+          if (db.checkTableExists(realSchemaName, realTableName)) {
             return db.getTableFields(schemaTable);
           } else {
             throw new HopException(

@@ -42,8 +42,7 @@ import org.w3c.dom.Node;
     image = "Cassandraout.svg",
     name = "Cassandra output",
     description = "Writes to a Cassandra table",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/cassandra-output.html",
+    documentationUrl = "/pipeline/transforms/cassandra-output.html",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraOutput.Injection.")
 public class CassandraOutputMeta extends BaseTransformMeta

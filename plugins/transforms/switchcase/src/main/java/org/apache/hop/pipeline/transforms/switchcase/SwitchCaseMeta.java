@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SwitchCase",
     description = "i18n::BaseTransform.TypeTooltipDesc.SwitchCase",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/switchcase.html")
+    documentationUrl = "/pipeline/transforms/switchcase.html")
 public class SwitchCaseMeta extends BaseTransformMeta
     implements ITransformMeta<SwitchCase, SwitchCaseData> {
   private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator

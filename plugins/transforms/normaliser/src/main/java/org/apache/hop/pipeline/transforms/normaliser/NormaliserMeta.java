@@ -46,11 +46,6 @@ import java.util.List;
 import java.util.Set;
 
 /*
- * Created on 30-okt-2003
- *
- */
-
-/*
 
 DATE      PRODUCT1_NR  PRODUCT1_SL  PRODUCT2_NR PRODUCT2_SL PRODUCT3_NR PRODUCT3_SL
 20030101            5          100           10         250           4         150
@@ -81,8 +76,7 @@ DATE      PRODUCT    Sales   Number
     image = "normaliser.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = {"transform"},
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/rownormaliser.html")
+    documentationUrl = "/pipeline/transforms/rownormaliser.html")
 @InjectionSupported(
     localizationPrefix = "NormaliserMeta.Injection.",
     groups = {"FIELDS"})

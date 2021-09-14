@@ -57,20 +57,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Meta-data for the Workflow executor transform.
- *
- * @author Matt
- * @since 29-AUG-2011
- */
+/** Meta-data for the Workflow executor transform. */
 @Transform(
     id = "WorkflowExecutor",
     image = "ui/images/workflowexecutor.svg",
     name = "i18n::WorkflowExecutor.Name",
     description = "i18n::WorkflowExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/workflowexecutor.html",
+    documentationUrl = "/pipeline/transforms/workflowexecutor.html",
     keywords = "")
 public class WorkflowExecutorMeta extends BaseTransformMeta
     implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {

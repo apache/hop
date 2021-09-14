@@ -36,19 +36,14 @@ import org.w3c.dom.Node;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * This defines a Files exist action.
- *
- * @author Samatar
- * @since 10-12-2007
- */
+/** This defines a Files exist action. */
 @Action(
     id = "FILES_EXIST",
     name = "i18n::ActionFilesExist.Name",
     description = "i18n::ActionFilesExist.Description",
     image = "FilesExist.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/filesexist.html")
+    documentationUrl = "/workflow/actions/filesexist.html")
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFilesExist.class; // For Translator
 

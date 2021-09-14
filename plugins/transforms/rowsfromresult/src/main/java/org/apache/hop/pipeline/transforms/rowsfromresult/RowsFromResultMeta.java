@@ -41,19 +41,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
-
 @Transform(
     id = "RowsFromResult",
     image = "rowsfromresult.svg",
     name = "i18n::BaseTransform.TypeLongDesc.RowsFromResult",
     description = "i18n::BaseTransform.TypeTooltipDesc.RowsFromResult",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/getrowsfromresult.html")
+    documentationUrl = "/pipeline/transforms/getrowsfromresult.html")
 public class RowsFromResultMeta extends BaseTransformMeta
     implements ITransformMeta<RowsFromResult, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class; // For Translator

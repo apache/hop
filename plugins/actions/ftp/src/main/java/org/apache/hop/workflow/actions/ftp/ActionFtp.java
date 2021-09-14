@@ -59,19 +59,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines an FTP action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an FTP action. */
 @Action(
     id = "FTP",
     name = "i18n::ActionFTP.Name",
     description = "i18n::ActionFTP.Description",
     image = "FTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/ftp.html")
+    documentationUrl = "/workflow/actions/ftp.html")
 public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtp.class; // For Translator
 

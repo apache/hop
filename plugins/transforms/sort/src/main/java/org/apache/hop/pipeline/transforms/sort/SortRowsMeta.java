@@ -48,9 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/*
- * Created on 02-jun-2003
- */
 @InjectionSupported(
     localizationPrefix = "SortRows.Injection.",
     groups = {"FIELDS"})
@@ -60,7 +57,7 @@ import java.util.Locale;
     name = "i18n::BaseTransform.TypeLongDesc.SortRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.SortRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/sort.html")
+    documentationUrl = "/pipeline/transforms/sort.html")
 public class SortRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SortRows, SortRowsData>, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;

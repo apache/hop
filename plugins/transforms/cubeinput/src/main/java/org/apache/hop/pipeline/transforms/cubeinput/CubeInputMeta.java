@@ -49,17 +49,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-/*
- * Created on 2-jun-2003
- *
- */
 @Transform(
     id = "CubeInput",
     image = "cubeinput.svg",
     name = "i18n::CubeInput.Name",
     description = "i18n::CubeInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/cubeinput.html")
+    documentationUrl = "/pipeline/transforms/cubeinput.html")
 public class CubeInputMeta extends BaseTransformMeta
     implements ITransformMeta<CubeInput, CubeInputData> {
 

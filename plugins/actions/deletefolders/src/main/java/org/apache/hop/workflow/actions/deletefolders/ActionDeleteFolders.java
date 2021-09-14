@@ -49,19 +49,14 @@ import org.w3c.dom.Node;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * This defines a 'delete folders' action.
- *
- * @author Samatar Hassan
- * @since 13-05-2008
- */
+/** This defines a 'delete folders' action. */
 @Action(
     id = "DELETE_FOLDERS",
     name = "i18n::ActionDeleteFolders.Name",
     description = "i18n::ActionDeleteFolders.Description",
     image = "DeleteFolders.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/deletefolders.html")
+    documentationUrl = "/workflow/actions/deletefolders.html")
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
 

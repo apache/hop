@@ -53,8 +53,7 @@ import java.util.List;
     image = "monetdbbulkloader.svg",
     name = "i18n::MonetDBBulkLoaderDialog.TypeLongDesc.MonetDBBulkLoader",
     description = "i18n::MonetDBBulkLoaderDialog.TypeTooltipDesc.MonetDBBulkLoader",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/monetdbbulkloader.html",
+    documentationUrl = "/pipeline/transforms/monetdbbulkloader.html",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
 public class MonetDbBulkLoaderMeta extends BaseTransformMeta
@@ -730,7 +729,7 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
                   variables, realSchemaName, realTableName);
 
           // Check if this table exists...
-          if (db.checkTableExists(realSchemaName,realTableName)) {
+          if (db.checkTableExists(realSchemaName, realTableName)) {
             return db.getTableFields(schemaTable);
           } else {
             throw new HopException(

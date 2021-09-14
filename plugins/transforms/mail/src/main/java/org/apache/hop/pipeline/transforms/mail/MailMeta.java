@@ -40,19 +40,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Send mail transform. based on Mail action
- *
- * @author Samatar
- * @since 28-07-2008
- */
+/** Send mail transform. based on Mail action */
 @Transform(
     id = "Mail",
     image = "mail.svg",
     name = "i18n::BaseTransform.TypeLongDesc.Mail",
     description = "i18n::BaseTransform.TypeTooltipDesc.Mail",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/mail.html")
+    documentationUrl = "/pipeline/transforms/mail.html")
 public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
   private static final Class<?> PKG = MailMeta.class; // For Translator
 

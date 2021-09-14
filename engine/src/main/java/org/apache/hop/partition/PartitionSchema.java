@@ -30,15 +30,13 @@ import java.util.List;
 /**
  * A partition schema allow you to partition a transform according into a number of partitions that
  * run independendly. It allows us to "map"
- *
- * @author Matt
  */
 @HopMetadata(
     key = "partition",
     name = "Partition Schema",
     description = "Describes a partition schema",
     image = "ui/images/partition_schema.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/partition-schema.html")
+    documentationUrl = "/metadata-types/partition-schema.html")
 public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private List<String> partitionIDs;

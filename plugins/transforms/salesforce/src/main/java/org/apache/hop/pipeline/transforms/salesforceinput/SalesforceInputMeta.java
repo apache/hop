@@ -53,8 +53,7 @@ import java.util.List;
     description = "i18n::SalesforceInput.TypeTooltipDesc.SalesforceInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     image = "SFI.svg",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/salesforceinput.html")
+    documentationUrl = "/pipeline/transforms/salesforceinput.html")
 @InjectionSupported(
     localizationPrefix = "SalesforceInputMeta.Injection.",
     groups = {"FIELDS"})

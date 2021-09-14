@@ -45,8 +45,7 @@ import java.util.Objects;
     description = "i18n::BaseTransform.TypeTooltipDesc.ReservoirSampling",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/reservoirsampling.html")
+    documentationUrl = "/pipeline/transforms/reservoirsampling.html")
 public class ReservoirSamplingMeta extends BaseTransformMeta
     implements ITransformMeta<ReservoirSampling, ReservoirSamplingData> {
 

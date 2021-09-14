@@ -47,17 +47,13 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Created on 14-08-2007
- *
- */
 @Transform(
     id = "XSDValidator",
     image = "XOU.svg",
     name = "i18n::XSDValidator.name",
     description = "i18n::XSDValidator.description",
     categoryDescription = "i18n::XSDValidator.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/xsdvalidator.html")
+    documentationUrl = "/pipeline/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<XsdValidator, XsdValidatorData> {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator

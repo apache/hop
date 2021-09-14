@@ -48,19 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'move files' action.
- *
- * @author Samatar Hassan
- * @since 25-02-2008
- */
+/** This defines a 'move files' action. */
 @Action(
     id = "MOVE_FILES",
     name = "i18n::ActionMoveFiles.Name",
     description = "i18n::ActionMoveFiles.Description",
     image = "MoveFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/movefiles.html")
+    documentationUrl = "/workflow/actions/movefiles.html")
 public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMoveFiles.class; // For Translator
 

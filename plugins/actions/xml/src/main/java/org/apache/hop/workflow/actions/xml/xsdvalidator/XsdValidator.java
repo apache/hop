@@ -51,19 +51,14 @@ import static org.apache.hop.workflow.action.validator.AbstractFileValidator.put
 import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
-/**
- * This defines a 'xsdvalidator' job entry.
- *
- * @author Samatar Hassan
- * @since 30-04-2007
- */
+/** This defines a 'xsdvalidator' job entry. */
 @Action(
     id = "XSD_VALIDATOR",
     name = "i18n::XSD_VALIDATOR.Name",
     description = "i18n::XSD_VALIDATOR.Description",
     image = "org/apache/hop/workflow/actions/xml/XSD.svg",
     categoryDescription = "i18n::XSD_VALIDATOR.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/xsdvalidator.html")
+    documentationUrl = "/workflow/actions/xsdvalidator.html")
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = XsdValidator.class; // For Translator
 

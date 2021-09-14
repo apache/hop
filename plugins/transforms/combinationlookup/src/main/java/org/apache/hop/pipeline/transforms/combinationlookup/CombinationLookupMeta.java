@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Objects;
 
 /*
- * Created on 14-may-2003
  *
  * TODO: In the distant future the useAutoIncrement flag should be removed since its
  *       functionality is now taken over by techKeyCreation (which is cleaner).
@@ -64,8 +63,7 @@ import java.util.Objects;
     description = "i18n::CombinationLookup.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/combinationlookup.html")
+    documentationUrl = "/pipeline/transforms/combinationlookup.html")
 @InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
 public class CombinationLookupMeta extends BaseTransformMeta
     implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
@@ -716,7 +714,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
               vLastUpdateField = new ValueMetaDate(lastUpdateField);
             }
 
-            if (!db.checkTableExists(variables.resolve(schemaName),variables.resolve(tableName))) {
+            if (!db.checkTableExists(variables.resolve(schemaName), variables.resolve(tableName))) {
               // Add technical key field.
               fields.addValueMeta(vkeyfield);
 

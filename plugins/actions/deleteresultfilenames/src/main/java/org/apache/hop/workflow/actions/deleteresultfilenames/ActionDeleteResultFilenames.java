@@ -45,9 +45,6 @@ import java.util.regex.Pattern;
 /**
  * This defines a 'deleteresultfilenames' action. Its main use would be to create empty folder that
  * can be used to control the flow in ETL cycles.
- *
- * @author Samatar
- * @since 26-10-2007
  */
 @Action(
     id = "DELETE_RESULT_FILENAMES",
@@ -55,8 +52,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionDeleteResultFilenames.Description",
     image = "DeleteResultFilenames.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/deleteresultfilenames.html")
+    documentationUrl = "/workflow/actions/deleteresultfilenames.html")
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteResultFilenames.class; // For Translator
 

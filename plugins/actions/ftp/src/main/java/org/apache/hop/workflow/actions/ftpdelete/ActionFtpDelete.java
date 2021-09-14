@@ -50,19 +50,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines an FTP action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an FTP action. */
 @Action(
     id = "FTP_DELETE",
     name = "i18n::ActionFTPDelete.Name",
     description = "i18n::ActionFTPDelete.Description",
     image = "FTPDelete.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/ftpdelete.html")
+    documentationUrl = "/workflow/actions/ftpdelete.html")
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
 

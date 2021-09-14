@@ -56,9 +56,6 @@ import java.util.*;
  * Recursive definition of a Workflow. This transform means that an entire Workflow has to be
  * executed. It can be the same Workflow, but just make sure that you don't get an endless loop.
  * Provide an escape routine using Eval.
- *
- * @author Matt
- * @since 01-10-2003, Rewritten on 18-06-2004
  */
 @Action(
     id = "WORKFLOW",
@@ -66,7 +63,7 @@ import java.util.*;
     name = "i18n::ActionWorkflow.Name",
     description = "i18n::ActionWorkflow.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/workflow.html")
+    documentationUrl = "/workflow/actions/workflow.html")
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 

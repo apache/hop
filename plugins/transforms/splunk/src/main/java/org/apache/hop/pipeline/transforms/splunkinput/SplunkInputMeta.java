@@ -49,7 +49,7 @@ import java.util.List;
     description = "Read data from Splunk",
     image = "splunk.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/splunkinput.html")
+    documentationUrl = "/pipeline/transforms/splunkinput.html")
 @InjectionSupported(
     localizationPrefix = "Splunk.Injection.",
     groups = {"PARAMETERS", "RETURNS"})

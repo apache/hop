@@ -53,19 +53,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * This defines an get pop action.
- *
- * @author Samatar
- * @since 01-03-2007
- */
+/** This defines an get pop action. */
 @Action(
     id = "GET_POP",
     name = "i18n::ActionGetPOP.Name",
     description = "i18n::ActionGetPOP.Description",
     image = "GetPOP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/getpop.html")
+    documentationUrl = "/workflow/actions/getpop.html")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 

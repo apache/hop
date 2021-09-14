@@ -48,19 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'xml well formed' workflow action.
- *
- * @author Samatar Hassan
- * @since 26-03-2008
- */
+/** This defines a 'xml well formed' workflow action. */
 @Action(
     id = "XML_WELL_FORMED",
     name = "i18n::XML_WELL_FORMED.Name",
     description = "i18n::XML_WELL_FORMED.Description",
     image = "XFC.svg",
     categoryDescription = "i18n::XML_WELL_FORMED.Category",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/xmlwellformed.html")
+    documentationUrl = "/workflow/actions/xmlwellformed.html")
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = XmlWellFormed.class; // For Translator
 

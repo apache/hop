@@ -51,9 +51,6 @@ import java.util.regex.Pattern;
 /**
  * This defines a 'copymoveresultfilenames' action. Its main use would be to copy or move files in
  * the result filenames to a destination folder. that can be used to control the flow in ETL cycles.
- *
- * @author Samatar
- * @since 25-02-2008
  */
 @Action(
     id = "COPY_MOVE_RESULT_FILENAMES",
@@ -61,8 +58,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionCopyMoveResultFilenames.Description",
     image = "CopyMoveResultFilenames.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/workflow/actions/copymoveresultfilenames.html")
+    documentationUrl = "/workflow/actions/copymoveresultfilenames.html")
 public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
 

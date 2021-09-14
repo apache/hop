@@ -41,19 +41,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a table exists action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines a table exists action. */
 @Action(
     id = "TABLE_EXISTS",
     name = "i18n::ActionTableExists.Name",
     description = "i18n::ActionTableExists.Description",
     image = "TableExists.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/tableexists.html")
+    documentationUrl = "/workflow/actions/tableexists.html")
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator
 

@@ -35,19 +35,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Action type to display a message box.
- *
- * @author Samatar
- * @since 12-02-2007
- */
+/** Action type to display a message box. */
 @Action(
     id = "MSGBOX_INFO",
     name = "i18n::ActionMsgBoxInfo.Name",
     description = "i18n::ActionMsgBoxInfo.Description",
     image = "MsgBoxInfo.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/msgboxinfo.html")
+    documentationUrl = "/workflow/actions/msgboxinfo.html")
 public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
   private String bodymessage;
   private String titremessage;

@@ -48,19 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'unzip' action. Its main use would be to unzip files in a directory
- *
- * @author Samatar Hassan
- * @since 25-09-2007
- */
+/** This defines a 'unzip' action. Its main use would be to unzip files in a directory */
 @Action(
     id = "UNZIP",
     name = "i18n::ActionUnZip.Name",
     description = "i18n::ActionUnZip.Description",
     image = "UnZip.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/unzip.html")
+    documentationUrl = "/workflow/actions/unzip.html")
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class; // For Translator
 

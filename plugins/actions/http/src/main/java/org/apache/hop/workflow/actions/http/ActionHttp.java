@@ -45,19 +45,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * This defines an HTTP action.
- *
- * @author Matt
- * @since 05-11-2003
- */
+/** This defines an HTTP action. */
 @Action(
     id = "HTTP",
     name = "i18n::ActionHTTP.Name",
     description = "i18n::ActionHTTP.Description",
     image = "HTTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/http.html")
+    documentationUrl = "/workflow/actions/http.html")
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionHttp.class; // For Translator
 

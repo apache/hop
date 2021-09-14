@@ -46,19 +46,14 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This defines a Wait for SQL data action
- *
- * @author Samatar
- * @since 22-07-2008
- */
+/** This defines a Wait for SQL data action */
 @Action(
     id = "WAIT_FOR_SQL",
     name = "i18n::ActionWaitForSQL.Name",
     description = "i18n::ActionWaitForSQL.Description",
     image = "WaitForSQL.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-    documentationUrl = "https://hop.apache.org/manual/latest/workflow/actions/waitforsql.html")
+    documentationUrl = "/workflow/actions/waitforsql.html")
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
 

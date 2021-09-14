@@ -44,18 +44,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This class knows how to handle the MetaData for the XML output transform
- *
- * @since 14-jan-2006
- */
+/** This class knows how to handle the MetaData for the XML output transform */
 @Transform(
     id = "AddXML",
     image = "add_xml.svg",
     name = "i18n::AddXML.name",
     description = "i18n::AddXML.description",
     categoryDescription = "i18n::AddXML.category",
-    documentationUrl = "https://hop.apache.org/manual/latest/pipeline/transforms/addxml.html")
+    documentationUrl = "/pipeline/transforms/addxml.html")
 @InjectionSupported(
     localizationPrefix = "AddXMLMeta.Injection.",
     groups = {"OUTPUT_FIELDS"})
