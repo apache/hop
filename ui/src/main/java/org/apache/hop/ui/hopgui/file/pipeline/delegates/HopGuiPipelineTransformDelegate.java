@@ -142,7 +142,6 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public String editTransform(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
-    boolean refresh = false;
     String transformName = null;
     try {
       String name = transformMeta.getName();
@@ -201,10 +200,6 @@ public class HopGuiPipelineTransformDelegate {
           mb.open();
         }
 
-        if (!transformName.equals(name)) {
-          refresh = true;
-        }
-
         TransformMeta newTransformMeta = (TransformMeta) transformMeta.clone();
         newTransformMeta.setName(transformName);
         pipelineMeta.clearCaches();
@@ -223,7 +218,7 @@ public class HopGuiPipelineTransformDelegate {
             new TransformMeta[] {after},
             new int[] {pipelineMeta.indexOfTransform(transformMeta)});
       }
-      pipelineGraph.redraw(); // name is displayed on the graph too.
+      pipelineGraph.updateGui();
 
       // TODO: verify "double pathway" transforms for bug #4365
       // After the transform was edited we can complain about the possible
