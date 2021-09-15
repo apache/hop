@@ -100,7 +100,7 @@ public class KafkaConsumerInput
       String realFilename = resolve(meta.getFilename());
       PipelineMeta subTransMeta = new PipelineMeta(realFilename, metadataProvider, true, this);
       subTransMeta.setMetadataProvider(metadataProvider);
-      subTransMeta.setFilename(meta.getFilename());
+      subTransMeta.setFilename(realFilename);
       subTransMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       logDetailed("Loaded sub-pipeline '" + realFilename + "'");
 
