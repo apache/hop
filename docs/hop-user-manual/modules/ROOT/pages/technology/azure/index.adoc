@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /technology/azure/
 :language: en_US
+:description: Hop supports Azure in Apache VFS (Blob Storage) and Azure Event Hubs listeners and writers.
 
 = Azure
 
@@ -35,4 +36,4 @@ Hop supports Azure through a number of metadata types:
 
 Apache xref:vfs.adoc[VFS Support] in Hop allows you to directly read from a multitude of file systems and protocols, including Azure:
 
-* xref:vfs/azure-blob-storage-vfs.adoc[Azure Blog Storage]: read from and write data directly in Azure Blob Storage
+* xref:vfs/azure-blob-storage-vfs.adoc[Azure Blob Storage]: read from and write data directly in Azure Blob Storage

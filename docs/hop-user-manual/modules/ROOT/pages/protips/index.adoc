@@ -16,6 +16,7 @@ under the License.
 ////
 [[ProTips]]
 :imagesdir: ../assets/images
+:description: Hop is a large platform with a lot of options. These pro tips consist of useful variables, keyboard shortcuts and mouse actions etc
 
 = Pro Tips
 

@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Hop initially (late 2019) started as a fork of the Kettle (Pentaho Data Integration). Hop and Kettle/PDI are independent projects, each with their own roadmap and priorities. Given these different roadmaps, architectural vision and development track, Hop and Kettle/PDI are incompatible.
+
 [[HopAndKettle]]
 :imagesdir: ../assets/images
 :page-pagination:

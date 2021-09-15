@@ -16,8 +16,11 @@ under the License.
 ////
 [[Workflows]]
 :imagesdir: ../assets/images
+:description: Workflows are one of the core building blocks in Apache Hop. Where pipelines do the heavy data lifting, workflows take care of the orchestration work: prepare the environment, fetch remote files, perform error handling and executing child workflows and pipelines.
 
 = Workflows
+
+Workflows are one of the core building blocks in Apache Hop. Where pipelines do the heavy data lifting, workflows take care of the orchestration work: prepare the environment, fetch remote files, perform error handling and executing child workflows and pipelines.
 
 ** xref:workflow/create-workflow.adoc[Create a Workflow]
 ** xref:workflow/run-debug-workflow.adoc[Run and Debug a Workflow]

@@ -16,6 +16,7 @@ under the License.
 ////
 [[VFS]]
 :imagesdir: ../assets/images
+:description: Apache VFS, part of the Apache Commons project, allows Hop data developers to access a large variety of file and data formats over a convenient url syntax.
 
 = Virtual File Systems
 

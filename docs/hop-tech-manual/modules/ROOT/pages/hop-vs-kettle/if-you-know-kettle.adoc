@@ -17,16 +17,17 @@ under the License.
 [[IfYouKnowKettle]]
 :imagesdir: ../assets/images
 :page-pagination:
+:description: Hop wants to allow data engineers to be able to deliver high quality work, deliver that work fast and integrated with bleeding edge technology.
 
 = If You Know Kettle (Pentaho Data Integration)
 
 == Why Hop?
 
-With Hop, we want to allow data engineers to be able to deliver high quality work, deliver that work fast and integrated with bleeding edge technology.
+Hop wants to allow data engineers to be able to deliver high quality work, deliver that work fast and integrated with bleeding edge technology.
 
-We want Hop to be completely open source, and are eager to hear your feedback on our https://chat.project-hop.org[chat] and just as eager to see your bug tickets and feature request in https://jira.project-hop.org[our JIRA].
+We want Hop to be completely open source, and are eager to hear your feedback on our https://chat.project-hop.org[chat] and just as eager to see your bug tickets and feature request in https://issues.apache.org/jira/projects/HOP/issues[JIRA].
 
-As an open source first project, we'll start the https://www.apache.org/[Apache Software Foundation] https://incubator.apache.org/[incubation] process soon, and aim to become and ASF https://projects.apache.org/[top level project] as soon as possible.
+As an open source first project, we started the https://www.apache.org/[Apache Software Foundation] https://incubator.apache.org/[incubation] process in September 2020 and aim to become and ASF https://projects.apache.org/[top level project] as soon as possible.
 
 Check our https://hop.apache.org/docs/qa/[Q&A] for more information on why Hop was created and what the project is all about.
 

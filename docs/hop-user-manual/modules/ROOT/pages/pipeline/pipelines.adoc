@@ -16,8 +16,13 @@ under the License.
 ////
 [[Pipelines]]
 :imagesdir: ../assets/images
+:description: Pipelines, together with workflows, are the main building blocks in Hop. Pipelines perform the heavy data lifting: in a pipeline, you read data from one or more sources, perform a number of operations (joins, lookups, filters and lots more) and finally write the processed data to one or more target platforms.
 
 = Pipelines
+
+Pipelines, together with workflows, are the main building blocks in Hop. Pipelines perform the heavy data lifting: in a pipeline, you read data from one or more sources, perform a number of operations (joins, lookups, filters and lots more) and finally write the processed data to one or more target platforms.
+
+Pipelines are an extensive topic. Check the pages below to learn more about working with pipelines:
 
 * xref:pipeline/hop-pipeline-editor.adoc[Pipeline Editor]
 * xref:pipeline/create-pipeline.adoc[Create a Pipeline]

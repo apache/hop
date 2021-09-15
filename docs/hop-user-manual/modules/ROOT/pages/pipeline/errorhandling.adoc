@@ -16,6 +16,7 @@ under the License.
 ////
 [[PipelineErrorHandling]]
 :imagesdir: ../assets/images
+:description: When a major failure occurs in one of the transforms, the pipeline is notified and halts all active operations. This is fine in most cases, pipeline failures are typically handled in the parent workflow. In some cases however, there are errors you'll want to handle gracefully without halting the entire pipeline.
 
 = Pipeline Error Handling
 

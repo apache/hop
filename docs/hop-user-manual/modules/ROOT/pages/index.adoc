@@ -16,6 +16,7 @@ under the License.
 ////
 [[Index]]
 :imagesdir: ../assets/images
+:description: As a relatively young platform, Hop covers a area of functionalities that is both wide and deep. This page provides an overview of topic that may be of interest to you.
 
 = Hop User Manual
 

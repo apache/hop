@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /technology/google/
 :language: en_US
+:description: The Google platform is supported in Hop through a number of (Beam) transforms and Apache VFS support for Google Drive and Google Cloud Storage. Additionally, a number of external transform plugins are available.
 
 = Google Technology
 
@@ -25,6 +26,15 @@ The Google technology stack is supported in Hop through a number of plugins.
 We briefly touch upon them below.
 
 == Pipeline Transforms
+
+* xref:pipeline/transforms/beambigqueryinput.adoc[BigQuery Input (Beam)]
+* xref:pipeline/transforms/beambigqueryoutput.adoc[BigQuery Output (Beam)]
+* xref:pipeline/transforms/beambigtableinput.adoc[Bigtable Input (Beam)]
+* xref:pipeline/transforms/beambigtableinput.adoc[Bigtable Output (Beam)]
+* xref:pipeline/transforms/beamgcppublisher.adoc[GCP Pub/Sub Publisher (Beam)]
+* xref:pipeline/transforms/beamgcpsubscriber.adoc[GCP Pub/Sub Subscriber (Beam)]
+
+Check the xref:plugins/external-plugins.adoc[external plugins] for more information on a number of additional Google plugins that can't be or won't be included with Apache Hop (Google Sheets Input and Output, Google Analytics)
 
 == VFS
 

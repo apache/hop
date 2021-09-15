@@ -14,10 +14,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Actions are used the objects that are executed in a workflow. They are logical operators that do not manipulate your data but create actions that have to be performed around your pipelines.
+
 [[actions-plugins]]
 = Action Plugins
 
-Actions are used to create a workflow, they are logical operators that do not manipulate your data but create actions that have to be performed around your pipelines.
+Actions are used the objects that are executed in a workflow. They are logical operators that do not manipulate your data but create actions that have to be performed around your pipelines.
+
+Actions in a workflow typically do not process your data, nor do they pass on data to the next action. When an action finishes running, it returns a true or false error code that can be used to drive the workflows behavior through true/false or unconditional (ignore exit code) workflows hops.
 
 // tag::website-links[]
 

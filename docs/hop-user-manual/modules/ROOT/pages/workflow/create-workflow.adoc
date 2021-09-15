@@ -16,10 +16,11 @@ under the License.
 ////
 [[CreateWorkflow]]
 :imagesdir: ../assets/images
+:description: Workflows are process that orchestrate a variety of actions defined between a start and an end point.
 
 = Create a Workflow
 
-Workflows are process that orchestrate a variety of actions defined between a starting and endpoint.
+Workflows are processes that orchestrate a variety of actions defined between a start and an end point.
 These actions can be, but are not limited to:
 
 * Executing other workflows
@@ -28,7 +29,7 @@ These actions can be, but are not limited to:
 * Error messaging handling
 * Notification handling
 
-A simple workflow is displayed below, the flow will check if a folder is empty, if not a pipeline is executed.
+A simple workflow is displayed below. This workflow will check if a folder is empty, if not a pipeline is executed.
 
 image::hop-gui/workflow/simple-workflow.png[Hop-Simple Workflow,75%,align="left"]
 

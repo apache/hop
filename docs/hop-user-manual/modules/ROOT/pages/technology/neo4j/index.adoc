@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /technology/neo4j/
 :language: en_US
+:description: Apache Hop has extensive support for the Neo4j graph database through a dedicated connection metadata type, a graph model type and tens of transforms and actions. Additionally, Hop logging data can be written to a Neo4j database and can be consulted directly from the Neo4j logging perspective in Hop Gui.
 
 = Neo4j
 

@@ -16,11 +16,13 @@ under the License.
 ////
 [[LocalWorkflowEngine]]
 :imagesdir: ../assets/images
+:description: The local run configuration runs workflows on your local environment.
+
 = Local Workflow Engine
 
 == Hop local workflow engine
 
-The local run configuration runs workflows locally.
+The local run configuration runs workflows on your local environment.
 
 === Options
 
