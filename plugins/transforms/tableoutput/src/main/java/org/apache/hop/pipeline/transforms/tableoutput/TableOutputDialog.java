@@ -140,6 +140,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(shell);
     setShellImage(shell, input);
 
+    ModifyListener lsMod = e -> input.setChanged();
+
     ModifyListener lsTableMod =
         arg0 -> {
           input.setChanged();
@@ -685,7 +687,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciFields,
             upInsRows,
-            null,
+            lsMod,
             props);
 
     wGetFields = new Button(wFieldsComp, SWT.PUSH);
