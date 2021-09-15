@@ -14,9 +14,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Hop Import is a command line tool for importing and convert third party metadata to an Apache Hop format.
+
 = Hop Import
 
-Hop Import is a command line tool for importing and convert third party metadata to an Apache Hop format.
+Hop Import is a command line tool to import and convert third party metadata to an Apache Hop format.
+
 See also these plugins:
 
 * xref:plugins/import/kettle-import.adoc[Kettle Import]

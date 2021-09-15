@@ -16,6 +16,7 @@ under the License.
 ////
 [[database-plugins]]
 :imagesdir: ../../assets/images
+:description: Hop supports tens of databases out of the box. If your preferred database has no specific support, you can probably still connect through a generic database connection.
 = Database Plugins
 
 Creating a database connection in HOP is done using one of the many database types available, or you can create a generic connection.

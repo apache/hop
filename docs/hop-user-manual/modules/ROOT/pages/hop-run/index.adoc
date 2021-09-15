@@ -16,7 +16,7 @@ under the License.
 ////
 [[HopRun]]
 :imagesdir: ../assets/images
-
+:description: Hop Run is a command line tool to run your workflows and pipelines. Hop Run can be launched through the script with the corresponding name in your Hop installation directory, either `hop-run.sh` on Mac and Linux or `hop-run.bat` on Windows. Except for the laucher script, all options are platform agnostic; there is no difference in the way hop-run works on any operating system.
 = Hop Run
 
 Hop Run is a command line tool to run your workflows and pipelines.

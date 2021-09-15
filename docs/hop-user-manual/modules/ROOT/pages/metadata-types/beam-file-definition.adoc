@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: A Beam File Definition describes a file layout in a Beam pipeline. The Beam File Definition specifies the file layout (name, field definitions, enclosure and separator) to be used in Beam Pipelines.
 
 = Beam File Definition
 
@@ -23,9 +24,7 @@ under the License.
 
 image:icons/folder.svg[]
 
-Describes a file layout in a Beam pipeline
-
-The Beam File Definition specifies the file layout (name, field definitions, enclosure and separator) to be used in Beam Pipelines.
+A Beam File Definition describes a file layout in a Beam pipeline and specifies the file layout (name, field definitions, enclosure and separator) to be used in Beam Pipelines.
 
 == Related Plugins
 

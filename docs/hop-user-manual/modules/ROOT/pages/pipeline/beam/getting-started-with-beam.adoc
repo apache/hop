@@ -16,6 +16,8 @@ under the License.
 ////
 [[GettingStartedWithBeam]]
 :imagesdir: ../assets/images
+:description: Apache Beam is an advanced unified programming model that allows you to implement batch and streaming data processing jobs that run on any execution engine. Popular execution engines are for example Apache Spark, Apache Flink and Google Cloud Platform Dataflow. Apache Hop has run configurations to execute pipelines on all three of these engines over Apache Beam.
+
 
 = Getting started with Apache Beam
 

@@ -17,7 +17,7 @@ under the License.
 [[HopGui]]
 :imagesdir: ../../assets/images/
 :page-pagination:
-:description: "Getting Started (5/8): Hop Gui is Hop's visual development environment where you design, run and debug your workflows and pipelines. In this step, we'll take a quick tour of the user interface and describe some of the functionalities in Hop GUI."
+:description: Getting Started (5/8): Hop Gui is Hop's visual development environment where you design, run and debug your workflows and pipelines. In this step, we'll take a quick tour of the user interface and describe some of the functionalities in Hop GUI.
 
 = Hop Gui
 

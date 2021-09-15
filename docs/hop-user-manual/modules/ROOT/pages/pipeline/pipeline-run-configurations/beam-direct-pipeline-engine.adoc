@@ -16,6 +16,8 @@ under the License.
 ////
 [[BeamDirectPipelineEngine]]
 :imagesdir: ../assets/images
+:description: The Direct runner can be used for local testing and development of Hop pipelines on Apache Beam. The Direct Runner executes pipelines on your machine and is designed to validate that pipelines adhere to the Apache Beam model as closely as possible.
+
 = Apache Beam Direct Pipeline Engine
 
 == Beam Direct

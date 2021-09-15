@@ -16,6 +16,7 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
+:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additonally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
 
 = Hop Server
 

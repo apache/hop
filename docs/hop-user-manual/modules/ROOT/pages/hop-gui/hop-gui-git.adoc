@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../../assets/images
-:description: "Managing your work in version control is crucial in serious Hop projects. Hop's file explorer perspective offers the basic functionality to manage your work in git: pull, push, visual diff, commit etc are all available from a user friendly ui."
+:description: Managing your work in version control is crucial in serious Hop projects. Hop's file explorer perspective offers the basic functionality to manage your work in git: pull, push, visual diff, commit etc are all available from a user friendly ui.
 
 = Working with git
 

@@ -14,12 +14,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Hop Search is a command line tool which allows you to search in your projects. It's particularly useful if you're working on a remote server over a ssh connection and you need to find a certain value, setting, transform, action and so on.
 [[HopSearch]]
 = Hop Search
 
 == Description
 
-Hop Run is a command line tool which allows you to search in your projects.
+Hop Search is a command line tool which allows you to search in your projects.
 It's particularly useful if you're working on a remote server over a ssh connection and you need to find a certain value, setting, transform, action and so on.
 
 The search will match names, keys, values, descriptions and so on.

@@ -20,6 +20,7 @@ under the License.
 :page-pagination-no-next:
 :openvar: ${
 :closevar: }
+:description: The 2 main things that define a project are its name and its home folder. Projects and environments as such are defined in the central Hop configuration file hop-config.json. By default this file lives in the config/ folder of your Hop client distribution. You can change that folder by setting the HOP_CONFIG_FOLDER environment variable on your system.
 
 
 = Advanced project and environment management

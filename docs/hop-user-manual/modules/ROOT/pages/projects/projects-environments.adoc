@@ -20,6 +20,7 @@ under the License.
 :page-pagination:
 :openvar: ${
 :closevar: }
+:description: Projects and environments are essential in keeping your work tidy and organized. Learn how to create and manage projects and environments.
 
 = Projects and Environments
 
@@ -104,13 +105,13 @@ Clicking this button will re-open the project dialogue where changes can be made
 
 To delete a project click the *Delete the selected project* button.
 
-image:hop-gui/environment/environment-edit.svg[Delete the selected project]
+image:hop-gui/environment/project-delete.svg[Delete the selected project]
 
 == Editing and deleting environments
 
 To edit an existing environment click the *Edit the selected environment* button.
 
-image:hop-gui/environment/project-edit.svg[Edit the selected environment]
+image:hop-gui/environment/environment-edit.svg[Edit the selected environment]
 
 Clicking this button will re-open the project dialogue where changes can be made as described in <<tab-env-props>>.
 

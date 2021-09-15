@@ -16,6 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:description: Describes a Splunk connection.
 
 = Splunk Connection
 

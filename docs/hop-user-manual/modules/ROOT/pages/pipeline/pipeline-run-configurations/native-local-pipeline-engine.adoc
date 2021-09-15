@@ -16,6 +16,8 @@ under the License.
 ////
 [[LocalPipelineEngine]]
 :imagesdir: ../assets/images
+:description: The local runner runs Hop pipelines on the local Hop engine. This is the runtime configuration you'll use when testing pipelines on your local machine while developing.
+
 = Local Pipeline Engine
 
 == Local

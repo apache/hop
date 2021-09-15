@@ -17,6 +17,7 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :page-pagination-no-next:
+:description: Describes how to run a workflow. Workflows can be executed either locally or remotely. Check Workflow Run Configurations for more details.
 
 = Workflow Run Config
 

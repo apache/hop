@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Hop plugins is an external repository containing a collection of plugins that can be used with but can't or won't be shipped with Apache Hop: The https://github.com/project-hop/hop-plugins/
+
 [[ExternalPlugins]]
 = External Plugins
 
@@ -27,8 +29,15 @@ The https://github.com/project-hop/hop-plugins/[Hop plugins^] repository contain
 
 === Transforms
 
+* Dropbox Input
+* Dropbox Output
 * Excel Output
+* Google Analytics
+* Google Sheets Input
+* Google Sheets Output
 * LDIF Input
+* MQTT Input
+* MQTT Output
 * Send message to syslog
 
 == Mark Hall
