@@ -242,8 +242,8 @@ public class HopGuiWorkflowActionDelegate {
               new ActionMeta[] {before},
               new ActionMeta[] {after},
               new int[] {workflowMeta.indexOfAction(action)});
-          workflowGraph.updateGui();
         }
+        workflowGraph.updateGui();
       } else {
         MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
         mb.setMessage(BaseMessages.getString(PKG, "HopGui.Dialog.ActionCanNotBeChanged.Message"));
