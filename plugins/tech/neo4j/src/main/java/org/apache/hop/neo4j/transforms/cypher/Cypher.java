@@ -202,10 +202,6 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
       meta.getFields(
           data.outputRowMeta, getTransformName(), null, getTransformMeta(), this, metadataProvider);
 
-      // Create a session
-      //
-      createDriverSession();
-
       if (!meta.getParameterMappings().isEmpty() && getInputRowMeta() == null) {
         throw new HopException(
             "Please provide this transform with input if you want to set parameters");
