@@ -41,13 +41,13 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>200 rows</from>
+      <from>1000 rows</from>
       <to>leak-test-child.hpl</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>200 rows</name>
+    <name>1000 rows</name>
     <type>RowGenerator</type>
     <description/>
     <distribute>Y</distribute>
@@ -62,7 +62,7 @@ limitations under the License.
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
     <never_ending>N</never_ending>
-    <limit>200</limit>
+    <limit>1000</limit>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
