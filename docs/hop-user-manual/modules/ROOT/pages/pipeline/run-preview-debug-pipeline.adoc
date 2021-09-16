@@ -16,6 +16,7 @@ under the License.
 ////
 [[RunPreviewDebugPipeline]]
 :imagesdir: ../assets/images
+:description: Hop Gui offers a lot of functionality to let data developers run, preview and debug pipelines. Feedback is provided through the UI, logging and run metrics.
 
 = Run, Preview and Debug a Pipeline
 
@@ -61,7 +62,8 @@ The transforms also show a little table icon, giving you access to a preview of 
 
 image::hop-gui/pipeline/preview-pipeline.png[Preview pipeline,75%,align="left"]
 
-When a pipeline has failed a red failed icon is displayed on the transform containing an error.
+When a pipeline fails, a red triangle is shown in the upper right corner of the failed transform.
+Hover your mouse over the red error triangle to take a quick peek at the error message. The full stacktrace is available in the logs. Check xref:pipeline/errorhandling.adoc[pipeline error handling] to learn about how you can handle errors in your pipeline gracefully (which is not necessarily what you want).
 
 image::hop-gui/pipeline/failed-pipeline.png[Failed pipeline,75%,align="left"]
 

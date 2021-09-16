@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Apache Hop provides a Docker image for long (Hop Server) and short-lived (hop-run) containers. An additional image is available for Hop Web. Both images are available on Docker Hub.
+
 [[DockerContainer-DockerContainer]]
 = Docker container
 

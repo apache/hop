@@ -17,6 +17,7 @@ under the License.
 
 :documentationPath: /vfs/
 :language: en_US
+:description: Apache Hop supports reading from and writing to Google Drive from almost anywhere in the platform through Apache VFS
 
 = Google Drive VFS
 

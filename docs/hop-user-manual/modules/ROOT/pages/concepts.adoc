@@ -16,6 +16,7 @@ under the License.
 ////
 [[Concepts]]
 :imagesdir: ../assets/images
+:description: Hop comes with a number of concepts: a variety of tools, a large number of metadata types, projects and enviromments. At the core of literally everything in Hop is metadata.
 
 = Concepts
 

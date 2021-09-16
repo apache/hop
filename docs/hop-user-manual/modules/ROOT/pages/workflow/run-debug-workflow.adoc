@@ -16,6 +16,7 @@ under the License.
 ////
 [[RunDebugWorkflow]]
 :imagesdir: ../assets/images
+:description: Running a workflow requires a workflow run configuration and (optionally) a number of parameters.
 
 = Run and Debug a Workflow
 

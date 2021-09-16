@@ -16,6 +16,8 @@ under the License.
 ////
 [[RemoteWorkflowEngine]]
 :imagesdir: ../assets/images
+:description: The remote run configuration runs workflows on a remote Hop Server. This run configuration requires little configuration, but requires a Hop Server and a Hop Server metadata definition.
+
 = Remote Workflow Engine
 
 == Hop Remote workflow engine

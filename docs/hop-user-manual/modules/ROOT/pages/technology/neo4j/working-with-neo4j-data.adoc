@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Apache Hop has extensive support for the Neo4j graph database, including a library of samples that explain how to load data to and read from your Neo4j graphs through Apache Hop.
+
 = Working with Neo4j data
 :toc:
 

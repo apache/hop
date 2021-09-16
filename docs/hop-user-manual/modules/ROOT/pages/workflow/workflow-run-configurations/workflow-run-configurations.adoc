@@ -16,6 +16,8 @@ under the License.
 ////
 [[WorkflowRunConfigurations]]
 :imagesdir: ../assets/images
+:description: Run configurations decouple the design and execution phases of Hop workflow development. A workflow is a definition of _how_ data is processed, a run configurations defines _where_ the workflow is executed. Hop supports a local and remote workflow runtime engines
+
 = Workflow Run Configurations
 
 == Description

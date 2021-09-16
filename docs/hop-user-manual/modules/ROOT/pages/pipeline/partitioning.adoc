@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
+:description: Partitioning allows you to distribute all the data from a set into distinct subsets according to the rule applied on a table or row, where these subsets form a partition of the original set with no item replicated into multiple groups.
 
 = Partitioning
 

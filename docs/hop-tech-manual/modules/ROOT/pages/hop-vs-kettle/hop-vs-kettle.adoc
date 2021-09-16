@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Apache Hop is an independent platform that originated from the same code base as Kettle (Pentaho Data Integration). This page provides an overview of the differences in concepts, configuration, engines and features between Hop and Kettle/PDI
 [[HopvsKettle]]
 :imagesdir: ../assets/images
 :openvar: ${
@@ -21,6 +22,7 @@ under the License.
 :page-pagination:
 
 = Hop vs Kettle - A Quick Comparison
+
 
 == Concepts
 

@@ -16,15 +16,19 @@ under the License.
 ////
 [[CreatePipeline]]
 :imagesdir: ../assets/images
+:description: Pipelines are the fundamental building blocks of your Hop projects. Pipelines read from data sources and perform operations (joins, lookups, filter and lots more) on the data before it is written out to a target platform.
+
 = Create a Pipeline
 
-TODO: this content is based on the xref:getting-started/index.adoc[Getting Started Guide].
-Elaborate more.
+== How pipelines work
 
-Pipelines are the fundamentals of your project.
-A pipeline contains operations executed in a predefined order.
-Pipelines consist of a chain of transforms that read, process or write data.
-The image below shows a simple pipeline that reads data from a table, adds a message to the data and sends out an email.
+Pipelines are the fundamental building blocks of your Hop projects.
+
+Pipelines perform the heavy lifting: they read data from a variety of sources, perform a number of operations (combine, clean, enrich, transform etc) and write the data out to some target platform. A pipeline executes all of these operations in a _predefined order_ and in _parallel_.
+
+In the image below, a very simple pipeline reads data from a database, adds a message to the data and sends out an email.
+All of these operations are executed in a predefined order (read from the database, add the message, send the mail) and in parallel.
+The pipelines executes these transforms, Imagine our database table or query contains thousands of rows. The pipeline will start reading results from the query, pass those on to the 'Add message' transform. Once the message has been added, we'll send a mail from the Mail transform. All of these will operate in parallel, so the Mail transform will already be sending mails while the table input is still reading records from the table or query.
 
 image::hop-gui/pipeline/simple-pipeline.png[Hop - Simple Pipeline,75%,align="left"]
 
@@ -46,7 +50,7 @@ Some transforms can read from or write to other transforms conditionally to or f
 The hop is unaware of it.
 Hops can be disabled by clicking on them, or through right-click -> disable.
 
-== Creation
+== Create a pipeline
 
 Create a new pipeline through the work item dialog.
 You'll be presented with the dialog shown below.

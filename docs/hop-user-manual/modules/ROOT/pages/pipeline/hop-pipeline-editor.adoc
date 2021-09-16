@@ -16,8 +16,13 @@ under the License.
 ////
 [[HopPipelineEditor]]
 :imagesdir: ../assets/images
+:description: You'll perform a lot of operations on the pipeline canvas, but a lot of additional functionality is available from the pipeline editor's main toolbar
 
 = Toolbar
+
+You learned to create a pipeline in xref:pipeline/create-pipeline.adoc[Create a Pipeline]. You'll perform a lot of operations on the pipeline canvas, but a lot of additional functionality is available from the pipeline editor's main toolbar.
+
+There are two other important toolbars to work with xref:pipeline/pipeline-unit-testing.adoc[unit tests] and xref:projects/index.adoc[projects and environments]. Check the respective pages to learn more about managing your projects and environments and to learn how to write unit tests for your pipelines.
 
 Let's walk through the top toolbar:
 

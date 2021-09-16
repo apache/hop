@@ -19,10 +19,11 @@ under the License.
 
 :openvar: ${
 :closevar: }
+:description: Hop is an independent platform that originates from the same code base as Kettle (Pentaho Data Integration). Even though Hop and Kettle are not compatible, you can upgrade your existing Kettle projects by simply importing them into Hop.
 
 = Kettle Import
 
-Whenever you want to import metadata from Kettle you can use this plugin.
+Whenever you want to import metadata from Kettle (Pentaho Data Integration) you can use this plugin.
 
 == Usage
 

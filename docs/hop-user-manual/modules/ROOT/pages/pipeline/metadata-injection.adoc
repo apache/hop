@@ -16,10 +16,11 @@ under the License.
 ////
 [[MetadataInjection]]
 :imagesdir: ../assets/images
+:description: Metadata injection inserts data from various sources into a template pipeline at runtime to reduce repetitive tasks.
 
 = Metadata Injection
 
-Metadata injection inserts data from various sources into a pipeline at runtime to reduce repetitive tasks.
+Metadata injection inserts data from various sources into a template pipeline at runtime to reduce repetitive tasks.
 
 For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file.
 If you have more than one supplier, you would need to run this simple pipeline for each supplier.

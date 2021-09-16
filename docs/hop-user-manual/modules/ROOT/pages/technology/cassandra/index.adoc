@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /technology/cassandra/
 :language: en_US
+:description: Apache Hop supports Apache Cassandra through a Cassandra connection metadata type, an Exec CQL action and transforms for Cassandra input and output, and an SSTable output.
 
 = Cassandra Technology
 
@@ -46,3 +47,4 @@ Hop supports Cassandra in the following metadata objects:
 
 * xref:pipeline/transforms/cassandra-input.adoc[Cassandra Input]: Reads from a Cassandra cluster through a CQL query.
 * xref:pipeline/transforms/cassandra-output.adoc[Cassandra Output]: Write data to a table in a Cassandra cluster.
+* xref:pipeline/transforms/sstable-output.adoc[SSTable Output]: Write data to a filesystem directory as a Cassandra SSTable.

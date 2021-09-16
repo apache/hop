@@ -18,6 +18,7 @@ under the License.
 :imagesdir: ../../assets/images
 :openvar: ${
 :closevar: }
+:description: Hop unit tests simulate inputs in the form of _Input data sets_ and validates output against _Golden data sets_. A unit test is a combination of zero or more input sets and golden data sets along with a bunch of tweaks you can do to the pipelines prior to testing.
 
 = Pipeline Unit Testing
 
