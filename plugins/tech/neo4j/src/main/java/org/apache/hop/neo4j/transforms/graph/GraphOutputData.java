@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.graph;
@@ -25,6 +24,7 @@ import org.apache.hop.neo4j.model.validation.ModelValidator;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.transforms.BaseNeoTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
@@ -37,6 +37,7 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
   public IRowMeta outputRowMeta;
   public NeoConnection neoConnection;
   public String url;
+  public Driver driver;
   public Session session;
   public int[] fieldIndexes;
   public long batchSize;

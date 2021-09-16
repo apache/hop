@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.actions.cypherscript;
@@ -30,6 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionWork;
 import org.w3c.dom.Node;
@@ -118,47 +118,50 @@ public class CypherScript extends ActionBase implements IAction {
       realScript = script;
     }
 
-    Session session = null;
-    int nrExecuted = 0;
+    int nrExecuted;
 
-    // Connect to the database
-    //
-    session = connection.getSession(log, this);
+    try (Driver driver = connection.getDriver(log, this)) {
 
-    TransactionWork<Integer> transactionWork =
-        transaction -> {
-          int executed = 0;
+      // Connect to the database
+      //
+      try (Session session = connection.getSession(log, driver, this)) {
 
-          try {
-            // Split the script into parts : semi-colon at the start of a separate line
-            //
-            String[] commands = realScript.split("\\r?\\n;");
-            for (String command : commands) {
-              // Cleanup command: replace leading and trailing whitespaces and newlines
-              //
-              String cypher = command.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
+        TransactionWork<Integer> transactionWork =
+            transaction -> {
+              int executed = 0;
 
-              // Only execute if the statement is not empty
-              //
-              if (StringUtils.isNotEmpty(cypher)) {
-                transaction.run(cypher);
-                executed++;
-                log.logDetailed("Executed cypher statement: " + cypher);
+              try {
+                // Split the script into parts : semi-colon at the start of a separate line
+                //
+                String[] commands = realScript.split("\\r?\\n;");
+                for (String command : commands) {
+                  // Cleanup command: replace leading and trailing whitespaces and newlines
+                  //
+                  String cypher = command.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
+
+                  // Only execute if the statement is not empty
+                  //
+                  if (StringUtils.isNotEmpty(cypher)) {
+                    transaction.run(cypher);
+                    executed++;
+                    log.logDetailed("Executed cypher statement: " + cypher);
+                  }
+                }
+                // All statements executed successfully so commit
+                //
+                transaction.commit();
+              } catch (Exception e) {
+                log.logError("Error executing cypher statements...", e);
+                result.increaseErrors(1L);
+                transaction.rollback();
+                result.setResult(false);
               }
-            }
-            // All statements executed successfully so commit
-            //
-            transaction.commit();
-          } catch (Exception e) {
-            log.logError("Error executing cypher statements...", e);
-            result.increaseErrors(1L);
-            transaction.rollback();
-            result.setResult(false);
-          }
 
-          return executed;
-        };
-    nrExecuted = session.writeTransaction(transactionWork);
+              return executed;
+            };
+        nrExecuted = session.writeTransaction(transactionWork);
+      }
+    }
 
     if (result.getNrErrors() == 0) {
       logBasic("Neo4j script executed " + nrExecuted + " statements without error");

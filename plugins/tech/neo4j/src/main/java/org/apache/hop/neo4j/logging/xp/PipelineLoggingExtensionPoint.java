@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.logging.xp;
@@ -34,13 +33,22 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @ExtensionPoint(
     id = "PipelineLoggingExtensionPoint",
@@ -82,7 +90,8 @@ public class PipelineLoggingExtensionPoint
       }
       log.logDetailed("Logging pipeline information to Neo4j connection : " + connection.getName());
 
-      Session session = connection.getSession(log, variables);
+      final Driver driver = connection.getDriver(log, variables);
+      final Session session = connection.getSession(log, driver, variables);
 
       logPipelineMetadata(log, session, connection, pipeline);
       logStartOfPipeline(log, session, connection, pipeline);
@@ -100,8 +109,16 @@ public class PipelineLoggingExtensionPoint
                   LoggingCore.getLoggingHierarchy(logChannelId);
               logHierarchy(log, session, connection, loggingHierarchy, logChannelId);
             }
-          });
 
+            // Let's not forget to close the session and driver...
+            //
+            if (session != null) {
+              session.close();
+            }
+            if (driver != null) {
+              driver.close();
+            }
+          });
     } catch (Exception e) {
       // Let's not kill the pipeline just yet, just log the error
       // otherwise: throw new HopException(...);

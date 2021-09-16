@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.shared;
@@ -30,7 +29,16 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.neo4j.driver.*;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.Value;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -163,8 +171,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
    * @param variables
    * @return The Neo4j session
    */
-  public Session getSession(ILogChannel log, IVariables variables) {
-    Driver driver = getDriver(log, variables);
+  public Session getSession(ILogChannel log, Driver driver, IVariables variables) {
     SessionConfig.Builder cfgBuilder = SessionConfig.builder();
     if (StringUtils.isNotEmpty(databaseName)) {
       String realDatabaseName = variables.resolve(databaseName);
@@ -183,26 +190,21 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
    */
   public void test(IVariables variables) throws Exception {
 
-    Session session = null;
-    try {
-      Driver driver = getDriver(LogChannel.GENERAL, variables);
+    try (Driver driver = getDriver(LogChannel.GENERAL, variables)) {
       SessionConfig.Builder builder = SessionConfig.builder();
       if (StringUtils.isNotEmpty(databaseName)) {
         builder = builder.withDatabase(variables.resolve(databaseName));
       }
-      session = driver.session(builder.build());
-      // Do something with the session otherwise it doesn't test the connection
-      //
-      Result result = session.run("RETURN 0");
-      Record record = result.next();
-      Value value = record.get(0);
-      int zero = value.asInt();
-      assert (zero == 0);
-    } catch (Exception e) {
-      throw new Exception("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
-    } finally {
-      if (session != null) {
-        session.close();
+      try (Session session = driver.session(builder.build())) {
+        // Do something with the session otherwise it doesn't test the connection
+        //
+        Result result = session.run("RETURN 0");
+        Record record = result.next();
+        Value value = record.get(0);
+        int zero = value.asInt();
+        assert (zero == 0);
+      } catch (Exception e) {
+        throw new Exception("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
       }
     }
   }

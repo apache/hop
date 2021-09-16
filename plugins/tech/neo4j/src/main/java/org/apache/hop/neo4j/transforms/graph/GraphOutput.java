@@ -26,8 +26,16 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.GraphUsage;
-import org.apache.hop.neo4j.core.data.*;
-import org.apache.hop.neo4j.model.*;
+import org.apache.hop.neo4j.core.data.GraphData;
+import org.apache.hop.neo4j.core.data.GraphNodeData;
+import org.apache.hop.neo4j.core.data.GraphPropertyData;
+import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
+import org.apache.hop.neo4j.core.data.GraphRelationshipData;
+import org.apache.hop.neo4j.model.GraphModel;
+import org.apache.hop.neo4j.model.GraphNode;
+import org.apache.hop.neo4j.model.GraphProperty;
+import org.apache.hop.neo4j.model.GraphPropertyType;
+import org.apache.hop.neo4j.model.GraphRelationship;
 import org.apache.hop.neo4j.model.validation.ModelValidator;
 import org.apache.hop.neo4j.model.validation.NodeProperty;
 import org.apache.hop.neo4j.shared.NeoConnection;
@@ -41,7 +49,14 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData>
@@ -61,7 +76,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
   public boolean init() {
 
     try {
-
       if (!meta.isReturningGraph()) {
         // Verify some extra metadata...
         //
@@ -83,7 +97,8 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         }
 
         try {
-          data.session = data.neoConnection.getSession(log, this);
+          data.driver = data.neoConnection.getDriver(log, this);
+          data.session = data.neoConnection.getSession(log, data.driver, this);
           data.version4 = data.neoConnection.isVersion4();
         } catch (Exception e) {
           log.logError(
@@ -169,6 +184,9 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     if (data.session != null) {
       data.session.close();
+    }
+    if (data.driver != null) {
+      data.driver.close();
     }
     if (data.cypherMap != null) {
       data.cypherMap.clear();
