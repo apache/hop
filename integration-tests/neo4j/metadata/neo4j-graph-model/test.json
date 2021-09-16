@@ -1,0 +1,28 @@
+{
+  "relationships": [],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "Test",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "one",
+          "type": "Integer",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "Test"
+      ]
+    }
+  ],
+  "name": "test",
+  "description": ""
+}

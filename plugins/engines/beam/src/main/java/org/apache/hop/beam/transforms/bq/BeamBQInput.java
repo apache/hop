@@ -17,7 +17,13 @@
 
 package org.apache.hop.beam.transforms.bq;
 
-import com.google.cloud.bigquery.*;
+import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.bigquery.FieldValue;
+import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.JobId;
+import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.TableResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,6 +37,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Date;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData>
@@ -79,8 +86,19 @@ public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData>
       query = resolve(meta.getQuery());
     } else {
       // Query the table...
-      //
-      query = "SELECT * FROM " + resolve(meta.getDatasetId() + "." + resolve(meta.getTableId()));
+
+      StringJoiner joiner = new StringJoiner(",");
+
+      for (int i = 0; i < meta.getFields().size(); i++)
+        joiner.add(meta.getFields().get(i).getName());
+
+      String bgFields = joiner.toString();
+
+      query =
+          "SELECT "
+              + bgFields
+              + " FROM "
+              + resolve(meta.getDatasetId() + "." + resolve(meta.getTableId()));
     }
 
     queryConfig = QueryJobConfiguration.newBuilder(query).setUseLegacySql(false).build();

@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.logging.xp;
@@ -36,6 +35,7 @@ import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
@@ -84,7 +84,8 @@ public class WorkflowLoggingExtensionPoint
       }
       log.logDetailed("Logging workflow information to Neo4j connection : " + connection.getName());
 
-      Session session = connection.getSession(log, variables);
+      final Driver driver = connection.getDriver(log, variables);
+      final Session session = connection.getSession(log, driver, variables);
 
       logWorkflowMetadata(log, session, connection, workflow);
       logStartOfWorkflow(log, session, connection, workflow);
@@ -103,6 +104,15 @@ public class WorkflowLoggingExtensionPoint
                 List<LoggingHierarchy> loggingHierarchy =
                     LoggingCore.getLoggingHierarchy(logChannelId);
                 logHierarchy(log, session, connection, loggingHierarchy, logChannelId);
+              }
+
+              // Let's not forget to close the session and driver...
+              //
+              if (session != null) {
+                session.close();
+              }
+              if (driver != null) {
+                driver.close();
               }
             }
           });

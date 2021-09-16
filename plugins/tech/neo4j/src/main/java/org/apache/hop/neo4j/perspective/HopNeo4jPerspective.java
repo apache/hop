@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 /*! ******************************************************************************
@@ -86,7 +85,18 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
@@ -94,8 +104,11 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "HopNeo4jPerspective",
@@ -511,18 +524,12 @@ public class HopNeo4jPerspective implements IHopPerspective {
       }
       log.logDetailed("Logging workflow information to Neo4j connection : " + connection.getName());
 
-      Session session = null;
-      try {
-        session = connection.getSession(log, hopGui.getVariables());
-
-        analyzeLogging(session, id, name, type);
-        List<List<HistoryResult>> shortestPaths =
-            analyzeErrorLineage(session, id, name, type, errors);
-        analyzeCypherStatements(connection, session, id, name, type, errors, shortestPaths);
-
-      } finally {
-        if (session != null) {
-          session.close();
+      try (Driver driver = connection.getDriver(log, hopGui.getVariables())) {
+        try (Session session = connection.getSession(log, driver, hopGui.getVariables())) {
+          analyzeLogging(session, id, name, type);
+          List<List<HistoryResult>> shortestPaths =
+              analyzeErrorLineage(session, id, name, type, errors);
+          analyzeCypherStatements(connection, session, id, name, type, errors, shortestPaths);
         }
       }
     } catch (Exception e) {
@@ -832,78 +839,73 @@ public class HopNeo4jPerspective implements IHopPerspective {
       resultsCypher.append("ORDER BY e.executionStart desc ");
       resultsCypher.append("LIMIT " + amount);
 
-      Session session = null;
-      try {
-        wResults.clearAll(false);
+      wResults.clearAll(false);
+      try (Driver driver = connection.getDriver(log, hopGui.getVariables())) {
+        try (Session session = connection.getSession(log, driver, hopGui.getVariables())) {
 
-        session = connection.getSession(log, hopGui.getVariables());
+          session.readTransaction(
+              tx -> {
+                Result result = tx.run(resultsCypher.toString(), resultsParameters);
+                while (result.hasNext()) {
+                  Record record = result.next();
+                  TableItem item = new TableItem(wResults.table, SWT.NONE);
+                  int pos = 0;
+                  Value vId = record.get(pos++);
+                  item.setText(pos, Const.NVL(vId.asString(), ""));
+                  Value vName = record.get(pos++);
+                  item.setText(pos, Const.NVL(vName.asString(), ""));
+                  Value vType = record.get(pos++);
+                  item.setText(pos, Const.NVL(vType.asString(), ""));
+                  Value vLinesRead = record.get(pos++);
+                  item.setText(pos, Long.toString(vLinesRead.asLong(0)));
+                  Value vLinesWritten = record.get(pos++);
+                  item.setText(pos, Long.toString(vLinesWritten.asLong(0)));
+                  Value vLinesInput = record.get(pos++);
+                  item.setText(pos, Long.toString(vLinesInput.asLong(0)));
+                  Value vLinesOutput = record.get(pos++);
+                  item.setText(pos, Long.toString(vLinesOutput.asLong(0)));
+                  Value vLinesRejected = record.get(pos++);
+                  item.setText(pos, Long.toString(vLinesRejected.asLong(0)));
+                  Value vErrors = record.get(pos++);
+                  long errors = vErrors.asLong(0);
+                  item.setText(pos, Long.toString(vErrors.asLong(0)));
+                  Value vExecutionStart = record.get(pos++);
+                  item.setText(pos, Const.NVL(vExecutionStart.asString(), "").replace("T", " "));
+                  Value vDurationMs = record.get(pos++);
+                  String durationHMS =
+                      LoggingCore.getFancyDurationFromMs(Long.valueOf(vDurationMs.asLong(0)));
+                  item.setText(pos, durationHMS);
 
-        session.readTransaction(
-            tx -> {
-              Result result = tx.run(resultsCypher.toString(), resultsParameters);
-              while (result.hasNext()) {
-                Record record = result.next();
-                TableItem item = new TableItem(wResults.table, SWT.NONE);
-                int pos = 0;
-                Value vId = record.get(pos++);
-                item.setText(pos, Const.NVL(vId.asString(), ""));
-                Value vName = record.get(pos++);
-                item.setText(pos, Const.NVL(vName.asString(), ""));
-                Value vType = record.get(pos++);
-                item.setText(pos, Const.NVL(vType.asString(), ""));
-                Value vLinesRead = record.get(pos++);
-                item.setText(pos, Long.toString(vLinesRead.asLong(0)));
-                Value vLinesWritten = record.get(pos++);
-                item.setText(pos, Long.toString(vLinesWritten.asLong(0)));
-                Value vLinesInput = record.get(pos++);
-                item.setText(pos, Long.toString(vLinesInput.asLong(0)));
-                Value vLinesOutput = record.get(pos++);
-                item.setText(pos, Long.toString(vLinesOutput.asLong(0)));
-                Value vLinesRejected = record.get(pos++);
-                item.setText(pos, Long.toString(vLinesRejected.asLong(0)));
-                Value vErrors = record.get(pos++);
-                long errors = vErrors.asLong(0);
-                item.setText(pos, Long.toString(vErrors.asLong(0)));
-                Value vExecutionStart = record.get(pos++);
-                item.setText(pos, Const.NVL(vExecutionStart.asString(), "").replace("T", " "));
-                Value vDurationMs = record.get(pos++);
-                String durationHMS =
-                    LoggingCore.getFancyDurationFromMs(Long.valueOf(vDurationMs.asLong(0)));
-                item.setText(pos, durationHMS);
-
-                if (errors != 0) {
-                  item.setBackground(errorLineBackground);
+                  if (errors != 0) {
+                    item.setBackground(errorLineBackground);
+                  }
                 }
-              }
 
-              wResults.removeEmptyRows();
-              wResults.setRowNums();
-              wResults.optWidth(true);
+                wResults.removeEmptyRows();
+                wResults.setRowNums();
+                wResults.optWidth(true);
 
-              return null;
-            });
+                return null;
+              });
 
-        // Also populate the executions combo box for pipelines and workflows
-        //
-        String execCypher =
-            "match(e:Execution) where e.type in ['PIPELINE', 'WORKFLOW'] return distinct e.name order by e.name";
-        session.readTransaction(
-            tx -> {
-              List<String> list = new ArrayList<>();
-              Result result = tx.run(execCypher);
-              while (result.hasNext()) {
-                Record record = result.next();
-                Value value = record.get(0);
-                list.add(value.asString());
-              }
-              wExecutions.setItems(list.toArray(new String[0]));
-              return null;
-            });
-
-      } finally {
-        if (session != null) {
-          session.close();
+          // Also populate the executions combo box for pipelines and workflows
+          //
+          String execCypher =
+              "match(e:Execution) where e.type in ['PIPELINE', 'WORKFLOW'] return distinct e.name order by e.name";
+          session.readTransaction(
+              tx -> {
+                List<String> list = new ArrayList<>();
+                Result result = tx.run(execCypher);
+                while (result.hasNext()) {
+                  Record record = result.next();
+                  Value value = record.get(0);
+                  list.add(value.asString());
+                }
+                wExecutions.setItems(list.toArray(new String[0]));
+                return null;
+              });
         }
+      } finally {
         wExecutions.setText(Const.NVL(searchName, ""));
       }
     } catch (Throwable e) {
@@ -946,22 +948,20 @@ public class HopNeo4jPerspective implements IHopPerspective {
   }
 
   private void openItem(NeoConnection connection, String id, String name, String type) {
-    Session session = null;
-    try {
-      session = connection.getSession(hopGui.getLog(), hopGui.getVariables());
 
-      if ("PIPELINE".equals(type)) {
-        openPipelineOrWorkflow(session, name, type, id, "Pipeline", "EXECUTION_OF_PIPELINE");
-      } else if ("WORKFLOW".equals(type)) {
-        openPipelineOrWorkflow(session, name, type, id, "Workflow", "EXECUTION_OF_WORKFLOW");
-      } else if ("TRANSFORM".equals(type)) {
-        openTransform(session, name, type, id);
-      } else if ("ACTION".equals(type)) {
-        openAction(session, name, type, id);
-      }
-    } finally {
-      if (session != null) {
-        session.close();
+    try (Driver driver = connection.getDriver(hopGui.getLog(), hopGui.getVariables())) {
+      try (Session session =
+          connection.getSession(hopGui.getLog(), driver, hopGui.getVariables())) {
+
+        if ("PIPELINE".equals(type)) {
+          openPipelineOrWorkflow(session, name, type, id, "Pipeline", "EXECUTION_OF_PIPELINE");
+        } else if ("WORKFLOW".equals(type)) {
+          openPipelineOrWorkflow(session, name, type, id, "Workflow", "EXECUTION_OF_WORKFLOW");
+        } else if ("TRANSFORM".equals(type)) {
+          openTransform(session, name, type, id);
+        } else if ("ACTION".equals(type)) {
+          openAction(session, name, type, id);
+        }
       }
     }
   }

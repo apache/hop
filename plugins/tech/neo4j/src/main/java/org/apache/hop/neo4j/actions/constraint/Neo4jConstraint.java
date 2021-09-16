@@ -25,6 +25,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 
 import java.util.ArrayList;
@@ -114,19 +115,21 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     // Run this cypher statement...
     //
     final String _cypher = cypher;
-    try (Session session = connection.getSession(log, this)) {
-      session.writeTransaction(
-          tx -> {
-            try {
-              log.logDetailed("Dropping constraint with cypher: " + _cypher);
-              org.neo4j.driver.Result result = tx.run(_cypher);
-              result.consume();
-              return true;
-            } catch (Throwable e) {
-              log.logError("Error dropping constraint with cypher [" + _cypher + "]", e);
-              return false;
-            }
-          });
+    try (Driver driver = connection.getDriver(log, this)) {
+      try (Session session = connection.getSession(log, driver, this)) {
+        session.writeTransaction(
+            tx -> {
+              try {
+                log.logDetailed("Dropping constraint with cypher: " + _cypher);
+                org.neo4j.driver.Result result = tx.run(_cypher);
+                result.consume();
+                return true;
+              } catch (Throwable e) {
+                log.logError("Error dropping constraint with cypher [" + _cypher + "]", e);
+                return false;
+              }
+            });
+      }
     }
   }
 
@@ -177,19 +180,21 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     // Run this cypher statement...
     //
     final String _cypher = cypher;
-    try (Session session = connection.getSession(log, this)) {
-      session.writeTransaction(
-          tx -> {
-            try {
-              log.logDetailed("Creating constraint with cypher: " + _cypher);
-              org.neo4j.driver.Result result = tx.run(_cypher);
-              result.consume();
-              return true;
-            } catch (Throwable e) {
-              log.logError("Error creating constraint with cypher [" + _cypher + "]", e);
-              return false;
-            }
-          });
+    try (Driver driver = connection.getDriver(log, this)) {
+      try (Session session = connection.getSession(log, driver, this)) {
+        session.writeTransaction(
+            tx -> {
+              try {
+                log.logDetailed("Creating constraint with cypher: " + _cypher);
+                org.neo4j.driver.Result result = tx.run(_cypher);
+                result.consume();
+                return true;
+              } catch (Throwable e) {
+                log.logError("Error creating constraint with cypher [" + _cypher + "]", e);
+                return false;
+              }
+            });
+      }
     }
   }
 

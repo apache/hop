@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.output;
@@ -28,7 +27,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.neo4j.core.GraphUsage;
-import org.apache.hop.neo4j.core.data.*;
+import org.apache.hop.neo4j.core.data.GraphData;
+import org.apache.hop.neo4j.core.data.GraphNodeData;
+import org.apache.hop.neo4j.core.data.GraphPropertyData;
+import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
+import org.apache.hop.neo4j.core.data.GraphRelationshipData;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.shared.NeoConnectionUtils;
@@ -41,7 +44,14 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -184,7 +194,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       if (meta.isReturningGraph()) {
         log.logBasic("Writing to output graph field, not to Neo4j");
       } else {
-        data.session = data.neoConnection.getSession(log, this);
+        data.driver = data.neoConnection.getDriver(log, this);
+        data.session = data.neoConnection.getSession(log, data.driver, this);
 
         // Create indexes for the primary properties of the From and To nodes
         //
@@ -814,7 +825,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         data.version4 = data.neoConnection.isVersion4();
       } catch (HopException e) {
         log.logError(
-            "Could not gencsv Neo4j connection '" + resolve(meta.getConnection()) + "' from the metastore",
+            "Could not gencsv Neo4j connection '"
+                + resolve(meta.getConnection())
+                + "' from the metastore",
             e);
         return false;
       }
@@ -839,6 +852,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
     if (data.session != null) {
       data.session.close();
+    }
+    if (data.driver != null) {
+      data.driver.close();
     }
 
     super.dispose();

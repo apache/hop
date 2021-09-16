@@ -127,7 +127,6 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
   private void logEnvironmentDetails(ILogChannel log, LifecycleEnvironment environment) {
     log.logBasic("  " + environment.getName());
     log.logBasic("    Purpose: " + environment.getPurpose());
-    log.logBasic("    Configuration files: ");
     log.logBasic("    Project name: " + environment.getProjectName());
     for (String configurationFile : environment.getConfigurationFiles()) {
       log.logBasic("      Config file: " + configurationFile);

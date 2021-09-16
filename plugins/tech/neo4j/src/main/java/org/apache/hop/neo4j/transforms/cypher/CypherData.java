@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.transforms.cypher;
@@ -23,6 +22,7 @@ import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
@@ -34,6 +34,7 @@ public class CypherData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public NeoConnection neoConnection;
   public String url;
+  public Driver driver;
   public Session session;
   public int[] fieldIndexes;
   public String cypher;

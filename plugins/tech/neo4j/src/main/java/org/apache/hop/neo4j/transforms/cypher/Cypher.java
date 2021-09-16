@@ -47,7 +47,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Cypher extends BaseTransform<CypherMeta, CypherData>
     implements ITransform<CypherMeta, CypherData> {
@@ -136,10 +140,14 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
     if (data.session != null) {
       data.session.close();
     }
+    if (data.driver != null) {
+      data.driver.close();
+    }
   }
 
   private void createDriverSession() {
-    data.session = data.neoConnection.getSession(log, this);
+    data.driver = data.neoConnection.getDriver(log, this);
+    data.session = data.neoConnection.getSession(log, data.driver, this);
   }
 
   private void reconnect() {
@@ -193,10 +201,6 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
       data.outputRowMeta = data.hasInput ? getInputRowMeta().clone() : new RowMeta();
       meta.getFields(
           data.outputRowMeta, getTransformName(), null, getTransformMeta(), this, metadataProvider);
-
-      // Create a session
-      //
-      createDriverSession();
 
       if (!meta.getParameterMappings().isEmpty() && getInputRowMeta() == null) {
         throw new HopException(
