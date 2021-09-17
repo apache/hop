@@ -56,9 +56,9 @@
 
     <repositories>
         <repository>
-            <id>EBIPublic</id>
-            <url>https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/public/</url>
-            <name>EBIPublic Repository</name>
+            <id>Spring Plugins</id>
+            <url>https://repo.spring.io/ui/native/plugins-release/</url>
+            <name>Spring Plugins</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
