@@ -14,10 +14,11 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: This document includes the steps needed to be taken by the release manager to create a successful release candidate.
 [[CreatingARelease]]
 = Creating a release
 
-This document will include the steps needed to be taken by the release manager to create a successful release candidate.
+This document includes the steps needed to be taken by the release manager to create a successful release candidate.
 
 == Creating a release branch
 

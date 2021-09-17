@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: After the release manager creates a release as described in xref:apache-release/creating-a-release.adoc[Creating a Release] the voting process starts. This guide will contain some steps you can take to validate a release candidate and base your vote on.
 [[CheckingARelease]]
 = Checking a Release
 

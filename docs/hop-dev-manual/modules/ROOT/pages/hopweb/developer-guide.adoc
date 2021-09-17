@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: RAP is multi user framework by its nature. Every user session is associated with a display. In RAP, Display#getDefault() will not create a new display when it's called from non-UI thread - read Display#getDefault JavaDoc. When you execute a code in a background thread, RAP needs to know for which UI session (display) it belongs. That's why you have to provide the correct UISession/display from outside.
+
 = Developer Guide
 
 == Methods to use

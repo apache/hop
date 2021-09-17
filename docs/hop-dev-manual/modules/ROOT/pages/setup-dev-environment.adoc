@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Thank you for wanting to help out with the development of Apache Hop. We really value your help. We assume you're going to be using the IntelliJ IDEA integrated development environment.
 [[SetupDevEnvironment-SetupDevEnvironment]]
 = Setting up your development environment
 

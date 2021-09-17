@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Welcome to the Hop project! The size of the codebase can perhaps appear to be a bit daunting at first so remember: *Don't Panic*! When it comes down to it the codebase is fairly simple in structure. Let's go over the main modules in the source code:
+
 [[GettingStarted-GettingStarted]]
 = Getting Started
 

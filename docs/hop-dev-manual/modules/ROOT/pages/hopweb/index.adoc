@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Building and setting up your own Hop Web environment is straightforward. The steps to set up the default Docker image are included in a helper script docker/create_hop_web_container.sh in the Hop code base. This should get you started to make modifications or create your own version entirely.
+
 = Hop Web Development Guide
 
 == Building or customizing Hop Web
