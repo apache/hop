@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -202,5 +202,31 @@ public class UtilsTest {
     assertEquals(2, newI[0].length);
     assertArrayEquals(newI[0], i2);
     assertTrue(newI[0] == i2); // If arrays are equal sized, it should return original object
+  }
+
+  @Test
+  public void testDamerauLevenshteinDistance() throws Exception {
+    int distance = Utils.getDamerauLevenshteinDistance("Hello", "Hallow");
+    assertEquals(2, distance);
+    distance = Utils.getDamerauLevenshteinDistance("Green", "Grean");
+    assertEquals(1, distance);
+    distance = Utils.getDamerauLevenshteinDistance("Poker", "Powker");
+    assertEquals(1, distance);
+    distance = Utils.getDamerauLevenshteinDistance("Kettle", "Apache Hop");
+    assertEquals(9, distance);
+    distance = Utils.getDamerauLevenshteinDistance("A quick brown fox", "A lazy dog");
+    assertEquals(13, distance);
+    distance = Utils.getDamerauLevenshteinDistance(null, "A string with length 23");
+    assertEquals(23, distance);
+    distance = Utils.getDamerauLevenshteinDistance("String length 16", null);
+    assertEquals(16, distance);
+    distance = Utils.getDamerauLevenshteinDistance(null, null);
+    assertEquals(0, distance);
+    distance = Utils.getDamerauLevenshteinDistance("", "A string with length 23");
+    assertEquals(23, distance);
+    distance = Utils.getDamerauLevenshteinDistance("String length 16", "");
+    assertEquals(16, distance);
+    distance = Utils.getDamerauLevenshteinDistance("", "");
+    assertEquals(0, distance);
   }
 }

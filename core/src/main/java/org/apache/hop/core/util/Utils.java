@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,91 +17,99 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.IVariables;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/* Levenshtein in Java, originally from Josh Drew's code at
- * http://joshdrew.com/
- * Code from http://blog.lolyco.com
- *
- */
 public class Utils {
-  private static final int[] ZERO_LENGTH_INT_ARRAY = new int[0];
 
-  private static int damerauLevenshteinDistance(String s, String t, int[] workspace) {
-    int lenS = s.length();
-    int lenT = t.length();
-    int lenS1 = lenS + 1;
-    int lenT1 = lenT + 1;
-    if (lenT1 == 1) {
-      return lenS1 - 1;
-    }
-    if (lenS1 == 1) {
-      return lenT1 - 1;
-    }
-    int[] dl = workspace;
-    int dlIndex = 0;
-    int sPrevIndex = 0, tPrevIndex = 0, rowBefore = 0, min = 0, cost = 0, tmp = 0;
-    int tri = lenS1 + 2;
-    // start row with constant
-    dlIndex = 0;
-    for (tmp = 0; tmp < lenT1; tmp++) {
-      dl[dlIndex] = tmp;
-      dlIndex += lenS1;
-    }
-    for (int sIndex = 0; sIndex < lenS; sIndex++) {
-      dlIndex = sIndex + 1;
-      dl[dlIndex] = dlIndex; // start column with constant
-      for (int tIndex = 0; tIndex < lenT; tIndex++) {
-        rowBefore = dlIndex;
-        dlIndex += lenS1;
-        // deletion
-        min = dl[rowBefore] + 1;
-        // insertion
-        tmp = dl[dlIndex - 1] + 1;
-        if (tmp < min) {
-          min = tmp;
-        }
-        cost = 1;
-        if (s.charAt(sIndex) == t.charAt(tIndex)) {
-          cost = 0;
-        }
-        if (sIndex > 0 && tIndex > 0) {
-          if (s.charAt(sIndex) == t.charAt(tPrevIndex)
-              && s.charAt(sPrevIndex) == t.charAt(tIndex)) {
-            tmp = dl[rowBefore - tri] + cost;
-            // transposition
-            if (tmp < min) {
-              min = tmp;
-            }
-          }
-        }
-        // substitution
-        tmp = dl[rowBefore - 1] + cost;
-        if (tmp < min) {
-          min = tmp;
-        }
-        dl[dlIndex] = min;
-        tPrevIndex = tIndex;
+  // Fairly simple algorithm implemented from pseudo-code algorithm documented on Wikipedia:
+  //
+  //   https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+  //
+  public static int getDamerauLevenshteinDistance(String one, String two) {
+    // A few utility variables
+    //
+    int oneLength = one == null ? 0 : one.length();
+    int twoLength = two == null ? 0 : two.length();
+    int oneTwoLength = oneLength + twoLength;
+
+    // A bit of house-keeping for null values...
+    //
+    if (StringUtils.isEmpty(one)) {
+      if (StringUtils.isEmpty(two)) {
+        return 0;
+      } else {
+        return twoLength;
       }
-      sPrevIndex = sIndex;
+    } else if (StringUtils.isEmpty(two)) {
+      return oneLength;
     }
-    return dl[dlIndex];
-  }
 
-  private static int[] getWorkspace(int sl, int tl) {
-    return new int[(sl + 1) * (tl + 1)];
-  }
+    // A distancesMatrix to keep track of distances between characters.
+    // It explores all valid distances in the loop below
+    //
+    int distancesMatrix[][] = new int[oneLength + 2][twoLength + 2];
 
-  public static int getDamerauLevenshteinDistance(String s, String t) {
-    if (s != null && t != null) {
-      return damerauLevenshteinDistance(s, t, getWorkspace(s.length(), t.length()));
-    } else {
-      return damerauLevenshteinDistance(s, t, ZERO_LENGTH_INT_ARRAY);
+    // Initialize the matrix
+    // The maximum possible length is the sum of both String lengths
+    // The minimum is obviously 0
+    //
+    distancesMatrix[0][0] = oneTwoLength;
+    for (int x = 0; x <= oneLength; x++) {
+      distancesMatrix[x + 1][1] = x;
+      distancesMatrix[x + 1][0] = oneTwoLength;
     }
+    for (int y = 0; y <= twoLength; y++) {
+      distancesMatrix[1][y + 1] = y;
+      distancesMatrix[0][y + 1] = oneTwoLength;
+    }
+    Map<Character, Integer> characterMap = new HashMap<>();
+
+    // Loop over string one and calculate distances with characters in string two
+    //
+    for (int x = 1; x <= oneLength; x++) {
+      // A temporary index to have a reference point to compare with later
+      // to compare deletion, insertion, substitution and transposition
+      //
+      int tmpIndex = 0;
+
+      // Loop over string two
+      //
+      for (int y = 1; y <= twoLength; y++) {
+        // 1-based index from pseudo-code
+        //
+        char charOne = one.charAt(x - 1);
+        char charTwo = two.charAt(y - 1);
+
+        int x1 = characterMap.getOrDefault(charTwo, 0);
+        int y1 = tmpIndex;
+
+        // Same characters: distance is 0
+        int distance = charOne == charTwo ? 0 : 1;
+        if (distance == 0) {
+          tmpIndex = y;
+        }
+
+        // Get the minimum of the 4 distances for deletion, insertion, substitution and
+        // transposition
+        //
+        distancesMatrix[x + 1][y + 1] =
+            NumberUtils.min(
+                distancesMatrix[x][y] + distance,
+                distancesMatrix[x + 1][y] + 1,
+                distancesMatrix[x][y + 1] + 1,
+                distancesMatrix[x1][y1] + (x - x1 - 1) + 1 + (y - y1 - 1));
+      }
+      characterMap.put(one.charAt(x - 1), x);
+    }
+    return distancesMatrix[oneLength + 1][twoLength + 1];
   }
 
   /**
