@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Writing metadata plugins is easy in Hop. Any Plain Old Java Object can be used as a starting point.
 [[MetadataPlugins-MetadataPlugins]]
 = Metadata plugins
 

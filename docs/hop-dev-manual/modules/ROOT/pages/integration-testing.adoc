@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: The Apache Hop team has created an integration testing framework that is being used to test key components of the software.
+
 [[integration-testing]]
 = Integration Testing
 

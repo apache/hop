@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Due to the differences between RWT and SWT, there are some anti-patterns that should be avoided when developing webSpoon and (webSpoon-) compatible plugins.
+
 = Developer Antipatterns
 
 Due to the https://www.eclipse.org/rap/developers-guide/devguide.php?topic=rwt.html[differences between RWT and SWT], there are some anti-patterns that should be avoided when developing webSpoon and (webSpoon-) compatible plugins.

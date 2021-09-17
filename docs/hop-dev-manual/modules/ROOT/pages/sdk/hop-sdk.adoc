@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: First, we need to initialize the Hop API. This means we load configuration details, search for and load plugins and so on.
 :toc:
 
 = The Hop SDK

@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: This guide is to help you set up and start development on a plugin that will not be included in the Hop repository. For more information on plugin types and how to add them to the Hop repository check out the plugin development guide.
+
 [[PluginDevelopment-OwnPluginDevelopment]]
 = Creating a remote plugin
 

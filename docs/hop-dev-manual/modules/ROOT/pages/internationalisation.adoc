@@ -14,6 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:description: Hop is already being used in many countries across the world where different languages are spoken. As such "internationalisation" represents the support for multiple languages in our software. Since it is such a long word it is typically abbreviated to i18n.
 [[Internationalisation-Internationalisation]]
 = Hop internationalisation
 
