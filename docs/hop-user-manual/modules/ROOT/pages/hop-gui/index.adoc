@@ -34,4 +34,4 @@ Covered here are:
 * xref:hop-gui/perspectives.adoc[Perspectives]: the various perspectives in the Hop Gui
 * xref:hop-gui/hop-gui-git.adoc[Working with git]: Manage files in the git version control system
 * xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]: a list of the keyboard shortcuts that are available in Hop Gui.
-* xref:hop-gui/hop-web.adoc[Hop Web (Experimental)]: a web version of Hop Gui that is not yet 100% ready for daily use, but getting closer every day
+* xref:hop-gui/hop-web.adoc[Hop Web]: a web version of Hop Gui provides the exact same functionality and user experience as the desktop version
