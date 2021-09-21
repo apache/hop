@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hop-plugins-misc-passwords</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>Hop Plugins Miscellaneous Passwords</name>
@@ -31,7 +31,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-misc</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <dependencies>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
