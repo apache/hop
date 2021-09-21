@@ -62,7 +62,6 @@
         <module>getpop</module>
         <module>http</module>
         <module>mail</module>
-        <module>mailvalidator</module>
         <module>movefiles</module>
         <module>msgboxinfo</module>
         <module>mssqlbulkload</module>

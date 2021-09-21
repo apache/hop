@@ -42,35 +42,8 @@
     </properties>
 
     <dependencies>
-        <!--           <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-core-plugins</artifactId>
-                    <version>${hop-plugins-core.version}</version>
-                    <type>zip</type>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>*</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>-->
 
-        <!--
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-dummy-plugins</artifactId>
-                    <version>${hop-plugins-dummy.version}</version>
-                    <type>zip</type>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>*</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-        -->
-
-        <!-- Job entry plugins -->
+        <!-- Actions -->
 
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -436,18 +409,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-mailvalidator</artifactId>
-            <version>${hop-plugins-actions.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -1639,19 +1600,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-assemblies-plugins-transforms-mailinput</artifactId>
-            <version>${hop-plugins-transforms.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mailvalidator</artifactId>
             <version>${hop-plugins-transforms.version}</version>
             <type>zip</type>
             <exclusions>

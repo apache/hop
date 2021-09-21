@@ -54,10 +54,10 @@ public class MessagesSourceCrawlerTest {
   @Test
   public void lookForOccurrencesInFile_PkgReferenceByOtherClass() throws Exception {
 
-    String sourceFolder = "../plugins/actions/mailvalidator/";
+    String sourceFolder = "../plugins/actions/abort/";
     String sourceFile =
         sourceFolder
-            + "src/main/java/org/apache/hop/workflow/actions/mailvalidator/MailValidation.java";
+            + "/src/main/java/org/apache/hop/workflow/actions/abort/ActionAbort.java";
     FileObject fileObject = HopVfs.getFileObject(sourceFile);
 
     crawler.lookForOccurrencesInFile(sourceFolder, fileObject);
