@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,9 @@
 
 package org.apache.hop.core;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -54,8 +57,8 @@ public class ResultFile implements Cloneable {
   };
   private static final String XML_TAG = "result-file";
 
-  private int type;
-  private FileObject file;
+  @JsonIgnore private int type;
+  @JsonIgnore private FileObject file;
   private String originParent;
   private String origin;
   private String comment;
@@ -147,10 +150,12 @@ public class ResultFile implements Cloneable {
   }
 
   /** @return The description of this result files type. */
+  @JsonIgnore
   public String getTypeDesc() {
     return fileTypeDesc[type];
   }
 
+  @JsonInclude
   public String getTypeCode() {
     return fileTypeCode[type];
   }
@@ -196,6 +201,7 @@ public class ResultFile implements Cloneable {
   }
 
   /** @return Returns the timestamp. */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   public Date getTimestamp() {
     return timestamp;
   }
@@ -206,6 +212,7 @@ public class ResultFile implements Cloneable {
   }
 
   /** @return an output Row for this Result File object. */
+  @JsonIgnore
   public RowMetaAndData getRow() {
     RowMetaAndData row = new RowMetaAndData();
 
@@ -233,6 +240,7 @@ public class ResultFile implements Cloneable {
     return row;
   }
 
+  @JsonIgnore
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 

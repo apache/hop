@@ -267,8 +267,14 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print("</tr>");
           out.print("</table>");
           out.print("</div>");
+
+          // Download as XML section...
+          //
           out.println(
               "<div style=\"padding: 0px 0px 0px 20px; width: 90px; display: table-cell; vertical-align: top;\">");
+
+          // XML Download icon
+          //
           out.print(
               "<div style=\"display: block; margin-left: auto; margin-right: auto; padding: 5px 0px;\">");
           out.print(
@@ -282,7 +288,10 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                   + "<img src=\""
                   + prefix
                   + "/images/download.svg\" style=\"display: block; margin: auto; width: 22px; height: 22px;\"></a>");
-          out.print("</div>");
+          out.print("</div>"); // End of icon
+
+          // Show as XML text
+          //
           out.println("<div style=\"text-align: center; padding-top: 12px; font-size: 12px;\">");
           out.print(
               "<a target=\"_blank\" href=\""
@@ -294,8 +303,48 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                   + "&xml=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsXml")
                   + "</a>");
-          out.print("</div>");
-          out.print("</div>");
+          out.print("</div>"); // End of XML text
+
+          out.print("</div>"); // End of XML block
+
+          // Download as JSON block...
+          //
+          out.println(
+              "<div style=\"padding: 0px 0px 0px 20px; width: 90px; display: table-cell; vertical-align: top;\">");
+
+          // JSON Download icon
+          //
+          out.print(
+              "<div style=\"display: block; margin-left: auto; margin-right: auto; padding: 5px 0px;\">");
+          out.print(
+              "<a target=\"_blank\" href=\""
+                  + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
+                  + "?name="
+                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + "&id="
+                  + URLEncoder.encode(id, "UTF-8")
+                  + "&json=y\">"
+                  + "<img src=\""
+                  + prefix
+                  + "/images/download.svg\" style=\"display: block; margin: auto; width: 22px; height: 22px;\"></a>");
+          out.print("</div>"); // End of JSON icon
+
+          // View as JSON text
+          //
+          out.println("<div style=\"text-align: center; padding-top: 12px; font-size: 12px;\">");
+          out.print(
+              "<a target=\"_blank\" href=\""
+                  + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
+                  + "?name="
+                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + "&id="
+                  + URLEncoder.encode(id, "UTF-8")
+                  + "&json=y\">"
+                  + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsJson")
+                  + "</a>");
+          out.print("</div>"); // End of JSON text
+          out.print("</div>"); // End of JSON block
+
           out.print("</div>");
           out.print("</div>");
 
