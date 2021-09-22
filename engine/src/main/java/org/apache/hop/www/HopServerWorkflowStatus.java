@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -42,6 +43,8 @@ public class HopServerWorkflowStatus {
   private String loggingString;
   private int firstLoggingLineNr;
   private int lastLoggingLineNr;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   private Date logDate;
 
   private Result result;
