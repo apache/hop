@@ -89,7 +89,7 @@ The goal is to add Metadata Injection support to all transforms, The current (1-
 |Credit card validator|N
 |CSV file input|Y
 |Data grid|Y
-|Database join|N
+|Database join|Y
 |Database lookup|Y
 |De-serialize from file|N
 |Delay row|Y
