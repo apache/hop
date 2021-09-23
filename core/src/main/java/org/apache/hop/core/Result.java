@@ -662,6 +662,7 @@ public class Result implements Cloneable {
    * @return a list of type ResultFile containing this Result's ResultFile objects
    * @see ResultFile
    */
+  @JsonIgnore
   public List<ResultFile> getResultFilesList() {
     return new ArrayList<>(resultFiles.values());
   }
