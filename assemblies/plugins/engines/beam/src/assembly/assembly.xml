@@ -251,7 +251,6 @@
         <include>org.apache.beam:beam-vendor-sdks-java-extensions-protobuf</include>
         <include>org.apache.hbase:hbase-shaded-client</include>
         <include>org.apache.commons:commons-crypto</include>
-        <include>org.apache.commons:commons-lang3</include>
         <include>org.apache.commons:commons-math3</include>
         <include>org.apache.curator:curator-client</include>
         <include>org.apache.curator:curator-framework</include>

@@ -14,7 +14,6 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -59,8 +58,6 @@
         <high-scale-lib.version>1.0.6</high-scale-lib.version>
         <supercsv.version>2.1.0</supercsv.version>
         <libthrift.version>0.12.0</libthrift.version>
-
-        <apache.commons.lang3.version>3.10</apache.commons.lang3.version>
 
         <mockito.version>1.9.5</mockito.version>
         <junit.version>4.11</junit.version>
