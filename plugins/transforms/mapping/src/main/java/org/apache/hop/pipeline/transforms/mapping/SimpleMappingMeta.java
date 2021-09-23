@@ -33,12 +33,10 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.input.MappingInputMeta;
@@ -59,7 +57,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
     documentationUrl = "/pipeline/transforms/simple-mapping.html")
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
-    implements ITransformMeta<SimpleMapping, SimpleMappingData>, ISubPipelineAwareMeta {
+    implements ISubPipelineAwareMeta {
 
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
@@ -307,21 +305,6 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SimpleMapping createTransform(
-      TransformMeta transformMeta,
-      SimpleMappingData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new SimpleMapping(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public SimpleMappingData getTransformData() {
-    return new SimpleMappingData();
   }
 
   /** @return the mappingParameters */

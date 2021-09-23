@@ -34,15 +34,11 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
-import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-
 import java.util.List;
 import java.util.Map;
 
@@ -53,8 +49,7 @@ import java.util.Map;
     image = "beam-timestamp.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl = "/pipeline/transforms/beamtimestamp.html")
-public class BeamTimestampMeta extends BaseTransformMeta
-    implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
+public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData> implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "field_name")
   private String fieldName;
@@ -64,21 +59,6 @@ public class BeamTimestampMeta extends BaseTransformMeta
 
   public BeamTimestampMeta() {
     fieldName = "";
-  }
-
-  @Override
-  public Dummy createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Dummy(transformMeta, new DummyMeta(), data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

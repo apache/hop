@@ -33,10 +33,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -56,8 +54,7 @@ import java.util.zip.GZIPInputStream;
     description = "i18n::CubeInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/cubeinput.html")
-public class CubeInputMeta extends BaseTransformMeta
-    implements ITransformMeta<CubeInput, CubeInputData> {
+public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
 
   private static final Class<?> PKG = CubeInputMeta.class; // For Translator
 
@@ -205,21 +202,6 @@ public class CubeInputMeta extends BaseTransformMeta
             BaseMessages.getString(PKG, "CubeInputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  @Override
-  public CubeInput createTransform(
-      TransformMeta transformMeta,
-      CubeInputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new CubeInput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public CubeInputData getTransformData() {
-    return new CubeInputData();
   }
 
   /**

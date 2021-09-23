@@ -41,8 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/avro-file-input.html",
     keywords = {"Avro", "Read Avro"})
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
-public class AvroFileInputMeta extends BaseTransformMeta
-    implements ITransformMeta<AvroFileInput, AvroFileInputData> {
+public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFileInputData> {
 
   @HopMetadataProperty(key = "output_field")
   private String outputFieldName;
@@ -82,21 +81,6 @@ public class AvroFileInputMeta extends BaseTransformMeta
     //
     IValueMeta outputValue = new ValueMetaAvroRecord(outputFieldName);
     inputRowMeta.addValueMeta(outputValue);
-  }
-
-  @Override
-  public AvroFileInput createTransform(
-      TransformMeta transformMeta,
-      AvroFileInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AvroFileInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AvroFileInputData getTransformData() {
-    return new AvroFileInputData();
   }
 
   /**

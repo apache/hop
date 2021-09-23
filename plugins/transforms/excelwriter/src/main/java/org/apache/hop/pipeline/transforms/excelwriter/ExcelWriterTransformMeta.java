@@ -30,10 +30,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -51,8 +49,7 @@ import java.util.Map;
     description = "i18n::BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/excelwriter.html")
-public class ExcelWriterTransformMeta extends BaseTransformMeta
-    implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
+public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
@@ -521,20 +518,5 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopException(e);
     }
-  }
-
-  @Override
-  public ExcelWriterTransform createTransform(
-      TransformMeta transformMeta,
-      ExcelWriterTransformData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExcelWriterTransform(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExcelWriterTransformData getTransformData() {
-    return new ExcelWriterTransformData();
   }
 }

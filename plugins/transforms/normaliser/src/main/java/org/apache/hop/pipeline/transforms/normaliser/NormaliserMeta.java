@@ -33,13 +33,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -80,8 +77,7 @@ DATE      PRODUCT    Sales   Number
 @InjectionSupported(
     localizationPrefix = "NormaliserMeta.Injection.",
     groups = {"FIELDS"})
-public class NormaliserMeta extends BaseTransformMeta
-    implements ITransformMeta<Normaliser, NormaliserData> {
+public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData> {
   private static final Class<?> PKG = NormaliserMeta.class; // For Translator
 
   private String typeField; // Name of the new type-field.
@@ -347,21 +343,6 @@ public class NormaliserMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public Normaliser createTransform(
-      TransformMeta transformMeta,
-      NormaliserData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Normaliser(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public NormaliserData getTransformData() {
-    return new NormaliserData();
   }
 
   public static class NormaliserField implements Cloneable {

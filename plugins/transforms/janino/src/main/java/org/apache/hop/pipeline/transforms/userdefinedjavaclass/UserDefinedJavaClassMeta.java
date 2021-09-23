@@ -37,11 +37,9 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.ClassBodyEvaluator;
@@ -66,8 +64,7 @@ import java.util.stream.Collectors;
     description = "i18n::UserDefinedJavaClass.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     documentationUrl = "/pipeline/transforms/userdefinedjavaclass.html")
-public class UserDefinedJavaClassMeta extends BaseTransformMeta
-    implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
+public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   public enum ElementNames {
@@ -729,27 +726,6 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
               transforminfo);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public UserDefinedJavaClass createTransform(
-      TransformMeta transformMeta,
-      UserDefinedJavaClassData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    UserDefinedJavaClass userDefinedJavaClass =
-        new UserDefinedJavaClass(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-    if (pipeline.hasHaltedComponents()) {
-      return null;
-    }
-
-    return userDefinedJavaClass;
-  }
-
-  @Override
-  public UserDefinedJavaClassData getTransformData() {
-    return new UserDefinedJavaClassData();
   }
 
   @Override

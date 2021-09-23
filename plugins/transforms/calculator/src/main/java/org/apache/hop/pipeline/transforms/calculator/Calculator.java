@@ -43,8 +43,7 @@ import java.util.List;
  * @author Matt
  * @since 8-sep-2005
  */
-public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData>
-    implements ITransform<CalculatorMeta, CalculatorData> {
+public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 

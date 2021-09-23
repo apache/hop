@@ -25,11 +25,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -42,8 +40,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/blockuntiltransformsfinish.html")
-public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
-    implements ITransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
+public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 
   private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
 
@@ -120,21 +117,6 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public BlockUntilTransformsFinish createTransform(
-      TransformMeta transformMeta,
-      BlockUntilTransformsFinishData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new BlockUntilTransformsFinish(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public BlockUntilTransformsFinishData getTransformData() {
-    return new BlockUntilTransformsFinishData();
   }
 
   @Override

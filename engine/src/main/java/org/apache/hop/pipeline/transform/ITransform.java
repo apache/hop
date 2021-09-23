@@ -41,7 +41,7 @@ import java.util.*;
  *
  * @author Matt
  */
-public interface ITransform<Meta extends ITransformMeta, Data extends ITransformData>
+public interface ITransform
     extends IVariables, IHasLogChannel, IEngineComponent, IExtensionData {
 
   /** @return the pipeline that is executing this transform */
@@ -340,20 +340,14 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   }
 
   /** @return Returns the transform specific metadata. */
-  Meta getMeta();
-
-  /** @param meta The transform specific metadata. */
-  void setMeta(Meta meta);
+  ITransformMeta getMeta();
 
   /**
    * Get the transform data
    *
    * @return the tansform data
    */
-  Data getData();
-
-  /** @param data The transform data to set */
-  void setData(Data data);
+  ITransformData getData();
 
   /**
    * Gets initStartDate

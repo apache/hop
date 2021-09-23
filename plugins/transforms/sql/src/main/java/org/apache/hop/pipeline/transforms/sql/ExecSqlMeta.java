@@ -57,7 +57,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "ExecSqlMeta.Injection.",
     groups = {"PARAMETERS"})
-public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<ExecSql, ExecSqlData> {
+public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 
   private DatabaseMeta databaseMeta;
@@ -407,21 +407,6 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ExecSqlData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExecSql(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExecSqlData getTransformData() {
-    return new ExecSqlData();
   }
 
   public void analyseImpact(

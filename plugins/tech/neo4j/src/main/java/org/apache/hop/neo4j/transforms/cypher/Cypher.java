@@ -32,7 +32,6 @@ import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.json.simple.JSONValue;
 import org.neo4j.driver.Record;
@@ -53,8 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Cypher extends BaseTransform<CypherMeta, CypherData>
-    implements ITransform<CypherMeta, CypherData> {
+public class Cypher extends BaseTransform<CypherMeta, CypherData> {
 
   public Cypher(
       TransformMeta transformMeta,

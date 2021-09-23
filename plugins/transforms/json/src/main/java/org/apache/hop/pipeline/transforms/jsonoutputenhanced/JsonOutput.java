@@ -49,8 +49,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
-    implements ITransform<JsonOutputMeta, JsonOutputData> {
+public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   private static final Class<?> PKG =
       JsonOutput.class; // for i18n purposes, needed by Translator2!!
 

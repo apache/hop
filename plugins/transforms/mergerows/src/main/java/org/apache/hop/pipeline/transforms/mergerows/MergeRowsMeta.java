@@ -34,7 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.*;
@@ -54,8 +53,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.MergeRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     documentationUrl = "/pipeline/transforms/mergerows.html")
-public class MergeRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<MergeRows, MergeRowsData> {
+public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
 
   @Injection(name = "FLAG_FIELD")
@@ -121,16 +119,6 @@ public class MergeRowsMeta extends BaseTransformMeta
     System.arraycopy(keyFields, 0, retval.keyFields, 0, nrKeys);
     System.arraycopy(valueFields, 0, retval.valueFields, 0, nrValues);
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MergeRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MergeRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -328,11 +316,6 @@ public class MergeRowsMeta extends BaseTransformMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public MergeRowsData getTransformData() {
-    return new MergeRowsData();
   }
 
   /** Returns the Input/Output metadata for this transform. */

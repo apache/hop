@@ -35,10 +35,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -54,7 +52,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.Delete",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/delete.html")
-public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Delete, DeleteData> {
+public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
 
   /** database connection */
@@ -437,17 +435,6 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
         impact.add(ii);
       }
     }
-  }
-
-  @Override
-  public Delete createTransform(
-      TransformMeta transformMeta, DeleteData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new Delete(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DeleteData getTransformData() {
-    return new DeleteData();
   }
 
   @Override

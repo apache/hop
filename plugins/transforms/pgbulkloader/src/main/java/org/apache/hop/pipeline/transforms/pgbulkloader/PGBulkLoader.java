@@ -52,8 +52,7 @@ import java.sql.Statement;
 import java.util.List;
 
 /** Performs a bulk load to a postgres table. */
-public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData>
-    implements ITransform<PGBulkLoaderMeta, PGBulkLoaderData> {
+public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData> {
 
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 

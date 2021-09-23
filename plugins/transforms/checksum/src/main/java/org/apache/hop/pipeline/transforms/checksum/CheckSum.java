@@ -25,7 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.ByteArrayOutputStream;
@@ -39,8 +38,7 @@ import java.util.zip.CRC32;
  * @author Samatar Hassan
  * @since 30-06-2008
  */
-public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData>
-    implements ITransform<CheckSumMeta, CheckSumData> {
+public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
   private static final Class<?> PKG = CheckSumMeta.class; // For Translator
 

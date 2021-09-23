@@ -27,21 +27,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The Coalesce Transformation selects the first non null value from a group of input fields and
  * passes it down the stream or returns null if all the fields are null.
- *
- * @author Nicolas ADMENT
- * @since 18-mai-2016
  */
-public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
-    implements ITransform<CoalesceMeta, CoalesceData> {
+public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData> {
 
   private static final Class<?> PKG = CoalesceMeta.class;
 

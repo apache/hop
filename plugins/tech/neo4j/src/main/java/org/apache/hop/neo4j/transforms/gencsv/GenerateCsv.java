@@ -38,8 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
-    implements ITransform<GenerateCsvMeta, GenerateCsvData> {
+public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData> {
 
   /**
    * This is the base transform that forms that basis for all transform. You can derive from this

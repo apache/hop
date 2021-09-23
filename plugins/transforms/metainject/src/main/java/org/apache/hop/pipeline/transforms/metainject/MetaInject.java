@@ -50,8 +50,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Matt
  * @since 2007-07-05
  */
-public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
-    implements ITransform<MetaInjectMeta, MetaInjectData> {
+public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class; // For Translator
 
   private static final Lock repoSaveLock = new ReentrantLock();

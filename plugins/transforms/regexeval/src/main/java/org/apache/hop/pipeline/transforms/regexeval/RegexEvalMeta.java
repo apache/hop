@@ -34,11 +34,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -51,8 +48,7 @@ import java.util.List;
     description = "i18n::RegexEval.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     documentationUrl = "/pipeline/transforms/regexeval.html")
-public class RegexEvalMeta extends BaseTransformMeta
-    implements ITransformMeta<RegexEval, RegexEvalData> {
+public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 
   private String script;
@@ -608,21 +604,6 @@ public class RegexEvalMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      RegexEvalData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new RegexEval(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public RegexEvalData getTransformData() {
-    return new RegexEvalData();
   }
 
   @Override

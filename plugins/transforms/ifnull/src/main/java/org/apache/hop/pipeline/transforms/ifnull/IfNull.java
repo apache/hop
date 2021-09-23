@@ -38,8 +38,7 @@ import java.util.List;
  * @author Samatar
  * @since 30-06-2008
  */
-public class IfNull extends BaseTransform<IfNullMeta, IfNullData>
-    implements ITransform<IfNullMeta, IfNullData> {
+public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
 
   private static final Class<?> PKG = IfNullMeta.class; // For Translator
 

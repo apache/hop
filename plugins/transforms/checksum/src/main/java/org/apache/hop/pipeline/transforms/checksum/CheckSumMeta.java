@@ -33,10 +33,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -49,8 +47,7 @@ import java.util.List;
     description = "i18n::CheckSum.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/addchecksum.html")
-public class CheckSumMeta extends BaseTransformMeta
-    implements ITransformMeta<CheckSum, CheckSumData> {
+public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
 
   private static final Class<?> PKG = CheckSumMeta.class; // For Translator
 
@@ -331,17 +328,6 @@ public class CheckSumMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public CheckSum createTransform(
-      TransformMeta transformMeta, CheckSumData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new CheckSum(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public CheckSumData getTransformData() {
-    return new CheckSumData();
   }
 
   @Override

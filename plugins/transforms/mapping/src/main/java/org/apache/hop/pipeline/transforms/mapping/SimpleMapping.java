@@ -41,8 +41,7 @@ import java.util.List;
  * @author Matt
  * @since 22-nov-2005
  */
-public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData>
-    implements ITransform<SimpleMappingMeta, SimpleMappingData> {
+public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> {
 
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 

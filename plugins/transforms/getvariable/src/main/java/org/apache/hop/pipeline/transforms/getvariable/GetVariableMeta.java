@@ -37,10 +37,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -56,8 +54,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.GetVariable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     documentationUrl = "/pipeline/transforms/getvariable.html")
-public class GetVariableMeta extends BaseTransformMeta
-    implements ITransformMeta<GetVariable, GetVariableData> {
+public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableData> {
   private static final Class<?> PKG = GetVariableMeta.class; // For Translator
 
   @InjectionDeep private FieldDefinition[] fieldDefinitions;
@@ -288,21 +285,6 @@ public class GetVariableMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public GetVariable createTransform(
-      TransformMeta transformMeta,
-      GetVariableData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetVariable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetVariableData getTransformData() {
-    return new GetVariableData();
   }
 
   public static class FieldDefinition implements Cloneable {

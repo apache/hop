@@ -19,15 +19,9 @@ package org.apache.hop.parquet.transforms.output;
 
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +33,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/parquet-file-output.html",
     keywords = {"parquet", "write", "file", "column"})
-public class ParquetOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<ParquetOutput, ParquetOutputData> {
+public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetOutputData> {
 
   @HopMetadataProperty(key = "filename_base")
   private String filenameBase;
@@ -122,21 +115,6 @@ public class ParquetOutputMeta extends BaseTransformMeta
     this.dataPageSize = m.dataPageSize;
     this.dictionaryPageSize = m.dictionaryPageSize;
     this.fields = m.fields;
-  }
-
-  @Override
-  public ParquetOutputData getTransformData() {
-    return new ParquetOutputData();
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ParquetOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ParquetOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   /**

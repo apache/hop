@@ -27,10 +27,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -41,8 +38,7 @@ import org.w3c.dom.Node;
     image = "neo4j_split.svg",
     categoryDescription = "Neo4j",
     documentationUrl = "/plugins/transforms/split-graph.html")
-public class SplitGraphMeta extends BaseTransformMeta
-    implements ITransformMeta<SplitGraph, SplitGraphData> {
+public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData> {
 
   public static final String GRAPH_FIELD = "graph_field";
   public static final String TYPE_FIELD = "type_field";
@@ -105,21 +101,6 @@ public class SplitGraphMeta extends BaseTransformMeta
     typeField = XmlHandler.getTagValue(transformNode, TYPE_FIELD);
     idField = XmlHandler.getTagValue(transformNode, ID_FIELD);
     propertySetField = XmlHandler.getTagValue(transformNode, PROPERTY_SET_FIELD);
-  }
-
-  @Override
-  public SplitGraph createTransform(
-      TransformMeta transformMeta,
-      SplitGraphData iTransformData,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SplitGraph(transformMeta, this, iTransformData, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SplitGraphData getTransformData() {
-    return new SplitGraphData();
   }
 
   /**

@@ -193,21 +193,6 @@ public class SalesforceDeleteMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SalesforceDeleteData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SalesforceDelete(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SalesforceDeleteData getTransformData() {
-    return new SalesforceDeleteData();
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

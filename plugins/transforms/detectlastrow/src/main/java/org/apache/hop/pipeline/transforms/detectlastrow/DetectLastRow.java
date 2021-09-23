@@ -24,14 +24,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * Detect last row in a stream
  */
-public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData>
-    implements ITransform<DetectLastRowMeta, DetectLastRowData> {
+public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> {
 
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
 

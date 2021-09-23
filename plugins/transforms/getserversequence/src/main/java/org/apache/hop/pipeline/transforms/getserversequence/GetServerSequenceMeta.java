@@ -29,10 +29,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -45,8 +43,7 @@ import java.util.List;
     description = "i18n::GetServerSequence.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/getserversequence.html")
-public class GetServerSequenceMeta extends BaseTransformMeta
-    implements ITransformMeta<GetServerSequence, GetServerSequenceData> {
+public class GetServerSequenceMeta extends BaseTransformMeta<GetServerSequence, GetServerSequenceData> {
   private static final Class<?> PKG = GetServerSequenceMeta.class; // For Translator
 
   private String valuename;
@@ -141,21 +138,6 @@ public class GetServerSequenceMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public GetServerSequence createTransform(
-      TransformMeta transformMeta,
-      GetServerSequenceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetServerSequence(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetServerSequenceData getTransformData() {
-    return new GetServerSequenceData();
   }
 
   /** @return the valuename */

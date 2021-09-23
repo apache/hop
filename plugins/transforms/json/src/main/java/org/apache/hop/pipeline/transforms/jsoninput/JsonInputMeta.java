@@ -93,8 +93,7 @@ public class JsonInputMeta
         JsonInputMeta.InputFiles,
         JsonInputField,
         JsonInput,
-        JsonInputData>
-    implements ITransformMeta<JsonInput, JsonInputData> {
+        JsonInputData> {
   private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
@@ -880,21 +879,6 @@ public class JsonInputMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public JsonInput createTransform(
-      TransformMeta transformMeta,
-      JsonInputData jsonInputData,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new JsonInput(transformMeta, this, jsonInputData, cnr, tr, pipeline);
-  }
-
-  @Override
-  public JsonInputData getTransformData() {
-    return new JsonInputData();
   }
 
   @Override

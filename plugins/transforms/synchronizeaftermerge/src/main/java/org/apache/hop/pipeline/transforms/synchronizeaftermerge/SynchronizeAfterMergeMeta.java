@@ -39,11 +39,8 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -59,8 +56,7 @@ import java.util.List;
     description = "i18n::SynchronizeAfterMerge.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/synchronizeaftermerge.html")
-public class SynchronizeAfterMergeMeta extends BaseTransformMeta
-    implements ITransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
+public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
 
   /** what's the lookup schema? */
@@ -1004,21 +1000,6 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
         impact.add(ii);
       }
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SynchronizeAfterMergeData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SynchronizeAfterMerge(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SynchronizeAfterMergeData getTransformData() {
-    return new SynchronizeAfterMergeData();
   }
 
   @Override

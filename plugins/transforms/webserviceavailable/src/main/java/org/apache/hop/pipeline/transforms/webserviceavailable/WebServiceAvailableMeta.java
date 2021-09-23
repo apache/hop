@@ -29,10 +29,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -44,8 +42,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceAvailable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/checkwebserviceavailable.html")
-public class WebServiceAvailableMeta extends BaseTransformMeta
-    implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
+public class WebServiceAvailableMeta extends BaseTransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
 
   /** dynamic filename */
@@ -186,21 +183,6 @@ public class WebServiceAvailableMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public WebServiceAvailable createTransform(
-      TransformMeta transformMeta,
-      WebServiceAvailableData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new WebServiceAvailable(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public WebServiceAvailableData getTransformData() {
-    return new WebServiceAvailableData();
   }
 
   @Override

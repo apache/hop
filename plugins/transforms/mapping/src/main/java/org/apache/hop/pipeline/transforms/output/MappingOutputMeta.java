@@ -24,10 +24,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -39,8 +37,7 @@ import java.util.List;
     image = "MPO.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
     documentationUrl = "/pipeline/transforms/mapping-output.html")
-public class MappingOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<MappingOutput, MappingOutputData> {
+public class MappingOutputMeta extends BaseTransformMeta<MappingOutput, MappingOutputData> {
 
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
@@ -103,20 +100,5 @@ public class MappingOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public MappingOutput createTransform(
-      TransformMeta transformMeta,
-      MappingOutputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new MappingOutput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MappingOutputData getTransformData() {
-    return new MappingOutputData();
   }
 }

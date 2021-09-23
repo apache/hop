@@ -33,13 +33,6 @@ public class RunThread implements Runnable {
 
   public RunThread(TransformMetaDataCombi combi) {
     this.transform = combi.transform;
-
-    // Sanity check just in case the provided meta or data wasn't used during the creation of the
-    // transform
-    //
-    this.transform.setMeta(combi.meta);
-    this.transform.setData(combi.data);
-
     this.log = transform.getLogChannel();
   }
 

@@ -24,8 +24,8 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
 @Deprecated
-public interface IInputFileMeta<Main extends ITransform, Data extends ITransformData>
-    extends ITransformMeta<Main, Data> {
+public interface IInputFileMeta
+    extends ITransformMeta {
 
   TextFileInputField[] getInputFields();
 

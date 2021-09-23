@@ -38,10 +38,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -57,8 +55,7 @@ import java.util.Map;
     description = "i18n::BaseTransform.TypeTooltipDesc.GetSubFolders",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/getsubfolders.html")
-public class GetSubFoldersMeta extends BaseTransformMeta
-    implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
+public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFoldersData> {
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 
   public static final String[] RequiredFoldersDesc =
@@ -445,21 +442,6 @@ public class GetSubFoldersMeta extends BaseTransformMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public GetSubFolders createTransform(
-      TransformMeta transformMeta,
-      GetSubFoldersData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetSubFolders(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetSubFoldersData getTransformData() {
-    return new GetSubFoldersData();
   }
 
   /**

@@ -28,7 +28,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -39,8 +38,7 @@ import java.sql.ResultSet;
  * @author Samatar
  * @since 13-10-2008
  */
-public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData>
-    implements ITransform<DynamicSqlRowMeta, DynamicSqlRowData> {
+public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData> {
 
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 

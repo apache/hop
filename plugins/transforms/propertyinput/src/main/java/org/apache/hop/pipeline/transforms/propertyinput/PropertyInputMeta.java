@@ -35,11 +35,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -55,8 +52,7 @@ import java.util.Map;
     description = "i18n::PropertyInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/propertyinput.html")
-public class PropertyInputMeta extends BaseTransformMeta
-    implements ITransformMeta<PropertyInput, PropertyInputData> {
+public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, PropertyInputData> {
   private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
@@ -538,16 +534,6 @@ public class PropertyInputMeta extends BaseTransformMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PropertyInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PropertyInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(500);
     retval.append("    ").append(XmlHandler.addTagValue("file_type", fileType));
@@ -970,12 +956,6 @@ public class PropertyInputMeta extends BaseTransformMeta
       remarks.add(cr);
     }
   }
-
-  @Override
-  public PropertyInputData getTransformData() {
-    return new PropertyInputData();
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;

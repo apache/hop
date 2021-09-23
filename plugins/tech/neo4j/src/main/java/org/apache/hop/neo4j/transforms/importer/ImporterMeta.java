@@ -25,10 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -39,8 +36,7 @@ import org.w3c.dom.Node;
     image = "neo4j_import.svg",
     categoryDescription = "Neo4j",
     documentationUrl = "/pipeline/transforms/neo4j-import.html")
-public class ImporterMeta extends BaseTransformMeta
-    implements ITransformMeta<Importer, ImporterData> {
+public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
 
   public static final String DB_NAME = "db_name";
   public static final String FILENAME_FIELD = "filename_field_name";
@@ -184,21 +180,6 @@ public class ImporterMeta extends BaseTransformMeta
     maxMemory = XmlHandler.getTagValue(transformNode, MAX_MEMORY);
     readBufferSize = XmlHandler.getTagValue(transformNode, READ_BUFFER_SIZE);
     processors = XmlHandler.getTagValue(transformNode, PROCESSORS);
-  }
-
-  @Override
-  public Importer createTransform(
-      TransformMeta transformMeta,
-      ImporterData iTransformData,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Importer(transformMeta, this, iTransformData, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ImporterData getTransformData() {
-    return new ImporterData();
   }
 
   /**

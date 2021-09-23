@@ -37,8 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 31-Okt-2003
  * @since 15-01-2008
  */
-public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData>
-    implements ITransform<FieldSplitterMeta, FieldSplitterData> {
+public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData> {
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   public FieldSplitter(

@@ -30,11 +30,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -50,8 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SetValueField",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/setvaluefield.html")
-public class SetValueFieldMeta extends BaseTransformMeta
-    implements ITransformMeta<SetValueField, SetValueFieldData> {
+public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValueFieldData> {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
 
   @Injection(name = "FIELD_NAME", group = "FIELDS")
@@ -106,16 +102,6 @@ public class SetValueFieldMeta extends BaseTransformMeta
     System.arraycopy(replaceByFieldValue, 0, retval.replaceByFieldValue, 0, count);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SetValueFieldData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SetValueField(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
@@ -239,11 +225,6 @@ public class SetValueFieldMeta extends BaseTransformMeta
         }
       }
     }
-  }
-
-  @Override
-  public SetValueFieldData getTransformData() {
-    return new SetValueFieldData();
   }
 
   @Override

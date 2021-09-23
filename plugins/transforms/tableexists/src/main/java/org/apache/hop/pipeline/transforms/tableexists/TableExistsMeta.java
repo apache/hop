@@ -30,10 +30,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -45,8 +43,7 @@ import java.util.List;
     description = "i18n::TableExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "/pipeline/transforms/tableexists.html")
-public class TableExistsMeta extends BaseTransformMeta
-    implements ITransformMeta<TableExists, TableExistsData> {
+public class TableExistsMeta extends BaseTransformMeta<TableExists, TableExistsData> {
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator
 
   /** database connection */
@@ -113,16 +110,6 @@ public class TableExistsMeta extends BaseTransformMeta
 
   public void setSchemaName(String name) {
     this.schemaName = name;
-  }
-
-  @Override
-  public TableExists createTransform(
-      TransformMeta transformMeta,
-      TableExistsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TableExists(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -203,11 +190,6 @@ public class TableExistsMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public TableExistsData getTransformData() {
-    return new TableExistsData();
   }
 
   @Override

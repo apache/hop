@@ -47,8 +47,7 @@ import java.util.List;
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "SSTableOutput.Injection.")
 @ParentFirst(patterns = {".*"})
-public class SSTableOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<SSTableOutput, SSTableOutputData> {
+public class SSTableOutputMeta extends BaseTransformMeta<SSTableOutput, SSTableOutputData> {
 
   protected static final Class<?> PKG = SSTableOutputMeta.class;
 
@@ -285,20 +284,5 @@ public class SSTableOutputMeta extends BaseTransformMeta
     directory = System.getProperty("java.io.tmpdir");
     bufferSize = "16";
     table = "";
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SSTableOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SSTableOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SSTableOutputData getTransformData() {
-    return new SSTableOutputData();
   }
 }

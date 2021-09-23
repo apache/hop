@@ -45,8 +45,7 @@ import java.util.List;
  * @author Matt
  * @since 5-apr-2003
  */
-public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData>
-    implements ITransform<SelectValuesMeta, SelectValuesData> {
+public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> {
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   public SelectValues(

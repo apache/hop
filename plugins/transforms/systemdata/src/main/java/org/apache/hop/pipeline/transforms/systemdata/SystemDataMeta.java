@@ -32,11 +32,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -51,8 +48,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SystemInfo",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/getsystemdata.html")
-public class SystemDataMeta extends BaseTransformMeta
-    implements ITransformMeta<SystemData, SystemDataData> {
+public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData> {
   private static final Class<?> PKG = SystemDataMeta.class; // For Translator
 
   @Injection(name = "FIELD_NAME")
@@ -108,16 +104,6 @@ public class SystemDataMeta extends BaseTransformMeta
     System.arraycopy(fieldType, 0, retval.fieldType, 0, count);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SystemDataData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SystemData(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -314,11 +300,6 @@ public class SystemDataMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SystemDataData getTransformData() {
-    return new SystemDataData();
   }
 
   @Override

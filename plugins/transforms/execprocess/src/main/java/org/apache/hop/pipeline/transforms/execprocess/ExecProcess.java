@@ -25,7 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.BufferedReader;
@@ -41,8 +40,7 @@ import java.util.List;
  * @author Samatar
  * @since 03-11-2008
  */
-public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
-    implements ITransform<ExecProcessMeta, ExecProcessData> {
+public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> {
 
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
 

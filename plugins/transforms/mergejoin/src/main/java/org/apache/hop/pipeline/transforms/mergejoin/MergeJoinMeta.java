@@ -47,8 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.MergeJoin",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     documentationUrl = "/pipeline/transforms/mergejoin.html")
-public class MergeJoinMeta extends BaseTransformMeta
-    implements ITransformMeta<MergeJoin, MergeJoinData> {
+public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public static final String[] joinTypes = {"INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER"};
@@ -94,16 +93,6 @@ public class MergeJoinMeta extends BaseTransformMeta
   @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
-  }
-
-  @Override
-  public MergeJoin createTransform(
-      TransformMeta transformMeta,
-      MergeJoinData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MergeJoin(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public MergeJoinMeta() {
@@ -191,11 +180,6 @@ public class MergeJoinMeta extends BaseTransformMeta
       PipelineMeta tr,
       Pipeline pipeline) {
     return new MergeJoin(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MergeJoinData getTransformData() {
-    return new MergeJoinData();
   }
 
   /**

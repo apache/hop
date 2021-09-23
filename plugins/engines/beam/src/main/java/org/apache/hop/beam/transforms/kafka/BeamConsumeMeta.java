@@ -34,13 +34,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +49,7 @@ import java.util.Map;
     image = "beam-kafka-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl = "/pipeline/transforms/beamkafkaconsume.html")
-public class BeamConsumeMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamConsume, DummyData>, IBeamPipelineTransformHandler {
+public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty private String topics;
 
@@ -105,21 +101,6 @@ public class BeamConsumeMeta extends BaseTransformMeta
     restrictedToCommitted = false;
     allowingCommitOnConsumedOffset = true;
     configOptions = new ArrayList<>();
-  }
-
-  @Override
-  public BeamConsume createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamConsume(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

@@ -77,8 +77,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class WebService extends BaseTransform<WebServiceMeta, WebServiceData>
-    implements ITransform<WebServiceMeta, WebServiceData> {
+public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
   private static final Class<?> PKG = WebServiceMeta.class; // For Translator
 
   public static final String NS_PREFIX = "ns";
@@ -130,8 +129,6 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData>
 
   @Override
   public boolean processRow() throws HopException {
-    meta = (WebServiceMeta) meta;
-
     // if a URL is not specified, throw an exception
     if (Utils.isEmpty(meta.getUrl())) {
       throw new HopTransformException(
@@ -145,7 +142,6 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData>
               PKG, "WebServices.ERROR0015.OperationNotSelected", getTransformName()));
     }
 
-    data = (WebServiceData) data;
     Object[] vCurrentRow = getRow();
 
     if (first) {

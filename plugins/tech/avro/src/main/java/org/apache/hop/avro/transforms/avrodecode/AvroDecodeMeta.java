@@ -27,12 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +41,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = {"Avro", "Decode"})
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
-public class AvroDecodeMeta extends BaseTransformMeta
-    implements ITransformMeta<AvroFileInput, AvroDecodeData> {
+public class AvroDecodeMeta extends BaseTransformMeta<AvroFileInput, AvroDecodeData> {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
 
   @HopMetadataProperty(key = "source_field")
@@ -82,21 +77,6 @@ public class AvroDecodeMeta extends BaseTransformMeta
             "Error creating target field with name " + targetField.getTargetFieldName(), e);
       }
     }
-  }
-
-  @Override
-  public AvroDecode createTransform(
-      TransformMeta transformMeta,
-      AvroDecodeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AvroDecode(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AvroDecodeData getTransformData() {
-    return new AvroDecodeData();
   }
 
   /**

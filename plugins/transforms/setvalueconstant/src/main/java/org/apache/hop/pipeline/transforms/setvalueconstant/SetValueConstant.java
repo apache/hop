@@ -36,8 +36,7 @@ import java.util.List;
  * @author Samatar
  * @since 30-06-2008
  */
-public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData>
-    implements ITransform<SetValueConstantMeta, SetValueConstantData> {
+public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData> {
   private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
 
   public SetValueConstant(

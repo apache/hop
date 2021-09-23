@@ -28,11 +28,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -46,8 +44,7 @@ import java.util.List;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "/pipeline/transforms/analyticquery.html")
-public class AnalyticQueryMeta extends BaseTransformMeta
-    implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
+public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class; // For Translator
 
@@ -144,21 +141,6 @@ public class AnalyticQueryMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public AnalyticQuery createTransform(
-      TransformMeta transformMeta,
-      AnalyticQueryData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AnalyticQuery(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AnalyticQueryData getTransformData() {
-    return new AnalyticQueryData();
   }
 
   @Override

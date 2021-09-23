@@ -63,8 +63,7 @@ import java.util.zip.ZipOutputStream;
  * @author Samatar
  * @since 28-07-2008
  */
-public class Mail extends BaseTransform<MailMeta, MailData>
-    implements ITransform<MailMeta, MailData> {
+public class Mail extends BaseTransform<MailMeta, MailData> {
   private static final Class<?> PKG = MailMeta.class; // For Translator
 
   public Mail(

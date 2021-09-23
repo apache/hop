@@ -33,8 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData>
-    implements ITransform<RowsFromResultMeta, RowsFromResultData> {
+public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData> {
   private static final Class<?> PKG = RowsFromResult.class; // For Translator
 
   public RowsFromResult(

@@ -25,11 +25,9 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -42,8 +40,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.DetectEmptyStream",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/detectemptystream.html")
-public class DetectEmptyStreamMeta extends BaseTransformMeta
-    implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
+public class DetectEmptyStreamMeta extends BaseTransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   public DetectEmptyStreamMeta() {
@@ -114,21 +111,6 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public DetectEmptyStream createTransform(
-      TransformMeta transformMeta,
-      DetectEmptyStreamData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DetectEmptyStream(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DetectEmptyStreamData getTransformData() {
-    return new DetectEmptyStreamData();
   }
 
   @Override

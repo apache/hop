@@ -35,8 +35,7 @@ import java.util.List;
  * @author Matt
  * @since 4-aug-2003
  */
-public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
-    implements ITransform<GetVariableMeta, GetVariableData> {
+public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData> {
 
   public GetVariable(
       TransformMeta transformMeta,

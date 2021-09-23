@@ -53,8 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Retrieves data from an Http endpoint */
-public class Http extends BaseTransform<HttpMeta, HttpData>
-    implements ITransform<HttpMeta, HttpData> {
+public class Http extends BaseTransform<HttpMeta, HttpData> {
 
   private static final Class<?> PKG = HttpMeta.class; // For Translator
 

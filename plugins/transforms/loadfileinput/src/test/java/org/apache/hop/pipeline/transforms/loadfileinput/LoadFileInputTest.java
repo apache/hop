@@ -37,8 +37,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.*;
 import org.mockito.Mockito;
@@ -63,17 +61,12 @@ public class LoadFileInputTest {
   private PipelineMeta pipelineMeta;
   private Pipeline pipeline;
 
-  private LoadFileInputMeta transformMetaInterface;
-  private LoadFileInputData iTransformData;
-  private TransformMeta transformMeta;
-  private FileInputList transformInputFiles;
-  private int transformCopyNr;
+  private FileInputList fileInputList;
 
-  private LoadFileInput transformLoadFileInput;
-
-  private ITransformMeta runtimeSMI;
-  private ITransformData runtimeSDI;
-  private LoadFileInputField inputField;
+  private LoadFileInput loadFileInput;
+  private LoadFileInputMeta loadFileInputMeta;
+  private LoadFileInputData loadFileInputData;
+  private LoadFileInputField loadFileInputField;
   private static String wasEncoding;
 
   @BeforeClass
@@ -115,37 +108,34 @@ public class LoadFileInputTest {
     pipelineMeta.setName(pipelineName);
     pipeline = new LocalPipelineEngine(pipelineMeta);
 
-    transformMetaInterface = spy(new LoadFileInputMeta());
-    transformInputFiles = new FileInputList();
-    Mockito.doReturn(transformInputFiles)
-        .when(transformMetaInterface)
+    loadFileInputMeta = spy(new LoadFileInputMeta());
+    fileInputList = new FileInputList();
+    Mockito.doReturn(fileInputList)
+        .when(loadFileInputMeta)
         .getFiles(any(IVariables.class));
     String transformId =
-        PluginRegistry.getInstance().getPluginId(TransformPluginType.class, transformMetaInterface);
-    transformMeta = new TransformMeta(transformId, "Load File Input", transformMetaInterface);
+        PluginRegistry.getInstance().getPluginId(TransformPluginType.class, loadFileInputMeta);
+    TransformMeta transformMeta = new TransformMeta(transformId, "Load File Input", loadFileInputMeta);
     pipelineMeta.addTransform(transformMeta);
 
-    iTransformData = new LoadFileInputData();
+    loadFileInputData = new LoadFileInputData();
 
-    transformCopyNr = 0;
+    int transformCopyNr = 0;
 
-    transformLoadFileInput =
+    loadFileInput =
         new LoadFileInput(
             transformMeta,
-            transformMetaInterface,
-            iTransformData,
+            loadFileInputMeta,
+            loadFileInputData,
             transformCopyNr,
             pipelineMeta,
             pipeline);
 
-    assertSame(transformMetaInterface, transformMeta.getTransform());
+    assertSame(loadFileInputMeta, transformMeta.getTransform());
 
-    runtimeSMI = transformMetaInterface;
-    runtimeSDI = runtimeSMI.getTransformData();
-
-    inputField = new LoadFileInputField();
-    ((LoadFileInputMeta) runtimeSMI).setInputFields(new LoadFileInputField[] {inputField});
-    transformLoadFileInput.init();
+    loadFileInputField = new LoadFileInputField();
+    loadFileInputMeta.setInputFields(new LoadFileInputField[] {loadFileInputField});
+    loadFileInput.init();
   }
 
   private FileObject getFile(final String filename) {
@@ -158,161 +148,161 @@ public class LoadFileInputTest {
 
   @Test
   public void testOpenNextFile_noFiles() {
-    assertFalse(transformMetaInterface.isIgnoreEmptyFile()); // ensure default value
+    assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_noFiles_ignoreEmpty() {
-    transformMetaInterface.setIgnoreEmptyFile(true);
+    loadFileInputMeta.setIgnoreEmptyFile(true);
 
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_0() {
-    assertFalse(transformMetaInterface.isIgnoreEmptyFile()); // ensure default value
+    assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_0_ignoreEmpty() {
-    transformMetaInterface.setIgnoreEmptyFile(true);
+    loadFileInputMeta.setIgnoreEmptyFile(true);
 
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_000() {
-    assertFalse(transformMetaInterface.isIgnoreEmptyFile()); // ensure default value
+    assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_000_ignoreEmpty() {
-    transformMetaInterface.setIgnoreEmptyFile(true);
+    loadFileInputMeta.setIgnoreEmptyFile(true);
 
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_10() {
-    assertFalse(transformMetaInterface.isIgnoreEmptyFile()); // ensure default value
+    assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
-    transformInputFiles.addFile(getFile("input1.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_10_ignoreEmpty() {
-    transformMetaInterface.setIgnoreEmptyFile(true);
+    loadFileInputMeta.setIgnoreEmptyFile(true);
 
-    transformInputFiles.addFile(getFile("input1.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_01() {
-    assertFalse(transformMetaInterface.isIgnoreEmptyFile()); // ensure default value
+    assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_01_ignoreEmpty() {
-    transformMetaInterface.setIgnoreEmptyFile(true);
+    loadFileInputMeta.setIgnoreEmptyFile(true);
 
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_010() {
-    assertFalse(transformMetaInterface.isIgnoreEmptyFile()); // ensure default value
+    assertFalse(loadFileInputMeta.isIgnoreEmptyFile()); // ensure default value
 
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input1.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testOpenNextFile_010_ignoreEmpty() {
-    transformMetaInterface.setIgnoreEmptyFile(true);
+    loadFileInputMeta.setIgnoreEmptyFile(true);
 
-    transformInputFiles.addFile(getFile("input0.txt"));
-    transformInputFiles.addFile(getFile("input1.txt"));
-    transformInputFiles.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input0.txt"));
 
-    assertTrue(transformLoadFileInput.openNextFile());
-    assertFalse(transformLoadFileInput.openNextFile());
+    assertTrue(loadFileInput.openNextFile());
+    assertFalse(loadFileInput.openNextFile());
   }
 
   @Test
   public void testGetOneRow() throws Exception {
     // string without specified encoding
-    transformInputFiles.addFile(getFile("input1.txt"));
+    fileInputList.addFile(getFile("input1.txt"));
 
-    assertNotNull(transformLoadFileInput.getOneRow());
-    assertEquals("input1 - not empty", new String(transformLoadFileInput.getData().filecontent));
+    assertNotNull(loadFileInput.getOneRow());
+    assertEquals("input1 - not empty", new String(loadFileInput.getData().filecontent));
   }
 
   @Test
   public void testUTF8Encoding() throws HopException, FileSystemException {
-    transformMetaInterface.setIncludeFilename(true);
-    transformMetaInterface.setFilenameField("filename");
-    transformMetaInterface.setIncludeRowNumber(true);
-    transformMetaInterface.setRowNumberField("rownumber");
-    transformMetaInterface.setShortFileNameField("shortname");
-    transformMetaInterface.setExtensionField("extension");
-    transformMetaInterface.setPathField("path");
-    transformMetaInterface.setIsHiddenField("hidden");
-    transformMetaInterface.setLastModificationDateField("lastmodified");
-    transformMetaInterface.setUriField("uri");
-    transformMetaInterface.setRootUriField("root uri");
+    loadFileInputMeta.setIncludeFilename(true);
+    loadFileInputMeta.setFilenameField("filename");
+    loadFileInputMeta.setIncludeRowNumber(true);
+    loadFileInputMeta.setRowNumberField("rownumber");
+    loadFileInputMeta.setShortFileNameField("shortname");
+    loadFileInputMeta.setExtensionField("extension");
+    loadFileInputMeta.setPathField("path");
+    loadFileInputMeta.setIsHiddenField("hidden");
+    loadFileInputMeta.setLastModificationDateField("lastmodified");
+    loadFileInputMeta.setUriField("uri");
+    loadFileInputMeta.setRootUriField("root uri");
 
     // string with UTF-8 encoding
-    ((LoadFileInputMeta) runtimeSMI).setEncoding("UTF-8");
-    transformInputFiles.addFile(getFile("UTF-8.txt"));
-    Object[] result = transformLoadFileInput.getOneRow();
+    loadFileInputMeta.setEncoding("UTF-8");
+    fileInputList.addFile(getFile("UTF-8.txt"));
+    Object[] result = loadFileInput.getOneRow();
     assertEquals(" UTF-8 string ÕÕÕ€ ", result[0]);
     assertEquals(1L, result[2]);
     assertEquals("UTF-8.txt", result[3]);
@@ -324,66 +314,66 @@ public class LoadFileInputTest {
 
   @Test
   public void testUTF8TrimLeft() throws HopException {
-    ((LoadFileInputMeta) runtimeSMI).setEncoding("UTF-8");
-    inputField.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
-    transformInputFiles.addFile(getFile("UTF-8.txt"));
-    assertEquals("UTF-8 string ÕÕÕ€ ", transformLoadFileInput.getOneRow()[0]);
+    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
+    fileInputList.addFile(getFile("UTF-8.txt"));
+    assertEquals("UTF-8 string ÕÕÕ€ ", loadFileInput.getOneRow()[0]);
   }
 
   @Test
   public void testUTF8TrimRight() throws HopException {
-    ((LoadFileInputMeta) runtimeSMI).setEncoding("UTF-8");
-    inputField.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
-    transformInputFiles.addFile(getFile("UTF-8.txt"));
-    assertEquals(" UTF-8 string ÕÕÕ€", transformLoadFileInput.getOneRow()[0]);
+    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
+    fileInputList.addFile(getFile("UTF-8.txt"));
+    assertEquals(" UTF-8 string ÕÕÕ€", loadFileInput.getOneRow()[0]);
   }
 
   @Test
   public void testUTF8Trim() throws HopException {
-    ((LoadFileInputMeta) runtimeSMI).setEncoding("UTF-8");
-    inputField.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-    transformInputFiles.addFile(getFile("UTF-8.txt"));
-    assertEquals("UTF-8 string ÕÕÕ€", transformLoadFileInput.getOneRow()[0]);
+    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
+    fileInputList.addFile(getFile("UTF-8.txt"));
+    assertEquals("UTF-8 string ÕÕÕ€", loadFileInput.getOneRow()[0]);
   }
 
   @Test
   public void testWindowsEncoding() throws HopException {
-    ((LoadFileInputMeta) runtimeSMI).setEncoding("Windows-1252");
-    inputField.setTrimType(IValueMeta.TRIM_TYPE_NONE);
-    transformInputFiles.addFile(getFile("Windows-1252.txt"));
-    assertEquals(" Windows-1252 string ÕÕÕ€ ", transformLoadFileInput.getOneRow()[0]);
+    loadFileInputMeta.setEncoding("Windows-1252");
+    loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_NONE);
+    fileInputList.addFile(getFile("Windows-1252.txt"));
+    assertEquals(" Windows-1252 string ÕÕÕ€ ", loadFileInput.getOneRow()[0]);
   }
 
   @Test
   public void testWithNoEncoding() throws HopException, UnsupportedEncodingException {
     // string with Windows-1252 encoding but with no encoding set
-    ((LoadFileInputMeta) runtimeSMI).setEncoding(null);
-    transformInputFiles.addFile(getFile("Windows-1252.txt"));
-    assertNotEquals(" Windows-1252 string ÕÕÕ€ ", transformLoadFileInput.getOneRow()[0]);
+    loadFileInputMeta.setEncoding(null);
+    fileInputList.addFile(getFile("Windows-1252.txt"));
+    assertNotEquals(" Windows-1252 string ÕÕÕ€ ", loadFileInput.getOneRow()[0]);
     assertEquals(
         " Windows-1252 string ÕÕÕ€ ",
-        new String(transformLoadFileInput.getData().filecontent, "Windows-1252"));
+        new String(loadFileInput.getData().filecontent, "Windows-1252"));
   }
 
   @Test
   public void testByteArray() throws Exception {
     IRowMeta mockedRowMetaInterface = mock(IRowMeta.class);
-    transformLoadFileInput.getData().outputRowMeta = mockedRowMetaInterface;
-    transformLoadFileInput.getData().convertRowMeta = mockedRowMetaInterface;
+    loadFileInput.getData().outputRowMeta = mockedRowMetaInterface;
+    loadFileInput.getData().convertRowMeta = mockedRowMetaInterface;
     Mockito.doReturn(new ValueMetaString()).when(mockedRowMetaInterface).getValueMeta(anyInt());
 
     // byte array
     Mockito.doReturn(new ValueMetaBinary()).when(mockedRowMetaInterface).getValueMeta(anyInt());
-    ((LoadFileInputMeta) runtimeSMI).setEncoding("UTF-8");
-    transformInputFiles.addFile(getFile("hop.jpg"));
-    inputField = new LoadFileInputField();
-    inputField.setType(IValueMeta.TYPE_BINARY);
-    ((LoadFileInputMeta) runtimeSMI).setInputFields(new LoadFileInputField[] {inputField});
+    loadFileInputMeta.setEncoding("UTF-8");
+    fileInputList.addFile(getFile("hop.jpg"));
+    loadFileInputField = new LoadFileInputField();
+    loadFileInputField.setType(IValueMeta.TYPE_BINARY);
+    loadFileInputMeta.setInputFields(new LoadFileInputField[] {loadFileInputField});
 
-    assertNotNull(transformLoadFileInput.getOneRow());
+    assertNotNull(loadFileInput.getOneRow());
     assertArrayEquals(
         IOUtils.toByteArray(getFile("hop.jpg").getContent().getInputStream()),
-        transformLoadFileInput.getData().filecontent);
+        loadFileInput.getData().filecontent);
   }
 
   @Test

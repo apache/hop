@@ -36,12 +36,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.List;
 import java.util.Map;
 
@@ -52,8 +49,7 @@ import java.util.Map;
     description = "Describes a Beam Output",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl = "/pipeline/transforms/beamoutput.html")
-public class BeamOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamOutput, BeamOutputData>, IBeamPipelineTransformHandler {
+public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData> implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "output_location")
   private String outputLocation;
@@ -68,21 +64,6 @@ public class BeamOutputMeta extends BaseTransformMeta
   private String fileSuffix;
 
   @HopMetadataProperty private boolean windowed;
-
-  @Override
-  public BeamOutput createTransform(
-      TransformMeta transformMeta,
-      BeamOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamOutputData getTransformData() {
-    return new BeamOutputData();
-  }
 
   @Override
   public String getDialogClassName() {

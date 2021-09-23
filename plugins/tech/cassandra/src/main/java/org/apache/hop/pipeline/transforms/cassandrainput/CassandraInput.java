@@ -39,8 +39,7 @@ import java.util.Map;
  * Class providing an input transform for reading data from a table in Cassandra. Accesses the
  * schema information stored in Cassandra for type information.
  */
-public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraInputData>
-    implements ITransform<CassandraInputMeta, CassandraInputData> {
+public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraInputData> {
 
   public CassandraInput(
       TransformMeta transformMeta,

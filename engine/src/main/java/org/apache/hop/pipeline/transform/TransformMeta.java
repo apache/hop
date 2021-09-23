@@ -379,21 +379,21 @@ public class TransformMeta
   }
 
   public boolean hasChanged() {
-    ITransformMeta bsi = this.getTransform();
-    return bsi != null ? bsi.hasChanged() : false;
+    ITransformMeta meta = this.getTransform();
+    return meta != null ? meta.hasChanged() : false;
   }
 
   public void setChanged(boolean ch) {
-    BaseTransformMeta bsi = (BaseTransformMeta) this.getTransform();
-    if (bsi != null) {
-      bsi.setChanged(ch);
+    BaseTransformMeta<?,?> meta = (BaseTransformMeta<?,?>) this.getTransform();
+    if (meta != null) {
+      meta.setChanged(ch);
     }
   }
 
   public void setChanged() {
-    ITransformMeta bsi = this.getTransform();
-    if (bsi != null) {
-      bsi.setChanged();
+    ITransformMeta meta = this.getTransform();
+    if (meta != null) {
+      meta.setChanged();
     }
   }
 
@@ -556,7 +556,6 @@ public class TransformMeta
     return location;
   }
 
-  @SuppressWarnings("deprecation")
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -708,7 +707,6 @@ public class TransformMeta
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public String exportResources(
       IVariables variables,
       Map<String, ResourceDefinition> definitions,

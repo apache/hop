@@ -21,9 +21,6 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
@@ -32,7 +29,7 @@ import java.util.List;
 
 public class SingleThreadedPipelineExecutor {
 
-  private final List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
+  private final List<TransformMetaDataCombi> transforms;
   private Pipeline pipeline;
   private boolean[] done;
   private int nrDone;

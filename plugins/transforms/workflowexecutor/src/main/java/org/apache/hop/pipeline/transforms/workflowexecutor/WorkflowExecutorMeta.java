@@ -37,7 +37,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.*;
@@ -66,8 +65,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/workflowexecutor.html",
     keywords = "")
-public class WorkflowExecutorMeta extends BaseTransformMeta
-    implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
+public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
@@ -622,16 +620,6 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      WorkflowExecutorData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new WorkflowExecutor(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, TransformMeta transformMeta) {
     List<ResourceReference> references = new ArrayList<>(5);
@@ -711,11 +699,6 @@ public class WorkflowExecutorMeta extends BaseTransformMeta
           BaseMessages.getString(
               PKG, "WorkflowExecutorMeta.Exception.UnableToLoadWorkflow", filename));
     }
-  }
-
-  @Override
-  public WorkflowExecutorData getTransformData() {
-    return new WorkflowExecutorData();
   }
 
   @Override

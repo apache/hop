@@ -31,8 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 2-jun-2003
  */
-public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData>
-    implements ITransform<MappingOutputMeta, MappingOutputData> {
+public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData> {
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
   public MappingOutput(

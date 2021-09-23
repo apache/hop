@@ -67,8 +67,8 @@ import java.util.*;
 @InjectionSupported(
     localizationPrefix = "DimensionLookup.Injection.",
     groups = {"KEYS", "FIELDS"})
-public class DimensionLookupMeta extends BaseTransformMeta
-    implements ITransformMeta<DimensionLookup, DimensionLookupData>, IProvidesModelerMeta {
+public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData>
+    implements IProvidesModelerMeta {
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   public static final int TYPE_UPDATE_DIM_INSERT = 0;
@@ -1781,21 +1781,6 @@ public class DimensionLookupMeta extends BaseTransformMeta
         }
       }
     }
-  }
-
-  @Override
-  public DimensionLookup createTransform(
-      TransformMeta transformMeta,
-      DimensionLookupData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DimensionLookup(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DimensionLookupData getTransformData() {
-    return new DimensionLookupData();
   }
 
   @Override

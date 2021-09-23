@@ -32,10 +32,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -48,8 +46,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "/pipeline/transforms/execprocess.html")
-public class ExecProcessMeta extends BaseTransformMeta
-    implements ITransformMeta<ExecProcess, ExecProcessData> {
+public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessData> {
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
 
   /** dynamic process field name */
@@ -295,21 +292,6 @@ public class ExecProcessMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ExecProcess createTransform(
-      TransformMeta transformMeta,
-      ExecProcessData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExecProcess(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExecProcessData getTransformData() {
-    return new ExecProcessData();
   }
 
   @Override

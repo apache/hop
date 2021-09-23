@@ -29,10 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -44,8 +41,7 @@ import org.w3c.dom.Node;
     image = "pipeline-log.svg",
     documentationUrl = "/logging/logging-reflection.html",
     keywords = "audit,log,metrics")
-public class PipelineLoggingMeta extends BaseTransformMeta
-    implements ITransformMeta<PipelineLogging, PipelineLoggingData> {
+public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, PipelineLoggingData> {
 
   private boolean loggingTransforms;
 
@@ -164,21 +160,6 @@ public class PipelineLoggingMeta extends BaseTransformMeta
 
     loggingTransforms =
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
-  }
-
-  @Override
-  public PipelineLogging createTransform(
-      TransformMeta transformMeta,
-      PipelineLoggingData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PipelineLogging(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public PipelineLoggingData getTransformData() {
-    return new PipelineLoggingData();
   }
 
   /**

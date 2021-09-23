@@ -26,11 +26,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.File;
@@ -43,8 +41,7 @@ import java.util.List;
     description = "i18n::BlockingTransform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/blockingtransform.html")
-public class BlockingTransformMeta extends BaseTransformMeta
-    implements ITransformMeta<BlockingTransform, BlockingTransformData> {
+public class BlockingTransformMeta extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
 
   private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 
@@ -164,21 +161,6 @@ public class BlockingTransformMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Default: no values are added to the row in the transform
-  }
-
-  @Override
-  public BlockingTransform createTransform(
-      TransformMeta transformMeta,
-      BlockingTransformData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BlockingTransform(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BlockingTransformData getTransformData() {
-    return new BlockingTransformData();
   }
 
   /** @return Returns the cacheSize. */

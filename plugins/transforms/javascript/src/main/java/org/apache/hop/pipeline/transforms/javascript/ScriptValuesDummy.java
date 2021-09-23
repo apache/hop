@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -30,8 +31,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.transform.*;
-
-import javax.sql.RowSet;
 import java.awt.event.ComponentListener;
 import java.util.Collections;
 import java.util.Date;
@@ -65,7 +64,7 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public List<RowSet> getInputRowSets() {
+  public List<IRowSet> getInputRowSets() {
     return null;
   }
 
@@ -105,7 +104,7 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public List<RowSet> getOutputRowSets() {
+  public List<IRowSet> getOutputRowSets() {
     return null;
   }
 
@@ -533,15 +532,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setMeta(ITransformMeta meta) {}
-
-  @Override
   public ITransformData getData() {
     return null;
   }
-
-  @Override
-  public void setData(ITransformData data) {}
 
   @Override
   public Date getInitStartDate() {

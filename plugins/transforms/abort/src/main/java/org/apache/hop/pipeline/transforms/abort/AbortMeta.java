@@ -28,13 +28,10 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 /** Meta data for the abort transform. */
@@ -45,7 +42,7 @@ import java.util.List;
     image = "abort.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/abort.html")
-public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
+public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
 
   private static final Class<?> PKG = AbortMeta.class; // For Translator
 
@@ -112,21 +109,6 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
               transforminfo);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public Abort createTransform(
-      TransformMeta transformMeta,
-      AbortData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Abort(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AbortData getTransformData() {
-    return new AbortData();
   }
 
   @Override

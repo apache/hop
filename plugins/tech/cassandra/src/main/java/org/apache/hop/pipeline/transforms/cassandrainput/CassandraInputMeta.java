@@ -35,7 +35,6 @@ import org.apache.hop.databases.cassandra.util.CqlUtils;
 import org.apache.hop.databases.cassandra.util.Selector;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.eclipse.swt.widgets.Shell;
@@ -53,8 +52,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/cassandra-input.html",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraInput.Injection.")
-public class CassandraInputMeta extends BaseTransformMeta
-    implements ITransformMeta<CassandraInput, CassandraInputData> {
+public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, CassandraInputData> {
 
   protected static final Class<?> PKG = CassandraInputMeta.class;
 
@@ -335,21 +333,6 @@ public class CassandraInputMeta extends BaseTransformMeta
       String name) {
 
     return new CassandraInputDialog(shell, variables, meta, pipelineMeta, name);
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      CassandraInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CassandraInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CassandraInputData getTransformData() {
-    return new CassandraInputData();
   }
 
   /**

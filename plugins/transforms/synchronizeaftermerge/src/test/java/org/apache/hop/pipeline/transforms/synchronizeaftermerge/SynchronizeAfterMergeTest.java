@@ -52,15 +52,11 @@ public class SynchronizeAfterMergeTest {
     doReturn(transformMeta).when(pipelineMeta).findTransform(TRANSFORM_NAME);
 
     SynchronizeAfterMerge transform = mock(SynchronizeAfterMerge.class);
-    doCallRealMethod().when(transform).setPipelineMeta(any(PipelineMeta.class));
-    doCallRealMethod().when(transform).setTransformMeta(any(TransformMeta.class));
     doCallRealMethod().when(transform).init();
     doReturn(transformMeta).when(transform).getTransformMeta();
     doReturn(pipelineMeta).when(transform).getPipelineMeta();
     doReturn("120").when(transform).resolve("${commit.size}");
 
-    transform.setPipelineMeta(pipelineMeta);
-    transform.setTransformMeta(transformMeta);
     transform.init();
 
     assertEquals(120, sdi.commitSize);

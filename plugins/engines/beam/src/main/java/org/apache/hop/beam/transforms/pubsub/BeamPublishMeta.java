@@ -32,10 +32,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -48,8 +46,7 @@ import java.util.Map;
     image = "beam-gcp-pubsub-publish.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     documentationUrl = "/pipeline/transforms/beamgcppublisher.html")
-public class BeamPublishMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamPublish, BeamPublishData>, IBeamPipelineTransformHandler {
+public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishData> implements IBeamPipelineTransformHandler {
 
   public static final String TOPIC = "topic";
   public static final String MESSAGE_TYPE = "message_type";
@@ -67,21 +64,6 @@ public class BeamPublishMeta extends BaseTransformMeta
     topic = "Topic";
     messageType = "String";
     messageField = "message";
-  }
-
-  @Override
-  public BeamPublish createTransform(
-      TransformMeta transformMeta,
-      BeamPublishData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamPublish(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamPublishData getTransformData() {
-    return new BeamPublishData();
   }
 
   @Override

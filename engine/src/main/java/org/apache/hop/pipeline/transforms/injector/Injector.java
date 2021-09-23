@@ -22,17 +22,14 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * Executor class to allow a java program to inject rows of data into a pipeline. This transform can
  * be used as a starting point in such a "headless" pipeline.
- *
- * @since 22-jun-2006
  */
 public class Injector extends BaseTransform<InjectorMeta, InjectorData>
-    implements ITransform<InjectorMeta, InjectorData> {
+{
 
   private static final Class<?> PKG = InjectorMeta.class; // For Translator
 

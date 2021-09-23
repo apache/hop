@@ -29,10 +29,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -45,7 +43,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.Edi2Xml",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "/pipeline/transforms/edi2xml.html")
-public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi2Xml, Edi2XmlData> {
+public class Edi2XmlMeta extends BaseTransformMeta<Edi2Xml, Edi2XmlData> {
 
   private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
 
@@ -196,21 +194,6 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
   public void setDefault() {
     outputField = "edi_xml";
     inputField = "";
-  }
-
-  @Override
-  public Edi2Xml createTransform(
-      TransformMeta transformMeta,
-      Edi2XmlData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline disp) {
-    return new Edi2Xml(transformMeta, this, data, cnr, pipelineMeta, disp);
-  }
-
-  @Override
-  public Edi2XmlData getTransformData() {
-    return new Edi2XmlData();
   }
 
   @Override

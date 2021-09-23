@@ -43,8 +43,7 @@ import java.util.regex.Pattern;
  * @author Samatar Hassan
  * @since 28 September 2008
  */
-public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData>
-    implements ITransform<ReplaceStringMeta, ReplaceStringData> {
+public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   public ReplaceString(

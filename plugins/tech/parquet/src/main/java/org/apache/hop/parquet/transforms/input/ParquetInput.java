@@ -26,15 +26,13 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.hadoop.ParquetReader;
-
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputData>
-    implements ITransform<ParquetInputMeta, ParquetInputData> {
+{
   public ParquetInput(
       TransformMeta transformMeta,
       ParquetInputMeta meta,

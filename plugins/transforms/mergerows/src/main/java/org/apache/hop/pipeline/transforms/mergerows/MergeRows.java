@@ -42,8 +42,7 @@ import java.util.List;
  * @author Matt
  * @since 19-dec-2005
  */
-public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData>
-    implements ITransform<MergeRowsMeta, MergeRowsData> {
+public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
 
   private static final String VALUE_IDENTICAL = "identical";

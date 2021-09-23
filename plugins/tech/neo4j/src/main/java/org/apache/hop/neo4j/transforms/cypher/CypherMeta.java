@@ -56,7 +56,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "Cypher.Injection.",
     groups = {"PARAMETERS", "RETURNS"})
-public class CypherMeta extends BaseTransformMeta implements ITransformMeta<Cypher, CypherData> {
+public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
 
   public static final String CONNECTION = "connection";
   public static final String CYPHER = "cypher";
@@ -137,21 +137,6 @@ public class CypherMeta extends BaseTransformMeta implements ITransformMeta<Cyph
   @Override
   public void setDefault() {
     retryingOnDisconnect = true;
-  }
-
-  @Override
-  public Cypher createTransform(
-      TransformMeta transformMeta,
-      CypherData iTransformData,
-      int i,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Cypher(transformMeta, this, iTransformData, i, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CypherData getTransformData() {
-    return new CypherData();
   }
 
   @Override

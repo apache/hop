@@ -56,8 +56,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "TokenReplacement.Injection.",
     groups = {"OUTPUT_FIELDS"})
-public class TokenReplacementMeta extends BaseTransformMeta
-    implements ITransformMeta<TokenReplacement, TokenReplacementData> {
+public class TokenReplacementMeta extends BaseTransformMeta<TokenReplacement, TokenReplacementData> {
   private static Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   public static final String INPUT_TYPE = "input_type";
@@ -533,21 +532,6 @@ public class TokenReplacementMeta extends BaseTransformMeta
     }
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      TokenReplacementData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TokenReplacement(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TokenReplacementData getTransformData() {
-    return new TokenReplacementData();
   }
 
   @Override

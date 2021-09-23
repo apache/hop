@@ -21,12 +21,11 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /** A base implementation for all output file based metas. */
-public abstract class BaseFileOutputMeta extends BaseTransformMeta {
+public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData> extends BaseTransformMeta<Main, Data> {
 
   /** Flag: add the stepnr in the filename */
   @Injection(name = "INC_TRANSFORMNR_IN_FILENAME")

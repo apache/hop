@@ -32,10 +32,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -48,8 +46,7 @@ import java.util.List;
     image = "MPI.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
     documentationUrl = "/pipeline/transforms/mapping-input.html")
-public class MappingInputMeta extends BaseTransformMeta
-    implements ITransformMeta<MappingInput, MappingInputData> {
+public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInputData> {
 
   private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
@@ -305,21 +302,6 @@ public class MappingInputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public MappingInput createTransform(
-      TransformMeta transformMeta,
-      MappingInputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new MappingInput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MappingInputData getTransformData() {
-    return new MappingInputData();
   }
 
   public void setInputRowMeta(IRowMeta inputRowMeta) {

@@ -34,8 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class Importer extends BaseTransform<ImporterMeta, ImporterData>
-    implements ITransform<ImporterMeta, ImporterData> {
+public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
 
   public Importer(
       TransformMeta transformMeta,

@@ -34,11 +34,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -55,8 +52,7 @@ import java.util.List;
     description = "i18n::ValueMapper.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/valuemapper.html")
-public class ValueMapperMeta extends BaseTransformMeta
-    implements ITransformMeta<ValueMapper, ValueMapperData> {
+public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
 
   @Injection(name = "FIELDNAME")
@@ -121,16 +117,6 @@ public class ValueMapperMeta extends BaseTransformMeta
     System.arraycopy(targetValue, 0, retval.targetValue, 0, count);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ValueMapperData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ValueMapper(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -288,11 +274,6 @@ public class ValueMapperMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ValueMapperData getTransformData() {
-    return new ValueMapperData();
   }
 
   /** @return Returns the fieldToUse. */

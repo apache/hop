@@ -21,26 +21,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 
-public class MetaBeanParentItem extends BaseTransformMeta
-    implements ITransformMeta<ITransform, ITransformData> {
+public class MetaBeanParentItem extends BaseTransformMeta<ITransform, ITransformData> {
   @Injection(name = "BASE_ITEM_NAME")
   public String name;
 
   @Override
   public void setDefault() {}
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ITransformData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return null;
-  }
-
-  @Override
-  public ITransformData getTransformData() {
-    return null;
-  }
 }

@@ -35,8 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Samatar
  * @since 2-jun-2003
  */
-public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData>
-    implements ITransform<SampleRowsMeta, SampleRowsData> {
+public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
   public SampleRows(

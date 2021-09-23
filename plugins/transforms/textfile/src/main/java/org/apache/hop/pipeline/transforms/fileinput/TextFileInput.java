@@ -46,7 +46,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.*;
 
@@ -63,8 +62,7 @@ import java.util.*;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
-public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInputData>
-    implements ITransform<TextFileInputMeta, TextFileInputData> {
+public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInputData> {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private static final int BUFFER_SIZE_INPUT_STREAM = 500;

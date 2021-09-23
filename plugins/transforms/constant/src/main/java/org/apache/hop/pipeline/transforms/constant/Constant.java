@@ -32,7 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
@@ -41,8 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Generates a number of (empty or the same) rows */
-public class Constant extends BaseTransform<ConstantMeta, ConstantData>
-    implements ITransform<ConstantMeta, ConstantData> {
+public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
   private static final Class<?> PKG = ConstantMeta.class; // For Translator
 
   public Constant(

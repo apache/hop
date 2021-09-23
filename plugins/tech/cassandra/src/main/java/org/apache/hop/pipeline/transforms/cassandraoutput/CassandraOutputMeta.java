@@ -25,12 +25,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 /**
@@ -45,8 +40,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/cassandra-output.html",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraOutput.Injection.")
-public class CassandraOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<CassandraOutput, CassandraOutputData> {
+public class CassandraOutputMeta extends BaseTransformMeta<CassandraOutput, CassandraOutputData> {
 
   public static final Class<?> PKG = CassandraOutputMeta.class;
 
@@ -249,21 +243,6 @@ public class CassandraOutputMeta extends BaseTransformMeta
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      CassandraOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CassandraOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CassandraOutputData getTransformData() {
-    return new CassandraOutputData();
   }
 
   /**

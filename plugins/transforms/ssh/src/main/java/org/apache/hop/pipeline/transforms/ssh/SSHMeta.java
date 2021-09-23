@@ -33,7 +33,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.w3c.dom.Node;
@@ -47,7 +46,7 @@ import java.util.List;
     description = "i18n::SSH.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     documentationUrl = "/pipeline/transforms/runssh.html")
-public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SSHData> {
+public class SSHMeta extends BaseTransformMeta<SSH, SSHData> {
   static Class<?> PKG = SSHMeta.class; // For Translator
   private static int DEFAULT_PORT = 22;
 
@@ -450,21 +449,6 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SS
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SSHData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SSH(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SSHData getTransformData() {
-    return new SSHData();
   }
 
   @Override

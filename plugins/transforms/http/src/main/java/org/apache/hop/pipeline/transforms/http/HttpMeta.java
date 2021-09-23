@@ -33,10 +33,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -49,7 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.HTTP",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "/pipeline/transforms/getvariable.html")
-public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
+public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
   private static final Class<?> PKG = HttpMeta.class; // For Translator
 
   // the timeout for waiting for data (milliseconds)
@@ -465,21 +463,6 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
       }
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public Http createTransform(
-      TransformMeta transformMeta,
-      HttpData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Http(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public HttpData getTransformData() {
-    return new HttpData();
   }
 
   @Override

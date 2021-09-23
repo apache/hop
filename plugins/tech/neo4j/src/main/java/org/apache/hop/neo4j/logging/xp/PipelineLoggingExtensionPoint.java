@@ -341,7 +341,7 @@ public class PipelineLoggingExtensionPoint
 
                 // Also log every transform copy
                 //
-                List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> combis =
+                List<TransformMetaDataCombi> combis =
                     ((Pipeline) pipeline).getTransforms();
                 for (TransformMetaDataCombi combi : combis) {
                   String transformLogChannelId = combi.transform.getLogChannel().getLogChannelId();

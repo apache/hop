@@ -31,14 +31,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 @Transform(
@@ -48,8 +44,7 @@ import java.util.List;
     description = "i18n::XMLInputStream.description",
     categoryDescription = "i18n::XMLInputStream.category",
     documentationUrl = "/pipeline/transforms/xmlinputstream.html")
-public class XmlInputStreamMeta extends BaseTransformMeta
-    implements ITransformMeta<XmlInputStream, XmlInputStreamData> {
+public class XmlInputStreamMeta extends BaseTransformMeta<XmlInputStream, XmlInputStreamData> {
   private static final int DEFAULT_STRING_LEN_FILENAME = 256; // default length for XML path
   private static final int DEFAULT_STRING_LEN_PATH = 1024; // default length for XML path
   public static final String DEFAULT_STRING_LEN = "1024"; // used by defaultStringLen
@@ -352,21 +347,6 @@ public class XmlInputStreamMeta extends BaseTransformMeta
     // TODO check
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      XmlInputStreamData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new XmlInputStream(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public XmlInputStreamData getTransformData() {
-    return new XmlInputStreamData();
   }
 
   @Override

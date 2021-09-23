@@ -37,10 +37,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -53,7 +51,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.CallDBProcedure",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "/pipeline/transforms/calldbproc.html")
-public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBProc, DBProcData> {
+public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
 
   private static final Class<?> PKG = DBProcMeta.class; // For Translator
 
@@ -420,21 +418,6 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public DBProc createTransform(
-      TransformMeta transformMeta,
-      DBProcData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new DBProc(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DBProcData getTransformData() {
-    return new DBProcData();
   }
 
   @Override

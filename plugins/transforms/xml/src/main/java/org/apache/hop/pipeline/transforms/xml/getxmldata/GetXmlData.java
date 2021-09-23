@@ -36,7 +36,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -61,8 +60,7 @@ import java.util.zip.GZIPInputStream;
  * @author Samatar,Brahim
  * @since 20-06-2007
  */
-public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
-    implements ITransform<GetXmlDataMeta, GetXmlDataData> {
+public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row

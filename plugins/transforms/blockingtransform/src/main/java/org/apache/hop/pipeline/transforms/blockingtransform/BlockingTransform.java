@@ -28,7 +28,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -40,8 +39,7 @@ import java.util.zip.GZIPOutputStream;
  * A transform that blocks throughput until the input ends, then it will either output the last row
  * or the complete input.
  */
-public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData>
-    implements ITransform<BlockingTransformMeta, BlockingTransformData> {
+public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData> {
 
   private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 

@@ -35,8 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 13-may-2003
  */
-public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData>
-    implements ITransform<GetServerSequenceMeta, GetServerSequenceData> {
+public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData> {
 
   private static final Class<?> PKG = GetServerSequence.class; // For Translator
 

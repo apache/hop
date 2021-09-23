@@ -32,11 +32,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -54,8 +51,7 @@ import java.util.Map;
     description = "i18n::PropertyOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/propertyoutput.html")
-public class PropertyOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<PropertyOutput, PropertyOutputData> {
+public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
 
   private String keyfield;
@@ -107,16 +103,6 @@ public class PropertyOutputMeta extends BaseTransformMeta
 
     PropertyOutputMeta retval = (PropertyOutputMeta) super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PropertyOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PropertyOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   /** @return Returns the extension. */
@@ -466,11 +452,6 @@ public class PropertyOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public PropertyOutputData getTransformData() {
-    return new PropertyOutputData();
   }
 
   /** @return the keyfield */

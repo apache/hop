@@ -30,13 +30,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +52,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "MongoDbOutput.Injection.",
     groups = {"FIELDS", "INDEXES"})
-public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData>
-    implements ITransformMeta<MongoDbOutput, MongoDbOutputData> {
+public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData> {
 
   private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
@@ -507,22 +503,6 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public MongoDbOutput createTransform(
-      TransformMeta transformMeta,
-      MongoDbOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-
-    return new MongoDbOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public MongoDbOutputData getTransformData() {
-    return new MongoDbOutputData();
   }
 
   @Override

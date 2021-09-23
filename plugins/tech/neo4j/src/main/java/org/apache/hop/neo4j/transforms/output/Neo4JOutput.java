@@ -55,8 +55,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputData>
-    implements ITransform<Neo4JOutputMeta, Neo4JOutputData> {
+public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputData> {
 
   private static Class<?> PKG = Neo4JOutput.class; // for i18n purposes, needed by Translator2!!
 

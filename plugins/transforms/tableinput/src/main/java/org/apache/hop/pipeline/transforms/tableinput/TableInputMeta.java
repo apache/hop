@@ -59,8 +59,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/tableinput.html",
     keywords = "input, sql")
 @InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
-public class TableInputMeta extends BaseTransformMeta
-    implements ITransformMeta<TableInput, TableInputData> {
+public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
@@ -427,21 +426,6 @@ public class TableInputMeta extends BaseTransformMeta
       stream.setTransformMeta(
           TransformMeta.findTransform(transforms, (String) stream.getSubject()));
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      TableInputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TableInput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TableInputData getTransformData() {
-    return new TableInputData();
   }
 
   @Override

@@ -45,8 +45,7 @@ import java.util.*;
  * @author Matt
  * @since 4-aug-2003
  */
-public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData>
-    implements ITransform<GetLoggingInfoMeta, GetLoggingInfoData> {
+public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData> {
 
   public GetLoggingInfo(
       TransformMeta transformMeta,
