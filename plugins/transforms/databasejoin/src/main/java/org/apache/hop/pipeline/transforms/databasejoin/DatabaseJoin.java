@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.databasejoin;
 
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -33,11 +34,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.sql.ResultSet;
 
 /**
- * Use values from input streams to joins with values in a database. Freehand SQL can be used to do
- * this.
- *
- * @author Matt
- * @since 26-apr-2003
+ * Use values from input streams to joins with values in a database.
+ * Freehand SQL can be used to do this.
  */
 public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData>
     implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
@@ -77,14 +75,16 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
                 + rowMeta.getString(rowData));
       }
 
-      data.keynrs = new int[meta.getParameterField().length];
+      data.keynrs = new int[meta.getParameters().size()];
 
-      for (int i = 0; i < meta.getParameterField().length; i++) {
-        data.keynrs[i] = rowMeta.indexOfValue(meta.getParameterField()[i]);
+      
+      for (int i = 0; i < data.keynrs.length; i++) {
+        ParameterField field = meta.getParameters().get(i);
+        data.keynrs[i] = rowMeta.indexOfValue(field.getName());
         if (data.keynrs[i] < 0) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "DatabaseJoin.Exception.FieldNotFound", meta.getParameterField()[i]));
+                  PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
         }
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
@@ -218,11 +218,13 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   @Override
   public boolean init() {
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
-        logError(
-            BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      if (databaseMeta == null) {
+        logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
+
+      meta.setDatabaseMeta(databaseMeta);
       data.db = new Database(this, this, meta.getDatabaseMeta());
 
       try {
@@ -233,7 +235,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         }
 
         String sql = meta.getSql();
-        if (meta.isVariableReplace()) {
+        if (meta.isReplaceVariables()) {
           sql = resolve(sql);
         }
         // Prepare the SQL statement

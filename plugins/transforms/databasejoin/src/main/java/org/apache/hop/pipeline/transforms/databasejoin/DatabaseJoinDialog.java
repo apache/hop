@@ -60,7 +60,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
   private TableView wParam;
 
-  private Button wuseVars;
+  private Button wUseVars;
 
   private final DatabaseJoinMeta input;
 
@@ -246,14 +246,14 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     fdluseVars.right = new FormAttachment(middle, -margin);
     fdluseVars.top = new FormAttachment(wOuter, margin);
     wluseVars.setLayoutData(fdluseVars);
-    wuseVars = new Button(shell, SWT.CHECK);
-    props.setLook(wuseVars);
-    wuseVars.setToolTipText(wluseVars.getToolTipText());
+    wUseVars = new Button(shell, SWT.CHECK);
+    props.setLook(wUseVars);
+    wUseVars.setToolTipText(wluseVars.getToolTipText());
     FormData fduseVars = new FormData();
     fduseVars.left = new FormAttachment(middle, 0);
     fduseVars.top = new FormAttachment(wluseVars, 0, SWT.CENTER);
-    wuseVars.setLayoutData(fduseVars);
-    wuseVars.addSelectionListener(
+    wUseVars.setLayoutData(fduseVars);
+    wUseVars.addSelectionListener(
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
@@ -277,11 +277,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     props.setLook(wlParam);
     FormData fdlParam = new FormData();
     fdlParam.left = new FormAttachment(0, 0);
-    fdlParam.top = new FormAttachment(wuseVars, margin);
+    fdlParam.top = new FormAttachment(wUseVars, margin);
     wlParam.setLayoutData(fdlParam);
 
     int nrKeyCols = 2;
-    int nrKeyRows = (input.getParameterField() != null ? input.getParameterField().length : 1);
+    int nrKeyRows = (input.getParameters() != null ? input.getParameters().size() : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -376,26 +376,22 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.GettingKeyInfo"));
 
+    wConnection.setText(Const.NVL(input.getConnection(), ""));
     wSql.setText(Const.NVL(input.getSql(), ""));
     wLimit.setText("" + input.getRowLimit());
     wOuter.setSelection(input.isOuterJoin());
-    wuseVars.setSelection(input.isVariableReplace());
-    if (input.getParameterField() != null) {
-      for (int i = 0; i < input.getParameterField().length; i++) {
-        TableItem item = wParam.table.getItem(i);
-        if (input.getParameterField()[i] != null) {
-          item.setText(1, input.getParameterField()[i]);
-        }
-        if (input.getParameterType()[i] != 0) {
-          item.setText(2, ValueMetaFactory.getValueMetaName(input.getParameterType()[i]));
+    wUseVars.setSelection(input.isReplaceVariables());
+    if (input.getParameters() != null) {
+      int i = 0;
+      for (ParameterField field: input.getParameters()) {
+        TableItem item = wParam.table.getItem(i++);
+        if (field != null) {
+          item.setText(1, field.getName());
+          item.setText(2, field.getType());
         }
       }
-    }
-
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
-    }
-
+    }  
+    
     wParam.setRowNums();
     wParam.optWidth(true);
 
@@ -416,29 +412,30 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
     int nrparam = wParam.nrNonEmpty();
 
-    input.allocate(nrparam);
-
+    input.setConnection(wConnection.getText());
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setRowLimit(Const.toInt(wLimit.getText(), 0));
     input.setSql(wSql.getText());
-
     input.setOuterJoin(wOuter.getSelection());
-    input.setVariableReplace(wuseVars.getSelection());
+    input.setReplaceVariables(wUseVars.getSelection());
     logDebug(
         BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.ParametersFound")
             + nrparam
             + " parameters");
-    // CHECKSTYLE:Indentation:OFF
+ 
+    List<ParameterField> parameters = new ArrayList<>();    
     for (int i = 0; i < nrparam; i++) {
       TableItem item = wParam.getNonEmpty(i);
-      input.getParameterField()[i] = item.getText(1);
-      input.getParameterType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(2));
+      ParameterField field = new ParameterField();
+      field.setName(item.getText(1));
+      field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(2)));
+      parameters.add(field);
     }
-
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setParameters(parameters);      
 
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DatabaseJoinDialog.InvalidConnection.DialogMessage"));
