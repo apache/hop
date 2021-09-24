@@ -227,11 +227,14 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
   @Override
   public boolean init() {
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+      if (meta.getConnection() == null) {
         logError(BaseMessages.getString(PKG, "Delete.Init.ConnectionMissing", getTransformName()));
         return false;
       }
+
+      meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
       data.db = new Database(this, variables, meta.getDatabaseMeta());
+
       try {
         data.db.connect();
 
