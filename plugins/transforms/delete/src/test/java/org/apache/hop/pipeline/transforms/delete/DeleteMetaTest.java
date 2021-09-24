@@ -58,7 +58,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
         new HashMap<String, String>() {
           {
             put("commit", "getCommitSize");
-            put("connection", "getDatabaseMeta");
+            put("connection", "getConnection");
             put("lookup", "getLookup");
           }
         };
@@ -66,14 +66,12 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
         new HashMap<String, String>() {
           {
             put("commit", "setCommitSize");
-            put("connection", "setDatabaseMeta");
+            put("connection", "setConnection");
             put("lookup", "setLookup");
           }
         };
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put(
-        "key", new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator(), 5));
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =

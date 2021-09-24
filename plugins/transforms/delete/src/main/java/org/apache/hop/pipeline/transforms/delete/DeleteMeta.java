@@ -134,7 +134,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
   public DeleteMeta(DeleteMeta obj) {
 
-    this.databaseMeta = obj.databaseMeta;
+    this.connection = obj.connection;
     this.commitSize = obj.commitSize;
     this.lookup = new DeleteLookupField(obj.lookup);
   }
