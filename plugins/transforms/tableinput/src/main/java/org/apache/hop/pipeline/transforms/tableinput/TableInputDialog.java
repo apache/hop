@@ -351,15 +351,19 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+
     if (input.getSql() != null) {
       wSql.setText(input.getSql());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
+      input.setDatabaseMeta(pipelineMeta.findDatabase(input.getConnection(), variables));
     }
+
     wLimit.setText(Const.NVL(input.getRowLimit(), ""));
 
     IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
+    infoStream.setSubject(input.getLookup());
     if (infoStream.getTransformMeta() != null) {
       wDatefrom.setText(infoStream.getTransformName());
       wEachRow.setSelection(input.isExecuteEachInputRow());
@@ -399,14 +403,19 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getInfo(TableInputMeta meta, boolean preview) {
+
+    meta.setConnection(wConnection.getText());
+    meta.setDatabaseMeta(pipelineMeta.findDatabase(meta.getConnection(), variables));
+
     meta.setSql(
         preview && !Utils.isEmpty(wSql.getSelectionText())
             ? wSql.getSelectionText()
             : wSql.getText());
-    meta.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+
     meta.setRowLimit(wLimit.getText());
-    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
+    IStream infoStream = meta.getTransformIOMeta().getInfoStreams().get(0);
     infoStream.setTransformMeta(pipelineMeta.findTransform(wDatefrom.getText()));
+    meta.setLookup(infoStream.getTransformName());
     meta.setExecuteEachInputRow(wEachRow.getSelection());
     meta.setVariableReplacementActive(wVariables.getSelection());
   }
