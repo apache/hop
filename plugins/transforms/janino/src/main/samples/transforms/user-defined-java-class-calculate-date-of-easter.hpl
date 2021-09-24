@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>user-defined-java-class-calculate-date-of-easter</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/09/24 11:29:50.099</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/09/24 11:29:50.099</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>1M rows</from>
+      <to>UDJC: calculate Easter date</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>1M rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>year</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>Integer</type>
+        <nullif>2022</nullif>
+      </field>
+    </fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1000000</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>UDJC: calculate Easter date</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <definitions>
+      <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+        <class_name>Processor</class_name>
+        <class_source>import java.util.*;
+
+private int yearIndex;
+private Calendar calendar;
+
+public boolean processRow() throws HopException 
+{
+  Object[] r=getRow();
+  if (r==null)
+  {
+    setOutputDone();
+    return false;
+  }
+
+  if (first) {
+     yearIndex = getInputRowMeta().indexOfValue(getParameter("YEAR"));
+     if (yearIndex&lt;0) {
+         throw new HopException("Year field not found in the input row, check parameter 'YEAR'!");
+     }
+
+     calendar = Calendar.getInstance();
+     calendar.clear();
+
+     first=false;
+  }
+ 
+  Object[] outputRowData = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
+  int outputIndex = getInputRowMeta().size();
+
+  Long year = getInputRowMeta().getInteger(r, yearIndex);
+  outputRowData[outputIndex++] = easterDate(year.intValue());
+
+  putRow(data.outputRowMeta, outputRowData);
+
+  return true;
+}
+
+private Date easterDate(int year) {
+ int a = year % 19;
+ int b = (int)Math.floor(year / 100);
+ int c = year % 100;
+ int d = (int)Math.floor(b / 4);
+ int e = b % 4;
+ int f = (int)Math.floor((b + 8) / 25);
+ int g = (int)Math.floor((b - f + 1) / 3);
+ int h = (19 * a + b - d - g + 15) % 30;
+ int i = (int)Math.floor(c / 4);
+ int k = c % 4;
+ int L = (32 + 2 * e + 2 * i - h - k) % 7;
+ int m = (int)Math.floor((a + 11 * h + 22 * L) / 451);
+ int n = h + L - 7 * m + 114;
+ 
+ calendar.set(year, (int)(Math.floor(n / 31) - 1), (int)((n % 31) + 1));
+ return calendar.getTime();
+}
+
+</class_source>
+      </definition>
+    </definitions>
+    <fields>
+      <field>
+        <field_name>easter</field_name>
+        <field_type>Date</field_type>
+        <field_length>-1</field_length>
+        <field_precision>-1</field_precision>
+      </field>
+    </fields>
+    <clear_result_fields>N</clear_result_fields>
+    <info_transforms/>
+    <target_transforms/>
+    <usage_parameters>
+      <usage_parameter>
+        <parameter_tag>YEAR</parameter_tag>
+        <parameter_value>year</parameter_value>
+        <parameter_description>The field that contains the year to calculate Easter with</parameter_description>
+      </usage_parameter>
+    </usage_parameters>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

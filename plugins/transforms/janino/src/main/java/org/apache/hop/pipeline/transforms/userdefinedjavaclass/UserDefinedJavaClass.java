@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -699,7 +699,7 @@ public class UserDefinedJavaClass
     return super.incrementLinesWritten();
   }
 
-  public boolean init(ITransform transformMetaInterface, ITransformData iTransformData) {
+  public boolean init() {
     if (meta.cookErrors.size() > 0) {
       return false;
     }
@@ -710,9 +710,9 @@ public class UserDefinedJavaClass
     }
 
     if (child == null) {
-      return initImpl(transformMetaInterface, data);
+      return initImpl();
     } else {
-      return child.init(transformMetaInterface, data);
+      return child.init();
     }
   }
 
@@ -729,7 +729,7 @@ public class UserDefinedJavaClass
     super.initBeforeStart();
   }
 
-  public boolean initImpl(ITransform transformMetaInterface, ITransformData iTransformData) {
+  public boolean initImpl() {
     return super.init();
   }
 
