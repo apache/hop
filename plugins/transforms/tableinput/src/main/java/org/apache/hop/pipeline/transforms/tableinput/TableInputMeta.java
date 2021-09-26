@@ -27,7 +27,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,8 +34,8 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -68,30 +67,26 @@ public class TableInputMeta extends BaseTransformMeta
 
   private DatabaseMeta databaseMeta;
 
-  @Injection(name = "SQL")
+  @HopMetadataProperty(key = "sql", injectionKey = "SQL")
   private String sql;
 
-  @Injection(name = "LIMIT")
+  @HopMetadataProperty(key = "limit", injectionKey = "LIMIT")
   private String rowLimit;
 
   /** Should I execute once per row? */
-  @Injection(name = "EXECUTE_FOR_EACH_ROW")
+  @HopMetadataProperty(key = "execute_each_row", injectionKey = "EXECUTE_FOR_EACH_ROW")
   private boolean executeEachInputRow;
 
-  @Injection(name = "REPLACE_VARIABLES")
+  @HopMetadataProperty(key = "variables_active", injectionKey = "REPLACE_VARIABLES")
   private boolean variableReplacementActive;
+
+  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTIONNAME")
+  private String connection;
+
+  @HopMetadataProperty private String lookup;
 
   public TableInputMeta() {
     super();
-  }
-
-  @Injection(name = "CONNECTIONNAME")
-  public void setConnection(String connectionName) {
-    try {
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, connectionName);
-    } catch (HopXmlException e) {
-      throw new RuntimeException("Error loading conneciton '" + connectionName + "'", e);
-    }
   }
 
   /** @return Returns true if the transform should be run per row */
@@ -134,38 +129,26 @@ public class TableInputMeta extends BaseTransformMeta
     this.sql = sql;
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
+  }
+
+  public String getLookup() {
+    return lookup;
+  }
+
+  public void setLookup(String lookup) {
+    this.lookup = lookup;
   }
 
   @Override
   public Object clone() {
     TableInputMeta retval = (TableInputMeta) super.clone();
     return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    this.metadataProvider = metadataProvider;
-    try {
-      databaseMeta =
-          DatabaseMeta.loadDatabase(
-              metadataProvider, XmlHandler.getTagValue(transformNode, "connection"));
-      sql = XmlHandler.getTagValue(transformNode, "sql");
-      rowLimit = XmlHandler.getTagValue(transformNode, "limit");
-
-      String lookupFromTransformName = XmlHandler.getTagValue(transformNode, "lookup");
-      IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
-      infoStream.setSubject(lookupFromTransformName);
-
-      executeEachInputRow = "Y".equals(XmlHandler.getTagValue(transformNode, "execute_each_row"));
-      variableReplacementActive =
-          "Y".equals(XmlHandler.getTagValue(transformNode, "variables_active"));
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
   }
 
   @Override
@@ -252,21 +235,21 @@ public class TableInputMeta extends BaseTransformMeta
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
+  public String getXml() throws HopException {
 
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    " + XmlHandler.addTagValue("sql", sql));
-    retval.append("    " + XmlHandler.addTagValue("limit", rowLimit));
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    lookup = infoStreams.get(0).getTransformName();
+
+    return super.getXml();
+  }
+
+   @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
+
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
-    retval.append("    " + XmlHandler.addTagValue("lookup", infoStream.getTransformName()));
-    retval.append("    " + XmlHandler.addTagValue("execute_each_row", executeEachInputRow));
-    retval.append("    " + XmlHandler.addTagValue("variables_active", variableReplacementActive));
+    infoStream.setSubject(lookup);
 
-    return retval.toString();
   }
 
   @Override

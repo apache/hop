@@ -64,8 +64,9 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      storeWithName = true,
       injectionKeyDescription = "Delete.Injection.Connection")
+  private String connection;
+
   private DatabaseMeta databaseMeta;
 
   /** Commit size for inserts/updates */
@@ -78,6 +79,14 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     super();
     lookup = new DeleteLookupField();
     // allocate BaseTransformMeta
+  }
+
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /** @return Returns the commitSize. */
@@ -125,7 +134,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
   public DeleteMeta(DeleteMeta obj) {
 
-    this.databaseMeta = obj.databaseMeta;
+    this.connection = obj.connection;
     this.commitSize = obj.commitSize;
     this.lookup = new DeleteLookupField(obj.lookup);
   }

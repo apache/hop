@@ -389,8 +389,10 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     if (input.getLookup().getTableName() != null) {
       wTable.setText(input.getLookup().getTableName());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
+
+      input.setDatabaseMeta(pipelineMeta.findDatabase(input.getConnection(), variables));
     }
 
     wKey.setRowNums();
@@ -480,7 +482,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     inf.getLookup().setSchemaName(wSchema.getText());
     inf.getLookup().setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setConnection(wConnection.getText());
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
   }

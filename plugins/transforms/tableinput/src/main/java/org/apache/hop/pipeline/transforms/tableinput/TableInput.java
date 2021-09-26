@@ -323,7 +323,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
         passed = false;
       }
 
-      if (meta.getDatabaseMeta() == null) {
+      if (meta.getConnection() == null) {
         logError(BaseMessages.getString(PKG, "TableInput.Exception.DatabaseConnectionsIsNeeded"));
         passed = false;
       }
@@ -331,12 +331,20 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
         return false;
       }
 
+      meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
+
       data.infoStream = meta.getTransformIOMeta().getInfoStreams().get(0);
+      if (meta.getLookup() != null) {
+        // Set reference to input transform
+        data.infoStream.setSubject(meta.getLookup());
+      }
+
       if (meta.getDatabaseMeta() == null) {
         logError(
             BaseMessages.getString(PKG, "TableInput.Init.ConnectionMissing", getTransformName()));
         return false;
       }
+
       data.db = new Database(this, this, meta.getDatabaseMeta());
       data.db.setQueryLimit(Const.toInt(resolve(meta.getRowLimit()), 0));
 
