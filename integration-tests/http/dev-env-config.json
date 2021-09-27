@@ -1,0 +1,7 @@
+{
+  "variables" : [ {
+    "name" : "HOSTNAME",
+    "value" : "http",
+    "description" : "hostname of http container"
+  } ]
+}
