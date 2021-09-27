@@ -1035,8 +1035,8 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     HttpPostResultField httpPostResultField =
         new HttpPostResultField(
-            wResult.getText(),
             wResultCode.getText(),
+            wResult.getText(),
             wResponseTime.getText(),
             wResponseHeader.getText());
 
