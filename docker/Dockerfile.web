@@ -16,7 +16,7 @@
 # under the License.
 #
 
-FROM tomcat:jdk8
+FROM tomcat:9
 LABEL maintainer="Apache Hop Team"
 ENV HOP_WEB_THEME=light
 ENV HOP_CONFIG_FOLDER=${CATALINA_HOME}/webapps/ROOT/config
