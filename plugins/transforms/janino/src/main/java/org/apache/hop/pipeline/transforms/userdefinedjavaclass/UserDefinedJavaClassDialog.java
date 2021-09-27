@@ -1019,7 +1019,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     int columnNumber = widget.getColumnNumber();
     wlPosition.setText(
         BaseMessages.getString(
-            PKG, "DefinedJavaClassDialog.Position.Label2", "" + lineNumber, "" + columnNumber));
+            PKG, "UserDefinedJavaClassDialog.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

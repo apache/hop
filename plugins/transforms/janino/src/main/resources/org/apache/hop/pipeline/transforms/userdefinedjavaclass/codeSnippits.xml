@@ -270,6 +270,54 @@ public boolean processRow() throws HopException {
 ]]></sample>
     </codeSnippit>
     <codeSnippit>
+        <name>Implement processRow</name>
+        <category>COMMON</category>
+        <code><![CDATA[
+//
+// Perform the equivalent of processing one row. Typically this means reading a row from input
+// (getRow()) and passing a row to output (putRow)).
+//
+// @return false if no more rows can be processed or an error occurred.
+// @throws HopException
+//
+public boolean processRow() throws HopException {
+
+    return true;
+}
+]]></code>
+        <sample><![CDATA[
+//
+// Perform the equivalent of processing one row. Typically this means reading a row from input
+// (getRow()) and passing a row to output (putRow)).
+//
+// @return false if no more rows can be processed or an error occurred.
+// @throws HopException
+//
+public boolean processRow() throws HopException {
+    // If the row object is null, we are done processing.
+    if (r == null && !first) {
+        setOutputDone();
+        return false;
+    }
+
+    // If the global "first" flag is true, perform some initialization that can only happen
+    // once we have read the first row of input data
+    if (first) {
+        first = false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this transform.
+    r = createOutputRow(r, outputRowSize);
+
+    // putRow will send the row on to the default output hop.
+    putRow(data.outputRowMeta, r);
+
+    return true;
+}
+]]></sample>
+    </codeSnippit>
+    <codeSnippit>
         <name>getRow</name>
         <category>COMMON</category>
         <code><![CDATA[Object[] r = getRow();
