@@ -266,10 +266,9 @@ public class FileInputList {
                 }
               }
             }
-            if (Utils.isEmpty(fileObjects)) {
-              if (onerequired) {
-                fileInputList.addNonAccessibleFile(directoryFileObject);
-              }
+            if (Utils.isEmpty(fileObjects) && onerequired) {
+
+              fileInputList.addNonAccessibleFile(directoryFileObject);
             }
 
             // Sort the list: quicksort, only for regular files
@@ -378,10 +377,9 @@ public class FileInputList {
               }
             }
           }
-          if (Utils.isEmpty(fileObjects)) {
-            if (onerequired) {
-              fileInputList.addNonAccessibleFile(directoryFileObject);
-            }
+          if (Utils.isEmpty(fileObjects) && onerequired) {
+
+            fileInputList.addNonAccessibleFile(directoryFileObject);
           }
 
           // Sort the list: quicksort, only for regular files
@@ -453,12 +451,6 @@ public class FileInputList {
     Collections.sort(nonAccessibleFiles, HopVfs.getComparator());
     Collections.sort(nonExistantFiles, HopVfs.getComparator());
   }
-
-  /*
-   * private boolean containsComparable(List list) { if (list == null || list.size() == 0) return false;
-   *
-   * return (list.get(0) instanceof Comparable); }
-   */
 
   public FileObject getFile(int i) {
     return files.get(i);

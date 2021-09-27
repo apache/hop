@@ -39,10 +39,8 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
       // Write to a new new file...
       //
       FileObject newFile = HopVfs.getFileObject(filename + ".new");
-      if (newFile.exists()) {
-        if (!newFile.delete()) {
-          throw new HopException("Unable to delete new config file " + newFile.getName().getURI());
-        }
+      if (newFile.exists() && !newFile.delete()) {
+        throw new HopException("Unable to delete new config file " + newFile.getName().getURI());
       }
 
       // Write to the new file (hop.config.new)
@@ -54,20 +52,16 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
       // if this worked, delete the old file  (hop.config.old)
       //
       FileObject oldFile = HopVfs.getFileObject(filename + ".old");
-      if (oldFile.exists()) {
-        if (!oldFile.delete()) {
-          throw new HopException("Unable to delete old config file " + oldFile.getName().getURI());
-        }
+      if (oldFile.exists() && !oldFile.delete()) {
+
+        throw new HopException("Unable to delete old config file " + oldFile.getName().getURI());
       }
 
       // If this worked, rename the file to the old file  (hop.config -> hop.config.old)
       //
       FileObject file = HopVfs.getFileObject(filename);
-      if (file.exists()) { // could be a new file
-        if (!file.canRenameTo(oldFile)) {
-          throw new HopException(
-              "Unable to rename config file to .old : " + file.getName().getURI());
-        }
+      if (file.exists() && !file.canRenameTo(oldFile)) { // could be a new file
+        throw new HopException("Unable to rename config file to .old : " + file.getName().getURI());
       }
 
       // Now rename the new file to the final value...

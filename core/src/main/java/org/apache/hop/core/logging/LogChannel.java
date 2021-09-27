@@ -106,10 +106,12 @@ public class LogChannel implements ILogChannel {
 
     // Are the message filtered?
     //
-    if (!logLevel.isError() && !Utils.isEmpty(filter)) {
-      if (subject.indexOf(filter) < 0 && logMessage.toString().indexOf(filter) < 0) {
-        return; // "filter" not found in row: don't show!
-      }
+    if (!logLevel.isError()
+        && !Utils.isEmpty(filter)
+        && subject.indexOf(filter) < 0
+        && logMessage.toString().indexOf(filter) < 0) {
+
+      return; // "filter" not found in row: don't show!
     }
 
     // Let's not keep everything...

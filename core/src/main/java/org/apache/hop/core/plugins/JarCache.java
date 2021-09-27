@@ -134,8 +134,6 @@ public class JarCache {
 
       for (String pluginFolder : getPluginFolders()) {
 
-        // System.out.println("Search plugin in folder: " + pluginFolder );
-
         for (File file : this.findJarFiles(new File(pluginFolder))) {
           Index index = this.getIndex(file);
           if (index != null) {
@@ -158,7 +156,6 @@ public class JarCache {
       try (JarFile jar = new JarFile(jarFile)) {
         ZipEntry entry = jar.getEntry(ANNOTATION_INDEX_LOCATION);
         if (entry != null) {
-          // System.out.println("- Plugin jar indexed " + jarFile);
           try (InputStream stream = jar.getInputStream(entry)) {
             IndexReader reader = new IndexReader(stream);
             index = reader.read();
@@ -223,10 +220,8 @@ public class JarCache {
           if (child.getName().endsWith(".jar")) {
             files.add(child);
           }
-        } else if (child.isDirectory()) {
-          if (!"lib".equals(child.getName())) {
-            files.addAll(findFiles(child));
-          }
+        } else if (child.isDirectory() && !"lib".equals(child.getName())) {
+          files.addAll(findFiles(child));
         }
       }
     }

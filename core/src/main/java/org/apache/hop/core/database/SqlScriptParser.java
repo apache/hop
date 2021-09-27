@@ -27,8 +27,6 @@ import java.util.List;
  * This class represents a splitter of SQL script into separate statements. It respects the notion
  * of a string literal and comments, such that if a separator appears in a string literal or
  * comment, it is treated as part of the string or comment instead of a separator.
- *
- * @author Alexander Buloichik
  */
 public class SqlScriptParser {
 
@@ -98,11 +96,9 @@ public class SqlScriptParser {
           }
           break;
         case BLOCK_COMMENT:
-          if (ch == '*') {
-            if (nextCh == '/') {
-              mode = MODE.SQL;
-              i = i + 1;
-            }
+          if (ch == '*' && nextCh == '/') {
+            mode = MODE.SQL;
+            i = i + 1;
           }
           break;
         case LINE_COMMENT:
@@ -196,11 +192,9 @@ public class SqlScriptParser {
           }
           break;
         case BLOCK_COMMENT:
-          if (ch == '*') {
-            if (nextCh == '/') {
-              mode = MODE.SQL;
-              i = i + 1;
-            }
+          if (ch == '*' && nextCh == '/') {
+            mode = MODE.SQL;
+            i = i + 1;
           }
           ch = 0;
           break;
