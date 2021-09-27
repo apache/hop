@@ -248,24 +248,26 @@ public boolean processRow() throws HopException {
     <codeSnippit>
         <name>Implement init</name>
         <category>COMMON</category>
-        <code><![CDATA[public boolean init(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) {
-  return parent.initImpl(transformMetaInterface, transformDataInterface);
+        <code><![CDATA[public boolean init() {
+  return parent.initImpl();
 }
 ]]></code>
-        <sample><![CDATA[public boolean init(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) {
-  return parent.initImpl(transformMetaInterface, transformDataInterface);
+        <sample><![CDATA[/** Initialize and do work where other transforms need to wait for... */
+public boolean init() {
+  return parent.initImpl();
 }
 ]]></sample>
     </codeSnippit>
     <codeSnippit>
         <name>Implement dispose</name>
         <category>COMMON</category>
-        <code><![CDATA[public void dispose(TransformMetaInterface smi, TransformDataInterface sdi) {
-  parent.disposeImpl(smi, sdi);
+        <code><![CDATA[public void dispose() {
+  parent.disposeImpl();
 }
 ]]></code>
-        <sample><![CDATA[public void dispose(TransformMetaInterface smi, TransformDataInterface sdi) {
-  parent.disposeImpl(smi, sdi);
+        <sample><![CDATA[/** Dispose of this transform: close files, empty logs, etc. */
+public void dispose() {
+  parent.disposeImpl();
 }
 ]]></sample>
     </codeSnippit>
@@ -285,8 +287,7 @@ public boolean processRow() throws HopException {
     return true;
 }
 ]]></code>
-        <sample><![CDATA[
-//
+        <sample><![CDATA[//
 // Perform the equivalent of processing one row. Typically this means reading a row from input
 // (getRow()) and passing a row to output (putRow)).
 //
