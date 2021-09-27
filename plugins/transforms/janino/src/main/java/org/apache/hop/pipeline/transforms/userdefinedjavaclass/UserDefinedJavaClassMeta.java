@@ -278,9 +278,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta
             "Full debugging stacktrace of UserDefinedJavaClass instanciation exception:",
             e.getCause());
       }
-      HopException kettleException = new HopException(e.getMessage());
-      kettleException.setStackTrace(new StackTraceElement[] {});
-      cookErrors.add(kettleException);
+      HopException hopException = new HopException(e.getMessage());
+      hopException.setStackTrace(new StackTraceElement[] {});
+      cookErrors.add(hopException);
       return null;
     }
   }
