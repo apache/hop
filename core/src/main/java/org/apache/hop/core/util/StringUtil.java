@@ -26,8 +26,6 @@ import java.util.*;
 
 /**
  * A collection of utilities to manipulate strings.
- *
- * @author wdeclerc
  */
 public class StringUtil {
   public static final String UNIX_OPEN = "${";

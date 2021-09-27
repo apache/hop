@@ -369,10 +369,8 @@ public class GuiRegistry {
     List<KeyboardShortcut> shortcuts = getKeyboardShortcuts(parentClassName);
     if (shortcuts != null) {
       for (KeyboardShortcut shortcut : shortcuts) {
-        if (shortcut.getParentMethodName().equals(methodName)) {
-          if (shortcut.isOsx() == osx) {
-            return shortcut;
-          }
+        if (shortcut.getParentMethodName().equals(methodName) && shortcut.isOsx() == osx) {
+          return shortcut;
         }
       }
     }

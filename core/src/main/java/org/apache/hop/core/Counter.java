@@ -22,12 +22,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Is used to keep the state of sequences / counters throughout a single session of a Pipeline, but
  * across transforms.
- *
- * @author Matt
- * @since 13-05-2003
  */
 public class Counter {
-  private long counter;
+  private long counterValue;
   private long start;
   private long increment;
   private long maximum;
@@ -40,14 +37,14 @@ public class Counter {
     increment = 1L;
     maximum = 0L;
     loop = false;
-    counter = start;
+    counterValue = start;
     lock = new ReentrantLock();
   }
 
   public Counter(long start) {
     this();
     this.start = start;
-    counter = start;
+    counterValue = start;
     lock = new ReentrantLock();
   }
 
@@ -64,7 +61,7 @@ public class Counter {
 
   /** @return Returns the counter. */
   public long getCounter() {
-    return counter;
+    return counterValue;
   }
 
   /** @return Returns the increment. */
@@ -89,7 +86,7 @@ public class Counter {
 
   /** @param counter The counter to set. */
   public void setCounter(long counter) {
-    this.counter = counter;
+    this.counterValue = counter;
   }
 
   /** @param increment The increment to set. */
@@ -111,21 +108,19 @@ public class Counter {
 
     lock.lock();
     try {
-      long value = counter;
-      long nextValue = counter + increment;
+      long value = counterValue;
+      long nextValue = counterValue + increment;
 
       if (loop) {
         if (increment < 0) {
           if (maximum < start && nextValue < maximum) {
             nextValue = start;
           }
-        } else if (increment > 0) {
-          if (maximum > start && nextValue > maximum) {
-            nextValue = start;
-          }
+        } else if (increment > 0 && maximum > start && nextValue > maximum) {
+          nextValue = start;
         }
       }
-      counter = nextValue;
+      counterValue = nextValue;
 
       return value;
     } finally {

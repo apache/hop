@@ -62,16 +62,13 @@ public class LoggingRegistry {
           String sourceParentLogChannelId = loggingSourceParent.getLogChannelId();
           if (foundParentLogChannelId != null
               && sourceParentLogChannelId != null
-              && foundParentLogChannelId.equals(sourceParentLogChannelId)) {
-            if (foundLogChannelId != null) {
-              return foundLogChannelId;
-            }
-          }
-        }
-        if (foundParent == null && loggingSourceParent == null) {
-          if (foundLogChannelId != null) {
+              && foundParentLogChannelId.equals(sourceParentLogChannelId)
+              && foundLogChannelId != null) {
             return foundLogChannelId;
           }
+        }
+        if (foundParent == null && loggingSourceParent == null && foundLogChannelId != null) {
+          return foundLogChannelId;
         }
       }
 

@@ -18,11 +18,7 @@
 package org.apache.hop.core.vfs;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.CacheStrategy;
-import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.cache.SoftRefFilesCache;
 import org.apache.commons.vfs2.impl.DefaultFileReplicator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
@@ -38,12 +34,7 @@ import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.i18n.BaseMessages;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -283,12 +274,10 @@ public class HopVfs {
   public static OutputStream getOutputStream(FileObject fileObject, boolean append)
       throws IOException {
     FileObject parent = fileObject.getParent();
-    if (parent != null) {
-      if (!parent.exists()) {
-        throw new IOException(
-            BaseMessages.getString(
-                PKG, "HopVFS.Exception.ParentDirectoryDoesNotExist", getFriendlyURI(parent)));
-      }
+    if (parent != null && !parent.exists()) {
+      throw new IOException(
+          BaseMessages.getString(
+              PKG, "HopVFS.Exception.ParentDirectoryDoesNotExist", getFriendlyURI(parent)));
     }
     try {
       // Temporary work-around for VFS-807 bug (can be removed after 2.9.0)
