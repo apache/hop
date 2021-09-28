@@ -20,13 +20,24 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.IEngineMeta;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.gui.*;
+import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.gui.IRedrawable;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -34,7 +45,13 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogParentProvided;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -46,7 +63,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -66,7 +87,13 @@ import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContex
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowNoteContext;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.*;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowActionDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowGridDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowHopDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowRunDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
@@ -74,7 +101,12 @@ import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.workflow.*;
+import org.apache.hop.workflow.ActionResult;
+import org.apache.hop.workflow.IActionListener;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -84,17 +116,43 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles the display of Workflows in HopGui, in a graphical form.
@@ -157,6 +215,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private static final int HOP_SEL_MARGIN = 9;
 
   private static final int TOOLTIP_HIDE_DELAY_FLASH = 2000;
+  public static final String ACTION_ID_WORKFLOW_GRAPH_HOP_ENABLE =
+      "workflow-graph-hop-10010-hop-enable";
+  public static final String ACTION_ID_WORKFLOW_GRAPH_HOP_DISABLE =
+      "workflow-graph-hop-10000-hop-disable";
+  public static final String ACTION_ID_WORKFLOW_GRAPH_HOP_HOP_UNCONDITIONAL =
+      "workflow-graph-hop-10030-hop-unconditional";
+  public static final String ACTION_ID_WORKFLOW_GRAPH_HOP_HOP_EVALUATION_SUCCESS =
+      "workflow-graph-hop-10040-hop-evaluation-success";
+  public static final String ACTION_ID_WORKFLOW_GRAPH_HOP_HOP_EVALUATION_FAILURE =
+      "workflow-graph-hop-10050-hop-evaluation-failure";
 
   private final HopDataOrchestrationPerspective perspective;
 
@@ -2024,7 +2092,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "workflow-graph-hop-10010-hop-enable",
+      id = ACTION_ID_WORKFLOW_GRAPH_HOP_ENABLE,
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableHop.Text",
@@ -2050,7 +2118,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "workflow-graph-hop-10000-hop-disable",
+      id = ACTION_ID_WORKFLOW_GRAPH_HOP_DISABLE,
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableHop.Text",
@@ -2103,7 +2171,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "workflow-graph-hop-10030-hop-unconditional",
+      id = ACTION_ID_WORKFLOW_GRAPH_HOP_HOP_UNCONDITIONAL,
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.UnconditionalHop.Text",
@@ -2127,7 +2195,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "workflow-graph-hop-10040-hop-evaluation-success",
+      id = ACTION_ID_WORKFLOW_GRAPH_HOP_HOP_EVALUATION_SUCCESS,
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.SuccessHop.Text",
@@ -2151,7 +2219,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "workflow-graph-hop-10050-hop-evaluation-failure",
+      id = ACTION_ID_WORKFLOW_GRAPH_HOP_HOP_EVALUATION_FAILURE,
       parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.FailureHop.Text",
@@ -2172,6 +2240,29 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         new int[] {workflowMeta.indexOfWorkflowHop(hop)});
 
     updateGui();
+  }
+
+  /**
+   * We're filtering out the disable action for hops which are already disabled. The same for the
+   * enabled hops.
+   *
+   * @param contextActionId
+   * @param context
+   * @return True if the action should be shown and false otherwise.
+   */
+  @GuiContextActionFilter(parentId = HopGuiWorkflowHopContext.CONTEXT_ID)
+  public boolean filterWorkflowHopActions(
+      String contextActionId, HopGuiWorkflowHopContext context) {
+
+    // Enable / disable
+    //
+    if (contextActionId.equals(ACTION_ID_WORKFLOW_GRAPH_HOP_ENABLE)) {
+      return !context.getHopMeta().isEnabled();
+    }
+    if (contextActionId.equals(ACTION_ID_WORKFLOW_GRAPH_HOP_DISABLE)) {
+      return context.getHopMeta().isEnabled();
+    }
+    return true;
   }
 
   // TODO

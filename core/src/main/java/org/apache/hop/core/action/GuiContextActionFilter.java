@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,21 @@
 
 package org.apache.hop.core.action;
 
-public enum GuiActions {
-  NEW,
-  EDIT,
-  DELETE,
-  ;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-  public String id() {
-    return name();
-  }
+/**
+ * We need a way to filter out actions. The annotated method simply returns true/false to decide to
+ * include certain actions. For example, if an object is disabled it makes no sense to offer the
+ * "disable" action. The method accepts the context as a parameter. If no action filters are
+ * defined, all actions for the context are accepted.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface GuiContextActionFilter {
+  String parentId();
 }
