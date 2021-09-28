@@ -2460,8 +2460,8 @@ public class TableView extends Composite {
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
       comboVar.addModifyListener(lsModCombo);
       comboVar.addFocusListener(lsFocusCombo);
-
       comboVar.setText(item.getText(colNr));
+      comboVar.getCComboWidget().setVisibleItemCount(Math.min(opt.length, 15));
 
       if (lsMod != null) {
         comboVar.addModifyListener(lsMod);
@@ -2492,7 +2492,10 @@ public class TableView extends Composite {
       combo.addFocusListener(lsFocusCombo);
 
       combo.setItems(opt);
-      combo.setVisibleItemCount(opt.length);
+      // Limit the amount of visible items to 15.
+      // This forces a better drop-down experience with a scrollbar on larger lists
+      //
+      combo.setVisibleItemCount(Math.min(opt.length, 15));
       combo.setText(cellValue);
       if (lsMod != null) {
         combo.addModifyListener(lsMod);
