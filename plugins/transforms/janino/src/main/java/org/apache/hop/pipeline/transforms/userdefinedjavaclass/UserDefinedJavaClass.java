@@ -152,7 +152,7 @@ public class UserDefinedJavaClass
     return super.decrementLinesWritten();
   }
 
-  public void disposeImpl(ITransform smi, ITransformData sdi) {
+  public void disposeImpl() {
     super.dispose();
   }
 
