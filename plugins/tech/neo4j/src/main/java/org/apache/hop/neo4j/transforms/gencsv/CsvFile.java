@@ -31,12 +31,16 @@ public class CsvFile {
 
   private String fileType;
 
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient List<IdType> propsList;
 
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient Map<String, Integer> propsIndexes;
 
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient FileOutputStream outputStream;
 
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient String idFieldName;
 
   public CsvFile() {

@@ -42,6 +42,7 @@ public class FatJarBuilder {
   private String extraTransformPluginClasses;
   private String extraXpPluginClasses;
 
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient Map<String, String> fileContentMap;
 
   public FatJarBuilder() {

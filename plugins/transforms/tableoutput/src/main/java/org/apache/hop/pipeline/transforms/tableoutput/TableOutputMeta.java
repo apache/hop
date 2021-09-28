@@ -121,6 +121,7 @@ public class TableOutputMeta extends BaseTransformMeta
   @HopMetadataProperty(
       injectionKey = "PARTITION_DATA_PER",
       injectionKeyDescription = "TableOutputMeta.Injection.PartitionDataPer.Field")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   private transient String partitionDataPer;
 
   @HopMetadataProperty(
