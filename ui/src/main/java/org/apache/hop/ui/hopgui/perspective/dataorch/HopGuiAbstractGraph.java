@@ -80,6 +80,8 @@ public abstract class HopGuiAbstractGraph extends Composite {
    */
   protected Map<String, Object> stateMap;
 
+  protected boolean avoidScrollAdjusting;
+
   public HopGuiAbstractGraph(HopGui hopGui, Composite parent, int style, CTabItem parentTabItem) {
     super(parent, style);
     this.parentComposite = parent;

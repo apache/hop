@@ -969,6 +969,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         selectInRect(pipelineMeta, selectionRegion);
       }
       selectionRegion = null;
+      avoidScrollAdjusting = true;
       updateGui();
     } else {
       // Clicked on an icon?
@@ -1038,6 +1039,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         startHopTransform = null;
         endHopLocation = null;
 
+        avoidScrollAdjusting = true;
         updateGui();
       } else {
         // Notes?
@@ -1558,7 +1560,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               transformMeta.getLocation().x + dx,
               transformMeta.getLocation().y + dy);
         }
-        adjustScrolling();
+        // adjustScrolling();
       }
       // Adjust location of selected hops...
       if (selectedNotes != null) {
@@ -1566,7 +1568,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           NotePadMeta ni = selectedNotes.get(i);
           PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
         }
-        adjustScrolling();
+        // adjustScrolling();
       }
 
       redraw();
@@ -1639,7 +1641,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 transformMeta.getLocation().x + dx,
                 transformMeta.getLocation().y + dy);
           }
-          adjustScrolling();
+          // adjustScrolling();
         }
         // Adjust location of selected hops...
         if (selectedNotes != null) {
@@ -1647,7 +1649,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             NotePadMeta ni = selectedNotes.get(i);
             PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
           }
-          adjustScrolling();
+          // adjustScrolling();
         }
 
         redraw();
@@ -5186,7 +5188,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               hopGui.setUndoMenu(pipelineMeta);
               hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
 
-              adjustScrolling();
+              if (!avoidScrollAdjusting) {
+                avoidScrollAdjusting = false;
+                adjustScrolling();
+              }
 
               HopGuiPipelineGraph.super.redraw();
             });

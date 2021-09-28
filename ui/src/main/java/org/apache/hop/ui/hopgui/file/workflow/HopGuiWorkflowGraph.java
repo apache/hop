@@ -774,6 +774,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         selectInRect(workflowMeta, selectionRegion);
       }
       selectionRegion = null;
+      avoidScrollAdjusting = true;
       updateGui();
     } else {
       // Clicked on an icon?
@@ -915,6 +916,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         selectedNote = null;
         startHopAction = null;
         endHopLocation = null;
+        avoidScrollAdjusting = true;
 
         updateGui();
       } else {
@@ -1212,7 +1214,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           PropsUi.setLocation(
               actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy);
         }
-        adjustScrolling();
       }
       // Adjust location of selected hops...
       if (selectedNotes != null) {
@@ -1220,7 +1221,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           NotePadMeta ni = selectedNotes.get(i);
           PropsUi.setLocation(ni, ni.getLocation().x + dx, ni.getLocation().y + dy);
         }
-        adjustScrolling();
       }
 
       redraw();
@@ -3197,7 +3197,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               hopGui.setUndoMenu(workflowMeta);
               hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
 
-              adjustScrolling();
+              if (!avoidScrollAdjusting) {
+                avoidScrollAdjusting = false;
+                adjustScrolling();
+              }
 
               HopGuiWorkflowGraph.super.redraw();
             });
