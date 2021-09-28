@@ -355,17 +355,19 @@ public abstract class HopGuiAbstractGraph extends Composite {
     if (h != null) {
       h.setMinimum(1);
       h.setMaximum(100);
-      h.setThumb(hThumb);
+      h.setThumb(Math.min(hThumb, 100));
       if (!EnvironmentUtils.getInstance().isWeb()) {
-        h.setPageIncrement(10);
+        h.setPageIncrement(5);
+        h.setIncrement(1);
       }
     }
     if (v != null) {
       v.setMinimum(1);
       v.setMaximum(100);
-      v.setThumb(vThumb);
+      v.setThumb(Math.min(vThumb, 100));
       if (!EnvironmentUtils.getInstance().isWeb()) {
-        v.setPageIncrement(10);
+        v.setPageIncrement(5);
+        v.setIncrement(1);
       }
     }
     canvas.setFocus();
