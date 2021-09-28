@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -129,6 +130,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           GuiContextAction contextAction = method.getAnnotation(GuiContextAction.class);
           if (contextAction != null) {
             guiRegistry.addGuiContextAction(guiPluginClassName, method, contextAction, classLoader);
+          }
+
+          GuiContextActionFilter actionFilter = method.getAnnotation(GuiContextActionFilter.class);
+          if (actionFilter != null) {
+            guiRegistry.addGuiActionFilter(guiPluginClassName, method, actionFilter, classLoader);
           }
 
           GuiCallback guiCallback = method.getAnnotation(GuiCallback.class);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.context;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -26,6 +28,7 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +74,9 @@ public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements I
     List<GuiAction> pluginActions = getPluginActions(true);
     if (pluginActions != null) {
       for (GuiAction pluginAction : pluginActions) {
+        // See if the action is applicable to the hop.
+        //
+
         actions.add(lambdaBuilder.createLambda(pluginAction, this, pipelineGraph));
       }
     }

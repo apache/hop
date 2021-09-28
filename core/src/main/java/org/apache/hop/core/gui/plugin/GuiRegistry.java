@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,9 @@ package org.apache.hop.core.gui.plugin;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
 import org.apache.hop.core.gui.plugin.callback.GuiCallback;
 import org.apache.hop.core.gui.plugin.callback.GuiCallbackMethod;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -33,7 +35,13 @@ import org.apache.hop.core.util.TranslateUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This singleton keeps track of the various GUI elements that are made plug-able by the developers.
@@ -56,6 +64,7 @@ public class GuiRegistry {
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
+  private Map<String, List<GuiActionFilter>> contextActionFiltersMap;
   private Map<String, List<GuiCallbackMethod>> callbackMethodsMap;
 
   /**
@@ -70,6 +79,7 @@ public class GuiRegistry {
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
+    contextActionFiltersMap = new HashMap<>();
     guiPluginObjectsMap = new HashMap<>();
     callbackMethodsMap = new HashMap<>();
   }
@@ -511,6 +521,36 @@ public class GuiRegistry {
   }
 
   /**
+   * Add a GUI action filter for the given method and its annotation. Also provide a classloader
+   * which can be used to load resources later.
+   *
+   * @param guiPluginClassName
+   * @param method
+   * @param af
+   * @param classLoader
+   */
+  public void addGuiActionFilter(
+      String guiPluginClassName,
+      Method method,
+      GuiContextActionFilter af,
+      ClassLoader classLoader) {
+
+    GuiActionFilter actionFilter = new GuiActionFilter();
+    actionFilter.setGuiPluginClassName(guiPluginClassName);
+    actionFilter.setGuiPluginMethodName(method.getName());
+    actionFilter.setClassLoader(classLoader);
+    actionFilter.setId(guiPluginClassName.getClass().getName() + "." + method.getName());
+
+    List<GuiActionFilter> actionFilters =
+        contextActionFiltersMap.computeIfAbsent(af.parentId(), k -> new ArrayList<>());
+    actionFilters.add(actionFilter);
+  }
+
+  public List<GuiActionFilter> getGuiContextActionFilters(String parentContextId) {
+    return contextActionFiltersMap.get(parentContextId);
+  }
+
+  /**
    * Gets dataElementsMap
    *
    * @return value of dataElementsMap
@@ -593,5 +633,20 @@ public class GuiRegistry {
   public void setGuiPluginObjectsMap(
       Map<String, Map<String, Map<String, Object>>> guiPluginObjectsMap) {
     this.guiPluginObjectsMap = guiPluginObjectsMap;
+  }
+
+  /**
+   * Gets contextActionFiltersMap
+   *
+   * @return value of contextActionFiltersMap
+   */
+  public Map<String, List<GuiActionFilter>> getContextActionFiltersMap() {
+    return contextActionFiltersMap;
+  }
+
+  /** @param contextActionFiltersMap The contextActionFiltersMap to set */
+  public void setContextActionFiltersMap(
+      Map<String, List<GuiActionFilter>> contextActionFiltersMap) {
+    this.contextActionFiltersMap = contextActionFiltersMap;
   }
 }
