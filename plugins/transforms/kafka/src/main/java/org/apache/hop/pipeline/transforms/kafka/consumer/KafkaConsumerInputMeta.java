@@ -116,9 +116,11 @@ public class KafkaConsumerInputMeta
   private KafkaConsumerField messageField;
 
   @Injection(name = "NAMES", group = "CONFIGURATION_PROPERTIES")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   protected transient List<String> injectedConfigNames;
 
   @Injection(name = "VALUES", group = "CONFIGURATION_PROPERTIES")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   protected transient List<String> injectedConfigValues;
 
   @Injection(name = AUTO_COMMIT)
