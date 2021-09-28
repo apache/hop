@@ -3196,6 +3196,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
               hopGui.setUndoMenu(workflowMeta);
               hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
+
+              adjustScrolling();
+
               HopGuiWorkflowGraph.super.redraw();
             });
   }

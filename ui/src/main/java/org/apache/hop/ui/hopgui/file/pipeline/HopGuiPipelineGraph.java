@@ -5186,6 +5186,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               hopGui.setUndoMenu(pipelineMeta);
               hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
 
+              adjustScrolling();
+
               HopGuiPipelineGraph.super.redraw();
             });
   }
