@@ -267,7 +267,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
     String errorMessage = "";
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
+      Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
       try {
         db.connect();
 
@@ -493,6 +493,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    databaseMeta = getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
