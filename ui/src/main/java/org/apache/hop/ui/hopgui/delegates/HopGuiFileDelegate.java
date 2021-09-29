@@ -162,7 +162,10 @@ public class HopGuiFileDelegate {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_SAVE)) {
-        if (StringUtils.isEmpty(typeHandler.getFilename())) {
+        // Metadata just needs to be saved.
+        //
+        if (StringUtils.isEmpty(typeHandler.getFilename())
+            && !fileType.hasCapability(IHopFileType.CAPABILITY_HANDLE_METADATA)) {
           // Ask for the filename: saveAs
           //
           fileSaveAs();
