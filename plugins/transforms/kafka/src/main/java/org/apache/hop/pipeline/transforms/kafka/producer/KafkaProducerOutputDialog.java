@@ -20,6 +20,9 @@ package org.apache.hop.pipeline.transforms.kafka.producer;
 import com.google.common.collect.ImmutableMap;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -28,6 +31,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaDialogHelper;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -417,6 +421,27 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     populateOptionsData();
   }
 
+  private boolean checkIfFieldExists(String fieldName) {
+    boolean fieldFound = false;
+    try {
+      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      String[] fieldNames = r.getFieldNames();
+      for (int count = 0; count < fieldNames.length; count++) {
+        if (fieldName.equals(fieldNames[count])) {
+          fieldFound = true;
+          break;
+        }
+      }
+    } catch (HopTransformException ke) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FailedToGetFields.DialogMessage"),
+          ke);
+    }
+    return fieldFound;
+  }
+
   private void cancel() {
     meta.setChanged(false);
     dispose();
@@ -424,10 +449,47 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
   private void ok() {
     transformName = wTransformName.getText();
+
+    if (Utils.isEmpty(wBootstrapServers.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "KafkaProducerOutputDialog.BootstrapServerMandatory.Message"));
+      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.open();
+      return;
+    }
+
     meta.setDirectBootstrapServers(wBootstrapServers.getText());
     meta.setClientId(wClientId.getText());
     meta.setTopic(wTopic.getText());
+    if (!Utils.isEmpty(wKeyField.getText()) && !checkIfFieldExists(wKeyField.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "KafkaProducerOutputDialog.KeyFieldNotExists.Message", wKeyField.getText()));
+      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.open();
+      return;
+    }
+
     meta.setKeyField(wKeyField.getText());
+    if (Utils.isEmpty(wMessageField.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldMandatory.Message"));
+      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.open();
+      return;
+    }
+
+    if (!checkIfFieldExists(wMessageField.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldNotExists.Message", wMessageField.getText()));
+      mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
+      mb.open();
+      return;
+    }
+
     meta.setMessageField(wMessageField.getText());
     meta.setConfig(KafkaDialogHelper.getConfig(optionsTable));
     dispose();
