@@ -67,6 +67,7 @@ public class MetadataFileType implements IHopFileType {
     capabilities.setProperty(IHopFileType.CAPABILITY_NEW, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_CLOSE, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_SAVE, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_HANDLE_METADATA, "true");
 
     return capabilities;
   }
