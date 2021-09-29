@@ -701,6 +701,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Point real = screen2real(e.x, e.y);
     lastClick = new Point(real.x, real.y);
 
+    setupDragView(e.button, new Point(e.x, e.y));
+
     // Hide the tooltip!
     hideToolTips();
 
@@ -889,6 +891,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PipelineHopMeta selectedHop = findPipelineHop(e.x, e.y);
     updateErrorMetaForHop(selectedHop);
     boolean singleClick = false;
+    viewDrag = false;
+    viewDragStart = null;
     SingleClickType singleClickType = null;
     TransformMeta singleClickTransform = null;
     NotePadMeta singleClickNote = null;
@@ -1615,6 +1619,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
 
       redraw();
+    } else {
+      // Drag the view around with middle button on the background?
+      //
+      if (viewDrag && lastClick != null) {
+        dragView(viewDragStart, new Point(e.x, e.y));
+      }
     }
 
     // Move around notes & transforms
