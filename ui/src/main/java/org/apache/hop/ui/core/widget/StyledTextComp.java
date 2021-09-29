@@ -124,6 +124,10 @@ public class StyledTextComp extends Composite {
     textWidget.insert(strInsert);
   }
 
+  public void addListener(int eventType, Listener listener) {
+    textWidget.addListener(eventType, listener);
+  }
+  
   public void addModifyListener(ModifyListener lsMod) {
     textWidget.addModifyListener(lsMod);
   }

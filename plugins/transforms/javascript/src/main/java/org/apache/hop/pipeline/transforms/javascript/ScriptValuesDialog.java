@@ -294,7 +294,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     // The position just above that and below the script...
     //
     wlPosition = new Label(wTop, SWT.LEFT);
-    wlPosition.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Position.Label"));
+    wlPosition.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Position.Label", 1, 1));
     props.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, 2 * margin);
@@ -574,53 +574,21 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
               + Const.CR
               + Const.CR);
     }
-    item.setImage(imageInactiveScript);
+
     props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 
-    wScript.addKeyListener(
-        new KeyAdapter() {
-          @Override
-          public void keyPressed(KeyEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void keyReleased(KeyEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void focusLost(FocusEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDoubleClick(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseDown(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseUp(MouseEvent e) {
-            setPosition();
-          }
-        });
-
+    Listener listener = e -> setPosition(wScript);
+    wScript.addListener(SWT.Modify, listener);
+    wScript.addListener(SWT.KeyDown, listener);
+    wScript.addListener(SWT.KeyUp, listener);
+    wScript.addListener(SWT.FocusIn,listener);
+    wScript.addListener(SWT.FocusOut,listener);
+    wScript.addListener(SWT.MouseDoubleClick,listener);
+    wScript.addListener(SWT.MouseUp, listener);
+    wScript.addListener(SWT.MouseDown, listener);
     wScript.addModifyListener(lsMod);
 
+    item.setImage(imageInactiveScript);
     item.setControl(wScript);
 
     // Adding new Item to Tree
@@ -765,13 +733,12 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     return strRC;
   }
 
-  public void setPosition() {
-    StyledTextComp wScript = getStyledTextComp();
+  public void setPosition(StyledTextComp wScript) {
     int lineNumber = wScript.getLineNumber();
     int columnNumber = wScript.getColumnNumber();
     wlPosition.setText(
         BaseMessages.getString(
-            PKG, "ScriptValuesDialogMod.Position.Label2", "" + lineNumber, "" + columnNumber));
+            PKG, "ScriptValuesDialogMod.Position.Label", lineNumber, columnNumber));
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
