@@ -167,13 +167,10 @@ public class TableInputMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (databaseMeta == null) {
-      return; // TODO: throw an exception here
-    }
 
     boolean param = false;
 
-    Database db = new Database(loggingObject, variables, databaseMeta);
+    Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
     // First try without connecting to the database... (can be S L O W)
@@ -269,7 +266,7 @@ public class TableInputMeta extends BaseTransformMeta
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, "Connection exists", transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, databaseMeta);
+      Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
       super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
       try {
