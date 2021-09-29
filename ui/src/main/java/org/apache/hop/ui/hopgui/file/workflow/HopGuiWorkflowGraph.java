@@ -570,6 +570,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point real = screen2real(e.x, e.y);
     lastClick = new Point(real.x, real.y);
 
+    setupDragView(e.button, new Point(e.x, e.y));
+
     // Hide the tooltip!
     hideToolTips();
 
@@ -685,7 +687,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           //
           canvas.setData("mode", "select");
           startHopAction = null;
-          if (!control) {
+          if (!control && e.button == 1) {
             selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
           }
           updateGui();
@@ -721,6 +723,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     ActionMeta singleClickAction = null;
     NotePadMeta singleClickNote = null;
     WorkflowHopMeta singleClickHop = null;
+    viewDrag = false;
+    viewDragStart = null;
 
     if (iconOffset == null) {
       iconOffset = new Point(0, 0);
@@ -1259,6 +1263,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
 
       redraw();
+    } else {
+      // Drag the view around with middle button on the background?
+      //
+      if (viewDrag && lastClick != null) {
+        dragView(viewDragStart, new Point(e.x, e.y));
+      }
     }
 
     // Move around notes & transforms
