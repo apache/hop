@@ -32,9 +32,6 @@ import java.util.List;
 
 /**
  * Read all rows from a hop until the end, and then read the rows from another hop.
- *
- * @author Sven Boden
- * @since 3-june-2007
  */
 public class Append extends BaseTransform<AppendMeta, AppendData>
     implements ITransform<AppendMeta, AppendData> {
