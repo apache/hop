@@ -160,7 +160,10 @@ public class KettleConst {
                 {"Current.Directory", "Current.Folder"},
                 {"Internal.Job.Filename.Name", "Internal.Workflow.Filename.Name"},
                 {"Internal.Entry.Current.Directory", "Internal.Entry.Current.Folder"},
-                {"Internal.Job.Filename.Directory", "Internal.Workflow.Filename.Folder"}
+                {"Internal.Job.Filename.Directory", "Internal.Workflow.Filename.Folder"},
+                // Injection key
+                {"HEAD_STEP", "HEAD_TRANSFORM"},
+                {"TAIL_STEP", "TAIL_TRANSFORM"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
