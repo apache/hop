@@ -16,12 +16,12 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
-:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additonally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
+:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additionally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
 
 = Hop Server
 
 Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration.
-Additonally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
+Additonally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
 
 == Starting and Stopping Hop Server
 
@@ -33,36 +33,103 @@ Run Hop Server without any parameters to display its usage options.
 On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
 
 [source,bash]
-Usage: hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
-or
-Usage: Hop Server <Configuration File>
-Starts or stops the hopServer server.
-     -h,--help               This help text
-     -p,--password <arg>     The administrator password.  Required only if
-                             stopping the Hop Server server.
-     -s,--stop               Stop the running hopServer server.  This is only
-                             allowed when using the hostname/port form of the
-                             command.
-     -u,--userName <arg>     The administrator user name.  Required only if
-                             stopping the Hop Server server.
-Example: hop-server.sh 127.0.0.1 8080
+----
+Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
+                    [-j=<projectOption>] [-l=<level>] [-p=<password>]
+                    [-ps=<pipelineName>] [-u=<username>] [-ws=<workflowName>]
+                    [-s=<systemProperties>[,<systemProperties>...]]...
+                    <parameters>...
+      <parameters>...   One XML configuration file or a hostname and port
+  -e, --environment=<environmentOption>
+                        The name of the lifecycle environment to use
+      -gs, --general-status
+                        List the general status of the server
+      -id=<id>          Specify the ID of the pipeline or workflow to query
+  -j, --project=<projectOption>
+                        The name of the project to use
+  -k, --kill            Stop the running hopServer server.  This is only allowed
+                          when using the hostname/port form of the command. Use the
+                          -s and -u options to authenticate
+  -l, --level=<level>   The debug level, one of NONE, MINIMAL, BASIC, DETAILED,
+                          DEBUG, ROWLEVEL
+  -p, --password=<password>
+                        The server password.  Required for administrative operations
+                          only, not for starting the server.
+      -ps, --pipeline-status=<pipelineName>
+                        List the status of the pipeline with this name (also specify
+                          the -id option)
+  -s, --system-properties=<systemProperties>[,<systemProperties>...]
+                        A comma separated list of KEY=VALUE pairs
+  -u, --userName=<username>
+                        The server user name.  Required for administrative
+                          operations only, not for starting the server.
+      -ws, --workflow-status=<workflowName>
+                        List the status of the workflow with this name (also specify
+                          the -id option)
+
+Example: hop-server.sh 0.0.0.0 8080
 Example: hop-server.sh 192.168.1.221 8081
-Example: hop-server.sh /foo/bar/hop-server-config.xml
-Example: hop-server.sh http://www.example.com/hop-server-config.xml
-Example: hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
+
+Example: hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml
+Example: hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password cluster
+----
 
 The available Hop Server options are:
 
 [width="90%",options="header"]
 |===
+
 |Short|Extended|Description
-|h|help|This help text
-|p|password|The administrator password.
-Required only if stopping the Hop Server server.
-|s|stop|Stop the running hopServer server.
-This is only allowed when using the hostname/port form of the command.
-|u|username|The administrator user name.
-Required only if stopping the Hop Server server.
+
+|-h
+|--help
+|This help text
+
+|-p
+|--password
+|The server password.
+Required for administrative operations only, not for starting the server.
+
+|-k
+|--kill
+|Stop the running hop server.
+
+|-u
+|--userName
+|The server password.
+Required for administrative operations only, not for starting the server.
+
+|-s
+|--system-properties
+|Manually set system environment variables.
+Specify a comma separated list of KEY=VALUE pairs.
+
+|-e
+|--environment
+|The name of the project lifecycle environment to enable before startup.
+This is provided for by the 'projects' plugin.
+
+|-j
+|--project
+|The name of the project to enable before startup.
+This is provided for by the 'projects' plugin.
+
+|-gs
+|--general-status
+|List the general status of the server.
+
+|-ps
+|--pipeline-status
+|List the status of the pipeline with this name (also specify the -id option)
+
+|-ws
+|--workflow-status
+|List the status of the workflow with this name (also specify the -id option)
+
+|-id
+|
+|Specify the ID of the pipeline or workflow to query
+
 |===
 
 === Start Hop Server with command line parameters
@@ -79,6 +146,11 @@ hop-server.sh 127.0.0.1 8080
 
 [source,shell]
 hop-server.sh 192.168.1.221 8081
+
+Listen to all interfaces on the server:
+
+[source,shell]
+hop-server.sh 0.0.0.0 8080
 
 === Start Hop Server with a configuration file
 
@@ -137,6 +209,15 @@ Or with a remote configuration file:
 [source,shell]
 hop-server.sh http://www.example.com/hop-server-config.xml
 
+You can also enable a project lifecyfle environment for the Hop server:
+
+[source,shell]
+hop-server.sh -e graph-aws hop-server.xml
+
+In the sample above the environment contains configuration files with variables which are loaded.
+With the environment the server also knows the project home folder.
+The server configuration file is found in the home folder automatically with the implicit relative path.
+
 === Stopping Hop Server
 
 In a testing setup where Hop Server was started from a terminal, the process can be terminated through `CTRL-C`.
@@ -155,6 +236,98 @@ The console output will look similar to what is listed below:
 [source,shell]
 2020/06/20 18:35:12 - HopServer - Installing timer to purge stale objects after 1440 minutes.
 2020/06/20 18:35:12 - HopServer - Created listener for webserver @ address : localhost:8081
+
+== Query a server from the command line
+
+You can query the new server with another hop-server command:
+
+[source,shell]
+----
+sh hop-server.sh -gs -u cluster -p cluster 127.0.0.1 8080
+Pipelines: 0 found.
+
+Workflows: 0 found.
+----
+
+== Query a pipeline from the command line
+
+[source,log]
+----
+sh hop-server.sh -id 375c9113-b538-4559-8e98-ee02a435fbb9 -u cluster -p cluster -ps service-example -j my-project hop-server.xml
+2021/10/01 13:27:04 - HopServer - Enabling project 'my-project'
+  ID: 375c9113-b538-4559-8e98-ee02a435fbb9
+      Name:     service-example
+      Status:   Finished
+      Start:    2021/10/01 13:26:45.128
+      End:      2021/10/01 13:26:45.220
+      Log date: 2021/10/01 13:27:04.363
+      Errors:   0
+      Transforms: 4 found.
+        1
+          Name:      a,b
+          Copy:      0
+          Status:    Finished
+          Input:     0
+          Output:    0
+          Read:      1
+          Written:   1
+          Rejected:  0
+          Updated:   0
+          Errors:    0
+        2
+...
+        3
+...
+        4
+...
+      Logging:
+          2021/10/01 13:26:45 - service-example - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+          2021/10/01 13:26:45 - service-example - Execution started for pipeline [service-example]
+          2021/10/01 13:26:45 - a,b.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+          2021/10/01 13:26:45 - c,d.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+          2021/10/01 13:26:45 - build JSON.0 - Finished processing (I=0, O=1, R=1, W=1, U=0, E=0)
+          2021/10/01 13:26:45 - OUTPUT.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+          2021/10/01 13:26:45 - service-example - Pipeline duration : 0.092 seconds [  0.092" ]
+          2021/10/01 13:26:45 - service-example - Execution finished on a local pipeline engine with run configuration 'local'
+----
+
+== Query a workflow from the command line
+
+[source,log]
+----
+sh hop-server.sh -ws test-workflow -id e24b4549-edf0-4d77-987e-f103b630b4cc -u cluster -p cluster localhost 8181
+  ID: e24b4549-edf0-4d77-987e-f103b630b4cc
+      Name:     test-workflow
+      Status:   Finished
+      Log date: 2021/10/01 14:27:45.891
+      Result:   true
+      Errors:   0
+      Logging:
+          2021/10/01 14:27:45 - test-workflow - Start of workflow execution
+          2021/10/01 14:27:46 - test-workflow - Starting action [sample]
+          2021/10/01 14:27:46 - sample - Using run configuration [remote-8181]
+          2021/10/01 14:27:46 - sample - Executing this pipeline using the Remote Pipeline Engine with run configuration 'remote-8181'
+          2021/10/01 14:27:46 - sample - 2021/10/01 14:27:46 - sample - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+          2021/10/01 14:27:46 - sample - 2021/10/01 14:27:46 - sample - Execution started for pipeline [sample]
+          2021/10/01 14:27:47 - sample - 2021/10/01 14:27:47 - 1M.0 - Finished processing (I=0, O=0, R=0, W=1000000, U=0, E=0)
+          2021/10/01 14:27:47 - sample - 2021/10/01 14:27:47 - someString,someInt.0 - Finished processing (I=0, O=0, R=1000000, W=1000000, U=0, E=0)
+          2021/10/01 14:27:47 - sample - 2021/10/01 14:27:47 - id.0 - Finished processing (I=0, O=0, R=1000000, W=1000000, U=0, E=0)
+          2021/10/01 14:27:47 - sample - 2021/10/01 14:27:47 - sample - Pipeline duration : 0.977 seconds [  0.977" ]
+          2021/10/01 14:27:47 - sample - 2021/10/01 14:27:47 - sample - Execution finished on a local pipeline engine with run configuration 'local'
+          2021/10/01 14:27:47 - sample - Execution finished on a remote pipeline engine with run configuration 'remote-8181'
+          2021/10/01 14:27:48 - test-workflow - Starting action [true]
+          2021/10/01 14:27:48 - test-workflow - Starting action [false]
+          2021/10/01 14:27:48 - test-workflow - Starting action [log-something]
+          2021/10/01 14:27:48 - Subject - Message
+          2021/10/01 14:27:48 - test-workflow - Starting action [Success]
+          2021/10/01 14:27:48 - test-workflow - Finished action [Success] (result=[true])
+          2021/10/01 14:27:48 - test-workflow - Finished action [log-something] (result=[true])
+          2021/10/01 14:27:48 - test-workflow - Finished action [false] (result=[true])
+          2021/10/01 14:27:48 - test-workflow - Finished action [true] (result=[true])
+          2021/10/01 14:27:48 - test-workflow - Finished action [sample] (result=[true])
+          2021/10/01 14:27:48 - test-workflow - Workflow execution finished
+          2021/10/01 14:27:48 - test-workflow - Workflow duration : 2.715 seconds [  2.714" ]
+----
 
 == Connect to the Hop Server UI
 
