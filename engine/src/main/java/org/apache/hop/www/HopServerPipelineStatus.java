@@ -140,6 +140,10 @@ public class HopServerPipelineStatus {
     statusDescription = XmlHandler.getTagValue(pipelineStatusNode, "status_desc");
     errorDescription = XmlHandler.getTagValue(pipelineStatusNode, "error_desc");
     logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(pipelineStatusNode, "log_date"));
+    executionStartDate =
+        XmlHandler.stringToDate(XmlHandler.getTagValue(pipelineStatusNode, "execution_start_date"));
+    executionEndDate =
+        XmlHandler.stringToDate(XmlHandler.getTagValue(pipelineStatusNode, "execution_end_date"));
     paused = "Y".equalsIgnoreCase(XmlHandler.getTagValue(pipelineStatusNode, "paused"));
 
     Node statusListNode = XmlHandler.getSubNode(pipelineStatusNode, "transform_status_list");
