@@ -26,6 +26,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -112,7 +113,11 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           synchronized (this) {
             WorkflowConfiguration workflowConfiguration =
                 getWorkflowMap().getConfiguration(workflowName);
-            IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
+            IHopMetadataProvider metadataProvider =
+                new MultiMetadataProvider(
+                    variables,
+                    getServerConfig().getMetadataProvider(),
+                    workflowConfiguration.getMetadataProvider());
 
             // This new workflow execution engine instance needs a new container ID...
             //

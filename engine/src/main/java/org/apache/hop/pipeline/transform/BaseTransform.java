@@ -977,7 +977,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
                 "Please set a field name for all field(s) that have 'null'.");
           }
           if (vmi.getType() <= 0) {
-            throw new HopTransformException("Please set a value for the missing field(s) type.");
+            throw new HopTransformException(
+                "Please set a value for the missing field(s) type for field: '"
+                    + vmi.getName()
+                    + "'");
           }
         }
       }

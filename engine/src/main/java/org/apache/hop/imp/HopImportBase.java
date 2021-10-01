@@ -30,10 +30,16 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 import javax.xml.transform.dom.DOMSource;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public abstract class HopImportBase implements IHopImport {
@@ -62,7 +68,7 @@ public abstract class HopImportBase implements IHopImport {
   protected int connectionCounter;
   protected int variableCounter;
 
-  protected IHopMetadataProvider metadataProvider;
+  protected MultiMetadataProvider metadataProvider;
   protected IProgressMonitor monitor;
   protected String metadataTargetFolder;
 
@@ -92,7 +98,12 @@ public abstract class HopImportBase implements IHopImport {
     if (metadataProvider == null) {
       this.metadataTargetFolder = outputFolder.getName().getURI() + "/metadata";
       metadataProvider =
-          new JsonMetadataProvider(Encr.getEncoder(), this.metadataTargetFolder, variables);
+          new MultiMetadataProvider(
+              Encr.getEncoder(),
+              Arrays.asList(
+                  new JsonMetadataProvider(
+                      Encr.getEncoder(), this.metadataTargetFolder, variables)),
+              variables);
     }
     if (monitor != null) {
       monitor.setTaskName("Finding files to import");
@@ -408,13 +419,13 @@ public abstract class HopImportBase implements IHopImport {
    * @return value of metadataProvider
    */
   @Override
-  public IHopMetadataProvider getMetadataProvider() {
+  public MultiMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
   /** @param metadataProvider The metadataProvider to set */
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 

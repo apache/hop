@@ -65,7 +65,7 @@ public class HopServerPipelineStatusTest {
         XmlHandler.countNodes(newPipelineStatus, "log_date"));
     assertTrue(
         "The \"log_date\" node should have a null value",
-        Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")));
+        !Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")));
   }
 
   @Test

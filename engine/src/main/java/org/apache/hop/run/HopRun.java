@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,6 +40,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -104,7 +105,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   private String realFilename;
   private CommandLine cmd;
   private ILogChannel log;
-  private IHopMetadataProvider metadataProvider;
+  private MultiMetadataProvider metadataProvider;
   private boolean finishedWithoutError;
 
   public HopRun() {
@@ -503,7 +504,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
    * @return value of metadataProvider
    */
   @Override
-  public IHopMetadataProvider getMetadataProvider() {
+  public MultiMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
@@ -668,7 +669,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
   /** @param metadataProvider The metadataProvider to set */
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 

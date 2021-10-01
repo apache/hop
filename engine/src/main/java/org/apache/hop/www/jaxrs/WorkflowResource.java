@@ -24,6 +24,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -95,7 +96,11 @@ public class WorkflowResource {
       synchronized (this) {
         WorkflowConfiguration workflowConfiguration =
             HopServerSingleton.getInstance().getWorkflowMap().getConfiguration(entry);
-        IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
+        IHopMetadataProvider metadataProvider =
+            new MultiMetadataProvider(
+                HopServerSingleton.getHopServerConfig().getVariables(),
+                HopServerSingleton.getHopServer().getMetadataProvider(),
+                workflowConfiguration.getMetadataProvider());
         String serverObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
             new SimpleLoggingObject(getClass().getName(), LoggingObjectType.HOP_SERVER, null);
@@ -166,7 +171,12 @@ public class WorkflowResource {
     try {
       IVariables variables = Variables.getADefaultVariableSpace(); // TODO
       workflowConfiguration = WorkflowConfiguration.fromXml(xml, variables);
-      IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
+      IHopMetadataProvider metadataProvider =
+          new MultiMetadataProvider(
+              variables,
+              HopServerSingleton.getHopServer().getMetadataProvider(),
+              workflowConfiguration.getMetadataProvider());
+
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration =
           workflowConfiguration.getWorkflowExecutionConfiguration();

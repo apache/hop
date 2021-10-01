@@ -47,9 +47,17 @@ public class HopServerWorkflowStatus {
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   private Date logDate;
 
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+  private Date executionStartDate;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+  private Date executionEndDate;
+
   private Result result;
 
-  public HopServerWorkflowStatus() {}
+  public HopServerWorkflowStatus() {
+    logDate = new Date();
+  }
 
   /**
    * @param pipelineName
@@ -76,6 +84,13 @@ public class HopServerWorkflowStatus {
     xml.append("  ").append(XmlHandler.addTagValue("error_desc", errorDescription));
     xml.append("  ").append(XmlHandler.addTagValue("log_date", XmlHandler.date2string(logDate)));
     xml.append("  ")
+        .append(
+            XmlHandler.addTagValue(
+                "execution_start_date", XmlHandler.date2string(executionStartDate)));
+    xml.append("  ")
+        .append(
+            XmlHandler.addTagValue("execution_end_date", XmlHandler.date2string(executionEndDate)));
+    xml.append("  ")
         .append(XmlHandler.addTagValue("logging_string", XmlHandler.buildCDATA(loggingString)));
     xml.append("  ").append(XmlHandler.addTagValue("first_log_line_nr", firstLoggingLineNr));
     xml.append("  ").append(XmlHandler.addTagValue("last_log_line_nr", lastLoggingLineNr));
@@ -96,6 +111,11 @@ public class HopServerWorkflowStatus {
     id = XmlHandler.getTagValue(workflowStatusNode, "id");
     statusDescription = XmlHandler.getTagValue(workflowStatusNode, "status_desc");
     errorDescription = XmlHandler.getTagValue(workflowStatusNode, "error_desc");
+    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "log_date"));
+    executionStartDate =
+        XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "execution_start_date"));
+    executionEndDate =
+        XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "execution_end_date"));
     logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "log_date"));
     firstLoggingLineNr =
         Const.toInt(XmlHandler.getTagValue(workflowStatusNode, "first_log_line_nr"), 0);
@@ -271,5 +291,33 @@ public class HopServerWorkflowStatus {
   /** @param id the id to set */
   public void setId(String id) {
     this.id = id;
+  }
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  public Date getExecutionStartDate() {
+    return executionStartDate;
+  }
+
+  /** @param executionStartDate The executionStartDate to set */
+  public void setExecutionStartDate(Date executionStartDate) {
+    this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /** @param executionEndDate The executionEndDate to set */
+  public void setExecutionEndDate(Date executionEndDate) {
+    this.executionEndDate = executionEndDate;
   }
 }

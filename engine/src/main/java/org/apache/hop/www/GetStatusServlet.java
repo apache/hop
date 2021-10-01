@@ -104,7 +104,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
         HopServerPipelineStatus pipelineStatus =
             new HopServerPipelineStatus(entry.getName(), entry.getId(), statusDescription);
-        pipelineStatus.setLogDate(pipeline.getExecutionStartDate());
+        pipelineStatus.setLogDate(new Date());
+        pipelineStatus.setExecutionStartDate(pipeline.getExecutionStartDate());
+        pipelineStatus.setExecutionEndDate(pipeline.getExecutionEndDate());
         pipelineStatus.setPaused(pipeline.isPaused());
         serverStatus.getPipelineStatusList().add(pipelineStatus);
       }
@@ -112,10 +114,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       for (HopServerObjectEntry entry : actions) {
         IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow(entry);
         String status = workflow.getStatusDescription();
-        HopServerWorkflowStatus jobStatus =
+        HopServerWorkflowStatus workflowStatus =
             new HopServerWorkflowStatus(entry.getName(), entry.getId(), status);
-        jobStatus.setLogDate(workflow.getExecutionStartDate());
-        serverStatus.getWorkflowStatusList().add(jobStatus);
+        workflowStatus.setLogDate(new Date());
+        workflowStatus.setExecutionStartDate(workflow.getExecutionStartDate());
+        workflowStatus.setExecutionEndDate(workflow.getExecutionEndDate());
+        serverStatus.getWorkflowStatusList().add(workflowStatus);
       }
 
       if (useXml) {
