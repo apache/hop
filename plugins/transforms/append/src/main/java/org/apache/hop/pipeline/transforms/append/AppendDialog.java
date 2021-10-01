@@ -39,8 +39,6 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * Dialog for the append transform.
- *
- * @author Sven Boden
  */
 public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AppendDialog.class; // For Translator

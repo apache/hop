@@ -22,10 +22,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Sven Boden
- * @since 3-june-2007
- */
 public class AppendData extends BaseTransformData implements ITransformData {
   public boolean processHead;
   public boolean processTail;
