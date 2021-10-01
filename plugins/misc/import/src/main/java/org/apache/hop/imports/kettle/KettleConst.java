@@ -162,8 +162,25 @@ public class KettleConst {
                 {"Internal.Entry.Current.Directory", "Internal.Entry.Current.Folder"},
                 {"Internal.Job.Filename.Directory", "Internal.Workflow.Filename.Folder"},
                 // Injection key
-                {"HEAD_STEP", "HEAD_TRANSFORM"},
-                {"TAIL_STEP", "TAIL_TRANSFORM"}
+                {"HEAD_STEP", "HEAD_TRANSFORM"}, // append
+                {"TAIL_STEP", "TAIL_TRANSFORM"}, // append               
+                {"LEFT_STEP", "LEFT_TRANSFORM"}, // mergejoin
+                {"RIGHT_STEP", "RIGHT_TRANSFORM"}, // mergejoin
+                {"INPUT_STEPS", "INPUT_TRANSFORMS"}, // multimerge
+                {"SOURCE_STEP_NAME", "SOURCE_TRANSFORM_NAME"}, // metainject
+                {"STREAMING_SOURCE_STEP", "STREAMING_SOURCE_TRANSFORM"}, // metainject
+                {"STREAMING_TARGET_STEP", "STREAMING_TARGET_TRANSFORM"}, // metainject
+                {"SEND_TRUE_STEP", "SEND_TRUE_TRANSFORM"}, // filterrows
+                {"SEND_FALSE_STEP", "SEND_FALSE_TRANSFORM"}, // filterrows
+                {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // jsonoutput                
+                {"MAIN_STEP", "MAIN_TRANSFORM"}, // joinrows
+                {"SUB_STEP", "SUB_TRANSFORM"}, // kafka          
+                {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // xmloutput
+                {"SOURCE_XML_STEP", "SOURCE_XML_TRANSFORM"}, // xmljoin
+                {"TARGET_XML_STEP", "TARGET_XML_TRANSFORM"}, // xmljoin   
+                {"OUTPUT_INCLUDE_STEPNR", "OUTPUT_INCLUDE_TRANSFORMNR"}, // webservice                               
+                {"SWITCH_CASE_TARGET.CASE_TARGET_STEP_NAME", "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME"},   // switchcase
+                {"DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"}   // switchcase                             
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
