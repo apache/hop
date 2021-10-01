@@ -13,11 +13,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.metadata.serializer.multi;
 
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -52,6 +52,20 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     this.providers = providers;
     this.variables = variables;
     calculateDescription();
+  }
+
+  public MultiMetadataProvider(IVariables variables, IHopMetadataProvider... metadataProviders) {
+    this.providers = new ArrayList<>();
+    this.variables = variables;
+    for (IHopMetadataProvider metadataProvider : metadataProviders) {
+      providers.add(metadataProvider);
+      if (metadataProvider.getTwoWayPasswordEncoder() != null) {
+        this.twoWayPasswordEncoder = metadataProvider.getTwoWayPasswordEncoder();
+      }
+    }
+    if (this.twoWayPasswordEncoder == null) {
+      this.twoWayPasswordEncoder = Encr.getEncoder();
+    }
   }
 
   private void calculateDescription() {

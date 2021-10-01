@@ -70,6 +70,7 @@ public class HopServerPipelineStatus {
   private Date executionEndDate;
 
   public HopServerPipelineStatus() {
+    logDate = new Date();
     transformStatusList = new ArrayList<>();
   }
 

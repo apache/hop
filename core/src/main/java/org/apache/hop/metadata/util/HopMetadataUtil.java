@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ import java.util.List;
 
 public class HopMetadataUtil {
 
-  public static final IHopMetadataProvider getStandardHopMetadataProvider(IVariables variables) {
+  public static final MultiMetadataProvider getStandardHopMetadataProvider(IVariables variables) {
 
     String[] folders;
     String foldersValue = variables.getVariable(Const.HOP_METADATA_FOLDER);
@@ -51,21 +51,15 @@ public class HopMetadataUtil {
       }
     }
 
-    // One folder: simple JSON provider...
+    // Create a multi to wrap the various folders
     //
-    if (folders.length == 1) {
-      return new JsonMetadataProvider(Encr.getEncoder(), folders[0], variables);
-    } else {
-      // Create a multi to wrap the various folders
-      //
-      List<IHopMetadataProvider> providers = new ArrayList<>();
-      for (String folder : folders) {
-        IHopMetadataProvider provider =
-            new JsonMetadataProvider(Encr.getEncoder(), folder, variables);
-        providers.add(provider);
-      }
-      return new MultiMetadataProvider(Encr.getEncoder(), providers, variables);
+    List<IHopMetadataProvider> providers = new ArrayList<>();
+    for (String folder : folders) {
+      IHopMetadataProvider provider =
+          new JsonMetadataProvider(Encr.getEncoder(), folder, variables);
+      providers.add(provider);
     }
+    return new MultiMetadataProvider(Encr.getEncoder(), providers, variables);
   }
 
   public static <T extends IHopMetadata> HopMetadata getHopMetadataAnnotation(

@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.hop.metadata.api;
+package org.apache.hop.projects.config;
 
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.core.config.plugin.ConfigPlugin;
+import org.apache.hop.core.config.plugin.IConfigOptions;
 
-public interface IHasHopMetadataProvider {
-
-  MultiMetadataProvider getMetadataProvider();
-
-  void setMetadataProvider(MultiMetadataProvider metadataProvider);
-}
+@ConfigPlugin(
+    id = "ProjectsServerOptionPlugin",
+    description = "Project and Environment configuration options for hop-server",
+    category = ConfigPlugin.CATEGORY_SERVER)
+public class ProjectsServerOptionPlugin extends ProjectsOptionPlugin implements IConfigOptions {}
