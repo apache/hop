@@ -25,7 +25,7 @@ In xref:getting-started/hop-concepts.adoc[Concepts], we walked through pipelines
 Let’s remember:
 
 * A pipeline consists of a chain of transforms that read, process or write data.
-Transforms are connected through hops.
+Transforms are connected by hops.
 Hops have a direction but can't create loops, which effectively makes Pipelines DAGs (Directed Acyclic Graphs).
 * A transform is each basic operation in your pipeline.
 Each transform performs an operation on the data: reads from a source, operates on data in the pipeline or writes to to a target.
@@ -70,7 +70,7 @@ For now, add a xref:pipeline/transforms/rowgenerator.adoc[Generate Rows] and a x
 image:getting-started/gs-hop-gui-create-pipeline-add-two-transforms.png[]
 
 TIP: check the xref:pipeline/transforms.adoc[full list of transforms].
-There are close to 130 transforms available in Hop 0.70, but you'll soon get to know the most commonly used ones.
+There are 186 transforms available in Hop 0.99, but you'll soon get to know the most commonly used ones.
 
 === Create a Hop
 
