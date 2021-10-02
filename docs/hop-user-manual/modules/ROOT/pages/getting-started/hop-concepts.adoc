@@ -31,10 +31,10 @@ All interactions between Hop and other components in your data architecture are 
 _Metadata is at the core of **everything** in Hop_.
 
 
-* **Pipelines** are a collections of **transforms**, connected by **hops**.
+* **Pipelines** are collections of **transforms**, connected by **hops**.
 All transforms in a pipeline run in parallel.
 
-* **Workflows** are a collection of **actions**, connected by **hops**.
+* **Workflows** are collections of **actions**, connected by **hops**.
 All actions in a workflow run sequentially by default.
 
 * **Projects** are logical collections of hop code and configuration.
