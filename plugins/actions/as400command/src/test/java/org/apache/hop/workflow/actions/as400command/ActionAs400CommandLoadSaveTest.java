@@ -36,14 +36,14 @@ public class ActionAs400CommandLoadSaveTest
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        new String[] {"serverName", "userName", "password", "proxyHost", "proxyPort", "command"});
+        new String[] {"server", "user", "password", "proxyHost", "proxyPort", "command"});
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "serverName", "getServerName",
-        "userName", "getUserName",
+        "server", "getServer",
+        "user", "getUser",
         "password", "getPassword",
         "proxyHost", "getProxyHost",
         "proxyPort", "getProxyPort",
@@ -53,8 +53,8 @@ public class ActionAs400CommandLoadSaveTest
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "serverName", "setServerName",
-        "userName", "setUserName",
+        "server", "setServer",
+        "user", "setUser",
         "password", "setPassword",
         "proxyHost", "setProxyHost",
         "proxyPort", "setProxyPort",
