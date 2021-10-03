@@ -552,11 +552,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         // Ignore for now, don't know if it's even possible.
         LogChannel.GENERAL.logError(
             "Unexpected error registering jar plugin file: " + pluginClassFile.getJarFile(), e);
-      } finally {
-        if (urlClassLoader instanceof HopURLClassLoader) {
-          ((HopURLClassLoader) urlClassLoader).closeClassLoader();
-        }
-      }
+      } 
     }
   }
 
