@@ -252,8 +252,8 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
-    wServerName.setText(Const.NVL(action.getServerName(), ""));
-    wUserName.setText(Const.NVL(action.getUserName(), ""));
+    wServerName.setText(Const.NVL(action.getServer(), ""));
+    wUserName.setText(Const.NVL(action.getUser(), ""));
     wPassword.setText(Const.NVL(action.getPassword(), ""));
     wCommand.setText(Const.NVL(action.getCommand(), ""));
     wProxyHost.setText(Const.NVL(action.getProxyHost(), ""));
@@ -279,8 +279,8 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     }
 
     action.setName(wName.getText());
-    action.setServerName(wServerName.getText());
-    action.setUserName(wUserName.getText());
+    action.setServer(wServerName.getText());
+    action.setUser(wUserName.getText());
     action.setPassword(wPassword.getText());
     action.setCommand(wCommand.getText());
     action.setProxyHost(wProxyHost.getText());
