@@ -29,6 +29,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
@@ -71,6 +72,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private String connectionsReportFileName;
 
   private enum EntryType {
+    TRANS,
+    JOB,
     START,
     DUMMY,
     OTHER
@@ -499,6 +502,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
                   && childNode.getChildNodes().item(0).getNodeValue().equals("SPECIAL")) {
                 isEntryTypeSpecial = true;
                 entryTypeNode = childNode;
+              } else if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("TRANS")) {
+                entryType = EntryType.TRANS;
+              } else if (childNode.getNodeName().equals("type")
+                      && childNode.getChildNodes().item(0).getNodeValue().equals("JOB")) {
+                entryType = EntryType.JOB;
               } else if (isEntryTypeSpecial
                   && childNode.getNodeName().equals("start")
                   && childNode.getChildNodes().item(0).getNodeValue().equals("Y")) {
@@ -549,6 +558,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
           if (KettleConst.kettleDummyEntryElementsToRemove.containsKey(currentNode.getNodeName())) {
             currentNode.getParentNode().removeChild(currentNode);
           }
+        }
+
+        if (entryType == EntryType.JOB || entryType == EntryType.TRANS) {
+            if ( currentNode.getNodeName().equals("run_configuration") && Utils.isEmpty(currentNode.getNodeValue())) {
+              if (entryType == EntryType.JOB)
+                currentNode.setNodeValue(defaultWorkflowRunConfiguration);
+              else if (entryType == EntryType.TRANS)
+                currentNode.setNodeValue(defaultPipelineRunConfiguration);
+            }
         }
 
         // rename Kettle elements to Hop elements
