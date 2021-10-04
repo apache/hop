@@ -266,8 +266,23 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
     CheckResult cr;
     String errorMessage = "";
 
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "UpdateMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
+
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
+      Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
@@ -494,7 +509,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    databaseMeta = getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+    databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
