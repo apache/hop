@@ -136,13 +136,11 @@ public class TableOutputMetaTest implements IInitializer<ITransformMeta> {
   public void testSupportsErrorHandling() throws Exception {
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
-    tableOutputMeta.setDatabaseMeta(dbMeta);
     IDatabase iDatabase = mock(IDatabase.class);
     when(dbMeta.getIDatabase()).thenReturn(iDatabase);
     when(iDatabase.supportsErrorHandling()).thenReturn(true, false);
     assertTrue(tableOutputMeta.supportsErrorHandling());
     assertFalse(tableOutputMeta.supportsErrorHandling());
-    tableOutputMeta.setDatabaseMeta(null);
     assertTrue(tableOutputMeta.supportsErrorHandling());
   }
 

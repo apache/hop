@@ -479,11 +479,11 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       try {
         data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
 
-        if (meta.getConnection() != null) {
-          meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
-        }
+        if (meta.getConnection() == null)
+          throw new HopException(
+                  BaseMessages.getString(PKG, "TableOutput.Init.ConnectionMissing"));
 
-        data.databaseMeta = meta.getDatabaseMeta();
+        data.databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
         // Batch updates are not supported on PostgreSQL (and look-a-likes)
