@@ -23,7 +23,7 @@ hop [website](https://hop.apache.org/technical/latest)
 ## Contributing
 
 To contribute to this documentation create a pull request adding new content to the existing pages or add new pages to
-the repoitory.
+the repository.
 
-The document structure is represented by the [nav.adoc](modules/ROOT/nav.adoc) file add an xref in this file when
+The document structure is represented by the [nav.adoc](modules/ROOT/nav.adoc) file.  Add an xref in this file when
 creating a new page.
