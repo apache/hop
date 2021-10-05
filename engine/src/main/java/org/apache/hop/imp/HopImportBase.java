@@ -53,6 +53,8 @@ public abstract class HopImportBase implements IHopImport {
   protected String jdbcPropertiesFilename;
   protected boolean skippingExistingTargetFiles;
   protected String targetConfigFilename;
+  protected String defaultPipelineRunConfiguration;
+  protected String defaultWorkflowRunConfiguration;
   protected boolean skippingHiddenFilesAndFolders;
   protected boolean skippingFolders;
 
@@ -443,6 +445,22 @@ public abstract class HopImportBase implements IHopImport {
   @Override
   public void setTargetConfigFilename(String targetConfigFilename) {
     this.targetConfigFilename = targetConfigFilename;
+  }
+
+  public String getDefaultPipelineRunConfiguration() {
+    return defaultPipelineRunConfiguration;
+  }
+
+  public void setDefaultPipelineRunConfiguration(String defaultPipelineRunConfiguration) {
+    this.defaultPipelineRunConfiguration = defaultPipelineRunConfiguration;
+  }
+
+  public String getDefaultWorkflowRunConfiguration() {
+    return defaultWorkflowRunConfiguration;
+  }
+
+  public void setDefaultWorkflowRunConfiguration(String defaultWorkflowRunConfiguration) {
+    this.defaultWorkflowRunConfiguration = defaultWorkflowRunConfiguration;
   }
 
   /**
