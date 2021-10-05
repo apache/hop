@@ -57,13 +57,10 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/tableinput.html",
     keywords = "input, sql")
-@InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
 public class TableInputMeta extends BaseTransformMeta
     implements ITransformMeta<TableInput, TableInputData> {
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
-
-  private IHopMetadataProvider metadataProvider;
 
   private DatabaseMeta databaseMeta;
 
@@ -170,7 +167,16 @@ public class TableInputMeta extends BaseTransformMeta
 
     boolean param = false;
 
-    Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      throw new HopTransformException(
+              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection), e);
+    }
+
+    Database db = new Database(loggingObject, variables, databaseMeta);
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
     // First try without connecting to the database... (can be S L O W)
@@ -262,11 +268,27 @@ public class TableInputMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+              new CheckResult(
+                      ICheckResult.TYPE_RESULT_ERROR,
+                      BaseMessages.getString(
+                              PKG, "TableInputMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
+                      transformMeta);
+      remarks.add(cr);
+
+    }
+
     if (databaseMeta != null) {
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, "Connection exists", transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
+
+      Database db = new Database(loggingObject, variables, databaseMeta);
       super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
       try {
