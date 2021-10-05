@@ -31,7 +31,6 @@ import org.mockito.verification.VerificationMode;
 
 import static org.mockito.Mockito.*;
 
-/** @author Christopher Songer */
 public class WorkflowActionWriteToLogTest {
 
   private IWorkflowEngine<WorkflowMeta> parentWorkflow;

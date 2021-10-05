@@ -43,16 +43,13 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit a ActionWriteToLog object.
- *
- * @author Samatar
- * @since 08-08-2007
  */
 public class ActionWriteToLogDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
 
   private Text wName;
 
-  private Text wLogMessage;
+  private TextVar wLogMessage;
 
   private ActionWriteToLog action;
 
@@ -171,7 +168,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdlLogMessage.right = new FormAttachment(middle, -margin);
     wlLogMessage.setLayoutData(fdlLogMessage);
 
-    wLogMessage = new Text(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    wLogMessage = new TextVar(variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wLogMessage.setText(BaseMessages.getString(PKG, "WriteToLog.Name.Default"));
     props.setLook(wLogMessage, Props.WIDGET_STYLE_FIXED);
     wLogMessage.addModifyListener(lsMod);
@@ -181,9 +178,6 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdLogMessage.right = new FormAttachment(100, 0);
     fdLogMessage.bottom = new FormAttachment(wOk, -margin);
     wLogMessage.setLayoutData(fdLogMessage);
-
-    // SelectionAdapter lsVar = VariableButtonListenerFactory.getSelectionAdapter(shell,
-    // wLogMessage, workflowMeta);
     wLogMessage.addKeyListener(new ControlSpaceKeyAdapter(variables, wLogMessage));
 
     getData();
