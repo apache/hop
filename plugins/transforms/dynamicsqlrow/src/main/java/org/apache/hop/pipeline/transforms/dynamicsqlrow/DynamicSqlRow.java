@@ -35,9 +35,6 @@ import java.sql.ResultSet;
 
 /**
  * Run dynamic SQL. SQL is defined in a field.
- *
- * @author Samatar
- * @since 13-10-2008
  */
 public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData>
     implements ITransform<DynamicSqlRowMeta, DynamicSqlRowData> {
@@ -81,7 +78,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     // get dynamic SQL statement
     String sqlTemp = getInputRowMeta().getString(rowData, data.indexOfSqlField);
     String sql = null;
-    if (meta.isVariableReplace()) {
+    if (meta.isReplaceVariables()) {
       sql = resolve(sqlTemp);
     } else {
       sql = sqlTemp;
@@ -311,6 +308,11 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
   public boolean init() {
 
     if (super.init()) {
+      
+      if (meta.getConnection() != null) {
+        meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
+      }
+      
       if (meta.getDatabaseMeta() == null) {
         logError(
             BaseMessages.getString(
