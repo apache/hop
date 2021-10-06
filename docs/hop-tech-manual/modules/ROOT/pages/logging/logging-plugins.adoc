@@ -14,13 +14,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-* xref:getting-started.adoc[Getting started]
-* xref:docker-container.adoc[Docker container]
-* xref:hop-vs-kettle/index.adoc[Kettle/PDI and Hop]
-** xref:hop-vs-kettle/hop-vs-kettle.adoc[Hop vs Kettle]
-** xref:hop-vs-kettle/if-you-know-kettle.adoc[If you know Kettle]
-** xref:hop-vs-kettle/import-kettle-projects.adoc[Upgrade Kettle to Hop]
-* xref:logging/logging-architecture.adoc[Logging Architecture]
-** xref:logging/udjc-logging.adoc[Logging from UDJC]
-** xref:logging/logging-plugins.adoc[Logging Plugin Architecture]
-* xref:hop-logo-and-icons.adoc[Hop logo and icons]
+:description: Apache Hop logging plugins architecture.
+
+= Introduction
+Apache Hop provides support for logging plugins.
+
+Example source code is available for a log4j plugin (somewhere - ask Matt).
