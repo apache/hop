@@ -40,9 +40,6 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit a ActionEval object.
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class ActionEvalDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionEval.class; // For Translator
@@ -101,7 +98,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
 
     // Filename line
     Label wlName = new Label(shell, SWT.NONE);
-    wlName.setText(BaseMessages.getString(PKG, "ActionEval.Jobname.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionEval.ActionName.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
