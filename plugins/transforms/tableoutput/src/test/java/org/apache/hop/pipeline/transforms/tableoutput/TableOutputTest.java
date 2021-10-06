@@ -22,6 +22,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -50,11 +51,12 @@ public class TableOutputTest {
 
   @Before
   public void setUp() throws Exception {
+
     databaseMeta = mock(DatabaseMeta.class);
     doReturn("").when(databaseMeta).quoteField(anyString());
 
     tableOutputMeta = mock(TableOutputMeta.class);
-    doReturn(databaseMeta).when(tableOutputMeta).getDatabaseMeta();
+    doReturn("TestConnection1").when(tableOutputMeta).getConnection();
 
     transformMeta = mock(TransformMeta.class);
     doReturn("transform").when(transformMeta).getName();
@@ -185,7 +187,8 @@ public class TableOutputTest {
     doNothing().when(tableOutputSpy).logError(anyString());
 
     when(tableOutputMeta.getCommitSize()).thenReturn("1");
-    when(tableOutputMeta.getDatabaseMeta()).thenReturn(databaseMeta);
+    when(tableOutputSpy.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(databaseMeta);
     when(databaseMeta.getIDatabase()).thenReturn(dbInterface);
 
     String unsupportedTableOutputMessage = "unsupported exception";
@@ -198,6 +201,6 @@ public class TableOutputTest {
 
     HopException ke = new HopException(unsupportedTableOutputMessage);
     verify(tableOutputSpy, times(1))
-        .logError("An error occurred intialising this transform: " + ke.getMessage());
+        .logError("An error occurred intializing this transform: " + ke.getMessage());
   }
 }

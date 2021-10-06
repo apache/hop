@@ -1306,7 +1306,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (Utils.isEmpty(input.getConnection())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableOutputDialog.ConnectionError.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, ERROR_TITLE));

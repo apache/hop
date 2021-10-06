@@ -479,11 +479,11 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       try {
         data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
 
-        if (meta.getConnection() == null)
+        if (Utils.isEmpty(meta.getConnection()))
           throw new HopException(
                   BaseMessages.getString(PKG, "TableOutput.Init.ConnectionMissing"));
 
-        data.databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+        data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
         // Batch updates are not supported on PostgreSQL (and look-a-likes)
@@ -522,28 +522,17 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
                   PKG, "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing"));
         }
 
-        if (meta.getDatabaseMeta() == null) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "TableOutput.Exception.DatabaseNeedsToBeSelected"));
-        }
-        if (meta.getDatabaseMeta() == null) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "TableOutput.Init.ConnectionMissing", getTransformName()));
-          return false;
-        }
-
         if (!dbInterface.supportsStandardTableOutput()) {
           throw new HopException(dbInterface.getUnsupportedTableOutputMessage());
         }
 
-        data.db = new Database(this, this, meta.getDatabaseMeta());
+        data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
 
         if (log.isBasic()) {
           logBasic(
               "Connected to database ["
-                  + meta.getDatabaseMeta()
+                  + meta.getConnection()
                   + "] (commit="
                   + data.commitSize
                   + ")");

@@ -712,13 +712,14 @@ public class TableOutputMeta extends BaseTransformMeta
     DatabaseMeta databaseMeta = null;
 
     try {
-      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
     } catch (HopException e) {
       // TODO
-//      throw new HopTransformException(
-//              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection), e);
+      //      throw new HopTransformException(
+      //              "Unable to get databaseMeta for connection: " + Const.CR +
+      // variables.resolve(connection), e);
     }
-
 
     if (truncateTable) {
       DatabaseImpact ii =
@@ -822,7 +823,8 @@ public class TableOutputMeta extends BaseTransformMeta
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
 
-    DatabaseMeta databaseMeta = getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -897,10 +899,15 @@ public class TableOutputMeta extends BaseTransformMeta
 
   @Override
   public boolean supportsErrorHandling() {
-    if (databaseMeta != null) {
-      return databaseMeta.getIDatabase().supportsErrorHandling();
-    } else {
-      return true;
-    }
+    return true;
+  }
+
+  public DatabaseMeta getDatabaseMeta() {
+    return null;
+  }
+
+  @Override
+  public String getMissingDatabaseConnectionInformationMessage() {
+    return null;
   }
 }
