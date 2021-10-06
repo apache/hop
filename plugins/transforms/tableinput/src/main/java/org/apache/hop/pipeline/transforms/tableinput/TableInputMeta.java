@@ -62,8 +62,6 @@ public class TableInputMeta extends BaseTransformMeta
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
-  private DatabaseMeta databaseMeta;
-
   @HopMetadataProperty(key = "sql", injectionKey = "SQL")
   private String sql;
 
@@ -94,16 +92,6 @@ public class TableInputMeta extends BaseTransformMeta
   /** @param oncePerRow true if the transform should be run per row */
   public void setExecuteEachInputRow(boolean oncePerRow) {
     this.executeEachInputRow = oncePerRow;
-  }
-
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
   }
 
   /** @return Returns the rowLimit. */
@@ -150,7 +138,6 @@ public class TableInputMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
     sql = "SELECT <values> FROM <table name> WHERE <conditions>";
     rowLimit = "0";
   }
@@ -459,6 +446,15 @@ public class TableInputMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      throw new HopTransformException(
+              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection), e);
+    }
     // Find the lookupfields...
     IRowMeta out = new RowMeta();
     // TODO: this builds, but does it work in all cases.
@@ -482,15 +478,6 @@ public class TableInputMeta extends BaseTransformMeta
                 "read from one or more database tables via SQL statement");
         impact.add(ii);
       }
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
     }
   }
 
