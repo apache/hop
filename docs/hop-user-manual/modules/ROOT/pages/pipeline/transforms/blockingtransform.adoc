@@ -23,7 +23,7 @@ under the License.
 
 The Blocking transform blocks all output until the very last row is received from the previous transform.
 
-NOTE: It blocks until it gets the last row. It does *not* block until the previous transform is finished 100% which is functionality found in the other transform xref:pipeline/transforms/blockinguntiltransformsfinish.adoc[Blocking until transforms finish].
+NOTE: It blocks until it gets the last row. It does *not* block until the previous transform is finished 100% which is functionality found in the other transform xref:pipeline/transforms/blockuntiltransformsfinish.adoc[Blocking until transforms finish].
 
 At that point, the last row is sent to the next transform or the complete input is sent off to the next transform.
 Use the Blocking transform for triggering plugins, stored procedures, Java scripts, ... or for synchronization purposes.
