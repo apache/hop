@@ -51,6 +51,7 @@ import java.util.List;
     name = "Cassandra input",
     description = "Reads data from a Cassandra table",
     documentationUrl = "/pipeline/transforms/cassandra-input.html",
+        keywords = "i18n::CassandraInputMeta.keyword",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraInput.Injection.")
 public class CassandraInputMeta extends BaseTransformMeta

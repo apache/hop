@@ -49,8 +49,8 @@ import java.util.List;
     name = "i18n::DatabaseJoin.Name",
     description = "i18n::DatabaseJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "/pipeline/transforms/databasejoin.html",
-    keywords = "sql")
+        keywords = "i18n::DatabaseJoinMeta.keyword",
+    documentationUrl = "/pipeline/transforms/databasejoin.html")
 public class DatabaseJoinMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 

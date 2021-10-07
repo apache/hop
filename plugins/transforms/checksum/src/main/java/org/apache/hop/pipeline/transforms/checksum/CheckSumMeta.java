@@ -48,6 +48,7 @@ import java.util.List;
     name = "i18n::CheckSum.Name",
     description = "i18n::CheckSum.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        keywords = "i18n::CheckSumMeta.keyword",
     documentationUrl = "/pipeline/transforms/addchecksum.html")
 public class CheckSumMeta extends BaseTransformMeta
     implements ITransformMeta<CheckSum, CheckSumData> {

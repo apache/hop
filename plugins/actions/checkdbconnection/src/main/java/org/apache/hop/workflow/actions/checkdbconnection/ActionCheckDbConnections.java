@@ -53,6 +53,7 @@ import java.util.List;
     description = "i18n::ActionCheckDbConnections.Description",
     image = "CheckDbConnection.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+        keywords = "i18n::ActionCheckDbConnections.keyword",
     documentationUrl = "/workflow/actions/checkdbconnection.html")
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator

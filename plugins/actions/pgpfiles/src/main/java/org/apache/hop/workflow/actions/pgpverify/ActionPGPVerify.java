@@ -52,6 +52,7 @@ import java.util.Map;
     description = "i18n::ActionPGPVerify.Description",
     image = "PGPVerify.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
+        keywords = "i18n::ActionPGPVerify.keyword",
     documentationUrl = "/workflow/actions/pgpverify.html")
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPVerify.class; // For Translator

@@ -42,6 +42,7 @@ import java.util.List;
     name = "i18n::SalesforceUpdate.TypeLongDesc.SalesforceUpdate",
     description = "i18n::SalesforceUpdate.TypeTooltipDesc.SalesforceUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        keywords = "i18n::SalesforceUpdateMeta.keyword",
     image = "SFUD.svg",
     documentationUrl = "/pipeline/transforms/salesforceupdate.html")
 public class SalesforceUpdateMeta

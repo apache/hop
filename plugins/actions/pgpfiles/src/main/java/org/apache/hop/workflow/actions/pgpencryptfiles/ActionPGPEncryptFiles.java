@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionPGPEncryptFiles.Description",
     image = "PGPEncryptFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
+        keywords = "i18n::ActionPGPEncryptFiles.keyword",
     documentationUrl = "/workflow/actions/pgpencryptfiles.html")
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator

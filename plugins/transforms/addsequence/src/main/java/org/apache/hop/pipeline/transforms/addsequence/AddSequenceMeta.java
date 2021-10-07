@@ -49,7 +49,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.AddSequence",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/addsequence.html",
-    keywords = {"id", "unique"})
+        keywords = "i18n::AddSequenceMeta.keyword")
 public class AddSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<AddSequence, AddSequenceData> {
 

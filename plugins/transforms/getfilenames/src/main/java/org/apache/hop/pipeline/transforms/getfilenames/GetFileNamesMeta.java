@@ -60,6 +60,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.GetFileNames",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetFileNames",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        keywords = "i18n::GetFileNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilenames.html")
 public class GetFileNamesMeta extends BaseTransformMeta
     implements ITransformMeta<GetFileNames, GetFileNamesData> {

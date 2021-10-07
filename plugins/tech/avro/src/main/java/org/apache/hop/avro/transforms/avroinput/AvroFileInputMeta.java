@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "avro_input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-file-input.html",
-    keywords = {"Avro", "Read Avro"})
+        keywords = "i18n::AvroFileInputMeta.keyword")
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroFileInputMeta extends BaseTransformMeta
     implements ITransformMeta<AvroFileInput, AvroFileInputData> {

@@ -44,6 +44,7 @@ import java.util.List;
     name = "i18n::GetServerSequence.Name",
     description = "i18n::GetServerSequence.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        keywords = "i18n::GetServerSequenceMeta.keyword",
     documentationUrl = "/pipeline/transforms/getserversequence.html")
 public class GetServerSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<GetServerSequence, GetServerSequenceData> {

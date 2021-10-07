@@ -43,6 +43,7 @@ import java.util.List;
     name = "i18n::Append.Name",
     description = "i18n::Append.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        keywords = "i18n::AppendMeta.keyword",
     documentationUrl = "/pipeline/transforms/append.html")
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 

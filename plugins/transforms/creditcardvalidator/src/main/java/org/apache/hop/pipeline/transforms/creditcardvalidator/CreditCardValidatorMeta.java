@@ -46,6 +46,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.CreditCardValidator",
     description = "i18n::BaseTransform.TypeTooltipDesc.CreditCardValidator",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        keywords = "i18n::CreditCardValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
 public class CreditCardValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<CreditCardValidator, CreditCardValidatorData> {

@@ -68,6 +68,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.TextFileInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TextFileInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        keywords = "i18n::TextFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileinput.html")
 @InjectionSupported(
     localizationPrefix = "TextFileInput.Injection.",

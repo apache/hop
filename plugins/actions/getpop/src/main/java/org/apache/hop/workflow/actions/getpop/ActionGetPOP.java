@@ -60,6 +60,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionGetPOP.Description",
     image = "GetPOP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
+        keywords = "i18n::ActionGetPOP.keyword",
     documentationUrl = "/workflow/actions/getpop.html")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator

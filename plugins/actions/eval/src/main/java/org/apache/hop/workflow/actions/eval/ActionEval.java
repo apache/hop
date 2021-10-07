@@ -49,6 +49,7 @@ import java.util.List;
     description = "i18n::ActionEval.Description",
     image = "eval.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+        keywords = "i18n::ActionEval.keyword",
     documentationUrl = "/workflow/actions/eval.html")
 public class ActionEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEval.class; // For Translator

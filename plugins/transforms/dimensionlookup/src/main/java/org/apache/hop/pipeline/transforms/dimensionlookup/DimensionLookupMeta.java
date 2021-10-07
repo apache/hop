@@ -63,6 +63,7 @@ import java.util.*;
     description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+        keywords = "i18n::DimensionLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/dimensionlookup.html")
 @InjectionSupported(
     localizationPrefix = "DimensionLookup.Injection.",

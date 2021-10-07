@@ -60,6 +60,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionFTPPut.Description",
     image = "FTPPut.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
+        keywords = "i18n::ActionFtpPut.keyword",
     documentationUrl = "/workflow/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator

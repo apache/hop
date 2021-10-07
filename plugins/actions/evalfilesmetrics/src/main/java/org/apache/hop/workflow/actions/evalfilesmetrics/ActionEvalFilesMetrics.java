@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionEvalFilesMetrics.Description",
     image = "EvalFilesMetrics.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+        keywords = "i18n::ActionEvalFilesMetrics.keyword",
     documentationUrl = "/workflow/actions/evalfilesmetrics.html")
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator

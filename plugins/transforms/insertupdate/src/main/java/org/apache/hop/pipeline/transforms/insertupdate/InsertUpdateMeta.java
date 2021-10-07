@@ -57,6 +57,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.InsertUpdate",
     description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html")
 public class InsertUpdateMeta extends BaseTransformMeta
     implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {

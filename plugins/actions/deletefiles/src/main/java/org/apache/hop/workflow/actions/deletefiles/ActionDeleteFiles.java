@@ -63,6 +63,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionDeleteFiles.Description",
     image = "DeleteFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+        keywords = "i18n::ActionDeleteFiles.keyword",
     documentationUrl = "/workflow/actions/deletefiles.html")
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 

@@ -40,6 +40,7 @@ import java.util.Date;
     description = "i18n::ActionWriteToLog.Description",
     image = "WriteToLog.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+        keywords = "i18n::ActionWriteToLog.keyword",
     documentationUrl = "/workflow/actions/writetolog.html")
 public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToLog.class; // For Translator

@@ -53,6 +53,7 @@ import java.util.*;
     name = "Repeat",
     description = "Repeat execution of a workflow or a transformation",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+        keywords = "i18n::Repeat.keyword",
     image = "repeat.svg",
     documentationUrl = "/workflow/actions/repeat.html")
 public class Repeat extends ActionBase implements IAction, Cloneable {

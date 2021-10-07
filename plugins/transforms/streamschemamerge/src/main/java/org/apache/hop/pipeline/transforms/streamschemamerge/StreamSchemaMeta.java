@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::StreamSchemaTransform.Name",
     description = "i18n::StreamSchemaTransform.TooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        keywords = "i18n::StreamSchemaMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamschemamerge.html")
 public class StreamSchemaMeta extends BaseTransformMeta
     implements ITransformMeta<StreamSchema, StreamSchemaData> {

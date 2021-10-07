@@ -50,6 +50,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.DynamicSQLRow",
     description = "i18n::BaseTransform.TypeTooltipDesc.DynamicSQLRow",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        keywords = "i18n::DynamicSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/dynamicsqlrow.html")
 public class DynamicSqlRowMeta extends BaseTransformMeta
     implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {

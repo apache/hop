@@ -58,6 +58,7 @@ import java.util.Properties;
     name = "i18n::ScriptValuesMod.Name",
     description = "i18n::ScriptValuesMod.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        keywords = "i18n::ScriptValuesMeta.keyword",
     documentationUrl = "/pipeline/transforms/javascript.html")
 @InjectionSupported(
     localizationPrefix = "ScriptValuesMod.Injection.",

@@ -45,6 +45,7 @@ import java.util.List;
     name = "i18n::SalesforceInsert.TypeLongDesc.SalesforceInsert",
     description = "i18n::SalesforceInsert.TypeTooltipDesc.SalesforceInsert",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        keywords = "i18n::SalesforceInsertMeta.keyword",
     image = "FFO.svg",
     documentationUrl = "/pipeline/transforms/salesforceinsert.html")
 public class SalesforceInsertMeta

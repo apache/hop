@@ -47,6 +47,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.ExecProcess",
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        keywords = "i18n::ExecProcessMeta.keyword",
     documentationUrl = "/pipeline/transforms/execprocess.html")
 public class ExecProcessMeta extends BaseTransformMeta
     implements ITransformMeta<ExecProcess, ExecProcessData> {

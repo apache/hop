@@ -44,6 +44,7 @@ import java.util.List;
     name = "SSTable output",
     documentationUrl = "/pipeline/transforms/sstable-output.html",
     description = "Writes to a filesystem directory as a Cassandra SSTable",
+        keywords = "i18n::SSTableOutputMeta.keyword",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "SSTableOutput.Injection.")
 @ParentFirst(patterns = {".*"})

@@ -42,6 +42,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.GenerateRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.GenerateRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        keywords = "i18n::RowGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowgenerator.html")
 public class RowGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<RowGenerator, RowGeneratorData> {

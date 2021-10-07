@@ -48,6 +48,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.TableCompare",
     name = "i18n::BaseTransform.TypeLongDesc.TableCompare",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        keywords = "i18n::TableCompareMeta.keyword",
     documentationUrl = "/pipeline/transforms/tablecompare.html")
 public class TableCompareMeta extends BaseTransformMeta
     implements ITransformMeta<TableCompare, TableCompareData> {

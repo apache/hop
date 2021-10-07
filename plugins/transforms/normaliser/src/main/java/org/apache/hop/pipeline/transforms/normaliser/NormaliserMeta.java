@@ -75,7 +75,7 @@ DATE      PRODUCT    Sales   Number
     description = "i18n::Normaliser.Description",
     image = "normaliser.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    keywords = {"transform"},
+        keywords = "i18n::NormaliserMeta.keyword",
     documentationUrl = "/pipeline/transforms/rownormaliser.html")
 @InjectionSupported(
     localizationPrefix = "NormaliserMeta.Injection.",

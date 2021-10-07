@@ -53,6 +53,7 @@ import java.util.List;
     description = "i18n::ActionWriteToFile.Description",
     image = "WriteToFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+        keywords = "i18n::ActionWriteToFile.keyword",
     documentationUrl = "/workflow/actions/writetofile.html")
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator

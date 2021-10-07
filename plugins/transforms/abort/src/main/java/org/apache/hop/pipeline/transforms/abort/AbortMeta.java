@@ -44,6 +44,7 @@ import java.util.List;
     description = "i18n::Abort.Description",
     image = "abort.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        keywords = "i18n::AbortMeta.keyword",
     documentationUrl = "/pipeline/transforms/abort.html")
 public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 

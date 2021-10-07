@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
     description = "Splits the nodes and relationships of a graph data type",
     image = "neo4j_split.svg",
     categoryDescription = "Neo4j",
+        keywords = "i18n::SplitGraphMeta.keyword",
     documentationUrl = "/plugins/transforms/split-graph.html")
 public class SplitGraphMeta extends BaseTransformMeta
     implements ITransformMeta<SplitGraph, SplitGraphData> {

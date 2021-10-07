@@ -47,6 +47,7 @@ import java.util.List;
     description = "i18n::ActionTelnet.Description",
     image = "Telnet.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+        keywords = "i18n::ActionTelnet.keyword",
     documentationUrl = "/workflow/actions/telnet.html")
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTelnet.class; // For Translator

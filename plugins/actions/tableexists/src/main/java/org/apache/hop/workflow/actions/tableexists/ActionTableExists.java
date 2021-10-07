@@ -48,6 +48,7 @@ import java.util.List;
     description = "i18n::ActionTableExists.Description",
     image = "TableExists.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+        keywords = "i18n::ActionTableExists.keyword",
     documentationUrl = "/workflow/actions/tableexists.html")
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator

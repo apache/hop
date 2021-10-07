@@ -69,14 +69,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.CsvInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.CsvInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    keywords = {
-      "csv",
-      "text",
-      "tsv",
-      "csv read",
-      "tsv read",
-      "text read",
-    },
+        keywords = "i18n::CsvInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/csvinput.html")
 public class CsvInputMeta extends BaseTransformMeta
     implements ITransformMeta<CsvInput, CsvInputData>,

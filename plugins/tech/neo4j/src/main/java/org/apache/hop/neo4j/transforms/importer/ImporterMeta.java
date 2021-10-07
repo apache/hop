@@ -38,6 +38,7 @@ import org.w3c.dom.Node;
     description = "Runs an import command using the provided CSV files ",
     image = "neo4j_import.svg",
     categoryDescription = "Neo4j",
+        keywords = "i18n::ImporterMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-import.html")
 public class ImporterMeta extends BaseTransformMeta
     implements ITransformMeta<Importer, ImporterData> {

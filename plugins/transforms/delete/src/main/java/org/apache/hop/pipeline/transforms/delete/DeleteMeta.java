@@ -53,6 +53,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Delete",
     description = "i18n::BaseTransform.TypeTooltipDesc.Delete",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        keywords = "i18n::DeleteMeta.keyword",
     documentationUrl = "/pipeline/transforms/delete.html")
 public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator

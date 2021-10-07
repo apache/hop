@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::Neo4JOutput.Transform.Name",
     description = "i18n::Neo4JOutput.Transform.Description",
     categoryDescription = "i18n::Neo4JOutput.Transform.Category",
+        keywords = "i18n::Neo4JOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-output.html")
 @InjectionSupported(
     localizationPrefix = "Neo4JOutput.Injection.",

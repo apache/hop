@@ -47,6 +47,7 @@ import java.util.List;
     description = "i18n::PGBulkLoader.Description",
     name = "i18n::PGBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
+        keywords = "i18n::PGBulkLoaderMeta.keyword",
     documentationUrl = "/pipeline/transforms/postgresbulkloader.html")
 public class PGBulkLoaderMeta extends BaseTransformMeta
     implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,

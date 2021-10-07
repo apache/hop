@@ -55,8 +55,8 @@ import java.util.List;
     name = "i18n::TableInput.Name",
     description = "i18n::TableInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "/pipeline/transforms/tableinput.html",
-    keywords = "input, sql")
+        keywords = "i18n::TableInputMeta.keyword",
+    documentationUrl = "/pipeline/transforms/tableinput.html")
 @InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
 public class TableInputMeta extends BaseTransformMeta
     implements ITransformMeta<TableInput, TableInputData> {

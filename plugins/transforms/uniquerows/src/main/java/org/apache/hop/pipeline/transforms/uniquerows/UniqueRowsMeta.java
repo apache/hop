@@ -46,6 +46,7 @@ import java.util.List;
     name = "i18n::UniqueRows.Name",
     description = "i18n::UniqueRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        keywords = "i18n::UniqueRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/uniquerows.html")
 public class UniqueRowsMeta extends BaseTransformMeta
     implements ITransformMeta<UniqueRows, UniqueRowsData> {
