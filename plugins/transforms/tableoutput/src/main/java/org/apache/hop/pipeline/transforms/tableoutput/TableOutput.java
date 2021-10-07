@@ -551,7 +551,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
         return true;
       } catch (HopException e) {
-        logError("An error occurred intializing this transform: " + e.getMessage());
+        logError("An error occurred initializing this transform: " + e.getMessage());
         stopAll();
         setErrors(1);
       }

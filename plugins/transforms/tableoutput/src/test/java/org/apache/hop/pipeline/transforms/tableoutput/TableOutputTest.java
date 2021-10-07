@@ -201,6 +201,6 @@ public class TableOutputTest {
 
     HopException ke = new HopException(unsupportedTableOutputMessage);
     verify(tableOutputSpy, times(1))
-        .logError("An error occurred intializing this transform: " + ke.getMessage());
+        .logError("An error occurred initializing this transform: " + ke.getMessage());
   }
 }

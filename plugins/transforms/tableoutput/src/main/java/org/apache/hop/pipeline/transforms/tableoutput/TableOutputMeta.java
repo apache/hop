@@ -412,33 +412,22 @@ public class TableOutputMeta extends BaseTransformMeta
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    DatabaseMeta databaseMeta = null;
+
+    Database db = null;
 
     try {
-      databaseMeta =
+      DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-    } catch (HopException e) {
-      CheckResult cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(
-                  PKG,
-                  "TableOutputMeta.CheckResult.DatabaseMetaError",
-                  variables.resolve(connection)),
-              transformMeta);
-      remarks.add(cr);
-    }
 
-    if (databaseMeta != null) {
-      CheckResult cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "TableOutputMeta.CheckResult.ConnectionExists"),
-              transformMeta);
-      remarks.add(cr);
+      if (databaseMeta != null) {
+        CheckResult cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "TableOutputMeta.CheckResult.ConnectionExists"),
+                transformMeta);
+        remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+        db = new Database(loggingObject, variables, databaseMeta);
         db.connect();
 
         cr =
@@ -644,24 +633,24 @@ public class TableOutputMeta extends BaseTransformMeta
                   transformMeta);
           remarks.add(cr);
         }
-      } catch (HopException e) {
-        cr =
+      } else {
+        CheckResult cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(
-                    PKG, "TableOutputMeta.CheckResult.UndefinedError", e.getMessage()),
+                BaseMessages.getString(PKG, "TableOutputMeta.CheckResult.NoConnection"),
                 transformMeta);
         remarks.add(cr);
-      } finally {
-        db.disconnect();
       }
-    } else {
+    } catch (HopException e) {
       CheckResult cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "TableOutputMeta.CheckResult.NoConnection"),
+              BaseMessages.getString(
+                  PKG, "TableOutputMeta.CheckResult.UndefinedError", e.getMessage()),
               transformMeta);
       remarks.add(cr);
+    } finally {
+      db.disconnect();
     }
 
     // See if we have input streams leading to this transform!
@@ -707,53 +696,49 @@ public class TableOutputMeta extends BaseTransformMeta
       String[] input,
       String[] output,
       IRowMeta info,
-      IHopMetadataProvider metadataProvider) {
-
-    DatabaseMeta databaseMeta = null;
+      IHopMetadataProvider metadataProvider) throws HopTransformException {
 
     try {
-      databaseMeta =
+      DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-    } catch (HopException e) {
-      // TODO
-      //      throw new HopTransformException(
-      //              "Unable to get databaseMeta for connection: " + Const.CR +
-      // variables.resolve(connection), e);
-    }
 
-    if (truncateTable) {
-      DatabaseImpact ii =
-          new DatabaseImpact(
-              DatabaseImpact.TYPE_IMPACT_TRUNCATE,
-              pipelineMeta.getName(),
-              transformMeta.getName(),
-              databaseMeta.getDatabaseName(),
-              tableName,
-              "",
-              "",
-              "",
-              "",
-              "Truncate of table");
-      impact.add(ii);
-    }
-    // The values that are entering this transform are in "prev":
-    if (prev != null) {
-      for (int i = 0; i < prev.size(); i++) {
-        IValueMeta v = prev.getValueMeta(i);
+      if (truncateTable) {
         DatabaseImpact ii =
             new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_WRITE,
+                DatabaseImpact.TYPE_IMPACT_TRUNCATE,
                 pipelineMeta.getName(),
                 transformMeta.getName(),
                 databaseMeta.getDatabaseName(),
                 tableName,
-                v.getName(),
-                v.getName(),
-                v != null ? v.getOrigin() : "?",
                 "",
-                "Type = " + v.toStringMeta());
+                "",
+                "",
+                "",
+                "Truncate of table");
         impact.add(ii);
       }
+      // The values that are entering this transform are in "prev":
+      if (prev != null) {
+        for (int i = 0; i < prev.size(); i++) {
+          IValueMeta v = prev.getValueMeta(i);
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_WRITE,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  tableName,
+                  v.getName(),
+                  v.getName(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        }
+      }
+    } catch (HopException e) {
+        throw new HopTransformException(
+              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
   }
 
