@@ -36,10 +36,10 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "AzureWriter",
-    name = "Azure Event Hubs Writer",
-    description = "Write data to a Microsoft Azure Event Hub",
+    name = "i18n::AzureWriterMeta.name",
+    description = "i18n::AzureWriterMeta.description",
     image = "event-hubs-writer.svg",
-    categoryDescription = "Streaming",
+    categoryDescription = "i18n::AzureWriterMeta.categoryDescription",
         keywords = "i18n::AzureWriterMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-writer.html")
 public class AzureWriterMeta extends BaseTransformMeta
