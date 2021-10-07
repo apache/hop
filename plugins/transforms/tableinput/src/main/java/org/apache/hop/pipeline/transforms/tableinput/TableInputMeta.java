@@ -27,7 +27,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -157,10 +156,12 @@ public class TableInputMeta extends BaseTransformMeta
     DatabaseMeta databaseMeta = null;
 
     try {
-      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
     } catch (HopException e) {
       throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection), e);
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
 
     Database db = new Database(loggingObject, variables, databaseMeta);
@@ -233,13 +234,13 @@ public class TableInputMeta extends BaseTransformMeta
     return super.getXml();
   }
 
-   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
 
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
     infoStream.setSubject(lookup);
-
   }
 
   @Override
@@ -258,22 +259,23 @@ public class TableInputMeta extends BaseTransformMeta
     DatabaseMeta databaseMeta = null;
 
     try {
-      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
     } catch (HopException e) {
       cr =
-              new CheckResult(
-                      ICheckResult.TYPE_RESULT_ERROR,
-                      BaseMessages.getString(
-                              PKG, "TableInputMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
-                      transformMeta);
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "TableInputMeta.CheckResult.DatabaseMetaError",
+                  variables.resolve(connection)),
+              transformMeta);
       remarks.add(cr);
-
     }
 
     if (databaseMeta != null) {
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, "Connection exists", transformMeta);
       remarks.add(cr);
-
 
       Database db = new Database(loggingObject, variables, databaseMeta);
       super.databases = new Database[] {db}; // keep track of it for canceling purposes...
@@ -446,38 +448,38 @@ public class TableInputMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-
-    DatabaseMeta databaseMeta = null;
-
     try {
-      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+
+      // Find the lookupfields...
+      IRowMeta out = new RowMeta();
+      // TODO: this builds, but does it work in all cases.
+      getFields(
+          out, transformMeta.getName(), new IRowMeta[] {info}, null, variables, metadataProvider);
+
+      if (out != null) {
+        for (int i = 0; i < out.size(); i++) {
+          IValueMeta outvalue = out.getValueMeta(i);
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  "",
+                  outvalue.getName(),
+                  outvalue.getName(),
+                  transformMeta.getName(),
+                  sql,
+                  "read from one or more database tables via SQL statement");
+          impact.add(ii);
+        }
+      }
     } catch (HopException e) {
       throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection), e);
-    }
-    // Find the lookupfields...
-    IRowMeta out = new RowMeta();
-    // TODO: this builds, but does it work in all cases.
-    getFields(
-        out, transformMeta.getName(), new IRowMeta[] {info}, null, variables, metadataProvider);
-
-    if (out != null) {
-      for (int i = 0; i < out.size(); i++) {
-        IValueMeta outvalue = out.getValueMeta(i);
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                "",
-                outvalue.getName(),
-                outvalue.getName(),
-                transformMeta.getName(),
-                sql,
-                "read from one or more database tables via SQL statement");
-        impact.add(ii);
-      }
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 
