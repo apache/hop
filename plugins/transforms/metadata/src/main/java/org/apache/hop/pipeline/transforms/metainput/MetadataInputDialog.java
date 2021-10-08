@@ -352,6 +352,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
 
     transformName = wTransformName.getText(); // return value
 
+    input.setProviderFieldName(wProvider.getText());
+    input.setTypeKeyFieldName(wTypeKey.getText());
+    input.setTypeNameFieldName(wTypeName.getText());
+    input.setTypeDescriptionFieldName(wTypeDescription.getText());
+    input.setTypeClassFieldName(wTypeClass.getText());
+    input.setNameFieldName(wName.getText());
+    input.setJsonFieldName(wJson.getText());
+
     input.getTypeKeyFilters().clear();
 
     for (TableItem item : wTypeFilters.getNonEmptyItems()) {
@@ -382,9 +390,9 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
 
       PipelineMeta previewMeta =
           PipelinePreviewFactory.generatePreviewPipeline(
-              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+              metadataProvider, oneMeta, wTransformName.getText());
 
-      // We always just want to preview a single output row
+      // Preview the first 1000 rows...
       //
       PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
@@ -392,7 +400,7 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
               variables,
               previewMeta,
               new String[] {wTransformName.getText()},
-              new int[] {1});
+              new int[] {1000});
       progressDialog.open();
 
       if (!progressDialog.isCancelled()) {
