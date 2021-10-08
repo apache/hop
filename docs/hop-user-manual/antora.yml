@@ -17,6 +17,7 @@
 
 name: manual
 title: User manual
-version: development
+version: 1.1.0
+prerelease: Beta
 nav:
   - modules/ROOT/nav.adoc
