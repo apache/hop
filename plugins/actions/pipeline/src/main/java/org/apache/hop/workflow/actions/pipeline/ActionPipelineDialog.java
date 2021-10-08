@@ -131,15 +131,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
 
-    wFollowingAbortRemotely = new Button(gExecution, SWT.CHECK);
-    props.setLook(wFollowingAbortRemotely);
-    wFollowingAbortRemotely.setText(
-        BaseMessages.getString(PKG, "ActionPipeline.AbortRemote.Label"));
-    FormData fdFollow = new FormData();
-    fdFollow.top = new FormAttachment(wWaitingToFinish, 10);
-    fdFollow.left = new FormAttachment(0, 0);
-    wFollowingAbortRemotely.setLayoutData(fdFollow);
-
     wbGetParams.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -274,7 +265,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wClearRows.setSelection(action.clearResultRows);
     wClearFiles.setSelection(action.clearResultFiles);
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
-    wFollowingAbortRemotely.setSelection(action.isFollowingAbortRemotely());
     wAppendLogfile.setSelection(action.setAppendLogfile);
 
     wbLogFilename.setSelection(action.setAppendLogfile);
@@ -391,7 +381,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     actionPipeline.setRunConfiguration(wRunConfiguration.getText());
     actionPipeline.setAppendLogfile = wAppendLogfile.getSelection();
     actionPipeline.setWaitingToFinish(wWaitingToFinish.getSelection());
-    actionPipeline.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
   }
 
   @Override

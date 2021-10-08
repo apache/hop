@@ -102,8 +102,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Button wWaitingToFinish;
 
-  protected Button wFollowingAbortRemotely;
-
   protected Group gExecution;
 
   protected Button wOk, wCancel;

@@ -163,7 +163,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       remotePipelineRunConfiguration =
           (RemotePipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 
-      String hopServerName = remotePipelineRunConfiguration.getHopServerName();
+      String hopServerName = resolve(remotePipelineRunConfiguration.getHopServerName());
       if (StringUtils.isEmpty(hopServerName)) {
         throw new HopException("No remote Hop server was specified to run the pipeline on");
       }

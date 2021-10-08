@@ -63,10 +63,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
   protected ActionWorkflow action;
 
-  protected Button wPassExport;
-
-  protected Button wExpandRemote;
-
   private static final String[] FILE_FILTERLOGNAMES =
       new String[] {
         BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.TXT"),
@@ -109,42 +105,14 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wlPath.setText(BaseMessages.getString(PKG, "ActionWorkflow.WorkflowFile.Label"));
     wPassParams.setText(BaseMessages.getString(PKG, "ActionWorkflow.PassAllParameters.Label"));
 
-    // Start Server Section
-    wPassExport = new Button(gExecution, SWT.CHECK);
-    wPassExport.setText(
-        BaseMessages.getString(PKG, "ActionWorkflowDialog.PassExportToServer.Label"));
-    props.setLook(wPassExport);
-    FormData fdPassExport = new FormData();
-    fdPassExport.left = new FormAttachment(0, 0);
-    fdPassExport.top = new FormAttachment(wEveryRow, 10);
-    fdPassExport.right = new FormAttachment(100, 0);
-    wPassExport.setLayoutData(fdPassExport);
-
-    wExpandRemote = new Button(gExecution, SWT.CHECK);
-    wExpandRemote.setText(
-        BaseMessages.getString(PKG, "ActionWorkflowDialog.ExpandRemoteOnServer.Label"));
-    props.setLook(wExpandRemote);
-    FormData fdExpandRemote = new FormData();
-    fdExpandRemote.top = new FormAttachment(wPassExport, 10);
-    fdExpandRemote.left = new FormAttachment(0, 0);
-    wExpandRemote.setLayoutData(fdExpandRemote);
-
     wWaitingToFinish = new Button(gExecution, SWT.CHECK);
     props.setLook(wWaitingToFinish);
     wWaitingToFinish.setText(BaseMessages.getString(PKG, "ActionWorkflow.WaitToFinish.Label"));
     FormData fdWait = new FormData();
-    fdWait.top = new FormAttachment(wExpandRemote, 10);
+    fdWait.top = new FormAttachment(wEveryRow, 10);
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
 
-    wFollowingAbortRemotely = new Button(gExecution, SWT.CHECK);
-    props.setLook(wFollowingAbortRemotely);
-    wFollowingAbortRemotely.setText(
-        BaseMessages.getString(PKG, "ActionWorkflow.AbortRemote.Label"));
-    FormData fdFollow = new FormData();
-    fdFollow.top = new FormAttachment(wWaitingToFinish, 10);
-    fdFollow.left = new FormAttachment(0, 0);
-    wFollowingAbortRemotely.setLayoutData(fdFollow);
     // End Server Section
 
     Composite cRunConfiguration = new Composite(wOptions, SWT.NONE);
@@ -285,7 +253,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     }
     wAddDate.setSelection(action.addDate);
     wAddTime.setSelection(action.addTime);
-    wPassExport.setSelection(action.isPassingExport());
 
     if (action.logFileLevel != null) {
       wLoglevel.select(action.logFileLevel.getLevel());
@@ -296,7 +263,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wAppendLogfile.setSelection(action.setAppendLogfile);
     wCreateParentFolder.setSelection(action.createParentFolder);
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
-    wFollowingAbortRemotely.setSelection(action.isFollowingAbortRemotely());
 
     try {
       List<String> runConfigurations =
@@ -393,11 +359,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     }
     aw.paramsFromPrevious = wPrevToParams.getSelection();
     aw.execPerRow = wEveryRow.getSelection();
-    aw.setPassingExport(wPassExport.getSelection());
     aw.setAppendLogfile = wAppendLogfile.getSelection();
     aw.setWaitingToFinish(wWaitingToFinish.getSelection());
     aw.createParentFolder = wCreateParentFolder.getSelection();
-    aw.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
     aw.setRunConfiguration(wRunConfiguration.getText());
   }
 
