@@ -137,6 +137,7 @@
         <module>sql</module>
         <module>sqlfileoutput</module>
         <module>ssh</module>
+        <module>standardizephonenumber</module>
         <module>streamlookup</module>
         <module>streamschemamerge</module>
         <module>stringcut</module>
