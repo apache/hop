@@ -21,10 +21,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -35,7 +34,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -53,6 +51,7 @@ import java.util.List;
 public class ActionEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionEval.class; // For Translator
 
+  @HopMetadataProperty(key = "script")
   private String script;
 
   public ActionEval(String n, String scr) {
@@ -68,27 +67,6 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     ActionEval je = (ActionEval) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("script", script));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      script = XmlHandler.getTagValue(entrynode, "script");
-    } catch (Exception e) {
-      throw new HopXmlException(BaseMessages.getString(PKG, "ActionEval.UnableToLoadFromXml"), e);
-    }
   }
 
   public void setScript(String s) {

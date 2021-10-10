@@ -1,0 +1,59 @@
+{
+  "variables": [],
+  "LocaleDefault": "en_BE",
+  "guiProperties": {
+    "FontFixedSize": "13",
+    "MaxUndo": "100",
+    "DarkMode": "Y",
+    "FontNoteSize": "13",
+    "ShowOSLook": "Y",
+    "FontFixedStyle": "0",
+    "FontNoteName": ".AppleSystemUIFont",
+    "FontFixedName": "Monospaced",
+    "FontGraphStyle": "0",
+    "FontDefaultSize": "13",
+    "GraphColorR": "255",
+    "FontGraphSize": "13",
+    "IconSize": "32",
+    "BackgroundColorB": "255",
+    "FontNoteStyle": "0",
+    "FontGraphName": ".AppleSystemUIFont",
+    "FontDefaultName": ".AppleSystemUIFont",
+    "GraphColorG": "255",
+    "UseGlobalFileBookmarks": "Y",
+    "FontDefaultStyle": "0",
+    "GraphColorB": "255",
+    "BackgroundColorR": "255",
+    "BackgroundColorG": "255",
+    "WorkflowDialogStyle": "RESIZE,MAX,MIN",
+    "LineWidth": "1",
+    "ContextDialogShowCategories": "Y"
+  },
+  "projectsConfig": {
+    "enabled": true,
+    "projectMandatory": true,
+    "environmentMandatory": true,
+    "defaultProject": "default",
+    "defaultEnvironment": null,
+    "standardParentProject": "default",
+    "standardProjectsFolder": null,
+    "projectConfigurations": [
+      {
+        "projectName": "default",
+        "projectHome": "${HOP_CONFIG_FOLDER}",
+        "configFilename": "project-config.json"
+      }
+    ],
+    "lifecycleEnvironments": [
+      {
+        "name": "dev",
+        "purpose": "Testing",
+        "projectName": "default",
+        "configurationFiles": [
+          "${PROJECT_HOME}/dev-env-config.json"
+        ]
+      }
+    ],
+    "projectLifecycles": []
+  }
+}

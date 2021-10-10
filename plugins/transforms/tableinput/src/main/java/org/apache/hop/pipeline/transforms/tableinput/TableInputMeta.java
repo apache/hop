@@ -27,7 +27,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -57,15 +56,10 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/tableinput.html",
     keywords = "input, sql")
-@InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
 public class TableInputMeta extends BaseTransformMeta
     implements ITransformMeta<TableInput, TableInputData> {
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
-
-  private IHopMetadataProvider metadataProvider;
-
-  private DatabaseMeta databaseMeta;
 
   @HopMetadataProperty(key = "sql", injectionKey = "SQL")
   private String sql;
@@ -97,16 +91,6 @@ public class TableInputMeta extends BaseTransformMeta
   /** @param oncePerRow true if the transform should be run per row */
   public void setExecuteEachInputRow(boolean oncePerRow) {
     this.executeEachInputRow = oncePerRow;
-  }
-
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
   }
 
   /** @return Returns the rowLimit. */
@@ -153,7 +137,6 @@ public class TableInputMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
     sql = "SELECT <values> FROM <table name> WHERE <conditions>";
     rowLimit = "0";
   }
@@ -170,7 +153,18 @@ public class TableInputMeta extends BaseTransformMeta
 
     boolean param = false;
 
-    Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
+    }
+
+    Database db = new Database(loggingObject, variables, databaseMeta);
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
     // First try without connecting to the database... (can be S L O W)
@@ -240,13 +234,13 @@ public class TableInputMeta extends BaseTransformMeta
     return super.getXml();
   }
 
-   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     super.loadXml(transformNode, metadataProvider);
 
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
     infoStream.setSubject(lookup);
-
   }
 
   @Override
@@ -262,11 +256,28 @@ public class TableInputMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "TableInputMeta.CheckResult.DatabaseMetaError",
+                  variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
+
     if (databaseMeta != null) {
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, "Connection exists", transformMeta);
       remarks.add(cr);
 
-      Database db = new Database(loggingObject, variables, getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables));
+      Database db = new Database(loggingObject, variables, databaseMeta);
       super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
       try {
@@ -437,38 +448,38 @@ public class TableInputMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    // Find the lookupfields...
-    IRowMeta out = new RowMeta();
-    // TODO: this builds, but does it work in all cases.
-    getFields(
-        out, transformMeta.getName(), new IRowMeta[] {info}, null, variables, metadataProvider);
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
 
-    if (out != null) {
-      for (int i = 0; i < out.size(); i++) {
-        IValueMeta outvalue = out.getValueMeta(i);
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                "",
-                outvalue.getName(),
-                outvalue.getName(),
-                transformMeta.getName(),
-                sql,
-                "read from one or more database tables via SQL statement");
-        impact.add(ii);
+      // Find the lookupfields...
+      IRowMeta out = new RowMeta();
+      // TODO: this builds, but does it work in all cases.
+      getFields(
+          out, transformMeta.getName(), new IRowMeta[] {info}, null, variables, metadataProvider);
+
+      if (out != null) {
+        for (int i = 0; i < out.size(); i++) {
+          IValueMeta outvalue = out.getValueMeta(i);
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  "",
+                  outvalue.getName(),
+                  outvalue.getName(),
+                  transformMeta.getName(),
+                  sql,
+                  "read from one or more database tables via SQL statement");
+          impact.add(ii);
+        }
       }
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 

@@ -1664,6 +1664,19 @@
 
     <dependency>
       <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-metadata</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-metainject</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
@@ -1990,6 +2003,19 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-selectvalues</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-serverstatus</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
       <exclusions>

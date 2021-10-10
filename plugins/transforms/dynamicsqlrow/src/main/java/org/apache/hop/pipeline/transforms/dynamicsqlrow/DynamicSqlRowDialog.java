@@ -112,7 +112,8 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
     if (input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
     }
@@ -134,7 +135,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     FormData fdSqlFieldName = new FormData();
     fdSqlFieldName.left = new FormAttachment(middle, 0);
     fdSqlFieldName.top = new FormAttachment(wConnection, 2 * margin);
-    fdSqlFieldName.right = new FormAttachment(100, -margin);
+    fdSqlFieldName.right = new FormAttachment(100, 0);
     wSqlFieldName.setLayoutData(fdSqlFieldName);
     wSqlFieldName.addFocusListener(
         new FocusListener() {
@@ -281,7 +282,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
-    fdSql.right = new FormAttachment(100, -2 * margin);
+    fdSql.right = new FormAttachment(100, 0);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
     wSql.setLayoutData(fdSql);
 
@@ -355,13 +356,15 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wSql.setText(Const.NVL(input.getSql(), ""));
     wLimit.setText("" + input.getRowLimit());
     wOuter.setSelection(input.isOuterJoin());
-    wuseVars.setSelection(input.isVariableReplace());
+    wuseVars.setSelection(input.isReplaceVariables());
     if (input.getSqlFieldName() != null) {
       wSqlFieldName.setText(input.getSqlFieldName());
     }
     wqueryOnlyOnChange.setSelection(input.isQueryOnlyOnChange());
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
+      input.setDatabaseMeta(pipelineMeta.findDatabase(input.getConnection(), variables));
     }
 
     wTransformName.selectAll();
@@ -378,18 +381,18 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-
+    
+    input.setConnection(wConnection.getText());
     input.setRowLimit(Const.toInt(wLimit.getText(), 0));
     input.setSql(wSql.getText());
     input.setSqlFieldName(wSqlFieldName.getText());
     input.setOuterJoin(wOuter.getSelection());
-    input.setVariableReplace(wuseVars.getSelection());
+    input.setReplaceVariables(wuseVars.getSelection());
     input.setQueryOnlyOnChange(wqueryOnlyOnChange.getSelection());
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
 
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(),variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DynamicSQLRowDialog.InvalidConnection.DialogMessage"));

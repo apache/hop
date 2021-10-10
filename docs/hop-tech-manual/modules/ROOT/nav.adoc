@@ -20,4 +20,7 @@ under the License.
 ** xref:hop-vs-kettle/hop-vs-kettle.adoc[Hop vs Kettle]
 ** xref:hop-vs-kettle/if-you-know-kettle.adoc[If you know Kettle]
 ** xref:hop-vs-kettle/import-kettle-projects.adoc[Upgrade Kettle to Hop]
+* xref:logging/logging-architecture.adoc[Logging Architecture]
+** xref:logging/udjc-logging.adoc[Logging from UDJC]
+** xref:logging/logging-plugins.adoc[Logging Plugin Architecture]
 * xref:hop-logo-and-icons.adoc[Hop logo and icons]

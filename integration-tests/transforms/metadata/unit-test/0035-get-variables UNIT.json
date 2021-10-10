@@ -1,0 +1,86 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Comments",
+          "data_set_field": "Comments"
+        },
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        },
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        }
+      ],
+      "field_order": [
+        "Position",
+        "Fieldname",
+        "Comments",
+        "Type",
+        "Length",
+        "Precision",
+        "Origin"
+      ],
+      "transform_name": "Result",
+      "data_set_name": "golden-get-variables"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "A",
+          "data_set_field": "A"
+        },
+        {
+          "transform_field": "B",
+          "data_set_field": "B"
+        },
+        {
+          "transform_field": "C",
+          "data_set_field": "C"
+        },
+        {
+          "transform_field": "D",
+          "data_set_field": "D"
+        }
+      ],
+      "field_order": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "transform_name": "Results2",
+      "data_set_name": "golden-get-variables-output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0035-get-variables UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0035-get-variables.hpl",
+  "test_type": "UNIT_TEST"
+}
