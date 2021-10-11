@@ -112,6 +112,10 @@ For **long-lived** containers (Hop Server):
 |===
 |Environment Variable | Description
 
+|```HOP_SERVER_HOSTNAME```
+| The Hostname the server will have.
+The Hop default is ```localhost```
+
 |```HOP_SERVER_PORT```
 | The port for hop-server.
 Pick a value like ```8080``` or ```8181```
@@ -159,6 +163,7 @@ docker run -it --rm \
   --env HOP_SERVER_USER=admin \
   --env HOP_SERVER_PASS=admin \
   --env HOP_SERVER_PORT=8181 \
+  --env HOP_SERVER_HOSTNAME=localhost \
   -p 8181:8181 \
   --name my-hop-server-container \
  apache/incubator-hop:<tag>

@@ -64,7 +64,7 @@ limitations under the License.
       <add_date>N</add_date>
       <add_time>N</add_time>
       <insertScript>Y</insertScript>
-      <script>curl -u cluster:cluster --fail http://localhost:8181</script>
+      <script>curl -u cluster:cluster --fail http://hop-server:8181</script>
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>
       <xloc>192</xloc>
