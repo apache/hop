@@ -29,12 +29,14 @@ services:
 
   hop_server:
     image: apache/incubator-hop:1.1.0-SNAPSHOT
+    hostname: hop-server
     ports:
       - "8181"
     environment:
       - HOP_SERVER_PORT=8181
+      - HOP_SERVER_HOSTNAME=hop-server
     healthcheck:
-      test: curl -u cluster:cluster --fail http://localhost:8181 || exit 1 
+      test: curl -u cluster:cluster --fail http://hop-server:8181 || exit 1 
       interval: 20s
       timeout: 10s
       retries: 6
