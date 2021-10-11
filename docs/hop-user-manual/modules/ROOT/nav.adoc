@@ -208,6 +208,7 @@ under the License.
 *** xref:pipeline/transforms/splitfieldtorows.adoc[Split fields to rows]
 *** xref:pipeline/transforms/splunkinput.adoc[Splunk Input]
 *** xref:pipeline/transforms/sqlfileoutput.adoc[SQL File Output]
+*** xref:pipeline/transforms/standardizephonenumber.adoc[Standardize Phone Number]
 *** xref:pipeline/transforms/streamlookup.adoc[Stream Lookup]
 *** xref:pipeline/transforms/streamschemamerge.adoc[Stream Schema Merge]
 *** xref:pipeline/transforms/stringcut.adoc[String cut]
