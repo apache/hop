@@ -1,0 +1,47 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+= Standardize Phone Number
+
+== Description
+
+This transform normalize phone number in a standardized and consistent manner using Google libphonenumber library.
+
+
+
+== Options
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Input field|The field holding the phone numbers from the input data.
+|Output field|Leave this field empty if you want to update the input field in stream. Otherwise a new field (string) will be added to the output data.
+|Country field|The field holding the country code from the input data. The country code is required to be in the ISO alpha-2.
+|DefaultCountry|The default country code to use if input data from country field is empty or invalid
+|Format|The format to be used to standardize the phone numbers. The available options are:
+* E164 (default)
+* INTERNATIONAL
+* NATIONAL
+* RFC3966
+|Number type|The result field indicates the type of a processed phone number, such as fixed line, mobile...
+|Is valid|The result field indicates whether a phone number is supposed to be valid
+|===
+
+TIP: If the original phone number already has an international area code, this transform will not normalize it to another country even if the international area code is different from the country input’s international area code.
