@@ -218,9 +218,9 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
       // What's the output Row format?
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       data.schemaTable =
-          meta.getDatabaseMeta()
+          databaseMeta
               .getQuotedSchemaTableCombination(this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
 
       // lookup the values!
@@ -362,7 +362,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
     String sql = "SELECT ";
 
@@ -434,7 +434,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
 
   // Lookup certain fields in a table
   public void prepareUpdate(IRowMeta rowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     data.updateParameterRowMeta = new RowMeta();
 
     String sql = "UPDATE " + data.schemaTable + Const.CR;
@@ -508,14 +508,15 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
   public boolean init() {
 
     if (super.init()) {
-      if (meta.getConnection() == null) {
+
+      if (Utils.isEmpty(meta.getConnection())) {
         logError(BaseMessages.getString(PKG, "Update.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
 
-      // TODO DatabaseMeta
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      data.db = new Database(this, this, databaseMeta);
+
       try {
         data.db.connect();
 
