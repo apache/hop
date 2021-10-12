@@ -172,10 +172,9 @@ public class KettleConst {
                 {"STREAMING_TARGET_STEP", "STREAMING_TARGET_TRANSFORM"}, // metainject
                 {"SEND_TRUE_STEP", "SEND_TRUE_TRANSFORM"}, // filterrows
                 {"SEND_FALSE_STEP", "SEND_FALSE_TRANSFORM"}, // filterrows
-                {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // jsonoutput                
                 {"MAIN_STEP", "MAIN_TRANSFORM"}, // joinrows
                 {"SUB_STEP", "SUB_TRANSFORM"}, // kafka          
-                {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // xmloutput
+                {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // jsonoutput & xmloutput
                 {"SOURCE_XML_STEP", "SOURCE_XML_TRANSFORM"}, // xmljoin
                 {"TARGET_XML_STEP", "TARGET_XML_TRANSFORM"}, // xmljoin   
                 {"OUTPUT_INCLUDE_STEPNR", "OUTPUT_INCLUDE_TRANSFORMNR"}, // webservice                               
