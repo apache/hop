@@ -792,15 +792,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
     return new InsertUpdateData();
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
   /** @return Returns the updateBypassed. */
   public boolean isUpdateBypassed() {
     return updateBypassed;

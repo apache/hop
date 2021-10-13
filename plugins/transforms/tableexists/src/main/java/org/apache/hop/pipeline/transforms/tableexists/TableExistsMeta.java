@@ -211,15 +211,6 @@ public class TableExistsMeta extends BaseTransformMeta
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (database != null) {
-      return new DatabaseMeta[] {database};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
