@@ -58,10 +58,10 @@ public class GuiCompositeWidgets {
 
   public GuiCompositeWidgets(IVariables variables, int maxNrItems) {
     this.variables = variables;
-    this.maxNrItems = maxNrItems;
+   // this.maxNrItems = maxNrItems;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
-    nrItems = 0;
+   // nrItems = 0;
     compositeWidgetsListener = null;
   }
 
@@ -133,7 +133,7 @@ public class GuiCompositeWidgets {
         if (lastControl == null) {
           fdLabel.top = new FormAttachment(0, props.getMargin());
         } else {
-          fdLabel.top = new FormAttachment(lastControl, props.getMargin());
+          fdLabel.top = new FormAttachment(lastControl, props.getMargin() * 2);
         }
         fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
         label.setLayoutData(fdLabel);
@@ -194,21 +194,21 @@ public class GuiCompositeWidgets {
     // We might need to add a number of extra lines...
     // Let's just add empty labels..
     //
-    for (; nrItems < maxNrItems; nrItems++) {
-      label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
-      props.setLook(label);
-      label.setText("                                                                    ");
-      FormData fdLabel = new FormData();
-      fdLabel.left = new FormAttachment(0, 0);
-      if (previousControl == null) {
-        fdLabel.top = new FormAttachment(0, 0);
-      } else {
-        fdLabel.top = new FormAttachment(previousControl, props.getMargin());
-      }
-      fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
-      label.setLayoutData(fdLabel);
-      previousControl = label;
-    }
+//    for (; nrItems < maxNrItems; nrItems++) {
+//      label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
+//      props.setLook(label);
+//      label.setText("                                                                    ");
+//      FormData fdLabel = new FormData();
+//      fdLabel.left = new FormAttachment(0, 0);
+//      if (previousControl == null) {
+//        fdLabel.top = new FormAttachment(0, 0);
+//      } else {
+//        fdLabel.top = new FormAttachment(previousControl, props.getMargin());
+//      }
+//      fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
+//      label.setLayoutData(fdLabel);
+//      previousControl = label;
+//    }
 
     return previousControl;
   }
