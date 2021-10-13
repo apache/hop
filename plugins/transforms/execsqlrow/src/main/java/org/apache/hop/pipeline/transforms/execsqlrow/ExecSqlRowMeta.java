@@ -370,15 +370,6 @@ public class ExecSqlRowMeta extends BaseTransformMeta
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

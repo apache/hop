@@ -480,15 +480,6 @@ public class DatabaseLookupMeta extends BaseTransformMeta
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
-  @Override
   public String getMissingDatabaseConnectionInformationMessage() {
     return null;
   }
