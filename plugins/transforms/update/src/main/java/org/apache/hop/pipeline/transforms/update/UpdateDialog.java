@@ -694,7 +694,6 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     int nrFields = wReturn.nrNonEmpty();
 
     inf.setConnection(wConnection.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     inf.setCommitSize(wCommit.getText());
     inf.setUseBatchUpdate(wBatch.getSelection());
     inf.setSkipLookup(wSkipLookup.getSelection());
@@ -741,7 +740,8 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "UpdateDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "UpdateDialog.InvalidConnection.DialogTitle"));
@@ -823,6 +823,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
   // Conversions done by Database
   private void create() {
     try {
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
       UpdateMeta info = new UpdateMeta();
       getInfo(info);
 
@@ -841,7 +842,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
                   shell,
                   SWT.NONE,
                   variables,
-                  info.getDatabaseMeta(),
+                  databaseMeta,
                   DbCache.getInstance(),
                   sql.getSql());
           sqledit.open();

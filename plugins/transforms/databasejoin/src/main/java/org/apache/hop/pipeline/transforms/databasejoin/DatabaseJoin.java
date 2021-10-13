@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -218,14 +219,19 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   @Override
   public boolean init() {
     if (super.init()) {
+
+      if ( Utils.isEmpty(meta.getConnection())) {
+        logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+        return false;
+      }
+
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       if (databaseMeta == null) {
         logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
 
-      meta.setDatabaseMeta(databaseMeta);
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+      data.db = new Database(this, this, databaseMeta);
 
       try {
         data.db.connect();
