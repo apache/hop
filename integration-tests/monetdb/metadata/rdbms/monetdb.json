@@ -1,0 +1,26 @@
+{
+  "rdbms": {
+    "MONETDB": {
+      "databaseName": "${MONETDB_DATABASE}",
+      "pluginId": "MONETDB",
+      "accessType": 0,
+      "hostname": "${MONETDB_HOSTNAME}",
+      "password": "${MONETDB_PASSWORD}",
+      "port": "${MONETDB_PORT}",
+      "pluginName": "MonetDB",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "${MONETDB_USERNAME}"
+    }
+  },
+  "name": "monetdb"
+}

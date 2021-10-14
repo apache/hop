@@ -33,7 +33,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <monetdb-jdbc.version>11.19.15</monetdb-jdbc.version>
+        <monetdb-jdbc.version>3.1</monetdb-jdbc.version>
     </properties>
 
     <dependencies>
