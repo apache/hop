@@ -28,11 +28,6 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Objects;
 
-/*
- * Created on 19-jun-2003
- *
- */
-
 /** Defines a link between 2 transforms in a pipeline */
 public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
     implements Comparable<PipelineHopMeta>, Cloneable {
