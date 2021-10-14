@@ -1,0 +1,23 @@
+{
+  "variables" : [ {
+    "name" : "MONETDB_HOSTNAME",
+    "value" : "monetdb",
+    "description" : "The MonetDB hostname"
+  }, {
+    "name" : "MONETDB_PORT",
+    "value" : "50000",
+    "description" : "The data port "
+  }, {
+    "name" : "MONETDB_USERNAME",
+    "value" : "monetdb",
+    "description" : "Username: none"
+  }, {
+    "name" : "MONETDB_PASSWORD",
+    "value" : "monetdb",
+    "description" : "Password: none"
+  }, {
+    "name" : "MONETDB_DATABASE",
+    "value" : "monetdb",
+    "description" : ""
+  } ]
+}
