@@ -150,7 +150,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
@@ -790,7 +791,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "InsertUpdateDialog.InvalidConnection.DialogMessage"));
@@ -802,7 +803,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -922,7 +923,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     try {
       InsertUpdateMeta info = new InsertUpdateMeta();
       getInfo(info);
-
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(info.getConnection(), variables);
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
           new TransformMeta(
@@ -938,7 +939,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
                   shell,
                   SWT.NONE,
                   variables,
-                  info.getDatabaseMeta(),
+                      databaseMeta,
                   DbCache.getInstance(),
                   sql.getSql());
           sqledit.open();
