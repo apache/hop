@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Add a Checksum transform calculates checksums for one or more fields in the input stream and adds this to the output as a new field.
 
 = Add a checksum
 
 == Description
 
-This transform calculates checksums for one or more fields in the input stream and adds this to the output as a new field.
+The Add a Checksum transform calculates checksums for one or more fields in the input stream and adds this to the output as a new field.
 
 == Options
 

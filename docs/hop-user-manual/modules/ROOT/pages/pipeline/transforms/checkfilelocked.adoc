@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Check If A File Is Locked transform tries to determine if a file is locked by another process by trying to move the file to itself.
 
 = Check if file is locked
 
 == Description
 
-This transform tries to determine if a file is locked by an other process.
-It does this by trying to move it to itself.
+The Check If A File Is Locked transform tries to determine if a file is locked by another process by trying to move the file to itself.
 
 == Options
 
