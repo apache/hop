@@ -16,14 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Insert/Update transform first looks up a row in a table using one or more lookup keys. If a table row for the specified keys can't be found, a new row is inserted.
 
 = Insert / Update
 
 == Description
 
-The Insert/Update transform first looks up a row in a table using one or more lookup keys.
-If the row can't be found, it inserts the row.
+The Insert/Update transform first looks up a row in a table using one or more lookup keys. If a table row for the specified keys can't be found, a new row is inserted.
+
 If it can be found and the fields to update are the same, nothing is done.
+
 If they are not all the same, the row in the table is updated.
 
 == Options

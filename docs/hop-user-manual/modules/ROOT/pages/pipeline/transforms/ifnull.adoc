@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The If Null transform replaces nulls by a given value either by processing the complete row with all fields, by processing the complete row but only for specific field types (Number, String, Date etc.) or by processing the complete row but only for specific fields by name
 
 = If Null
 
 == Description
 
-The transform "If field value is null" is able to replace nulls by a given value either by:
+The If Null transform replaces nulls by a given value either by:
 
 1. Processing the complete row with all fields
 2. Processing the complete row but only for specific field types (Number, String, Date etc.)

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Identify Last Row In A Stream pipeline transform generates a Boolean field filled with true for the last row, and false otherwise.
 
 = Identify last row in a stream
 
 == Description
 
-The Identify last row in a stream pipeline transform generates a Boolean field filled with true for the last row, and falseotherwise.
+The Identify Last Row In A Stream pipeline transform generates a Boolean field filled with true for the last row, and false otherwise.
 
 == Options
 

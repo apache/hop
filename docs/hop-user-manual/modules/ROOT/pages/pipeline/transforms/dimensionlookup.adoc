@@ -16,13 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Dimension Lookup/Update transform allows you to implement Ralph Kimball's slowly changing dimension for both types: Type I (update) and Type II (insert) together with some additional functions.
 
 = Dimension lookup/update
 
 == Description
 
-The Dimension Lookup/Update transform allows you to implement Ralph Kimball's slowly changing dimension for both types: Type I (update) and Type II (insert) together with some additional functions.
-Not only can you use this transform to update a dimension table, it may also be used to look up values in a dimension.
+The Dimension Lookup/Update transform allows you to implement Ralph Kimball's https://en.wikipedia.org/wiki/Slowly_changing_dimension[slowly changing dimension] for both types: Type I (update) and Type II (insert) together with some additional functions.
+
+This transform can be used to populate a dimension table or to look up values in a slowly changing dimension without making any changes.
+
 
 == Options
 

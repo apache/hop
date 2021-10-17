@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Email Messages Input transform allows you to retrieve messages and their attachments from a mail server using the POP3, IMAP or MBOX standard protocols.
 
 = Email Messages Input
 
 == Description
 
-This transform allows you to retrieve messages and their attachments from a mail server using the POP3, IMAP or MBOX standard protocols.
+The Email Messages Input transform allows you to retrieve messages and their attachments from a mail server using the POP3, IMAP or MBOX standard protocols.
 
 == Options
 

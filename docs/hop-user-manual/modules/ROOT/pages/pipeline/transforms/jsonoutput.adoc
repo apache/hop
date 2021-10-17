@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The JSON Output transform allows you to generate JSON blocks based on input transform values.
 
 = JSON Output
 
 == Description
 
-Json Output transform allows to generate json blocks based on input transform values.
-Output json will be available as java script array or java script object depends on transform settings.
+The JSON Output transform allows you to generate JSON blocks based on input transform values.
+
+Output JSON will be available as a javascript array or a javascript object depending on the transform settings.
 
 == Options
 

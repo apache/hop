@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Get Subfolder Names transform gets subfolder names from a directory.
 
 = Get SubFolder names
 
 == Description
 
-The Get Subfolder Names transform gets subfolders from a directory.
+The Get Subfolder Names transform gets subfolder names from a directory.
 
 == Options
 

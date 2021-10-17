@@ -16,15 +16,21 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Files To Result transform allows you to set filenames in the internal result files of a pipeline, for use by subsequent workflow actions. Subsequent workflow actions can then use this information
 
 = Files to result
 
 == Description
 
-This transform allows you to set filenames in the internal result files of a pipeline.
+The Files To Result transform allows you to set filenames in the internal result files of a pipeline.
+
 Subsequent workflow actions can then use this information as it routes the list of files to the result files stream e.g. by using the Get files from result transform or some workflow actions that can process on the list of result files.
+
 For example, the Mail workflow action can use this list of files to attach to a mail, so perhaps you don't want all files sent, but only a certain selection.
+
 For this, you can create a pipeline that sets exactly those files you want to attach.
+
+WARNING: the Files To Result is available for historical reasons. Check the xref:best-practices/index.adoc[Best Practices] for better ways to build loops in your Hop pipelines.
 
 == Options
 

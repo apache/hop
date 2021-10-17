@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Database Join transform allows you to run a query against a database using data from your pipelines fields as parameters..
 
 = Database Join
 
@@ -30,6 +31,8 @@ As question marks (?) in the SQL query.
 When the transform runs, these will be replaced with data coming in from the fields defined from the data grid.
 The question marks will be replaced in the same order as defined in the data grid.
 For example, Database Join allows you to run queries looking up the oldest person who bought a specific product as shown below:
+
+TIP: the Database Join transform gives you more flexibility than the standard xref:pipeline/transforms/databaselookup.adoc[Database Lookup] transform. Keep in mind that your query determines the performance of this transform.
 
 [source,sql]
 ----

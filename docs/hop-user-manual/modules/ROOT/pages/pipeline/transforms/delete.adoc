@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Delete transform deletes rows of data from a database. This transform is similar to the update family of transforms in that it takes one or more key fields to determine the rows to delete.
 
 = Delete
 
 == Description
 
-The delete transform deletes rows of data from a database.
+The Delete transform deletes rows of data from a database.
+
 This transform is similar to the update family of transforms in that it takes one or more key fields to determine the rows to delete.
 
 image::delete.png[]
