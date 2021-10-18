@@ -44,7 +44,7 @@
         <mockito-all.version>1.9.5</mockito-all.version>
         <poi.version>3.17</poi.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
-        <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
+        <dependency.org.powermock.version>2.0.9</dependency.org.powermock.version>
         <json-smart.version>2.2</json-smart.version>
         <json-path.version>2.1.0</json-path.version>
         <jackson-core.version>${jackson-databind.version}</jackson-core.version>
