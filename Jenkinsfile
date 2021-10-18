@@ -21,7 +21,8 @@ def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
 def JDK_NAME = env.JDK_NAME ?: 'jdk_11_latest'
 def MAVEN_NAME = env.MAVEN_NAME ?: 'maven_3_latest'
 
-def MAVEN_PARAMS = "-T 2 -U -B -e -fae -fn -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
+def MAVEN_PARAMS = "-T 2 -U -B -e -fn -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
+//removed fae (fail at end) by fn (fail never) to have an overview of the errors during development
 
 pipeline {
 
