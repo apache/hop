@@ -130,8 +130,8 @@
 
         <!-- Test dependencies -->
         <mockito-all.version>1.10.19</mockito-all.version>
-        <powermock-module-junit4.version>1.7.3</powermock-module-junit4.version>
-        <powermock-api-mockito.version>1.7.3</powermock-api-mockito.version>
+        <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
+        <powermock-api-mockito.version>2.0.9</powermock-api-mockito.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <junit.version>4.13.1</junit.version>
 
@@ -328,7 +328,7 @@
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
+                <artifactId>powermock-api-mockito2</artifactId>
                 <version>${powermock-api-mockito.version}</version>
                 <scope>test</scope>
             </dependency>
