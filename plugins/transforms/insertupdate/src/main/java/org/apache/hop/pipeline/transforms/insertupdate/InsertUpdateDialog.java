@@ -699,6 +699,9 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundKeys", nrkeys + ""));
     }
+
+    inf.getInsertUpdateLookupField().getLookupKeys().clear();
+
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
@@ -714,6 +717,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundFields", nrFields + ""));
     }
+
+    inf.getInsertUpdateLookupField().getValueFields().clear();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       InsertUpdateValue valueField = new InsertUpdateValue(item.getText(1) // UpdateLookup
@@ -743,7 +748,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
@@ -849,7 +854,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
