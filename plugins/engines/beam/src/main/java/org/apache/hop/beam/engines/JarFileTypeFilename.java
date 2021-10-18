@@ -15,16 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.beam.engines;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  PARENT, // Is a placeholder for children
-  TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  ;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+
+public class JarFileTypeFilename implements ITypeFilename {
+  @Override
+  public String getDefaultFileExtension() {
+    return ".jar";
+  }
+
+  @Override
+  public String[] getFilterExtensions() {
+    return new String[] {"*.jar"};
+  }
+
+  @Override
+  public String[] getFilterNames() {
+    return new String[] {"JAR files"};
+  }
 }

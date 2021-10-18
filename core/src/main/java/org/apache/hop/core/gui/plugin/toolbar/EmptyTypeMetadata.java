@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.toolbar;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  PARENT, // Is a placeholder for children
-  TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  ;
+import org.apache.hop.core.gui.plugin.ITypeMetadata;
+import org.apache.hop.metadata.api.IHopMetadata;
+
+public class EmptyTypeMetadata implements ITypeMetadata {
+
+  public EmptyTypeMetadata() {}
+
+  @Override
+  public Class<? extends IHopMetadata> getMetadataClass() {
+    return null;
+  }
 }

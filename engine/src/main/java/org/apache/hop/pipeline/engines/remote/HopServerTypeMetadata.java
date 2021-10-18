@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.pipeline.engines.remote;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  PARENT, // Is a placeholder for children
-  TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  ;
+import org.apache.hop.core.gui.plugin.ITypeMetadata;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.server.HopServer;
+
+public class HopServerTypeMetadata implements ITypeMetadata {
+  @Override
+  public Class<? extends IHopMetadata> getMetadataClass() {
+    return HopServer.class;
+  }
 }

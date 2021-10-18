@@ -15,16 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.ui.hopgui.file.pipeline.extension;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  PARENT, // Is a placeholder for children
-  TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  ;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+
+public class TypePipelineFile implements ITypeFilename {
+
+  private HopPipelineFileType fileType;
+
+  public TypePipelineFile() {
+    fileType = new HopPipelineFileType();
+  }
+
+  @Override
+  public String getDefaultFileExtension() {
+    return fileType.getDefaultFileExtension();
+  }
+
+  @Override
+  public String[] getFilterExtensions() {
+    return fileType.getFilterExtensions();
+  }
+
+  @Override
+  public String[] getFilterNames() {
+    return fileType.getFilterNames();
+  }
 }
