@@ -113,12 +113,15 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
             String group = (String) workflow.getExtensionDataMap().get(Const.CONNECTION_GROUP);
             List<Database> databases = DatabaseConnectionMap.getInstance().getDatabases(group);
             Result result = workflow.getResult();
+
             for (Database database : databases) {
               // All fine?  Commit!
               //
               if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
                 try {
                   database.commit(true);
+                  workflow.getLogChannel().logDebug("Database connection "
+                          + database.getDatabaseMeta().getName() + " has been successfully committed!");
                 } catch (HopDatabaseException e) {
                   workflow
                       .getLogChannel()
@@ -132,6 +135,8 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                 // Error? Rollback!
                 try {
                   database.rollback(true);
+                  workflow.getLogChannel().logDebug("Database connection "
+                          + database.getDatabaseMeta().getName() + " has been successfully rolled back!");
                 } catch (HopDatabaseException e) {
                   workflow
                       .getLogChannel()

@@ -138,6 +138,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                   if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
                     try {
                       database.commit(true);
+                      pipeline.getLogChannel().logDebug("Database connection "
+                              + database.getDatabaseMeta().getName() + " has been successfully committed!");
                     } catch (HopDatabaseException e) {
                       throw new HopException(
                           "Error committing database connection "
@@ -147,6 +149,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                   } else {
                     try {
                       database.rollback(true);
+                      pipeline.getLogChannel().logDebug("Database connection "
+                              + database.getDatabaseMeta().getName() + " has been successfully rolled back!");
                     } catch (HopDatabaseException e) {
                       throw new HopException(
                           "Error rolling back database connection "
