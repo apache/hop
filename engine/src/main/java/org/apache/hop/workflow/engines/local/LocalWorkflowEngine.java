@@ -120,8 +120,8 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
                 try {
                   database.commit(true);
-                  workflow.getLogChannel().logDebug("Database connection "
-                          + database.getDatabaseMeta().getName() + " has been successfully committed!");
+                  workflow.getLogChannel().logBasic("All transaction of database connection '"
+                          + database.getDatabaseMeta().getName() + "' where committed at the end of the workflow!");
                 } catch (HopDatabaseException e) {
                   workflow
                       .getLogChannel()
@@ -135,8 +135,8 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                 // Error? Rollback!
                 try {
                   database.rollback(true);
-                  workflow.getLogChannel().logDebug("Database connection "
-                          + database.getDatabaseMeta().getName() + " has been successfully rolled back!");
+                  workflow.getLogChannel().logBasic("All transaction of database connection '"
+                          + database.getDatabaseMeta().getName() + "' where rolled back at the end of the workflow!");
                 } catch (HopDatabaseException e) {
                   workflow
                       .getLogChannel()
