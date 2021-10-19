@@ -123,7 +123,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
          */
         boolean update = false;
         for (int i = 0; i < data.valuenrs.length; i++) {
-          if (meta.getUpdate()[i].booleanValue()) {
+          InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
+          if (valueField.isUpdate()) {
             IValueMeta valueMeta = rowMeta.getValueMeta(data.valuenrs[i]);
             IValueMeta retMeta = data.db.getReturnRowMeta().getValueMeta(i);
 
@@ -140,7 +141,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           Object[] updateRow = new Object[data.updateParameterRowMeta.size()];
           int j = 0;
           for (int i = 0; i < data.valuenrs.length; i++) {
-            if (meta.getUpdate()[i].booleanValue()) {
+            InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
+            if (valueField.isUpdate()) {
               updateRow[j] = row[data.valuenrs[i]]; // the setters
               j++;
             }
@@ -188,13 +190,13 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
     if (first) {
       first = false;
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       data.schemaTable =
-          meta.getDatabaseMeta()
-              .getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
+              databaseMeta.getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
 
       // lookup the values!
       if (log.isDebug()) {
@@ -203,45 +205,46 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
                 + getInputRowMeta().getString(r));
       }
 
-      ArrayList<Integer> keynrs = new ArrayList<>(meta.getKeyStream().length);
-      ArrayList<Integer> keynrs2 = new ArrayList<>(meta.getKeyStream().length);
+      ArrayList<Integer> keynrs = new ArrayList<>(meta.getInsertUpdateLookupField().getLookupKeys().size());
+      ArrayList<Integer> keynrs2 = new ArrayList<>(meta.getInsertUpdateLookupField().getLookupKeys().size());
 
-      for (int i = 0; i < meta.getKeyStream().length; i++) {
-        int keynr = getInputRowMeta().indexOfValue(meta.getKeyStream()[i]);
+      for (int i = 0; i < meta.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
+        InsertUpdateKeyField keyField = meta.getInsertUpdateLookupField().getLookupKeys().get(i);
+        int keynr = getInputRowMeta().indexOfValue(keyField.getKeyStream());
 
         if (keynr < 0
             && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
+            !"IS NULL".equalsIgnoreCase(keyField.getKeyCondition())
             && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i]) // No field needed!
+            !"IS NOT NULL".equalsIgnoreCase(keyField.getKeyCondition()) // No field needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Exception.FieldRequired", meta.getKeyStream()[i]));
+                  PKG, "InsertUpdate.Exception.FieldRequired", keyField.getKeyStream()));
         }
         keynrs.add(keynr);
 
         // this operator needs two bindings
-        if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        if ("= ~NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
           keynrs.add(keynr);
           keynrs2.add(-1);
         }
 
-        int keynr2 = getInputRowMeta().indexOfValue(meta.getKeyStream2()[i]);
+        int keynr2 = getInputRowMeta().indexOfValue(keyField.getKeyStream2());
         if (keynr2 < 0
             && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i]) // 2 fields needed!
+            "BETWEEN".equalsIgnoreCase(keyField.getKeyCondition()) // 2 fields needed!
         ) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Exception.FieldRequired", meta.getKeyStream2()[i]));
+                  PKG, "InsertUpdate.Exception.FieldRequired", keyField.getKeyStream2()));
         }
         keynrs2.add(keynr2);
 
         if (log.isDebug()) {
           logDebug(
               BaseMessages.getString(
-                      PKG, "InsertUpdate.Log.FieldHasDataNumbers", meta.getKeyStream()[i])
+                      PKG, "InsertUpdate.Log.FieldHasDataNumbers", keyField.getKeyStream())
                   + ""
                   + keynrs.get(keynrs.size() - 1));
         }
@@ -252,20 +255,21 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
       // ICache the position of the compare fields in Row row
       //
-      data.valuenrs = new int[meta.getUpdateLookup().length];
-      for (int i = 0; i < meta.getUpdateLookup().length; i++) {
-        data.valuenrs[i] = getInputRowMeta().indexOfValue(meta.getUpdateStream()[i]);
+      data.valuenrs = new int[meta.getInsertUpdateLookupField().getValueFields().size()];
+      for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
+        InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
+        data.valuenrs[i] = getInputRowMeta().indexOfValue(valueField.getUpdateStream());
         if (data.valuenrs[i] < 0) {
           // couldn't find field!
 
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Exception.FieldRequired", meta.getUpdateStream()[i]));
+                  PKG, "InsertUpdate.Exception.FieldRequired", valueField.getUpdateStream()));
         }
         if (log.isDebug()) {
           logDebug(
               BaseMessages.getString(
-                      PKG, "InsertUpdate.Log.FieldHasDataNumbers", meta.getUpdateStream()[i])
+                      PKG, "InsertUpdate.Log.FieldHasDataNumbers", valueField.getUpdateStream())
                   + data.valuenrs[i]);
         }
       }
@@ -275,16 +279,17 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       data.insertRowMeta = new RowMeta();
 
       // Insert the update fields: just names. Type doesn't matter!
-      for (int i = 0; i < meta.getUpdateLookup().length; i++) {
-        IValueMeta insValue = data.insertRowMeta.searchValueMeta(meta.getUpdateLookup()[i]);
+      for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
+        InsertUpdateValue valueField= meta.getInsertUpdateLookupField().getValueFields().get(i);
+        IValueMeta insValue = data.insertRowMeta.searchValueMeta(valueField.getUpdateLookup());
         if (insValue == null) {
           // Don't add twice!
 
           // we already checked that this value exists so it's probably safe to ignore lookup
           // failure...
           IValueMeta insertValue =
-              getInputRowMeta().searchValueMeta(meta.getUpdateStream()[i]).clone();
-          insertValue.setName(meta.getUpdateLookup()[i]);
+              getInputRowMeta().searchValueMeta(valueField.getUpdateStream()).clone();
+          insertValue.setName(valueField.getUpdateLookup());
           data.insertRowMeta.addValueMeta(insertValue);
         } else {
           throw new HopTransformException(
@@ -297,9 +302,10 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
       if (!meta.isUpdateBypassed()) {
         List<String> updateColumns = new ArrayList<>();
-        for (int i = 0; i < meta.getUpdate().length; i++) {
-          if (meta.getUpdate()[i].booleanValue()) {
-            updateColumns.add(meta.getUpdateLookup()[i]);
+        for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
+          InsertUpdateValue valueField= meta.getInsertUpdateLookupField().getValueFields().get(i);
+          if (valueField.isUpdate()) {
+            updateColumns.add(valueField.getUpdateLookup());
           }
         }
         prepareUpdate(getInputRowMeta());
@@ -343,38 +349,40 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
     String sql = "SELECT ";
 
-    for (int i = 0; i < meta.getUpdateLookup().length; i++) {
+    for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
+      InsertUpdateValue valueField= meta.getInsertUpdateLookupField().getValueFields().get(i);
       if (i != 0) {
         sql += ", ";
       }
-      sql += databaseMeta.quoteField(meta.getUpdateLookup()[i]);
+      sql += databaseMeta.quoteField(valueField.getUpdateLookup());
       data.lookupReturnRowMeta.addValueMeta(
-          rowMeta.searchValueMeta(meta.getUpdateStream()[i]).clone());
+          rowMeta.searchValueMeta(valueField.getUpdateStream()).clone());
     }
 
     sql += " FROM " + data.schemaTable + " WHERE ";
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < meta.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
+      InsertUpdateKeyField keyField = meta.getInsertUpdateLookupField().getLookupKeys().get(i);
       if (i != 0) {
         sql += " AND ";
       }
 
       sql += " ( ( ";
 
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      sql += databaseMeta.quoteField(keyField.getKeyLookup());
+      if ("BETWEEN".equalsIgnoreCase(keyField.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
-        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
+        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
+        data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream2()));
       } else {
-        if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-            || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-          sql += " " + meta.getKeyCondition()[i] + " ";
-        } else if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        if ("IS NULL".equalsIgnoreCase(keyField.getKeyCondition())
+            || "IS NOT NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+          sql += " " + keyField.getKeyCondition() + " ";
+        } else if ("= ~NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
 
           sql += " IS NULL AND ";
 
@@ -384,16 +392,16 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
             sql += " ? IS NULL ";
           }
           // null check
-          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-          sql += " ) OR ( " + databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ? ";
+          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
+          sql += " ) OR ( " + databaseMeta.quoteField(keyField.getKeyLookup()) + " = ? ";
           // equality check, cloning so auto-rename because of adding same fieldname does not cause
           // problems
           data.lookupParameterRowMeta.addValueMeta(
-              rowMeta.searchValueMeta(meta.getKeyStream()[i]).clone());
+              rowMeta.searchValueMeta(keyField.getKeyStream()).clone());
 
         } else {
-          sql += " " + meta.getKeyCondition()[i] + " ? ";
-          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
+          sql += " " + keyField.getKeyCondition() + " ? ";
+          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
         }
       }
       sql += " ) ) ";
@@ -413,7 +421,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
   // Lookup certain fields in a table
   public void prepareUpdate(IRowMeta rowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     data.updateParameterRowMeta = new RowMeta();
 
     String sql = "UPDATE " + data.schemaTable + Const.CR;
@@ -421,37 +430,39 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
     boolean comma = false;
 
-    for (int i = 0; i < meta.getUpdateLookup().length; i++) {
-      if (meta.getUpdate()[i].booleanValue()) {
+    for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
+      InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
+      if (valueField.isUpdate()) {
         if (comma) {
           sql += ",   ";
         } else {
           comma = true;
         }
 
-        sql += databaseMeta.quoteField(meta.getUpdateLookup()[i]);
+        sql += databaseMeta.quoteField(valueField.getUpdateLookup());
         sql += " = ?" + Const.CR;
         data.updateParameterRowMeta.addValueMeta(
-            rowMeta.searchValueMeta(meta.getUpdateStream()[i]).clone());
+            rowMeta.searchValueMeta(valueField.getUpdateStream()).clone());
       }
     }
 
     sql += "WHERE ";
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < meta.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
+      InsertUpdateKeyField keyField = meta.getInsertUpdateLookupField().getLookupKeys().get(i);
       if (i != 0) {
         sql += "AND   ";
       }
       sql += " ( ( ";
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
-      if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+      sql += databaseMeta.quoteField(keyField.getKeyLookup());
+      if ("BETWEEN".equalsIgnoreCase(keyField.getKeyCondition())) {
         sql += " BETWEEN ? AND ? ";
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream2()[i]));
-      } else if ("IS NULL".equalsIgnoreCase(meta.getKeyCondition()[i])
-          || "IS NOT NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
-      } else if ("= ~NULL".equalsIgnoreCase(meta.getKeyCondition()[i])) {
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream2()));
+      } else if ("IS NULL".equalsIgnoreCase(keyField.getKeyCondition())
+          || "IS NOT NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
+        sql += " " + keyField.getKeyCondition() + " ";
+      } else if ("= ~NULL".equalsIgnoreCase(keyField.getKeyCondition())) {
 
         sql += " IS NULL AND ";
 
@@ -461,17 +472,17 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           sql += "? IS NULL";
         }
         // null check
-        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
-        sql += " ) OR ( " + databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ?";
+        data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
+        sql += " ) OR ( " + databaseMeta.quoteField(keyField.getKeyLookup()) + " = ?";
         // equality check, cloning so auto-rename because of adding same fieldname does not cause
         // problems
         data.updateParameterRowMeta.addValueMeta(
-            rowMeta.searchValueMeta(meta.getKeyStream()[i]).clone());
+            rowMeta.searchValueMeta(keyField.getKeyStream()).clone());
 
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
+        sql += " " + keyField.getKeyCondition() + " ? ";
         data.updateParameterRowMeta.addValueMeta(
-            rowMeta.searchValueMeta(meta.getKeyStream()[i]).clone());
+            rowMeta.searchValueMeta(keyField.getKeyStream()).clone());
       }
       sql += " ) ) ";
     }
@@ -492,16 +503,18 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
   public boolean init() {
 
     if (super.init()) {
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+
       try {
-        if (meta.getDatabaseMeta() == null) {
+        if (databaseMeta == null) {
           logError(
               BaseMessages.getString(
                   PKG, "InsertUpdate.Init.ConnectionMissing", getTransformName()));
           return false;
         }
-        data.db = new Database(this, this, meta.getDatabaseMeta());
+        data.db = new Database(this, this, databaseMeta);
         data.db.connect();
-        data.db.setCommit(meta.getCommitSize(this));
+        data.db.setCommit(meta.getCommitSizeVar(this));
 
         return true;
       } catch (HopException ke) {

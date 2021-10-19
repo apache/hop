@@ -150,7 +150,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
@@ -253,7 +254,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
-    int nrKeyRows = (input.getKeyStream() != null ? input.getKeyStream().length : 1);
+    int nrKeyRows = (input.getInsertUpdateLookupField().getLookupKeys() != null ? input.getInsertUpdateLookupField().getLookupKeys().size() : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -338,7 +339,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wlReturn.setLayoutData(fdlReturn);
 
     int UpInsCols = 3;
-    int UpInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int UpInsRows = (input.getInsertUpdateLookupField().getValueFields() != null ? input.getInsertUpdateLookupField().getValueFields().size() : 1);
 
     ciReturn = new ColumnInfo[UpInsCols];
     ciReturn[0] =
@@ -489,8 +490,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
-    input.setTableName(variables.resolve(wTable.getText()));
+    input.setConnection(wConnection.getText());
+    input.getInsertUpdateLookupField().setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
       targetFields = transformMetaInterface.getRequiredFields(variables);
@@ -624,41 +625,41 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.GettingKeyInfo"));
     }
 
-    wCommit.setText(input.getCommitSizeVar());
+    wCommit.setText(input.getCommitSize());
     wUpdateBypassed.setSelection(input.isUpdateBypassed());
 
-    if (input.getKeyStream() != null) {
-      for (int i = 0; i < input.getKeyStream().length; i++) {
+    if (input.getInsertUpdateLookupField().getLookupKeys() != null) {
+      for (int i = 0; i < input.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
+        InsertUpdateKeyField keyField = input.getInsertUpdateLookupField().getLookupKeys().get(i);
+        
         TableItem item = wKey.table.getItem(i);
-        if (input.getKeyLookup()[i] != null) {
-          item.setText(1, input.getKeyLookup()[i]);
+        if (keyField.getKeyLookup() != null) {
+          item.setText(1, keyField.getKeyLookup());
         }
-        if (input.getKeyCondition()[i] != null) {
-          item.setText(2, input.getKeyCondition()[i]);
+        if (keyField.getKeyCondition() != null) {
+          item.setText(2, keyField.getKeyCondition());
         }
-        if (input.getKeyStream()[i] != null) {
-          item.setText(3, input.getKeyStream()[i]);
+        if (keyField.getKeyStream() != null) {
+          item.setText(3, keyField.getKeyStream());
         }
-        if (input.getKeyStream2()[i] != null) {
-          item.setText(4, input.getKeyStream2()[i]);
+        if (keyField.getKeyStream2() != null) {
+          item.setText(4, keyField.getKeyStream2());
         }
       }
     }
 
-    if (input.getUpdateLookup() != null) {
-      for (int i = 0; i < input.getUpdateLookup().length; i++) {
+    if (input.getInsertUpdateLookupField().getValueFields() != null) {
+      for (int i = 0; i < input.getInsertUpdateLookupField().getValueFields().size(); i++) {
+        InsertUpdateValue valueField = input.getInsertUpdateLookupField().getValueFields().get(i);
+
         TableItem item = wReturn.table.getItem(i);
-        if (input.getUpdateLookup()[i] != null) {
-          item.setText(1, input.getUpdateLookup()[i]);
+        if (valueField.getUpdateLookup() != null) {
+          item.setText(1, valueField.getUpdateLookup());
         }
-        if (input.getUpdateStream()[i] != null) {
-          item.setText(2, input.getUpdateStream()[i]);
+        if (valueField.getUpdateStream() != null) {
+          item.setText(2, valueField.getUpdateStream());
         }
-        if (input.getUpdate()[i] == null || input.getUpdate()[i]) {
-          item.setText(3, "Y");
-        } else {
-          item.setText(3, "N");
-        }
+          item.setText(3, valueField.isUpdate() ? "Y" : "N");
       }
     }
 
@@ -668,8 +669,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (input.getTableName() != null) {
       wTable.setText(input.getTableName());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
 
     wKey.setRowNums();
@@ -692,21 +693,23 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wReturn.nrNonEmpty();
 
-    inf.allocate(nrkeys, nrFields);
-
     inf.setCommitSize(wCommit.getText());
     inf.setUpdateBypassed(wUpdateBypassed.getSelection());
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundKeys", nrkeys + ""));
     }
+
+    inf.getInsertUpdateLookupField().getLookupKeys().clear();
+
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
-      inf.getKeyLookup()[i] = item.getText(1);
-      inf.getKeyCondition()[i] = item.getText(2);
-      inf.getKeyStream()[i] = item.getText(3);
-      inf.getKeyStream2()[i] = item.getText(4);
+      InsertUpdateKeyField keyField = new InsertUpdateKeyField(item.getText(3) // KeyStream
+              , item.getText(1) // KeyLookup
+              , item.getText(2) // KeyCondition
+              , item.getText(4)); // KeyStream2
+      inf.getInsertUpdateLookupField().getLookupKeys().add(keyField);
     }
 
     // Table ftable = wReturn.table;
@@ -714,16 +717,20 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundFields", nrFields + ""));
     }
+
+    inf.getInsertUpdateLookupField().getValueFields().clear();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
-      inf.getUpdateLookup()[i] = item.getText(1);
-      inf.getUpdateStream()[i] = item.getText(2);
-      inf.getUpdate()[i] = "Y".equals(item.getText(3));
+      InsertUpdateValue valueField = new InsertUpdateValue(item.getText(1) // UpdateLookup
+              , item.getText(2) // UpdateStream
+              , "Y".equals(item.getText(3))); // DoUpdate
+
+      inf.getInsertUpdateLookupField().getValueFields().add(valueField);
     }
 
-    inf.setSchemaName(wSchema.getText());
-    inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.getInsertUpdateLookupField().setSchemaName(wSchema.getText());
+    inf.getInsertUpdateLookupField().setTableName(wTable.getText());
+    inf.setConnection(wConnection.getText());
 
     transformName = wTransformName.getText(); // return value
   }
@@ -741,7 +748,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database db = new Database(loggingObject, variables, databaseMeta);
                 try {
@@ -789,7 +796,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "InsertUpdateDialog.InvalidConnection.DialogMessage"));
@@ -801,7 +808,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -847,7 +854,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
@@ -921,7 +928,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     try {
       InsertUpdateMeta info = new InsertUpdateMeta();
       getInfo(info);
-
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(info.getConnection(), variables);
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
           new TransformMeta(
@@ -937,7 +944,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
                   shell,
                   SWT.NONE,
                   variables,
-                  info.getDatabaseMeta(),
+                      databaseMeta,
                   DbCache.getInstance(),
                   sql.getSql());
           sqledit.open();

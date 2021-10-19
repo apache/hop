@@ -23,17 +23,14 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -43,14 +40,12 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
-import org.w3c.dom.Node;
 
+import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@InjectionSupported(
-    localizationPrefix = "InsertUpdateMeta.Injection.",
-    groups = {"KEYS", "UPDATES"})
 @Transform(
     id = "InsertUpdate",
     image = "insertupdate.svg",
@@ -64,64 +59,50 @@ public class InsertUpdateMeta extends BaseTransformMeta
 
   private IHopMetadataProvider metadataProvider;
 
-  /** what's the lookup schema? */
-  @Injection(name = "SCHEMA_NAME")
-  private String schemaName;
+  /** Lookup key fields * */
+  @HopMetadataProperty(key = "lookup")
+  private InsertUpdateLookupField insertUpdateLookupField;
 
-  /** what's the lookup table? */
-  @Injection(name = "TABLE_NAME")
-  private String tableName;
-
-  /** database connection */
-  private DatabaseMeta databaseMeta;
-
-  /** which field in input stream to compare with? */
-  @Injection(name = "KEY_STREAM", group = "KEYS")
-  private String[] keyStream;
-
-  /** field in table */
-  @Injection(name = "KEY_LOOKUP", group = "KEYS")
-  private String[] keyLookup;
-
-  /** Comparator: =, <>, BETWEEN, ... */
-  @Injection(name = "KEY_CONDITION", group = "KEYS")
-  private String[] keyCondition;
-
-  /** Extra field for between... */
-  @Injection(name = "KEY_STREAM2", group = "KEYS")
-  private String[] keyStream2;
-
-  /** Field value to update after lookup */
-  @Injection(name = "UPDATE_LOOKUP", group = "UPDATES")
-  private String[] updateLookup;
-
-  /** Stream name to update value with */
-  @Injection(name = "UPDATE_STREAM", group = "UPDATES")
-  private String[] updateStream;
-
-  /** boolean indicating if field needs to be updated */
-  @Injection(name = "UPDATE_FLAG", group = "UPDATES")
-  private Boolean[] update;
+  public InsertUpdateMeta() {
+    super();
+    insertUpdateLookupField = new InsertUpdateLookupField();
+  }
 
   /** Commit size for inserts/updates */
-  @Injection(name = "COMMIT_SIZE")
+  @HopMetadataProperty(
+      key = "commit",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.COMMIT_SIZE",
+      injectionKey = "COMMIT_SIZE")
   private String commitSize;
 
   /** Bypass any updates */
-  @Injection(name = "DO_NOT")
+  @HopMetadataProperty(
+      key = "update_bypassed",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.DO_NOT",
+      injectionKey = "DO_NOT")
   private boolean updateBypassed;
 
-  @Injection(name = "CONNECTIONNAME")
-  public void setConnection(String connectionName) {
-    try {
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, connectionName);
-    } catch (HopXmlException e) {
-      throw new RuntimeException("Unable to load connection '" + connectionName + "'", e);
-    }
+  /** database connection */
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.CONNECTIONNAME",
+      injectionKey = "CONNECTIONNAME")
+  private String connection;
+
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
+  }
+
+  public DatabaseMeta getDatabaseMeta() {
+    return null;
   }
 
   /** @return Returns the commitSize. */
-  public String getCommitSizeVar() {
+  public String getCommitSize() {
     return commitSize;
   }
 
@@ -130,7 +111,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
    *     calling transform
    * @return Returns the commitSize.
    */
-  public int getCommitSize(IVariables vs) {
+  public int getCommitSizeVar(IVariables vs) {
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = (commitSize == null) ? "0" : commitSize;
     return Integer.parseInt(vs.resolve(commitSize));
@@ -141,130 +122,44 @@ public class InsertUpdateMeta extends BaseTransformMeta
     this.commitSize = commitSize;
   }
 
-  /** @return Returns the database. */
   @Override
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  public Object clone() {
+    InsertUpdateMeta retval = (InsertUpdateMeta) super.clone();
+
+    return retval;
   }
 
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
+  @Override
+  public List<String> getDatabaseFields() {
+
+    List<String> updateLookupFields = new ArrayList<>();
+    for (InsertUpdateValue item : insertUpdateLookupField.getValueFields()) {
+      updateLookupFields.add(item.getUpdateLookup());
+    }
+    return updateLookupFields;
   }
 
-  /** @return Returns the keyCondition. */
-  public String[] getKeyCondition() {
-    return keyCondition;
-  }
 
-  /** @param keyCondition The keyCondition to set. */
-  public void setKeyCondition(String[] keyCondition) {
-    this.keyCondition = keyCondition;
-  }
+  @Override
+  public List<String> getStreamFields() {
 
-  /** @return Returns the keyLookup. */
-  public String[] getKeyLookup() {
-    return keyLookup;
-  }
-
-  /** @param keyLookup The keyLookup to set. */
-  public void setKeyLookup(String[] keyLookup) {
-    this.keyLookup = keyLookup;
-  }
-
-  /** @return Returns the keyStream. */
-  public String[] getKeyStream() {
-    return keyStream;
-  }
-
-  /** @param keyStream The keyStream to set. */
-  public void setKeyStream(String[] keyStream) {
-    this.keyStream = keyStream;
-  }
-
-  /** @return Returns the keyStream2. */
-  public String[] getKeyStream2() {
-    return keyStream2;
-  }
-
-  /** @param keyStream2 The keyStream2 to set. */
-  public void setKeyStream2(String[] keyStream2) {
-    this.keyStream2 = keyStream2;
+    List<String> updateStreamFields = new ArrayList<>();
+    for (InsertUpdateValue item : insertUpdateLookupField.getValueFields()) {
+      updateStreamFields.add(item.getUpdateStream());
+    }
+    return updateStreamFields;
   }
 
   /** @return Returns the tableName. */
   @Override
   public String getTableName() {
-    return tableName;
+    return insertUpdateLookupField.getTableName();
   }
 
-  /** @param tableName The tableName to set. */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /** @return Returns the updateLookup. */
-  public String[] getUpdateLookup() {
-    return updateLookup;
-  }
-
-  /** @param updateLookup The updateLookup to set. */
-  public void setUpdateLookup(String[] updateLookup) {
-    this.updateLookup = updateLookup;
-  }
-
-  /** @return Returns the updateStream. */
-  public String[] getUpdateStream() {
-    return updateStream;
-  }
-
-  /** @param updateStream The updateStream to set. */
-  public void setUpdateStream(String[] updateStream) {
-    this.updateStream = updateStream;
-  }
-
-  public Boolean[] getUpdate() {
-    return update;
-  }
-
-  public void setUpdate(Boolean[] update) {
-    this.update = update;
-  }
-
+  /** @return Returns the tableName. */
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int nrkeys, int nrvalues) {
-    keyStream = new String[nrkeys];
-    keyLookup = new String[nrkeys];
-    keyCondition = new String[nrkeys];
-    keyStream2 = new String[nrkeys];
-    updateLookup = new String[nrvalues];
-    updateStream = new String[nrvalues];
-    update = new Boolean[nrvalues];
-  }
-
-  @Override
-  public Object clone() {
-    InsertUpdateMeta retval = (InsertUpdateMeta) super.clone();
-    int nrkeys = keyStream.length;
-    int nrvalues = updateLookup.length;
-
-    retval.allocate(nrkeys, nrvalues);
-
-    System.arraycopy(keyStream, 0, retval.keyStream, 0, nrkeys);
-    System.arraycopy(keyLookup, 0, retval.keyLookup, 0, nrkeys);
-    System.arraycopy(keyCondition, 0, retval.keyCondition, 0, nrkeys);
-    System.arraycopy(keyStream2, 0, retval.keyStream2, 0, nrkeys);
-
-    System.arraycopy(updateLookup, 0, retval.updateLookup, 0, nrvalues);
-    System.arraycopy(updateStream, 0, retval.updateStream, 0, nrvalues);
-    System.arraycopy(update, 0, retval.update, 0, nrvalues);
-
-    return retval;
+  public String getSchemaName() {
+    return insertUpdateLookupField.getSchemaName();
   }
 
   @Override
@@ -277,131 +172,9 @@ public class InsertUpdateMeta extends BaseTransformMeta
     return new InsertUpdate(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    this.metadataProvider = metadataProvider;
-    try {
-      String csize;
-      int nrkeys, nrvalues;
-
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-      csize = XmlHandler.getTagValue(transformNode, "commit");
-      commitSize = (csize != null) ? csize : "0";
-      schemaName = XmlHandler.getTagValue(transformNode, "lookup", "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "lookup", "table");
-      updateBypassed =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "update_bypassed"));
-
-      Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
-      nrkeys = XmlHandler.countNodes(lookup, "key");
-      nrvalues = XmlHandler.countNodes(lookup, "value");
-
-      allocate(nrkeys, nrvalues);
-
-      for (int i = 0; i < nrkeys; i++) {
-        Node knode = XmlHandler.getSubNodeByNr(lookup, "key", i);
-
-        keyStream[i] = XmlHandler.getTagValue(knode, "name");
-        keyLookup[i] = XmlHandler.getTagValue(knode, "field");
-        keyCondition[i] = XmlHandler.getTagValue(knode, "condition");
-        if (keyCondition[i] == null) {
-          keyCondition[i] = "=";
-        }
-        keyStream2[i] = XmlHandler.getTagValue(knode, "name2");
-      }
-
-      for (int i = 0; i < nrvalues; i++) {
-        Node vnode = XmlHandler.getSubNodeByNr(lookup, "value", i);
-
-        updateLookup[i] = XmlHandler.getTagValue(vnode, "name");
-        updateStream[i] = XmlHandler.getTagValue(vnode, "rename");
-        if (updateStream[i] == null) {
-          updateStream[i] = updateLookup[i]; // default: the same name!
-        }
-        String updateValue = XmlHandler.getTagValue(vnode, "update");
-        if (updateValue == null) {
-          // default TRUE
-          update[i] = Boolean.TRUE;
-        } else {
-          if (updateValue.equalsIgnoreCase("Y")) {
-            update[i] = Boolean.TRUE;
-          } else {
-            update[i] = Boolean.FALSE;
-          }
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "InsertUpdateMeta.Exception.UnableToReadTransformInfoFromXML"),
-          e);
-    }
-  }
-
   @Override
   public void setDefault() {
-    keyStream = null;
-    updateLookup = null;
-    databaseMeta = null;
     commitSize = "100";
-    schemaName = "";
-    tableName = BaseMessages.getString(PKG, "InsertUpdateMeta.DefaultTableName");
-
-    int nrkeys = 0;
-    int nrvalues = 0;
-
-    allocate(nrkeys, nrvalues);
-
-    for (int i = 0; i < nrkeys; i++) {
-      keyLookup[i] = "age";
-      keyCondition[i] = "BETWEEN";
-      keyStream[i] = "age_from";
-      keyStream2[i] = "age_to";
-    }
-
-    for (int i = 0; i < nrvalues; i++) {
-      updateLookup[i] = BaseMessages.getString(PKG, "InsertUpdateMeta.ColumnName.ReturnField") + i;
-      updateStream[i] = BaseMessages.getString(PKG, "InsertUpdateMeta.ColumnName.NewName") + i;
-      update[i] = Boolean.TRUE;
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(400);
-
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    ").append(XmlHandler.addTagValue("commit", commitSize));
-    retval.append("    ").append(XmlHandler.addTagValue("update_bypassed", updateBypassed));
-    retval.append("    <lookup>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
-    retval.append("      ").append(XmlHandler.addTagValue("table", tableName));
-
-    for (int i = 0; i < keyStream.length; i++) {
-      retval.append("      <key>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", keyStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("field", keyLookup[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("condition", keyCondition[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("name2", keyStream2[i]));
-      retval.append("      </key>").append(Const.CR);
-    }
-
-    for (int i = 0; i < updateLookup.length; i++) {
-      retval.append("      <value>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", updateLookup[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("rename", updateStream[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("update", update[i].booleanValue()));
-      retval.append("      </value>").append(Const.CR);
-    }
-
-    retval.append("    </lookup>").append(Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -429,13 +202,17 @@ public class InsertUpdateMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
+    Database db = null;
 
-    if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+
+      if (databaseMeta != null) {
+        db = new Database(loggingObject, variables, databaseMeta);
         db.connect();
 
-        if (!Utils.isEmpty(tableName)) {
+        if (!Utils.isEmpty(insertUpdateLookupField.getTableName())) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -448,7 +225,10 @@ public class InsertUpdateMeta extends BaseTransformMeta
           errorMessage = "";
 
           // Check fields in table
-          IRowMeta r = db.getTableFieldsMeta(schemaName, tableName);
+          IRowMeta r =
+              db.getTableFieldsMeta(
+                  variables.resolve(insertUpdateLookupField.getSchemaName()),
+                  variables.resolve(insertUpdateLookupField.getTableName()));
           if (r != null) {
             cr =
                 new CheckResult(
@@ -457,10 +237,11 @@ public class InsertUpdateMeta extends BaseTransformMeta
                     transformMeta);
             remarks.add(cr);
 
-            for (int i = 0; i < keyLookup.length; i++) {
-              String lufield = keyLookup[i];
+            for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+              InsertUpdateKeyField insertUpdateKeyField =
+                  insertUpdateLookupField.getLookupKeys().get(i);
 
-              IValueMeta v = r.searchValueMeta(lufield);
+              IValueMeta v = r.searchValueMeta(insertUpdateKeyField.getKeyLookup());
               if (v == null) {
                 if (first) {
                   first = false;
@@ -470,7 +251,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
                           + Const.CR;
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage += "\t\t" + insertUpdateKeyField.getKeyLookup() + Const.CR;
               }
             }
             if (errorFound) {
@@ -490,10 +271,10 @@ public class InsertUpdateMeta extends BaseTransformMeta
             errorFound = false;
             errorMessage = "";
 
-            for (int i = 0; i < updateLookup.length; i++) {
-              String lufield = updateLookup[i];
+            for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+              InsertUpdateValue insertUpdateValue = insertUpdateLookupField.getValueFields().get(i);
 
-              IValueMeta v = r.searchValueMeta(lufield);
+              IValueMeta v = r.searchValueMeta(insertUpdateValue.getUpdateLookup());
               if (v == null) {
                 if (first) {
                   first = false;
@@ -504,7 +285,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
                           + Const.CR;
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage += "\t\t" + insertUpdateValue.getUpdateLookup() + Const.CR;
               }
             }
             if (errorFound) {
@@ -542,8 +323,10 @@ public class InsertUpdateMeta extends BaseTransformMeta
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < keyStream.length; i++) {
-            IValueMeta v = prev.searchValueMeta(keyStream[i]);
+          for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+            InsertUpdateKeyField insertUpdateKeyField =
+                insertUpdateLookupField.getLookupKeys().get(i);
+            IValueMeta v = prev.searchValueMeta(insertUpdateKeyField.getKeyStream());
             if (v == null) {
               if (first) {
                 first = false;
@@ -552,12 +335,11 @@ public class InsertUpdateMeta extends BaseTransformMeta
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + keyStream[i] + Const.CR;
+              errorMessage += "\t\t" + insertUpdateKeyField.getKeyStream() + Const.CR;
             }
-          }
-          for (int i = 0; i < keyStream2.length; i++) {
-            if (keyStream2[i] != null && keyStream2[i].length() > 0) {
-              IValueMeta v = prev.searchValueMeta(keyStream2[i]);
+
+            if (!Utils.isEmpty(insertUpdateKeyField.getKeyStream2())) {
+              v = prev.searchValueMeta(insertUpdateKeyField.getKeyStream2());
               if (v == null) {
                 if (first) {
                   first = false;
@@ -567,10 +349,11 @@ public class InsertUpdateMeta extends BaseTransformMeta
                           + Const.CR;
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + keyStream[i] + Const.CR;
+                errorMessage += "\t\t" + insertUpdateKeyField.getKeyStream2() + Const.CR;
               }
             }
           }
+
           if (errorFound) {
             cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           } else {
@@ -588,10 +371,10 @@ public class InsertUpdateMeta extends BaseTransformMeta
           errorFound = false;
           errorMessage = "";
 
-          for (int i = 0; i < updateStream.length; i++) {
-            String lufield = updateStream[i];
+          for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+            InsertUpdateValue insertUpdateValue = insertUpdateLookupField.getValueFields().get(i);
 
-            IValueMeta v = prev.searchValueMeta(lufield);
+            IValueMeta v = prev.searchValueMeta(insertUpdateValue.getUpdateStream());
             if (v == null) {
               if (first) {
                 first = false;
@@ -601,7 +384,7 @@ public class InsertUpdateMeta extends BaseTransformMeta
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + lufield + Const.CR;
+              errorMessage += "\t\t" + insertUpdateValue.getUpdateStream() + Const.CR;
             }
           }
           if (errorFound) {
@@ -622,19 +405,15 @@ public class InsertUpdateMeta extends BaseTransformMeta
           cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
         }
-      } catch (HopException e) {
-        errorMessage =
-            BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.DatabaseErrorOccurred")
-                + e.getMessage();
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
-        remarks.add(cr);
-      } finally {
-        db.disconnect();
       }
-    } else {
-      errorMessage = BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.InvalidConnection");
+    } catch (HopException e) {
+      errorMessage =
+          BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.DatabaseErrorOccurred")
+              + e.getMessage();
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
+    } finally {
+      db.disconnect();
     }
 
     // See if we have input streams leading to this transform!
@@ -664,23 +443,63 @@ public class InsertUpdateMeta extends BaseTransformMeta
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
-        // Copy the row
+
+        String[] keyLookup = null;
+        String[] keyStream = null;
+        String[] updateLookup = null;
+        String[] updateStream = null;
+
+        if (insertUpdateLookupField.getLookupKeys().size() > 0) {
+          keyLookup = new String[insertUpdateLookupField.getLookupKeys().size()];
+          for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+            keyLookup[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyLookup();
+          }
+        }
+
+        if (insertUpdateLookupField.getLookupKeys().size() > 0) {
+          keyStream = new String[insertUpdateLookupField.getLookupKeys().size()];
+          for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+            keyStream[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyStream();
+          }
+        }
+
+        if (insertUpdateLookupField.getValueFields().size() > 0) {
+          updateLookup = new String[insertUpdateLookupField.getValueFields().size()];
+          for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+            updateLookup[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateLookup();
+          }
+        }
+
+        if (insertUpdateLookupField.getValueFields().size() > 0) {
+          updateStream = new String[insertUpdateLookupField.getValueFields().size()];
+          for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+            updateStream[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateStream();
+          }
+        }
+
         IRowMeta tableFields =
             RowMetaUtils.getRowMetaForUpdate(
                 prev, keyLookup, keyStream, updateLookup, updateStream);
 
-        if (!Utils.isEmpty(tableName)) {
+        if (!Utils.isEmpty(insertUpdateLookupField.getTableName())) {
           Database db = new Database(loggingObject, variables, databaseMeta);
           try {
             db.connect();
 
             String schemaTable =
-                databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+                databaseMeta.getQuotedSchemaTableCombination(
+                    variables,
+                    variables.resolve(insertUpdateLookupField.getSchemaName()),
+                    variables.resolve(insertUpdateLookupField.getTableName()));
             String crTable = db.getDDL(schemaTable, tableFields, null, false, null, true);
 
             String crIndex = "";
@@ -699,8 +518,12 @@ public class InsertUpdateMeta extends BaseTransformMeta
             // Key lookup dimensions...
             if (idxFields != null
                 && idxFields.length > 0
-                && !db.checkIndexExists(schemaName, tableName, idxFields)) {
-              String indexname = "idx_" + tableName + "_lookup";
+                && !db.checkIndexExists(
+                    variables.resolve(insertUpdateLookupField.getSchemaName()),
+                    variables.resolve(insertUpdateLookupField.getTableName()),
+                    idxFields)) {
+              String indexname =
+                  "idx_" + variables.resolve(insertUpdateLookupField.getTableName()) + "_lookup";
               crIndex =
                   db.getCreateIndexStatement(
                       schemaTable, indexname, idxFields, false, false, false, true);
@@ -746,44 +569,55 @@ public class InsertUpdateMeta extends BaseTransformMeta
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (prev != null) {
-      // Lookup: we do a lookup on the natural keys
-      for (int i = 0; i < keyLookup.length; i++) {
-        IValueMeta v = prev.searchValueMeta(keyStream[i]);
 
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                tableName,
-                keyLookup[i],
-                keyStream[i],
-                v != null ? v.getOrigin() : "?",
-                "",
-                "Type = " + v.toStringMeta());
-        impact.add(ii);
+    DatabaseMeta databaseMeta = null;
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      if (prev != null) {
+        // Lookup: we do a lookup on the natural keys
+        for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+          InsertUpdateKeyField keyField = insertUpdateLookupField.getLookupKeys().get(i);
+          IValueMeta v = prev.searchValueMeta(keyField.getKeyStream());
+
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  variables.resolve(insertUpdateLookupField.getTableName()),
+                  keyField.getKeyLookup(),
+                  keyField.getKeyStream(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        }
+
+        // Insert update fields : read/write
+        for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+          InsertUpdateValue valueField = insertUpdateLookupField.getValueFields().get(i);
+          IValueMeta v = prev.searchValueMeta(valueField.getUpdateStream());
+
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ_WRITE,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  variables.resolve(insertUpdateLookupField.getTableName()),
+                  valueField.getUpdateLookup(),
+                  valueField.getUpdateStream(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        }
       }
-
-      // Insert update fields : read/write
-      for (int i = 0; i < updateLookup.length; i++) {
-        IValueMeta v = prev.searchValueMeta(updateStream[i]);
-
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ_WRITE,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                tableName,
-                updateLookup[i],
-                updateStream[i],
-                v != null ? v.getOrigin() : "?",
-                "",
-                "Type = " + v.toStringMeta());
-        impact.add(ii);
-      }
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
   }
 
@@ -804,8 +638,11 @@ public class InsertUpdateMeta extends BaseTransformMeta
 
   @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
-    String realSchemaName = variables.resolve(schemaName);
-    String realTableName = variables.resolve(tableName);
+
+    String realSchemaName = variables.resolve(insertUpdateLookupField.getSchemaName());
+    String realTableName = variables.resolve(insertUpdateLookupField.getTableName());
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -836,20 +673,9 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
   }
 
-  /** @return the schemaName */
-  @Override
-  public String getSchemaName() {
-    return schemaName;
-  }
-
   @Override
   public String getMissingDatabaseConnectionInformationMessage() {
     return null;
-  }
-
-  /** @param schemaName the schemaName to set */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
   }
 
   @Override
@@ -862,30 +688,11 @@ public class InsertUpdateMeta extends BaseTransformMeta
     return (RowMeta) ((InsertUpdateData) transformData).insertRowMeta;
   }
 
-  @Override
-  public List<String> getDatabaseFields() {
-    return Arrays.asList(updateLookup);
+  public InsertUpdateLookupField getInsertUpdateLookupField() {
+    return insertUpdateLookupField;
   }
 
-  @Override
-  public List<String> getStreamFields() {
-    return Arrays.asList(updateStream);
-  }
-
-  /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
-   */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    if (keyStream == null || keyStream.length == 0) {
-      return;
-    }
-    int nrFields = keyStream.length;
-    if (keyStream2.length < nrFields) {
-      String[] newKeyStream2 = new String[nrFields];
-      System.arraycopy(keyStream2, 0, newKeyStream2, 0, keyStream2.length);
-      keyStream2 = newKeyStream2;
-    }
+  public void setInsertUpdateLookupField(InsertUpdateLookupField insertUpdateLookupField) {
+    this.insertUpdateLookupField = insertUpdateLookupField;
   }
 }
