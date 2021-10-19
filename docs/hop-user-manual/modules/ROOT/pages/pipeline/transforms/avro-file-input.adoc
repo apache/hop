@@ -16,14 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Avro File Input transform simply reads Avro records from one or more files. Each record is encapsulated in an Avro field, each value has its own Schema and record.
 
 = Avro File Input
 
 == Description
 
-The "Avro File Input" transform simply reads Avro records from one or more files.
-Each record is encapsulated in an Avro field.
-Each value has its own Schema and record.
+The Avro File Input transform simply reads Avro records from one or more files.
+
+Each record is encapsulated in an Avro field, each value has its own Schema and record.
 
 == Options
 

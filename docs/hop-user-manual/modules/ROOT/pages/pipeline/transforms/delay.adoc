@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Delay Row transform will wait the indicated timeout period before passing an input row to the next transform.
 
 = Delay row
 
 == Description
 
-For each input row, the "Delay row" transform will wait the indicated timeout period before giving the row to the next transform.
+The Delay Row transform will wait the indicated timeout period before passing an input row to the next transform.
 
 Use this transform if you deliberately want to slow down your pipeline.
 

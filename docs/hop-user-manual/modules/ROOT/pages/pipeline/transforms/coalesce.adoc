@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Coalesce transform lets you list multiple fields and returns the first non-null value.
 
 = Coalesce
 
 == Description
 
-Lets you combine multiple fields into one, selecting the first value that is non-null.
+The Coalesce transform lets you list multiple fields and returns the first non-null value.
 
 == Options
 

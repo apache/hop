@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The De-serialize From File transform reads rows of data from a binary Hop file containing rows and metadata.
 
-= Cube input
+= De-Serialized From File
 
 == Description
 
-The De-serialize from file transform, formerly known as Cube Input, reads rows of data from a binary Hop file containing rows and metadata.
+The De-serialize From File transform reads rows of data from a binary Hop file containing rows and metadata.
 
 == Options
 

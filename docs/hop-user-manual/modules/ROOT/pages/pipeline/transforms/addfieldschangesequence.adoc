@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Add Fields Changing Sequence transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
 
 = Add value fields changing sequence
 
 == Description
 
-This transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
+The Add Fields Changing Sequence transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
 
 == Options
 

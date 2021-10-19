@@ -16,13 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Get System Info transform retrieves system information from the Hop project, or the environment or system Hop is running on.
 
 = Get System Info
 
 == Description
 
-The Get System Info transform retrieves system information from the Hop project.
+The Get System Info transform retrieves system information from the Hop project, or the environment or system Hop is running on.
+
 The transform includes a table where you can designate a name and assign it to any available system info type you want to retrieve.
 This transform generates a single row with the fields containing the requested information.
 

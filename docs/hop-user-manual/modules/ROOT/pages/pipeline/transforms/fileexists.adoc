@@ -16,14 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The File Exists transforms verifies the existence of a file. The filenames to check are read from pipeline fields. The transform outputs a boolean flag field, indicating whether a file exists or doesn't.
+
 
 = File exists
 
 == Description
 
-This transforms verifies the existence of a file where the filename comes from previous transforms.
+The File Exists transforms verifies the existence of a file. The filenames to check are read from pipeline fields.
 
-The result is a boolean flag field that gets added to the input fields in the output.
+The transform outputs a boolean flag field, indicating whether a file exists or doesn't.
 
 == Options
 

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Bigtable Input transform can be used to input data from Google Cloud Bigtable using the Beam execution engine.
 
 = Beam Bigtable Input
 

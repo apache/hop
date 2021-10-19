@@ -16,13 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Detect Empty Stream transform outputs one single empty row of data if the input stream is empty (ie when input stream does not contain any row). The output row will have the same field layout as the input row, but all field values will be empty (null).
 
 = Detect Empty Stream
 
 == Description
 
-This transform will output one row if input stream is empty (ie when input stream does not contain any row).
-The output row will have the same fields as the input row, but all field values will be empty (null).
+The Detect Empty Stream transform outputs one single empty row of data if the input stream is empty (ie when input stream does not contain any row).
+The output row will have the same field layout as the input row, but all field values will be empty (null).
 
 If the input stream is not empty it will not output anything.
 

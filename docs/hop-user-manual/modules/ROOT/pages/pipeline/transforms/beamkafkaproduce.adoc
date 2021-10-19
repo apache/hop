@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Kafka Produce transform publishes records to a Kafka cluster using the Beam execution engine.
 
 = Beam Kafka Produce
 

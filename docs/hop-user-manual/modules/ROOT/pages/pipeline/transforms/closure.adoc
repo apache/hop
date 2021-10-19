@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Closure transform allows you to generate a Reflexive Transitive Closure Table for the Mondrian OLAP engine.
 
 = Closure
 
 == Description
 
-This transform was created to allow you to generate a Reflexive Transitive Closure Table for Mondrian.
+The Closure transform allows you to generate a Reflexive Transitive Closure Table for the Mondrian OLAP engine.
 For more information on how a closure table can help Mondrian gain performance, go here Technically, this transform reads all input rows in memory and calculates all possible parent-child relationships.
 It attaches the distance (in levels) from parent to child.
 

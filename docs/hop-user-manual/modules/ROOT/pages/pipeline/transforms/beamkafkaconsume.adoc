@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Kafka Consume transform consumes records from a Kafka cluster using the Beam execution engine.
 
 = Beam Kafka Consume
 

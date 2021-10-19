@@ -16,15 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Credit Card Validator transform will help you check the validity of a credit card number and the credit card vendor.
 
 = Credit card validator
 
 == Description
 
-The Credit card validator transform will help you check the following:
+The Credit Card Validator transform will help you check the following:
 
-* The validity of a credit card number.
-This uses a LUHN10 (MOD-10) algorithm.
+* The validity of a credit card number. This uses a LUHN10 (MOD-10) algorithm.
 * The credit card vendor that handles the number: VISA, MasterCard, Diners Club, EnRoute, American Express (AMEX),...
 
 == Options

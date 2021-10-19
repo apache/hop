@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Get Table Names transform gets table names from a database connection.
 
 = Get table names
 
 == Description
 
-This transform gets the table names from a database connection.
+The Get Table Names transform gets table names from a database connection.
 
 == Options
 

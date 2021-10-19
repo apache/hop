@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Get File Names transform allows you to get information associated with file names on the file system. The information about the retrieved files is added as rows onto the stream.
 
 = Get filenames
 
 == Description
 
 The Get File Names transform allows you to get information associated with file names on the file system.
-The retrieved file names are added as rows onto the stream.
+
+The information about the retrieved files is added as rows onto the stream.
 
 The output fields for this transform are:
 

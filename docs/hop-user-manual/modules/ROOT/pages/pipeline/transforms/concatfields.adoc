@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Concat Fields transform concatenates multiple fields into one target field. The fields can be separated by a separator and an enclosure.
+
 
 = Concat Fields
 
 == Description
 
-The Concat Fields transform is used to concatenate multiple fields into one target field.
-The fields can be separated by a separator and the enclosure logic is completely compatible with the Text File Output transform.
+The Concat Fields transform concatenates multiple fields into one target field.
+The fields can be separated by a separator and an enclosure.
 
 == Options
 

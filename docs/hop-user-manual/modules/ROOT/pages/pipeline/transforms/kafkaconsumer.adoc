@@ -16,24 +16,29 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Kafka Consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
 
 = Kafka Consumer
 
 == Description
 
-This transform pulls streaming data from Kafka.
-The Kafka Consumer step runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
+The Kafka Consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
+
 This sub-pipeline must start with an Injector transform.
 
 You can define the number of messages to accept for processing, as well as the specific data formats to stream activity data and system metrics.
+
 You can set up this step to collect monitored events, track user consumption of data streams, and monitor alerts.
 
 Kafka records are stored within topics, and consist of a category to which the records are published.
 Topics are divided into a set of logs known as partitions.
+
 Kafka scales topic consumption by distributing partitions among a consumer group.
+
 A consumer group is a set of consumers sharing a common group identifier.
 
 Since the Kafka Consumer transform continuously ingests streaming data, you may want to use the Abort transform in your parent or sub-pipeline to stop consuming records from Kafka for specific workflows.
+
 For example, you can run the parent pipeline on a timed schedule, or abort the sub-pipeline if sensor data exceeds a preset range.
 
 == Options

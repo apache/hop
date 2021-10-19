@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Cassandra Input transform reads data from a Cassandra table of an Apache Cassandra cluster using CQL (Cassandra Query Language) version 3.x.
 
 :openvar: ${
 :closevar: }

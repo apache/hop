@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Execute SQL Script transform runs a SQL script either once, during the initialization phase of the pipeline, or once for every input-row that the transform receives.
 
 :openvar: ${
 :closevar: }
@@ -23,8 +24,9 @@ under the License.
 
 == Description
 
-You can execute SQL scripts with this transform, either once, during the initialization phase of the pipeline, or once for every input-row that the transform is given.
-The second option can be used to use parameters in SQL scripts.
+The Execute SQL Script transform runs a SQL script either once, during the initialization phase of the pipeline, or once for every input-row that the transform receives.
+
+When used for every input row, parameters can be passed to the SQL scripts specified in the transform.
 
 == Options
 

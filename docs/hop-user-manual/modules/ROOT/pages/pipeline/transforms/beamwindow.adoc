@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Window transform adds event-time-based window functions using the Beam execution engine.
 
 = Beam Window
 

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
 
 = Avro Decode
 
 == Description
 
-The "Avro Decode" transform allows you to decode an Avro field and convert them to Hop fields.
+The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
 
 == Options
 
