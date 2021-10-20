@@ -17,14 +17,14 @@
 
 package org.apache.hop.core.gui.plugin;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  PARENT, // Is a placeholder for children
-  TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  ;
+import org.apache.hop.metadata.api.IHopMetadata;
+
+/** Provide information which allows browsing capabilities for the Metadata widget type */
+public interface ITypeMetadata {
+  /**
+   * For the use-case of metadata elements: we need the class
+   *
+   * @return
+   */
+  Class<? extends IHopMetadata> getMetadataClass();
 }

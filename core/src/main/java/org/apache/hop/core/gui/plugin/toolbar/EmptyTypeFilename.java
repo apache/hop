@@ -15,16 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.toolbar;
 
-public enum GuiElementType {
-  NONE, // To disable default options
-  PARENT, // Is a placeholder for children
-  TEXT,
-  FILENAME, // Text widget with browse button
-  FOLDER, // Text widget with browse button
-  COMBO,
-  CHECKBOX,
-  METADATA, // Metadata selection line
-  ;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+
+public class EmptyTypeFilename implements ITypeFilename {
+
+  public EmptyTypeFilename() {}
+
+  @Override
+  public String getDefaultFileExtension() {
+    return null;
+  }
+
+  @Override
+  public String[] getFilterExtensions() {
+    return new String[0];
+  }
+
+  @Override
+  public String[] getFilterNames() {
+    return new String[0];
+  }
 }

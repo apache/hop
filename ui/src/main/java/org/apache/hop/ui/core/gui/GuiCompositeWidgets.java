@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,20 +20,33 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -48,7 +61,6 @@ public class GuiCompositeWidgets {
   private IVariables variables;
   private Map<String, Control> labelsMap;
   private Map<String, Control> widgetsMap;
-  private int maxNrItems;
   private int nrItems;
   private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
 
@@ -56,12 +68,17 @@ public class GuiCompositeWidgets {
     this(variables, 0);
   }
 
+  /**
+   * @deprecated The maximum number of items used to pad to a maximum number of control lines is no longer implemented.
+   *
+   * @param variables
+   * @param maxNrItems
+   */
+  @Deprecated
   public GuiCompositeWidgets(IVariables variables, int maxNrItems) {
     this.variables = variables;
-   // this.maxNrItems = maxNrItems;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
-   // nrItems = 0;
     compositeWidgetsListener = null;
   }
 
@@ -111,6 +128,12 @@ public class GuiCompositeWidgets {
       return lastControl;
     }
 
+    int extraVerticalMargin = 0;
+    if (lastControl != null && (lastControl instanceof Button)) {
+      // Checkbox: add a bit of margin
+      extraVerticalMargin = (int) (3 * PropsUi.getInstance().getZoomFactor());
+    }
+
     PropsUi props = PropsUi.getInstance();
     Label label = null;
     Control control = null;
@@ -119,9 +142,11 @@ public class GuiCompositeWidgets {
     //
     if (guiElements.getId() != null) {
 
-      // Add the label on the left hand side...
+      // Add the label on the left-hand side...
+      // For metadata, the label is handled in the meta selection line widget below
       //
-      if (StringUtils.isNotEmpty(guiElements.getLabel())) {
+      if (StringUtils.isNotEmpty(guiElements.getLabel())
+          && guiElements.getType() != GuiElementType.METADATA) {
         label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
         props.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
@@ -133,7 +158,7 @@ public class GuiCompositeWidgets {
         if (lastControl == null) {
           fdLabel.top = new FormAttachment(0, props.getMargin());
         } else {
-          fdLabel.top = new FormAttachment(lastControl, props.getMargin() * 2);
+          fdLabel.top = new FormAttachment(lastControl, props.getMargin() + extraVerticalMargin);
         }
         fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
         label.setLayoutData(fdLabel);
@@ -144,34 +169,24 @@ public class GuiCompositeWidgets {
       //
       switch (guiElements.getType()) {
         case TEXT:
-          control = getTextControl(parent, guiElements, props);
+        case FILENAME:
+        case FOLDER:
+          control = getTextControl(parent, guiElements, props, lastControl, label);
           break;
         case CHECKBOX:
-          control = getCheckboxControl(parent, guiElements, props);
+          control = getCheckboxControl(parent, guiElements, props, lastControl, label);
           break;
         case COMBO:
-          control = getComboControl(sourceObject, parent, guiElements, props);
+          control = getComboControl(sourceObject, parent, guiElements, props, lastControl, label);
+          break;
+        case METADATA:
+          control = getMetadataControl(parent, guiElements, props, lastControl);
           break;
         default:
           break;
       }
 
       if (control != null) {
-        FormData fdControl = new FormData();
-        if (label != null) {
-          fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
-          fdControl.right = new FormAttachment(100, 0);
-          fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
-        } else {
-          fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
-          fdControl.right = new FormAttachment(100, 0);
-          if (lastControl != null) {
-            fdControl.top = new FormAttachment(lastControl, props.getMargin());
-          } else {
-            fdControl.top = new FormAttachment(0, 0);
-          }
-        }
-        control.setLayoutData(fdControl);
         return control;
       } else {
         return lastControl;
@@ -191,32 +206,17 @@ public class GuiCompositeWidgets {
       nrItems++;
     }
 
-    // We might need to add a number of extra lines...
-    // Let's just add empty labels..
-    //
-//    for (; nrItems < maxNrItems; nrItems++) {
-//      label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
-//      props.setLook(label);
-//      label.setText("                                                                    ");
-//      FormData fdLabel = new FormData();
-//      fdLabel.left = new FormAttachment(0, 0);
-//      if (previousControl == null) {
-//        fdLabel.top = new FormAttachment(0, 0);
-//      } else {
-//        fdLabel.top = new FormAttachment(previousControl, props.getMargin());
-//      }
-//      fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
-//      label.setLayoutData(fdLabel);
-//      previousControl = label;
-//    }
-
     return previousControl;
   }
 
   private Control getComboControl(
-      Object sourceObject, Composite parent, GuiElements guiElements, PropsUi props) {
+      Object sourceObject,
+      Composite parent,
+      GuiElements guiElements,
+      PropsUi props,
+      Control lastControl,
+      Label label) {
     Control control;
-
     String[] comboItems = getEnumValues(guiElements.getFieldClass());
     if (comboItems == null) {
       if (StringUtils.isNotEmpty(guiElements.getGetComboValuesMethod())) {
@@ -241,7 +241,41 @@ public class GuiCompositeWidgets {
 
     addModifyListener(control, guiElements.getId());
 
+    layoutControlBetweenLabelAndRightControl(props, lastControl, label, control, null);
+
     return control;
+  }
+
+  private Control getMetadataControl(
+      Composite parent, GuiElements guiElements, PropsUi props, Control lastControl) {
+
+    ITypeMetadata typeMetadata = instantiateTypeMetadata(guiElements);
+    MetaSelectionLine<? extends IHopMetadata> metaSelectionLine =
+        new MetaSelectionLine<>(
+            variables,
+            HopGui.getInstance().getMetadataProvider(),
+            typeMetadata.getMetadataClass(),
+            parent,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            guiElements.getLabel(),
+            guiElements.getToolTip(),
+            false,
+            false);
+
+    widgetsMap.put(guiElements.getId(), metaSelectionLine);
+
+    // Fill the items...
+    try {
+      metaSelectionLine.fillItems();
+    } catch (HopException e) {
+      LogChannel.UI.logError("Error getting metadata items", e);
+    }
+
+    addModifyListener(metaSelectionLine.getComboWidget(), guiElements.getId());
+
+    layoutControlBelowLast(props, lastControl, metaSelectionLine);
+
+    return metaSelectionLine;
   }
 
   /**
@@ -273,18 +307,43 @@ public class GuiCompositeWidgets {
     }
   }
 
-  private Control getCheckboxControl(Composite parent, GuiElements guiElements, PropsUi props) {
+  private Control getCheckboxControl(
+      Composite parent, GuiElements guiElements, PropsUi props, Control lastControl, Label label) {
     Control control;
     Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
     props.setLook(button);
     widgetsMap.put(guiElements.getId(), button);
     addModifyListener(button, guiElements.getId());
     control = button;
+
+    layoutControlBetweenLabelAndRightControl(props, lastControl, label, control, null);
+
     return control;
   }
 
-  private Control getTextControl(Composite parent, GuiElements guiElements, PropsUi props) {
+  private Control getTextControl(
+      Composite parent, GuiElements guiElements, PropsUi props, Control lastControl, Label label) {
     Control control;
+    Control actionControl = null; // The control to add an action to
+    Text text;
+
+    switch (guiElements.getType()) {
+      case FILENAME:
+        Button wbBrowse = new Button(parent, SWT.PUSH);
+        wbBrowse.setText(BaseMessages.getString("System.Button.Browse"));
+        layoutControlOnRight(props, lastControl, wbBrowse, label);
+        actionControl = wbBrowse;
+        break;
+      case FOLDER:
+        wbBrowse = new Button(parent, SWT.PUSH);
+        wbBrowse.setText(BaseMessages.getString("System.Button.Browse"));
+        layoutControlOnRight(props, lastControl, wbBrowse, label);
+        actionControl = wbBrowse;
+        break;
+      default:
+        break;
+    }
+
     if (guiElements.isVariablesEnabled()) {
       TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
       props.setLook(textVar);
@@ -294,8 +353,9 @@ public class GuiCompositeWidgets {
       widgetsMap.put(guiElements.getId(), textVar);
       addModifyListener(textVar.getTextWidget(), guiElements.getId());
       control = textVar;
+      text = textVar.getTextWidget();
     } else {
-      Text text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
+      text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
       props.setLook(text);
       if (guiElements.isPassword()) {
         text.setEchoChar('*');
@@ -304,7 +364,149 @@ public class GuiCompositeWidgets {
       addModifyListener(text, guiElements.getId());
       control = text;
     }
+
+    layoutControlBetweenLabelAndRightControl(props, lastControl, label, control, actionControl);
+
+    // Add an action based on the sub-type:
+    switch (guiElements.getType()) {
+      case FILENAME:
+        // Ask for a filename
+        //
+        ITypeFilename typeFilename = instantiateTypeFilename(guiElements);
+        actionControl.addListener(
+            SWT.Selection,
+            e -> {
+              String filename =
+                  BaseDialog.presentFileDialog(
+                      parent.getShell(),
+                      null,
+                      variables,
+                      typeFilename.getFilterExtensions(),
+                      typeFilename.getFilterNames(),
+                      true);
+              if (StringUtils.isNotEmpty(filename)) {
+                text.setText(filename);
+              }
+            });
+        break;
+      case FOLDER:
+        // ask for a folder
+        //
+        actionControl.addListener(
+            SWT.Selection,
+            e -> {
+              String folder = BaseDialog.presentDirectoryDialog(parent.getShell(), variables);
+              if (StringUtils.isNotEmpty(folder)) {
+                text.setText(folder);
+              }
+            });
+        break;
+      default:
+        break;
+    }
+
     return control;
+  }
+
+  public ITypeFilename instantiateTypeFilename(GuiElements guiElements) {
+    Class<? extends ITypeFilename> typeFilenameClass = guiElements.getTypeFilename();
+    if (typeFilenameClass == null) {
+      throw new RuntimeException(
+          "Please specify a ITypeFilename class to use for widget " + guiElements.getId());
+    }
+    // Instantiate the class...
+    //
+    try {
+      ITypeFilename typeFilename = typeFilenameClass.newInstance();
+      return typeFilename;
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Error instantiating class "
+              + typeFilenameClass.getName()
+              + " for GUI elements "
+              + guiElements.getId()
+              + " and type "
+              + guiElements.getType(),
+          e);
+    }
+  }
+
+  public ITypeMetadata instantiateTypeMetadata(GuiElements guiElements) {
+    Class<? extends ITypeMetadata> typeMetadataClass = guiElements.getTypeMetadata();
+    if (typeMetadataClass == null) {
+      throw new RuntimeException(
+          "Please specify a ITypeMetadata class to use for widget " + guiElements.getId());
+    }
+    // Instantiate the class...
+    //
+    try {
+      ITypeMetadata typeMetadata = typeMetadataClass.newInstance();
+      return typeMetadata;
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Error instantiating class "
+              + typeMetadataClass.getName()
+              + " for GUI elements "
+              + guiElements.getId()
+              + " and type "
+              + guiElements.getType(),
+          e);
+    }
+  }
+
+  private void layoutControlOnRight(
+      PropsUi props, Control lastControl, Control control, Label label) {
+    FormData fdControl = new FormData();
+    fdControl.right = new FormAttachment(100, 0);
+    if (label != null) {
+      fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+    } else {
+      if (lastControl != null) {
+        fdControl.top = new FormAttachment(lastControl, props.getMargin());
+      } else {
+        fdControl.top = new FormAttachment(0, 0);
+      }
+    }
+    control.setLayoutData(fdControl);
+  }
+
+  private void layoutControlBetweenLabelAndRightControl(
+      PropsUi props, Control lastControl, Label label, Control control, Control rightControl) {
+    FormData fdControl = new FormData();
+    if (label != null) {
+      fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+      if (rightControl == null) {
+        fdControl.right = new FormAttachment(100, 0);
+      } else {
+        fdControl.right = new FormAttachment(rightControl, -5);
+      }
+      fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+    } else {
+      fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+      if (rightControl == null) {
+        fdControl.right = new FormAttachment(100, 0);
+      } else {
+        fdControl.right = new FormAttachment(rightControl, -5);
+      }
+      if (lastControl != null) {
+        fdControl.top = new FormAttachment(lastControl, props.getMargin());
+      } else {
+        fdControl.top = new FormAttachment(0, 0);
+      }
+    }
+    control.setLayoutData(fdControl);
+  }
+
+  private void layoutControlBelowLast(PropsUi props, Control lastControl, Control control) {
+    FormData fdControl = new FormData();
+    fdControl.left = new FormAttachment(0, 0);
+    fdControl.right = new FormAttachment(100, 0);
+    if (lastControl != null) {
+      fdControl.top = new FormAttachment(lastControl, props.getMargin());
+    } else {
+      fdControl.top = new FormAttachment(0, 0);
+    }
+    control.setLayoutData(fdControl);
   }
 
   /**
@@ -412,6 +614,8 @@ public class GuiCompositeWidgets {
 
         switch (guiElements.getType()) {
           case TEXT:
+          case FILENAME:
+          case FOLDER:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               textVar.setText(stringValue);
@@ -432,6 +636,10 @@ public class GuiCompositeWidgets {
               Combo combo = (Combo) control;
               combo.setText(stringValue);
             }
+            break;
+          case METADATA:
+            MetaSelectionLine line = (MetaSelectionLine) control;
+            line.setText(stringValue);
             break;
           default:
             System.err.println(
@@ -494,6 +702,8 @@ public class GuiCompositeWidgets {
 
         switch (guiElements.getType()) {
           case TEXT:
+          case FILENAME:
+          case FOLDER:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               value = textVar.getText();
@@ -514,6 +724,10 @@ public class GuiCompositeWidgets {
               Combo combo = (Combo) control;
               value = combo.getText();
             }
+            break;
+          case METADATA:
+            MetaSelectionLine line = (MetaSelectionLine) control;
+            value = line.getText();
             break;
           default:
             System.err.println(

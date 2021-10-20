@@ -105,6 +105,28 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       String labelText,
       String toolTipText,
       boolean leftAlignedLabel) {
+    this(
+        variables,
+        metadataProvider,
+        managedClass,
+        parentComposite,
+        flags,
+        labelText,
+        toolTipText,
+        leftAlignedLabel,
+        true);
+  }
+
+  public MetaSelectionLine(
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      Class<T> managedClass,
+      Composite parentComposite,
+      int flags,
+      String labelText,
+      String toolTipText,
+      boolean leftAlignedLabel,
+      boolean negativeMargin) {
     super(parentComposite, SWT.NONE);
     this.variables = variables;
     // this.classLoader = managedClass.getClassLoader();
@@ -139,7 +161,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
     if (!leftAlignedLabel) {
-      fdLabel.right = new FormAttachment(middle, -margin);
+      fdLabel.right = new FormAttachment(middle, negativeMargin ? -margin : 0);
     }
     fdLabel.top = new FormAttachment(0, margin);
     wLabel.setLayoutData(fdLabel);
@@ -177,7 +199,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     if (leftAlignedLabel) {
       fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
     } else {
-      fdCombo.left = new FormAttachment(middle, 0);
+      fdCombo.left = new FormAttachment(middle, leftAlignedLabel ? 0 : margin);
     }
     fdCombo.right = new FormAttachment(wToolBar, -margin);
     fdCombo.top = new FormAttachment(wLabel, 0, SWT.CENTER);
