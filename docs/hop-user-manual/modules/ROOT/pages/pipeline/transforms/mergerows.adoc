@@ -16,17 +16,22 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Merge Rows (Diff) transform compares and merges data within two rows of data, adding a field indicator for each row.
 
 = Merge rows (diff)
 
 == Description
 
-The Merge rows (diff) transform compares and merges data within two rows of data.
+The Merge Rows (Diff) transform compares and merges data within two rows of data, adding a field indicator for each row.
+
 This transform is useful for comparing data collected at two different times.
+
 For example, the source system of your data warehouse might not contain a timestamp of the last data update.
-You could use this transform to compare the two data streams and and merge the dates and timestamps in the rows.
+
+You could use this transform to compare the two data streams and merge the dates and timestamps in the rows.
 
 Based on keys for comparison, this transform merges reference rows (previous data) with compare rows (new data) and creates merged output rows.
+
 A flag in the row indicates how the values were compared and merged.
 Flag values include:
 

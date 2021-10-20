@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Stream Schema Merge transform merges multiple inputs with different structures and creates a combination of fields.
 
 = Stream Schema Merge
 
 == Description
 
-This transform type allows you to merge multiple inputs with different structures.
-It will then create a combination of fields.
+The Stream Schema Merge transform merges multiple inputs with different structures and creates a combination of fields.
 
 == Options
 

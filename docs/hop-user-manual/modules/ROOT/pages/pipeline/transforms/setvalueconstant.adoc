@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Set Field Value To A Constant transform replaces the value of a field with a hard coded constant value that you define.
 
 = Set field value to a constant
 
 == Description
 
-The Set field value to a constant transform replaces the value of a field with a constant that you define.
+The Set Field Value To A Constant transform replaces the value of a field with a hard coded constant value that you define.
 
 == Options
 

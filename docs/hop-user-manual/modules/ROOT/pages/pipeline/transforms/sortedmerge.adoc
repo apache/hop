@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Sorted Merge transform merges rows coming from multiple input transforms providing these rows are sorted themselves on the given key fields.
 
 = Sorted Merge
 

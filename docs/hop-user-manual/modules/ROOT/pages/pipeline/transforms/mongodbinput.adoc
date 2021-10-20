@@ -16,13 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The MongoDB Input transform enables you to retrieve documents or records from a collection within MongoDB.
 
 = MongoDB Input
 
 == Description
 
-The MongoDB Input pipeline transform enables you to retrieve http://docs.mongodb.org/manual/reference/glossary/[documents] or http://docs.mongodb.org/manual/reference/glossary/[records] from a collection within MongoDB.
+The MongoDB Input transform enables you to retrieve http://docs.mongodb.org/manual/reference/glossary/[documents] or http://docs.mongodb.org/manual/reference/glossary/[records] from a collection within MongoDB.
+
 For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
 
 == Options

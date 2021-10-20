@@ -16,13 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
 
-= = Simple Mapping
+= Simple Mapping
 
 == Description
 
-A Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
-In the "Simple Mapping" transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform to retrieve rows of data from.
+The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
+
+In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform to retrieve rows of data from.
+
+Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
 
 == Options
 

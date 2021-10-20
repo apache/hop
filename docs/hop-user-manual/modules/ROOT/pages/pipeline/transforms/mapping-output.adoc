@@ -16,11 +16,12 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Mapping Output transform describes the output of the mapping pipeline to the parent pipeline (the pipeline calling the mapping).
 
 = Mapping Output
 
 == Description
 
-This transform serves as a way to tell the parent pipeline that data can be retrieved in this specific location.
-In other words, it represents and describes the output of the mapping pipeline.
-The data entering this transform will be streamed to the parent pipeline calling the mapping.
+The Mapping Output transform describes the output of the mapping pipeline to the parent pipeline (the pipeline calling the mapping).
+
+The data entering this transform will be streamed to the parent pipeline.

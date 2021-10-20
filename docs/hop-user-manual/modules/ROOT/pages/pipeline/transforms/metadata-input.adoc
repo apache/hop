@@ -16,16 +16,20 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Metadata Input transform gives you access to the Hop Metadata items in the current project.
 
 = Metadata Input
 
 == Description
 
-This transform gives you access to the Hop Metadata.
+The Metadata Input transform gives you access to the Hop Metadata items in the current project.
+
 It outputs all the metadata objects of all types unless one or more types are filtered.
 
 == Options
 
 You can specify the field names of the information you need, or not.
+
 You can also specify one or more type filters to limit the output of the transform.
+
 For example, you can select filter 'rdbms' to only see the relational database connection metadata in the output.

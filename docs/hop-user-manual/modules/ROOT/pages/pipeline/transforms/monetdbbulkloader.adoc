@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The MonetDB Bulk Loader transform bulk loads data to MonetDB. This significantly speeds up data loading to MonetDB.
 
 = MonetDB Bulk Loader
 
 == Description
 
-The MonetDB Bulk loader can be used to Bulk load data to MonetDB, this transform greatly improves the spead to load data to MonetDB.
+The MonetDB Bulk Loader transform bulk loads data to MonetDB. This significantly speeds up data loading to MonetDB.
 
 == Options
 

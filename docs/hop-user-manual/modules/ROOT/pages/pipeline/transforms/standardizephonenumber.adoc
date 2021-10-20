@@ -16,12 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description:
 
 = Standardize Phone Number
 
 == Description
 
-This transform normalize phone number in a standardized and consistent manner using Google libphonenumber library.
+The Standardize Phone Number transform normalizes phone numbers in a standardized and consistent manner.
+
+The transform uses https://github.com/google/libphonenumber[Google libphonenumber^] library.
 
 
 

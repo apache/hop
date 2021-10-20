@@ -16,13 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Null If transform sets the value of a certain field to null (empty) if the provided value equals a value specified in this transform.
 
 = Null If
 
 == Description
 
-If the string representation of a certain field is equal to the specified value, then the value is set the null (empty).
+The Null If transform sets the value of a certain field to null (empty) if the provided value equals a value specified in this transform.
+
 You can add all fields from the input stream(s) using Get Fields.
 
 == Metadata Injection Support

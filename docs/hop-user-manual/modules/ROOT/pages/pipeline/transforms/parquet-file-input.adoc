@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Parquet File Input transform reads (primitive) values from an Apache Parquet file.
 
 = Parquet File Input
 
 == Description
 
-This transform can read (primitive) values from an Apache Parquet file.
+The Parquet File Input transform reads (primitive) values from an Apache Parquet file.
+
 For more information on this see: http://parquet.apache.org/[Apache Parquet].
 
 == Options

@@ -16,14 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description:
 
 = Memory Group By
 
 == Description
 
-The Memory Group By transform builds aggregates in a group by fashion and does not require a sorted input since it processes all rows within memory.
-When the number of rows is too large to fit into memory, you need to use the combination of the Sort rows and Group by transforms.
+The Memory Group By transform builds aggregates in a group by fashion.
+
+This transform processes all rows within memory and therefore does not require a sorted input.
+However, it **does** require all data to fit into memory.
+
+TIP: When the number of rows is too large to fit into memory, use a combination of xref:pipeline/transforms/sort.adoc[Sort Rows] and xref:pipeline/transforms/groupby.adoc[Group By] transforms.
 
 == Options
 
