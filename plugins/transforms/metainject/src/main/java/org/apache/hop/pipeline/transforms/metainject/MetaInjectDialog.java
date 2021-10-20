@@ -95,6 +95,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   // the target file
   //
   private TextVar wTargetFile;
+  private Button wbFilename; // Browse for optional target file
 
   // don't execute the transformation
   //
@@ -334,6 +335,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     // START OF OPTIONS TAB ///
     // ////////////////////////
 
+    int margin = props.getMargin();
+
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
     wOptionsTab.setText(BaseMessages.getString(PKG, "MetaInjectDialog.OptionsTab.TabTitle"));
 
@@ -423,13 +426,35 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdlTargetFile.top = new FormAttachment(wSourceFields, 10);
     wlTargetFile.setLayoutData(fdlTargetFile);
 
+    wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename);
+    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFilename.setToolTipText(
+        BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
+    FormData fdbFilename = new FormData();
+    fdbFilename.right = new FormAttachment(100, 0);
+    fdbFilename.top = new FormAttachment(wlTargetFile, margin);
+    wbFilename.setLayoutData(fdbFilename);
+
+    wbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                true,
+                shell,
+                wTargetFile,
+                variables,
+                new String[] {"*.hpl"},
+                new String[] {BaseMessages.getString(PKG, "System.FileType.Pipeline")},
+                true));
+
     wTargetFile = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTargetFile);
     wTargetFile.addModifyListener(lsMod);
     FormData fdTargetFile = new FormData();
-    fdTargetFile.right = new FormAttachment(100, 0);
+    fdTargetFile.right = new FormAttachment(wbFilename, -margin);
     fdTargetFile.left = new FormAttachment(0, 0);
-    fdTargetFile.top = new FormAttachment(wlTargetFile, 5);
+    fdTargetFile.top = new FormAttachment(wlTargetFile, margin);
     wTargetFile.setLayoutData(fdTargetFile);
 
     // the streaming source transform
