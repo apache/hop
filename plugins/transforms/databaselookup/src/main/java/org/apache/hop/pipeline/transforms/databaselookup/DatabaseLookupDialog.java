@@ -636,7 +636,9 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     }
     wSchema.setText(Const.NVL(input.getSchemaName(), ""));
     wTable.setText(Const.NVL(input.getTableName(), ""));
-    wConnection.setText(input.getConnection());
+    if (!Utils.isEmpty(input.getConnection())) {
+      wConnection.setText(input.getConnection());
+    }
     wOrderBy.setText(Const.NVL(lookup.getOrderByClause(), ""));
     wFailMultiple.setSelection(lookup.isFailingOnMultipleResults());
     wEatRows.setSelection(lookup.isEatingRowOnLookupFailure());
