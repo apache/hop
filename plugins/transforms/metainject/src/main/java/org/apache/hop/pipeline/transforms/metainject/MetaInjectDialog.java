@@ -246,7 +246,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
 
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText("Run configuration"); // TODO i18n
+    wlRunConfiguration.setText(BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
