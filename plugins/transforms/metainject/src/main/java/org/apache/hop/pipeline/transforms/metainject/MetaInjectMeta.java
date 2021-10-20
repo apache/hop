@@ -74,6 +74,7 @@ public class MetaInjectMeta extends BaseTransformMeta
   private static final String MAPPING = "mapping";
 
   private static final String FILENAME = "filename";
+  private static final String RUN_CONFIG = "run_configuration";
   private static final String TARGET_FILE = "target_file";
   private static final String NO_EXECUTION = "no_execution";
   private static final String SOURCE_TRANSFORM = "source_transform";
@@ -121,6 +122,8 @@ public class MetaInjectMeta extends BaseTransformMeta
   @Injection(name = "STREAMING_TARGET_TRANSFORM")
   private String streamTargetTransformName;
 
+  private String runConfigurationName;
+
   public MetaInjectMeta() {
     super(); // allocate BaseTransformMeta
     targetSourceMapping = new HashMap<>();
@@ -140,6 +143,7 @@ public class MetaInjectMeta extends BaseTransformMeta
     StringBuilder retval = new StringBuilder(500);
 
     retval.append("    ").append(XmlHandler.addTagValue(FILENAME, fileName));
+    retval.append("    ").append(XmlHandler.addTagValue(RUN_CONFIG, runConfigurationName));
 
     retval.append("    ").append(XmlHandler.addTagValue(SOURCE_TRANSFORM, sourceTransformName));
     retval.append("    ").append(XmlHandler.openTag(SOURCE_OUTPUT_FIELDS));
@@ -201,6 +205,7 @@ public class MetaInjectMeta extends BaseTransformMeta
       throws HopXmlException {
     try {
       fileName = XmlHandler.getTagValue(transformNode, FILENAME);
+      runConfigurationName = XmlHandler.getTagValue(transformNode, RUN_CONFIG);
 
       sourceTransformName = XmlHandler.getTagValue(transformNode, SOURCE_TRANSFORM);
       Node outputFieldsNode = XmlHandler.getSubNode(transformNode, SOURCE_OUTPUT_FIELDS);
@@ -448,6 +453,14 @@ public class MetaInjectMeta extends BaseTransformMeta
   /** @param noExecution the noExecution to set */
   public void setNoExecution(boolean noExecution) {
     this.noExecution = noExecution;
+  }
+
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  public void setRunConfigurationName(String runConfigurationName) {
+    this.runConfigurationName = runConfigurationName;
   }
 
   /**
