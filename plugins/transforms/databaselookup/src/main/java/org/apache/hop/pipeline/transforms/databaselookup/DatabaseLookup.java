@@ -230,8 +230,9 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     List<KeyField> keyFields = meta.getLookup().getKeyFields();
     data.keytypes = new int[keyFields.size()];
 
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     String schemaTable =
-        meta.getDatabaseMeta()
+            databaseMeta
             .getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
 
     IRowMeta fields = data.db.getTableFields(schemaTable);
@@ -487,7 +488,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   private void loadAllTableDataIntoTheCache() throws HopException {
-    DatabaseMeta dbMeta = meta.getDatabaseMeta();
+    DatabaseMeta dbMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
     Database db = getDatabase(dbMeta);
     connectDatabase(db);
@@ -624,13 +625,15 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   public boolean init() {
 
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+
+      if (Utils.isEmpty(meta.getConnection())) {
         logError(
             BaseMessages.getString(
                 PKG, "DatabaseLookup.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      data.db = getDatabase(meta.getDatabaseMeta());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      data.db = getDatabase(databaseMeta);
       try {
         connectDatabase(data.db);
 

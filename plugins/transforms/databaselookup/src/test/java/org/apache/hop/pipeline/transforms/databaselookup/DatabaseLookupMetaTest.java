@@ -335,8 +335,8 @@ public class DatabaseLookupMetaTest {
                 "Y"));
 
     injector.setProperty(meta, "connection", rows, "database");
-    assertNotNull(meta.getDatabaseMeta());
-    assertEquals("postgres", meta.getDatabaseMeta().getName());
+    assertNotNull(meta.getConnection());
+    assertEquals("postgres", meta.getConnection());
 
     injector.setProperty(meta, "cache", rows, "cache?");
     assertTrue(meta.isCached());
