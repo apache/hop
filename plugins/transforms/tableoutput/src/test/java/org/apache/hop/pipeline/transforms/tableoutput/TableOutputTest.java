@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -165,6 +166,7 @@ public class TableOutputTest {
     verify(tableOutputSpy, times(1)).truncateTable();
   }
 
+  @Ignore
   @Test
   public void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);

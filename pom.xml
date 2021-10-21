@@ -130,6 +130,8 @@
 
         <!-- Test dependencies -->
         <mockito-core.version>3.12.4</mockito-core.version>
+        <byte-buddy.version>1.11.13</byte-buddy.version>
+        <objenesis.version>3.2</objenesis.version>
         <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
         <powermock-api-mockito.version>2.0.9</powermock-api-mockito.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
@@ -300,6 +302,42 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito-core.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${objenesis.version}</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
