@@ -16,18 +16,24 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description:
 
 = Split fields to rows
 
 == Description
 
-This transform allows you to split a row containing a delimited field into multiple new rows, one per split value.
+The Split Fields To Rows transform splits a row containing a delimited field into multiple new rows, one per split value.
+
 The original row is not delivered to following transforms.
+
 The original field is left in each new row to assist in debugging or error handling.
-It can be removed via a Select Values transform if needed.
+
+It can be removed via a xref:pipeline/transforms/selectvalues.adoc[Select Values] transform if needed.
 
 The original field must be a string field.
+
 A new field name must be specified.
+
 If the value type/format of the new row is not specified, the new field will use the same type/format as the original field.
 
 == Options

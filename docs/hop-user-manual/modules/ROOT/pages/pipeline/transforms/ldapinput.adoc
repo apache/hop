@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server.
 
 = LDAP Input
 
 == Description
 
 The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server.
+
 The following sections describe the available options for the LDAP input transform.
 
 == General Tab

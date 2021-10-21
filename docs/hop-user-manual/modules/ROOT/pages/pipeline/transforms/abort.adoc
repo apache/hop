@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Abort tranform aborts a running pipeline as soon as it receives input data. The main use case for this transform is to throw an error when an unexpected or unwanted situation occurs.
+
 
 = Abort
 
 == Description
 
-This tranform type allows you abort a pipeline upon seeing input.
-It's main use is in error handling.
+The Abort tranform aborts a running pipeline as soon as it receives input data. The main use case for this transform is to throw an error when an unexpected or unwanted situation occurs.
+
 For example, you can use this transform so that a pipeline can be aborted after x number of rows flow to over an error hop.
 
 == Options

@@ -16,14 +16,14 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
-import nl.cwi.monetdb.mcl.io.BufferedMCLReader;
-import nl.cwi.monetdb.mcl.io.BufferedMCLWriter;
-import nl.cwi.monetdb.mcl.net.MapiSocket;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.monetdb.mcl.io.BufferedMCLReader;
+import org.monetdb.mcl.io.BufferedMCLWriter;
+import org.monetdb.mcl.net.MapiSocket;
 
 public class MonetDbBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;

@@ -16,10 +16,11 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Neo4j Import transform runs an import command using the provided CSV files.
 
 = Neo4j Import
 
-This transform runs an import command using the provided CSV files.
+The Neo4j Import transform runs an import command using the provided CSV files.
 
 Check the https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-import/[neo4j-admin-import] docs for full details.
 

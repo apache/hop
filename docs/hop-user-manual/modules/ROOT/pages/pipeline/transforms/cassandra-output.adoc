@@ -16,13 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Cassandra Output transform writes data to a Cassandra table of an Apache Cassandra cluster using CQL (Cassandra Query Language) version 3.x.
 
 :openvar: ${
 :closevar: }
 
 = Cassandra Output
 
-The Cassandra Input transform writes data to a Cassandra table of an Apache Cassandra cluster using CQL (Cassandra Query Language) version 3.x.
+The Cassandra Output transform writes data to a Cassandra table of an Apache Cassandra cluster using CQL (Cassandra Query Language) version 3.x.
 
 == Options
 

@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.ArrayList;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class DynamicSqlRowData extends BaseTransformData implements ITransformData {
   IRowMeta outputRowMeta;
   IRowMeta lookupRowMeta;

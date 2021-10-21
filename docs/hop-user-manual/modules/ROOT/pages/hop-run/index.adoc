@@ -34,7 +34,30 @@ If you're on Windows (tough luck), run `hop-run.bat`, on Mac and Linux, run `hop
 
 You'll see the option listed in a similar output to the one below:
 
-image::hop-run/hop-run-options.png[Hop Run - Options,align="left"]
+.Output of help
+[source,bash]
+----
+Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
+                    [-j=<projectOption>] [-l=<level>]
+                    [-r=<runConfigurationName>] [-p=<parameters>[,
+                    <parameters>...]]... [-s=<systemProperties>[,
+                    <systemProperties>...]]...
+  -e, --environment=<environmentOption>
+                          The name of the lifecycle environment to use
+  -f, --file=<filename>   The filename of the workflow or pipeline to run
+  -h, --help              Displays this help message and quits.
+  -j, --project=<projectOption>
+                          The name of the project to use
+  -l, --level=<level>     The debug level, one of NONE, MINIMAL, BASIC, DETAILED,
+                            DEBUG, ROWLEVEL
+  -o, --printoptions      Print the used options
+  -p, --parameters=<parameters>[,<parameters>...]
+                          A comma separated list of PARAMETER=VALUE pairs
+  -r, --runconfig=<runConfigurationName>
+                          The name of the Run Configuration to use
+  -s, --system-properties=<systemProperties>[,<systemProperties>...]
+                          A comma separated list of KEY=VALUE pairs
+----
 
 The available options are listed in more detail in the table below:
 
@@ -45,6 +68,7 @@ The available options are listed in more detail in the table below:
 Check the xref:projects/projects-environments.adoc[documentation on environments] for more details.
 |f|file|The filename of the workflow or pipeline to run
 |h|help|Displays this help message and quits.
+|j|project|The name of the project to use when running a pipeline or workflow
 |l|level|The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
 |o|printoptions|Print the used options
 |p|parameters|A comma separated list of PARAMETER=VALUE pairs
@@ -54,3 +78,7 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 |===
 
 == Examples
+
+----
+./hop-run.sh -j transforms -r local -f /path/to/worklow/file.hwf
+----

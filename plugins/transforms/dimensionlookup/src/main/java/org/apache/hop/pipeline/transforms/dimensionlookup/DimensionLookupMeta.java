@@ -1799,15 +1799,6 @@ public class DimensionLookupMeta extends BaseTransformMeta
     return new DimensionLookupData();
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
   /** @return the schemaName */
   @Override
   public String getSchemaName() {

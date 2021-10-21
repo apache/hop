@@ -16,10 +16,11 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Cassandra SSTable Output transform writes to a file system directory as a Cassandra SSTable.
 
 = Cassandra SSTable Output
 
-This transform writes to a file system directory as a Cassandra SSTable.
+The Cassandra SSTable Output transform writes to a file system directory as a Cassandra SSTable.
 
 [width="90%",options="header"]
 |===

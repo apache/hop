@@ -1,0 +1,16 @@
+{
+  "engineRunConfiguration": {
+    "Remote": {
+      "export_resources": false,
+      "resources_target_folder": "",
+      "resources_source_folder": "",
+      "server_poll_interval": "",
+      "run_config": "",
+      "hop_server": "testserver",
+      "server_poll_delay": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "remote-no-linked-resources",
+  "description": ""
+}

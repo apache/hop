@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Multiway Merge Join transform joins input data from multiple streams.
 
 = Multiway Merge Join
 
 == Description
 
-The Multiway Merge Join transform allows to join from multiple streams.
+The Multiway Merge Join transform joins input data from multiple streams.
 
 == Options
 

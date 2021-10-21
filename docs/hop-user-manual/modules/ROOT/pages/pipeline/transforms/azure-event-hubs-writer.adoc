@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Azure Event Hubs Writer transform allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
 
 = Azure Event Hubs Writer
 
 == Description
 
-This transform allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
+The Azure Event Hubs Writer transform allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
 
 == Options
 

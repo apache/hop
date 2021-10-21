@@ -55,8 +55,8 @@ import java.util.zip.GZIPInputStream;
     name = "i18n::CubeInput.Name",
     description = "i18n::CubeInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = "i18n::CubeInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/cubeinput.html")
+    keywords = "i18n::CubeInputMeta.keyword",
+    documentationUrl = "/pipeline/transforms/serialize-de-from-file.html")
 public class CubeInputMeta extends BaseTransformMeta
     implements ITransformMeta<CubeInput, CubeInputData> {
 

@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The JavaScript transform allows you to create JavaScript scripts that use the available pipeline fields as variables.
 
 = JavaScript
 
 == Description
 
-The JavaScript transform allows you to create JavaScript scripts for each transform.
+The JavaScript transform allows you to create JavaScript scripts that use the available pipeline fields as variables.
 
 == Options
 

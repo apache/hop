@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam BigQuery Output transform can be used to write data to a BigQuery table using the Beam execution engine.
 
 = Beam BigQuery Output
 

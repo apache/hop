@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Table Compare transform compares the data from two tables (provided they have the same lay-out), finds differences between the data in the two tables and logs it.
 
 = Table Compare
 
 == Description
 
-This transform compares the data from two tables (provided they have the same lay-out).
-It'll find differences between the data in the two tables and log it.
+The Table Compare transform compares the data from two tables (provided they have the same lay-out), finds differences between the data in the two tables and logs it.
 
 == Options
 

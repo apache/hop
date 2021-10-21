@@ -151,24 +151,6 @@ public class TableCompareMeta extends BaseTransformMeta
     this.compareConnection = compareConnection;
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    List<DatabaseMeta> connList = new ArrayList<>(2);
-    if (compareConnection != null) {
-      connList.add(compareConnection);
-    }
-    if (referenceConnection != null) {
-      connList.add(referenceConnection);
-    }
-    if (connList.size() > 0) {
-      DatabaseMeta[] rtn = new DatabaseMeta[connList.size()];
-      connList.toArray(rtn);
-      return rtn;
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
   /** @return the keyFieldsField */
   public String getKeyFieldsField() {
     return keyFieldsField;

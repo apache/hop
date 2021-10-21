@@ -40,20 +40,20 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
   @GuiWidgetElement(
       order = "10",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.COMBO,
-      comboValuesMethod = "getHopServerNames",
+      type = GuiElementType.METADATA,
       label =
-          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.HopServer.Label")
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.HopServer.Label",
+      typeMetadata = HopServerTypeMetadata.class)
   @HopMetadataProperty(key = "hop_server")
   protected String hopServerName;
 
   @GuiWidgetElement(
       order = "20",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.COMBO,
-      comboValuesMethod = "getRunConfigurationNames",
+      type = GuiElementType.METADATA,
       label =
-          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label")
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label",
+      typeMetadata = PipelineRunConfigurationTypeMetadata.class)
   @HopMetadataProperty(key = "run_config")
   protected String runConfigurationName;
 
@@ -121,33 +121,6 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     this.exportingResources = config.exportingResources;
     this.namedResourcesSourceFolder = config.namedResourcesSourceFolder;
     this.namedResourcesTargetFolder = config.namedResourcesTargetFolder;
-  }
-
-  public List<String> getHopServerNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    List<String> names = new ArrayList<>();
-    try {
-      IHopMetadataSerializer<HopServer> serializer =
-          metadataProvider.getSerializer(HopServer.class);
-      names.addAll(serializer.listObjectNames());
-      Collections.sort(names);
-    } catch (Exception e) {
-      log.logError("Error getting hop server names from the metadata", e);
-    }
-    return names;
-  }
-
-  public List<String> getRunConfigurationNames(
-      ILogChannel log, IHopMetadataProvider metadataProvider) {
-    List<String> names = new ArrayList<>();
-    try {
-      IHopMetadataSerializer<PipelineRunConfiguration> serializer =
-          metadataProvider.getSerializer(PipelineRunConfiguration.class);
-      names.addAll(serializer.listObjectNames());
-      Collections.sort(names);
-    } catch (Exception e) {
-      log.logError("Error getting the pipeline run configuration names from the metadata", e);
-    }
-    return names;
   }
 
   @Override

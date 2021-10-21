@@ -44,51 +44,36 @@ import java.util.Map;
 public class SvgGc implements IGc {
 
   private static SvgFile imageLocked;
-
   private static SvgFile imageFailure;
-
   private static SvgFile imageEdit;
-
   private static SvgFile imageContextMenu;
-
   private static SvgFile imageTrue;
-
+  private static SvgFile imageTrueDisabled;
   private static SvgFile imageFalse;
-
+  private static SvgFile imageFalseDisabled;
   private static SvgFile imageError;
-
+  private static SvgFile imageErrorDisabled;
   private static SvgFile imageInfo;
-
+  private static SvgFile imageInfoDisabled;
   private static SvgFile imageTarget;
-
+  private static SvgFile imageTargetDisabled;
   private static SvgFile imageInput;
-
   private static SvgFile imageOutput;
-
   private static SvgFile imageArrow;
-
   private static SvgFile imageCopyRows;
-
+  private static SvgFile imageCopyRowsDisabled;
   private static SvgFile imageLoadBalance;
-
   private static SvgFile imageCheckpoint;
-
   private static SvgFile imageDatabase;
-
   private static SvgFile imageParallel;
-
+  private static SvgFile imageParallelDisabled;
   private static SvgFile imageUnconditional;
-
+  private static SvgFile imageUnconditionalDisabled;
   private static SvgFile imageBusy;
-
   private static SvgFile imageMissing;
-
   private static SvgFile imageDeprecated;
-
   private static SvgFile imageInject;
-
   private static SvgFile imageData;
-
   private static SvgFile imageArrowDefault;
   private static SvgFile imageArrowTrue;
   private static SvgFile imageArrowFalse;
@@ -96,7 +81,6 @@ public class SvgGc implements IGc {
   private static SvgFile imageArrowDisabled;
 
   protected Color background;
-
   protected Color black;
   protected Color red;
   protected Color yellow;
@@ -212,20 +196,29 @@ public class SvgGc implements IGc {
     imageContextMenu =
         new SvgFile("ui/images/settings.svg", this.getClass().getClassLoader()); // Used ?
     imageTrue = new SvgFile("ui/images/true.svg", this.getClass().getClassLoader());
+    imageTrueDisabled = new SvgFile("ui/images/true-disabled.svg", this.getClass().getClassLoader());
     imageFalse = new SvgFile("ui/images/false.svg", this.getClass().getClassLoader());
+    imageFalseDisabled = new SvgFile("ui/images/false-disabled.svg", this.getClass().getClassLoader());
     imageError = new SvgFile("ui/images/error.svg", this.getClass().getClassLoader());
+    imageErrorDisabled = new SvgFile("ui/images/error-disabled.svg", this.getClass().getClassLoader());
     imageInfo = new SvgFile("ui/images/info.svg", this.getClass().getClassLoader());
+    imageInfoDisabled = new SvgFile("ui/images/info-disabled.svg", this.getClass().getClassLoader());
     imageTarget = new SvgFile("ui/images/target.svg", this.getClass().getClassLoader());
+    imageTargetDisabled = new SvgFile("ui/images/target-disabled.svg", this.getClass().getClassLoader());
     imageInput = new SvgFile("ui/images/input.svg", this.getClass().getClassLoader());
     imageOutput = new SvgFile("ui/images/output.svg", this.getClass().getClassLoader());
     imageArrow = new SvgFile("ui/images/arrow.svg", this.getClass().getClassLoader());
     imageCopyRows = new SvgFile("ui/images/copy-rows.svg", this.getClass().getClassLoader());
+    imageCopyRowsDisabled = new SvgFile("ui/images/copy-rows-disabled.svg", this.getClass().getClassLoader());
     imageLoadBalance = new SvgFile("ui/images/scales.svg", this.getClass().getClassLoader());
     imageCheckpoint = new SvgFile("ui/images/checkpoint.svg", this.getClass().getClassLoader());
     imageDatabase = new SvgFile("ui/images/database.svg", this.getClass().getClassLoader());
     imageParallel = new SvgFile("ui/images/parallel-hop.svg", this.getClass().getClassLoader());
+    imageParallelDisabled = new SvgFile("ui/images/parallel-hop-disabled.svg", this.getClass().getClassLoader());
     imageUnconditional =
-        new SvgFile("ui/images/unconditional-hop.svg", this.getClass().getClassLoader());
+        new SvgFile("ui/images/unconditional.svg", this.getClass().getClassLoader());
+    imageUnconditionalDisabled =
+        new SvgFile("ui/images/unconditional-disabled.svg", this.getClass().getClassLoader());
     imageBusy = new SvgFile("ui/images/busy.svg", this.getClass().getClassLoader());
     imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader());
     imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader());
@@ -597,14 +590,24 @@ public class SvgGc implements IGc {
         return imageContextMenu;
       case TRUE:
         return imageTrue;
+      case TRUE_DISABLED:
+        return imageTrueDisabled;
       case FALSE:
         return imageFalse;
+      case FALSE_DISABLED:
+        return imageFalseDisabled;
       case ERROR:
         return imageError;
+      case ERROR_DISABLED:
+        return imageErrorDisabled;
       case INFO:
         return imageInfo;
+      case INFO_DISABLED:
+        return imageInfoDisabled;
       case TARGET:
         return imageTarget;
+      case TARGET_DISABLED:
+        return imageTargetDisabled;
       case INPUT:
         return imageInput;
       case OUTPUT:
@@ -613,6 +616,8 @@ public class SvgGc implements IGc {
         return imageArrow;
       case COPY_ROWS:
         return imageCopyRows;
+      case COPY_ROWS_DISABLED:
+        return imageCopyRowsDisabled;
       case LOAD_BALANCE:
         return imageLoadBalance;
       case CHECKPOINT:
@@ -621,8 +626,12 @@ public class SvgGc implements IGc {
         return imageDatabase;
       case PARALLEL:
         return imageParallel;
+      case PARALLEL_DISABLED:
+        return imageParallelDisabled;
       case UNCONDITIONAL:
         return imageUnconditional;
+      case UNCONDITIONAL_DISABLED:
+        return imageUnconditionalDisabled;        
       case BUSY:
         return imageBusy;
       case INJECT:

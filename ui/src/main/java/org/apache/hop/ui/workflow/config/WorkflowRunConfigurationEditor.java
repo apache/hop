@@ -135,7 +135,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     props.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.name"));
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin);
+    fdlName.top = new FormAttachment(0, margin * 2);
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
@@ -153,7 +153,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     wlDescription.setText(
         BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.Description"));
     FormData fdlDescription = new FormData();
-    fdlDescription.top = new FormAttachment(lastControl, margin);
+    fdlDescription.top = new FormAttachment(lastControl, margin * 2);
     fdlDescription.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
@@ -173,7 +173,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     wlPluginType.setText(
         BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.EngineType"));
     FormData fdlPluginType = new FormData();
-    fdlPluginType.top = new FormAttachment(lastControl, margin);
+    fdlPluginType.top = new FormAttachment(lastControl, margin * 2);
     fdlPluginType.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlPluginType.right = new FormAttachment(middle, 0);
     wlPluginType.setLayoutData(fdlPluginType);
@@ -195,7 +195,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(0, 0);
     fdPluginSpecificComp.right = new FormAttachment(100, 0);
-    fdPluginSpecificComp.top = new FormAttachment(lastControl, 3 * margin);
+    fdPluginSpecificComp.top = new FormAttachment(lastControl, margin);
     fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
     wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
 
@@ -227,7 +227,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     // Now add the run configuration plugin specific widgets
     //
     if (workingConfiguration.getEngineRunConfiguration() != null) {
-      guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 8); // max 8 lines
+      guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
       guiCompositeWidgets.createCompositeWidgets(
           workingConfiguration.getEngineRunConfiguration(),
           null,

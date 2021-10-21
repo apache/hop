@@ -26,13 +26,12 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -40,15 +39,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
 @Transform(
     id = "DynamicSqlRow",
     image = "dynamicsqlrow.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DynamicSQLRow",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DynamicSQLRow",
+    name = "i18n::DynamicSQLRow.Name",
+    description = "i18n::DynamicSQLRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
         keywords = "i18n::DynamicSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/dynamicsqlrow.html")
@@ -57,30 +55,61 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 
   /** database connection */
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKeyDescription = "DynamicSQLRow.Injection.Connection")
+  private String connection;
+
   private DatabaseMeta databaseMeta;
 
   /** SQL Statement */
+  @HopMetadataProperty(key = "sql", injectionKeyDescription = "DynamicSQLRow.Injection.Sql")
   private String sql;
 
-  private String sqlfieldname;
+  @HopMetadataProperty(key = "sql_fieldname", injectionKeyDescription = "DynamicSQLRow.Injection.SqlFieldName")
+  private String sqlFieldName;
 
   /** Number of rows to return (0=ALL) */
+  @HopMetadataProperty(key = "rowlimit", injectionKeyDescription = "DynamicSQLRow.Injection.RowLimit")
   private int rowLimit;
 
   /**
    * false: don't return rows where nothing is found true: at least return one source row, the rest
    * is NULL
    */
+  @HopMetadataProperty(key = "outer_join", injectionKeyDescription = "DynamicSQLRow.Injection.OuterJoin")
   private boolean outerJoin;
 
-  private boolean replacevars;
+  @HopMetadataProperty(key = "replace_vars", injectionKeyDescription = "DynamicSQLRow.Injection.ReplaceVariables")
+  private boolean replaceVariables;
 
-  public boolean queryonlyonchange;
+  @HopMetadataProperty(key = "query_only_on_change", injectionKeyDescription = "DynamicSQLRow.Injection.QueryOnlyOnChange")
+  private boolean queryOnlyOnChange;
 
   public DynamicSqlRowMeta() {
     super(); // allocate BaseTransformMeta
   }
 
+  public DynamicSqlRowMeta(DynamicSqlRowMeta meta) {
+    super(); 
+    this.connection = meta.connection;
+    this.sql = meta.sql;
+    this.sqlFieldName = meta.sqlFieldName;
+    this.replaceVariables = meta.replaceVariables;
+    this.rowLimit =  meta.rowLimit;
+    this.connection = meta.connection;
+    this.outerJoin = meta.outerJoin;
+    this.queryOnlyOnChange = meta.queryOnlyOnChange;
+  }
+
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
+  }
+  
   /** @return Returns the database. */
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
@@ -102,23 +131,23 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   }
 
   /** @return Returns the replacevars. */
-  public boolean isVariableReplace() {
-    return replacevars;
+  public boolean isReplaceVariables() {
+    return replaceVariables;
   }
 
   /** @param replacevars The replacevars to set. */
-  public void setVariableReplace(boolean replacevars) {
-    this.replacevars = replacevars;
+  public void setReplaceVariables(boolean replaceVariables) {
+    this.replaceVariables = replaceVariables;
   }
 
   /** @return Returns the queryonlyonchange. */
   public boolean isQueryOnlyOnChange() {
-    return queryonlyonchange;
+    return queryOnlyOnChange;
   }
 
   /** @param queryonlyonchange The queryonlyonchange to set. */
   public void setQueryOnlyOnChange(boolean queryonlyonchange) {
-    this.queryonlyonchange = queryonlyonchange;
+    this.queryOnlyOnChange = queryonlyonchange;
   }
 
   /** @return Returns the rowLimit. */
@@ -143,56 +172,29 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
 
   /** @return Returns the sqlfieldname. */
   public String getSqlFieldName() {
-    return sqlfieldname;
+    return sqlFieldName;
   }
 
   /** @param sqlfieldname The sqlfieldname to set. */
   public void setSqlFieldName(String sqlfieldname) {
-    this.sqlfieldname = sqlfieldname;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+    this.sqlFieldName = sqlfieldname;
   }
 
   @Override
   public Object clone() {
-    DynamicSqlRowMeta retval = (DynamicSqlRowMeta) super.clone();
-
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-      sql = XmlHandler.getTagValue(transformNode, "sql");
-      outerJoin = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "outer_join"));
-      replacevars = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "replace_vars"));
-      queryonlyonchange =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "query_only_on_change"));
-
-      rowLimit = Const.toInt(XmlHandler.getTagValue(transformNode, "rowlimit"), 0);
-      sqlfieldname = XmlHandler.getTagValue(transformNode, "sql_fieldname");
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "DynamicSQLRowMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
-  }
+    return new DynamicSqlRowMeta(this);
+  }  
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
-    rowLimit = 0;
-    sql = "";
-    outerJoin = false;
-    replacevars = false;
-    sqlfieldname = null;
-    queryonlyonchange = false;
+    this.connection = null;
+    this.databaseMeta = null;
+    this.rowLimit = 0;
+    this.sql = "";
+    this.outerJoin = false;
+    this.replaceVariables = false;
+    this.sqlFieldName = null;
+    this.queryOnlyOnChange = false;
   }
 
   @Override
@@ -216,7 +218,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     // See if it's in the cache...
     IRowMeta add = null;
     String realSql = sql;
-    if (replacevars) {
+    if (replaceVariables) {
       realSql = variables.resolve(realSql);
     }
     try {
@@ -254,24 +256,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    " + XmlHandler.addTagValue("rowlimit", rowLimit));
-    retval.append("    " + XmlHandler.addTagValue("sql", sql));
-    retval.append("    " + XmlHandler.addTagValue("outer_join", outerJoin));
-    retval.append("    " + XmlHandler.addTagValue("replace_vars", replacevars));
-    retval.append("    " + XmlHandler.addTagValue("sql_fieldname", sqlfieldname));
-    retval.append("    " + XmlHandler.addTagValue("query_only_on_change", queryonlyonchange));
-
-    return retval.toString();
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -289,44 +273,44 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.ReceivingInfo"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);
     }
 
     // Check for SQL field
-    if (Utils.isEmpty(sqlfieldname)) {
+    if (Utils.isEmpty(sqlFieldName)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.SQLFieldNameMissing"),
               transformMeta);
       remarks.add(cr);
     } else {
-      IValueMeta vfield = prev.searchValueMeta(sqlfieldname);
+      IValueMeta vfield = prev.searchValueMeta(sqlFieldName);
       if (vfield == null) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "DynamicSQLRowMeta.CheckResult.SQLFieldNotFound", sqlfieldname),
+                    PKG, "DynamicSQLRowMeta.CheckResult.SQLFieldNotFound", sqlFieldName),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "DynamicSQLRowMeta.CheckResult.SQLFieldFound",
-                    sqlfieldname,
+                    sqlFieldName,
                     vfield.getOrigin()),
                 transformMeta);
       }
@@ -347,14 +331,14 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
           if (r != null) {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.QueryOK"),
                     transformMeta);
             remarks.add(cr);
           } else {
             errorMessage =
                 BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.InvalidDBQuery");
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
           }
         }
@@ -362,14 +346,14 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
         errorMessage =
             BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.ErrorOccurred")
                 + e.getMessage();
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } finally {
         db.disconnect();
       }
     } else {
       errorMessage = BaseMessages.getString(PKG, "DynamicSQLRowMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
   }
@@ -429,15 +413,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
                 BaseMessages.getString(PKG, "DynamicSQLRowMeta.DatabaseImpact.Title"));
         impact.add(di);
       }
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
     }
   }
 

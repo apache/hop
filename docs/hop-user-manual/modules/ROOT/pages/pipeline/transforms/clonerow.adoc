@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Clone Row transform creates copies (clones) of a row and outputs them directly after the original row to the next transforms.
 
 = Clone row
 
 == Description
 
-This transform creates copies (clones) of a row and outputs them directly after the original row to the next transforms.
+The Clone Row transform creates copies (clones) of a row and outputs them directly after the original row to the next transforms.
 
 == Options
 

@@ -118,7 +118,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
 
     // SQL editor...
     Label wlSql = new Label(shell, SWT.NONE);
@@ -413,7 +414,6 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     int nrparam = wParam.nrNonEmpty();
 
     input.setConnection(wConnection.getText());
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setRowLimit(Const.toInt(wLimit.getText(), 0));
     input.setSql(wSql.getText());
     input.setOuterJoin(wOuter.getSelection());

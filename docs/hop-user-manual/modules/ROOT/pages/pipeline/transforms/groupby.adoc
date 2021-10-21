@@ -16,18 +16,22 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
 
 = Group By
 
 == Description
 
-This transform groups rows from a source, based on a specified field or collection of fields.
-A new row is generated for each group.
+The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
+
 It can also generate one or more aggregate values for the groups.
+
 Common uses are calculating the average sales per product and counting the number of an item you have in stock.
 
 The Group By transform is designed for sorted inputs.
+
 If your input is not sorted, only double consecutive rows are grouped correctly.
+
 If you sort the data outside of Hop, the case sensitivity of the data in the fields may produce unexpected grouping results.
 
 You can use the Memory Group By transform to handle non-sorted input.

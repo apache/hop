@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -40,11 +40,7 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.*;
 import org.mockito.Mockito;
 
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InsertUpdateMetaTest {
   LoadSaveTester loadSaveTester;
@@ -100,20 +96,22 @@ public class InsertUpdateMetaTest {
   @Test
   public void testCommitCountFixed() {
     umi.setCommitSize("100");
-    Assert.assertTrue(umi.getCommitSize(upd) == 100);
+    Assert.assertTrue(umi.getCommitSizeVar(upd) == 100);
   }
 
   @Test
   public void testCommitCountVar() {
     umi.setCommitSize("${max.sz}");
-    Assert.assertTrue(umi.getCommitSize(upd) == 10);
+    Assert.assertTrue(umi.getCommitSizeVar(upd) == 10);
   }
 
   @Test
   public void testProvidesModeler() throws Exception {
     InsertUpdateMeta insertUpdateMeta = new InsertUpdateMeta();
-    insertUpdateMeta.setUpdateLookup(new String[] {"f1", "f2", "f3"});
-    insertUpdateMeta.setUpdateStream(new String[] {"s4", "s5", "s6"});
+
+    insertUpdateMeta.getInsertUpdateLookupField().getValueFields().add(new InsertUpdateValue("f1", "s4"));
+    insertUpdateMeta.getInsertUpdateLookupField().getValueFields().add(new InsertUpdateValue("f2", "s5"));
+    insertUpdateMeta.getInsertUpdateLookupField().getValueFields().add(new InsertUpdateValue("f3", "s6"));
 
     InsertUpdateData tableOutputData = new InsertUpdateData();
     tableOutputData.insertRowMeta = Mockito.mock(RowMeta.class);
@@ -133,7 +131,7 @@ public class InsertUpdateMetaTest {
   public void testCommitCountMissedVar() {
     umi.setCommitSize("missed-var");
     try {
-      umi.getCommitSize(upd);
+      umi.getCommitSizeVar(upd);
       Assert.fail();
     } catch (Exception ex) {
     }
@@ -141,74 +139,35 @@ public class InsertUpdateMetaTest {
 
   @Before
   public void setUpLoadSave() throws Exception {
+
     List<String> attributes =
-        Arrays.asList(
-            "schemaName",
-            "tableName",
-            "databaseMeta",
-            "keyStream",
-            "keyLookup",
-            "keyCondition",
-            "keyStream2",
-            "updateLookup",
-            "updateStream",
-            "update",
-            "commitSize",
-            "updateBypassed");
+            Arrays.asList(
+                    "connection",
+                    "lookup",
+                    "commit",
+                    "update_bypassed");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
-          {
-            put("schemaName", "getSchemaName");
-            put("tableName", "getTableName");
-            put("databaseMeta", "getDatabaseMeta");
-            put("keyStream", "getKeyStream");
-            put("keyLookup", "getKeyLookup");
-            put("keyCondition", "getKeyCondition");
-            put("keyStream2", "getKeyStream2");
-            put("updateLookup", "getUpdateLookup");
-            put("updateStream", "getUpdateStream");
-            put("update", "getUpdate");
-            put("commitSize", "getCommitSizeVar");
-            put("updateBypassed", "isUpdateBypassed");
-          }
-        };
-
+            new HashMap<String, String>() {
+              {
+                put("connection", "getConnection");
+                put("lookup", "getInsertUpdateLookupField");
+                put("commit", "getCommitSize");
+                put("update_bypassed", "isUpdateBypassed");
+              }
+            };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
-          {
-            put("schemaName", "setSchemaName");
-            put("tableName", "setTableName");
-            put("databaseMeta", "setDatabaseMeta");
-            put("keyStream", "setKeyStream");
-            put("keyLookup", "setKeyLookup");
-            put("keyCondition", "setKeyCondition");
-            put("keyStream2", "setKeyStream2");
-            put("updateLookup", "setUpdateLookup");
-            put("updateStream", "setUpdateStream");
-            put("update", "setUpdate");
-            put("commitSize", "setCommitSize");
-            put("updateBypassed", "setUpdateBypassed");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
+            new HashMap<String, String>() {
+              {
+                put("connection", "setConnection");
+                put("lookup", "setInsertUpdateLookupField");
+                put("commit", "setCommitSize");
+                put("update_bypassed", "setUpdateBypassed");
+              }
+            };
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("keyStream", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("keyLookup", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("keyCondition", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("keyStream2", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("updateLookup", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("updateStream", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("databaseMeta", new DatabaseMetaLoadSaveValidator());
-    attrValidatorMap.put("update", new ArrayLoadSaveValidator<>(new BooleanLoadSaveValidator(), 5));
-
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    typeValidatorMap.put(
-        boolean[].class.getCanonicalName(),
-        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 3));
 
     loadSaveTester =
         new LoadSaveTester(
@@ -218,6 +177,89 @@ public class InsertUpdateMetaTest {
             setterMap,
             attrValidatorMap,
             typeValidatorMap);
+
+    IFieldLoadSaveValidatorFactory validatorFactory =
+            loadSaveTester.getFieldLoadSaveValidatorFactory();
+
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(InsertUpdateLookupField.class),
+            new ObjectValidator<InsertUpdateLookupField>(
+                    validatorFactory,
+                    InsertUpdateLookupField.class,
+                    Arrays.asList("schema", "table", "key", "value"),
+                    new HashMap<String, String>() {
+                      {
+                        put("schema", "getSchemaName");
+                        put("table", "getTableName");
+                        put("key", "getLookupKeys");
+                        put("value", "getValueFields");
+                      }
+                    },
+                    new HashMap<String, String>() {
+                      {
+                        put("schema", "setSchemaName");
+                        put("table", "setTableName");
+                        put("key", "setLookupKeys");
+                        put("value", "setValueFields");
+                      }
+                    }));
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(List.class, InsertUpdateLookupField.class),
+            new ListLoadSaveValidator<InsertUpdateLookupField>(new InsertUpdateLookupFieldLoadSaveValidator()));
+
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(InsertUpdateKeyField.class),
+            new ObjectValidator<InsertUpdateKeyField>(
+                    validatorFactory,
+                    InsertUpdateKeyField.class,
+                    Arrays.asList("name", "field", "condition", "name2"),
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "getKeyStream");
+                        put("field", "getKeyLookup");
+                        put("condition", "getKeyCondition");
+                        put("name2", "getKeyStream2");
+                      }
+                    },
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "setKeyStream");
+                        put("field", "setKeyLookup");
+                        put("condition", "setKeyCondition");
+                        put("name2", "setKeyStream2");
+                      }
+                    }));
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(List.class, InsertUpdateKeyField.class),
+            new ListLoadSaveValidator<InsertUpdateKeyField>(new InsertUpdateKeyFieldLoadSaveValidator()));
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(InsertUpdateValue.class),
+            new ObjectValidator<InsertUpdateValue>(
+                    validatorFactory,
+                    InsertUpdateValue.class,
+                    Arrays.asList("name", "rename"),
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "getUpdateLookup");
+                        put("rename", "getUpdateStream");
+                      }
+                    },
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "setUpdateLookup");
+                        put("rename", "setUpdateStream");
+                      }
+                    }));
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(List.class, InsertUpdateValue.class),
+            new ListLoadSaveValidator<InsertUpdateValue>(new InsertUpdateValueLoadSaveValidator()));
+
   }
 
   @Test
@@ -256,41 +298,95 @@ public class InsertUpdateMetaTest {
     Assert.assertFalse(result);
   }
 
-  @Test
-  @Ignore
-  public void keyStream2ProcessRow() throws HopException {
-    InsertUpdate insertUpdateTransform =
-        new InsertUpdate(
-            mockHelper.transformMeta,
-            mockHelper.iTransformMeta,
-            mockHelper.iTransformData,
-            0,
-            mockHelper.pipelineMeta,
-            mockHelper.pipeline);
-    insertUpdateTransform.setInputRowMeta(Mockito.mock(IRowMeta.class));
-    insertUpdateTransform = Mockito.spy(insertUpdateTransform);
+  public class InsertUpdateLookupFieldLoadSaveValidator
+          implements IFieldLoadSaveValidator<InsertUpdateLookupField> {
+    final Random rand = new Random();
 
-    InsertUpdateMeta insertUpdateMeta = new InsertUpdateMeta();
-    insertUpdateMeta.setKeyStream(new String[] {"test_field"});
-    insertUpdateMeta.setKeyCondition(new String[] {"test_condition"});
-    insertUpdateMeta.setKeyStream2(new String[] {});
-    insertUpdateMeta.setUpdateLookup(new String[] {});
-    insertUpdateMeta.setKeyLookup(new String[] {});
-    insertUpdateMeta.setUpdateBypassed(true);
-    insertUpdateMeta.setDatabaseMeta(Mockito.mock(DatabaseMeta.class));
-    Database database = Mockito.mock(Database.class);
-    mockHelper.iTransformData.db = database;
-    Mockito.doReturn(Mockito.mock(Connection.class)).when(database).getConnection();
-    Mockito.doNothing().when(insertUpdateTransform).lookupValues(Mockito.any(), Mockito.any());
-    Mockito.doNothing().when(insertUpdateTransform).putRow(Mockito.any(), Mockito.any());
-    Mockito.doReturn(new Object[] {}).when(insertUpdateTransform).getRow();
-    insertUpdateTransform.first = true;
+    @Override
+    public InsertUpdateLookupField getTestObject() {
 
-    insertUpdateMeta.afterInjectionSynchronization();
-    // run without a exception
-    insertUpdateTransform.processRow();
+      InsertUpdateLookupField field =
+              new InsertUpdateLookupField(
+                      UUID.randomUUID().toString(),
+                      UUID.randomUUID().toString(),
+                      new ArrayList<InsertUpdateKeyField>(),
+                      new ArrayList<InsertUpdateValue>());
 
-    Assert.assertEquals(
-        insertUpdateMeta.getKeyStream().length, insertUpdateMeta.getKeyStream2().length);
+      return field;
+    }
+
+    @Override
+    public boolean validateTestObject(InsertUpdateLookupField testObject, Object actual) {
+      if (!(actual instanceof InsertUpdateLookupField)) {
+        return false;
+      }
+      InsertUpdateLookupField another = (InsertUpdateLookupField) actual;
+      return new EqualsBuilder()
+              .append(testObject.getSchemaName(), another.getSchemaName())
+              .append(testObject.getTableName(), another.getTableName())
+              .append(testObject.getLookupKeys(), another.getLookupKeys())
+              .append(testObject.getValueFields(), another.getValueFields())
+              .isEquals();
+    }
   }
+
+  public class InsertUpdateValueLoadSaveValidator
+          implements IFieldLoadSaveValidator<InsertUpdateValue> {
+    final Random rand = new Random();
+
+    @Override
+    public InsertUpdateValue getTestObject() {
+
+      InsertUpdateValue field =
+              new InsertUpdateValue(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+
+      return field;
+    }
+
+    @Override
+    public boolean validateTestObject(InsertUpdateValue testObject, Object actual) {
+      if (!(actual instanceof InsertUpdateValue)) {
+        return false;
+      }
+      InsertUpdateValue another = (InsertUpdateValue) actual;
+      return new EqualsBuilder()
+              .append(testObject.getUpdateLookup(), another.getUpdateLookup())
+              .append(testObject.getUpdateStream(), another.getUpdateStream())
+              .isEquals();
+    }
+  }
+
+  public class InsertUpdateKeyFieldLoadSaveValidator
+          implements IFieldLoadSaveValidator<InsertUpdateKeyField> {
+    final Random rand = new Random();
+
+    @Override
+    public InsertUpdateKeyField getTestObject() {
+
+      InsertUpdateKeyField field =
+              new InsertUpdateKeyField(
+                      UUID.randomUUID().toString(),
+                      UUID.randomUUID().toString(),
+                      "=",
+                      UUID.randomUUID().toString());
+
+      return field;
+    }
+
+    @Override
+    public boolean validateTestObject(InsertUpdateKeyField testObject, Object actual) {
+      if (!(actual instanceof InsertUpdateKeyField)) {
+        return false;
+      }
+      InsertUpdateKeyField another = (InsertUpdateKeyField) actual;
+      return new EqualsBuilder()
+              .append(testObject.getKeyStream(), another.getKeyStream())
+              .append(testObject.getKeyLookup(), another.getKeyLookup())
+              .append(testObject.getKeyCondition(), another.getKeyCondition())
+              .append(testObject.getKeyStream2(), another.getKeyStream2())
+              .isEquals();
+    }
+  }
+
+
 }

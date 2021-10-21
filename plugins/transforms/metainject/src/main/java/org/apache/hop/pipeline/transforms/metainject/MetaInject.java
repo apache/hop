@@ -34,6 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
 
@@ -241,8 +242,16 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     injectTrans.waitUntilFinished();
   }
 
-  Pipeline createInjectPipeline() {
-    return new LocalPipelineEngine(data.pipelineMeta, this, this);
+  Pipeline createInjectPipeline() throws HopException {
+    LocalPipelineEngine lpe = new LocalPipelineEngine(data.pipelineMeta, this, this);
+    if (!Utils.isEmpty(meta.getRunConfigurationName())) {
+      PipelineRunConfiguration prc =
+          metadataProvider
+              .getSerializer(PipelineRunConfiguration.class)
+              .load(meta.getRunConfigurationName());
+      lpe.setPipelineRunConfiguration(prc);
+    }
+    return lpe;
   }
 
   private void writeInjectedHpl(String targetFilPath) throws HopException {

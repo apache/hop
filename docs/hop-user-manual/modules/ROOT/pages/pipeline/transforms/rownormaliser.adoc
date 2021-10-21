@@ -16,13 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Row Normaliser transform converts the columns of an input stream into rows.
 
 = Row Normaliser
 
 == Description
 
 The Row Normaliser transform converts the columns of an input stream into rows.
+
 You can use this transform to normalize repeating groups of columns.
 
 == Options

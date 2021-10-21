@@ -35,6 +35,7 @@ write_server_config() {
     HOP_SERVER_USER=${HOP_SERVER_USER:-cluster}
     HOP_SERVER_PASS=${HOP_SERVER_PASS:-cluster}
     HOP_SERVER_MASTER=${HOP_SERVER_MASTER:-Y}
+    HOP_SERVER_HOSTNAME=${HOP_SERVER_HOSTNAME:-0.0.0.0}
 
     HOP_SERVER_XML=/tmp/hop-server.xml
 
@@ -43,7 +44,7 @@ write_server_config() {
     echo "<hop-server-config>" > ${HOP_SERVER_XML}
     echo "  <hop-server>" >> ${HOP_SERVER_XML}
     echo "    <name>Hop Server</name>" >> ${HOP_SERVER_XML}
-    echo "    <hostname>0.0.0.0</hostname>" >> ${HOP_SERVER_XML}
+    echo "    <hostname>${HOP_SERVER_HOSTNAME}</hostname>" >> ${HOP_SERVER_XML}
     echo "    <port>${HOP_SERVER_PORT}</port>" >> ${HOP_SERVER_XML}
     echo "    <username>${HOP_SERVER_USER}</username>" >> ${HOP_SERVER_XML}
     echo "    <password>${HOP_SERVER_PASS}</password>" >> ${HOP_SERVER_XML}

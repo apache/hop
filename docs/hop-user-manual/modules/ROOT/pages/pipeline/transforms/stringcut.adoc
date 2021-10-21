@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Strings Cut transform cuts a portion of a (sub)string. If the designated field is out of range, it returns blank.
 
 = Strings cut
 
 == Description
 
-The Strings cut transform allows you to cut a portion of a substring.
-If the designated field is out of range, it returns blank.
+The Strings Cut transform cuts a portion of a (sub)string. If the designated field is out of range, it returns blank.
 
 == Options
 

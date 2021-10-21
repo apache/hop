@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -101,8 +101,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   public LogLevel logFileLevel;
 
   public boolean waitingToFinish = true;
-
-  public boolean followingAbortRemotely;
 
   private boolean passingAllParameters = true;
 
@@ -208,9 +206,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     retval.append("      ").append(XmlHandler.addTagValue("wait_until_finished", waitingToFinish));
     retval
         .append("      ")
-        .append(XmlHandler.addTagValue("follow_abort_remote", followingAbortRemotely));
-    retval
-        .append("      ")
         .append(XmlHandler.addTagValue("create_parent_folder", createParentFolder));
     retval.append("      ").append(XmlHandler.addTagValue("run_configuration", runConfiguration));
 
@@ -279,9 +274,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         waitingToFinish = "Y".equalsIgnoreCase(wait);
       }
 
-      followingAbortRemotely =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "follow_abort_remote"));
-
       // How many arguments?
       int argnr = 0;
       while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
@@ -330,7 +322,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     clearResultFiles = false;
     setAppendLogfile = false;
     waitingToFinish = true;
-    followingAbortRemotely = false; // backward compatibility reasons
     createParentFolder = false;
     logFileLevel = LogLevel.BASIC;
   }
@@ -612,13 +603,15 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
           // Wait until we're done with this pipeline
           //
-          pipeline.waitUntilFinished();
+          if (isWaitingToFinish()) {
+            pipeline.waitUntilFinished();
 
-          if (parentWorkflow.isStopped() || pipeline.getErrors() != 0) {
-            pipeline.stopAll();
-            result.setNrErrors(1);
+            if (parentWorkflow.isStopped() || pipeline.getErrors() != 0) {
+              pipeline.stopAll();
+              result.setNrErrors(1);
+            }
+            updateResult(result);
           }
-          updateResult(result);
           if (setLogfile) {
             ResultFile resultFile =
                 new ResultFile(
@@ -850,16 +843,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   /** @param waitingToFinish the waitingToFinish to set */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
-  }
-
-  /** @return the followingAbortRemotely */
-  public boolean isFollowingAbortRemotely() {
-    return followingAbortRemotely;
-  }
-
-  /** @param followingAbortRemotely the followingAbortRemotely to set */
-  public void setFollowingAbortRemotely(boolean followingAbortRemotely) {
-    this.followingAbortRemotely = followingAbortRemotely;
   }
 
   /** @return the passingAllParameters */

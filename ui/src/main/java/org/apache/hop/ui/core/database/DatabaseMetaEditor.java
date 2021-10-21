@@ -297,8 +297,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     FormData fdDatabaseSpecificComp = new FormData();
     fdDatabaseSpecificComp.left = new FormAttachment(0, 0);
     fdDatabaseSpecificComp.right = new FormAttachment(100, 0);
-    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, 2 * margin);
-    fdDatabaseSpecificComp.bottom = new FormAttachment(100, 0);
+    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, margin);
     wDatabaseSpecificComp.setLayoutData(fdDatabaseSpecificComp);
     lastControl = wDatabaseSpecificComp;
 
@@ -306,7 +305,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // Now add the database plugin specific widgets
     //
-    guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 8); // max 6 lines
+    guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
     guiCompositeWidgets.createCompositeWidgets(
         getMetadata().getIDatabase(),
         null,
@@ -665,7 +664,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         new TableView(
             manager.getVariables(),
             wOptionsComp,
-            SWT.NONE,
+            SWT.BORDER,
             optionsColumns,
             databaseMeta.getExtraOptions().size(),
             event -> setChanged(),

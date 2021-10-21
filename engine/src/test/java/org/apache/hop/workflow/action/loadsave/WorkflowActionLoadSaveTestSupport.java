@@ -32,7 +32,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-/** @author Andrey Khayrutdinov */
 public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   private LoadSaveTester<T> tester;

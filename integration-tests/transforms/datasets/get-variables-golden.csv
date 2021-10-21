@@ -1,0 +1,5 @@
+Position,Fieldname,Comments,Type,Length,Precision,Origin
+1,A,,String,-1,-1,Get variables
+2,B,,String,-1,-1,Get variables
+3,C,,String,-1,-1,Get variables
+4,D,,String,100,-1,Get variables

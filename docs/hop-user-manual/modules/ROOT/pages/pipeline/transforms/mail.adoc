@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Mail transform uses an SMTP server to send an email using data from the pipeline fields.
 
 = Mail
 
 == Description
 
-This transform uses an SMTP server to send an email containing data from the previous transform.
+The Mail transform uses an SMTP server to send an email using data from the pipeline fields.
 
 == Options
 

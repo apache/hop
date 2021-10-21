@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The CSV File Input transform reads data from a delimited file.
 
 = CSV File Input
 
 == Description
 
-This transform provides the ability to read data from a delimited file.
+The CSV File Input transform reads data from a delimited file.
+
 The CSV label for this transform is a misnomer because you can define whatever separator you want to use, such as pipes, tabs, and semicolons; you are not constrained to using commas.
 Internal processing allows this transform to process data quickly.
 Options for this transform are a subset of the Text File Input transform.

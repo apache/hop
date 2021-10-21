@@ -135,6 +135,7 @@
                 <module>memgroupby</module>
                 <module>mergejoin</module>
                 <module>mergerows</module>
+                <module>metadata</module>
                 <module>metainject</module>
                 <module>metastructure</module>
                 <module>monetdbbulkloader</module>
@@ -161,6 +162,7 @@
                 <module>salesforce</module>
                 <module>sasinput</module>
                 <module>selectvalues</module>
+                <module>serverstatus</module>
                 <module>setvalueconstant</module>
                 <module>setvaluefield</module>
                 <module>setvariable</module>
@@ -171,6 +173,7 @@
                 <module>sql</module>
                 <module>sqlfileoutput</module>
                 <module>ssh</module>
+                <module>standardizephonenumber</module>
                 <module>streamlookup</module>
                 <module>streamschemamerge</module>
                 <module>stringcut</module>

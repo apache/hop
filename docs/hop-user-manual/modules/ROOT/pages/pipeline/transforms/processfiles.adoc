@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Process Files transform copies, moves or deletes files by giving the source and target file names in the data stream.
 
 = Process files
 
 == Description
 
-This transform copies, moves or deletes files by giving the source and target file names in the data stream.
+The Process Files transform copies, moves or deletes files by giving the source and target file names in the data stream.
 
 == Options
 

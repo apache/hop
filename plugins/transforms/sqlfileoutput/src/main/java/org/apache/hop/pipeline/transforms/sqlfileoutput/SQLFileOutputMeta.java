@@ -797,15 +797,6 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     }
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
   /** @return the schemaName */
   public String getSchemaName() {
     return schemaName;

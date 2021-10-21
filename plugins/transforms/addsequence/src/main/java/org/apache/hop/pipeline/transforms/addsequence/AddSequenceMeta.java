@@ -357,15 +357,6 @@ public class AddSequenceMeta extends BaseTransformMeta
     return new AddSequenceData();
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
   /** @return the counterName */
   public String getCounterName() {
     return counterName;

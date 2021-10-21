@@ -16,16 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Enhanced JSON Output transform allows you to generate JSON blocks based on input transform values. Output JSON will be available as a Javascript array or Javascript object depending on transform settings.
 
 = Enhanced JSON Output
 
 == Description
 
-Enhanced Json Output transform allows to generate json blocks based on input transform values.
-Output json will be available as java script array or java script object depends on transform settings.
+The Enhanced JSON Output transform allows you to generate JSON blocks based on input transform values.
 
-This transform loops over the fields defined as Group Key and serializes JSON output accordingly.
-Because of this it is extremely important that the input transform data will be sorted by the group key to prevent generation errors.
+Output JSON will be available as a Javascript array or Javascript object depending on transform settings.
+
+TIP: Because this transform loops over the fields defined as Group Key and serializes JSON output accordingly, it is extremely important to sort the input data by the group key. Failing to do so may return incorrect or unexpected data.
 
 == Options
 

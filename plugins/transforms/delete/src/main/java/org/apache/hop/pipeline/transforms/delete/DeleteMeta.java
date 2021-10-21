@@ -63,12 +63,8 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
   private DeleteLookupField lookup;
 
   /** database connection */
-  @HopMetadataProperty(
-      key = "connection",
-      injectionKeyDescription = "Delete.Injection.Connection")
+  @HopMetadataProperty(key = "connection", injectionKeyDescription = "Delete.Injection.Connection")
   private String connection;
-
-  private DatabaseMeta databaseMeta;
 
   /** Commit size for inserts/updates */
   @HopMetadataProperty(
@@ -123,16 +119,6 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     this.commitSize = commitSize;
   }
 
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
   public DeleteMeta(DeleteMeta obj) {
 
     this.connection = obj.connection;
@@ -147,7 +133,6 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
     commitSize = "100";
     lookup.setSchemaName("");
     lookup.setTableName(BaseMessages.getString(PKG, "DeleteMeta.DefaultTableName.Label"));
@@ -178,6 +163,20 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "DeleteMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -343,6 +342,9 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
       TransformMeta transformMeta,
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
+
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -425,6 +427,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
     if (prev != null) {
       // Lookup: we do a lookup on the natural keys
       List<DeleteKeyField> keyFields = lookup.getFields();
@@ -432,19 +435,31 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
         String keyStr = keyFields.get(i).getKeyStream();
         IValueMeta v = prev.searchValueMeta(keyStr);
 
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_DELETE,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                lookup.getTableName(),
-                keyFields.get(i).getKeyLookup(),
-                keyFields.get(i).getKeyStream(),
-                v != null ? v.getOrigin() : "?",
-                "",
-                "Type = " + v.toStringMeta());
-        impact.add(ii);
+        try {
+          DatabaseMeta databaseMeta =
+              metadataProvider
+                  .getSerializer(DatabaseMeta.class)
+                  .load(variables.resolve(connection));
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_DELETE,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  lookup.getTableName(),
+                  keyFields.get(i).getKeyLookup(),
+                  keyFields.get(i).getKeyStream(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        } catch (HopException e) {
+          throw new HopTransformException(
+              "Unable to get databaseMeta for connection: "
+                  + Const.CR
+                  + variables.resolve(connection),
+              e);
+        }
       }
     }
   }
@@ -458,15 +473,6 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
   @Override
   public DeleteData getTransformData() {
     return new DeleteData();
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
   }
 
   @Override

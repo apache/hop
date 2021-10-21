@@ -48,8 +48,9 @@ import java.util.Map;
     name = "i18n::CubeOutput.Name",
     description = "i18n::CubeOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        keywords = "i18n::CubeOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/cubeoutput.html")
+    keywords = "i18n::CubeOutputMeta.keyword",
+    documentationUrl = "/pipeline/transforms/serialize-to-file.html")
+        
 public class CubeOutputMeta extends BaseTransformMeta
     implements ITransformMeta<CubeOutput, CubeOutputData> {
 

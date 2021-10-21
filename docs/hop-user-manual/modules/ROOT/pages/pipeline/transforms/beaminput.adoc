@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Input transform reads files using a file definition with the Beam execution engine.
 
 = Beam Input
 
