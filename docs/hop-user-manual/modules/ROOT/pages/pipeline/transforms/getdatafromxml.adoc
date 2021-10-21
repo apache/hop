@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Get Data From XML transform provides the ability to read data from any type of XML file using XPath specifications.
 
 = Get Data From XML
 
@@ -23,7 +24,7 @@ under the License.
 
 The Get Data From XML transform provides the ability to read data from any type of XML file using XPath specifications.
 
-"Get Data From XML" can read data from 3 kind of sources (files, stream and url) in 2 modes (user can define files and urls at static mode or in a dynamic way).
+Get Data From XML can read data from 3 kind of sources (files, stream and url) in 2 modes (user can define files and urls at static mode or in a dynamic way).
 
 == Options
 

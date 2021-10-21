@@ -2186,7 +2186,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.UnconditionalHop.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.UnconditionalHop.Tooltip",
-      image = "ui/images/unconditional-hop.svg",
+      image = "ui/images/unconditional.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text",
       categoryOrder = "2")
   public void setHopUnconditional(HopGuiWorkflowHopContext context) {

@@ -975,15 +975,6 @@ public class CombinationLookupMeta extends BaseTransformMeta
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
-  @Override
   public boolean equals(Object other) {
     if (other == this) {
       return true;

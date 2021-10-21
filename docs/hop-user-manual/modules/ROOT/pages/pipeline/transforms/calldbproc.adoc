@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Call DB Procedure transform allows you to execute a database procedure (or function) and get the result(s) back.
 
 = Call DB procedure
 

@@ -69,7 +69,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     props.setLook(wlName);
     wlName.setText("Cassandra connection name");
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, 0);
+    fdlName.top = new FormAttachment(0, margin * 2);
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
@@ -83,7 +83,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
 
     // Rest of the widgets...
     //
-    widgets = new GuiCompositeWidgets(manager.getVariables(), 18);
+    widgets = new GuiCompositeWidgets(manager.getVariables());
     widgets.createCompositeWidgets(getMetadata(), null, parent, PARENT_WIDGET_ID, wName);
 
     // Set content on the widgets...

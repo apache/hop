@@ -16,14 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Execute A Process transform executes a shell script (on the host that runs the pipeline). This transform is similar to the Shell workflow action, but can be used in a pipeline to execute for every row.
 
 = Execute a process
 
 == Description
 
-You can use the Execute a process transform to execute a shell script on the host where a workflow will run.
+The Execute A Process transform executes a shell script (on the host that runs the pipeline).
 
-* The transform is similar to the workflow action Shell, but can be used in a pipeline to execute for every row.
+The transform is similar to the xref:workflow/actions/shell.adoc[Shell] workflow action, but can be used in a pipeline to execute for every row.
 
 == Options
 

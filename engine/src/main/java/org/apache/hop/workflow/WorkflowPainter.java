@@ -542,8 +542,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         // in between 2 points
         mx = (int) (x1 + factor * (x2 - x1) / 2);
         my = (int) (y1 + factor * (y2 - y1) / 2);
-
-        gc.drawImage(EImage.PARALLEL, mx, my, magnification, angle);
+        EImage image = (workflowHop.isEnabled()) ? EImage.PARALLEL : EImage.PARALLEL_DISABLED;
+        gc.drawImage(image, mx, my, magnification, angle);
         areaOwners.add(
             new AreaOwner(
                 AreaType.WORKFLOW_HOP_PARALLEL_ICON,
@@ -555,18 +555,18 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
                 subject,
                 workflowHop));
       } else {
-        EImage hopsIcon;
-        if (workflowHop.isUnconditional()) {
-          hopsIcon = EImage.UNCONDITIONAL;
+        EImage image;
+        if (workflowHop.isUnconditional()) {         
+          image = (workflowHop.isEnabled()) ? EImage.UNCONDITIONAL : EImage.UNCONDITIONAL_DISABLED;
         } else {
           if (workflowHop.getEvaluation()) {
-            hopsIcon = EImage.TRUE;
+            image = (workflowHop.isEnabled()) ? EImage.TRUE : EImage.TRUE_DISABLED;
           } else {
-            hopsIcon = EImage.FALSE;
+            image = (workflowHop.isEnabled()) ? EImage.FALSE : EImage.FALSE_DISABLED;
           }
         }
 
-        gc.drawImage(hopsIcon, mx, my, magnification);
+        gc.drawImage(image, mx, my, magnification);
         areaOwners.add(
             new AreaOwner(
                 AreaType.WORKFLOW_HOP_ICON,

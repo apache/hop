@@ -67,12 +67,11 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
 
     // Name...
     //
-    // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
     props.setLook(wlName);
     wlName.setText("MongoDB Connection name");
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, 0);
+    fdlName.top = new FormAttachment(0, margin * 2);
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
@@ -86,7 +85,7 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
 
     // Rest of the widgets...
     //
-    widgets = new GuiCompositeWidgets(manager.getVariables(), 18);
+    widgets = new GuiCompositeWidgets(manager.getVariables());
     widgets.createCompositeWidgets(getMetadata(), null, parent, PARENT_WIDGET_ID, wName);
 
     // Set content on the widgets...

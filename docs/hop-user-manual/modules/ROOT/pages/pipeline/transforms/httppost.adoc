@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
 
 = HTTP Post
 
 == Description
 
-This transform uses an HTTP POST command to submit form data via a URL.
+The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
 
 == Options
 

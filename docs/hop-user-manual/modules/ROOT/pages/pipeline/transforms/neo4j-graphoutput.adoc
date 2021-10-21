@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Graph Output transform lets you map input fields automatically to a graph model.
 
 = Neo4j Graph Output
 
 == Description
 
-The Graph Output transform aims to allow input fields to be mapped automatically to a graph model.
-The algorithm used to update your graph takes null values for fields mapped to primary properties of nodes into account and will not merge on these nodes and will not create or update relationships to it.
+The Graph Output transform lets you map input fields automatically to a graph model.
+
+The algorithm used to update your graph takes null values for fields mapped to primary properties of nodes into account. These will not merge on these nodes, nor will it create or update relationships to these nodes.
 
 == Limitations
 

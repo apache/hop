@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The JSON Input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
 
 = JSON Input
 
 == Description
 
-This transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
+The JSON Input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
+
 JSONPath expressions can use either dot notation or square bracket notation.
 
 == Options

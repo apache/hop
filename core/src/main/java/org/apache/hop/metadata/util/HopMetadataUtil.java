@@ -28,6 +28,7 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class HopMetadataUtil {
@@ -66,5 +67,15 @@ public class HopMetadataUtil {
       Class<T> managedClass) {
     HopMetadata hopMetadata = managedClass.getAnnotation(HopMetadata.class);
     return hopMetadata;
+  }
+
+  public static String[] getHopMetadataKeys(IHopMetadataProvider provider) {
+    List<String> keys = new ArrayList<>();
+    for (Class<IHopMetadata> metadataClass : provider.getMetadataClasses()) {
+      HopMetadata hopMetadata = getHopMetadataAnnotation(metadataClass);
+      keys.add(hopMetadata.key());
+    }
+    Collections.sort(keys);
+    return keys.toArray(new String[0]);
   }
 }

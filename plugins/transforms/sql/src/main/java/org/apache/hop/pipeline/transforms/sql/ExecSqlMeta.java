@@ -449,15 +449,6 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     impact.add(ii);
   }
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
-  }
-
   /** @return Returns the variableReplacementActive. */
   public boolean isReplaceVariables() {
     return replaceVariables;

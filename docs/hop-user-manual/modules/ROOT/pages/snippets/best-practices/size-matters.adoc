@@ -24,6 +24,6 @@ Limit the amount of transforms or actions!
 * For every transform you add to a pipeline you start at least one new thread at runtime.
 You could be slowing down significantly simply by having hundreds of threads for hundreds of transforms.
 
-If you find that you need to split up a pipeline you can write intermediate data to a temporary file using the xref:pipeline/transforms/cubeoutput.adoc[Serialize to file] transform.
-The next pipeline in a workflow can then pick up the data again with the xref:pipeline/transforms/cubeinput.adoc[De-serialize from file] transform.
+If you find that you need to split up a pipeline you can write intermediate data to a temporary file using the xref:pipeline/transforms/serialize-to-file.adoc[Serialize to file] transform.
+The next pipeline in a workflow can then pick up the data again with the xref:pipeline/transforms/serialize-de-from-file.adoc[De-serialize from file] transform.
 While obviously you can also use a database or use another file type to do the same, these transforms will perform the fastest.

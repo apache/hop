@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The XSL Transformation transform performs XSL Transformations on XML.
 
 = XSL Transformation
 
 == Description
 
 The XSL Transformation transform performs XSL Transformations on XML.
+
 XSLT is short for link:http://en.wikipedia.org/wiki/XSLT[Extensible Stylesheet Language Transformations].
 
 == Options

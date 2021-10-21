@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Pipeline Executor transform allows you to execute a Hop pipeline from within a pipeline. It is similar to the Workflow Executor transform, but works with pipelines.
 
 = Pipeline Executor
 
 == Description
 
-The Pipeline Executor transform allows you to execute a Hop pipeline.
+The Pipeline Executor transform allows you to execute a Hop pipeline from within a pipeline.
 It is similar to the Workflow Executor transform, but works with pipelines.
 
 Depending on your data transformation needs, the Pipeline Executor transform can be set up to function in any of the following ways:

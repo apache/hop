@@ -145,10 +145,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
-    if (input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1) {
-      wConnection.select(0);
-    }
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
     wConnection.addModifyListener(lsMod);
     wConnection.addSelectionListener(lsSelection);
 
@@ -389,10 +387,9 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     if (input.getLookup().getTableName() != null) {
       wTable.setText(input.getLookup().getTableName());
     }
+
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
-
-      input.setDatabaseMeta(pipelineMeta.findDatabase(input.getConnection(), variables));
     }
 
     wKey.setRowNums();
@@ -483,7 +480,6 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     inf.getLookup().setSchemaName(wSchema.getText());
     inf.getLookup().setTableName(wTable.getText());
     inf.setConnection(wConnection.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
   }
@@ -496,7 +492,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "DeleteDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "DeleteDialog.InvalidConnection.DialogTitle"));

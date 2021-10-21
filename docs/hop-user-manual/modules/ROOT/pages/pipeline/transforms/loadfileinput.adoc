@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Load File Content In Memory transform loads the content of a file in memory.
 
 = Load file content in memory
 
 == Description
 
-Loads the file content in memory.
+The Load File Content In Memory transform loads the content of a file in memory.
 
 == Options
 

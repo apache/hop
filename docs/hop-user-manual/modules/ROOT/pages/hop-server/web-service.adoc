@@ -24,6 +24,8 @@ under the License.
 
 Hop has a simple way of exposing data through a servlet.
 
+For more information on configuring the Hop server check the xref:hop-server/index.adoc[Hop Server docs] +
+
 == Web Service Metadata
 
 === Screenshot

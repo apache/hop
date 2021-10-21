@@ -16,14 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Stream Lookup transform type allows you to look up data using information coming from other transforms in the pipeline.
 
 = Stream Lookup
 
 == Description
 
-The Stream lookup transform type allows you to look up data using information coming from other transforms in the pipeline.
+The Stream Lookup transform type allows you to look up data using information coming from other transforms in the pipeline.
+
 The data coming from the Source transform is first read into memory and is then used to look up data from the main stream.
+
+TIP: Since this transform loads the lookup data into memory, it can be an extremely fast way to look up data. However, the entire lookup data set needs to fit in your available memory.
 
 == Options
 

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Change File Encoding transform changes a text file from one encoding to another.
 
 = Change file encoding
 
 == Description
 
-This transform changes a text file from one encoding to another.
+The Change File Encoding transform changes a text file from one encoding to another.
 
 == Options
 

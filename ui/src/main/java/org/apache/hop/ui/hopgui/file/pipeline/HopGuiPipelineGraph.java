@@ -1807,7 +1807,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private Image getImageFor(IStream stream) {
     Display disp = hopDisplay();
     SwtUniversalImage swtImage =
-        SwtGc.getNativeImage(BasePainter.getStreamIconImage(stream.getStreamIcon()));
+        SwtGc.getNativeImage(BasePainter.getStreamIconImage(stream.getStreamIcon(), true));
     return swtImage.getAsBitmapForSize(disp, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 

@@ -16,14 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Run SSH Commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol.
 
 = Run SSH commands
 
 == Description
 
-The Run SSH commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol.
-You can pass text to stdout or stderr in the commands.
-This information can then be picked up by the transform and passed in a field to subsequent transforms.
+The Run SSH Commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol.
+
+You can pass text to stdout or stderr in the commands. This information can then be picked up by the transform and passed in a field to subsequent transforms.
 
 == Options
 

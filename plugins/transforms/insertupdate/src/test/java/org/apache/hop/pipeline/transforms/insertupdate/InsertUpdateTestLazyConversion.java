@@ -27,18 +27,17 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * @see InsertUpdate
- */
+/** @see InsertUpdate */
 public class InsertUpdateTestLazyConversion {
   TransformMockHelper<InsertUpdateMeta, InsertUpdateData> smh;
 
@@ -57,7 +56,9 @@ public class InsertUpdateTestLazyConversion {
 
   @Test
   public void testDateLazyConversion() throws HopException {
+
     Database db = mock(Database.class);
+
     RowMeta returnRowMeta = new RowMeta();
     doReturn(new Object[] {new Timestamp(System.currentTimeMillis())})
         .when(db)
@@ -76,7 +77,12 @@ public class InsertUpdateTestLazyConversion {
     inputRowMeta.addValueMeta(valueMeta);
 
     InsertUpdateMeta transformMeta = smh.iTransformMeta;
-    doReturn(new Boolean[] {true}).when(transformMeta).getUpdate();
+    InsertUpdateLookupField mockedIulf = mock(InsertUpdateLookupField.class);
+    List<InsertUpdateValue> items = mock(ArrayList.class);
+    when(transformMeta.getInsertUpdateLookupField()).thenReturn(mockedIulf);
+    when(transformMeta.getInsertUpdateLookupField().getValueFields()).thenReturn(items);
+    when(items.get(0)).thenReturn(mock(InsertUpdateValue.class));
+    when(items.get(0).isUpdate()).thenReturn(true);
 
     InsertUpdateData transformData = smh.iTransformData;
     transformData.lookupParameterRowMeta = inputRowMeta;

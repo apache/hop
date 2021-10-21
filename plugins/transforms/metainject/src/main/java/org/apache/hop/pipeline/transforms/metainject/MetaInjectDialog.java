@@ -23,7 +23,10 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -31,20 +34,19 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -84,6 +86,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
   private ModifyListener lsMod;
 
+  protected Label wlRunConfiguration;
+  protected ComboVar wRunConfiguration;
+
   // the source transform
   //
   private CCombo wSourceTransform;
@@ -95,6 +100,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   // the target file
   //
   private TextVar wTargetFile;
+  private Button wbFilename; // Browse for optional target file
 
   // don't execute the transformation
   //
@@ -238,6 +244,25 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
           }
         });
 
+
+    wlRunConfiguration = new Label(shell, SWT.LEFT);
+    wlRunConfiguration.setText(BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
+    props.setLook(wlRunConfiguration);
+    FormData fdlRunConfiguration = new FormData();
+    fdlRunConfiguration.left = new FormAttachment(0, 0);
+    fdlRunConfiguration.top = new FormAttachment(wPath, 20);
+    fdlRunConfiguration.right = new FormAttachment(100, 0);
+    wlRunConfiguration.setLayoutData(fdlRunConfiguration);
+
+    wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
+    props.setLook(wlRunConfiguration);
+    FormData fdRunConfiguration = new FormData();
+    fdRunConfiguration.left = new FormAttachment(0, 0);
+    fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 10);
+    fdRunConfiguration.right = new FormAttachment(100, 0);
+    wRunConfiguration.setLayoutData(fdRunConfiguration);
+    props.setLook(wRunConfiguration);
+
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -250,7 +275,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wPath, 20);
+    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -333,6 +358,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     // ////////////////////////
     // START OF OPTIONS TAB ///
     // ////////////////////////
+
+    int margin = props.getMargin();
 
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
     wOptionsTab.setText(BaseMessages.getString(PKG, "MetaInjectDialog.OptionsTab.TabTitle"));
@@ -423,13 +450,35 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdlTargetFile.top = new FormAttachment(wSourceFields, 10);
     wlTargetFile.setLayoutData(fdlTargetFile);
 
+    wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename);
+    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFilename.setToolTipText(
+        BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
+    FormData fdbFilename = new FormData();
+    fdbFilename.right = new FormAttachment(100, 0);
+    fdbFilename.top = new FormAttachment(wlTargetFile, margin);
+    wbFilename.setLayoutData(fdbFilename);
+
+    wbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                true,
+                shell,
+                wTargetFile,
+                variables,
+                new String[] {"*.hpl"},
+                new String[] {BaseMessages.getString(PKG, "System.FileType.Pipeline")},
+                true));
+
     wTargetFile = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTargetFile);
     wTargetFile.addModifyListener(lsMod);
     FormData fdTargetFile = new FormData();
-    fdTargetFile.right = new FormAttachment(100, 0);
+    fdTargetFile.right = new FormAttachment(wbFilename, -margin);
     fdTargetFile.left = new FormAttachment(0, 0);
-    fdTargetFile.top = new FormAttachment(wlTargetFile, 5);
+    fdTargetFile.top = new FormAttachment(wlTargetFile, margin);
     wTargetFile.setLayoutData(fdTargetFile);
 
     // the streaming source transform
@@ -778,6 +827,33 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   public void getData() {
     wPath.setText(Const.NVL(metaInjectMeta.getFileName(), ""));
 
+
+    try {
+      List<String> runConfigurations =
+              metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
+
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+                HopGui.getInstance().getLog(),
+                variables,
+                HopExtensionPoint.HopGuiRunConfiguration.id,
+                new Object[] {runConfigurations, PipelineMeta.XML_TAG});
+      } catch (HopException e) {
+        // Ignore errors
+      }
+
+      wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
+      wRunConfiguration.setText(Const.NVL(metaInjectMeta.getRunConfigurationName(), ""));
+
+      if (Utils.isEmpty(metaInjectMeta.getRunConfigurationName())) {
+        wRunConfiguration.select(0);
+      } else {
+        wRunConfiguration.setText(metaInjectMeta.getRunConfigurationName());
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting pipeline run configurations", e);
+    }
+
     wSourceTransform.setText(Const.NVL(metaInjectMeta.getSourceTransformName(), ""));
     int rownr = 0;
     for (MetaInjectOutputField field : metaInjectMeta.getSourceOutputFields()) {
@@ -980,6 +1056,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   private void getInfo(MetaInjectMeta meta) {
     meta.setFileName(wPath.getText());
     meta.setSourceTransformName(wSourceTransform.getText());
+    meta.setRunConfigurationName(wRunConfiguration.getText());
+
     meta.setSourceOutputFields(new ArrayList<>());
     for (int i = 0; i < wSourceFields.nrNonEmpty(); i++) {
       TableItem item = wSourceFields.getNonEmpty(i);

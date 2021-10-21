@@ -16,15 +16,21 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The File Metadata transform scans a file to determine its metadata structure or layout. Use this transforms in situations where you need to read a structured text file (e.g. CSV, TSV) when you don't know the exact layout in advance.
+
 
 = File Metadata
 
 == Description
 
-This transform scans a file to determine its metadata structure or layout.
+The File Metadata transform scans a file to determine its metadata structure or layout.
+
 Use this transforms in situations where you need to read a structured text file (e.g. CSV, TSV) when you don't know the exact layout in advance.
+
 The information provided in this file can be used to actually read the file later, e.g. through metadata injection.
+
 The layout detected depends on the number of rows scanned.
+
 For example, if the first 100 rows of a file are scanned and the first field is detected as an integer, there is a possibility this field contains alphanumerical characters in later rows.
 Using 0 rows for 'limit scanned rows' is a way to make sure the entire file is scanned and the layout is detected correctly, even though this may be time consuming or even impossible for large files.
 

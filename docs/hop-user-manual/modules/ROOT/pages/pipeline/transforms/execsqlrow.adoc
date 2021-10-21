@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Execute Row SQL Script transform executes an SQL script for every input row the transform receives. The SQL to execute can be passed as pipeline fields or read from a file.
 
 = Execute row SQL script
 
 == Description
 
-Execute row SQL script for every input-row to this transform.
-An input field can be used to specify the SQL to execute or it can specify a file that contains the SQL to execute.
+The Execute Row SQL Script transform executes an SQL script for every input row the transform receives.
+
+The SQL to execute can be passed as pipeline fields or read from a file.
 
 == Options
 

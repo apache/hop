@@ -115,7 +115,7 @@ image:hop-gui/environment/environment-edit.svg[Edit the selected environment]
 
 Clicking this button will re-open the project dialogue where changes can be made as described in <<tab-env-props>>.
 
-To delete a project click the *Delete the selected environment* button.
+To delete an environment click the *Delete the selected environment* button.
 
 image:hop-gui/environment/environment-delete.svg[Delete the selected environment]
 

@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Select Values transform is useful for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream.
 
 = Select Values
 
 == Description
 
 The Select Values transform is useful for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream.
+
 These operations are organized into different categories:
 
 * **Select and Alter** — Specify the exact order and name in which the fields have to be placed in the output rows

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Bigtable Output transform can be used to write data to a Google Cloud Bigtable table using the Beam execution engine.
 
 = Beam Bigtable Output
 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Licensed to the Apache Software Foundation (ASF) under one or more
+  - contributor license agreements.  See the NOTICE file distributed with
+  - this work for additional information regarding copyright ownership.
+  - The ASF licenses this file to You under the Apache License, Version 2.0
+  - (the "License"); you may not use this file except in compliance with
+  - the License.  You may obtain a copy of the License at
+  -
+  -       http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS,
+  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  - See the License for the specific language governing permissions and
+  - limitations under the License.
+  -->
+
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="42px" height="42px" viewBox="0 0 42 42" enable-background="new 0 0 42 42">
+  <g>
+    <polygon fill="none" points="35.659,17.961 34.965,20.111 36.352,20.111 	"/>
+    <rect x="14.03" y="16.814" fill="none" width="1.93" height="15.736"/>
+    <rect x="21.035" y="11.316" fill="none" width="15.735" height="1.932"/>
+    <rect x="5.23" y="11.316" fill="none" width="3.725" height="1.932"/>
+    <rect x="10.655" y="9.449" fill="#FFFFFF" width="8.68" height="5.666"/>
+    <path fill="#3D6480" d="M21.035,14.947H38.47v-5.33H21.035V7.75H8.955v1.867H3.53v5.33h5.425v1.867h3.375V34.25h5.33V16.814h3.375
+		V14.947z M10.655,15.115V9.449h8.68v5.666H10.655z M36.77,11.316v1.932H21.035v-1.932H36.77z M5.23,13.248v-1.932h3.725v1.932H5.23
+		z M15.96,32.551h-1.93V16.814h1.93V32.551z"/>
+    <polygon fill="#3D6480" points="24.556,21.352 25.586,18.601 25.667,21.952 26.448,21.952 26.28,17.102 25.354,17.102
+		24.082,20.512 22.812,17.102 21.883,17.102 21.715,21.952 22.497,21.952 22.577,18.601 23.607,21.352 	"/>
+    <polygon fill="#3D6480" points="30.298,17.84 30.298,17.102 27.361,17.102 27.361,21.952 30.305,21.952 30.305,21.215
+		28.162,21.215 28.162,19.837 30.145,19.837 30.145,19.099 28.162,19.099 28.162,17.84 	"/>
+    <polygon fill="#3D6480" points="32.868,21.952 32.868,17.84 34.257,17.84 34.257,17.102 30.678,17.102 30.678,17.84 32.067,17.84
+		32.067,21.952 	"/>
+    <path fill="#3D6480" d="M34.739,20.835h1.834l0.383,1.117h0.818l-1.639-4.851h-0.953l-1.639,4.851h0.818L34.739,20.835z
+		 M35.659,17.961l0.693,2.15h-1.387L35.659,17.961z"/>
+  </g>
+</svg>

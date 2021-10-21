@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,9 @@
  */
 
 package org.apache.hop.core.gui.plugin;
+
+import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeFilename;
+import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeMetadata;
 
 import java.lang.annotation.*;
 
@@ -106,4 +109,18 @@ public @interface GuiWidgetElement {
    * @return True if you want this element to be ignored
    */
   boolean ignored() default false;
+
+  /**
+   * You can provide more information about the Filename type like file extensions information
+   *
+   * @return
+   */
+  Class<? extends ITypeFilename> typeFilename() default EmptyTypeFilename.class;
+
+  /**
+   * You can provide more information about the Metadata type like the metadata class
+   *
+   * @return
+   */
+  Class<? extends ITypeMetadata> typeMetadata() default EmptyTypeMetadata.class;
 }

@@ -21,7 +21,7 @@ under the License.
 = Hop Server
 
 Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration.
-Additonally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
+Additonally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] metadata type.
 
 == Starting and Stopping Hop Server
 
@@ -338,7 +338,7 @@ The default is `cluster` for both the username and password.
 The defaults obviously should be changed in any environment that goes beyond a simple local developer setup.
 
 TIP: on startup, the pipeline and workflow lists shown below will be empty.
-Run a workflow or pipeline through the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop Remote pipeline engine] run configuration or through the xref:metadata-types/web-service.adoc[REST api].
+Run a workflow or pipeline through the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop Remote pipeline engine] run configuration or through the xref:hop-server/web-service.adoc[REST api].
 When pipelines or workflows are executed on the server, you'll be able to follow the logging output either from the terminal or a log file (e.g. piped from the startup command).
 
 image::hop-server/hop-server-status.png[Hop Server Status,width="65%"]

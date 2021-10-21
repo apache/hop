@@ -16,16 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Microsoft Excel Input transform reads data from Microsoft Excel spreadsheet. The default spreadsheet type (engine) is set to Excel XLSX, XLS.
+
 
 = Microsoft Excel input
 
 == Description
 
-The Microsoft Excel Input transform provides you with the ability to read data from Microsoft Excel.
-The following sections describe each of the available features for configuring this transform.
+The Microsoft Excel Input transform reads data from Microsoft Excel spreadsheet.
 
 The default spreadsheet type (engine) is set to Excel XLSX, XLS.
-When you are reading other file types like OpenOffice ODS and using special functions like protected worksheets, you need to change the Spread sheet type (engine) in the Content tab accordingly.
+
+When you read other file types like OpenOffice ODS and using special functions like protected worksheets, you need to change the Spread sheet type (engine) in the Content tab accordingly.
 
 == Options
 

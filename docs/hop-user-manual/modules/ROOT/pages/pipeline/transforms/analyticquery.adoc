@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
 
 = Analytic Query
 
 == Description
 
-This transform allows you to peek forward and backwards across rows.
+The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
+
 Examples of common use cases are:
 
 * Calculate the "time between orders" by ordering rows by order date, and LAGing 1 row back to get previous order time.

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Combination Lookup-Update transform allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
 
 = Combination lookup/update
 
 == Description
 
-The Combination Lookup-Update transform allows you to store information in a junk-dimension table, and can possibly also be used to maintain Kimball pure Type 1 dimensions.
+The Combination Lookup-Update transform allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
 
 This transform will...
 

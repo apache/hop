@@ -18,8 +18,6 @@ package org.apache.hop.base;
 
 /**
  * This class defines a base hop from one action copy to another, or from one transform to another.
- *
- * @author Alexander Buloichik
  */
 public abstract class BaseHopMeta<T> {
   public static final String XML_TAG = "hop";

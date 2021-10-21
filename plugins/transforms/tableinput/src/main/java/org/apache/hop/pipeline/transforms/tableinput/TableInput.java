@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,6 +36,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -331,27 +333,20 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
         return false;
       }
 
-      meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
-
       data.infoStream = meta.getTransformIOMeta().getInfoStreams().get(0);
       if (meta.getLookup() != null) {
         // Set reference to input transform
         data.infoStream.setSubject(meta.getLookup());
       }
 
-      if (meta.getDatabaseMeta() == null) {
-        logError(
-            BaseMessages.getString(PKG, "TableInput.Init.ConnectionMissing", getTransformName()));
-        return false;
-      }
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+      data.db = new Database(this, this, databaseMeta);
       data.db.setQueryLimit(Const.toInt(resolve(meta.getRowLimit()), 0));
 
       try {
         data.db.connect();
-
-        if (meta.getDatabaseMeta().isRequiringTransactionsOnQueries()) {
+        if (databaseMeta.isRequiringTransactionsOnQueries()) {
           data.db.setCommit(100); // needed for PGSQL it seems...
         }
         if (log.isDetailed()) {

@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Files From Result transform reads filenames and additional metadata that was added through the 'add filename to result' in other transforms.
 
 = Files from result
 
 == Description
 
+The Files From Result transform reads filenames and additional metadata that were added through the 'add filename to result' in other transforms.
+
 Every time a file gets processed, used or created in a pipeline or a workflow, the details of the file, the workflow action, the transform, etc. is captured and added to an internal result set when the option 'Add file names to result' is set, e.g. in a Text File Output transform.
-You can access this file information using this transform.
 
 == Options
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -71,6 +71,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
   private Class<?> listenerClass;
   private String listenerMethod;
 
+  private Class<? extends ITypeFilename> typeFilename;
+  private Class<? extends ITypeMetadata> typeMetadata;
+
   public GuiElements() {
     children = new ArrayList<>();
   }
@@ -104,6 +107,8 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.label = getTranslation(guiElement.label(), fieldPackageName, field.getDeclaringClass());
     this.toolTip =
         getTranslation(guiElement.toolTip(), fieldPackageName, field.getDeclaringClass());
+    this.typeFilename = guiElement.typeFilename();
+    this.typeMetadata = guiElement.typeMetadata();
   }
 
   /** Sort the children using the sort order. If no sort field is available we use the ID */
@@ -452,5 +457,33 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
   /** @param classLoader The classLoader to set */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
+  }
+
+  /**
+   * Gets typeFilename
+   *
+   * @return value of typeFilename
+   */
+  public Class<? extends ITypeFilename> getTypeFilename() {
+    return typeFilename;
+  }
+
+  /** @param typeFilename The typeFilename to set */
+  public void setTypeFilename(Class<? extends ITypeFilename> typeFilename) {
+    this.typeFilename = typeFilename;
+  }
+
+  /**
+   * Gets typeMetadata
+   *
+   * @return value of typeMetadata
+   */
+  public Class<? extends ITypeMetadata> getTypeMetadata() {
+    return typeMetadata;
+  }
+
+  /** @param typeMetadata The typeMetadata to set */
+  public void setTypeMetadata(Class<? extends ITypeMetadata> typeMetadata) {
+    this.typeMetadata = typeMetadata;
   }
 }

@@ -420,7 +420,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     props.setLook(wlReturn);
 
     int upInsCols = 3;
-    int UpInsRows = (input.getFieldTable() != null ? input.getFieldTable().length : 1);
+    int upInsRows = (input.getFieldTable() != null ? input.getFieldTable().length : 1);
 
     ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
@@ -450,7 +450,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
             wOutputFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
     wReturn.optWidth(true);
@@ -493,8 +493,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     fdTransformName = new FormData();
     fdTransformName.top = new FormAttachment(0, 15);
-    fdTransformName.left =
-        new FormAttachment(wlTransformName, margin); // FormAttachment(middle, 0);
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
     fdTransformName.right =
         new FormAttachment(100, -margin); // 100% of the form component (length of edit box)
     wTransformName.setLayoutData(fdTransformName);
@@ -782,9 +781,9 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {

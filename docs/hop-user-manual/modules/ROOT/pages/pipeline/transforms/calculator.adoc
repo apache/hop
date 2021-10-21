@@ -16,17 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Calculator transform provides you with predefined functions that can be executed on input field values.
 
 = Calculator
 
 == Description
 
-This calculator transform provides you with predefined functions that can be executed on input field values.
+The Calculator transform provides you with predefined functions that can be executed on input field values.
 
 *_Note:_* The execution speed of the Calculator is far better than the speed provided by custom scripts (JavaScript).
 
-Besides the arguments (Field A, Field B and Field C) you must also specify the return type of the function.
-You can also choose to remove the field from the result (output) after all values are calculated; this is useful for removing temporary values.
+In addition to the arguments (Field A, Field B and Field C) you must also specify the return type of the function.
+You can also choose to remove the field from the result (output) after all values are calculated; this is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
 
 == Options
 

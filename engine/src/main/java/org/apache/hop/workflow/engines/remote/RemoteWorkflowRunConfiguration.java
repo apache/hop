@@ -20,17 +20,10 @@ package org.apache.hop.workflow.engines.remote;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.empty.EmptyWorkflowRunConfiguration;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @GuiPlugin(description = "Remote workflow run configuration widgets")
 public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
@@ -39,20 +32,20 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
   @GuiWidgetElement(
       order = "10",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.COMBO,
-      comboValuesMethod = "getHopServerNames",
+      type = GuiElementType.METADATA,
       label =
-          "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.HopServer.Label")
+          "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.HopServer.Label",
+      typeMetadata = HopServerTypeMetadata.class)
   @HopMetadataProperty(key = "hop_server")
   protected String hopServerName;
 
   @GuiWidgetElement(
       order = "20",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.COMBO,
-      comboValuesMethod = "getRunConfigurationNames",
+      type = GuiElementType.METADATA,
       label =
-          "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.RunConfiguration.Label")
+          "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.RunConfiguration.Label",
+      typeMetadata = WorkflowRunConfigurationTypeMetadata.class)
   @HopMetadataProperty(key = "run_config")
   protected String runConfigurationName;
 
@@ -120,30 +113,6 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     this.exportingResources = config.exportingResources;
     this.namedResourcesSourceFolder = config.namedResourcesSourceFolder;
     this.namedResourcesTargetFolder = config.namedResourcesTargetFolder;
-  }
-
-  public List<String> getHopServerNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    List<String> names = new ArrayList<>();
-    try {
-      names.addAll(metadataProvider.getSerializer(HopServer.class).listObjectNames());
-      Collections.sort(names);
-    } catch (Exception e) {
-      log.logError("Error getting hop server names from the metadata", e);
-    }
-    return names;
-  }
-
-  public List<String> getRunConfigurationNames(
-      ILogChannel log, IHopMetadataProvider metadataProvider) {
-    List<String> names = new ArrayList<>();
-    try {
-      names.addAll(
-          metadataProvider.getSerializer(WorkflowRunConfiguration.class).listObjectNames());
-      Collections.sort(names);
-    } catch (Exception e) {
-      log.logError("Error getting the workflow run configuration names from the metadata", e);
-    }
-    return names;
   }
 
   @Override

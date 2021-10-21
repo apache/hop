@@ -16,17 +16,20 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Table Output transform inserts data into a relational database table.
 
 = Table Output
 
 == Description
 
-The Table Output transform allows you to load data into a database table.
+The Table Output transform inserts data into a relational database table.
+
 Table Output is equivalent to the DML operator INSERT.
+
 This transform provides configuration options for target table and a lot of housekeeping and/or performance-related options such as Commit Size and Use batch update for inserts.
 
 If you have a database table that has identity columns and you are inserting a record, as part of the insert, the JDBC driver will typically return the auto-generated key it used when performing the insert.
-Note: This is not supported on all database types.
+
 
 == Options
 
