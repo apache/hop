@@ -16,12 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms.
 
 = Merge Join
 
 == Description
 
 The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms.
+
+This transform assumes your data is sorted on the join keys. Use xref:pipeline/transforms/sort.adoc[Sort Rows] transforms on the incoming streams to enforce sorting if necessary.
+
 Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
 
 == Options

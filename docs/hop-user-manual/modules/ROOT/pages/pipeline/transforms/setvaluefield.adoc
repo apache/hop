@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Set Field Value transform replaces the value of a field with the value of another field.
 
 = Set field Value
 
 == Description
 
-The Set field Value transform replaces the value of a field with the value of another field.
+The Set Field Value transform replaces the value of a field with the value of another field.
 
 == Options
 

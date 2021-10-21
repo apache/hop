@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Metadata Structure Of Stream transform produces the metadata structure of the input fields of this transform as output.
 
 = Metadata structure of stream
 
 == Description
 
-This transform produces as output the metadata of the input fields of this transform.
+The Metadata Structure Of Stream transform produces the metadata structure of the input fields of this transform as output.
+
 Before producing this output the transform reads and discards (or eats) all input rows.
 
 == Options

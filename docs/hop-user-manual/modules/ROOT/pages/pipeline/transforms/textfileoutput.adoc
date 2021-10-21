@@ -16,13 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Text File Output transform is used to export data to text file format.
 
 = Text File Output
 
 == Description
 
-The Text file output transform is used to export data to text file format.
+The Text File Output transform is used to export data to text file format.
+
 This is commonly used to generate Comma Separated Values (CSV files) that can be read by spreadsheet applications.
+
 It is also possible to generate fixed width files by setting lengths on the fields in the fields tab.
 
 == Options

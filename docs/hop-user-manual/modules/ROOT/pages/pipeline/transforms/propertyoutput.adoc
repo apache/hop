@@ -16,16 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Properties Output transform outputs a set of rows of data to a Java properties files.
 
 = Write data to properties file
 
 == Description
 
 The Properties Output transform outputs a set of rows of data to a Java properties files.
-For more information on this file format, read this: http://en.wikipedia.org/wiki/.properties.
 
 The data needs to be structured in a key/value format to be usable for a properties file.
+
+TIP: More information on this file format is available on https://en.wikipedia.org/wiki/.properties[Wikipedia^]
 
 == Options
 

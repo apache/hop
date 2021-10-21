@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Row Flattener transform allows you to flatten data sequentially.
 
 = Row Flattener
 
 == Description
 
-The Row Flattener transform allows you flatten data sequentially.
+The Row Flattener transform allows you to flatten data sequentially.
 
 == Options
 

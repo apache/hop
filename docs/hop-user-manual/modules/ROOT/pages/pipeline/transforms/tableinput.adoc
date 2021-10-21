@@ -16,13 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Table Input transform is used to read information from a database, using a connection and SQL.
 
 = Table Input
 
 == Description
 
-This transform is used to read information from a database, using a connection and SQL.
+The Table Input transform is used to read information from a database, using a connection and SQL.
+
 Basic SQL statements can be generated automatically by clicking Get SQL select statement.
+
+SQL queries can be parameterized through variables and can accept input from previous transform fields.
 
 == Options
 

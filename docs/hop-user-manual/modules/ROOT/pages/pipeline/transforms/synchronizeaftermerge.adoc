@@ -16,14 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Synchronize After Merge transform can be used in conjunction with the Merge Rows (Diff) pipeline transform to insert/update/delete database fields based on the Merge Rows (Diff) output.
 
 = Synchronize after merge 
 
 == Description
 
-The Synchronize after merge transform can be used in conjunction with the Merge Rows (diff) pipeline transform.
+The Synchronize After Merge transform can be used in conjunction with the Merge Rows (Diff) pipeline transform to insert/update/delete database fields based on the Merge Rows (Diff) output.
+
 The Merge Rows (diff) pipeline transform appends a Flag column to each row, with a value of "identical", "changed", "new" or "deleted".
-This flag column is then used by the Synchronize after merge pipeline transform to carry out updates/inserts/deletes on a connection table.
+
+This flag column is then used by the Synchronize After Merge pipeline transform to carry out updates/inserts/deletes on a connection table.
 
 == Options
 

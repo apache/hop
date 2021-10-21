@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Number Range transform creates groups numerical values into a number of predefined ranges.
 
 = Number range
 
 == Description
 
-Create ranges based on numeric fields.
+The Number Range transform creates groups numerical values into a number of predefined ranges.
 
 == Options
 

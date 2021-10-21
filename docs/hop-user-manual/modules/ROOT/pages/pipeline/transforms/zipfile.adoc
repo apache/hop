@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Zip File transform creates a standard ZIP archive using the options you specify in the dialog.
 
 = Zip file
 
 == Description
 
-The Zip file transform creates a standard ZIP archive using the options you specify in the dialog.
+The Zip File transform creates a standard ZIP archive using the options you specify in the dialog.
 
 == Options
 

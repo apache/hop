@@ -16,8 +16,9 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Sample Rows transform retains a sample set of rows.
 
-= Kafka Producer
+= Sample Rows
 
 == Description
 

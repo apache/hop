@@ -16,15 +16,20 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Workflow Executor transform execute a Hop workflow from within a pipeline.
 
 = Workflow Executor
 
 == Description
 
-The workflow executor allows you to execute a Hop workflow.
-By default the specified workflow will be executed once for each input row.
+The Workflow Executor transform execute a Hop workflow from within a pipeline.
+
+By default, the specified workflow will be executed once for each input row.
+
 This row can be used to set parameters and variables and it is passed to the workflow in the form of a result row.
+
 You can also allow a group of records to be passed based on the value in a field (when the value changes the workflow is executed) or on time.
+
 In these cases, the first row of the group or rows is used to set parameters or variables in the workflow.
 
 It is possible to launch multiple copies of this transform to facilitate parallel workflow processing.

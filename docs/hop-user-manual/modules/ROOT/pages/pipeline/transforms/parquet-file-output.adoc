@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Parquet File Output transform writes data into the Apache Parquet file format.
 
 = Parquet File Output
 
 == Description
 
-This transform is capable of writing data into the Apache Parquet file format.
+The Parquet File Output transform writes data into the Apache Parquet file format.
+
 For more information on this see: http://parquet.apache.org/[Apache Parquet].
 
 == Options

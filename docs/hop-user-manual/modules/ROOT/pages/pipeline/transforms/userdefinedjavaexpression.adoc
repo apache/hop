@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: This transform allows you to enter User Defined Java Expressions as a basis for the calculation of new values.
 
 = User Defined Java Expression
 
