@@ -392,7 +392,7 @@ public class SingleThreadedPipelineExecutor {
                 String.valueOf(lu),
                 String.valueOf(e + lj)));
       } else {
-        tLog.logBasic(
+        tLog.logDetailed(
             BaseMessages.getString(
                 PKG,
                 "SingleThreadedPipeline.Log.SummaryInfo",
