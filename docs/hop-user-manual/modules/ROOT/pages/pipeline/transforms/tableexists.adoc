@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Table Exists transform verifies if a certain table exists in a database. The result of this transform is a boolean flag field.
 
 = Table Exists
 
 == Description
 
-You can use the Table Exists transform to verify if a certain table exists in a database.
-The result of this transform is a boolean flag field.
+The Table Exists transform verifies if a certain table exists in a database. The result of this transform is a boolean flag field.
 
 == Options
 

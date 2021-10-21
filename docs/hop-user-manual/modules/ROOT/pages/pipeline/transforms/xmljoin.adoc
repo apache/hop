@@ -16,15 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The XML Join transform adds xml tags from one stream into a leading XML structure from a second stream.
 
 = XML Join
 
 == Description
 
-The XML Join transform allows to add xml tags from one stream into a leading XML structure from a second stream.
-While the target stream must have only one row, since it represents a XML document, the other stream can consist of many rows and the tags from all rows will be added to the target document.
+The XML Join transform adds xml tags from one stream into a leading XML structure from a second stream.
 
-After the join only one row will be produced containing the fields of the target transform plus the result field of the join.
+The target stream must have only one row, since it represents a XML document. The other stream can consist of many rows and the tags from all rows will be added to the target document.
+
+Only one row will be produced after the join. This single row contains the fields of the target transform plus the result field of the join.
 
 == Options
 

@@ -16,18 +16,23 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
 
 = User Defined Java Class
 
 == Description
 
 The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
+
 In essence, this transform allows you to program your own plugin in a transform.
 
-The goal of this transform is not to allow a user to do full-scale Java development inside of a transform.
+The goal of this transform is not to allow a user to do full-scale Java development inside a transform.
+
 Obviously we have a whole plugin system available to help with that part.
+
 The goal is to allow users to define methods and logic with as little as code as possible, executed as fast as possible.
-For this we use the Janino project libraries that compile Java code in the form of classes at runtime.
+
+For this we use the https://janino-compiler.github.io/janino/[Janino^] project libraries that compile Java code in the form of classes at runtime.
 
 == Options
 
