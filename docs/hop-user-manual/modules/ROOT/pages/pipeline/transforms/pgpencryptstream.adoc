@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The PGP Encrypt Stream transform encrypts text using PGP.
 
 = PGP encrypt stream
 
 == Description
 
-The PGP encrypt stream transform encrypts text using PGP.
+The PGP Encrypt Stream transform encrypts text using PGP.
 
 == Options
 

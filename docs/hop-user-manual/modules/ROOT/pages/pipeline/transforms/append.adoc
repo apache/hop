@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Append Streams transform reads the data from two transforms, only processing the second stream after the first one is finished.
 
 = Append Streams
 
 == Description
 
-The "Append streams" transform reads the data from two transforms, only processing the second stream after the first is finished.
+The Append Streams transform reads the data from two transforms, only processing the second stream after the first one is finished.
+
 As always, the row layout for the input data coming from both transforms has to be identical: the same row lengths, the same data types, the same fields at the same field indexes in the row.
 
 *Important*: If you don't care about the order in which the output rows occur, you can use any transform to create a union of 2 or more data streams.

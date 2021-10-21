@@ -126,8 +126,9 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -357,7 +358,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     }
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
-      input.setDatabaseMeta(pipelineMeta.findDatabase(input.getConnection(), variables));
     }
 
     wLimit.setText(Const.NVL(input.getRowLimit(), ""));
@@ -405,7 +405,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   private void getInfo(TableInputMeta meta, boolean preview) {
 
     meta.setConnection(wConnection.getText());
-    meta.setDatabaseMeta(pipelineMeta.findDatabase(meta.getConnection(), variables));
 
     meta.setSql(
         preview && !Utils.isEmpty(wSql.getSelectionText())
@@ -430,7 +429,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     getInfo(input, false);
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.SelectValidConnection"));
       mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));

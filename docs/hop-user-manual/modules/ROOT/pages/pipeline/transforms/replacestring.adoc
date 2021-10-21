@@ -16,14 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Replace In String transform performs simple search and replace operations on String fields.
 
 :openvar: {
 :closevar: }
+
 = Replace in String
 
 == Description
 
-Replace in string is a simple search and replace.
+The Replace In String transform performs simple search and replace operations on String fields.
+
 It also supports regular expressions and group references. group references are picked up in the replace by string as $n where n is the number of the group.
 
 == Options

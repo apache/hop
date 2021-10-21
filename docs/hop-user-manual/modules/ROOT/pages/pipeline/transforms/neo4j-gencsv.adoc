@@ -16,10 +16,11 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Neo4j Generate CSV transform writes files for nodes and relationships to the import folder for use with Neo4j's neo4j-import tool.
 
 = Neo4j Generate CSVs
 
-Generate CSV files for nodes and relationships in the import folder for use with Neo4j's neo4j-import tool.
+The Neo4j Generate CSV transform writes files for nodes and relationships to the import folder for use with Neo4j's neo4j-import tool.
 
 == Options
 

@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The MongoDB Output transform can output data to a MongoDB database collection.
 
 = MongoDB Output
 
 == Description
 
-The MongoDB Output pipeline transform can output data to a MongoDB database http://docs.mongodb.org/manual/reference/glossary/[collection].
+The MongoDB Output transform can output data to a MongoDB database http://docs.mongodb.org/manual/reference/glossary/[collection].
 
 For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
 

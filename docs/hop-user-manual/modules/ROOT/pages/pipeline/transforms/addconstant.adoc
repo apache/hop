@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Add Constant Values transform is a simple and high performance way to add constant values to a pipeline stream.
 
 = Add Constants
 
 == Description
 
-The Add constant values transform is a simple and high performance way to add constant values to the stream.
+The Add Constant Values transform is a simple and high performance way to add constant values to a pipeline stream.
 
 == Options
 

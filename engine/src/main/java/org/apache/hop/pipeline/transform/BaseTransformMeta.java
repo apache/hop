@@ -302,6 +302,7 @@ public class BaseTransformMeta implements Cloneable {
    * @return an array of database connections meta-data. Return an empty array if no connections are
    *     used.
    */
+  @Deprecated
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {};
   }

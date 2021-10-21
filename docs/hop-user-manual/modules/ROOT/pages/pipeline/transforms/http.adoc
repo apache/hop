@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The HTTP Client transform performs a simple call to a base URL with additional options.
 
 = HTTP client
 
 == Description
 
-The HTTP client transform performs a simple call to a base URL with options appended as shown below:
+The HTTP Client transform performs a simple call to a base URL with additional options.
 
 ====
 http://<URL>?param1=value1&amp;param2=value2&amp;param3..

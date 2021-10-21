@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Web Services Lookup transform performs a Web Services lookup using the Web Services Description Language (WSDL).
 
 = Web services lookup
 
 == Description
 
-This transform performs a Web Services lookup using the Web Services Description Language (WSDL).
+The Web Services Lookup transform performs a Web Services lookup using the Web Services Description Language (WSDL).
 
 == Options
 

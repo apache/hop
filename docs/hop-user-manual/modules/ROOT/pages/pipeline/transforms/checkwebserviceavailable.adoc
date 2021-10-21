@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Check If Webservice Is Available transform checks if a webservice URL in the data stream is valid, can be connected to and can be read.
 
 = Check if webservice is available
 
 == Description
 
-The Check if webservice is available transform checks if a Webservice URL in the data stream is valid, can be connected to and can be read.
+The Check If Webservice Is Available transform checks if a webservice URL in the data stream is valid, can be connected to and can be read.
 If it connects within the given time and data can be read, it returns 'true' as a boolean result value, otherwise 'false'.
 Further information of the failing reason can be found in the log when debug logging is enabled.
 

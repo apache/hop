@@ -102,8 +102,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Button wWaitingToFinish;
 
-  protected Button wFollowingAbortRemotely;
-
   protected Group gExecution;
 
   protected Button wOk, wCancel;
@@ -197,7 +195,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wPath.setLayoutData(fdPath);
 
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText("Run configuration"); // TODO i18n
+    wlRunConfiguration.setText(BaseMessages.getString(PKG, "ActionPipeline.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);

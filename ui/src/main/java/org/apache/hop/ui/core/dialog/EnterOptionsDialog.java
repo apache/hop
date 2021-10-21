@@ -1223,7 +1223,7 @@ public class EnterOptionsDialog extends Dialog {
           props.setLook(wPluginsComp);
           wPluginsComp.setLayout(new FormLayout());
 
-          GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(hopGui.getVariables(), 20);
+          GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(hopGui.getVariables());
           compositeWidgets.createCompositeWidgets(
               sourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
           compositeWidgets.setWidgetsContents(sourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);

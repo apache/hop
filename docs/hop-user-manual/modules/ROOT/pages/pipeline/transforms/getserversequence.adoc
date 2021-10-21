@@ -16,18 +16,22 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Get ID From Slave Server transform gets a unique ID from the hop server of your choice. The transform works by asking a hop server for a range of values.
 
 = Get ID from slave server
 
 == Description
 
-This transform gets a unique ID from the hop server of your choice.
+The Get ID From Slave Server transform gets a unique ID from the hop server of your choice.
 
-The transform works by asking a hop server for the a range of values.
+The transform works by asking a hop server for a range of values.
+
 In other words, the transform reserves a range of IDs for a certain given central hop server sequence.
+
 It then increments by one until there are no more values in the range, asks another range, and so forth.
 
 This means that the returned IDs can be sequential, however this is not guaranteed.
+
 The only thing you know is that after each execution for each input row you get a unique ID that has a higher value than the last one returned.
 
 The last value returned + the size of the range (increment) are stored in a database table to persist the value over several runs of a pipeline.

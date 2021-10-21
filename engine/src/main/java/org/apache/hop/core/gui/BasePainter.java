@@ -123,18 +123,18 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.noteFontHeight = noteFontHeight;
   }
 
-  public static EImage getStreamIconImage(StreamIcon streamIcon) {
+  public static EImage getStreamIconImage(StreamIcon streamIcon, boolean enabled) {
     switch (streamIcon) {
       case TRUE:
-        return EImage.TRUE;
+        return (enabled) ? EImage.TRUE : EImage.TRUE_DISABLED;
       case FALSE:
-        return EImage.FALSE;
+        return (enabled) ? EImage.FALSE : EImage.FALSE_DISABLED;
       case ERROR:
-        return EImage.ERROR;
+        return (enabled) ? EImage.ERROR : EImage.ERROR_DISABLED;
       case INFO:
-        return EImage.INFO;
+        return (enabled) ? EImage.INFO : EImage.INFO_DISABLED;
       case TARGET:
-        return EImage.TARGET;
+        return (enabled) ? EImage.TARGET : EImage.TARGET_DISABLED;
       case INPUT:
         return EImage.INPUT;
       case OUTPUT:

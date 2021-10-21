@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file. It supports both the .xls and .xlsx file formats.
 
 = Excel writer
 
 == Description
 
-The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file and supports both the .xls and .xlsx file formats.
+The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file. It supports both the .xls and .xlsx file formats.
+
 The .xls files use a binary format which is better suited for simple content, while the .xlsx files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
 
 == Options

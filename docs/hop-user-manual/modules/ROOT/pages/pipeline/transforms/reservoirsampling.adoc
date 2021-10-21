@@ -16,15 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Reservoir Sampling transform allows you to sample a fixed number of rows from an incoming data stream when the total number of incoming rows is not known in advance.
 
 = Reservoir Sampling
 
 == Description
 
 The Reservoir Sampling transform allows you to sample a fixed number of rows from an incoming data stream when the total number of incoming rows is not known in advance.
+
 The transform uses uniform sampling; all incoming rows have an equal chance of being selected.
+
 This transform is particularly useful when used in conjunction with the ARFF output transform in order to generate a suitable sized data set to be used by WEKA.
+
 The reservoir sampling transform uses link:https://en.wikipedia.org/wiki/Reservoir_sampling[Algorithm R] by Jeffery Vitter.
 
 == Options

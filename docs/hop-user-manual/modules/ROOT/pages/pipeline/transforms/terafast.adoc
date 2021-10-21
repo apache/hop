@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Teradata Bulkloader transform supports fastloading data into a Teradata database using the fastload command line tool.
 
 :openvar: ${
 :closevar: }

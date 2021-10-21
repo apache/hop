@@ -1,0 +1,13 @@
+{
+  "webAppName": "",
+  "sslMode": false,
+  "proxyPort": "",
+  "hostname": "hop-server",
+  "password": "Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8",
+  "nonProxyHosts": "",
+  "overrideExistingProperties": false,
+  "port": "8181",
+  "name": "testserver",
+  "proxyHostname": "",
+  "username": "cluster"
+}

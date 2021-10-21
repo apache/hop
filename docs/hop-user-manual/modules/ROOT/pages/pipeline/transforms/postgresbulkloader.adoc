@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The PostgreSQL Bulk Loader transform streams data from Hop to PostgreSQL, using COPY DATA FROM STDIN into the database.
 
 = PostgreSQL Bulk Loader
 
 == Description
 
-The PostgreSQL bulk loader is a transform in which we will stream data from Hop to postgresql using https://www.postgresql.org/docs/current/sql-copy.html["COPY DATA FROM STDIN"^] into the database.
+The PostgreSQL Bulk Loader transform streams data from Hop to Postgresql using https://www.postgresql.org/docs/current/sql-copy.html["COPY DATA FROM STDIN"^] into the database.
 
 TIP: replace boolean fields in your pipeline stream by string fields with "Y" or "N" values to avoid errors.
 

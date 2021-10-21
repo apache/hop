@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The REST Client transform enables you to consume RESTfull services.
 
 = REST Client
 
 == Description
 
-The REST Client pipeline transform enables you to consume RESTfull services.
+The REST Client transform enables you to consume RESTfull services.
+
 Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
 
 == Options

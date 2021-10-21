@@ -16,14 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The XML Input Stream (StAX) transform reads data from XML files using the Streaming API for the XML (StAX) parser.
 
 = XML Input Stream (StAX) 
 
 == Description
 
 The XML Input Stream (StAX) transform reads data from XML files using the Streaming API for the XML (StAX) parser.
+
 This transform is optimal for quickly processing large and complex data structures.
-Unlike the Get Data from XML transform which uses in-memory processing and can require the purging of parts of files, the XML Input Stream (StAX) transform moves the processing logic into the pipeline.
+
+Unlike the xref:pipeline/transforms/getdatafromxml.adoc[Get Data from XML] transform, which uses in-memory processing and can require the purging of parts of files, the XML Input Stream (StAX) transform moves the processing logic into the pipeline.
+
 The transform itself provides the raw XML data stream together with additional processing information.
 
 This streaming transform is recommended when you have limitations with other transforms or need to parse XML when:

@@ -57,9 +57,6 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
   private IHopMetadataProvider metadataProvider;
 
-  /** database connection */
-  private DatabaseMeta databaseMeta;
-
   /** Commit size for inserts/updates */
   @HopMetadataProperty(
       key = "commit",
@@ -174,16 +171,6 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
     this.skipLookup = skipLookup;
   }
 
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
   /** @return Returns the ignoreError. */
   public boolean isErrorIgnored() {
     return errorIgnored;
@@ -228,7 +215,6 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   @Override
   public void setDefault() {
     skipLookup = false;
-    databaseMeta = null;
     commitSize = "100";
 
     lookupField.setSchemaName("");
@@ -509,111 +495,119 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
-    SqlStatement retval =
-        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
+    SqlStatement retval = null;
 
-    if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
 
-        String[] keyLookup = null;
-        String[] keyStream = null;
-        String[] updateLookup = null;
-        String[] updateStream = null;
+      retval =
+          new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
-        if (lookupField.getLookupKeys().size() > 0) {
-          keyLookup = new String[lookupField.getLookupKeys().size()];
-          for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
-            keyLookup[i] = lookupField.getLookupKeys().get(i).getKeyLookup();
-          }
-        }
+      if (databaseMeta != null) {
+        if (prev != null && prev.size() > 0) {
 
-        if (lookupField.getLookupKeys().size() > 0) {
-          keyStream = new String[lookupField.getLookupKeys().size()];
-          for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
-            keyStream[i] = lookupField.getLookupKeys().get(i).getKeyStream();
-          }
-        }
+          String[] keyLookup = null;
+          String[] keyStream = null;
+          String[] updateLookup = null;
+          String[] updateStream = null;
 
-        if (lookupField.getLookupKeys().size() > 0) {
-          updateLookup = new String[lookupField.getUpdateFields().size()];
-          for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
-            updateLookup[i] = lookupField.getUpdateFields().get(i).getUpdateLookup();
-          }
-        }
-
-        if (lookupField.getLookupKeys().size() > 0) {
-          updateStream = new String[lookupField.getUpdateFields().size()];
-          for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
-            updateStream[i] = lookupField.getUpdateFields().get(i).getUpdateStream();
-          }
-        }
-        // Copy the row
-        IRowMeta tableFields =
-            RowMetaUtils.getRowMetaForUpdate(
-                prev, keyLookup, keyStream, updateLookup, updateStream);
-        if (!Utils.isEmpty(lookupField.getTableName())) {
-          String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination(
-                  variables, lookupField.getSchemaName(), lookupField.getTableName());
-
-          Database db = new Database(loggingObject, variables, databaseMeta);
-          try {
-            db.connect();
-
-            if (getIgnoreFlagField() != null && getIgnoreFlagField().length() > 0) {
-              prev.addValueMeta(new ValueMetaBoolean(getIgnoreFlagField()));
+          if (lookupField.getLookupKeys().size() > 0) {
+            keyLookup = new String[lookupField.getLookupKeys().size()];
+            for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
+              keyLookup[i] = lookupField.getLookupKeys().get(i).getKeyLookup();
             }
+          }
 
-            String crTable = db.getDDL(schemaTable, tableFields, null, false, null, true);
+          if (lookupField.getLookupKeys().size() > 0) {
+            keyStream = new String[lookupField.getLookupKeys().size()];
+            for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
+              keyStream[i] = lookupField.getLookupKeys().get(i).getKeyStream();
+            }
+          }
 
-            String crIndex = "";
-            String[] idxFields = null;
+          if (lookupField.getLookupKeys().size() > 0) {
+            updateLookup = new String[lookupField.getUpdateFields().size()];
+            for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
+              updateLookup[i] = lookupField.getUpdateFields().get(i).getUpdateLookup();
+            }
+          }
 
-            if (lookupField.getLookupKeys().size() > 0) {
-              idxFields = new String[lookupField.getLookupKeys().size()];
-              for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
-                idxFields[i] = lookupField.getLookupKeys().get(i).getKeyLookup();
+          if (lookupField.getLookupKeys().size() > 0) {
+            updateStream = new String[lookupField.getUpdateFields().size()];
+            for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
+              updateStream[i] = lookupField.getUpdateFields().get(i).getUpdateStream();
+            }
+          }
+          // Copy the row
+          IRowMeta tableFields =
+              RowMetaUtils.getRowMetaForUpdate(
+                  prev, keyLookup, keyStream, updateLookup, updateStream);
+          if (!Utils.isEmpty(lookupField.getTableName())) {
+            String schemaTable =
+                databaseMeta.getQuotedSchemaTableCombination(
+                    variables, lookupField.getSchemaName(), lookupField.getTableName());
+
+            Database db = new Database(loggingObject, variables, databaseMeta);
+            try {
+              db.connect();
+
+              if (getIgnoreFlagField() != null && getIgnoreFlagField().length() > 0) {
+                prev.addValueMeta(new ValueMetaBoolean(getIgnoreFlagField()));
               }
-            } else {
+
+              String crTable = db.getDDL(schemaTable, tableFields, null, false, null, true);
+
+              String crIndex = "";
+              String[] idxFields = null;
+
+              if (lookupField.getLookupKeys().size() > 0) {
+                idxFields = new String[lookupField.getLookupKeys().size()];
+                for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
+                  idxFields[i] = lookupField.getLookupKeys().get(i).getKeyLookup();
+                }
+              } else {
+                retval.setError(
+                    BaseMessages.getString(PKG, "UpdateMeta.CheckResult.MissingKeyFields"));
+              }
+
+              // Key lookup dimensions...
+              if (idxFields != null
+                  && idxFields.length > 0
+                  && !db.checkIndexExists(schemaTable, idxFields)) {
+                String indexname = "idx_" + lookupField.getTableName() + "_lookup";
+                crIndex =
+                    db.getCreateIndexStatement(
+                        schemaTable, indexname, idxFields, false, false, false, true);
+              }
+
+              String sql = crTable + crIndex;
+              if (sql.length() == 0) {
+                retval.setSql(null);
+              } else {
+                retval.setSql(sql);
+              }
+            } catch (HopException e) {
               retval.setError(
-                  BaseMessages.getString(PKG, "UpdateMeta.CheckResult.MissingKeyFields"));
+                  BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.ErrorOccurred")
+                      + e.getMessage());
             }
-
-            // Key lookup dimensions...
-            if (idxFields != null
-                && idxFields.length > 0
-                && !db.checkIndexExists(schemaTable, idxFields)) {
-              String indexname = "idx_" + lookupField.getTableName() + "_lookup";
-              crIndex =
-                  db.getCreateIndexStatement(
-                      schemaTable, indexname, idxFields, false, false, false, true);
-            }
-
-            String sql = crTable + crIndex;
-            if (sql.length() == 0) {
-              retval.setSql(null);
-            } else {
-              retval.setSql(sql);
-            }
-          } catch (HopException e) {
+          } else {
             retval.setError(
-                BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.ErrorOccurred")
-                    + e.getMessage());
+                BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.NoTableDefinedOnConnection"));
           }
         } else {
           retval.setError(
-              BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.NoTableDefinedOnConnection"));
+              BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.NotReceivingAnyFields"));
         }
       } else {
-        retval.setError(
-            BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.NotReceivingAnyFields"));
+        retval.setError(BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.NoConnectionDefined"));
       }
-    } else {
-      retval.setError(BaseMessages.getString(PKG, "UpdateMeta.ReturnValue.NoConnectionDefined"));
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
-
     return retval;
   }
 
@@ -629,61 +623,61 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (prev != null) {
-      // Lookup: we do a lookup on the natural keys
-      for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
-        UpdateKeyField keyFieldItem = lookupField.getLookupKeys().get(i);
-        IValueMeta v = prev.searchValueMeta(keyFieldItem.getKeyStream());
 
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                lookupField.getTableName(),
-                keyFieldItem.getKeyLookup(),
-                keyFieldItem.getKeyStream(),
-                v != null ? v.getOrigin() : "?",
-                "",
-                "Type = " + v.toStringMeta());
-        impact.add(ii);
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      if (prev != null) {
+        // Lookup: we do a lookup on the natural keys
+        for (int i = 0; i < lookupField.getLookupKeys().size(); i++) {
+          UpdateKeyField keyFieldItem = lookupField.getLookupKeys().get(i);
+          IValueMeta v = prev.searchValueMeta(keyFieldItem.getKeyStream());
+
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  lookupField.getTableName(),
+                  keyFieldItem.getKeyLookup(),
+                  keyFieldItem.getKeyStream(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        }
+
+        // Update fields : read/write
+        for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
+          UpdateField fieldItem = lookupField.getUpdateFields().get(i);
+          IValueMeta v = prev.searchValueMeta(fieldItem.getUpdateStream());
+
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_UPDATE,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  lookupField.getTableName(),
+                  fieldItem.getUpdateLookup(),
+                  fieldItem.getUpdateStream(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        }
       }
-
-      // Update fields : read/write
-      for (int i = 0; i < lookupField.getUpdateFields().size(); i++) {
-        UpdateField fieldItem = lookupField.getUpdateFields().get(i);
-        IValueMeta v = prev.searchValueMeta(fieldItem.getUpdateStream());
-
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_UPDATE,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                lookupField.getTableName(),
-                fieldItem.getUpdateLookup(),
-                fieldItem.getUpdateStream(),
-                v != null ? v.getOrigin() : "?",
-                "",
-                "Type = " + v.toStringMeta());
-        impact.add(ii);
-      }
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 
   @Override
   public UpdateData getTransformData() {
     return new UpdateData();
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
   }
 
   @Override

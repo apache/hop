@@ -163,20 +163,28 @@ public class GuiResource {
   private SwtUniversalImage imageEdit;
   private SwtUniversalImage imageClearText;
   private SwtUniversalImage imageCopyRows;
+  private SwtUniversalImage imageCopyRowsDisabled;
   private SwtUniversalImage imageFailure;
   private SwtUniversalImage imageSuccess;
   private SwtUniversalImage imageError;
+  private SwtUniversalImage imageErrorDisabled;
   private SwtUniversalImage imageInfo;
+  private SwtUniversalImage imageInfoDisabled;
   private SwtUniversalImage imageWarning;
   private SwtUniversalImage imageInput;
   private SwtUniversalImage imageOutput;
   private SwtUniversalImage imageTarget;
+  private SwtUniversalImage imageTargetDisabled;
   private SwtUniversalImage imageLocked;
   private SwtUniversalImage imageTrue;
+  private SwtUniversalImage imageTrueDisabled;
   private SwtUniversalImage imageFalse;
+  private SwtUniversalImage imageFalseDisabled;
   private SwtUniversalImage imageContextMenu;
-  private SwtUniversalImage imageUnconditionalHop;
-  private SwtUniversalImage imageParallelHop;
+  private SwtUniversalImage imageUnconditional;
+  private SwtUniversalImage imageUnconditionalDisabled;
+  private SwtUniversalImage imageParallel;
+  private SwtUniversalImage imageParallelDisabled;
   private SwtUniversalImage imageBusy;
   private SwtUniversalImage imageInject;
   private SwtUniversalImage imageBalance;
@@ -453,8 +461,11 @@ public class GuiResource {
       imageHideResults.dispose();
       imageCollapseAll.dispose();
       imageCopyRows.dispose();
+      imageCopyRowsDisabled.dispose();
       imageError.dispose();
+      imageErrorDisabled.dispose();
       imageInfo.dispose();
+      imageInfoDisabled.dispose();
       imageWarning.dispose();
       imageClearText.dispose();
       imageDeprecated.dispose();
@@ -467,13 +478,18 @@ public class GuiResource {
       imageInput.dispose();
       imageOutput.dispose();
       imageTarget.dispose();
+      imageTargetDisabled.dispose();
       imageTrue.dispose();
+      imageTrueDisabled.dispose();
       imageFalse.dispose();
+      imageFalseDisabled.dispose();
       imageFailure.dispose();
       imageSuccess.dispose();
       imageContextMenu.dispose();
-      imageParallelHop.dispose();
-      imageUnconditionalHop.dispose();
+      imageParallel.dispose();
+      imageParallelDisabled.dispose();
+      imageUnconditional.dispose();
+      imageUnconditionalDisabled.dispose();
       imageBusy.dispose();
       imageInject.dispose();
       imageBalance.dispose();
@@ -751,7 +767,9 @@ public class GuiResource {
     imageServer = SwtSvgImageUtil.getImageAsResource(display, "ui/images/server.svg");
     imagePreview = SwtSvgImageUtil.getImageAsResource(display, "ui/images/preview.svg");
     imageTrue = SwtSvgImageUtil.getImageAsResource(display, "ui/images/true.svg");
+    imageTrueDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/true-disabled.svg");
     imageFalse = SwtSvgImageUtil.getImageAsResource(display, "ui/images/false.svg");
+    imageFalseDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/false-disabled.svg");
     imageVariable = SwtSvgImageUtil.getImageAsResource(display, "ui/images/variable.svg");
     imageFile = SwtSvgImageUtil.getImageAsResource(display, "ui/images/file.svg");
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
@@ -766,19 +784,26 @@ public class GuiResource {
     imageBol = SwtSvgImageUtil.getImageAsResource(display, "ui/images/bol.svg");
     imageClearText = SwtSvgImageUtil.getImageAsResource(display, "ui/images/clear-text.svg");
     imageCopyRows = SwtSvgImageUtil.getImageAsResource(display, "ui/images/copy-rows.svg");
+    imageCopyRowsDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/copy-rows-disabled.svg");
     imageFailure = SwtSvgImageUtil.getImageAsResource(display, "ui/images/failure.svg");
     imageSuccess = SwtSvgImageUtil.getImageAsResource(display, "ui/images/success.svg");
     imageError = SwtSvgImageUtil.getImageAsResource(display, "ui/images/error.svg");
+    imageErrorDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/error-disabled.svg");
     imageInfo = SwtSvgImageUtil.getImageAsResource(display, "ui/images/info.svg");
+    imageInfoDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/info-disabled.svg");
     imageWarning = SwtSvgImageUtil.getImageAsResource(display, "ui/images/warning.svg");
     imageEdit = SwtSvgImageUtil.getImageAsResource(display, "ui/images/edit.svg");
     imageInput = SwtSvgImageUtil.getImageAsResource(display, "ui/images/input.svg");
     imageOutput = SwtSvgImageUtil.getImageAsResource(display, "ui/images/output.svg");
     imageTarget = SwtSvgImageUtil.getImageAsResource(display, "ui/images/target.svg");
+    imageTargetDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/target-disabled.svg");
     imageContextMenu = SwtSvgImageUtil.getImageAsResource(display, "ui/images/context_menu.svg");
-    imageParallelHop = SwtSvgImageUtil.getImageAsResource(display, "ui/images/parallel-hop.svg");
-    imageUnconditionalHop =
-        SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional-hop.svg");
+    imageParallel = SwtSvgImageUtil.getImageAsResource(display, "ui/images/parallel-hop.svg");
+    imageParallelDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/parallel-hop-disabled.svg");
+    imageUnconditional =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional.svg");
+    imageUnconditionalDisabled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional-disabled.svg");
     imageBusy = SwtSvgImageUtil.getImageAsResource(display, "ui/images/busy.svg");
     imageInject = SwtSvgImageUtil.getImageAsResource(display, "ui/images/inject.svg");
     imageBalance = SwtSvgImageUtil.getImageAsResource(display, "ui/images/scales.svg");
@@ -1422,14 +1447,22 @@ public class GuiResource {
     return imageCopyRows;
   }
 
+  public SwtUniversalImage getSwtImageCopyRowsDisabled() {
+    return imageCopyRowsDisabled;
+  }
+  
   public Image getImageError() {
     return getZoomedImaged(imageError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
-
+  
   public SwtUniversalImage getSwtImageError() {
     return imageError;
   }
 
+  public SwtUniversalImage getSwtImageErrorDisabled() {
+    return imageErrorDisabled;
+  }
+  
   public Image getImageInfo() {
     return getZoomedImaged(imageInfo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1438,6 +1471,10 @@ public class GuiResource {
     return imageInfo;
   }
 
+  public SwtUniversalImage getSwtImageInfoDisabled() {
+    return imageInfoDisabled;
+  }
+  
   public Image getImageWarning() {
     return getZoomedImaged(imageWarning, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1503,6 +1540,10 @@ public class GuiResource {
     return imageTarget;
   }
 
+  public SwtUniversalImage getSwtImageTargetDisabled() {
+    return imageTargetDisabled;
+  }
+  
   public Image getImageLocked() {
     return getZoomedImaged(imageLocked, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1612,6 +1653,10 @@ public class GuiResource {
     return imageTrue;
   }
 
+  public SwtUniversalImage getSwtImageTrueDisabled() {
+    return imageTrueDisabled;
+  }
+  
   /** @return the imageFalse */
   public Image getImageFalse() {
     return getZoomedImaged(imageFalse, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
@@ -1619,6 +1664,10 @@ public class GuiResource {
 
   public SwtUniversalImage getSwtImageFalse() {
     return imageFalse;
+  }
+
+  public SwtUniversalImage getSwtImageFalseDisabled() {
+    return imageFalseDisabled;
   }
 
   public Image getImageFailure() {
@@ -1649,22 +1698,30 @@ public class GuiResource {
 
   public Image getImageParallelHop() {
     return getZoomedImaged(
-        imageParallelHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+        imageParallel, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  public SwtUniversalImage getSwtImageParallelHop() {
-    return imageParallelHop;
+  public SwtUniversalImage getSwtImageParallel() {
+    return imageParallel;
   }
 
+  public SwtUniversalImage getSwtImageParallelDisabled() {
+    return imageParallelDisabled;
+  }
+  
   public Image getImageUnconditionalHop() {
     return getZoomedImaged(
-        imageUnconditionalHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+        imageUnconditional, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  public SwtUniversalImage getSwtImageUnconditionalHop() {
-    return imageUnconditionalHop;
+  public SwtUniversalImage getSwtImageUnconditional() {
+    return imageUnconditional;
   }
 
+  public SwtUniversalImage getSwtImageUnconditionalDisabled() {
+    return imageUnconditionalDisabled;
+  }
+  
   public Image getImageBusy() {
     return getZoomedImaged(imageBusy, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1830,3 +1887,4 @@ public class GuiResource {
     return imageSearch;
   }
 }
+

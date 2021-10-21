@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Set Variables transform allows you to set variables in a workflow or in the virtual machine.
 
 = Set Variables
 
 == Description
 
-This transform allows you to set variables in a workflow or in the virtual machine.
-It accepts one (and only one) row of data to set the value of a variable.
+The Set Variables transform allows you to set variables in a workflow or in the virtual machine.
+
+TIP: This transform accepts one (and only one) row of data to set the value of a variable. If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
 
 == Options
 

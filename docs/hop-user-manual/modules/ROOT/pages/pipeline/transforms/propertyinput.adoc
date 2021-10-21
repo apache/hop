@@ -16,15 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-
+:description: The Property Input transform reads key/values pairs from a Java properties files.
 
 = Read data (key, value) from properties files.
 
 == Description
 
-The Property Input transform reads from a Java properties files.
+The Property Input transform reads key/values pairs from a Java properties files.
 
-For more information on this file format, read this : http://en.wikipedia.org/wiki/.properties
+TIP: More information on this file format is available on https://en.wikipedia.org/wiki/.properties[Wikipedia^]
 
 == Options
 

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Filter Rows transform allows you to filter rows based on conditions and comparisons.
 
 :openvar: {
 :closevar: }
@@ -24,11 +25,12 @@ under the License.
 == Description
 
 The Filter Rows transform allows you to filter rows based on conditions and comparisons.
+
 Once this transform is connected to a previous transform (one or more and receiving input), you can click on the "<field>", "=" and "<value>" areas to construct a condition.
 
 To enter an IN LIST operator, use a string value separated by semicolons.
-This also works on numeric values like integers.
-The list of values must be entered with a string type, e.g.: 2;3;7;8
+
+TIP: Lists also works on numeric values like integers. In this case, the list of values must be entered with a string data type, e.g.: 2;3;7;8
 
 == Options
 

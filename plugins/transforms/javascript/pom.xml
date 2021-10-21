@@ -33,7 +33,6 @@
     <name>Hop Plugins Transforms Javascript</name>
 
     <properties>
-        <mockito.version>3.12.4</mockito.version>
         <powermock.version>2.0.9</powermock.version>
     </properties>
 

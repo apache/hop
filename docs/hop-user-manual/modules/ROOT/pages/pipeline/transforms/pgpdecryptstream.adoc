@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The PGP Decrypt Stream transform decrypts PGP encrypted text.
 
 = PGP decrypt stream
 
 == Description
 
-The PGP decrypt stream transform decrypts PGP encrypted text.
+The PGP Decrypt Stream transform decrypts PGP encrypted text.
 
 == Options
 

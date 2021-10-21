@@ -151,6 +151,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     extensionDataMap = new HashMap<>();
     logChannel = LogChannel.GENERAL;
     logLevel = LogLevel.BASIC;
+    workflowTracker = new WorkflowTracker(null);
   }
 
   @Override
@@ -201,7 +202,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       remoteWorkflowRunConfiguration =
           (RemoteWorkflowRunConfiguration) workflowRunConfiguration.getEngineRunConfiguration();
 
-      String hopServerName = remoteWorkflowRunConfiguration.getHopServerName();
+      String hopServerName = resolve(remoteWorkflowRunConfiguration.getHopServerName());
       if (StringUtils.isEmpty(hopServerName)) {
         throw new HopException("No remote Hop server was specified to run the workflow on");
       }

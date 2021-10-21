@@ -86,11 +86,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   public boolean createParentFolder;
 
   public boolean waitingToFinish = true;
-  public boolean followingAbortRemotely;
 
   public boolean passingAllParameters = true;
-
-  private boolean passingExport;
 
   private String runConfiguration;
 
@@ -140,14 +137,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   @Override
   public String getRealFilename() {
     return resolve(getFilename());
-  }
-
-  public boolean isPassingExport() {
-    return passingExport;
-  }
-
-  public void setPassingExport(boolean passingExport) {
-    this.passingExport = passingExport;
   }
 
   public String getRunConfiguration() {
@@ -206,11 +195,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     retval.append("      ").append(XmlHandler.addTagValue("wait_until_finished", waitingToFinish));
     retval
         .append("      ")
-        .append(XmlHandler.addTagValue("follow_abort_remote", followingAbortRemotely));
-    retval
-        .append("      ")
         .append(XmlHandler.addTagValue("create_parent_folder", createParentFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("pass_export", passingExport));
     retval.append("      ").append(XmlHandler.addTagValue("run_configuration", runConfiguration));
 
     if (parameters != null) {
@@ -259,7 +244,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       logFileLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
       setAppendLogfile =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_append_logfile"));
-      passingExport = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "pass_export"));
       createParentFolder =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_parent_folder"));
       runConfiguration = XmlHandler.getTagValue(entrynode, "run_configuration");
@@ -270,9 +254,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       } else {
         waitingToFinish = "Y".equalsIgnoreCase(wait);
       }
-
-      followingAbortRemotely =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "follow_abort_remote"));
 
       // How many arguments?
       int argnr = 0;
@@ -572,36 +553,38 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
                 + UUID.randomUUID().toString());
         workflowRunnerThread.start();
 
-        // Keep running until we're done.
-        //
-        while (!runner.isFinished() && !parentWorkflow.isStopped()) {
-          try {
-            Thread.sleep(0, 1);
-          } catch (InterruptedException e) {
-            // Ignore
+        if (isWaitingToFinish()) {
+          // Keep running until we're done.
+          //
+          while (!runner.isFinished() && !parentWorkflow.isStopped()) {
+            try {
+              Thread.sleep(0, 1);
+            } catch (InterruptedException e) {
+              // Ignore
+            }
           }
-        }
 
-        // if the parent-workflow was stopped, stop the sub-workflow too...
-        if (parentWorkflow.isStopped()) {
-          workflow.stopExecution();
-          runner.waitUntilFinished(); // Wait until finished!
-        }
+          // if the parent-workflow was stopped, stop the sub-workflow too...
+          if (parentWorkflow.isStopped()) {
+            workflow.stopExecution();
+            runner.waitUntilFinished(); // Wait until finished!
+          }
 
-        oneResult = runner.getResult();
+          oneResult = runner.getResult();
 
-        result.clear(); // clear only the numbers, NOT the files or rows.
-        result.add(oneResult);
+          result.clear(); // clear only the numbers, NOT the files or rows.
+          result.add(oneResult);
 
-        // Set the result rows too, if any ...
-        if (!Utils.isEmpty(oneResult.getRows())) {
-          result.setRows(new ArrayList<>(oneResult.getRows()));
-        }
+          // Set the result rows too, if any ...
+          if (!Utils.isEmpty(oneResult.getRows())) {
+            result.setRows(new ArrayList<>(oneResult.getRows()));
+          }
 
-        // if one of them fails (in the loop), increase the number of errors
-        //
-        if (oneResult.getResult() == false) {
-          result.setNrErrors(result.getNrErrors() + 1);
+          // if one of them fails (in the loop), increase the number of errors
+          //
+          if (oneResult.getResult() == false) {
+            result.setNrErrors(result.getNrErrors() + 1);
+          }
         }
 
         iteration++;
@@ -900,20 +883,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   /** @param waitingToFinish the waitingToFinish to set */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
-  }
-
-  /** @return the followingAbortRemotely */
-  public boolean isFollowingAbortRemotely() {
-    return followingAbortRemotely;
-  }
-
-  /** @param followingAbortRemotely the followingAbortRemotely to set */
-  public void setFollowingAbortRemotely(boolean followingAbortRemotely) {
-    this.followingAbortRemotely = followingAbortRemotely;
-  }
-
-  public void setLoggingRemoteWork(boolean loggingRemoteWork) {
-    // do nothing. for compatibility with IActionRunConfigurable
   }
 
   /** @return the passingAllParameters */
