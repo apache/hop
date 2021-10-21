@@ -47,7 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SampleRows",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-        keywords = "i18n::SampleRowsMeta.keyword",
+    keywords = "i18n::SampleRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/samplerows.html")
 public class SampleRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SampleRows, SampleRowsData> {

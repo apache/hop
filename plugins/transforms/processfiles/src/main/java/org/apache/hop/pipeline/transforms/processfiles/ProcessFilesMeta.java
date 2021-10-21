@@ -41,7 +41,7 @@ import java.util.List;
     description = "i18n::ProcessFiles.Description",
     name = "i18n::ProcessFiles.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        keywords = "i18n::ProcessFilesMeta.keyword",
+    keywords = "i18n::ProcessFilesMeta.keyword",
     documentationUrl = "/pipeline/transforms/processfiles.html")
 public class ProcessFilesMeta extends BaseTransformMeta
     implements ITransformMeta<ProcessFiles, ProcessFilesData> {

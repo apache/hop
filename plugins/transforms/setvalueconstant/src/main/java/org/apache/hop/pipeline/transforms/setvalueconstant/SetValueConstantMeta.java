@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SetValueConstant",
     description = "i18n::BaseTransform.TypeTooltipDesc.SetValueConstant",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        keywords = "i18n::SetValueConstantMeta.keyword",
+    keywords = "i18n::SetValueConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")
 public class SetValueConstantMeta extends BaseTransformMeta
     implements ITransformMeta<SetValueConstant, SetValueConstantData> {

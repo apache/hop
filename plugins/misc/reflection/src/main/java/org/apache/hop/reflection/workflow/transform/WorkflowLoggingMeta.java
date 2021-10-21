@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/logging/logging-reflection.html",
     image = "workflow-log.svg",
-        keywords = "i18n::WorkflowLoggingMeta.keyword")
+    keywords = "i18n::WorkflowLoggingMeta.keyword")
 public class WorkflowLoggingMeta extends BaseTransformMeta
     implements ITransformMeta<WorkflowLogging, WorkflowLoggingData> {
 

@@ -62,7 +62,7 @@ import java.util.Map;
     documentationUrl = "/pipeline/transforms/jsoninput.html",
     name = "i18n::JsonInput.name",
     description = "i18n::JsonInput.description",
-        keywords = "i18n::JsonInputMeta.keyword",
+    keywords = "i18n::JsonInputMeta.keyword",
     categoryDescription = "i18n::JsonInput.category")
 @InjectionSupported(
     localizationPrefix = "JsonInput.Injection.",

@@ -55,7 +55,7 @@ import java.util.Objects;
     name = "i18n::BaseTransform.TypeLongDesc.Janino",
     description = "i18n::BaseTransform.TypeTooltipDesc.Janino",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-        keywords = "i18n::JaninoMeta.keyword",
+    keywords = "i18n::JaninoMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaexpression.html")
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator

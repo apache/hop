@@ -60,7 +60,7 @@ import java.util.List;
     description = "i18n::ActionMssqlBulkLoad.Description",
     image = "MssqlBulkLoad.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
-        keywords = "i18n::ActionMssqlBulkLoad.keyword",
+    keywords = "i18n::ActionMssqlBulkLoad.keyword",
     documentationUrl = "/workflow/actions/mssqlbulkload.html")
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator

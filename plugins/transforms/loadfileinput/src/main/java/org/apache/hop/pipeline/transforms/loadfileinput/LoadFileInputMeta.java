@@ -54,7 +54,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.LoadFileInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.LoadFileInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = "i18n::LoadFileInputMeta.keyword",
+    keywords = "i18n::LoadFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/loadfileinput.html")
 public class LoadFileInputMeta extends BaseTransformMeta
     implements ITransformMeta<LoadFileInput, LoadFileInputData> {

@@ -38,7 +38,7 @@ import java.util.List;
     description = "Create or delete indexes in a Neo4j database",
     image = "neo4j_index.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-        keywords = "i18n::Neo4jIndex.keyword",
+    keywords = "i18n::Neo4jIndex.keyword",
     documentationUrl = "/workflow/actions/neo4j-index.html")
 public class Neo4jIndex extends ActionBase implements IAction {
 

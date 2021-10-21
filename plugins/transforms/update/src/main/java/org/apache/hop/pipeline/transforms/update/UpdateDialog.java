@@ -839,12 +839,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  databaseMeta,
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);

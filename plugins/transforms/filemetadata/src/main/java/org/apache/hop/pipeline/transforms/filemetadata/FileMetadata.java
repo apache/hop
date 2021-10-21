@@ -87,7 +87,8 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     if (first) {
       first = false;
       // remember whether the transform is consuming a stream, or generating a row
-      data.isReceivingInput = getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() > 0;
+      data.isReceivingInput =
+          getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() > 0;
 
       // processing existing rows?
       if (data.isReceivingInput) {

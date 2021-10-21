@@ -35,13 +35,7 @@ import org.apache.hop.core.util.TranslateUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This singleton keeps track of the various GUI elements that are made plug-able by the developers.

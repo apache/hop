@@ -48,7 +48,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.TableOutput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TableOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        keywords = "i18n::TableOutputMeta.keyword",
+    keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html")
 public class TableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
@@ -697,7 +697,8 @@ public class TableOutputMeta extends BaseTransformMeta
       String[] input,
       String[] output,
       IRowMeta info,
-      IHopMetadataProvider metadataProvider) throws HopTransformException {
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
     try {
       DatabaseMeta databaseMeta =
@@ -738,8 +739,8 @@ public class TableOutputMeta extends BaseTransformMeta
         }
       }
     } catch (HopException e) {
-        throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
   }
 

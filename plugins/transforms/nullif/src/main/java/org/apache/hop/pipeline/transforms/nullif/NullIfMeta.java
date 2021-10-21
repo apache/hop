@@ -47,7 +47,7 @@ import java.util.List;
     name = "i18n::NullIf.Name",
     description = "i18n::NullIf.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        keywords = "i18n::NullIfMeta.keyword",
+    keywords = "i18n::NullIfMeta.keyword",
     documentationUrl = "/pipeline/transforms/nullif.html")
 @InjectionSupported(
     localizationPrefix = "Injection.NullIf.",

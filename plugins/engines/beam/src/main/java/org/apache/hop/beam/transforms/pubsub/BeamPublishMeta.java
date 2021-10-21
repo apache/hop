@@ -47,7 +47,7 @@ import java.util.Map;
     description = "Publish to a Pub/Sub topic",
     image = "beam-gcp-pubsub-publish.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        keywords = "i18n::BeamPublishMeta.keyword",
+    keywords = "i18n::BeamPublishMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamgcppublisher.html")
 public class BeamPublishMeta extends BaseTransformMeta
     implements ITransformMeta<BeamPublish, BeamPublishData>, IBeamPipelineTransformHandler {

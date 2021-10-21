@@ -70,7 +70,7 @@ import java.util.zip.ZipOutputStream;
     description = "i18n::ActionMail.Description",
     image = "Mail.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
-        keywords = "i18n::ActionMail.keyword",
+    keywords = "i18n::ActionMail.keyword",
     documentationUrl = "/workflow/actions/mail.html")
 public class ActionMail extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMail.class; // For Translator

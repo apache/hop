@@ -17,47 +17,51 @@
 
 package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 
-/**
- * Contains the properties of the fields to standardize.
- */
+/** Contains the properties of the fields to standardize. */
 public class StandardizePhoneField implements Cloneable {
 
   /** The input field name */
-  @HopMetadataProperty(key = "input",
+  @HopMetadataProperty(
+      key = "input",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.InputField")
   private String inputField = null;
 
   /** The target field name */
-  @HopMetadataProperty(key = "output",
+  @HopMetadataProperty(
+      key = "output",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.OutputField")
   private String outputField = null;
 
   /** The format */
-  @HopMetadataProperty(key = "format",
+  @HopMetadataProperty(
+      key = "format",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.NumberFormat")
   private String numberFormat = PhoneNumberFormat.E164.name();
-  
+
   /** The country field name */
-  @HopMetadataProperty(key = "country",
+  @HopMetadataProperty(
+      key = "country",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.CountryField")
   private String countryField = null;
 
-  @HopMetadataProperty(key = "defaultCountry",
+  @HopMetadataProperty(
+      key = "defaultCountry",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.DefaultCountry")
   private String defaultCountry;
 
-  @HopMetadataProperty(key = "numbertype",
+  @HopMetadataProperty(
+      key = "numbertype",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.NumberTypeField")
   private String numberTypeField;
 
-  @HopMetadataProperty(key = "isvalidnumber",
+  @HopMetadataProperty(
+      key = "isvalidnumber",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.IsValidNumberField")
   private String isValidNumberField = null;
-
 
   public StandardizePhoneField() {
     super();
@@ -65,7 +69,7 @@ public class StandardizePhoneField implements Cloneable {
 
   public StandardizePhoneField(StandardizePhoneField other) {
     super();
-    
+
     this.inputField = other.inputField;
     this.outputField = other.outputField;
     this.numberFormat = other.numberFormat;
@@ -75,10 +79,10 @@ public class StandardizePhoneField implements Cloneable {
     this.defaultCountry = other.defaultCountry;
     this.isValidNumberField = other.isValidNumberField;
   }
-  
+
   @Override
   public Object clone() {
-    return new StandardizePhoneField(this);  
+    return new StandardizePhoneField(this);
   }
 
   public String getInputField() {
@@ -105,10 +109,9 @@ public class StandardizePhoneField implements Cloneable {
     this.countryField = StringUtils.stripToNull(field);
   }
 
-
   /**
    * Get the country codes (ISO 2)
-   * 
+   *
    * @return
    */
   public String getDefaultCountry() {
@@ -117,19 +120,19 @@ public class StandardizePhoneField implements Cloneable {
 
   /**
    * Set the country codes (ISO 2)
-   * 
+   *
    * @param country
    */
   public void setDefaultCountry(String country) {
     this.defaultCountry = country;
   }
-  
+
   public String getNumberFormat() {
     return numberFormat;
   }
 
   public void setNumberFormat(final String param) {
-      this.numberFormat = param;
+    this.numberFormat = param;
   }
 
   public String getNumberTypeField() {

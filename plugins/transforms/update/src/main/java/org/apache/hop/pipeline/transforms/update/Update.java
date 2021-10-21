@@ -24,9 +24,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -220,8 +220,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       data.schemaTable =
-          databaseMeta
-              .getQuotedSchemaTableCombination(this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
+          databaseMeta.getQuotedSchemaTableCombination(
+              this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
 
       // lookup the values!
       if (log.isDetailed()) {
@@ -449,7 +449,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
       }
       sql += databaseMeta.quoteField(fieldItem.getUpdateLookup());
       sql += " = ?" + Const.CR;
-      data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
+      data.updateParameterRowMeta.addValueMeta(
+          rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
     }
 
     sql += "WHERE ";
@@ -569,16 +570,14 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
         }
       } catch (HopDatabaseException e) {
         logError(
-                BaseMessages.getString(PKG, "Update.Log.UnableToCommitUpdateConnection")
-                        + data.db
-                        + "] :"
-                        + e.toString());
+            BaseMessages.getString(PKG, "Update.Log.UnableToCommitUpdateConnection")
+                + data.db
+                + "] :"
+                + e.toString());
         setErrors(1);
       } finally {
-        if (dispose)
-          data.db.disconnect();
+        if (dispose) data.db.disconnect();
       }
     }
-
   }
 }

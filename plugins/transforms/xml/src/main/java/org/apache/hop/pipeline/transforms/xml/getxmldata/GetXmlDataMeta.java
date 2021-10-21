@@ -55,7 +55,7 @@ import java.util.Map;
     name = "i18n::GetXMLData.name",
     description = "i18n::GetXMLData.description",
     categoryDescription = "i18n::GetXMLData.category",
-        keywords = "i18n::GetXmlDataMeta.keyword",
+    keywords = "i18n::GetXmlDataMeta.keyword",
     documentationUrl = "/pipeline/transforms/getdatafromxml.html")
 public class GetXmlDataMeta extends BaseTransformMeta
     implements ITransformMeta<GetXmlData, GetXmlDataData> {

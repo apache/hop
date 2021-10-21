@@ -24,7 +24,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.*;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -43,30 +44,26 @@ public class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
     HopEnvironment.init();
     PluginRegistry.init(false);
   }
-  
+
   @Before
   public void setUpLoadSave() throws Exception {
     List<String> attributes =
         Arrays.asList(
-            "sql",
-            "rowLimit",
-            "outerJoin",
-            "replaceVariables",
-            "connection",
-            "parameters");
+            "sql", "rowLimit", "outerJoin", "replaceVariables", "connection", "parameters");
 
     Map<String, String> getterMap = new HashMap<>();
-//    getterMap.put("parameters", "getParameters");
-//    getterMap.put("databaseMeta", "getDatabaseMeta");
-    
+    //    getterMap.put("parameters", "getParameters");
+    //    getterMap.put("databaseMeta", "getDatabaseMeta");
+
     Map<String, String> setterMap = new HashMap<>();
-    //setterMap.put("parameters", "setParameters");
-    
+    // setterMap.put("parameters", "setParameters");
+
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("parameters", new ListLoadSaveValidator<>(new ParameterFieldLoadSaveValidator(), 5));    
+    attrValidatorMap.put(
+        "parameters", new ListLoadSaveValidator<>(new ParameterFieldLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    
+
     loadSaveTester =
         new LoadSaveTester<>(
             testMetaClass,
@@ -81,15 +78,13 @@ public class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify(DatabaseJoinMeta someMeta) {
-
-  }
+  public void modify(DatabaseJoinMeta someMeta) {}
 
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
-  
+
   public class ParameterFieldLoadSaveValidator implements IFieldLoadSaveValidator<ParameterField> {
     final Random rand = new Random();
 
@@ -108,8 +103,10 @@ public class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
         return false;
       }
       ParameterField another = (ParameterField) actual;
-      return new EqualsBuilder().append(testObject.getName(), another.getName())
-          .append(testObject.getType(), another.getType()).isEquals();
+      return new EqualsBuilder()
+          .append(testObject.getName(), another.getName())
+          .append(testObject.getType(), another.getType())
+          .isEquals();
     }
   }
 }

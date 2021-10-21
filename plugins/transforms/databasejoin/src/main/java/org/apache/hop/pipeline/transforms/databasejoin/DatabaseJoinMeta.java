@@ -52,7 +52,7 @@ import java.util.List;
     name = "i18n::DatabaseJoin.Name",
     description = "i18n::DatabaseJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        keywords = "i18n::DatabaseJoinMeta.keyword",
+    keywords = "i18n::DatabaseJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/databasejoin.html")
 public class DatabaseJoinMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
@@ -524,8 +524,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       }
     } catch (HopException e) {
       throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
-              e);
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 

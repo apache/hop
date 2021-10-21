@@ -49,9 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Allows the user to edit a list of rows in a TableView.
- */
+/** Allows the user to edit a list of rows in a TableView. */
 public class EditRowsDialog {
   private static final Class<?> PKG = EditRowsDialog.class; // For Translator
 

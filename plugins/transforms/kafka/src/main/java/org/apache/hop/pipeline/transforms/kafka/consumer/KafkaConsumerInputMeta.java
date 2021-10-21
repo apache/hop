@@ -55,7 +55,7 @@ import java.util.stream.IntStream;
     name = "i18n::KafkaConsumer.TypeLongDesc",
     description = "i18n::KafkaConsumer.TypeTooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
-        keywords = "i18n::KafkaConsumerInputMeta.keyword",
+    keywords = "i18n::KafkaConsumerInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/kafkaconsumer.html")
 @InjectionSupported(
     localizationPrefix = "KafkaConsumerInputMeta.Injection.",

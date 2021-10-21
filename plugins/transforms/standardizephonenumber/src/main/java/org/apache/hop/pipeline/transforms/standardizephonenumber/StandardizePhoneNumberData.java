@@ -24,7 +24,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class StandardizePhoneNumberData extends BaseTransformData implements ITransformData {
 
   protected IRowMeta outputRowMeta;
-  
+
   public StandardizePhoneNumberData() {
     super();
   }

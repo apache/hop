@@ -20,11 +20,7 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.GuiElementType;
-import org.apache.hop.core.gui.plugin.GuiElements;
-import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.gui.plugin.ITypeFilename;
-import org.apache.hop.core.gui.plugin.ITypeMetadata;
+import org.apache.hop.core.gui.plugin.*;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -40,13 +36,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -69,8 +59,8 @@ public class GuiCompositeWidgets {
   }
 
   /**
-   * @deprecated The maximum number of items used to pad to a maximum number of control lines is no longer implemented.
-   *
+   * @deprecated The maximum number of items used to pad to a maximum number of control lines is no
+   *     longer implemented.
    * @param variables
    * @param maxNrItems
    */

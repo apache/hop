@@ -19,80 +19,81 @@ package org.apache.hop.pipeline.transforms.insertupdate;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-import java.util.Objects;
-
 public class InsertUpdateKeyField {
 
-    /** which field in input stream to compare with? */
-    @HopMetadataProperty(key = "name",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_STREAM",
-            injectionKey = "KEY_STREAM")
-    private String keyStream;
+  /** which field in input stream to compare with? */
+  @HopMetadataProperty(
+      key = "name",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_STREAM",
+      injectionKey = "KEY_STREAM")
+  private String keyStream;
 
-    /** field in table */
-    @HopMetadataProperty(key = "field",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_LOOKUP",
-            injectionKey = "KEY_LOOKUP")
-    private String keyLookup;
+  /** field in table */
+  @HopMetadataProperty(
+      key = "field",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_LOOKUP",
+      injectionKey = "KEY_LOOKUP")
+  private String keyLookup;
 
-    /** Comparator: =, <>, BETWEEN, ... */
-    @HopMetadataProperty(key = "condition",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_CONDITION",
-            injectionKey = "KEY_CONDITION")
-    private String keyCondition;
+  /** Comparator: =, <>, BETWEEN, ... */
+  @HopMetadataProperty(
+      key = "condition",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_CONDITION",
+      injectionKey = "KEY_CONDITION")
+  private String keyCondition;
 
+  /** Extra field for between... */
+  @HopMetadataProperty(
+      key = "name2",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_STREAM2",
+      injectionKey = "KEY_STREAM2")
+  private String keyStream2;
 
-    /** Extra field for between... */
-    @HopMetadataProperty(key = "name2",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.KEY_STREAM2",
-            injectionKey = "KEY_STREAM2")
-    private String keyStream2;
+  public InsertUpdateKeyField() {}
 
-    public InsertUpdateKeyField() {
-    }
+  public InsertUpdateKeyField(String keyStream, String keyLookup, String keyCondition) {
+    this.keyStream = keyStream;
+    this.keyLookup = keyLookup;
+    this.keyCondition = keyCondition;
+  }
 
-    public InsertUpdateKeyField(String keyStream, String keyLookup, String keyCondition) {
-        this.keyStream = keyStream;
-        this.keyLookup = keyLookup;
-        this.keyCondition = keyCondition;
-    }
+  public InsertUpdateKeyField(
+      String keyStream, String keyLookup, String keyCondition, String keyStream2) {
+    this.keyStream = keyStream;
+    this.keyLookup = keyLookup;
+    this.keyCondition = keyCondition;
+    this.keyStream2 = keyStream2;
+  }
 
-    public InsertUpdateKeyField(String keyStream, String keyLookup, String keyCondition, String keyStream2) {
-        this.keyStream = keyStream;
-        this.keyLookup = keyLookup;
-        this.keyCondition = keyCondition;
-        this.keyStream2 = keyStream2;
-    }
+  public String getKeyStream() {
+    return keyStream;
+  }
 
-    public String getKeyStream() {
-        return keyStream;
-    }
+  public void setKeyStream(String keyStream) {
+    this.keyStream = keyStream;
+  }
 
-    public void setKeyStream(String keyStream) {
-        this.keyStream = keyStream;
-    }
+  public String getKeyLookup() {
+    return keyLookup;
+  }
 
-    public String getKeyLookup() {
-        return keyLookup;
-    }
+  public void setKeyLookup(String keyLookup) {
+    this.keyLookup = keyLookup;
+  }
 
-    public void setKeyLookup(String keyLookup) {
-        this.keyLookup = keyLookup;
-    }
+  public String getKeyCondition() {
+    return keyCondition;
+  }
 
-    public String getKeyCondition() {
-        return keyCondition;
-    }
+  public void setKeyCondition(String keyCondition) {
+    this.keyCondition = keyCondition;
+  }
 
-    public void setKeyCondition(String keyCondition) {
-        this.keyCondition = keyCondition;
-    }
+  public String getKeyStream2() {
+    return keyStream2;
+  }
 
-    public String getKeyStream2() {
-        return keyStream2;
-    }
-
-    public void setKeyStream2(String keyStream2) {
-        this.keyStream2 = keyStream2;
-    }
+  public void setKeyStream2(String keyStream2) {
+    this.keyStream2 = keyStream2;
+  }
 }

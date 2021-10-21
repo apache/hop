@@ -48,7 +48,7 @@ import java.util.List;
     name = "i18n::XSLT.name",
     description = "i18n::XSLT.description",
     categoryDescription = "i18n::XSLT.category",
-        keywords = "i18n::XsltMeta.keyword",
+    keywords = "i18n::XsltMeta.keyword",
     documentationUrl = "/pipeline/transforms/xslt.html")
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // For Translator

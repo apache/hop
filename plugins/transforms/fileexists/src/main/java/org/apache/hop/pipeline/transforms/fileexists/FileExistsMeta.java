@@ -44,7 +44,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.FileExists",
     description = "i18n::BaseTransform.TypeTooltipDesc.FileExists",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        keywords = "i18n::FileExistsMeta.keyword",
+    keywords = "i18n::FileExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/fileexists.html")
 public class FileExistsMeta extends BaseTransformMeta
     implements ITransformMeta<FileExists, FileExistsData> {

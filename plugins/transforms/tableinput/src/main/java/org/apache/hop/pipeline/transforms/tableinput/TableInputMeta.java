@@ -56,7 +56,6 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::TableInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableinput.html")
-
 public class TableInputMeta extends BaseTransformMeta
     implements ITransformMeta<TableInput, TableInputData> {
 

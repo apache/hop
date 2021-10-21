@@ -40,7 +40,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Fake",
     description = "i18n::BaseTransform.TypeTooltipDesc.Fake",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = "i18n::FakeMeta.keyword",
+    keywords = "i18n::FakeMeta.keyword",
     documentationUrl = "/pipeline/transforms/fake.html")
 public class FakeMeta extends BaseTransformMeta implements ITransformMeta<Fake, FakeData> {
 

@@ -50,7 +50,7 @@ import static org.apache.hop.core.ICheckResult.*;
     description = "i18n::LdapInput.Description",
     image = "ldapinput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = "i18n::LdapInputMeta.keyword",
+    keywords = "i18n::LdapInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {

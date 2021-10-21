@@ -47,7 +47,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.WebServiceLookup",
     description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        keywords = "i18n::WebServiceMeta.keyword",
+    keywords = "i18n::WebServiceMeta.keyword",
     documentationUrl = "/pipeline/transforms/webservices.html")
 public class WebServiceMeta extends BaseTransformMeta
     implements ITransformMeta<WebService, WebServiceData> {

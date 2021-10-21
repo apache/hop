@@ -45,7 +45,7 @@ import java.util.List;
     image = "splitfieldtorows.svg",
     description = "i18n::SplitFieldToRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        keywords = "i18n::SplitFieldToRowsMeta.keyword",
+    keywords = "i18n::SplitFieldToRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/splitfieldtorows.html")
 public class SplitFieldToRowsMeta extends BaseTransformMeta
     implements ITransformMeta<SplitFieldToRows, SplitFieldToRowsData> {

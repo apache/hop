@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionUnZip.Description",
     image = "UnZip.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-        keywords = "i18n::ActionUnZip.keyword",
+    keywords = "i18n::ActionUnZip.keyword",
     documentationUrl = "/workflow/actions/unzip.html")
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class; // For Translator

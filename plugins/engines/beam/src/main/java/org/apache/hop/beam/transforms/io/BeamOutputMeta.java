@@ -51,7 +51,7 @@ import java.util.Map;
     name = "Beam Output",
     description = "Describes a Beam Output",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
-        keywords = "i18n::BeamOutputMeta.keyword",
+    keywords = "i18n::BeamOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamoutput.html")
 public class BeamOutputMeta extends BaseTransformMeta
     implements ITransformMeta<BeamOutput, BeamOutputData>, IBeamPipelineTransformHandler {

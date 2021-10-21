@@ -195,7 +195,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wPath.setLayoutData(fdPath);
 
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText(BaseMessages.getString(PKG, "ActionPipeline.RunConfiguration.Label"));
+    wlRunConfiguration.setText(
+        BaseMessages.getString(PKG, "ActionPipeline.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);

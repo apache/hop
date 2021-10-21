@@ -45,7 +45,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.StringCut",
     description = "i18n::BaseTransform.TypeTooltipDesc.StringCut",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        keywords = "i18n::StringCutMeta.keyword",
+    keywords = "i18n::StringCutMeta.keyword",
     documentationUrl = "/pipeline/transforms/stringcut.html")
 public class StringCutMeta extends BaseTransformMeta
     implements ITransformMeta<StringCut, StringCutData> {

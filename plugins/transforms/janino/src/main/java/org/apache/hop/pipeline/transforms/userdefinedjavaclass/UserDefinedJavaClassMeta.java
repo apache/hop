@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
     name = "i18n::UserDefinedJavaClass.Name",
     description = "i18n::UserDefinedJavaClass.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-        keywords = "i18n::UserDefinedJavaClassMeta.keyword",
+    keywords = "i18n::UserDefinedJavaClassMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaclass.html")
 public class UserDefinedJavaClassMeta extends BaseTransformMeta
     implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {

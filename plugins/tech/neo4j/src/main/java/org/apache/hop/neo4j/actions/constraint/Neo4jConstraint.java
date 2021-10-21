@@ -37,7 +37,7 @@ import java.util.List;
     description = "Create or delete constraints in a Neo4j database",
     image = "neo4j_constraint.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-        keywords = "i18n::Neo4jConstraint.keyword",
+    keywords = "i18n::Neo4jConstraint.keyword",
     documentationUrl = "/workflow/actions/neo4j-constraint.html")
 public class Neo4jConstraint extends ActionBase implements IAction {
 

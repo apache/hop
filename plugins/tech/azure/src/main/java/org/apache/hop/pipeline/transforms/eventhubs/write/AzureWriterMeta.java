@@ -40,7 +40,7 @@ import org.w3c.dom.Node;
     description = "i18n::AzureWriterMeta.description",
     image = "event-hubs-writer.svg",
     categoryDescription = "i18n::AzureWriterMeta.categoryDescription",
-        keywords = "i18n::AzureWriterMeta.keyword",
+    keywords = "i18n::AzureWriterMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-writer.html")
 public class AzureWriterMeta extends BaseTransformMeta
     implements ITransformMeta<AzureWrite, AzureWriterData> {

@@ -63,7 +63,7 @@ import java.util.*;
     name = "i18n::ActionWorkflow.Name",
     description = "i18n::ActionWorkflow.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-        keywords = "i18n::ActionWorkflow.keyword",
+    keywords = "i18n::ActionWorkflow.keyword",
     documentationUrl = "/workflow/actions/workflow.html")
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator

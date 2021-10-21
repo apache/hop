@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
     description = "i18n::GenerateCsvMeta.description",
     image = "neo4j_load.svg",
     categoryDescription = "i18n::GenerateCsvMeta.categoryDescription",
-        keywords = "i18n::GenerateCsvMeta.keyword",
+    keywords = "i18n::GenerateCsvMeta.keyword",
     documentationUrl = "/pipeline/transforms/generate-csvs.html")
 public class GenerateCsvMeta extends BaseTransformMeta
     implements ITransformMeta<GenerateCsv, GenerateCsvData> {

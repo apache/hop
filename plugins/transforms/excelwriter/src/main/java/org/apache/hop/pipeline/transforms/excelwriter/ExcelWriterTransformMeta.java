@@ -50,7 +50,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.TypeExitExcelWriterTransform",
     description = "i18n::BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        keywords = "i18n::ExcelWriterTransformMeta.keyword",
+    keywords = "i18n::ExcelWriterTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelwriter.html")
 public class ExcelWriterTransformMeta extends BaseTransformMeta
     implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {

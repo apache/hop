@@ -556,7 +556,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
                 workflowHop));
       } else {
         EImage image;
-        if (workflowHop.isUnconditional()) {         
+        if (workflowHop.isUnconditional()) {
           image = (workflowHop.isEnabled()) ? EImage.UNCONDITIONAL : EImage.UNCONDITIONAL_DISABLED;
         } else {
           if (workflowHop.getEvaluation()) {

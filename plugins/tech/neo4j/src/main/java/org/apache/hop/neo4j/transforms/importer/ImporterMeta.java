@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
     description = "i18n::ImporterMeta.description",
     image = "neo4j_import.svg",
     categoryDescription = "i18n::ImporterMeta.categoryDescription",
-        keywords = "i18n::ImporterMeta.keyword",
+    keywords = "i18n::ImporterMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-import.html")
 public class ImporterMeta extends BaseTransformMeta
     implements ITransformMeta<Importer, ImporterData> {

@@ -48,7 +48,7 @@ import java.util.List;
     name = "i18n::DynamicSQLRow.Name",
     description = "i18n::DynamicSQLRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        keywords = "i18n::DynamicSqlRowMeta.keyword",
+    keywords = "i18n::DynamicSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/dynamicsqlrow.html")
 public class DynamicSqlRowMeta extends BaseTransformMeta
     implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
@@ -66,24 +66,34 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   @HopMetadataProperty(key = "sql", injectionKeyDescription = "DynamicSQLRow.Injection.Sql")
   private String sql;
 
-  @HopMetadataProperty(key = "sql_fieldname", injectionKeyDescription = "DynamicSQLRow.Injection.SqlFieldName")
+  @HopMetadataProperty(
+      key = "sql_fieldname",
+      injectionKeyDescription = "DynamicSQLRow.Injection.SqlFieldName")
   private String sqlFieldName;
 
   /** Number of rows to return (0=ALL) */
-  @HopMetadataProperty(key = "rowlimit", injectionKeyDescription = "DynamicSQLRow.Injection.RowLimit")
+  @HopMetadataProperty(
+      key = "rowlimit",
+      injectionKeyDescription = "DynamicSQLRow.Injection.RowLimit")
   private int rowLimit;
 
   /**
    * false: don't return rows where nothing is found true: at least return one source row, the rest
    * is NULL
    */
-  @HopMetadataProperty(key = "outer_join", injectionKeyDescription = "DynamicSQLRow.Injection.OuterJoin")
+  @HopMetadataProperty(
+      key = "outer_join",
+      injectionKeyDescription = "DynamicSQLRow.Injection.OuterJoin")
   private boolean outerJoin;
 
-  @HopMetadataProperty(key = "replace_vars", injectionKeyDescription = "DynamicSQLRow.Injection.ReplaceVariables")
+  @HopMetadataProperty(
+      key = "replace_vars",
+      injectionKeyDescription = "DynamicSQLRow.Injection.ReplaceVariables")
   private boolean replaceVariables;
 
-  @HopMetadataProperty(key = "query_only_on_change", injectionKeyDescription = "DynamicSQLRow.Injection.QueryOnlyOnChange")
+  @HopMetadataProperty(
+      key = "query_only_on_change",
+      injectionKeyDescription = "DynamicSQLRow.Injection.QueryOnlyOnChange")
   private boolean queryOnlyOnChange;
 
   public DynamicSqlRowMeta() {
@@ -91,12 +101,12 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   }
 
   public DynamicSqlRowMeta(DynamicSqlRowMeta meta) {
-    super(); 
+    super();
     this.connection = meta.connection;
     this.sql = meta.sql;
     this.sqlFieldName = meta.sqlFieldName;
     this.replaceVariables = meta.replaceVariables;
-    this.rowLimit =  meta.rowLimit;
+    this.rowLimit = meta.rowLimit;
     this.connection = meta.connection;
     this.outerJoin = meta.outerJoin;
     this.queryOnlyOnChange = meta.queryOnlyOnChange;
@@ -109,7 +119,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   public void setConnection(String connection) {
     this.connection = connection;
   }
-  
+
   /** @return Returns the database. */
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
@@ -183,7 +193,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
   @Override
   public Object clone() {
     return new DynamicSqlRowMeta(this);
-  }  
+  }
 
   @Override
   public void setDefault() {

@@ -54,7 +54,7 @@ import java.util.List;
     name = "i18n::ValueMapper.Name",
     description = "i18n::ValueMapper.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        keywords = "i18n::ValueMapperMeta.keyword",
+    keywords = "i18n::ValueMapperMeta.keyword",
     documentationUrl = "/pipeline/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta
     implements ITransformMeta<ValueMapper, ValueMapperData> {

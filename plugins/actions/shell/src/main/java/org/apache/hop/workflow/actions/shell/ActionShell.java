@@ -59,7 +59,7 @@ import java.util.*;
     description = "i18n::ActionShell.Description",
     image = "shell.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
-        keywords = "i18n::ActionShell.keyword",
+    keywords = "i18n::ActionShell.keyword",
     documentationUrl = "/workflow/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionShell.class; // For Translator

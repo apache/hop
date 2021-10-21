@@ -54,7 +54,7 @@ import java.util.List;
     description = "i18n::ActionSendNagiosPassiveCheck.Description",
     image = "SendNagiosPassiveCheck.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-        keywords = "i18n::ActionSendNagiosPassiveCheck.keyword",
+    keywords = "i18n::ActionSendNagiosPassiveCheck.keyword",
     documentationUrl = "/workflow/actions/sendnagiospassivecheck.html")
 public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator

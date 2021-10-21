@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::ActionCreateFile.Description",
     image = "CreateFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-        keywords = "i18n::ActionCreateFile.keyword",
+    keywords = "i18n::ActionCreateFile.keyword",
     documentationUrl = "/workflow/actions/createfile.html")
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCreateFile.class; // For Translator

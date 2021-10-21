@@ -27,7 +27,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.Pipeline;
@@ -139,8 +138,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                   if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
                     try {
                       database.commit(true);
-                      pipeline.getLogChannel().logBasic("All transactions of database connection '"
-                              + database.getDatabaseMeta().getName() + "' were committed at the end of the pipeline!");
+                      pipeline
+                          .getLogChannel()
+                          .logBasic(
+                              "All transactions of database connection '"
+                                  + database.getDatabaseMeta().getName()
+                                  + "' were committed at the end of the pipeline!");
                     } catch (HopDatabaseException e) {
                       throw new HopException(
                           "Error committing database connection "
@@ -150,8 +153,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                   } else {
                     try {
                       database.rollback(true);
-                      pipeline.getLogChannel().logBasic("All transactions of database connection '"
-                              + database.getDatabaseMeta().getName() + "' were rolled back at the end of the pipeline!");
+                      pipeline
+                          .getLogChannel()
+                          .logBasic(
+                              "All transactions of database connection '"
+                                  + database.getDatabaseMeta().getName()
+                                  + "' were rolled back at the end of the pipeline!");
                     } catch (HopDatabaseException e) {
                       throw new HopException(
                           "Error rolling back database connection "

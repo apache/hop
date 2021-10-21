@@ -62,7 +62,7 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
     description = "i18n::XSLT.Description",
     image = "XSLT.svg",
     categoryDescription = "i18n::XSLT.Category",
-        keywords = "i18n::Xslt.keyword",
+    keywords = "i18n::Xslt.keyword",
     documentationUrl = "/workflow/actions/xslt.html")
 public class Xslt extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = Xslt.class; // For Translator

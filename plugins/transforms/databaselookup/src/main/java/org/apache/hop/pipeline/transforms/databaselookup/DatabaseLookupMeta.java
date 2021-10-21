@@ -56,7 +56,7 @@ import java.util.Set;
     name = "i18n::BaseTransform.TypeLongDesc.DatabaseLookup",
     description = "i18n::BaseTransform.TypeTooltipDesc.DatabaseLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        keywords = "i18n::DatabaseLookupMeta.keyword",
+    keywords = "i18n::DatabaseLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/databaselookup.html")
 public class DatabaseLookupMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
@@ -348,7 +348,8 @@ public class DatabaseLookupMeta extends BaseTransformMeta
   @Override
   public IRowMeta getTableFields(IVariables variables) {
     IRowMeta fields = null;
-    DatabaseMeta databaseMeta = getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
       databases = new Database[] {db}; // Keep track of this one for cancelQuery
@@ -396,54 +397,55 @@ public class DatabaseLookupMeta extends BaseTransformMeta
       String[] input,
       String[] output,
       IRowMeta info,
-      IHopMetadataProvider metadataProvider) throws HopTransformException {
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
     DatabaseMeta databaseMeta = null;
     try {
       databaseMeta =
-              metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-    // The keys are read-only...
-    List<KeyField> keyFields = lookup.getKeyFields();
-    for (int i = 0; i < keyFields.size(); i++) {
-      KeyField keyField = keyFields.get(i);
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      // The keys are read-only...
+      List<KeyField> keyFields = lookup.getKeyFields();
+      for (int i = 0; i < keyFields.size(); i++) {
+        KeyField keyField = keyFields.get(i);
 
-      IValueMeta v = prev.searchValueMeta(keyField.getStreamField1());
-      DatabaseImpact ii =
-          new DatabaseImpact(
-              DatabaseImpact.TYPE_IMPACT_READ,
-              pipelineMeta.getName(),
-              transforminfo.getName(),
-              databaseMeta.getDatabaseName(),
-              lookup.getTableName(),
-              keyField.getTableField(),
-              keyField.getStreamField1(),
-              v != null ? v.getOrigin() : "?",
-              "",
-              BaseMessages.getString(PKG, "DatabaseLookupMeta.Impact.Key"));
-      impact.add(ii);
-    }
+        IValueMeta v = prev.searchValueMeta(keyField.getStreamField1());
+        DatabaseImpact ii =
+            new DatabaseImpact(
+                DatabaseImpact.TYPE_IMPACT_READ,
+                pipelineMeta.getName(),
+                transforminfo.getName(),
+                databaseMeta.getDatabaseName(),
+                lookup.getTableName(),
+                keyField.getTableField(),
+                keyField.getStreamField1(),
+                v != null ? v.getOrigin() : "?",
+                "",
+                BaseMessages.getString(PKG, "DatabaseLookupMeta.Impact.Key"));
+        impact.add(ii);
+      }
 
-    // The Return fields are read-only too...
-    List<ReturnValue> returnValues = lookup.getReturnValues();
-    for (int i = 0; i < returnValues.size(); i++) {
-      ReturnValue returnValue = returnValues.get(i);
-      DatabaseImpact ii =
-          new DatabaseImpact(
-              DatabaseImpact.TYPE_IMPACT_READ,
-              pipelineMeta.getName(),
-              transforminfo.getName(),
-              databaseMeta.getDatabaseName(),
-              lookup.getTableName(),
-              returnValue.getTableField(),
-              "",
-              "",
-              "",
-              BaseMessages.getString(PKG, "DatabaseLookupMeta.Impact.ReturnValue"));
-      impact.add(ii);
-    }
+      // The Return fields are read-only too...
+      List<ReturnValue> returnValues = lookup.getReturnValues();
+      for (int i = 0; i < returnValues.size(); i++) {
+        ReturnValue returnValue = returnValues.get(i);
+        DatabaseImpact ii =
+            new DatabaseImpact(
+                DatabaseImpact.TYPE_IMPACT_READ,
+                pipelineMeta.getName(),
+                transforminfo.getName(),
+                databaseMeta.getDatabaseName(),
+                lookup.getTableName(),
+                returnValue.getTableField(),
+                "",
+                "",
+                "",
+                BaseMessages.getString(PKG, "DatabaseLookupMeta.Impact.ReturnValue"));
+        impact.add(ii);
+      }
     } catch (HopException e) {
       throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
   }
 

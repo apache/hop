@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionSFTP.Description",
     image = "SFTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-        keywords = "i18n::ActionSftp.keyword",
+    keywords = "i18n::ActionSftp.keyword",
     documentationUrl = "/workflow/actions/sftp.html")
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSftp.class; // For Translator

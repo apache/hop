@@ -56,7 +56,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.MemoryGroupBy",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-        keywords = "i18n::MemoryGroupByMeta.keyword",
+    keywords = "i18n::MemoryGroupByMeta.keyword",
     documentationUrl = "/pipeline/transforms/memgroupby.html")
 public class MemoryGroupByMeta extends BaseTransformMeta
     implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {

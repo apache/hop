@@ -37,9 +37,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/**
- * Dialog for the append transform.
- */
+/** Dialog for the append transform. */
 public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AppendDialog.class; // For Translator
 

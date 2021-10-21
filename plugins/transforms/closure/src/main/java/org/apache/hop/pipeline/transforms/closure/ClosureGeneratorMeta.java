@@ -44,7 +44,7 @@ import java.util.List;
     name = "i18n::ClosureGenerator.Name",
     description = "i18n::ClosureGenerator.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        keywords = "i18n::ClosureGeneratorMeta.keyword",
+    keywords = "i18n::ClosureGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/closure.html")
 public class ClosureGeneratorMeta extends BaseTransformMeta
     implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {

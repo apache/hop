@@ -50,7 +50,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.FuzzyMatch",
     description = "i18n::BaseTransform.TypeTooltipDesc.FuzzyMatch",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        keywords = "i18n::FuzzyMatchMeta.keyword",
+    keywords = "i18n::FuzzyMatchMeta.keyword",
     documentationUrl = "/pipeline/transforms/fuzzymatch.html")
 public class FuzzyMatchMeta extends BaseTransformMeta
     implements ITransformMeta<FuzzyMatch, FuzzyMatchData> {

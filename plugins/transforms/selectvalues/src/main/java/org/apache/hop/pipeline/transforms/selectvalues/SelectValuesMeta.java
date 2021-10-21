@@ -61,7 +61,7 @@ import java.util.List;
     description =
         "i18n:org.apache.hop.pipeline.transforms.selectvalues:BaseTransform.TypeTooltipDesc.SelectValues",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        keywords = "i18n::SelectValuesMeta.keyword",
+    keywords = "i18n::SelectValuesMeta.keyword",
     documentationUrl = "/pipeline/transforms/selectvalues.html")
 @InjectionSupported(
     localizationPrefix = "SelectValues.Injection.",

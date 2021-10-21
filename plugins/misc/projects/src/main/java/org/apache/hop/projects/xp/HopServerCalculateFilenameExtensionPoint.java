@@ -24,7 +24,6 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.run.HopRun;
 import org.apache.hop.www.HopServer;
 
 @ExtensionPoint(

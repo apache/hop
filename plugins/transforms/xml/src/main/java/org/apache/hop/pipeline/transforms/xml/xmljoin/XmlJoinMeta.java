@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::XmlJoin.name",
     description = "i18n::XmlJoin.description",
     categoryDescription = "i18n::XmlJoin.category",
-        keywords = "i18n::XmlJoinMeta.keyword",
+    keywords = "i18n::XmlJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {

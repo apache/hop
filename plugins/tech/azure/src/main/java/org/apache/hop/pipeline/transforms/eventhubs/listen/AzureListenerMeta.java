@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
     description = "i18n::AzureListenerMeta.description",
     image = "event-hubs-listener.svg",
     categoryDescription = "i18n::AzureListenerMeta.categoryDescription",
-        keywords = "i18n::AzureListenerMeta.keyword",
+    keywords = "i18n::AzureListenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-listener.html")
 public class AzureListenerMeta extends BaseTransformMeta
     implements ITransformMeta<AzureListener, AzureListenerData> {

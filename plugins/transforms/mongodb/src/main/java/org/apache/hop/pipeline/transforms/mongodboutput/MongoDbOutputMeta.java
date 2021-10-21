@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::MongoDbOutput.Name",
     description = "i18n::MongoDbOutput.Description",
     documentationUrl = "/pipeline/transforms/mongodboutput.html",
-        keywords = "i18n::MongoDbOutputMeta.keyword",
+    keywords = "i18n::MongoDbOutputMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(
     localizationPrefix = "MongoDbOutput.Injection.",

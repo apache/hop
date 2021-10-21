@@ -453,7 +453,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     if (Utils.isEmpty(wBootstrapServers.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-              BaseMessages.getString(PKG, "KafkaProducerOutputDialog.BootstrapServerMandatory.Message"));
+          BaseMessages.getString(
+              PKG, "KafkaProducerOutputDialog.BootstrapServerMandatory.Message"));
       mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
       mb.open();
       return;
@@ -465,7 +466,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     if (!Utils.isEmpty(wKeyField.getText()) && !checkIfFieldExists(wKeyField.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-              BaseMessages.getString(PKG, "KafkaProducerOutputDialog.KeyFieldNotExists.Message", wKeyField.getText()));
+          BaseMessages.getString(
+              PKG, "KafkaProducerOutputDialog.KeyFieldNotExists.Message", wKeyField.getText()));
       mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
       mb.open();
       return;
@@ -475,7 +477,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     if (Utils.isEmpty(wMessageField.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-              BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldMandatory.Message"));
+          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldMandatory.Message"));
       mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
       mb.open();
       return;
@@ -484,7 +486,10 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     if (!checkIfFieldExists(wMessageField.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageFieldNotExists.Message", wMessageField.getText()));
+          BaseMessages.getString(
+              PKG,
+              "KafkaProducerOutputDialog.MessageFieldNotExists.Message",
+              wMessageField.getText()));
       mb.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FieldNotExists.Title"));
       mb.open();
       return;

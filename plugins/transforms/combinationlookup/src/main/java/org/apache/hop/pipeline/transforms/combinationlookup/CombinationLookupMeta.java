@@ -63,7 +63,7 @@ import java.util.Objects;
     description = "i18n::CombinationLookup.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
-        keywords = "i18n::CombinationLookupMeta.keyword",
+    keywords = "i18n::CombinationLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/combinationlookup.html")
 @InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
 public class CombinationLookupMeta extends BaseTransformMeta

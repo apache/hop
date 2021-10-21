@@ -58,7 +58,7 @@ import java.util.List;
     name = "i18n::SynchronizeAfterMerge.Name",
     description = "i18n::SynchronizeAfterMerge.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        keywords = "i18n::SynchronizeAfterMergeMeta.keyword",
+    keywords = "i18n::SynchronizeAfterMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/synchronizeaftermerge.html")
 public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     implements ITransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {

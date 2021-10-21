@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.as400command;
 
+import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Message;
+import com.ibm.as400.access.CommandCall;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -34,10 +37,8 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+
 import java.util.List;
-import com.ibm.as400.access.AS400;
-import com.ibm.as400.access.AS400Message;
-import com.ibm.as400.access.CommandCall;
 
 /** Action for executing a AS/400 CL Commands. */
 @Action(
@@ -46,7 +47,7 @@ import com.ibm.as400.access.CommandCall;
     description = "i18n::ActionAs400Command.Description",
     image = "as400command.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-        keywords = "i18n::ActionAs400Command.keyword",
+    keywords = "i18n::ActionAs400Command.keyword",
     documentationUrl = "/workflow/actions/as400command.html")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class; // For Translator
@@ -65,7 +66,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
   @HopMetadataProperty(key = TAG_USER)
   private String user;
 
-  @HopMetadataProperty(key = TAG_PASSWORD, password=true)
+  @HopMetadataProperty(key = TAG_PASSWORD, password = true)
   private String password;
 
   @HopMetadataProperty(key = TAG_COMMAND)

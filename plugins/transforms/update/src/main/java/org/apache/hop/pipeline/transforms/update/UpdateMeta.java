@@ -51,7 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Update",
     description = "i18n::BaseTransform.TypeTooltipDesc.Update",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        keywords = "i18n::UpdateMeta.keyword",
+    keywords = "i18n::UpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/update.html")
 public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class; // For Translator

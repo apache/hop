@@ -53,7 +53,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.GetFilesRowsCount",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetFilesRowsCount",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = "i18n::GetFilesRowsCountMeta.keyword",
+    keywords = "i18n::GetFilesRowsCountMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilesrowcount.html")
 public class GetFilesRowsCountMeta extends BaseTransformMeta
     implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {

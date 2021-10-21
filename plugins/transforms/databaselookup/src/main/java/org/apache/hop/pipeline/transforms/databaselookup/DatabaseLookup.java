@@ -232,8 +232,8 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     String schemaTable =
-            databaseMeta
-            .getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
+        databaseMeta.getQuotedSchemaTableCombination(
+            this, meta.getSchemaName(), meta.getTableName());
 
     IRowMeta fields = data.db.getTableFields(schemaTable);
     if (fields != null) {

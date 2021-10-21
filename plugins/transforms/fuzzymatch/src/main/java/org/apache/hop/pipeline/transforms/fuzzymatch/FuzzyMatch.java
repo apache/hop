@@ -505,7 +505,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData>
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (checkFeedback(getLinesRead()) && log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "FuzzyMatch.Log.LineNumber") + getLinesRead());
+        logBasic(BaseMessages.getString(PKG, "FuzzyMatch.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
       boolean sendToErrorRow = false;
