@@ -50,6 +50,7 @@ import java.util.List;
     name = "i18n::MongoDbInput.Name",
     description = "i18n::MongoDbInput.Description",
     documentationUrl = "/pipeline/transforms/mongodbinput.html",
+    keywords = "i18n::MongoDbInputMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>

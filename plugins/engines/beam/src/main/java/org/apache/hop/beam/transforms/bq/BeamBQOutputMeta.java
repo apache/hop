@@ -49,7 +49,8 @@ import java.util.Map;
     name = "Beam BigQuery Output",
     description = "Writes to a BigQuery table in Beam",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BigData",
-    documentationUrl = "/pipeline/transforms/beambigqueryoutput.html")
+    documentationUrl = "/pipeline/transforms/beambigqueryoutput.html",
+    keywords = "i18n::BeamBQOutputDialog.keyword")
 public class BeamBQOutputMeta extends BaseTransformMeta
     implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
 

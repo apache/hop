@@ -47,6 +47,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.RowsFromResult",
     description = "i18n::BaseTransform.TypeTooltipDesc.RowsFromResult",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+    keywords = "i18n::RowsFromResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/getrowsfromresult.html")
 public class RowsFromResultMeta extends BaseTransformMeta
     implements ITransformMeta<RowsFromResult, RowsFromResultData> {

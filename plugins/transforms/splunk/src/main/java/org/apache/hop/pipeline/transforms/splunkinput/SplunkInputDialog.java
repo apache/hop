@@ -153,14 +153,14 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     Control lastControl = wTransformName;
 
     wConnection =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SplunkConnection.class,
-                    wComposite,
-                    SWT.SINGLE | SWT.LEFT,
-                    "Splunk Connection",
-                    "Select, create or edit a Splunk Connection");
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SplunkConnection.class,
+            wComposite,
+            SWT.SINGLE | SWT.LEFT,
+            "Splunk Connection",
+            "Select, create or edit a Splunk Connection");
     props.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();

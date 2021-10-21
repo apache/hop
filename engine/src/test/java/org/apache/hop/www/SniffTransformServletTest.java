@@ -106,8 +106,7 @@ public class SniffTransformServletTest {
     when(mockPipeline.getLogChannelId()).thenReturn("test");
     when(mockPipeline.getPipelineMeta()).thenReturn(mockPipelineMeta);
     when(mockPipelineMeta.getMaximum()).thenReturn(new Point(10, 10));
-    when(mockPipeline.getTransforms(ServletTestUtils.BAD_STRING_TO_TEST))
-        .thenReturn(transforms);
+    when(mockPipeline.getTransforms(ServletTestUtils.BAD_STRING_TO_TEST)).thenReturn(transforms);
 
     sniffTransformServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));

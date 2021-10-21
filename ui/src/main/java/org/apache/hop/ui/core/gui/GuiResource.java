@@ -769,7 +769,8 @@ public class GuiResource {
     imageTrue = SwtSvgImageUtil.getImageAsResource(display, "ui/images/true.svg");
     imageTrueDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/true-disabled.svg");
     imageFalse = SwtSvgImageUtil.getImageAsResource(display, "ui/images/false.svg");
-    imageFalseDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/false-disabled.svg");
+    imageFalseDisabled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/false-disabled.svg");
     imageVariable = SwtSvgImageUtil.getImageAsResource(display, "ui/images/variable.svg");
     imageFile = SwtSvgImageUtil.getImageAsResource(display, "ui/images/file.svg");
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
@@ -784,11 +785,13 @@ public class GuiResource {
     imageBol = SwtSvgImageUtil.getImageAsResource(display, "ui/images/bol.svg");
     imageClearText = SwtSvgImageUtil.getImageAsResource(display, "ui/images/clear-text.svg");
     imageCopyRows = SwtSvgImageUtil.getImageAsResource(display, "ui/images/copy-rows.svg");
-    imageCopyRowsDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/copy-rows-disabled.svg");
+    imageCopyRowsDisabled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/copy-rows-disabled.svg");
     imageFailure = SwtSvgImageUtil.getImageAsResource(display, "ui/images/failure.svg");
     imageSuccess = SwtSvgImageUtil.getImageAsResource(display, "ui/images/success.svg");
     imageError = SwtSvgImageUtil.getImageAsResource(display, "ui/images/error.svg");
-    imageErrorDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/error-disabled.svg");
+    imageErrorDisabled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/error-disabled.svg");
     imageInfo = SwtSvgImageUtil.getImageAsResource(display, "ui/images/info.svg");
     imageInfoDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/info-disabled.svg");
     imageWarning = SwtSvgImageUtil.getImageAsResource(display, "ui/images/warning.svg");
@@ -796,12 +799,13 @@ public class GuiResource {
     imageInput = SwtSvgImageUtil.getImageAsResource(display, "ui/images/input.svg");
     imageOutput = SwtSvgImageUtil.getImageAsResource(display, "ui/images/output.svg");
     imageTarget = SwtSvgImageUtil.getImageAsResource(display, "ui/images/target.svg");
-    imageTargetDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/target-disabled.svg");
+    imageTargetDisabled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/target-disabled.svg");
     imageContextMenu = SwtSvgImageUtil.getImageAsResource(display, "ui/images/context_menu.svg");
     imageParallel = SwtSvgImageUtil.getImageAsResource(display, "ui/images/parallel-hop.svg");
-    imageParallelDisabled = SwtSvgImageUtil.getImageAsResource(display, "ui/images/parallel-hop-disabled.svg");
-    imageUnconditional =
-        SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional.svg");
+    imageParallelDisabled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/parallel-hop-disabled.svg");
+    imageUnconditional = SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional.svg");
     imageUnconditionalDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/unconditional-disabled.svg");
     imageBusy = SwtSvgImageUtil.getImageAsResource(display, "ui/images/busy.svg");
@@ -1450,11 +1454,11 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageCopyRowsDisabled() {
     return imageCopyRowsDisabled;
   }
-  
+
   public Image getImageError() {
     return getZoomedImaged(imageError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
-  
+
   public SwtUniversalImage getSwtImageError() {
     return imageError;
   }
@@ -1462,7 +1466,7 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageErrorDisabled() {
     return imageErrorDisabled;
   }
-  
+
   public Image getImageInfo() {
     return getZoomedImaged(imageInfo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1474,7 +1478,7 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageInfoDisabled() {
     return imageInfoDisabled;
   }
-  
+
   public Image getImageWarning() {
     return getZoomedImaged(imageWarning, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1543,7 +1547,7 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageTargetDisabled() {
     return imageTargetDisabled;
   }
-  
+
   public Image getImageLocked() {
     return getZoomedImaged(imageLocked, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1656,7 +1660,7 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageTrueDisabled() {
     return imageTrueDisabled;
   }
-  
+
   /** @return the imageFalse */
   public Image getImageFalse() {
     return getZoomedImaged(imageFalse, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
@@ -1708,7 +1712,7 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageParallelDisabled() {
     return imageParallelDisabled;
   }
-  
+
   public Image getImageUnconditionalHop() {
     return getZoomedImaged(
         imageUnconditional, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
@@ -1721,7 +1725,7 @@ public class GuiResource {
   public SwtUniversalImage getSwtImageUnconditionalDisabled() {
     return imageUnconditionalDisabled;
   }
-  
+
   public Image getImageBusy() {
     return getZoomedImaged(imageBusy, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1887,4 +1891,3 @@ public class GuiResource {
     return imageSearch;
   }
 }
-

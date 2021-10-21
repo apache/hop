@@ -47,6 +47,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.MappingInput",
     image = "MPI.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
+    keywords = "i18n::MappingInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/mapping-input.html")
 public class MappingInputMeta extends BaseTransformMeta
     implements ITransformMeta<MappingInput, MappingInputData> {

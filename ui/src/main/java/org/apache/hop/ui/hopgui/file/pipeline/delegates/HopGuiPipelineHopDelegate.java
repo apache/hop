@@ -135,7 +135,7 @@ public class HopGuiPipelineHopDelegate {
             BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesRowMixing.Message"),
             re);
       }
-      
+
       // Verify copy distribution only if the new hop are not for error handling
       if (!newHop.isErrorHop()) {
         verifyCopyDistribute(pipelineMeta, newHop.getFromTransform());

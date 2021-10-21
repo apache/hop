@@ -45,6 +45,7 @@ import java.util.List;
     name = "i18n::FieldsChangeSequence.Name",
     description = "i18n::FieldsChangeSequence.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::FieldsChangeSequenceMeta.keyword",
     documentationUrl = "/pipeline/transforms/addfieldschangesequence.html")
 public class FieldsChangeSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {

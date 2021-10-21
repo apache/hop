@@ -39,7 +39,7 @@ public class LogMessageTest {
   private static String simpleLogChannelId;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  
+
   @Before
   public void setUp() {
     treeLogChannelId = LoggingRegistry.getInstance().registerLoggingSource(getTreeLoggingObject());

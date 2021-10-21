@@ -23,7 +23,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class StandardizePhoneNumberMetaInjectionTest extends BaseMetadataInjectionTest<StandardizePhoneNumberMeta> {
+public class StandardizePhoneNumberMetaInjectionTest
+    extends BaseMetadataInjectionTest<StandardizePhoneNumberMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
@@ -35,9 +36,9 @@ public class StandardizePhoneNumberMetaInjectionTest extends BaseMetadataInjecti
   public void test() throws Exception {
     check("input", () -> meta.getFields().get(0).getInputField());
     check("output", () -> meta.getFields().get(0).getOutputField());
-    check("format", () -> meta.getFields().get(0).getNumberFormat());   
+    check("format", () -> meta.getFields().get(0).getNumberFormat());
     check("country", () -> meta.getFields().get(0).getCountryField());
-    check("defaultCountry", () -> meta.getFields().get(0).getDefaultCountry());   
+    check("defaultCountry", () -> meta.getFields().get(0).getDefaultCountry());
     check("numbertype", () -> meta.getFields().get(0).getNumberTypeField());
     check("isvalidnumber", () -> meta.getFields().get(0).getIsValidNumberField());
   }

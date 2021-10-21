@@ -49,6 +49,7 @@ import java.util.List;
     description = "Queries the Neo4j logging graph and gets information back",
     categoryDescription = "Neo4j",
     image = "systeminfo.svg",
+    keywords = "i18n::GetLoggingInfoMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-getloginfo.html")
 @InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
 public class GetLoggingInfoMeta extends BaseTransformMeta

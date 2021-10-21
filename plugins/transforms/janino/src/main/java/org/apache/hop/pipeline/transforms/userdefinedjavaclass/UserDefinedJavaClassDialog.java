@@ -54,7 +54,7 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -256,7 +256,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wlScript.setLayoutData(fdlScript);
 
     wlPosition = new Label(wTop, SWT.NONE);
-    wlPosition.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label", 1, 1));
+    wlPosition.setText(
+        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label", 1, 1));
     props.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, margin);
@@ -840,9 +841,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wScript.addListener(SWT.Modify, listener);
     wScript.addListener(SWT.KeyDown, listener);
     wScript.addListener(SWT.KeyUp, listener);
-    wScript.addListener(SWT.FocusIn,listener);
-    wScript.addListener(SWT.FocusOut,listener);
-    wScript.addListener(SWT.MouseDoubleClick,listener);
+    wScript.addListener(SWT.FocusIn, listener);
+    wScript.addListener(SWT.FocusOut, listener);
+    wScript.addListener(SWT.MouseDoubleClick, listener);
     wScript.addListener(SWT.MouseUp, listener);
     wScript.addListener(SWT.MouseDown, listener);
     wScript.addModifyListener(lsMod);
@@ -1133,8 +1134,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
-      List<UserDefinedJavaClassDef> definitions =
-              new ArrayList<>(cTabs.length);
+      List<UserDefinedJavaClassDef> definitions = new ArrayList<>(cTabs.length);
       for (int i = 0; i < cTabs.length; i++) {
         UserDefinedJavaClassDef def =
             new UserDefinedJavaClassDef(

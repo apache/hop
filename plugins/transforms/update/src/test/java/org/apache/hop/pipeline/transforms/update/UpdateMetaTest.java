@@ -137,35 +137,32 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
     IFieldLoadSaveValidatorFactory validatorFactory =
         loadSaveTester.getFieldLoadSaveValidatorFactory();
 
+    validatorFactory.registerValidator(
+        validatorFactory.getName(UpdateLookupField.class),
+        new ObjectValidator<UpdateLookupField>(
+            validatorFactory,
+            UpdateLookupField.class,
+            Arrays.asList("schema", "table", "key", "value"),
+            new HashMap<String, String>() {
+              {
+                put("schema", "getSchemaName");
+                put("table", "getTableName");
+                put("key", "getLookupKeys");
+                put("value", "getUpdateFields");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("schema", "setSchemaName");
+                put("table", "setTableName");
+                put("key", "setLookupKeys");
+                put("value", "setUpdateFields");
+              }
+            }));
 
     validatorFactory.registerValidator(
-            validatorFactory.getName(UpdateLookupField.class),
-            new ObjectValidator<UpdateLookupField>(
-                    validatorFactory,
-                    UpdateLookupField.class,
-                    Arrays.asList("schema", "table", "key", "value"),
-                    new HashMap<String, String>() {
-                      {
-                        put("schema", "getSchemaName");
-                        put("table", "getTableName");
-                        put("key", "getLookupKeys");
-                        put("value", "getUpdateFields");
-                      }
-                    },
-                    new HashMap<String, String>() {
-                      {
-                        put("schema", "setSchemaName");
-                        put("table", "setTableName");
-                        put("key", "setLookupKeys");
-                        put("value", "setUpdateFields");
-                      }
-                    }));
-
-    validatorFactory.registerValidator(
-            validatorFactory.getName(List.class, UpdateLookupField.class),
-            new ListLoadSaveValidator<UpdateLookupField>(new UpdateLookupFieldLoadSaveValidator()));
-
-
+        validatorFactory.getName(List.class, UpdateLookupField.class),
+        new ListLoadSaveValidator<UpdateLookupField>(new UpdateLookupFieldLoadSaveValidator()));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(UpdateKeyField.class),
@@ -276,20 +273,19 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
     loadSaveTester.testSerialization();
   }
 
-
   public class UpdateLookupFieldLoadSaveValidator
-          implements IFieldLoadSaveValidator<UpdateLookupField> {
+      implements IFieldLoadSaveValidator<UpdateLookupField> {
     final Random rand = new Random();
 
     @Override
     public UpdateLookupField getTestObject() {
 
       UpdateLookupField field =
-              new UpdateLookupField(
-                      UUID.randomUUID().toString(),
-                      UUID.randomUUID().toString(),
-                      new ArrayList<UpdateKeyField>(),
-                      new ArrayList<UpdateField>());
+          new UpdateLookupField(
+              UUID.randomUUID().toString(),
+              UUID.randomUUID().toString(),
+              new ArrayList<UpdateKeyField>(),
+              new ArrayList<UpdateField>());
 
       return field;
     }
@@ -309,8 +305,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
     }
   }
 
-  public class UpdateFieldLoadSaveValidator
-      implements IFieldLoadSaveValidator<UpdateField> {
+  public class UpdateFieldLoadSaveValidator implements IFieldLoadSaveValidator<UpdateField> {
     final Random rand = new Random();
 
     @Override
@@ -335,8 +330,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
     }
   }
 
-  public class UpdateKeyFieldLoadSaveValidator
-      implements IFieldLoadSaveValidator<UpdateKeyField> {
+  public class UpdateKeyFieldLoadSaveValidator implements IFieldLoadSaveValidator<UpdateKeyField> {
     final Random rand = new Random();
 
     @Override

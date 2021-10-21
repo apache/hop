@@ -48,6 +48,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeTooltipDesc.RandomValue",
     description = "i18n::BaseTransform.TypeLongDesc.RandomValue",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::RandomValueMeta.keyword",
     documentationUrl = "/pipeline/transforms/generaterandomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {

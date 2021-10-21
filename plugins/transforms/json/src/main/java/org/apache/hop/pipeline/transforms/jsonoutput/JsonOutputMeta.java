@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::JsonOutput.name",
     description = "i18n::JsonOutput.description",
     categoryDescription = "i18n::JsonOutput.category",
-    keywords = {"json", "javascript", "object", "notation"},
+    keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/jsonoutput.html")
 public class JsonOutputMeta extends BaseFileOutputMeta
     implements ITransformMeta<JsonOutput, JsonOutputData> {

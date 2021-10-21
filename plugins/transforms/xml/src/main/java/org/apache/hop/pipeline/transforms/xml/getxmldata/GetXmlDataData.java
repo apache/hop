@@ -52,11 +52,11 @@ public class GetXmlDataData extends BaseTransformData implements ITransformData 
   public String PathValue;
   public String
       prunePath; // identical to meta.getPrunePath() with some conditions set at init(), null when
-                 // no pruning
+  // no pruning
   public boolean stopPruning; // used for a trick to stop the reader in pruning mode
   public boolean
       errorInRowButContinue; // true when actual row has an error and error handling is active:
-                             // means
+  // means
   // continue (error handling in this transform should be redesigned)
   public String tokenStart;
   public String tokenEnd;

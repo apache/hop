@@ -17,65 +17,66 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class InsertUpdateValue {
 
-    /** Field value to update after lookup */
-    @HopMetadataProperty(key = "name",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_LOOKUP",
-            injectionKey = "UPDATE_LOOKUP")
-    private String updateLookup;
+  /** Field value to update after lookup */
+  @HopMetadataProperty(
+      key = "name",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_LOOKUP",
+      injectionKey = "UPDATE_LOOKUP")
+  private String updateLookup;
 
-    /** Stream name to update value with */
-    @HopMetadataProperty(key = "rename",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_STREAM",
-            injectionKey = "UPDATE_STREAM")
-    private String updateStream;
+  /** Stream name to update value with */
+  @HopMetadataProperty(
+      key = "rename",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_STREAM",
+      injectionKey = "UPDATE_STREAM")
+  private String updateStream;
 
-    /** Stream name to update value with */
-    @HopMetadataProperty(key = "update",
-            injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_FLAG",
-            injectionKey = "UPDATE_FLAG")
-    private boolean update;
+  /** Stream name to update value with */
+  @HopMetadataProperty(
+      key = "update",
+      injectionKeyDescription = "InsertUpdateMeta.Injection.UPDATE_FLAG",
+      injectionKey = "UPDATE_FLAG")
+  private boolean update;
 
-    public InsertUpdateValue() {
-    }
+  public InsertUpdateValue() {}
 
-    public InsertUpdateValue(String updateLookup, String updateStream) {
-        this.updateLookup = updateLookup;
-        this.updateStream = updateStream;
-        this.update = true;
-    }
+  public InsertUpdateValue(String updateLookup, String updateStream) {
+    this.updateLookup = updateLookup;
+    this.updateStream = updateStream;
+    this.update = true;
+  }
 
-    public InsertUpdateValue(String updateLookup, String updateStream, boolean doUpdate) {
-        this.updateLookup = updateLookup;
-        this.updateStream = updateStream;
-        this.update = doUpdate;
-    }
+  public InsertUpdateValue(String updateLookup, String updateStream, boolean doUpdate) {
+    this.updateLookup = updateLookup;
+    this.updateStream = updateStream;
+    this.update = doUpdate;
+  }
 
-    public String getUpdateLookup() {
-        return updateLookup;
-    }
+  public String getUpdateLookup() {
+    return updateLookup;
+  }
 
-    public void setUpdateLookup(String updateLookup) {
-        this.updateLookup = updateLookup;
-    }
+  public void setUpdateLookup(String updateLookup) {
+    this.updateLookup = updateLookup;
+  }
 
-    public String getUpdateStream() {
-        return updateStream;
-    }
+  public String getUpdateStream() {
+    return updateStream;
+  }
 
-    public void setUpdateStream(String updateStream) {
-        this.updateStream = updateStream;
-    }
+  public void setUpdateStream(String updateStream) {
+    this.updateStream = updateStream;
+  }
 
-    public boolean isUpdate() {
-        return update;
-    }
+  public boolean isUpdate() {
+    return update;
+  }
 
-    public void setUpdate(boolean update) {
-        this.update = update;
-    }
+  public void setUpdate(boolean update) {
+    this.update = update;
+  }
 }

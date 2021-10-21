@@ -53,6 +53,7 @@ import java.util.List;
     name = "i18n::ExecSql.Name",
     description = "i18n::ExecSql.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::ExecSqlMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsql.html")
 @InjectionSupported(
     localizationPrefix = "ExecSqlMeta.Injection.",

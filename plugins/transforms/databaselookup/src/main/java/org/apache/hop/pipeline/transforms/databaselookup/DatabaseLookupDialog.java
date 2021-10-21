@@ -546,7 +546,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
                 connectionName = wConnection.getText(),
                 schemaName = wSchema.getText();
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName,variables);
+              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName, variables);
               if (ci != null) {
                 Database db = new Database(loggingObject, variables, ci);
                 try {

@@ -3716,7 +3716,7 @@ public class ValueMetaBase implements IValueMeta {
       // If it's a string and the string is empty, it's a null value as well
       //
       if (isString() && value.toString().length() == 0) {
-          return true;
+        return true;
       }
 
       // We tried everything else so we assume this value is not null.
@@ -4133,11 +4133,12 @@ public class ValueMetaBase implements IValueMeta {
       // if the null_value is specified, we try to match with that.
       //
       if (!Utils.isEmpty(nullValue)) {
-        if (nullValue.length() <= pol.length() && pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
+        if (nullValue.length() <= pol.length()
+            && pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
           // If the polled value is equal to the spaces right-padded null_value,
           // we have a match
           //
-            return emptyValue;
+          return emptyValue;
         }
       } else {
         // Verify if there are only spaces in the polled value...
@@ -4771,8 +4772,8 @@ public class ValueMetaBase implements IValueMeta {
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
             if (databaseMeta.getIDatabase().isMySqlVariant() && precision >= length) {
-                precision = -1;
-                length = -1;
+              precision = -1;
+              length = -1;
             }
 
             // if the length or precision needs a BIGNUMBER
@@ -4795,12 +4796,14 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
 
-          if (databaseMeta.getIDatabase().isPostgresVariant() && type == Types.NUMERIC && length == 0 && precision == 0) {
+          if (databaseMeta.getIDatabase().isPostgresVariant()
+              && type == Types.NUMERIC
+              && length == 0
+              && precision == 0) {
             // undefined size => arbitrary precision
-              valtype = IValueMeta.TYPE_BIGNUMBER;
-              length = -1;
-              precision = -1;
-
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+            length = -1;
+            precision = -1;
           }
 
           if (databaseMeta.getIDatabase().isOracleVariant()) {
@@ -5085,12 +5088,14 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
 
-          if (databaseMeta.getIDatabase().isPostgresVariant() && originalColumnType == Types.NUMERIC && length == 0 && precision == 0) {
+          if (databaseMeta.getIDatabase().isPostgresVariant()
+              && originalColumnType == Types.NUMERIC
+              && length == 0
+              && precision == 0) {
             // undefined size => arbitrary precision
-              valtype = IValueMeta.TYPE_BIGNUMBER;
-              length = -1;
-              precision = -1;
-
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+            length = -1;
+            precision = -1;
           }
 
           if (databaseMeta.getIDatabase().isOracleVariant()) {

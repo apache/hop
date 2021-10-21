@@ -52,7 +52,8 @@ public @interface HopMetadataProperty {
 
   /**
    * For enums: store and retrieve this value not with the name of the enum but with a "code"
-   * property. Make sure your enum implements {@link IEnumHasCode} and has method getCode() to recognize it.
+   * property. Make sure your enum implements {@link IEnumHasCode} and has method getCode() to
+   * recognize it.
    *
    * @return True if you want to store the value of an enum by its code instead its name.
    */

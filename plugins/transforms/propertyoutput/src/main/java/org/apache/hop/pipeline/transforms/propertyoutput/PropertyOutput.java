@@ -282,7 +282,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
           data.file.close();
           data.file = null;
         } catch (Exception e) {
-            /* Ignore */
+          /* Ignore */
           logDetailed("Exception trying to close file [" + data.file.getName() + "]! :", e);
         }
       }
