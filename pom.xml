@@ -129,7 +129,7 @@
         <encoder.version>1.2</encoder.version>
 
         <!-- Test dependencies -->
-        <mockito-all.version>1.10.19</mockito-all.version>
+        <mockito-core.version>3.12.4</mockito-core.version>
         <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
         <powermock-api-mockito.version>2.0.9</powermock-api-mockito.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
@@ -298,8 +298,8 @@
             <!-- Test dependencies -->
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito-all.version}</version>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito-core.version}</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
