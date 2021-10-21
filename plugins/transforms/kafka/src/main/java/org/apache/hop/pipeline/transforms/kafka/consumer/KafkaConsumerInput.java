@@ -289,7 +289,6 @@ public class KafkaConsumerInput
       // We're going to close kafka consumer because of pipeline has been stopped so stop executor
       // too
       data.executor.getPipeline().stopAll();
-      data.executor.buildExecutionSummary();
       setOutputDone();
       stopAll();
     }
