@@ -73,7 +73,7 @@ public class RemovePipelineServletTest {
     removePipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic(atLeastOnce());
+    PowerMockito.verifyStatic(Encode.class);
     Encode.forHtml(anyString());
   }
 
@@ -104,7 +104,7 @@ public class RemovePipelineServletTest {
     removePipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H3", out.toString())));
 
-    PowerMockito.verifyStatic(atLeastOnce());
+    PowerMockito.verifyStatic(Encode.class);
     Encode.forHtml(anyString());
   }
 }
