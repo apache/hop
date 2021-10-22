@@ -21,11 +21,11 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,8 +33,8 @@ import org.junit.Test;
 
 import java.util.*;
 
-public class SetValueFieldMetaTest implements IInitializer<ITransformMeta> {
-  LoadSaveTester loadSaveTester;
+public class SetValueFieldMetaTest implements IInitializer<SetValueFieldMeta> {
+  LoadSaveTester<SetValueFieldMeta> loadSaveTester;
   Class<SetValueFieldMeta> testMetaClass = SetValueFieldMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -42,29 +42,13 @@ public class SetValueFieldMetaTest implements IInitializer<ITransformMeta> {
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init(false);
-    List<String> attributes = Arrays.asList("fieldName", "replaceByFieldValue");
+    List<String> attributes = Arrays.asList("fields");
 
-    Map<String, String> getterMap =
-        new HashMap<String, String>() {
-          {
-            put("fieldName", "getFieldName");
-            put("replaceByFieldValue", "getReplaceByFieldValue");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<String, String>() {
-          {
-            put("fieldName", "setFieldName");
-            put("replaceByFieldValue", "setReplaceByFieldValue");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("replaceByFieldValue", stringArrayLoadSaveValidator);
-
+    attrValidatorMap.put("fields", new ListLoadSaveValidator<>(new SetFieldLoadSaveValidator(), 5));
+        
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
@@ -79,16 +63,25 @@ public class SetValueFieldMetaTest implements IInitializer<ITransformMeta> {
             this);
   }
 
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(ITransformMeta someMeta) {
-    if (someMeta instanceof SetValueFieldMeta) {
-      ((SetValueFieldMeta) someMeta).allocate(5);
-    }
-  }
-
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  // Call the allocate method on the LoadSaveTester meta class
+  @Override
+  public void modify(SetValueFieldMeta someMeta) {
+    if (someMeta instanceof SetValueFieldMeta) {
+      ((SetValueFieldMeta) someMeta).getFields().clear();
+      ((SetValueFieldMeta) someMeta)
+          .getFields()
+          .addAll(
+              Arrays.asList(
+                  new SetField("Field1", "RepalceBy1"),
+                  new SetField("Field2", "RepalceBy2"),
+                  new SetField("Field3", "RepalceBy3"),
+                  new SetField("Field4", "RepalceBy4"),
+                  new SetField("Field5", "RepalceBy5")));
+    }
   }
 }
