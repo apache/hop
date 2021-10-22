@@ -53,13 +53,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.*;
 
-// import org.apache.hop.pipeline.transforms.datagrid.DataGridMeta;
-// import org.apache.hop.pipeline.transforms.textfileoutput.TextFileOutputMeta;
-// import org.apache.hop.pipeline.transforms.userdefinedjavaclass.InfoTransformDefinition;
-// import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef;
-// import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta;
-
-@RunWith(PowerMockRunner.class)
 public class PipelineMetaTest {
   public static final String TRANSFORM_NAME = "Any transform name";
 

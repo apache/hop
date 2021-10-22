@@ -30,8 +30,6 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-/** Created by Yury_Bakhmutski on 2/8/2017. */
-@RunWith(PowerMockRunner.class)
 public class TransformWithMappingMetaTest {
 
   @Mock PipelineMeta pipelineMeta;
