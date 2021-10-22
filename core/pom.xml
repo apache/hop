@@ -37,7 +37,7 @@
     <properties>
         <!-- Test running configuration -->
         <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
-        <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US
+        <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
         <!-- Third-party dependencies -->
         <slf4j-api.version>1.7.30</slf4j-api.version>

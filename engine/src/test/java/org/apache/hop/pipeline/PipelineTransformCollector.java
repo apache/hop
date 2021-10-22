@@ -27,8 +27,6 @@ import java.util.List;
 /**
  * Helper class for testcases. You can add an instance of this class to a transform to read all of
  * the Rows the transform read or wrote.
- *
- * @author Sven Boden
  */
 public class PipelineTransformCollector implements IRowListener {
   private List<RowMetaAndData> rowsRead;

@@ -35,8 +35,6 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-/** @author Andrey Khayrutdinov */
-@RunWith(PowerMockRunner.class)
 public class FieldSplitter_EmptyStringVsNull_Test {
   private TransformMockHelper<FieldSplitterMeta, ITransformData> helper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
