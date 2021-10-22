@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Mail Validator action checks if an email address is valid or not.
 
 = Mail Validator
 
 == Description
 
 The Mail Validator action checks if an email address is valid or not.
+
 The checking process returns one result field (Boolean or String depending on your settings) and one additionnal field (String) containing errors string when email address is not valid.
 
 This action must receive input stream and add result fields in this input stream.

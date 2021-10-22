@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Folder Is Empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
 
 = Folder is Empty
 
 == Description
 
-The Folder is empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
+The Folder Is Empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
 
 == Options
 

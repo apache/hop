@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Put A File With FTP action uploads a file to an FTP server.
 
 = Put a file with FTP
 
 == Description
 
-Use the Put a file with FTP action to upload a file to an FTP server.
+The Put A File With FTP action uploads a file to an FTP server.
 
 == Options
 

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Delete Folders action deletes a set of folders and their content.
 
 = Delete Folders
 
 == Description
 
-This workflow action deletes a set of folders and their content.
+The Delete Folders action deletes a set of folders and their content.
 
 == Options
 
