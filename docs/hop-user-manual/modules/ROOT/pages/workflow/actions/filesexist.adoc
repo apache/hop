@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Checks If Files Exist action verifies that the specified files exist. The action returns true if the files exist, false if they don't.
 
-= Checks if files exists
+= Checks if files exist
 
 == Description
 
-Use the Checks if files exists action to verify that specified files exist.
+The Checks If Files Exist action verifies that the specified files exist. The action returns true if the files exist, false if they don't.
 
 == Options
 

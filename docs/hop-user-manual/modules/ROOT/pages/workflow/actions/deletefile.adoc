@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Delete File action deletes a file (empty or not).
 
 = Delete File
 
 == Description
 
-This workflow action deletes a file (empty or not).
+The Delete File action deletes a file (empty or not).
 
 == Options
 

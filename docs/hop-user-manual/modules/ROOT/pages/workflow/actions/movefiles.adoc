@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Move Files action moves a number of files and/or folders to alternate locations on your file system.
 
 = Move Files
 
 == Description
 
-The Move Files action allows you to move a number of files and/or folders to alternate locations on your file system.
+The Move Files action moves a number of files and/or folders to alternate locations on your file system.
 
 This works also on remote file systems (via VFS, e.g. with FTP.
 

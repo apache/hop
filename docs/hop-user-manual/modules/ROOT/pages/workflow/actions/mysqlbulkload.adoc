@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The MySQL Bulk Loader action loads data from a text file into a MySQL table.
 
 = MySQL Bulk Loader
 

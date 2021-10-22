@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The MySQL Bulk File action bulk loads data from MySQL into a file.
 
 = MySQL Bulk File
 
 == Description
 
-The MySQL Bulk File action can bulk load data from MySQL into a file.
+The MySQL Bulk File action bulk loads data from MySQL into a file.
 
 == Options
 

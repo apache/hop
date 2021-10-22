@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Copy Files action copies one of more files or folders.
 
 = Copy Files
 
 == Description
 
-This workflow action copies one of more files or folders.
+The Copy Files action copies one of more files or folders.
 
 == Options
 

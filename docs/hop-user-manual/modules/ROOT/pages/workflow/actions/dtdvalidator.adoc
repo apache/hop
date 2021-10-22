@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The DTD Validator action verifies if an XML file corresponds to a certain structure or format according to a Document Type Definition or DTD.
 
 = DTD Validator
 
 == Description
 
-The DTD Validator action allows you to verify if an XML file corresponds to a certain structure or format according to a Document Type Definition or link:http://en.wikipedia.org/wiki/Document_Type_Definition[DTD].
+The DTD Validator action verifies if an XML file corresponds to a certain structure or format according to a Document Type Definition or link:http://en.wikipedia.org/wiki/Document_Type_Definition[DTD].
 
 == Options
 
