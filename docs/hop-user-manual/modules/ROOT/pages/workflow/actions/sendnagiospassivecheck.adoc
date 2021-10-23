@@ -16,15 +16,18 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Send Nagios check action sends passive checks to Nagios.
 
 = Send Nagios check
 
 == Description
 
-The Send Nagios check action allows you to send passive checks to Nagios.
+The Send Nagios check action sends passive checks to Nagios.
+
 You can send monitoring information e.g. about start and end processes within your workflow.
 
 It needs the NCSA addon installed on the Nagios server (NSCA is a Linux/Unix daemon allows you to integrate passive alerts and checks from remote machines and applications with Nagios.
+
 Useful for processing security alerts, as well as redundant and distributed Nagios setups.)
 
 More details and setup instructions for the Nagios NSCA addon can be found at the Nagios link:http://nagios.sourceforge.net/docs/3_0/passivechecks.html[Passive Checks documentation.]

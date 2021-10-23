@@ -16,12 +16,19 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Write To Log action writes a specific string to the Hop logging system.
 
 = Write to Log
 
 == Description
 
-The Write to log acction writes a specific string to the Hop logging system.
+The Write To Log action writes a specific string to the Hop logging system.
+
+This action is similar to the xref:pipeline/transforms/writetolog.adoc[Write To Log] transform.
+
+Typical use cases are logging variable values and additional, custom logging information to the Hop logging system.
+
+TIP: be careful when writing variables for (unencrypted) passwords or other sensitive information to the Hop logging system!
 
 == Options
 

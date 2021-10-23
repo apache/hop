@@ -16,15 +16,18 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description:
 
 :openvar: ${
 :closevar: }
+
 = Pipeline
 
 == Description
 
 The Pipeline action runs a previously-defined pipeline within a workflow.
-This action is the access point from your workflow to your ETL activity (pipeline).
+
+This action is the access point from your workflow to your actual data processing activity (pipeline).
 
 An example of a common workflow includes getting FTP files, checking existence of a necessary target database table, running a pipeline that populates that table, and e-mailing an error log if a pipeline fails.
 For this example, the Pipeline action defines which pipeline to run to populate the table.

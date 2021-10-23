@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Put files with SFTP action pushes one or more files to an FTP server using the Secure FTP protocol.
 
 = Put a file with SFTP
 
 == Description
 
-You can use the Put files with SFTP action to put one or more files from an FTP server using the Secure FTP protocol.
+The Put files with SFTP action pushes one or more files to an FTP server using the Secure FTP protocol.
 
 == Options
 
