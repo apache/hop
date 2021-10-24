@@ -16,12 +16,15 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Get A File With SFTP action retrieves one or more files from an FTP server using the Secure FTP protocol.
 
 = Get a file with SFTP
 
 == Description
 
-The Get a file with SFTP action can be used to retrieve one or more files from an FTP server using the Secure FTP protocol.
+The Get A File With SFTP action retrieves one or more files from an FTP server using the Secure FTP protocol.
+
+The action returns true if the specified file(s) or pattern were retrieved successfully, false it there were problems retrieving the file(s).
 
 == Options
 

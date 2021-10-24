@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The SNMP Trap action sends alert messages to a remote SNMP-enabled device.
 
 = Snmp Trap
 
 == Description
 
-The Snmp Trap action can be used to send alert messages to a remote SNMP-enabled device.
+The SNMP Trap action sends alert messages to a remote SNMP-enabled device.
 
 == Options
 

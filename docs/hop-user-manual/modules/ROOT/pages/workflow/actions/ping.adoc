@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Ping action can be used to ping a host using the ICMP protocol.
 
 = Ping
 
 == Description
 
 The Ping action can be used to ping a host using the ICMP protocol.
+
 The result it true when the host is reachable, otherwise false.
 
 == Options
