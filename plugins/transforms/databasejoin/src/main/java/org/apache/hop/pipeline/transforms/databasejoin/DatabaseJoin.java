@@ -35,8 +35,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.sql.ResultSet;
 
 /**
- * Use values from input streams to joins with values in a database.
- * Freehand SQL can be used to do this.
+ * Use values from input streams to joins with values in a database. Freehand SQL can be used to do
+ * this.
  */
 public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData>
     implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
@@ -78,14 +78,12 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
       data.keynrs = new int[meta.getParameters().size()];
 
-      
       for (int i = 0; i < data.keynrs.length; i++) {
         ParameterField field = meta.getParameters().get(i);
         data.keynrs[i] = rowMeta.indexOfValue(field.getName());
         if (data.keynrs[i] < 0) {
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
+              BaseMessages.getString(PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
         }
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
@@ -220,14 +218,16 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   public boolean init() {
     if (super.init()) {
 
-      if ( Utils.isEmpty(meta.getConnection())) {
-        logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+      if (Utils.isEmpty(meta.getConnection())) {
+        logError(
+            BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
 
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       if (databaseMeta == null) {
-        logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+        logError(
+            BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
 

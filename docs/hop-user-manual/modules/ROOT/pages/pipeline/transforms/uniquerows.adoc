@@ -16,12 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Unique Rows transform removes duplicate rows from the (sorted) input stream(s).
 
 = Unique Rows
 
 == Description
 
-The Unique rows transform removes duplicate rows from the input stream(s), input has to be sorted.
+The Unique Rows transform removes duplicate rows from the (sorted) input stream(s).
+
+For unsorted input streams, check the xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows By Hashset] transform.
 
 == Options
 

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Evaluate File Metrics action can be used to evaluate the size or count of files.
 
 = Evaluate File Metrics
 

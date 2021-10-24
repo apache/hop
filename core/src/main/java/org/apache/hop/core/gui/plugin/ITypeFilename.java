@@ -17,8 +17,6 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import org.apache.hop.metadata.api.IHopMetadata;
-
 /** Provide information which allows browsing capabilities for the Filename widget sub-type */
 public interface ITypeFilename {
 

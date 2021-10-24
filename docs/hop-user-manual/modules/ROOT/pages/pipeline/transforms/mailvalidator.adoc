@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Mail Validator transform checks the validity of an email address.
 
 = Mail Validator
 
 == Description
 
-This transform checks if an email address is valid or not.
-The checking process returns one result field (Boolean or String depending on your settings) and one additionnal field (String) containing errors string when email address is not valid.
+The Mail Validator transform checks the validity of an email address.
+
+The checking process returns one result field (Boolean or String depending on your settings) and one additional field (String) containing errors string when an email address is not valid.
 
 This transform must receive input stream and add result fields in this input stream.
 

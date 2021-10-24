@@ -43,7 +43,7 @@ import java.util.List;
     image = "avro_decode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
-    keywords = {"Avro", "Decode"})
+    keywords = "i18n::AvroDecodeMeta.keyword")
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroDecodeMeta extends BaseTransformMeta
     implements ITransformMeta<AvroFileInput, AvroDecodeData> {

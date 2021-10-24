@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Neo4j Index action can be used to create or drop indexes on node or relationship properties in a Neo4j Graph
 
 = Neo4j Index
 
 == Description
 
-This action can be used to create or drop indexes on node or relationship properties in a Neo4j Graph
+The Neo4j Index action can be used to create or drop indexes on node or relationship properties in a Neo4j Graph
 
 == Options
 

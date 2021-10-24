@@ -16,14 +16,17 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Cassandra Exec CQL action executes one or more CassandraQL statements on a Cassandra cluster.
 
 :openvar: ${
 :closevar: }
 
 = Cassandra Exec CQL
 
-This action allows you to execute one or more CassandraQL statements on a Cassandra cluster.
-You can use it to create or drop keyspaces, tables, indexes and so on.
+The Cassandra Exec CQL action executes one or more CassandraQL statements on a Cassandra cluster.
+
+You can use it to create or drop key spaces, tables, indexes and so on.
+
 If all statements executed successfully the result will be true (success).
 
 == Options

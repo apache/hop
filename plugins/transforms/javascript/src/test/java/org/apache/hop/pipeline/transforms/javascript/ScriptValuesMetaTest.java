@@ -17,7 +17,6 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;

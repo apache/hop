@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Verify File Signature With PGP action can be used to verify a file signature to ensure its authenticity.
 
 = Verify file signature with PGP
 
 == Description
 
-This workflow action can be used to verify a file link:https://www.gnupg.org/gph/en/manual/x135.html[signature to ensure its authenticity].
+The Verify File Signature With PGP action can be used to verify a file link:https://www.gnupg.org/gph/en/manual/x135.html[signature to ensure its authenticity].
 
 == Options
 

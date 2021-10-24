@@ -16,19 +16,28 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The File Exists action verifies that a specified file exists on the server on which Hop is running.
 
 = File Exists
 
 == Description
 
-Use the File exists action to verify that a specified file exists on the server on which Hop is running.
+The File Exists action verifies that a specified file exists on the server on which Hop is running.
+
 You must provide the file name.
-Hop returns a True or False value depending on whether or not the file exists.
+
+Hop returns a True or False value depending on whether the file exists.
+
 The File Exists workflow action can be an easy integration point with other systems.
+
 For example, suppose you have a three-part data warehouse load process.
+
 The first part runs in PERL.
+
 You have batch scripts that accesses data from a remote location, performs first-level row processing, and outputs the data to a specified directory.
+
 You do not want to start the workflow until this is done, so you put the workflow on a scheduler.
+
 As soon as the task is complete, the file is placed in a well-known location so that the "file exists." That is the signal that launches the workflow for final processing.
 
 == Options

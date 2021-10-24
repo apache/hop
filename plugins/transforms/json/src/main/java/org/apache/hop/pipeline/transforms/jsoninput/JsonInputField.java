@@ -29,9 +29,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.w3c.dom.Node;
 
-/**
- * Describes a JsonPath field.
- */
+/** Describes a JsonPath field. */
 public class JsonInputField extends BaseFileField implements Cloneable {
 
   @Injection(name = "FIELD_PATH", group = "FIELDS")

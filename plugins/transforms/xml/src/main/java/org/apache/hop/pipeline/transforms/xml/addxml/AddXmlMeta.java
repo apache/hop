@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::AddXML.name",
     description = "i18n::AddXML.description",
     categoryDescription = "i18n::AddXML.category",
+    keywords = "i18n::AddXmlMeta.keyword",
     documentationUrl = "/pipeline/transforms/addxml.html")
 @InjectionSupported(
     localizationPrefix = "AddXMLMeta.Injection.",

@@ -84,7 +84,6 @@ public class InsertUpdateLookupField {
     valueFields = new ArrayList<>();
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "InsertUpdateMeta.DefaultTableName");
-
   }
 
   /** @return the schemaName */

@@ -16,15 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
 
 :openvar: ${
 :closevar: }
+
 = Metadata Injection
 
 == Description
 
-Metadata injection inserts data from various sources into a pipeline at runtime.
-This insertion reduces repetitive ETL tasks.
+The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
+
+This is typically used to automate repetitive ETL tasks.
 
 For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file.
 If you have more than one supplier, you would need to run this simple pipeline for each supplier.

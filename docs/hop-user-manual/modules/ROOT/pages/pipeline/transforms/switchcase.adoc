@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Switch Case transform implements the Switch/Case statement found in popular programming languages like Java.
 
 = Switch / Case
 
 == Description
 
-What this transform does is implement the Switch/Case statement found in popular programming languages like Java.
+The Switch Case transform implements the https://en.wikipedia.org/wiki/Switch_statement[Switch/Case statement] found in popular programming languages like Java.
 
 In our case we route rows of data to one or more target transforms based on the value encountered in a certain field.
 

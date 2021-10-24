@@ -58,6 +58,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.TextFileOutput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TextFileOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::TextFileOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileoutput.html")
 @InjectionSupported(
     localizationPrefix = "TextFileOutput.Injection.",

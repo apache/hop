@@ -16,11 +16,12 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description:
 
 = Start
 
 == Description
 
-The start action is starting point for workflow execution.
+The Start action is the starting point for workflow execution.
 
-NOTE: You can have only one start action in a workflow.
+NOTE: Every workflow needs to have one and only one start action.

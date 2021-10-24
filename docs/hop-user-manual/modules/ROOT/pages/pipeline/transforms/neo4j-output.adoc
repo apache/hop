@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Neo4j Output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
 
 = Neo4j Output
 
 == Description
 
-This transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
+The Neo4j Output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
+
 The transform generates the required Cypher statements with accompanying parameters.
 
 == Usage

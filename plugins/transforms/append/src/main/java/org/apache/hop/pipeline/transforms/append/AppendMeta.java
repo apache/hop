@@ -43,16 +43,21 @@ import java.util.List;
     name = "i18n::Append.Name",
     description = "i18n::Append.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::AppendMeta.keyword",
     documentationUrl = "/pipeline/transforms/append.html")
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 
   private static final Class<?> PKG = Append.class; // For Translator
 
-  @HopMetadataProperty(key = "head_name", injectionKey = "HEAD_TRANSFORM",
+  @HopMetadataProperty(
+      key = "head_name",
+      injectionKey = "HEAD_TRANSFORM",
       injectionKeyDescription = "AppendMeta.Injection.HEAD_TRANSFORM")
   public String headTransformName;
 
-  @HopMetadataProperty(key = "tail_name", injectionKey = "TAIL_TRANSFORM",
+  @HopMetadataProperty(
+      key = "tail_name",
+      injectionKey = "TAIL_TRANSFORM",
       injectionKeyDescription = "AppendMeta.Injection.TAIL_TRANSFORM")
   public String tailTransformName;
 

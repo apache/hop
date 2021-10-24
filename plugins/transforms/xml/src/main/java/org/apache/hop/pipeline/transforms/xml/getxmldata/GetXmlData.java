@@ -242,7 +242,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
       if (!data.errorInRowButContinue) { // do not put out the row but continue
         putRowOut(
             r); // false when limit is reached, functionality is there but we can not stop reading
-                // the hole file
+        // the hole file
         // (slow but works)
       }
       data.nodesize = 0;
@@ -267,7 +267,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
       cont =
           putRowOut(
               r); // false when limit is reached, functionality is there but we can not stop reading
-                  // the hole
+      // the hole
       // file (slow but works)
     }
     if (log.isDebug()) {

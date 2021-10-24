@@ -54,6 +54,7 @@ import java.util.Map;
     name = "i18n::PropertyInput.Name",
     description = "i18n::PropertyInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::PropertyInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/propertyinput.html")
 public class PropertyInputMeta extends BaseTransformMeta
     implements ITransformMeta<PropertyInput, PropertyInputData> {

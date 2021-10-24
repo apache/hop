@@ -69,8 +69,7 @@ public class WorkflowActionFtpDeleteLoadSaveTest
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators =
-            new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     return validators;
   }
 }

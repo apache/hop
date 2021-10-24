@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Delay (Wait For) action creates a delay between workflows.
 
-= Delay
+= Delay (Wait For)
 
 == Description
 
-This workflow action creates a delay between workflows.
+The Delay (Wait For) action creates a delay between workflows.
 
 == Options
 

@@ -16,13 +16,16 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Check If Webservice is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
 
 = Check if Webservice is available
 
 == Description
 
-The Check if Webservice is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
+The Check If Webservice is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from.
+
 If it connects within the given timeout and data can be read, it returns 'true', otherwise 'false'.
+
 Further information of the failing reason can be found in the log as an error log action.
 
 == Options

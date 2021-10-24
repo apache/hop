@@ -212,10 +212,10 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getSwtImageOutput();
       case ARROW:
         return GuiResource.getInstance().getSwtImageArrow();
-      case COPY_ROWS:        
+      case COPY_ROWS:
         return GuiResource.getInstance().getSwtImageCopyRows();
       case COPY_ROWS_DISABLED:
-        return GuiResource.getInstance().getSwtImageCopyRowsDisabled();        
+        return GuiResource.getInstance().getSwtImageCopyRowsDisabled();
       case LOAD_BALANCE:
         return GuiResource.getInstance().getSwtImageBalance();
       case CHECKPOINT:
@@ -228,7 +228,7 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getSwtImageParallelDisabled();
       case UNCONDITIONAL:
         return GuiResource.getInstance().getSwtImageUnconditional();
-      case UNCONDITIONAL_DISABLED:        
+      case UNCONDITIONAL_DISABLED:
         return GuiResource.getInstance().getSwtImageUnconditionalDisabled();
       case BUSY:
         return GuiResource.getInstance().getSwtImageBusy();

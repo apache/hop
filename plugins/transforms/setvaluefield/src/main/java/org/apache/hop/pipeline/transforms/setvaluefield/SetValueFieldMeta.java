@@ -41,6 +41,7 @@ import java.util.List;
     name = "i18n::SetValueField.Name",
     description = "i18n::SetValueField.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::SetValueFieldMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvaluefield.html")
 public class SetValueFieldMeta extends BaseTransformMeta
     implements ITransformMeta<SetValueField, SetValueFieldData> {

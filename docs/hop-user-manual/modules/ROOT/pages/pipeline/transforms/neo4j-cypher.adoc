@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Neo4j Cypher transform allows you to execute any Cypher through the Neo4j Bolt protocol using the Java driver.
 
 :openvar: ${
 :openvar2: {
@@ -24,9 +25,9 @@ under the License.
 
 == Description
 
-This transform allows you to execute any Cypher through the Neo4j Bolt protocol using the Java driver.
-Both reading, writing or both are supported.
-You can also call procedures and get the output.
+The Neo4j Cypher transform allows you to execute any Cypher through the Neo4j Bolt protocol using the Java driver.
+
+Both reading, writing or both are supported. You can also call procedures and get the output.
 
 == Notable options
 

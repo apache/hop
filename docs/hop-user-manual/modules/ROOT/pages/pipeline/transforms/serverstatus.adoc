@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Get Server Status transform contacts the Hop servers for which the names are read from an input field.
 
 = Get Server Status
 
 == Description
 
-The 'Get Server Status' transform is capable of contacting the Hop servers of which the names are read from an input field.
+The Get Server Status transform contacts the Hop servers for which the names are read from an input field.
+
 It returns high level information about the server.
 Every output field for which you specify a name will be added to the list of output fields.
 

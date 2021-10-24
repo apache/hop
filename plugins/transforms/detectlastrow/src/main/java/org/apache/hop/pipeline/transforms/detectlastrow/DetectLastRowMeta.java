@@ -44,6 +44,7 @@ import java.util.List;
     name = "i18n::DetectLastRow.Name",
     description = "i18n::DetectLastRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::DetectLastRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/identifylastrow.html")
 public class DetectLastRowMeta extends BaseTransformMeta
     implements ITransformMeta<DetectLastRow, DetectLastRowData> {

@@ -16,10 +16,11 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Neo4j Get Logging Info transform queries the Neo4j logging graph and retrieves logging information.
 
 = Neo4j Get Logging Info
 
-This transform queries the Neo4j logging graph and retrieves logging information.
+The Neo4j Get Logging Info transform queries the Neo4j logging graph and retrieves logging information.
 
 This transform uses the `NEO4J_LOGGING_CONNECTION`.
 Check the xref:hop-gui/perspective-neo4j.adoc[Neo4j perspective] for more details.

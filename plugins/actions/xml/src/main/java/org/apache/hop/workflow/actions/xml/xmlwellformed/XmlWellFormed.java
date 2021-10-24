@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
     description = "i18n::XML_WELL_FORMED.Description",
     image = "XFC.svg",
     categoryDescription = "i18n::XML_WELL_FORMED.Category",
+    keywords = "i18n::XmlWellFormed.keyword",
     documentationUrl = "/workflow/actions/xmlwellformed.html")
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = XmlWellFormed.class; // For Translator

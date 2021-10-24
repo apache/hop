@@ -100,8 +100,7 @@ public class ActionDialog extends Dialog {
             parent,
             SWT.NONE,
             BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
-            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip")
-            );
+            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip"));
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
   }

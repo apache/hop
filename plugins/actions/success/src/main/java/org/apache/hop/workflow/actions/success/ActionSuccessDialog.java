@@ -36,9 +36,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit a Action Success object.
- */
+/** This dialog allows you to edit a Action Success object. */
 public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSuccess.class; // For Translator
 

@@ -20,7 +20,40 @@ under the License.
 
 = Workflows
 
+== Workflow overview
+
 Workflows are one of the core building blocks in Apache Hop. Where pipelines do the heavy data lifting, workflows take care of the orchestration work: prepare the environment, fetch remote files, perform error handling and executing child workflows and pipelines.
+
+Workflows consist of a series of xref:workflow/actions.adoc[actions], connected by hops. Just like a xref:pipeline/transforms.adoc[transform] in a xref:pipeline/pipelines.adoc[pipeline], each action is a small piece of functionality. The combination of a number of actions allows Hop developers to build powerful data orchestration solutions.
+
+Even though there is some visual resemblance, workflows and pipelines operate very differently.
+
+* Workflows perform orchestration tasks. Actions in a workflow usually do not operate on the data directly (even though you _can_ change data e.g. through xref:workflow/actions/sql.adoc[SQL]).
+* Workflows have one (and only one) mandatory starting point (a xref:workflow/actions/start.adoc[Start] action), but can have multiple end actions.
+* Workflows can
+* Workflows work sequentially by default. Each action in a workflow has a position in the workflow sequence, and needs to wait before the previous actions have completed before it starts.
+* Workflow actions do not pass data over hops. Each workflow action has a `success` or `failure` exit status. This exit status is used to choose the routing through the workflow.
+* Hops between actions in a workflow have a status: depending on the exit status of the previous action, a workflow hop can follow the success (green), failure (orange) or unconditional (black) hop. An unconditional hop ignores the exit status of the previous action and is followed whether the previous action failed or succeeded.
+
+== Example workflow walk-through
+
+Like all workflows, the example workflow shown below starts with the `start` action.
+
+The Start action is just a placeholder that can't really fail, so the hop out of a start action is unconditional.
+
+The workflow then continues with a xref:workflow/actions/pipeline.adoc[pipeline] action, "first-pipeline". As the name implies, this action executes a pipeline.
+
+If "first-pipeline" runs successfully, the workflow continues to "second-pipeline". If "first-pipeline" fails, the failure hop to "handle-errors" is followed.
+
+In this hypothetical example, we don't care about the result of "Second pipeline", and want to continue to "delete-tmp-files", where any temporary files are removed.
+
+If the temporary files are removed successfully, we move on to the "success" action. Similar to the Start action, success is a visual indicator of successful completion of this part of the workflow. It's not mandatory and doesn't add any functionality, but it often is a good visual indicator of an end point of your workflow's main stream.
+
+image:hop-gui/workflow/basic-workflow.png[Workflows - basic workflows, width="65%"]
+
+== Next steps
+
+The following pages take you deeper into the process of building and running workflows:
 
 ** xref:workflow/create-workflow.adoc[Create a Workflow]
 ** xref:workflow/run-debug-workflow.adoc[Run and Debug a Workflow]

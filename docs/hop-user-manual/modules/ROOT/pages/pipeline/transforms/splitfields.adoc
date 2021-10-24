@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Split Fields transform splits a field into multiple fields based on a specified delimiter.
 
 = Split Fields
 
 == Description
 
-You can use the Split Fields transform to split a field into multiple fields based on a specified delimiter.
+The Split Fields transform splits a field into multiple fields based on a specified delimiter.
 
 == Options
 

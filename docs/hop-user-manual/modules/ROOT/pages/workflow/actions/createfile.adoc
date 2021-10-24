@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Create File action creates an empty file. This is useful for creating trigger files from within workflows.
 
 = Create File
 
 == Description
 
-You can use the Create a file action to create an empty file.
-This is useful for creating "trigger" files from within workflows.
+The Create File action creates an empty file. This is useful for creating trigger files from within workflows.
 
 == Options
 

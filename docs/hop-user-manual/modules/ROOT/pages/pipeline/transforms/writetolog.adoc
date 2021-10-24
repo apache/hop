@@ -16,12 +16,17 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Write To Log transform writes information to the Hop logging system.
 
 = Write to log
 
 == Description
 
-This transform writes information to the Hop logging system.
+The Write To Log transform writes information to the Hop logging system.
+
+Typical use cases are logging specific values or custom logging messages to the Hop logs.
+
+TIP: be careful when writing variables or fields for (unencrypted) passwords or other sensitive information to the Hop logging system!
 
 == Options
 

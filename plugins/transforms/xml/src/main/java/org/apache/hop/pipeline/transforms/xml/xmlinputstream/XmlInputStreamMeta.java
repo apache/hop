@@ -47,6 +47,7 @@ import java.util.List;
     name = "i18n::XMLInputStream.name",
     description = "i18n::XMLInputStream.description",
     categoryDescription = "i18n::XMLInputStream.category",
+    keywords = "i18n::XmlInputStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmlinputstream.html")
 public class XmlInputStreamMeta extends BaseTransformMeta
     implements ITransformMeta<XmlInputStream, XmlInputStreamData> {

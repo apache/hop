@@ -18,8 +18,8 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiPluginType;

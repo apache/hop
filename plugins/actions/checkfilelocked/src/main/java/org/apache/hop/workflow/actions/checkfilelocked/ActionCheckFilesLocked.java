@@ -60,6 +60,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionCheckFilesLocked.Description",
     image = "CheckFilesLocked.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    keywords = "i18n::ActionCheckFilesLocked.keyword",
     documentationUrl = "/workflow/actions/checkfilelocked.html")
 public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator

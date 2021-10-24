@@ -16,16 +16,22 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The HTTP Get action retrieves a file from a Web server using the HTTP protocol.
 
 = Http Get
 
 == Description
 
-Use the HTTP action to retrieve a file from a Web server using the HTTP protocol.
-This workflow action could be used to access data on partner Web sites.
+The HTTP Get action retrieves a file from a Web server using the HTTP protocol.
+
+This action could be used to access data on partner Web sites.
+
 For example, the daily data export or daily list of customers is located at a specified Web site.
+
 Also, SaaS providers may give you a URL to locate a report.
+
 You can call that URL to retrieve an Excel file or zip file that contains the data.
+
 Salesforce requires that you use SOAP APIs to retrieve data.
 
 If HTTP traffic is too heavy in your corporate environment, you may choose to use a proxy server with HTTP authentication.

@@ -125,7 +125,7 @@ public class DatabaseLookupUTest {
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     Lookup lookup = meta.getLookup();
 
-    meta.setDatabaseMeta(dbMeta);
+    // meta.setDatabaseMeta(dbMeta);
     lookup.setSchemaName("VirtualSchema");
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", ID_FIELD));
@@ -199,6 +199,7 @@ public class DatabaseLookupUTest {
       DatabaseLookupData data,
       Database db,
       DatabaseMeta dbMeta) {
+
     DatabaseLookup lookup =
         new DatabaseLookup(mocks.transformMeta, meta, data, 1, mocks.pipelineMeta, mocks.pipeline);
     lookup = Mockito.spy(lookup);
@@ -227,9 +228,10 @@ public class DatabaseLookupUTest {
     dbMeta.setIDatabase(genericMeta);
 
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("connection1");
     Lookup lookup = meta.getLookup();
 
-    meta.setDatabaseMeta(dbMeta);
+    // meta.setDatabaseMeta(dbMeta);
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", "ID1"));
     lookup.getKeyFields().add(new KeyField("", "", "IS NULL", "ID2"));
@@ -272,6 +274,9 @@ public class DatabaseLookupUTest {
     DatabaseLookup look =
         new MockDatabaseLookup(
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    when(look.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(dbMeta);
 
     look.init();
     assertTrue(data.allEquals);
@@ -365,7 +370,7 @@ public class DatabaseLookupUTest {
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     meta.setCached(true);
     meta.setLoadingAllDataInCache(true);
-    meta.setDatabaseMeta(mock(DatabaseMeta.class));
+    meta.setConnection("connection1");
     // it's ok here, we won't do actual work
     meta.getLookup().getKeyFields().add(new KeyField("Test", "", "=", "test"));
     return meta;
@@ -377,7 +382,15 @@ public class DatabaseLookupUTest {
       DatabaseLookupMeta meta,
       DatabaseLookupData data)
       throws HopException {
-    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, meta.getDatabaseMeta());
+
+    NoneDatabaseMeta genericMeta = new NoneDatabaseMeta();
+    DatabaseMeta dbMeta = new DatabaseMeta();
+    dbMeta.setIDatabase(genericMeta);
+
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, dbMeta);
+    when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(dbMeta);
+
     doNothing().when(transform).determineFieldsTypesQueryingDb();
     doReturn(null).when(transform).lookupValues(any(IRowMeta.class), any(Object[].class));
 

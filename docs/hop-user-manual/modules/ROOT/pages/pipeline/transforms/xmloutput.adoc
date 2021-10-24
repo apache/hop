@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The XML Output transform allows you to write rows from any source to one or more XML files.
 
 = XML Output
 

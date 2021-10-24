@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Set Variables action sets variables at various scopes.
 
 = Set Variables
 
 == Description
 
-The Set Variables action can be used to set variables at various scopes.
+The Set Variables action sets variables at various scopes.
 
 == Options
 

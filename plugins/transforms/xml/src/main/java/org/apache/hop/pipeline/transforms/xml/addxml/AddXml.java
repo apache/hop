@@ -128,7 +128,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData>
           node.setAttribute(element, value);
 
         } else {
-            /* encode as subnode */
+          /* encode as subnode */
           if (!element.equals(meta.getRootNode())) {
             Element e = xmldoc.createElement(element);
             Node n = xmldoc.createTextNode(value);

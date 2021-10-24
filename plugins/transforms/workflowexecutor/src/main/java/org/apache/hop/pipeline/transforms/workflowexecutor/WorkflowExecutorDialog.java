@@ -233,7 +233,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wPath.setLayoutData(fdJobformation);
 
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText("Run configuration"); // TODO i18n
+    wlRunConfiguration.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
