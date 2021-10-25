@@ -19,10 +19,12 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -35,8 +37,13 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -46,17 +53,20 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,8 +91,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   private PipelineMeta executorPipelineMeta = null;
 
   protected boolean jobModified;
-
-  private ModifyListener lsMod;
 
   private Button wInheritAll;
 
@@ -133,6 +141,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   private TableView wOutputFields;
 
   private Button wGetParameters;
+  private Button wMapParameters;
 
   public PipelineExecutorDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
@@ -149,11 +158,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     props.setLook(shell);
     setShellImage(shell, pipelineExecutorMeta);
 
-    lsMod =
-        e -> {
-          pipelineExecutorMeta.setChanged();
-          setFlags();
-        };
     changed = pipelineExecutorMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -193,7 +197,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     props.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.right = new FormAttachment(wicon, -5);
     fdTransformName.left = new FormAttachment(0, 0);
@@ -519,13 +522,20 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdGetParameters.right = new FormAttachment(100, 0);
     wGetParameters.setLayoutData(fdGetParameters);
     wGetParameters.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
-    wGetParameters.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getParametersFromPipeline(null); // null = force reload of data on disk
-          }
-        });
+    wGetParameters.addListener(SWT.Selection, e -> getParametersFromPipeline());
+
+    // Add a button: get parameters
+    //
+    wMapParameters = new Button(wParametersComposite, SWT.PUSH);
+    wMapParameters.setText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.Parameters.MapParameters"));
+    props.setLook(wMapParameters);
+    FormData fdMapParameters = new FormData();
+    fdMapParameters.bottom = new FormAttachment(100, 0);
+    fdMapParameters.right = new FormAttachment(wGetParameters, -props.getMargin());
+    wMapParameters.setLayoutData(fdMapParameters);
+    wMapParameters.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
+    wMapParameters.addListener(SWT.Selection, e -> mapFieldsToPipelineParameters());
 
     // Now add a table view with the 3 columns to specify: variable name, input field & optional
     // static input
@@ -555,11 +565,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
         new TableView(
             variables,
             wParametersComposite,
-            SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             parameterColumns,
             parameters.getVariable().length,
             false,
-            lsMod,
+            null,
             props,
             false);
     props.setLook(wPipelineExecutorParameters);
@@ -602,25 +612,16 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wParametersTab.setControl(wParametersComposite);
   }
 
-  protected void getParametersFromPipeline(PipelineMeta inputPipelineMeta) {
+  /** Get parameters from the specified pipeline */
+  protected void getParametersFromPipeline() {
     try {
-      // Load the workflow in executorPipelineMeta
+      // Load the specified pipeline metadata in executorPipelineMeta
       //
-      if (inputPipelineMeta == null) {
-        loadPipeline();
-        inputPipelineMeta = executorPipelineMeta;
-      }
-
-      String[] parameters = inputPipelineMeta.listParameters();
-      for (int i = 0; i < parameters.length; i++) {
-        String name = parameters[i];
-        String desc = inputPipelineMeta.getParameterDescription(name);
-
+      loadPipeline();
+      String[] parameters = executorPipelineMeta.listParameters();
+      for (String name : parameters) {
         TableItem item = new TableItem(wPipelineExecutorParameters.table, SWT.NONE);
         item.setText(1, Const.NVL(name, ""));
-        String str = inputPipelineMeta.getParameterDefault(name);
-        str = (str != null ? str : (desc != null ? desc : ""));
-        item.setText(3, Const.NVL(str, ""));
       }
       wPipelineExecutorParameters.removeEmptyRows();
       wPipelineExecutorParameters.setRowNums();
@@ -632,6 +633,56 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
           BaseMessages.getString(PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Title"),
           BaseMessages.getString(
               PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Message"),
+          e);
+    }
+  }
+
+  protected void mapFieldsToPipelineParameters() {
+    try {
+      // The field names
+      //
+      IRowMeta inputFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+      String[] inputFieldNames = inputFields.getFieldNames();
+
+      loadPipeline();
+      String[] parameters = executorPipelineMeta.listParameters();
+
+      // Get the current mapping...
+      //
+      List<SourceToTargetMapping> mappings = new ArrayList<>();
+      for (TableItem item : wPipelineExecutorParameters.getNonEmptyItems()) {
+        int sourceIndex = Const.indexOfString(item.getText(1), parameters);
+        int targetIndex = Const.indexOfString(item.getText(2), inputFieldNames);
+        if (sourceIndex >= 0 && targetIndex >= 0) {
+          SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
+          mappings.add(mapping);
+        }
+      }
+
+      // Now we can ask for the mapping...
+      //
+      EnterMappingDialog enterMappingDialog =
+          new EnterMappingDialog(shell, inputFieldNames, parameters, mappings);
+      mappings = enterMappingDialog.open();
+      if (mappings != null) {
+        wPipelineExecutorParameters.removeAll();
+
+        for (SourceToTargetMapping mapping : mappings) {
+          TableItem item = new TableItem(wPipelineExecutorParameters.table, SWT.NONE);
+          item.setText(1, Const.NVL(mapping.getTargetString(parameters), ""));
+          item.setText(2, Const.NVL(mapping.getSourceString(inputFieldNames), ""));
+          item.setText(3, "");
+        }
+
+        wPipelineExecutorParameters.removeEmptyRows();
+        wPipelineExecutorParameters.setRowNums();
+        wPipelineExecutorParameters.optWidth(true);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
           e);
     }
   }
@@ -662,12 +713,13 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     wGroupSize = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupSize);
-    wGroupSize.addModifyListener(lsMod);
     FormData fdGroupSize = new FormData();
     fdGroupSize.width = 250;
     fdGroupSize.top = new FormAttachment(wlGroupSize, 5);
     fdGroupSize.left = new FormAttachment(0, 0);
     wGroupSize.setLayoutData(fdGroupSize);
+    // Enable/Disable fields base on the size of the group
+    wGroupSize.addListener(SWT.Modify, e -> setFlags());
 
     // Group field
     //
@@ -681,12 +733,13 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     wGroupField = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupField);
-    wGroupField.addModifyListener(lsMod);
     FormData fdGroupField = new FormData();
     fdGroupField.width = 250;
     fdGroupField.top = new FormAttachment(wlGroupField, 5);
     fdGroupField.left = new FormAttachment(0, 0);
     wGroupField.setLayoutData(fdGroupField);
+    // Enable/Disable widgets when this field changes
+    wGroupField.addListener(SWT.Modify, e -> setFlags());
 
     // Group time
     //
@@ -700,7 +753,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     wGroupTime = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupTime);
-    wGroupTime.addModifyListener(lsMod);
     FormData fdGroupTime = new FormData();
     fdGroupTime.width = 250;
     fdGroupTime.top = new FormAttachment(wlGroupTime, 5);
@@ -741,7 +793,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     wExecutionResultTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wExecutionResultTarget);
-    wExecutionResultTarget.addModifyListener(lsMod);
     FormData fdExecutionResultTarget = new FormData();
     fdExecutionResultTarget.width = 250;
     fdExecutionResultTarget.top = new FormAttachment(wlExecutionResultTarget, 5);
@@ -772,7 +823,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
             executionResultColumns,
             14,
             false,
-            lsMod,
+            null,
             props,
             false);
     props.setLook(wExectionResults);
@@ -888,7 +939,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     wResultFilesTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultFilesTarget);
-    wResultFilesTarget.addModifyListener(lsMod);
     FormData fdResultFilesTarget = new FormData();
     fdResultFilesTarget.width = 250;
     fdResultFilesTarget.top = new FormAttachment(wlResultFilesTarget, 5);
@@ -909,7 +959,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wResultFileNameField =
         new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultFileNameField);
-    wResultFileNameField.addModifyListener(lsMod);
     FormData fdResultFileNameField = new FormData();
     fdResultFileNameField.width = 250;
     fdResultFileNameField.top = new FormAttachment(wlResultFileNameField, 5);
@@ -958,7 +1007,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     wOutputRowsSource = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wOutputRowsSource);
-    wOutputRowsSource.addModifyListener(lsMod);
     FormData fdResultRowsTarget = new FormData();
     fdResultRowsTarget.width = 250;
     fdResultRowsTarget.top = new FormAttachment(wlResultRowsTarget, 5);
@@ -1008,7 +1056,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
             ciResultFields,
             nrRows,
             false,
-            lsMod,
+            null,
             props,
             false);
 
@@ -1037,7 +1085,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     // Enable/disable fields...
     //
     if (wlGroupSize == null
-        || wlGroupSize == null
         || wlGroupField == null
         || wGroupField == null
         || wlGroupTime == null
