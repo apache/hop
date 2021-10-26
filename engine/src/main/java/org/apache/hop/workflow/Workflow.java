@@ -390,13 +390,19 @@ public abstract class Workflow extends Variables
         // long iteration = 0;
 
         boolean isFirst = true;
+        Result inputRes = new Result();
+        // Perhaps there is already a list of input rows available?
+        if ( getSourceRows() != null ) {
+          inputRes.setRows( getSourceRows() );
+        }
+
         ActionStart jes = (ActionStart) startpoint.getAction();
         while ((jes.isRepeat() || isFirst) && !isStopped()) {
           isFirst = false;
           res =
               executeFromStart(
                   0,
-                  null,
+                      inputRes,
                   startpoint,
                   null,
                   BaseMessages.getString(PKG, "Workflow.Reason.Started"));
