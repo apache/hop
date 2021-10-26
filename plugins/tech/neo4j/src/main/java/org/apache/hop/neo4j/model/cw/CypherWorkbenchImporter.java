@@ -13,20 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.model.cw;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.neo4j.model.*;
+import org.apache.hop.neo4j.model.GraphModel;
+import org.apache.hop.neo4j.model.GraphNode;
+import org.apache.hop.neo4j.model.GraphPresentation;
+import org.apache.hop.neo4j.model.GraphProperty;
+import org.apache.hop.neo4j.model.GraphPropertyType;
+import org.apache.hop.neo4j.model.GraphRelationship;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class CypherWorkbenchImporter {
@@ -45,6 +52,13 @@ public class CypherWorkbenchImporter {
       graphModel.setDescription(modelDescription);
 
       JSONObject jDataModel = (JSONObject) jModel.get("dataModel");
+
+      // Keep track of which node (key is the name) has secondary node labels
+      // These are stored as extra nodes in the model
+      // We should remove all the secondary nodes later on.
+      //
+      Map<String, List<String>> secondaryNodeLabels = new HashMap<>();
+      List<GraphNode> secondaryLabelNodes = new ArrayList<>();
 
       // Import the nodes
       //
@@ -70,7 +84,39 @@ public class CypherWorkbenchImporter {
             graphNode.setPresentation(
                 new GraphPresentation(nodeLocationX.intValue(), nodeLocationY.intValue()));
           }
-          graphModel.getNodes().add(graphNode);
+
+          boolean isOnlySecondaryNodeLabel = getBoolean(jNodeLabel.get("isOnlySecondaryNodeLabel"));
+          if (!isOnlySecondaryNodeLabel) {
+            // Get the secondary node label keys:
+            //
+            JSONArray jSecondaryNodeLabelKeys =
+                (JSONArray) jNodeLabel.get("secondaryNodeLabelKeys");
+            List<String> keys = new ArrayList<>();
+            for (int s = 0; s < jSecondaryNodeLabelKeys.size(); s++) {
+              keys.add((String) jSecondaryNodeLabelKeys.get(s));
+            }
+            secondaryNodeLabels.put(graphNode.getName(), keys);
+
+            // Add to the model...
+            //
+            graphModel.getNodes().add(graphNode);
+          } else {
+            secondaryLabelNodes.add(graphNode);
+          }
+        }
+      }
+
+      // Now add the labels from the secondary nodes to the nodes...
+      //
+      for (String nodeName : secondaryNodeLabels.keySet()) {
+        GraphNode primaryNode = graphModel.findNode(nodeName);
+        List<String> keys = secondaryNodeLabels.get(nodeName);
+        for (String key : keys) {
+          for (GraphNode secondaryLabelNode : secondaryLabelNodes) {
+            if (secondaryLabelNode.getName().equals(key)) {
+              primaryNode.getLabels().addAll(secondaryLabelNode.getLabels());
+            }
+          }
         }
       }
 
@@ -105,6 +151,13 @@ public class CypherWorkbenchImporter {
     }
   }
 
+  private static boolean getBoolean(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    return (boolean) obj;
+  }
+
   private static Double getDouble(Object obj) {
     if (obj == null) {
       return Double.valueOf(0);
@@ -136,17 +189,16 @@ public class CypherWorkbenchImporter {
         Boolean propertyIsIndexed = (Boolean) jNodeProperty.get("isIndexed");
 
         GraphPropertyType propertyType = GraphPropertyType.parseCode(propertyTypeString);
-        GraphProperty nodeProperty =
+        GraphProperty nodeProperty;
+        nodeProperty =
             new GraphProperty(
                 propertyKey,
                 propertyName,
                 propertyType,
-                propertyPartOfKey == null ? false : propertyPartOfKey.booleanValue(),
-                propertyMustExist == null ? false : propertyMustExist.booleanValue(),
-                propertyHasUniqueConstraints == null
-                    ? false
-                    : propertyHasUniqueConstraints.booleanValue(),
-                propertyIsIndexed == null ? false : propertyIsIndexed.booleanValue());
+                propertyPartOfKey != null && propertyPartOfKey,
+                propertyMustExist != null && propertyMustExist,
+                propertyHasUniqueConstraints != null && propertyHasUniqueConstraints,
+                propertyIsIndexed != null && propertyIsIndexed);
         properties.add(nodeProperty);
       }
     }
