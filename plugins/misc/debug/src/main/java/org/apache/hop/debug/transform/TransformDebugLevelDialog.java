@@ -154,18 +154,6 @@ public class TransformDebugLevelDialog extends Dialog {
     Button[] buttons = new Button[] {wOK, wCancel};
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, null);
 
-    SelectionAdapter selAdapter =
-        new SelectionAdapter() {
-          @Override
-          public void widgetDefaultSelected(SelectionEvent e) {
-            ok();
-          }
-        };
-
-    wLogLevel.addSelectionListener(selAdapter);
-    wStartRow.addSelectionListener(selAdapter);
-    wEndRow.addSelectionListener(selAdapter);
-
     // Condition
     Label wlCondition = new Label(shell, SWT.RIGHT);
     wlCondition.setText("Condition : ");
