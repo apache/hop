@@ -47,6 +47,11 @@ You have the following options to specify the pipeline:
 
 - Use a file for the pipeline: when this option is enabled, you can enter the the .hpl file that is to be used as pipeline.
 The filename may contain variables (for example, you can use the built-in Internal.Pipeline.Filename.Directory variable to construct a filename relative to the current pipeline), or you can use the "Browse" button to select a file using a file browser.
+|Accept file name from field?|Enable to specify the pipeline file name(s) in a field in the input stream
+|File name field|When the previous option is enabled, you can specify the field that will contain the pipeline filename(s) at runtime. The filename may contain variables.
+
+*NOTE:* It must be considered that, by specifying the pipeline file name using this option, we can experience a little performance penalty because the started pipeline will be initialized as soon as the first row in the incoming stream is received and not during the initialization phase as usual. On the other side this option gives greater flexibility in specifying the pipeline filename dynamically and this could be useful for many use-cases.
+
 |===
 
 === Parameter Tab

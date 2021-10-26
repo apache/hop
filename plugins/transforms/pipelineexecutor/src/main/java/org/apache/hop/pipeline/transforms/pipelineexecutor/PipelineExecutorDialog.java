@@ -39,11 +39,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -53,18 +49,15 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +78,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   protected ComboVar wRunConfiguration;
 
   private Button wbBrowse;
+
+  private Button wPipelineNameInField;
+
+  private Label wlPipelineNameField;
+  private ComboVar wPipelineNameField;
 
   private CTabFolder wTabFolder;
 
@@ -143,6 +141,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   private Button wGetParameters;
   private Button wMapParameters;
 
+  private boolean gotPreviousFields = false;
+
   public PipelineExecutorDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
@@ -166,6 +166,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.Shell.Title"));
+
+    ModifyListener lsMod = e -> pipelineExecutorMeta.setChanged();
+
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
     Label wicon = new Label(shell, SWT.RIGHT);
     wicon.setImage(getImage());
@@ -236,13 +241,77 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdTransformation.right = new FormAttachment(wbBrowse, -props.getMargin());
     wPath.setLayoutData(fdTransformation);
 
+    // FileNameInField line
+    /* Additional fields */
+    Label wlPipelineNameInField = new Label(shell, SWT.LEFT);
+    wlPipelineNameInField.setText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
+    props.setLook(wlPipelineNameInField);
+    FormData fdlFileNameInField = new FormData();
+    fdlFileNameInField.left = new FormAttachment(0, 0);
+    fdlFileNameInField.top = new FormAttachment(wPath, margin);
+    fdlFileNameInField.right = new FormAttachment(middle, -margin);
+    wlPipelineNameInField.setLayoutData(fdlFileNameInField);
+
+    wPipelineNameInField = new Button(shell, SWT.CHECK);
+    props.setLook(wPipelineNameInField);
+    FormData fdPipelineNameInField = new FormData();
+    fdPipelineNameInField.left = new FormAttachment(middle, 0);
+    fdPipelineNameInField.top = new FormAttachment(wlPipelineNameInField, 0, SWT.CENTER);
+    fdPipelineNameInField.right = new FormAttachment(100, 0);
+    wPipelineNameInField.setLayoutData(fdPipelineNameInField);
+    wPipelineNameInField.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            pipelineExecutorMeta.setChanged();
+            activePipelineNameField();
+          }
+        });
+
+    // FileNameField Line
+    wlPipelineNameField = new Label(shell, SWT.LEFT);
+    wlPipelineNameField.setText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameField.Label"));
+    props.setLook(wlPipelineNameField);
+    FormData fdlPipelineNameField = new FormData();
+    fdlPipelineNameField.left = new FormAttachment(0, 0);
+    fdlPipelineNameField.right = new FormAttachment(50, 0);
+    fdlPipelineNameField.top = new FormAttachment(wPipelineNameInField, margin);
+    wlPipelineNameField.setLayoutData(fdlPipelineNameField);
+
+    wPipelineNameField = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wPipelineNameField);
+    wPipelineNameField.addModifyListener(lsMod);
+    FormData fdPipelineNameField = new FormData();
+    fdPipelineNameField.left = new FormAttachment(0, 0);
+    fdPipelineNameField.top = new FormAttachment(wlPipelineNameField, margin);
+    fdPipelineNameField.right = new FormAttachment(100, 0);
+    wPipelineNameField.setLayoutData(fdPipelineNameField);
+    wPipelineNameField.setEnabled(false);
+    wPipelineNameField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {}
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+    /* End */
+
     wlRunConfiguration = new Label(shell, SWT.LEFT);
     wlRunConfiguration.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(wPath, PropsUi.getInstance().getMargin());
+    fdlRunConfiguration.top = new FormAttachment(wPipelineNameField, PropsUi.getInstance().getMargin());
     fdlRunConfiguration.right = new FormAttachment(50, 0);
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
@@ -292,6 +361,28 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void getFields() {
+    if (!gotPreviousFields) {
+      try {
+        String field = wPipelineNameField.getText();
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (r != null) {
+          wPipelineNameField.setItems(r.getFieldNames());
+        }
+        if (field != null) {
+          wPipelineNameField.setText(field);
+        }
+      } catch (HopException ke) {
+        new ErrorDialog(
+                shell,
+                BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogTitle"),
+                BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogMessage"),
+                ke);
+      }
+      gotPreviousFields = true;
+    }
   }
 
   protected Image getImage() {
@@ -387,6 +478,13 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
       wRunConfiguration.setText(Const.NVL(pipelineExecutorMeta.getRunConfigurationName(), ""));
+
+      wPipelineNameInField.setSelection(pipelineExecutorMeta.isFilenameInField());
+      if (pipelineExecutorMeta.getFilenameField() != null) {
+        wPipelineNameField.setText(pipelineExecutorMeta.getFilenameField());
+      }
+
+      activePipelineNameField();
 
       if (Utils.isEmpty(pipelineExecutorMeta.getRunConfigurationName())) {
         wRunConfiguration.select(0);
@@ -684,6 +782,18 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
           BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
           BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
           e);
+    }
+  }
+
+  private void activePipelineNameField() {
+    wlPipelineNameField.setEnabled(wPipelineNameInField.getSelection());
+    wPipelineNameField.setEnabled(wPipelineNameInField.getSelection());
+    wPath.setEnabled(!wPipelineNameInField.getSelection());
+    wlPath.setEnabled(!wPipelineNameInField.getSelection());
+    if (wPipelineNameInField.getSelection()) {
+      wPath.setText("");
+    } else {
+      wPipelineNameField.setText("");
     }
   }
 
@@ -1129,6 +1239,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     }
 
     pipelineExecutorMeta.setFilename(wPath.getText());
+    pipelineExecutorMeta.setFilenameInField(wPipelineNameInField.getSelection());
+    pipelineExecutorMeta.setFilenameField(wPipelineNameField.getText());
     pipelineExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
 
     // Load the information on the tabs, optionally do some
