@@ -41,6 +41,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.DetectEmptyStream",
     description = "i18n::BaseTransform.TypeTooltipDesc.DetectEmptyStream",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::DetectEmptyStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/detectemptystream.html")
 public class DetectEmptyStreamMeta extends BaseTransformMeta
     implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {

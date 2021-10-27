@@ -208,7 +208,7 @@ public class HopTwoWayPasswordEncoderTest {
     assertFalse(
         encodeWithDefaultSeed.equals(
             encodeWithNondefaultSeed)); // Make sure that if the seed changes, so does the the
-                                        // encoded value
+    // encoded value
     assertEquals(
         decodeWithDefaultSeed,
         decodeWithNondefaultSeed); // Make sure that the decode from either is correct.

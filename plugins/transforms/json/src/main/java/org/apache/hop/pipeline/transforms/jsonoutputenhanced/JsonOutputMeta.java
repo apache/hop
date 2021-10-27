@@ -49,7 +49,7 @@ import java.util.List;
     name = "i18n::EnhancedJsonOutput.name",
     description = "i18n::EnhancedJsonOutput.description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    keywords = {"json", "javascript", "object", "notation"},
+    keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/enhancedjsonoutput.html")
 @InjectionSupported(
     localizationPrefix = "JsonOutput.Injection.",

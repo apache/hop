@@ -57,6 +57,7 @@ import java.util.Map;
     name = "i18n::YamlInput.Name",
     description = "i18n::YamlInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::YamlInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/yamlinput.html")
 public class YamlInputMeta extends BaseTransformMeta
     implements ITransformMeta<YamlInput, YamlInputData> {

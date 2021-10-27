@@ -42,10 +42,11 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "AzureListener",
-    name = "Azure Event Hubs Listener",
-    description = "Listen to a Microsoft Azure Event Hub and read from it",
+    name = "i18n::AzureListenerMeta.name",
+    description = "i18n::AzureListenerMeta.description",
     image = "event-hubs-listener.svg",
-    categoryDescription = "Streaming",
+    categoryDescription = "i18n::AzureListenerMeta.categoryDescription",
+    keywords = "i18n::AzureListenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-listener.html")
 public class AzureListenerMeta extends BaseTransformMeta
     implements ITransformMeta<AzureListener, AzureListenerData> {

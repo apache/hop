@@ -141,7 +141,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           Object[] updateRow = new Object[data.updateParameterRowMeta.size()];
           int j = 0;
           for (int i = 0; i < data.valuenrs.length; i++) {
-            InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
+            InsertUpdateValue valueField =
+                meta.getInsertUpdateLookupField().getValueFields().get(i);
             if (valueField.isUpdate()) {
               updateRow[j] = row[data.valuenrs[i]]; // the setters
               j++;
@@ -196,7 +197,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       data.schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
+          databaseMeta.getQuotedSchemaTableCombination(
+              this, meta.getSchemaName(), meta.getTableName());
 
       // lookup the values!
       if (log.isDebug()) {
@@ -205,8 +207,10 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
                 + getInputRowMeta().getString(r));
       }
 
-      ArrayList<Integer> keynrs = new ArrayList<>(meta.getInsertUpdateLookupField().getLookupKeys().size());
-      ArrayList<Integer> keynrs2 = new ArrayList<>(meta.getInsertUpdateLookupField().getLookupKeys().size());
+      ArrayList<Integer> keynrs =
+          new ArrayList<>(meta.getInsertUpdateLookupField().getLookupKeys().size());
+      ArrayList<Integer> keynrs2 =
+          new ArrayList<>(meta.getInsertUpdateLookupField().getLookupKeys().size());
 
       for (int i = 0; i < meta.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
         InsertUpdateKeyField keyField = meta.getInsertUpdateLookupField().getLookupKeys().get(i);
@@ -280,7 +284,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
       // Insert the update fields: just names. Type doesn't matter!
       for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
-        InsertUpdateValue valueField= meta.getInsertUpdateLookupField().getValueFields().get(i);
+        InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
         IValueMeta insValue = data.insertRowMeta.searchValueMeta(valueField.getUpdateLookup());
         if (insValue == null) {
           // Don't add twice!
@@ -303,7 +307,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       if (!meta.isUpdateBypassed()) {
         List<String> updateColumns = new ArrayList<>();
         for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
-          InsertUpdateValue valueField= meta.getInsertUpdateLookupField().getValueFields().get(i);
+          InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
           if (valueField.isUpdate()) {
             updateColumns.add(valueField.getUpdateLookup());
           }
@@ -354,7 +358,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     String sql = "SELECT ";
 
     for (int i = 0; i < meta.getInsertUpdateLookupField().getValueFields().size(); i++) {
-      InsertUpdateValue valueField= meta.getInsertUpdateLookupField().getValueFields().get(i);
+      InsertUpdateValue valueField = meta.getInsertUpdateLookupField().getValueFields().get(i);
       if (i != 0) {
         sql += ", ";
       }
@@ -392,7 +396,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
             sql += " ? IS NULL ";
           }
           // null check
-          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
+          data.lookupParameterRowMeta.addValueMeta(
+              rowMeta.searchValueMeta(keyField.getKeyStream()));
           sql += " ) OR ( " + databaseMeta.quoteField(keyField.getKeyLookup()) + " = ? ";
           // equality check, cloning so auto-rename because of adding same fieldname does not cause
           // problems
@@ -401,7 +406,8 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
 
         } else {
           sql += " " + keyField.getKeyCondition() + " ? ";
-          data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(keyField.getKeyStream()));
+          data.lookupParameterRowMeta.addValueMeta(
+              rowMeta.searchValueMeta(keyField.getKeyStream()));
         }
       }
       sql += " ) ) ";

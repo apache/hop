@@ -16,14 +16,18 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The JavaScript action runs Javascript code and returns a boolean expression.
 
 = JavaScript
 
 == Description
 
-Use the JavaScript action to calculate a boolean expression.
+The JavaScript action runs Javascript code and returns a boolean expression.
+
 The result can be used to determine which action will be executed next.
+
 You can use functions, procedure calls, ANDs, ampersands, ORs, EQUALs, etc.
+
 The Javascript workflow action evaluates and returns a true or false.
 
 == Options

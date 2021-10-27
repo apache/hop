@@ -43,6 +43,7 @@ import org.w3c.dom.Node;
     name = "Cassandra output",
     description = "Writes to a Cassandra table",
     documentationUrl = "/pipeline/transforms/cassandra-output.html",
+    keywords = "i18n::CassandraOutputMeta.keyword",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraOutput.Injection.")
 public class CassandraOutputMeta extends BaseTransformMeta

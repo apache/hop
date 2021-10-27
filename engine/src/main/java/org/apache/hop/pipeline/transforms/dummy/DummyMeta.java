@@ -42,7 +42,7 @@ import java.util.List;
     name = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Dummy",
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Dummy",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-    keywords = "",
+    keywords = "i18n::DummyMeta.keyword",
     documentationUrl = "/pipeline/transforms/dummy.html")
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

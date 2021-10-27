@@ -20,18 +20,10 @@ package org.apache.hop.pipeline.engines.remote;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
-import org.apache.hop.server.HopServer;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @GuiPlugin(description = "Remote pipeline run configuration widgets")
 public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguration

@@ -44,6 +44,7 @@ import java.util.*;
     description = "i18n::Coalesce.Description",
     image = "coalesce.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::CoalesceMeta.keyword",
     documentationUrl = "/pipeline/transforms/coalesce.html")
 public class CoalesceMeta extends BaseTransformMeta
     implements ITransformMeta<CoalesceTransform, CoalesceData> {

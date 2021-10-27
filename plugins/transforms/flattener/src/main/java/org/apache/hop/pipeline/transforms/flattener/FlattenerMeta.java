@@ -45,6 +45,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.RowFlattener",
     description = "i18n::BaseTransform.TypeTooltipDesc.RowFlattener",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::FlattenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowflattener.html")
 public class FlattenerMeta extends BaseTransformMeta
     implements ITransformMeta<Flattener, FlattenerData> {

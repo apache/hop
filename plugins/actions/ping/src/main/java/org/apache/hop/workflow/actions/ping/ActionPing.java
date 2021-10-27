@@ -50,6 +50,7 @@ import java.util.List;
     description = "i18n::ActionPing.Description",
     image = "Ping.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    keywords = "i18n::ActionPing.keyword",
     documentationUrl = "/workflow/actions/ping.html")
 public class ActionPing extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPing.class; // For Translator

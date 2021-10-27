@@ -1073,7 +1073,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         ITransformIOMeta ioMeta = fs.getTransform().getTransformIOMeta();
         IStream targetStream = ioMeta.findTargetStream(ts);
         if (targetStream != null) {
-          EImage image = BasePainter.getStreamIconImage(targetStream.getStreamIcon(), pipelineHop.isEnabled());
+          EImage image =
+              BasePainter.getStreamIconImage(targetStream.getStreamIcon(), pipelineHop.isEnabled());
           gc.drawImage(image, mx, my, magnification);
 
           areaOwners.add(
@@ -1110,7 +1111,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
         // Draw the copy icon on the hop
         //
-        EImage image = (pipelineHop.isEnabled()) ? EImage.COPY_ROWS:EImage.COPY_ROWS_DISABLED;
+        EImage image = (pipelineHop.isEnabled()) ? EImage.COPY_ROWS : EImage.COPY_ROWS_DISABLED;
         gc.drawImage(image, mx, my, magnification);
 
         areaOwners.add(
@@ -1120,7 +1121,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       }
 
       if (errorHop) {
-        EImage image = (pipelineHop.isEnabled()) ? EImage.ERROR:EImage.ERROR_DISABLED;
+        EImage image = (pipelineHop.isEnabled()) ? EImage.ERROR : EImage.ERROR_DISABLED;
         gc.drawImage(image, mx, my, magnification);
         areaOwners.add(new AreaOwner(AreaType.HOP_ERROR_ICON, mx, my, 16, 16, offset, fs, ts));
         mx += 16;
@@ -1133,7 +1134,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               && ts.equals(endHopTransform)
               && fs.equals(startHopTransform))
           || Const.indexOfString(fs.getName(), infoTransformNames) >= 0) {
-        EImage image = (pipelineHop.isEnabled()) ? EImage.INFO:EImage.INFO_DISABLED;
+        EImage image = (pipelineHop.isEnabled()) ? EImage.INFO : EImage.INFO_DISABLED;
         gc.drawImage(image, mx, my, magnification);
         areaOwners.add(new AreaOwner(AreaType.HOP_INFO_ICON, mx, my, 16, 16, offset, fs, ts));
         mx += 16;

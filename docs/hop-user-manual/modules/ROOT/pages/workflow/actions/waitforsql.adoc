@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Wait For SQL action scans a database and checks if the database meets user-defined conditions.
 
 = Wait for SQL
 
 == Description
 
-The Wait for SQL action scans a database and checks if the database meets user-defined conditions.
+The Wait For SQL action scans a database and checks if the database meets user-defined conditions.
 
 == Options
 

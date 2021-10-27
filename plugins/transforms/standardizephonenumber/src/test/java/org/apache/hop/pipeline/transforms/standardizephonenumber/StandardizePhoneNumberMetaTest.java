@@ -22,7 +22,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.ClassRule;
-import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,17 +32,14 @@ public class StandardizePhoneNumberMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   /** @throws HopException */
-
   public void test() throws HopException {
-    List<String> attributes =
-        Arrays.asList(
-            "fields");
+    List<String> attributes = Arrays.asList("fields");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
-   
+
     LoadSaveTester<StandardizePhoneNumberMeta> loadSaveTester =
         new LoadSaveTester<>(
             StandardizePhoneNumberMeta.class,
@@ -54,5 +51,4 @@ public class StandardizePhoneNumberMetaTest {
 
     loadSaveTester.testSerialization();
   }
-
 }

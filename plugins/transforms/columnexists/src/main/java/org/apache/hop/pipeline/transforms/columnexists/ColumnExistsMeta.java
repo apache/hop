@@ -43,6 +43,7 @@ import java.util.List;
     name = "i18n::ColumnExists.Name",
     description = "i18n::ColumnExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    keywords = "i18n::ColumnExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/columnexists.html")
 public class ColumnExistsMeta extends BaseTransformMeta
     implements ITransformMeta<ColumnExists, ColumnExistsData> {

@@ -978,7 +978,6 @@ public class PipelineMeta extends AbstractMeta
     return new RowMeta();
   }
 
-
   /**
    * Retrieve an array of preceding transforms for a certain destination transform. This includes
    * the info transforms.

@@ -18,7 +18,6 @@
 package org.apache.hop.reflection.reader.meta;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;

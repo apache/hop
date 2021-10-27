@@ -37,10 +37,8 @@ public class IngresDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(
-        -1,
-        nativeMeta
-            .getDefaultDatabasePort()); // pretty sure this is a bug - should be 21064 (
-                                        // http://community.actian.com/wiki/Ingres_TCP_Ports )
+        -1, nativeMeta.getDefaultDatabasePort()); // pretty sure this is a bug - should be 21064 (
+    // http://community.actian.com/wiki/Ingres_TCP_Ports )
     assertTrue(nativeMeta.supportsAutoInc());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));

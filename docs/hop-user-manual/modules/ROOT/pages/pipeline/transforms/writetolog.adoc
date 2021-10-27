@@ -26,6 +26,8 @@ The Write To Log transform writes information to the Hop logging system.
 
 Typical use cases are logging specific values or custom logging messages to the Hop logs.
 
+TIP: be careful when writing variables or fields for (unencrypted) passwords or other sensitive information to the Hop logging system!
+
 == Options
 
 [width="90%",options="header"]

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Success action clears any error state encountered in a workflow and forces it to a success state.
 
-= Success Action
+= Success
 
 == Description
 
-The Success Action action clears any error state encountered in a workflow and forces it to a success state.
+The Success action clears any error state encountered in a workflow and forces it to a success state.
 
 == Options
 

@@ -40,7 +40,6 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -244,9 +243,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
           }
         });
 
-
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText(BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
+    wlRunConfiguration.setText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
@@ -827,17 +826,16 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   public void getData() {
     wPath.setText(Const.NVL(metaInjectMeta.getFileName(), ""));
 
-
     try {
       List<String> runConfigurations =
-              metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
+          metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
 
       try {
         ExtensionPointHandler.callExtensionPoint(
-                HopGui.getInstance().getLog(),
-                variables,
-                HopExtensionPoint.HopGuiRunConfiguration.id,
-                new Object[] {runConfigurations, PipelineMeta.XML_TAG});
+            HopGui.getInstance().getLog(),
+            variables,
+            HopExtensionPoint.HopGuiRunConfiguration.id,
+            new Object[] {runConfigurations, PipelineMeta.XML_TAG});
       } catch (HopException e) {
         // Ignore errors
       }

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Zip File action creates a standard ZIP archive using the options you specify in the dialog.
 
 = Zip File
 

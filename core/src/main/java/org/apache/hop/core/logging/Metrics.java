@@ -221,9 +221,8 @@ public class Metrics implements IMetrics {
         try {
           metrics.add((IMetrics) field.get(null));
         } catch (Exception e) {
-          e
-              .printStackTrace(); // it either works or doesn't, seems more like a JRE problem if it
-                                  // doesn't.
+          e.printStackTrace(); // it either works or doesn't, seems more like a JRE problem if it
+          // doesn't.
         }
       }
     }

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Unzip action unzips one or more files to a specified target location.
 
 = Unzip
 
 == Description
 
-The Unzip action can be used to unzip one or more files with this workflow action.
+The Unzip action unzips one or more files to a specified target location.
 
 == Options
 

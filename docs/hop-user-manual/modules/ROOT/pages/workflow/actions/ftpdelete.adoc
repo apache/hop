@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The FTP delete action deletes files on an FTP server.
 
 = FTP delete
 
 == Description
 
-Use the FTP delete action to delete files on an FTP server.
+The FTP delete action deletes files on an FTP server.
 
 == Options
 

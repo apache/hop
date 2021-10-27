@@ -1598,8 +1598,14 @@ public class TableView extends Composite {
     String textData;
     boolean usingVariables = columns[colNr - 1].isUsingVariables();
     if (usingVariables) {
+      if (comboVar == null) {
+        return;
+      }
       textData = comboVar.getText();
     } else {
+      if (combo == null) {
+        return;
+      }
       textData = combo.getText();
     }
     row.setText(colNr, textData);

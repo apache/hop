@@ -100,6 +100,7 @@ import java.util.List;
     name = "i18n::SplitFields.Name",
     description = "i18n::SplitFields.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::FieldSplitterMeta.keyword",
     documentationUrl = "/pipeline/transforms/splitfields.html")
 public class FieldSplitterMeta extends BaseTransformMeta
     implements ITransformMeta<FieldSplitter, FieldSplitterData> {

@@ -56,7 +56,7 @@ import java.util.List;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "/pipeline/transforms/groupby.html",
-    keywords = "aggregation")
+    keywords = "i18n::GroupByMeta.keyword")
 @InjectionSupported(
     localizationPrefix = "GroupByMeta.Injection.",
     groups = {"GROUPS", "AGGREGATIONS"})

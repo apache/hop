@@ -125,7 +125,7 @@ public class OracleValueMetaBaseTest {
 
   @Test
   public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision()
-          throws SQLException, HopDatabaseException {
+      throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(128).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");

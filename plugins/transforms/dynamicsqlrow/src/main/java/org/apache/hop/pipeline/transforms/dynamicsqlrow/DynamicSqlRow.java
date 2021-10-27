@@ -33,9 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
 
-/**
- * Run dynamic SQL. SQL is defined in a field.
- */
+/** Run dynamic SQL. SQL is defined in a field. */
 public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData>
     implements ITransform<DynamicSqlRowMeta, DynamicSqlRowData> {
 
@@ -308,11 +306,11 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
   public boolean init() {
 
     if (super.init()) {
-      
+
       if (meta.getConnection() != null) {
         meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
       }
-      
+
       if (meta.getDatabaseMeta() == null) {
         logError(
             BaseMessages.getString(

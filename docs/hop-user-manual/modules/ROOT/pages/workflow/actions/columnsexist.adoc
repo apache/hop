@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Columns Exist In A Table action verifies that one or more columns exist in a database table.
 
 = Columns exist in a table
 
 == Description
 
-This workflow action verifies that one or more columns exist in a database table.
+The Columns Exist In A Table action verifies that one or more columns exist in a database table.
 
 == Options
 

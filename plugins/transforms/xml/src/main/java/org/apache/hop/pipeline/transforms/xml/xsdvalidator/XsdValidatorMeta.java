@@ -53,6 +53,7 @@ import java.util.Map;
     name = "i18n::XSDValidator.name",
     description = "i18n::XSDValidator.description",
     categoryDescription = "i18n::XSDValidator.category",
+    keywords = "i18n::XsdValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta
     implements ITransformMeta<XsdValidator, XsdValidatorData> {

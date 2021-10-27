@@ -48,6 +48,7 @@ import java.util.List;
     name = "i18n::PGPDecryptStream.Name",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
+    keywords = "i18n::PGPDecryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
 public class PGPDecryptStreamMeta extends BaseTransformMeta
     implements ITransformMeta<PGPDecryptStream, PGPDecryptStreamData> {

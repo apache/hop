@@ -51,6 +51,7 @@ import java.net.InetAddress;
     description = "i18n::ActionSNMPTrap.Description",
     image = "SNMP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    keywords = "i18n::ActionSNMPTrap.keyword",
     documentationUrl = "/workflow/actions/snmptrap.html")
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator

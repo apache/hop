@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.StreamLookup",
     description = "i18n::BaseTransform.TypeTooltipDesc.StreamLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    keywords = "i18n::StreamLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamlookup.html")
 public class StreamLookupMeta extends BaseTransformMeta
     implements ITransformMeta<StreamLookup, StreamLookupData> {

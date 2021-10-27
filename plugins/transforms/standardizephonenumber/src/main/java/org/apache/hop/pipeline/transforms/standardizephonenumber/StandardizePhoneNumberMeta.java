@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,35 +38,40 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 
-@Transform(id = "StandardizePhoneNumber", image = "standardizephonenumber.svg",
+@Transform(
+    id = "StandardizePhoneNumber",
+    image = "standardizephonenumber.svg",
     name = "i18n::StandardizePhoneNumber.Name",
     description = "i18n::StandardizePhoneNumber.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataQuality",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataQuality",
     documentationUrl = "/pipeline/transforms/standardizephonenumber.html")
 public class StandardizePhoneNumberMeta extends BaseTransformMeta
     implements ITransformMeta<StandardizePhoneNumber, StandardizePhoneNumberData>, Serializable {
 
   private static final Class<?> PKG = StandardizePhoneNumberMeta.class; // For Translator
 
-  private static final Set<PhoneNumberFormat> SUPPORTED_FORMATS = EnumSet.of(PhoneNumberFormat.E164,
-      PhoneNumberFormat.INTERNATIONAL, PhoneNumberFormat.NATIONAL, PhoneNumberFormat.RFC3966);
-
-
+  private static final Set<PhoneNumberFormat> SUPPORTED_FORMATS =
+      EnumSet.of(
+          PhoneNumberFormat.E164,
+          PhoneNumberFormat.INTERNATIONAL,
+          PhoneNumberFormat.NATIONAL,
+          PhoneNumberFormat.RFC3966);
 
   /** The phone number to standardize */
-  @HopMetadataProperty(key = "field", groupKey = "fields",
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
       injectionGroupDescription = "StandardizePhoneNumber.Injection.Fields",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.Field")
   private List<StandardizePhoneField> fields = new ArrayList<>();
-
 
   public StandardizePhoneNumberMeta() {
     super();
@@ -78,26 +85,32 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
     }
   }
 
-
   @Override
   public Object clone() {
     return new StandardizePhoneNumberMeta(this);
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, StandardizePhoneNumberData data,
-      int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      StandardizePhoneNumberData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     return new StandardizePhoneNumber(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
-
 
   @Override
   public void setDefault() {}
 
-
   @Override
-  public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info,
-      TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider)
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     try {
       // add the extra fields if specified
@@ -110,8 +123,9 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
           // created output field only if name changed
           if (!standardize.getOutputField().equals(standardize.getInputField())) {
 
-            valueMeta = ValueMetaFactory.createValueMeta(standardize.getOutputField(),
-                IValueMeta.TYPE_STRING);
+            valueMeta =
+                ValueMetaFactory.createValueMeta(
+                    standardize.getOutputField(), IValueMeta.TYPE_STRING);
 
             inputRowMeta.addValueMeta(valueMeta);
           }
@@ -120,16 +134,18 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
 
         // add result phone number type
         if (!Utils.isEmpty(standardize.getNumberTypeField())) {
-          valueMeta = ValueMetaFactory.createValueMeta(standardize.getNumberTypeField(),
-              IValueMeta.TYPE_STRING);
+          valueMeta =
+              ValueMetaFactory.createValueMeta(
+                  standardize.getNumberTypeField(), IValueMeta.TYPE_STRING);
           valueMeta.setOrigin(name);
           inputRowMeta.addValueMeta(valueMeta);
         }
 
         // add result is valid number
         if (!Utils.isEmpty(standardize.getIsValidNumberField())) {
-          valueMeta = ValueMetaFactory.createValueMeta(standardize.getIsValidNumberField(),
-              IValueMeta.TYPE_BOOLEAN);
+          valueMeta =
+              ValueMetaFactory.createValueMeta(
+                  standardize.getIsValidNumberField(), IValueMeta.TYPE_BOOLEAN);
           valueMeta.setOrigin(name);
           inputRowMeta.addValueMeta(valueMeta);
         }
@@ -139,31 +155,46 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
     }
   }
 
-
   @Override
-  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta,
-      TransformMeta transformMeta, IRowMeta prev, String[] input, String[] output, IRowMeta info,
-      IVariables variables, IHopMetadataProvider metadataProvider) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
 
     // See if we have fields from previous steps
     if (prev == null || prev.size() == 0) {
-      remarks
-          .add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING,
-              BaseMessages.getString(PKG,
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(
+                  PKG,
                   "StandardizePhoneNumberMeta.CheckResult.NotReceivingFieldsFromPreviousTransforms"),
               transformMeta));
     } else {
-      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_OK,
-          BaseMessages.getString(PKG,
-              "StandardizePhoneNumberMeta.CheckResult.ReceivingFieldsFromPreviousTransforms", prev.size()), //$NON-NLS-1$
-          transformMeta));
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG,
+                  "StandardizePhoneNumberMeta.CheckResult.ReceivingFieldsFromPreviousTransforms",
+                  prev.size()), // $NON-NLS-1$
+              transformMeta));
     }
 
     // See if there are input streams leading to this step!
     if (input.length > 0) {
-      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_OK,
-          BaseMessages.getString(PKG, "StandardizePhoneNumberMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
-          transformMeta));
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "StandardizePhoneNumberMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta));
 
       // Check only if input fields
       for (StandardizePhoneField standardize : fields) {
@@ -172,7 +203,9 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
         IValueMeta valueMeta = prev.searchValueMeta(standardize.getInputField());
         if (valueMeta == null) {
           String message =
-              BaseMessages.getString(PKG, "StandardizePhoneNumberMeta.CheckResult.MissingInputField",
+              BaseMessages.getString(
+                  PKG,
+                  "StandardizePhoneNumberMeta.CheckResult.MissingInputField",
                   Const.NVL(standardize.getInputField(), standardize.getOutputField()));
           remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
         }
@@ -180,19 +213,24 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
         // See if there are missing input streams
         valueMeta = prev.searchValueMeta(standardize.getCountryField());
         if (valueMeta == null) {
-          String message = BaseMessages.getString(PKG,
-              "StandardizePhoneNumberMeta.CheckResult.MissingCountryField",
-              standardize.getCountryField());
+          String message =
+              BaseMessages.getString(
+                  PKG,
+                  "StandardizePhoneNumberMeta.CheckResult.MissingCountryField",
+                  standardize.getCountryField());
           remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
         }
       }
 
     } else {
-      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR,
-          BaseMessages.getString(PKG, "StandardizePhoneNumberMeta.CheckResult.NotReceivingInfoFromOtherTransforms"),
-          transformMeta));
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "StandardizePhoneNumberMeta.CheckResult.NotReceivingInfoFromOtherTransforms"),
+              transformMeta));
     }
-
   }
 
   @Override
