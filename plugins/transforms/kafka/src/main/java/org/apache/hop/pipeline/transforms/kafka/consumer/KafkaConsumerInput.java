@@ -157,7 +157,7 @@ public class KafkaConsumerInput
               }
             });
       }
-
+      kafkaPipeline.setLogChannel(getLogChannel());
       kafkaPipeline.startThreads();
 
       data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
@@ -282,6 +282,7 @@ public class KafkaConsumerInput
           // Confirm everything is processed correctly...
           //
           data.consumer.commitAsync();
+          data.executor.buildExecutionSummary();
         }
       }
     } catch (WakeupException e) {
@@ -291,6 +292,7 @@ public class KafkaConsumerInput
       setOutputDone();
       stopAll();
     }
+
     return true;
   }
 
