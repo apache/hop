@@ -69,6 +69,14 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
     Object[] r = getRow(); // get row!
 
     if (first) {
+
+      // do we have any row at start processing?
+      if (r == null) {
+        // seems that we don't
+        this.setOutputDone();
+        return false;
+      }
+
       String val = getVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "N");
       allNullsAreZero = ValueMetaBase.convertStringToBoolean(val);
       val = getVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
@@ -77,17 +85,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
       // What is the output looking like?
       //
       data.inputRowMeta = getInputRowMeta();
-
-      // In case we have 0 input rows, we still want to send out a single row aggregate
-      // However... the problem then is that we don't know the layout from receiving it from the
-      // previous transform over the
-      // row set.
-      // So we need to calculated based on the metadata...
-      //
-      if (data.inputRowMeta == null) {
-        data.inputRowMeta = getPipelineMeta().getPrevTransformFields(this, getTransformMeta());
-      }
-
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -895,6 +892,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
 
   @Override
   public void dispose() {
+
     if (data.tempFile != null) {
       try {
         closeInput();
