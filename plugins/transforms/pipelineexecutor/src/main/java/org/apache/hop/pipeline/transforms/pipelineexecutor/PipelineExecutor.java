@@ -483,27 +483,29 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   public boolean init() {
 
     PipelineExecutorData pipelineExecutorData = getData();
+    boolean transformSuccessfullyInitialized = false;
+
     if (super.init()) {
-      boolean rc = true;
       // First we need to load the mapping (pipeline)
       try {
         if ((!meta.isFilenameInField() && Utils.isEmpty(meta.getFilename()))
             || (meta.isFilenameInField() && Utils.isEmpty(meta.getFilenameField()))) {
           logError("No pipeline filename given either in path or in a field!");
-          rc = false;
+          transformSuccessfullyInitialized = false;
         } else {
 
           if (!meta.isFilenameInField() && !Utils.isEmpty(meta.getFilename())) {
-            rc = initPipeline(pipelineExecutorData);
+            transformSuccessfullyInitialized = initPipeline(pipelineExecutorData);
           }
         }
 
       } catch (Exception e) {
         logError("Unable to load the pipeline executor because of an error : ", e);
       }
-      return rc;
+      return transformSuccessfullyInitialized;
     }
-    return false;
+
+    return transformSuccessfullyInitialized;
   }
 
   private boolean initPipeline(PipelineExecutorData pipelineExecutorData) throws HopException {
