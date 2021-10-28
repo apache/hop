@@ -71,7 +71,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
     if (first) {
 
       // do we have any row at start processing?
-      if (r == null) {
+      if (!meta.isAlwaysGivingBackOneRow() && r == null) {
         // seems that we don't
         this.setOutputDone();
         return false;
@@ -85,6 +85,17 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
       // What is the output looking like?
       //
       data.inputRowMeta = getInputRowMeta();
+
+      // In case we have 0 input rows, we still want to send out a single row aggregate
+      // However... the problem then is that we don't know the layout from receiving it from the
+      // previous transform over the
+      // row set.
+      // So we need to calculated based on the metadata...
+      //
+      if (data.inputRowMeta == null) {
+        data.inputRowMeta = getPipelineMeta().getPrevTransformFields(this, getTransformMeta());
+      }
+
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
