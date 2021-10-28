@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "FIELD_INTEGER",
+          "data_set_field": "INTEGER"
+        }
+      ],
+      "field_order": [
+        "INTEGER"
+      ],
+      "transform_name": "FALSE 3",
+      "data_set_name": "golden-rows-filters-disabled-hop"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0036-rows-filter-disabled-hop UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0036-rows-filter-disabled-hop.hpl",
+  "test_type": "UNIT_TEST"
+}

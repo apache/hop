@@ -23,6 +23,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -94,30 +95,31 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
       if (data.chosesTargetTransforms) {
         List<IStream> targetStreams = meta.getTransformIOMeta().getTargetStreams();
         if (!Utils.isEmpty(targetStreams.get(0).getTransformName())) {
-          data.trueRowSet =
-              findOutputRowSet(
-                  getTransformName(), getCopy(), targetStreams.get(0).getTransformName(), 0);
-          if (data.trueRowSet == null) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG,
-                    "FilterRows.Log.TargetTransformInvalid",
-                    targetStreams.get(0).getTransformName()));
+          TransformMeta to = targetStreams.get(0).getTransformMeta();
+          PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
+          if (hop != null && hop.isEnabled()) {
+            data.trueRowSet = findOutputRowSet(getTransformName(), getCopy(),
+                to.getName(), 0);
+            if (data.trueRowSet == null) {
+              throw new HopException(
+                  BaseMessages.getString(PKG, "FilterRows.Log.TargetTransformInvalid",
+                      targetStreams.get(0).getTransformName()));
+            }
           }
         } else {
           data.trueRowSet = null;
         }
 
         if (!Utils.isEmpty(targetStreams.get(1).getTransformName())) {
-          data.falseRowSet =
-              findOutputRowSet(
-                  getTransformName(), getCopy(), targetStreams.get(1).getTransformName(), 0);
-          if (data.falseRowSet == null) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG,
-                    "FilterRows.Log.TargetTransformInvalid",
-                    targetStreams.get(1).getTransformName()));
+          TransformMeta to = targetStreams.get(1).getTransformMeta();
+          PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
+          if (hop != null && hop.isEnabled()) {
+            data.falseRowSet = findOutputRowSet(getTransformName(), getCopy(), to.getName(), 0);
+            if (data.falseRowSet == null) {
+              throw new HopException(
+                  BaseMessages.getString(PKG, "FilterRows.Log.TargetTransformInvalid",
+                      targetStreams.get(1).getTransformName()));
+            }
           }
         } else {
           data.falseRowSet = null;
