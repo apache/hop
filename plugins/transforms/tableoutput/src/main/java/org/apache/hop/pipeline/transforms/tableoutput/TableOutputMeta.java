@@ -813,15 +813,20 @@ public class TableOutputMeta extends BaseTransformMeta
     DatabaseMeta databaseMeta =
         getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
+    return getTableFields(databaseMeta, realTableName, realSchemaName, variables);
+  }
+
+  public IRowMeta getTableFields(DatabaseMeta databaseMeta, String tableName, String schemaName, IVariables variables) throws HopException {
+
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
-        if (!Utils.isEmpty(realTableName)) {
+        if (!Utils.isEmpty(tableName)) {
           // Check if this table exists...
-          if (db.checkTableExists(realSchemaName, realTableName)) {
-            return db.getTableFieldsMeta(realSchemaName, realTableName);
+          if (db.checkTableExists(schemaName, tableName)) {
+            return db.getTableFieldsMeta(schemaName, tableName);
           } else {
             throw new HopException(
                 BaseMessages.getString(PKG, "TableOutputMeta.Exception.TableNotFound"));
