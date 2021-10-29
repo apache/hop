@@ -284,7 +284,7 @@ public class TransformFieldsDialog extends Dialog {
   private void edit() {
     int idx = wFields.table.getSelectionIndex();
     if (idx >= 0) {
-      transformName = wFields.table.getItem(idx).getText(5);
+      transformName = wFields.table.getItem(idx).getText(6);
       dispose();
     } else {
       transformName = null;
