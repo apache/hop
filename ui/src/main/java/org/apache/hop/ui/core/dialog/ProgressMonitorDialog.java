@@ -34,6 +34,9 @@ import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * A modal dialog that displays progress during a long running operation.
+ */
 public class ProgressMonitorDialog {
   private static final Class<?> PKG = ProgressMonitorDialog.class; // For Translator
 
@@ -56,9 +59,10 @@ public class ProgressMonitorDialog {
   }
 
   /**
-   * Gets progressMonitor
+   * Returns the progress monitor to use for operations run in this progress
+   * dialog.
    *
-   * @return value of progressMonitor
+   * @return the progress monitor
    */
   public IProgressMonitor getProgressMonitor() {
     return progressMonitor;
@@ -69,8 +73,9 @@ public class ProgressMonitorDialog {
 
     PropsUi props = PropsUi.getInstance();
 
-    shell = new Shell(parent, SWT.RESIZE | (cancelable ? SWT.CLOSE : SWT.NONE));
+    shell = new Shell(parent, SWT.RESIZE | SWT.APPLICATION_MODAL | (cancelable ? SWT.CLOSE : SWT.NONE));
     shell.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.Shell.Title"));
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
     props.setLook(shell);
 
     display = shell.getDisplay();
