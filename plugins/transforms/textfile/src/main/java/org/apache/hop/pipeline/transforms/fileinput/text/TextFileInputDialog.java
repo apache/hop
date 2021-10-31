@@ -347,6 +347,11 @@ public class TextFileInputDialog extends BaseTransformDialog
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
+            if (wFilename.getText()==null||wFilename.getText().isEmpty()){
+              displayErrorDialog(new HopException(BaseMessages.getString(PKG,"TextFileInputDialog.ErrorAddingFile.ErrorMessage")),
+                      "TextFileInputDialog.ErrorAddingFile.DialogMessage");
+              return;
+            }
             wFilenameList.add(
                 wFilename.getText(),
                 wFilemask.getText(),
@@ -2713,12 +2718,16 @@ public class TextFileInputDialog extends BaseTransformDialog
         mb.open();
       }
     } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-          BaseMessages.getString(PKG, "TextFileInputDialog.ErrorGettingData.DialogMessage"),
-          e);
+      displayErrorDialog(e,"TextFileInputDialog.ErrorGettingData.DialogMessage");
     }
+  }
+
+  private void displayErrorDialog(HopException e, String messageKey) {
+    new ErrorDialog(
+        shell,
+        BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+        BaseMessages.getString(PKG, messageKey),
+            e);
   }
 
   // Get the first x lines
