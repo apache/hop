@@ -66,11 +66,15 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   private Group wOriginFiles;
   private Group wZipGroup;
 
-  private Button wIsFileDynamic, wIsAttachContentField;
+  private Button wIsFileDynamic;
+  private Button wIsAttachContentField;
 
   private Label wlDynamicFilenameField;
-  private Label wlAttachContentField, wlAttachContentFileNameField;
-  private CCombo wDynamicFilenameField, wAttachContentField, wAttachContentFileNameField;
+  private Label wlAttachContentField;
+  private Label wlAttachContentFileNameField;
+  private CCombo wDynamicFilenameField;
+  private CCombo wAttachContentField;
+  private CCombo wAttachContentFileNameField;
 
   private Label wlDynamicWildcardField;
   private CCombo wDynamicWildcardField;
@@ -83,7 +87,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private CCombo wDestination;
 
-  private CCombo wDestinationCc, wDestinationBCc;
+  private CCombo wDestinationCc;
+  private CCombo wDestinationBCc;
 
   private CCombo wServer;
 
@@ -103,7 +108,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private Label wlAuthPass;
 
-  private CCombo wReply, wReplyName;
+  private CCombo wReply;
+  private CCombo wReplyName;
 
   private CCombo wSubject;
 
@@ -120,12 +126,15 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   private CCombo wComment;
 
   private Label wlSourceFileFoldername;
-  private Button wbFileFoldername, wbSourceFolder;
+  private Button wbFileFoldername;
+  private Button wbSourceFolder;
   private TextVar wSourceFileFoldername;
 
   private Button wIncludeSubFolders;
 
-  private Button wOnlyComment, wUseHTML, wUsePriority;
+  private Button wOnlyComment;
+  private Button wUseHTML;
+  private Button wUsePriority;
 
   private Label wlEncoding;
   private CCombo wEncoding;
@@ -154,10 +163,20 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private LabelTextVar wZipSizeCondition;
 
-  private Label wlImageFilename, wlContentID, wlFields;
-  private Button wbImageFilename, wbaImageFilename, wbdImageFilename, wbeImageFilename;
-  private TextVar wImageFilename, wContentID;
+  private Label wlImageFilename;
+  private Label wlContentID;
+  private Label wlFields;
+  private Button wbImageFilename;
+  private Button wbaImageFilename;
+  private Button wbdImageFilename;
+  private Button wbeImageFilename;
+  private TextVar wImageFilename;
+  private TextVar wContentID;
   private TableView wFields;
+
+  private Button wIncludeMessageInOutput;
+
+  private TextVar wMessageOutputField;
 
   private boolean getPreviousFields = false;
 
@@ -270,7 +289,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDestination.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -304,7 +325,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDestinationCc.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -337,7 +360,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDestinationBCc.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -394,7 +419,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wReplyName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -428,7 +455,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wReply.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -471,7 +500,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wReplyToAddresses.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -505,7 +536,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wPerson.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -539,7 +572,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wPhone.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -616,7 +651,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wServer.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -650,7 +687,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wPort.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -733,7 +772,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAuthUser.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -767,7 +808,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAuthPass.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -982,7 +1025,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1142,7 +1187,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSubject.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1175,7 +1222,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wComment.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1186,6 +1235,56 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
             busy.dispose();
           }
         });
+
+    // Incldue message in output checkbox
+    Label wlIncludeMessageInOutput = new Label(wMessageGroup, SWT.RIGHT);
+    wlIncludeMessageInOutput.setText(BaseMessages.getString(PKG, "Mail.IncldueMessage.Label"));
+    props.setLook(wlIncludeMessageInOutput);
+    FormData fdlIncludeMessageInOutput = new FormData();
+    fdlIncludeMessageInOutput.left = new FormAttachment(0, -margin);
+    fdlIncludeMessageInOutput.top = new FormAttachment(wComment, margin);
+    fdlIncludeMessageInOutput.right = new FormAttachment(middle, -2 * margin);
+    wlIncludeMessageInOutput.setLayoutData(fdlIncludeMessageInOutput);
+
+    wIncludeMessageInOutput = new Button(wMessageGroup, SWT.CHECK);
+    props.setLook(wIncludeMessageInOutput);
+    wIncludeMessageInOutput.setToolTipText(
+        BaseMessages.getString(PKG, "Mail.IncldueMessage.Tooltip"));
+    FormData fdIncludeMessageInOutput = new FormData();
+    fdIncludeMessageInOutput.left = new FormAttachment(middle, -margin);
+    fdIncludeMessageInOutput.top = new FormAttachment(wlIncludeMessageInOutput, 0, SWT.CENTER);
+    fdIncludeMessageInOutput.right = new FormAttachment(100, 0);
+    wIncludeMessageInOutput.setLayoutData(fdIncludeMessageInOutput);
+    wIncludeMessageInOutput.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            setOutputMessage();
+          }
+        });
+
+    // OutputFieldName textvar
+    Label wlMessageOutputFIeld = new Label(wMessageGroup, SWT.RIGHT);
+    wlMessageOutputFIeld.setText(BaseMessages.getString(PKG, "Mail.IncldueMessageField.Label"));
+    props.setLook(wlMessageOutputFIeld);
+    FormData fdlMessageOutputFIeld = new FormData();
+    fdlMessageOutputFIeld.left = new FormAttachment(0, 0);
+    fdlMessageOutputFIeld.top = new FormAttachment(wIncludeMessageInOutput, margin);
+    fdlMessageOutputFIeld.right = new FormAttachment(middle, -margin);
+    wlMessageOutputFIeld.setLayoutData(fdlMessageOutputFIeld);
+
+    wMessageOutputField = new TextVar(variables, wMessageGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wMessageOutputField);
+    wMessageOutputField.setToolTipText(
+        BaseMessages.getString(PKG, "Mail.IncldueMessageField.Tooltip"));
+    wMessageOutputField.addModifyListener(lsMod);
+    FormData fdMessageOutputField = new FormData();
+    fdMessageOutputField.left = new FormAttachment(middle, -margin);
+    fdMessageOutputField.top = new FormAttachment(wlMessageOutputFIeld, 0, SWT.CENTER);
+    fdMessageOutputField.right = new FormAttachment(100, 0);
+    wMessageOutputField.setLayoutData(fdMessageOutputField);
+
     FormData fdMessageGroup = new FormData();
     fdMessageGroup.left = new FormAttachment(0, margin);
     fdMessageGroup.top = new FormAttachment(wMessageSettingsGroup, margin);
@@ -1234,10 +1333,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(wAttachedContent);
     wAttachedContent.setText(BaseMessages.getString(PKG, "MailDialog.AttachedContent.Label"));
 
-    FormLayout AttachedContentgroupLayout = new FormLayout();
-    AttachedContentgroupLayout.marginWidth = 10;
-    AttachedContentgroupLayout.marginHeight = 10;
-    wAttachedContent.setLayout(AttachedContentgroupLayout);
+    FormLayout attachedContentgroupLayout = new FormLayout();
+    attachedContentgroupLayout.marginWidth = 10;
+    attachedContentgroupLayout.marginHeight = 10;
+    wAttachedContent.setLayout(attachedContentgroupLayout);
 
     // Is Filename defined in a Field
     Label wlIsAttachContentField = new Label(wAttachedContent, SWT.RIGHT);
@@ -1289,7 +1388,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAttachContentField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1323,7 +1424,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAttachContentFileNameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1353,10 +1456,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "MailDialog.OriginAttachedFiles.Label"));
 
-    FormLayout OriginFilesgroupLayout = new FormLayout();
-    OriginFilesgroupLayout.marginWidth = 10;
-    OriginFilesgroupLayout.marginHeight = 10;
-    wOriginFiles.setLayout(OriginFilesgroupLayout);
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOriginFiles.setLayout(originFilesgroupLayout);
 
     // Is Filename defined in a Field
     Label wlAsFileDynamic = new Label(wOriginFiles, SWT.RIGHT);
@@ -1407,7 +1510,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicFilenameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1442,7 +1547,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicWildcardField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1600,10 +1707,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(wZipGroup);
     wZipGroup.setText(BaseMessages.getString(PKG, "MailDialog.ZipGroup.Label"));
 
-    FormLayout ZipGroupgroupLayout = new FormLayout();
-    ZipGroupgroupLayout.marginWidth = 10;
-    ZipGroupgroupLayout.marginHeight = 10;
-    wZipGroup.setLayout(ZipGroupgroupLayout);
+    FormLayout zipGroupgroupLayout = new FormLayout();
+    zipGroupgroupLayout.marginWidth = 10;
+    zipGroupgroupLayout.marginHeight = 10;
+    wZipGroup.setLayout(zipGroupgroupLayout);
 
     // Zip Files?
     Label wlZipFiles = new Label(wZipGroup, SWT.RIGHT);
@@ -1678,7 +1785,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicZipFileField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -1988,6 +2097,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     setZip();
     setUseAuth();
     activateIsAttachContentField();
+    setOutputMessage();
     input.setChanged(changed);
     wTabFolder.setSelection(0);
 
@@ -2299,7 +2409,13 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+
+    wIncludeMessageInOutput.setSelection(input.isAddMessageToOutput());
     wIsAttachContentField.setSelection(input.isAttachContentFromField());
+
+    if (input.getMessageOutputField() != null) {
+      wMessageOutputField.setText(input.getMessageOutputField());
+    }
     if (input.getAttachContentField() != null) {
       wAttachContentField.setText(input.getAttachContentField());
     }
@@ -2477,7 +2593,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-
+    input.setMessageOutputField(wMessageOutputField.getText());
+    input.setAddMessageToOutput(wIncludeMessageInOutput.getSelection());
     transformName = wTransformName.getText(); // return value
     input.setAttachContentFromField(wIsAttachContentField.getSelection());
     input.setAttachContentField(wAttachContentField.getText());
@@ -2584,5 +2701,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAttachContentField.setEnabled(wIsAttachContentField.getSelection());
     wlAttachContentFileNameField.setEnabled(wIsAttachContentField.getSelection());
     wAttachContentFileNameField.setEnabled(wIsAttachContentField.getSelection());
+  }
+
+  private void setOutputMessage() {
+    wMessageOutputField.setEnabled(wIncludeMessageInOutput.getSelection());
   }
 }
