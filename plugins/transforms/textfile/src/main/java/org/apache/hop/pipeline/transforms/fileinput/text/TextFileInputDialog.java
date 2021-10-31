@@ -984,7 +984,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     props.setLook(wlNrHeader);
     FormData fdlNrHeader = new FormData();
     fdlNrHeader.left = new FormAttachment(wHeader, margin);
-    fdlNrHeader.top = new FormAttachment(wlEscape, 0, SWT.CENTER);
+    fdlNrHeader.top = new FormAttachment(wlHeader, 0, SWT.CENTER);
     wlNrHeader.setLayoutData(fdlNrHeader);
     wNrHeader = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNrHeader.setTextLimit(3);
@@ -992,7 +992,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wNrHeader.addModifyListener(lsMod);
     FormData fdNrHeader = new FormData();
     fdNrHeader.left = new FormAttachment(wlNrHeader, margin);
-    fdNrHeader.top = new FormAttachment(wlEscape, 0, SWT.CENTER);
+    fdNrHeader.top = new FormAttachment(wlHeader, 0, SWT.CENTER);
     fdNrHeader.right = new FormAttachment(100, 0);
     wNrHeader.setLayoutData(fdNrHeader);
 
