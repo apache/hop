@@ -483,9 +483,11 @@ public class EnterMappingDialog extends Dialog {
     // Refresh the results...
     wResult.removeAll();
 
-    // Sort the mappings by result string
+    // Sort the mappings by result string if required
     //
-    Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
+    if (props.sortTableOutputMappings()) {
+      Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
+    }
 
     for (int i = 0; i < mappings.size(); i++) {
       SourceToTargetMapping mapping = mappings.get(i);
