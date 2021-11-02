@@ -79,7 +79,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   private Button wbBrowse;
 
-  private Button wPipelineNameInField;
+  private Button wbPipelineNameInField;
 
   private Label wlPipelineNameField;
   private ComboVar wPipelineNameField;
@@ -243,7 +243,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     // FileNameInField line
     /* Additional fields */
-    Label wlPipelineNameInField = new Label(shell, SWT.LEFT);
+/*    Label wlPipelineNameInField = new Label(shell, SWT.LEFT);
     wlPipelineNameInField.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
     props.setLook(wlPipelineNameInField);
@@ -252,15 +252,17 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdlFileNameInField.top = new FormAttachment(wPath, margin);
     fdlFileNameInField.right = new FormAttachment(middle, -margin);
     wlPipelineNameInField.setLayoutData(fdlFileNameInField);
-
-    wPipelineNameInField = new Button(shell, SWT.CHECK);
-    props.setLook(wPipelineNameInField);
+*/
+    wbPipelineNameInField = new Button(shell, SWT.CHECK);
+    props.setLook(wbPipelineNameInField);
+    wbPipelineNameInField.setText(
+            BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
     FormData fdPipelineNameInField = new FormData();
-    fdPipelineNameInField.left = new FormAttachment(middle, 0);
-    fdPipelineNameInField.top = new FormAttachment(wlPipelineNameInField, 0, SWT.CENTER);
-    fdPipelineNameInField.right = new FormAttachment(100, 0);
-    wPipelineNameInField.setLayoutData(fdPipelineNameInField);
-    wPipelineNameInField.addSelectionListener(
+    fdPipelineNameInField.left = new FormAttachment(0,0);
+    fdPipelineNameInField.top = new FormAttachment(wPath, margin);
+    //fdPipelineNameInField.right = new FormAttachment(100, 0);
+    wbPipelineNameInField.setLayoutData(fdPipelineNameInField);
+    wbPipelineNameInField.addSelectionListener(
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
@@ -277,7 +279,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     FormData fdlPipelineNameField = new FormData();
     fdlPipelineNameField.left = new FormAttachment(0, 0);
     fdlPipelineNameField.right = new FormAttachment(50, 0);
-    fdlPipelineNameField.top = new FormAttachment(wPipelineNameInField, margin);
+    fdlPipelineNameField.top = new FormAttachment(wbPipelineNameInField, margin);
     wlPipelineNameField.setLayoutData(fdlPipelineNameField);
 
     wPipelineNameField = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -479,7 +481,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
       wRunConfiguration.setText(Const.NVL(pipelineExecutorMeta.getRunConfigurationName(), ""));
 
-      wPipelineNameInField.setSelection(pipelineExecutorMeta.isFilenameInField());
+      wbPipelineNameInField.setSelection(pipelineExecutorMeta.isFilenameInField());
       if (pipelineExecutorMeta.getFilenameField() != null) {
         wPipelineNameField.setText(pipelineExecutorMeta.getFilenameField());
       }
@@ -786,11 +788,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void activePipelineNameField() {
-    wlPipelineNameField.setEnabled(wPipelineNameInField.getSelection());
-    wPipelineNameField.setEnabled(wPipelineNameInField.getSelection());
-    wPath.setEnabled(!wPipelineNameInField.getSelection());
-    wlPath.setEnabled(!wPipelineNameInField.getSelection());
-    if (wPipelineNameInField.getSelection()) {
+    wlPipelineNameField.setEnabled(wbPipelineNameInField.getSelection());
+    wPipelineNameField.setEnabled(wbPipelineNameInField.getSelection());
+    wPath.setEnabled(!wbPipelineNameInField.getSelection());
+    wlPath.setEnabled(!wbPipelineNameInField.getSelection());
+    if (wbPipelineNameInField.getSelection()) {
       wPath.setText("");
     } else {
       wPipelineNameField.setText("");
@@ -1239,7 +1241,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     }
 
     pipelineExecutorMeta.setFilename(wPath.getText());
-    pipelineExecutorMeta.setFilenameInField(wPipelineNameInField.getSelection());
+    pipelineExecutorMeta.setFilenameInField(wbPipelineNameInField.getSelection());
     pipelineExecutorMeta.setFilenameField(wPipelineNameField.getText());
     pipelineExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
 
