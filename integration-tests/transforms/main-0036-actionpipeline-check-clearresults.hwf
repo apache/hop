@@ -18,15 +18,15 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0006-groupby</name>
+  <name>main-0036-actionpipeline-check-clearresults</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
-  <created_date>2021/04/19 12:05:51.497</created_date>
+  <created_date>2021/10/27 22:25:17.502</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2021/04/19 12:05:51.497</modified_date>
+  <modified_date>2021/10/27 22:25:17.502</modified_date>
   <parameters>
     </parameters>
   <actions>
@@ -44,37 +44,16 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>80</xloc>
-      <yloc>80</yloc>
+      <xloc>200</xloc>
+      <yloc>96</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Run Group By tests</name>
-      <description/>
-      <type>RunPipelineTests</type>
-      <attributes/>
-      <test_names>
-        <test_name>
-          <name>0006-groupby-basics UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0006-groupby-no-group UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0006-groupby-all-rows UNIT</name>
-        </test_name>
-      </test_names>
-      <parallel>N</parallel>
-      <xloc>432</xloc>
-      <yloc>80</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0006-groupby-alwaysgiveback-result.hpl</name>
+      <name>Prepare</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0006-groupby-alwaysgiveback-result.hpl</filename>
+      <filename>${PROJECT_HOME}/0036-actionpipeline-preparerows.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -93,25 +72,87 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>240</xloc>
-      <yloc>80</yloc>
+      <xloc>400</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check with clear results flag enabled</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0036-actionpipeline-verify-results-notavailable.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>600</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>600</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>96</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
       <from>Start</from>
-      <to>0006-groupby-alwaysgiveback-result.hpl</to>
+      <to>Prepare</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0006-groupby-alwaysgiveback-result.hpl</from>
-      <to>Run Group By tests</to>
+      <from>Check with clear results flag enabled</from>
+      <to>Abort workflow</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check with clear results flag enabled</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare</from>
+      <to>Check with clear results flag enabled</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

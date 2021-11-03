@@ -143,6 +143,10 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
   /** filename content field */
   private String attachContentFileNameField;
 
+  private boolean addMessageToOutput;
+
+  private String messageOutputField;
+
   public MailMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -224,6 +228,9 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     setZipFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "zip_files")));
     setZipFilename(XmlHandler.getTagValue(transformNode, "zip_name"));
     setZipLimitSize(XmlHandler.getTagValue(transformNode, "zip_limit_size"));
+    setAddMessageToOutput(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_message_in_output")));
+    setMessageOutputField(XmlHandler.getTagValue(transformNode, "message_output_field"));
 
     Node images = XmlHandler.getSubNode(transformNode, "embeddedimages");
     // How many field embedded images ?
@@ -265,6 +272,12 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
 
     retval.append(super.getXml());
 
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("include_message_in_output", this.addMessageToOutput));
+    retval
+        .append("      ")
+        .append(XmlHandler.addTagValue("message_output_field", this.messageOutputField));
     retval.append("      ").append(XmlHandler.addTagValue("server", this.server));
     retval.append("      ").append(XmlHandler.addTagValue("port", this.port));
     retval.append("      ").append(XmlHandler.addTagValue("destination", this.destination));
@@ -726,13 +739,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.NotReceivingFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "MailMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -743,13 +756,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "MailMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);
@@ -760,14 +773,14 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (Utils.isEmpty(server)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.ServerEmpty"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.ServerOk"),
               transformMeta);
       remarks.add(cr);
@@ -775,7 +788,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
       if (prev.indexOfValue(variables.resolve(server)) < 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(PKG, "MailMeta.CheckResult.ServerFieldNotFound", server),
                 transformMeta);
       }
@@ -786,13 +799,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (Utils.isEmpty(port)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.PortEmpty"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.PortOk"),
               transformMeta);
     }
@@ -802,13 +815,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (Utils.isEmpty(replyAddress)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.ReplayAddressEmpty"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.ReplayAddressOk"),
               transformMeta);
     }
@@ -818,13 +831,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (Utils.isEmpty(destination)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.DestinationEmpty"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.DestinationOk"),
               transformMeta);
     }
@@ -834,13 +847,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (Utils.isEmpty(subject)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.SubjectEmpty"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.SubjectOk"),
               transformMeta);
     }
@@ -850,13 +863,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
     if (Utils.isEmpty(comment)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.CommentEmpty"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailMeta.CheckResult.CommentEmpty"),
               transformMeta);
     }
@@ -867,13 +880,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
       if (Utils.isEmpty(dynamicFieldname)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicFilenameFieldEmpty"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicFilenameFieldOk"),
                 transformMeta);
       }
@@ -884,13 +897,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
       if (Utils.isEmpty(sourcefilefoldername)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "MailMeta.CheckResult.SourceFilenameEmpty"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "MailMeta.CheckResult.SourceFilenameOk"),
                 transformMeta);
       }
@@ -903,13 +916,13 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
         if (Utils.isEmpty(getDynamicZipFilenameField())) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_ERROR,
+                  ICheckResult.TYPE_RESULT_ERROR,
                   BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicZipfilenameEmpty"),
                   transformMeta);
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "MailMeta.CheckResult.DynamicZipfilenameOK"),
                   transformMeta);
         }
@@ -920,19 +933,35 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
         if (Utils.isEmpty(zipFilename)) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_ERROR,
+                  ICheckResult.TYPE_RESULT_ERROR,
                   BaseMessages.getString(PKG, "MailMeta.CheckResult.ZipfilenameEmpty"),
                   transformMeta);
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "MailMeta.CheckResult.ZipfilenameOk"),
                   transformMeta);
         }
         remarks.add(cr);
       }
     }
+  }
+
+  public boolean isAddMessageToOutput() {
+    return addMessageToOutput;
+  }
+
+  public void setAddMessageToOutput(boolean addMessageToOutput) {
+    this.addMessageToOutput = addMessageToOutput;
+  }
+
+  public String getMessageOutputField() {
+    return messageOutputField;
+  }
+
+  public void setMessageOutputField(String messageOutputField) {
+    this.messageOutputField = messageOutputField;
   }
 
   @Override

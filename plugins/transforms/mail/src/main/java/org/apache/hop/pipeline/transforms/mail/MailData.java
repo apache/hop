@@ -28,9 +28,6 @@ import java.util.Properties;
 
 /**
  * Send mail transform. based on Mail action
- *
- * @author Samatar
- * @since 28-07-2008
  */
 public class MailData extends BaseTransformData implements ITransformData {
   public int indexOfDestination;
@@ -78,7 +75,7 @@ public class MailData extends BaseTransformData implements ITransformData {
   public HashSet<MimeBodyPart> embeddedMimePart;
 
   public int indexOfAttachedContent;
-  public int IndexOfAttachedFilename;
+  public int indexOfAttachedFilename;
 
   public MailData() {
     super();
@@ -105,6 +102,6 @@ public class MailData extends BaseTransformData implements ITransformData {
     nrEmbeddedImages = 0;
     nrattachedFiles = 0;
     indexOfAttachedContent = -1;
-    IndexOfAttachedFilename = -1;
+    indexOfAttachedFilename = -1;
   }
 }
