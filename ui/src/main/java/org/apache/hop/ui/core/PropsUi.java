@@ -51,10 +51,6 @@ public class PropsUi extends Props {
 
   private static String OS = System.getProperty("os.name").toLowerCase();
 
-  private static final String NO = "N";
-
-  private static final String YES = "Y";
-
   private static double nativeZoomFactor;
 
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =

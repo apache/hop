@@ -138,6 +138,8 @@ public class EnterOptionsDialog extends Dialog {
 
   private Button wAutoCollapse;
 
+  private Button wbTableOutputSortMappings;
+
   private class PluginWidgetContents {
     public GuiCompositeWidgets compositeWidgets;
     public Object sourceData;
@@ -181,6 +183,7 @@ public class EnterOptionsDialog extends Dialog {
 
     addGeneralTab();
     addLookTab();
+    addTransformsTab();
     addPluginTabs();
 
     // Some buttons
@@ -841,6 +844,72 @@ public class EnterOptionsDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
   }
 
+  private void addTransformsTab() {
+    // ////////////////////////
+    // START OF TRANSFORMS TAB///
+    // /
+
+    CTabItem wTransformTab = new CTabItem(wTabFolder, SWT.NONE);
+    wTransformTab.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Transform.Label"));
+
+    FormLayout transformLayout = new FormLayout();
+    transformLayout.marginWidth = 3;
+    transformLayout.marginHeight = 3;
+
+    ScrolledComposite sTransformComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    sTransformComp.setLayout(new FillLayout());
+
+    Composite wTransformComp = new Composite(sTransformComp, SWT.NONE);
+    props.setLook(wTransformComp);
+    wTransformComp.setLayout(transformLayout);
+
+    // Use DB Cache?
+    Label wlTableOutputSortMappings = new Label(wTransformComp, SWT.RIGHT);
+    wlTableOutputSortMappings.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.TableOutput.SortMappings.Label"));
+    props.setLook(wlTableOutputSortMappings);
+    FormData fdlSortMappings = new FormData();
+    fdlSortMappings.left = new FormAttachment(0, 0);
+    fdlSortMappings.top = new FormAttachment(0, margin);
+    fdlSortMappings.right = new FormAttachment(middle, -margin);
+    wlTableOutputSortMappings.setLayoutData(fdlSortMappings);
+
+    wbTableOutputSortMappings = new Button(wTransformComp, SWT.CHECK);
+    props.setLook(wbTableOutputSortMappings);
+    wbTableOutputSortMappings.setSelection(props.useDBCache());
+    FormData fdUseCache = new FormData();
+    fdUseCache.left = new FormAttachment(middle, 0);
+    fdUseCache.top = new FormAttachment(wlTableOutputSortMappings, 0, SWT.CENTER);
+    fdUseCache.right = new FormAttachment(100, 0);
+    wbTableOutputSortMappings.setLayoutData(fdUseCache);
+    Control lastControl = wlTableOutputSortMappings;
+
+    wbTableOutputSortMappings.setSelection(props.sortTableOutputMappings());
+
+    FormData fdTransformsComp = new FormData();
+    fdTransformsComp.left = new FormAttachment(0, 0);
+    fdTransformsComp.right = new FormAttachment(100, 0);
+    fdTransformsComp.top = new FormAttachment(0, 0);
+    fdTransformsComp.bottom = new FormAttachment(100, 100);
+    wTransformComp.setLayoutData(fdTransformsComp);
+
+    wTransformComp.pack();
+
+    Rectangle bounds = wTransformComp.getBounds();
+
+    sTransformComp.setContent(wTransformComp);
+    sTransformComp.setExpandHorizontal(true);
+    sTransformComp.setExpandVertical(true);
+    sTransformComp.setMinWidth(bounds.width);
+    sTransformComp.setMinHeight(bounds.height);
+
+    wTransformTab.setControl(sTransformComp);
+
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF TRANSFORMS TAB
+    // ///////////////////////////////////////////////////////////
+  }
+
   private void addGeneralTab() {
     // ////////////////////////
     // START OF GENERAL TAB///
@@ -1379,6 +1448,8 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
     props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());
+
+    props.setTableOutputSortMappings(wbTableOutputSortMappings.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {

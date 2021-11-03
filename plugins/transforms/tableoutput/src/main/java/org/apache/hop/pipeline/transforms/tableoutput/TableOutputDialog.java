@@ -34,7 +34,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -849,9 +848,14 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     // refresh data
     input.setTableName(variables.resolve(wTable.getText()));
-    ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields(variables);
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+      targetFields =
+          input.getTableFields(
+              databaseMeta,
+              variables.resolve(wTable.getText()),
+              variables.resolve(wSchema.getText()),
+              variables);
     } catch (HopException e) {
       new ErrorDialog(
           shell,
