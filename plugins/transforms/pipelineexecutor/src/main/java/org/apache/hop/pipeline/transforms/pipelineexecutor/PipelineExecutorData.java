@@ -50,6 +50,7 @@ public class PipelineExecutorData extends BaseTransformData implements ITransfor
   public String groupField;
   public int groupFieldIndex;
   public IValueMeta groupFieldMeta;
+  public String prevFilename;
 
   public Object prevGroupFieldData;
 

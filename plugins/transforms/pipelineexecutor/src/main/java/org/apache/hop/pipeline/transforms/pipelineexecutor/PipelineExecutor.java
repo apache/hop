@@ -84,25 +84,34 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       if (first) {
 
         first = false;
-        if (meta.isFilenameInField()) {
-          IRowMeta rowMeta = getInputRowMeta();
-          int pos = rowMeta.indexOfValue(meta.getFilenameField());
-          String filename = (String) row[pos];
-          meta.setFilename(filename);
-          initPipeline(pipelineExecutorData);
+        if (!meta.isFilenameInField()) {
+          initOnFirstProcessingIteration();
         }
+      }
 
-        initOnFirstProcessingIteration();
+      if (meta.isFilenameInField()) {
+        IRowMeta rowMeta = getInputRowMeta();
+        int pos = rowMeta.indexOfValue(meta.getFilenameField());
+        String filename = (String) row[pos];
+        if (pipelineExecutorData.prevFilename == null
+                || !pipelineExecutorData.prevFilename.equals(filename)) {
+          logDetailed("Identified a new pipeline to execute: '" + filename + "'");
+          meta.setFilename(filename);
+          pipelineExecutorData.prevFilename = filename;
+          pipelineExecutorData.groupBuffer = null;
+          initPipeline(pipelineExecutorData);
+          initOnFirstProcessingIteration();
+        }
       }
 
       IRowSet executorTransformOutputRowSet =
-          pipelineExecutorData.getExecutorTransformOutputRowSet();
+              pipelineExecutorData.getExecutorTransformOutputRowSet();
       if (pipelineExecutorData.getExecutorTransformOutputRowMeta() != null
-          && executorTransformOutputRowSet != null) {
+              && executorTransformOutputRowSet != null) {
         putRowTo(
-            pipelineExecutorData.getExecutorTransformOutputRowMeta(),
-            row,
-            executorTransformOutputRowSet);
+                pipelineExecutorData.getExecutorTransformOutputRowMeta(),
+                row,
+                executorTransformOutputRowSet);
       }
 
       // Grouping by field and execution time works ONLY if grouping by size is disabled.
@@ -483,9 +492,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   public boolean init() {
 
     PipelineExecutorData pipelineExecutorData = getData();
-    boolean transformSuccessfullyInitialized = false;
+    boolean transformSuccessfullyInitialized = super.init();
 
-    if (super.init()) {
+    if (transformSuccessfullyInitialized) {
       // First we need to load the mapping (pipeline)
       try {
         if ((!meta.isFilenameInField() && Utils.isEmpty(meta.getFilename()))
