@@ -674,7 +674,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     Result newResult = pipeline.getResult();
     result.clear(); // clear only the numbers, NOT the files or rows.
     result.add(newResult);
-    result.setRows(newResult.getRows());
+
+    if ( !Utils.isEmpty( newResult.getRows() )) {
+      result.setRows( newResult.getRows() );
+    }
   }
 
   public PipelineMeta getPipelineMeta(IHopMetadataProvider metadataProvider, IVariables variables)
