@@ -441,7 +441,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getSql() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(

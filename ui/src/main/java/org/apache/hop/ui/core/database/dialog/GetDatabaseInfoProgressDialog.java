@@ -72,8 +72,9 @@ public class GetDatabaseInfoProgressDialog {
 
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-
       pmd.run(true, op);
+      
+      if ( pmd.getProgressMonitor().isCanceled() ) return null;      
     } catch (InvocationTargetException e) {
       showErrorDialog(e);
       return null;

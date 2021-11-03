@@ -18,6 +18,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.ProgressNullMonitorListener;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.util.Utils;
@@ -34,9 +35,6 @@ import java.util.Map;
 
 /**
  * Contains the schema's, catalogs, tables, views, synonyms, etc we can find in the databases...
- *
- * @author Matt
- * @since 7-apr-2005
  */
 public class DatabaseMetaInformation {
   private static final Class<?> PKG = Database.class; // For Translator
@@ -65,46 +63,32 @@ public class DatabaseMetaInformation {
 
   public void getData(ILoggingObject parentLoggingObject, IProgressMonitor monitor)
       throws HopDatabaseException {
-    if (monitor != null) {
-      monitor.beginTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfoFromDb"), 8);
+    if (monitor == null) {
+        monitor = new ProgressNullMonitorListener();
     }
 
+    monitor.beginTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfoFromDb"), 8);
     Database db = new Database(parentLoggingObject, variables, databaseMeta);
 
-    /*
-     * ResultSet tableResultSet = null;
-     *
-     * ResultSet schemaTablesResultSet = null; ResultSet schemaResultSet = null;
-     *
-     * ResultSet catalogResultSet = null; ResultSet catalogTablesResultSet = null;
-     */
-
     try {
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ConnectingDb"));
-      }
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ConnectingDb"));      
       db.connect();
-      if (monitor != null) {
-        monitor.worked(1);
-      }
+      monitor.worked(1);
 
-      if (monitor != null && monitor.isCanceled()) {
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingMetaData"));
-      }
+      
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingMetaData"));     
       DatabaseMetaData dbmd = db.getDatabaseMetaData();
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-
-      if (monitor != null && monitor.isCanceled()) {
+      monitor.worked(1);
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfo"));
-      }
+      
+      // Get catalogs
+      //
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingInfo"));
       Map<String, String> connectionExtraOptions = databaseMeta.getExtraOptions();
       if (databaseMeta.supportsCatalogs() && dbmd.supportsCatalogsInTableDefinitions()) {
         ArrayList<Catalog> catalogList = new ArrayList<>();
@@ -169,16 +153,14 @@ public class DatabaseMetaInformation {
         // Save for later...
         setCatalogs(catalogList.toArray(new Catalog[catalogList.size()]));
       }
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-
-      if (monitor != null && monitor.isCanceled()) {
+      monitor.worked(1);
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSchemaInfo"));
-      }
+
+      // Get schemas
+      //
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSchemaInfo"));      
       if (databaseMeta.supportsSchemas() && dbmd.supportsSchemasInTableDefinitions()) {
         ArrayList<Schema> schemaList = new ArrayList<>();
         try {
@@ -239,6 +221,10 @@ public class DatabaseMetaInformation {
             }
 
             schema.setItems(schemaTables.toArray(new String[schemaTables.size()]));
+            
+            if (monitor.isCanceled()) {
+              return;
+            }
           }
         } catch (Exception e) {
           // Typically an unsupported feature, security issue etc.
@@ -248,75 +234,56 @@ public class DatabaseMetaInformation {
         // Save for later...
         setSchemas(schemaList.toArray(new Schema[schemaList.size()]));
       }
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-
-      if (monitor != null && monitor.isCanceled()) {
+      monitor.worked(1);
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingTables"));
-      }
+
+      // Get tables
+      //
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingTables"));      
       setTables(db.getTablenames(databaseMeta.supportsSchemas())); // legacy call
       setTableMap(db.getTableMap());
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-
-      if (monitor != null && monitor.isCanceled()) {
+      monitor.worked(1);
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingViews"));
-      }
+
+      // Get views
+      //
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingViews"));
       if (databaseMeta.supportsViews()) {
         setViews(db.getViews(databaseMeta.supportsSchemas())); // legacy call
         setViewMap(db.getViewMap());
       }
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-
-      if (monitor != null && monitor.isCanceled()) {
+      monitor.worked(1);
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSynonyms"));
-      }
+
+      // Get synonyms
+      //
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingSynonyms"));     
       if (databaseMeta.supportsSynonyms()) {
         setSynonyms(db.getSynonyms(databaseMeta.supportsSchemas())); // legacy call
         setSynonymMap(db.getSynonymMap());
       }
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-
-      if (monitor != null && monitor.isCanceled()) {
+      monitor.worked(1);
+      if (monitor.isCanceled()) {
         return;
       }
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingProcedures"));
-      }
-      setProcedures(db.getProcedures());
-      if (monitor != null) {
-        monitor.worked(1);
-      }
 
+      // Get procedures
+      //      
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.GettingProcedures"));      
+      setProcedures(db.getProcedures());
+      monitor.worked(1);
     } catch (Exception e) {
       throw new HopDatabaseException(
           BaseMessages.getString(PKG, "DatabaseMeta.Error.UnableRetrieveDbInfo"), e);
     } finally {
-      if (monitor != null) {
-        monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ClosingDbConnection"));
-      }
-
+      monitor.subTask(BaseMessages.getString(PKG, "DatabaseMeta.Info.ClosingDbConnection"));
       db.disconnect();
-      if (monitor != null) {
-        monitor.worked(1);
-      }
-    }
-    if (monitor != null) {
       monitor.done();
     }
   }
