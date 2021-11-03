@@ -88,6 +88,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   protected Label wlRunConfiguration;
   protected ComboVar wRunConfiguration;
 
+  // Create parent folder
+  protected Button wCreateParentFolder;
+
   // the source transform
   //
   private CCombo wSourceTransform;
@@ -480,6 +483,24 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdTargetFile.top = new FormAttachment(wlTargetFile, margin);
     wTargetFile.setLayoutData(fdTargetFile);
 
+    wCreateParentFolder = new Button(wOptionsComp, SWT.CHECK);
+    wCreateParentFolder.setText(
+            BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Label"));
+    wCreateParentFolder.setToolTipText(
+            BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Tooltip"));
+    props.setLook(wCreateParentFolder);
+    FormData fdCreateParentFolder = new FormData();
+    fdCreateParentFolder.left = new FormAttachment(0, 0);
+    fdCreateParentFolder.top = new FormAttachment(wTargetFile, margin);
+    wCreateParentFolder.setLayoutData(fdCreateParentFolder);
+    wCreateParentFolder.addSelectionListener(
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                metaInjectMeta.setChanged();
+              }
+            });
+
     // the streaming source transform
     //
     Label wlStreamingSourceTransform = new Label(wOptionsComp, SWT.RIGHT);
@@ -488,7 +509,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wlStreamingSourceTransform);
     FormData fdlStreamingSourceTransform = new FormData();
     fdlStreamingSourceTransform.left = new FormAttachment(0, 0);
-    fdlStreamingSourceTransform.top = new FormAttachment(wTargetFile, 10);
+    fdlStreamingSourceTransform.top = new FormAttachment(wCreateParentFolder, 10);
     wlStreamingSourceTransform.setLayoutData(fdlStreamingSourceTransform);
 
     wStreamingSourceTransform = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -866,6 +887,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
 
     wTargetFile.setText(Const.NVL(metaInjectMeta.getTargetFile(), ""));
+    wCreateParentFolder.setSelection(metaInjectMeta.isCreateParentFolder());
     wNoExecution.setSelection(!metaInjectMeta.isNoExecution());
 
     wStreamingSourceTransform.setText(
@@ -1068,6 +1090,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
 
     meta.setTargetFile(wTargetFile.getText());
+    meta.setCreateParentFolder(wCreateParentFolder.getSelection());
     meta.setNoExecution(!wNoExecution.getSelection());
 
     final TransformMeta streamSourceTransform =
