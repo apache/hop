@@ -84,7 +84,7 @@ limitations under the License.
       <filename>${PROJECT_HOME}/0036-actionpipeline-verify-results-notavailable.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
+      <clear_rows>Y</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
       <logfile/>

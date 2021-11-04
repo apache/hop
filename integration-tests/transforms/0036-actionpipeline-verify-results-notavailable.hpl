@@ -57,13 +57,18 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Count = 1</from>
-      <to>Abort</to>
+      <from>Detect empty stream</from>
+      <to>Success!</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Detect empty stream</from>
-      <to>Success!</to>
+      <from>Count = 1</from>
+      <to>Log Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Log Abort</from>
+      <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -120,7 +125,7 @@ limitations under the License.
     </compare>
     <attributes/>
     <GUI>
-      <xloc>480</xloc>
+      <xloc>448</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
@@ -177,6 +182,24 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
+    <name>Get rows from result</name>
+    <type>RowsFromResult</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>      </fields>
+    <attributes/>
+    <GUI>
+      <xloc>216</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>Success!</name>
     <type>Dummy</type>
     <description/>
@@ -194,20 +217,29 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>Get rows from result</name>
-    <type>RowsFromResult</type>
+    <name>Log Abort</name>
+    <type>WriteToLog</type>
     <description/>
-    <distribute>N</distribute>
+    <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <fields>      </fields>
+    <loglevel>log_level_basic</loglevel>
+    <displayHeader>Y</displayHeader>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <logmessage/>
+    <fields>
+      <field>
+        <name>Count</name>
+      </field>
+    </fields>
     <attributes/>
     <GUI>
-      <xloc>216</xloc>
+      <xloc>560</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
