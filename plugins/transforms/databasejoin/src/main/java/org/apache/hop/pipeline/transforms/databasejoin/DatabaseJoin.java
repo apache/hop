@@ -202,14 +202,10 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
    * disposed has already been called
    */
   @Override
-  public synchronized void stopRunning() throws HopException {
-    if (this.isStopped() || data.isDisposed()) {
-      return;
-    }
-
+  public void stopRunning() throws HopException {
     if (data.db != null && data.db.getConnection() != null && !data.isCanceled) {
+      log.logDebug("Cancelling statement because the transform is stopping.");
       data.db.cancelStatement(data.pstmt);
-      setStopped(true);
       data.isCanceled = true;
     }
   }
