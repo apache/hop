@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Use values from input streams to joins with values in a database. Freehand SQL can be used to do
@@ -42,6 +43,8 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
+
+  private final ReentrantLock dbLock = new ReentrantLock();
 
   public DatabaseJoin(
       TransformMeta transformMeta,
@@ -53,7 +56,10 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private synchronized void lookupValues(IRowMeta rowMeta, Object[] rowData) throws HopException {
+  private void lookupValues(IRowMeta rowMeta, Object[] rowData) throws HopException {
+
+    dbLock.lock();
+
     if (first) {
       first = false;
 
@@ -89,7 +95,8 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
       }
     }
-
+    final ResultSet rs;
+    try {
     // Construct the parameters row...
     Object[] lookupRowData = new Object[data.lookupRowMeta.size()];
     for (int i = 0; i < data.keynrs.length; i++) {
@@ -97,7 +104,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     }
 
     // Set the values on the prepared statement (for faster exec.)
-    ResultSet rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
+    rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
 
     // Get a row from the database...
     //
@@ -147,6 +154,9 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     }
 
     data.db.closeQuery(rs);
+    } finally{
+      dbLock.unlock();
+    }
   }
 
   @Override
@@ -203,10 +213,20 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
    */
   @Override
   public void stopRunning() throws HopException {
-    if (data.db != null && data.db.getConnection() != null && !data.isCanceled) {
-      log.logDebug("Cancelling statement because the transform is stopping.");
-      data.db.cancelStatement(data.pstmt);
-      data.isCanceled = true;
+    if ( this.isStopped() || data.isDisposed() ) {
+      return;
+    }
+
+    dbLock.lock();
+
+    try {
+      if ( data.db != null && data.db.getConnection() != null && !data.isCanceled ) {
+        data.db.cancelStatement( data.pstmt );
+        setStopped( true );
+        data.isCanceled = true;
+      }
+    } finally {
+      dbLock.unlock();
     }
   }
 
@@ -219,7 +239,8 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
             BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-
+      dbLock.lock();
+      try {
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       if (databaseMeta == null) {
         logError(
@@ -254,6 +275,9 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           data.db.disconnect();
         }
       }
+      } finally{
+        dbLock.unlock();
+      }
     }
 
     return false;
@@ -261,10 +285,16 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
   @Override
   public void dispose() {
+    dbLock.lock();
+
+    try {
     if (data.db != null) {
       data.db.disconnect();
     }
 
     super.dispose();
+    } finally{
+      dbLock.unlock();
+    }
   }
 }
