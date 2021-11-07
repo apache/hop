@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains SAP DB specific information through static final members
- *
- * @author Matt
- * @since 30-06-2005
  */
-@DatabaseMetaPlugin(type = "SAPDB", typeDescription = "MaxDB (SAP DB)")
+@DatabaseMetaPlugin(type = "SAPDB", typeDescription = "MaxDB (SAP DB)", documentationUrl = "/database/databases/sapdb.html")
 @GuiPlugin(id = "GUI-SAPDBDatabaseMeta")
 public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

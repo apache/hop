@@ -21,7 +21,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 
-@DatabaseMetaPlugin(type = "INFINIDB", typeDescription = "Calpont InfiniDB")
+@DatabaseMetaPlugin(type = "INFINIDB", typeDescription = "Calpont InfiniDB", documentationUrl = "/database/databases/infinidb.html")
 @GuiPlugin(id = "GUI-InfiniDbDatabaseMeta")
 public class InfiniDbDatabaseMeta extends MySqlDatabaseMeta {
 

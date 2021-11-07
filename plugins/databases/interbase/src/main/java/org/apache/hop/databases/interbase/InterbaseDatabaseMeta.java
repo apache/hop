@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Interbase specific information through static final members
- *
- * @author Matt
- * @since 10-jan-2006
  */
-@DatabaseMetaPlugin(type = "INTERBASE", typeDescription = "Borland Interbase")
+@DatabaseMetaPlugin(type = "INTERBASE", typeDescription = "Borland Interbase", documentationUrl = "/database/databases/interbase.html")
 @GuiPlugin(id = "GUI-InterbaseDatabaseMeta")
 public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

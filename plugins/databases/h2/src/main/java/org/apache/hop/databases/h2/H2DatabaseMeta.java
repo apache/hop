@@ -27,12 +27,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
 /**
- * Contains Hypersonic specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
+ * Contains H2 specific information through static final members
  */
-@DatabaseMetaPlugin(type = "H2", typeDescription = "H2")
+@DatabaseMetaPlugin(type = "H2", typeDescription = "H2", documentationUrl = "/database/databases/h2.html")
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

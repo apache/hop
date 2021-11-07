@@ -28,11 +28,8 @@ import org.apache.hop.core.util.Utils;
 
 /**
  * Contains Generic Database Connection information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "MONETDB", typeDescription = "MonetDB")
+@DatabaseMetaPlugin(type = "MONETDB", typeDescription = "MonetDB", documentationUrl = "/database/databases/monetdb.html")
 @GuiPlugin(id = "GUI-MonetDBDatabaseMeta")
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

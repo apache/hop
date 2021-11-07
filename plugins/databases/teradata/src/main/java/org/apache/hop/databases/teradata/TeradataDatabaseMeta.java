@@ -31,11 +31,8 @@ import java.util.Map;
 
 /**
  * Contains NCR Teradata specific information through static final members
- *
- * @author Matt
- * @since 26-jul-2006
  */
-@DatabaseMetaPlugin(type = "TERADATA", typeDescription = "Teradata")
+@DatabaseMetaPlugin(type = "TERADATA", typeDescription = "Teradata", documentationUrl = "/database/databases/teradata.html")
 @GuiPlugin(id = "GUI-TeradataDatabaseMeta")
 public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

@@ -51,7 +51,7 @@ import java.util.concurrent.Future;
     name = "Relational Database Connection",
     description = "This contains all the metadata needed to connect to a relational database",
     image = "ui/images/database.svg",
-    documentationUrl = "/metadata-types/pipeline-run-config.html")
+    documentationUrl = "/metadata-types/rdbms-connection.html")
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class; // For Translator
 

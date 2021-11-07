@@ -42,11 +42,8 @@ import java.util.Set;
 
 /**
  * Contains MySQL specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "MYSQL", typeDescription = "MySQL")
+@DatabaseMetaPlugin(type = "MYSQL", typeDescription = "MySQL", documentationUrl = "/database/databases/mysql.html")
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final Class<?> PKG = MySqlDatabaseMeta.class; // For Translator

@@ -27,7 +27,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 
-@DatabaseMetaPlugin(type = "GOOGLEBIGQUERY", typeDescription = "Google BigQuery")
+@DatabaseMetaPlugin(type = "GOOGLEBIGQUERY", typeDescription = "Google BigQuery", documentationUrl = "/database/databases/googlebigquery.html")
 @GuiPlugin(id = "GUI-GoogleBigQueryDatabaseMeta")
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains PostgreSQL specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "POSTGRESQL", typeDescription = "PostgreSQL")
+@DatabaseMetaPlugin(type = "POSTGRESQL", typeDescription = "PostgreSQL", documentationUrl = "/database/databases/postgresql.html")
 @GuiPlugin(id = "GUI-PostgreSQLDatabaseMeta")
 public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int GB_LIMIT = 1_073_741_824;

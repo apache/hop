@@ -25,11 +25,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Exasol 4 specific information through static final members
- *
- * @author Slawomir Chodnicki
- * @since Jan 24, 2012
  */
-@DatabaseMetaPlugin(type = "EXASOL4", typeDescription = "Exasol")
+@DatabaseMetaPlugin(type = "EXASOL4", typeDescription = "Exasol", documentationUrl = "/database/databases/exasol.html")
 @GuiPlugin(id = "GUI-ExasolDatabaseMeta")
 public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

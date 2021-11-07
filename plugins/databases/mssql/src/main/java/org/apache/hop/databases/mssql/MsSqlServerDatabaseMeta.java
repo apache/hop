@@ -31,11 +31,8 @@ import java.sql.ResultSet;
 
 /**
  * Contains MS SQL specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "MSSQL", typeDescription = "MS SQL Server")
+@DatabaseMetaPlugin(type = "MSSQL", typeDescription = "MS SQL Server", documentationUrl = "/database/databases/mssql.html")
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

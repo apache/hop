@@ -26,12 +26,14 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -39,6 +41,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -64,7 +67,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
   private Composite wGeneralComp;
   private Text wName;
-  private CCombo wConnectionType;
+  private Combo wConnectionType;
   private Label wlManualUrl;
   private TextVar wManualUrl;
   private Label wlUsername;
@@ -236,15 +239,26 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlConnectionType.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlConnectionType.right = new FormAttachment(middle, 0);
     wlConnectionType.setLayoutData(fdlConnectionType);
-    wConnectionType = new CCombo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wConnectionType);
-    wConnectionType.setEditable(true);
-    wConnectionType.setItems(getConnectionTypes());
+    
+    ToolBar wToolBar = new ToolBar(wGeneralComp, SWT.FLAT | SWT.HORIZONTAL);
+    FormData fdToolBar = new FormData();
+    fdToolBar.right = new FormAttachment(100, 0);
+    fdToolBar.top = new FormAttachment(0, 0);
+    wToolBar.setLayoutData(fdToolBar);
+    props.setLook(wToolBar);
 
+    ToolItem item = new ToolItem(wToolBar, SWT.PUSH);
+    item.setImage(GuiResource.getInstance().getImageHelpWeb());
+    item.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
+    item.addListener(SWT.Selection, e -> onHelpDatabaseType());
+    
+    wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionType.setItems(getConnectionTypes());
+    props.setLook(wConnectionType);
     FormData fdConnectionType = new FormData();
     fdConnectionType.top = new FormAttachment(wlConnectionType, 0, SWT.CENTER);
     fdConnectionType.left = new FormAttachment(middle, margin); // To the right of the label
-    fdConnectionType.right = new FormAttachment(100, 0);
+    fdConnectionType.right = new FormAttachment(wToolBar, -margin);
     wConnectionType.setLayoutData(fdConnectionType);
     Control lastControl = wConnectionType;
 
@@ -722,6 +736,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     }
   }
 
+  private void onHelpDatabaseType() {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String name = wConnectionType.getText();
+    for (IPlugin plugin : registry.getPlugins(DatabasePluginType.class)) {
+      if (plugin.getName().equals(name)) {
+        HelpUtils.openHelp(getShell(), plugin);
+        break;
+      }
+    }
+  }
+  
   @Override
   public void setWidgetsContent() {
 

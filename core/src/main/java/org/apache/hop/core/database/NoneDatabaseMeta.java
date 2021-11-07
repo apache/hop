@@ -20,7 +20,7 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.IValueMeta;
 
-@DatabaseMetaPlugin(type = "NONE", typeDescription = "No connection type")
+@DatabaseMetaPlugin(type = "NONE", typeDescription = "No connection type", documentationUrl = "/database/databases.html")
 public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";

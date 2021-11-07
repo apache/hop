@@ -28,11 +28,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Oracle RDB specific information through static final members
- *
- * @author Matt
- * @since 27-jul-2006
  */
-@DatabaseMetaPlugin(type = "ORACLERDB", typeDescription = "Oracle RDB")
+@DatabaseMetaPlugin(type = "ORACLERDB", typeDescription = "Oracle RDB", documentationUrl = "/database/databases/oraclerdb.html")
 @GuiPlugin(id = "GUI-OracleRDBDatabaseMeta")
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
