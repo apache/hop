@@ -24,11 +24,8 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
 /**
  * Contains PostgreSQL specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "GREENPLUM", typeDescription = "Greenplum")
+@DatabaseMetaPlugin(type = "GREENPLUM", typeDescription = "Greenplum", documentationUrl = "/database/databases/greenplum.html")
 @GuiPlugin(id = "GUI-GreenplumDatabaseMeta")
 public class GreenplumDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
   @Override

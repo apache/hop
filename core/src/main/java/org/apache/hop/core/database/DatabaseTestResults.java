@@ -17,7 +17,6 @@
 
 package org.apache.hop.core.database;
 
-/** Created by ddiroma on 5/10/2018. */
 public class DatabaseTestResults {
   private String message;
   private boolean success;

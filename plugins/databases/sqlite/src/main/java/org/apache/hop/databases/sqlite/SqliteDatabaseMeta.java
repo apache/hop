@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains SQLite specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "SQLITE", typeDescription = "SQLite")
+@DatabaseMetaPlugin(type = "SQLITE", typeDescription = "SQLite", documentationUrl = "/database/databases/sqlite.html")
 @GuiPlugin(id = "GUI-SQLiteDatabaseMeta")
 public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

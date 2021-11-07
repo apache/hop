@@ -28,11 +28,8 @@ import org.apache.hop.core.util.Utils;
 
 /**
  * Contains Computer Associates Ingres specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "INGRES", typeDescription = "Ingres")
+@DatabaseMetaPlugin(type = "INGRES", typeDescription = "Ingres", documentationUrl = "/database/databases/ingres.html")
 @GuiPlugin(id = "GUI-IngresDatabaseMeta")
 public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

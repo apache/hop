@@ -27,11 +27,8 @@ import org.apache.hop.databases.ingres.IngresDatabaseMeta;
 
 /**
  * Contains Computer Associates Ingres specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "VECTORWISE", typeDescription = "Ingres VectorWise")
+@DatabaseMetaPlugin(type = "VECTORWISE", typeDescription = "Ingres VectorWise", documentationUrl = "/database/databases/vectorwise.html")
 @GuiPlugin(id = "GUI-VectorWiseDatabaseMeta")
 public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatabase {
 

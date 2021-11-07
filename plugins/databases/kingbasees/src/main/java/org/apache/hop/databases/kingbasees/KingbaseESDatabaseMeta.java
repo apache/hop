@@ -26,12 +26,9 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
 /**
- * Contains Firebird specific information through static final members
- *
- * @author jjchu
- * @since 21-03-2008
+ * Contains KingbaseES specific information through static final members
  */
-@DatabaseMetaPlugin(type = "KINGBASEES", typeDescription = "KingbaseES")
+@DatabaseMetaPlugin(type = "KINGBASEES", typeDescription = "KingbaseES", documentationUrl = "/database/databases/kingbasees.html")
 @GuiPlugin(id = "GUI-KingbaseDatabaseMeta")
 public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /** @return The extra option separator in database URL for this platform */

@@ -19,8 +19,6 @@ package org.apache.hop.core.database;
 
 /**
  * Class to contain the information needed to parition (cluster): id, hostname, port, database
- *
- * @author Matt
  */
 public class PartitionDatabaseMeta {
   String partitionId;

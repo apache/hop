@@ -29,11 +29,9 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Informix specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
+
  */
-@DatabaseMetaPlugin(type = "INFORMIX", typeDescription = "Informix")
+@DatabaseMetaPlugin(type = "INFORMIX", typeDescription = "Informix", documentationUrl = "/database/databases/informix.html")
 @GuiPlugin(id = "GUI-InformixDatabaseMeta")
 public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

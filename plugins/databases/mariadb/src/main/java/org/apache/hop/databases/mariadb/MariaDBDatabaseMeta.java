@@ -28,7 +28,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 import java.util.Set;
 
-@DatabaseMetaPlugin(type = "MARIADB", typeDescription = "MariaDB")
+@DatabaseMetaPlugin(type = "MARIADB", typeDescription = "MariaDB", documentationUrl = "/database/databases/mariadb.html")
 @GuiPlugin(id = "GUI-MariaDBDatabaseMeta")
 public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
   private static final Class<?> PKG = MariaDBDatabaseMeta.class; // For Translator

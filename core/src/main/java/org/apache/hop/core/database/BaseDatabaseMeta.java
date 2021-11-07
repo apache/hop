@@ -35,9 +35,6 @@ import java.util.*;
 /**
  * This class contains the basic information on a database connection. It is not intended to be used
  * other than the inheriting classes such as OracleDatabaseInfo, ...
- *
- * @author Matt
- * @since 11-mrt-2005
  */
 public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 

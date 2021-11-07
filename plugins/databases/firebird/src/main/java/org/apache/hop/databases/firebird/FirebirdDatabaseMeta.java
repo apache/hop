@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Firebird specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "FIREBIRD", typeDescription = "Firebird SQL")
+@DatabaseMetaPlugin(type = "FIREBIRD", typeDescription = "Firebird SQL", documentationUrl = "/database/databases/firebird.html")
 @GuiPlugin(id = "GUI-FirebirdDatabaseMeta")
 public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
