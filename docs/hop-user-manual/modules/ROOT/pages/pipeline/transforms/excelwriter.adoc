@@ -37,10 +37,9 @@ The .xls files use a binary format which is better suited for simple content, wh
 |Option|Description
 |Stream XLSX data|Check this option when writing large XLSX files.
 It uses internally a streaming API and is able to write large files without any memory restrictions (of course not exceeding Excel's limit of 1,048,575 rows and 16,384 columns).
-Note: This option is available since version 4.4.0.
+|Create parent folder|Enable to create the parent folder
 |If output file exists|Check this option when writing large XLSX files.
 It uses internally a streaming API and is able to write large files without any memory restrictions (of course not exceeding Excel's limit of 1,048,575 rows and 16,384 columns).
-Note: This option is available since version 4.4.0.
 |Add filename(s) to result|Check to have the filename added to the result filenames
 |Wait for first row before creating file|Checking this option makes the transform create the file only after it has seen a row.
 If this is disabled the output file is always created, regardless of whether rows are actually written to the file.
