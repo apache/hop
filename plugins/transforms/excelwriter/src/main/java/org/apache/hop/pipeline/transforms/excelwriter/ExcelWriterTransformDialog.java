@@ -140,6 +140,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   private TextVar wProtectedBy;
 
+  protected Button wCreateParentFolder;
+
   private Button wMakeActiveSheet;
   private Button wForceFormulaRecalculation;
   private Button wLeaveExistingStylesUnchanged;
@@ -306,15 +308,62 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdExtension.right = new FormAttachment(wbFilename, -margin);
     wExtension.setLayoutData(fdExtension);
 
+    // Create Parent Folder
+    Label wlCreateParentFolder = new Label(fileGroup, SWT.RIGHT);
+    wlCreateParentFolder.setText(
+            BaseMessages.getString(PKG, "ExcelWriterDialog.CreateParentFolder.Label"));
+    props.setLook(wlCreateParentFolder);
+    FormData fdlCreateParentFolder = new FormData();
+    fdlCreateParentFolder.left = new FormAttachment(0, 0);
+    fdlCreateParentFolder.top = new FormAttachment(wExtension, margin);
+    fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
+    wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
+    wCreateParentFolder = new Button(fileGroup, SWT.CHECK);
+    wCreateParentFolder.setToolTipText(
+            BaseMessages.getString(PKG, "ExcelWriterDialog.CreateParentFolder.Tooltip"));
+    props.setLook(wCreateParentFolder);
+    FormData fdCreateParentFolder = new FormData();
+    fdCreateParentFolder.left = new FormAttachment(middle, 0);
+    fdCreateParentFolder.top = new FormAttachment(wlCreateParentFolder, 0, SWT.CENTER);
+    fdCreateParentFolder.right = new FormAttachment(100, 0);
+    wCreateParentFolder.setLayoutData(fdCreateParentFolder);
+    wCreateParentFolder.addSelectionListener(
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                input.setChanged();
+              }
+            });
+
+    // Do not open new File at Init
+    Label wlDoNotOpenNewFileInit = new Label(fileGroup, SWT.RIGHT);
+    wlDoNotOpenNewFileInit.setText(
+            BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Label"));
+    props.setLook(wlDoNotOpenNewFileInit);
+    FormData fdlDoNotOpenNewFileInit = new FormData();
+    fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
+    fdlDoNotOpenNewFileInit.top = new FormAttachment(wCreateParentFolder, 2 * margin, margin);
+    fdlDoNotOpenNewFileInit.right = new FormAttachment(middle, -margin);
+    wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
+    wDoNotOpenNewFileInit = new Button(fileGroup, SWT.CHECK);
+    wDoNotOpenNewFileInit.setToolTipText(
+            BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Tooltip"));
+    props.setLook(wDoNotOpenNewFileInit);
+    FormData fdDoNotOpenNewFileInit = new FormData();
+    fdDoNotOpenNewFileInit.left = new FormAttachment(middle, 0);
+    fdDoNotOpenNewFileInit.top = new FormAttachment(wlDoNotOpenNewFileInit, 0, SWT.CENTER);
+    fdDoNotOpenNewFileInit.right = new FormAttachment(100, 0);
+    wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
+    wDoNotOpenNewFileInit.addSelectionListener(lsSel);
+
     // FileNameInField line
-    /* Additional fields */
     Label wlFileNameInField = new Label(fileGroup, SWT.RIGHT);
     wlFileNameInField.setText(
         BaseMessages.getString(PKG, "ExcelWriterDialog.FileNameInField.Label"));
     props.setLook(wlFileNameInField);
     FormData fdlFileNameInField = new FormData();
     fdlFileNameInField.left = new FormAttachment(0, 0);
-    fdlFileNameInField.top = new FormAttachment(wExtension, margin);
+    fdlFileNameInField.top = new FormAttachment(wDoNotOpenNewFileInit, margin);
     fdlFileNameInField.right = new FormAttachment(middle, -margin);
     wlFileNameInField.setLayoutData(fdlFileNameInField);
     wFileNameInField = new Button(fileGroup, SWT.CHECK);
@@ -575,34 +624,13 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdIfFileExists.right = new FormAttachment(100, 0);
     wIfFileExists.setLayoutData(fdIfFileExists);
 
-    // Open new File at Init
-    Label wlDoNotOpenNewFileInit = new Label(fileGroup, SWT.RIGHT);
-    wlDoNotOpenNewFileInit.setText(
-        BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Label"));
-    props.setLook(wlDoNotOpenNewFileInit);
-    FormData fdlDoNotOpenNewFileInit = new FormData();
-    fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
-    fdlDoNotOpenNewFileInit.top = new FormAttachment(wIfFileExists, 2 * margin, margin);
-    fdlDoNotOpenNewFileInit.right = new FormAttachment(middle, -margin);
-    wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
-    wDoNotOpenNewFileInit = new Button(fileGroup, SWT.CHECK);
-    wDoNotOpenNewFileInit.setToolTipText(
-        BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Tooltip"));
-    props.setLook(wDoNotOpenNewFileInit);
-    FormData fdDoNotOpenNewFileInit = new FormData();
-    fdDoNotOpenNewFileInit.left = new FormAttachment(middle, 0);
-    fdDoNotOpenNewFileInit.top = new FormAttachment(wlDoNotOpenNewFileInit, 0, SWT.CENTER);
-    fdDoNotOpenNewFileInit.right = new FormAttachment(100, 0);
-    wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
-    wDoNotOpenNewFileInit.addSelectionListener(lsSel);
-
     // Add File to the result files name
     Label wlAddToResult = new Label(fileGroup, SWT.RIGHT);
     wlAddToResult.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.AddFileToResult.Label"));
     props.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
-    fdlAddToResult.top = new FormAttachment(wDoNotOpenNewFileInit, 2 * margin, margin);
+    fdlAddToResult.top = new FormAttachment(wIfFileExists, 2 * margin, margin);
     fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
     wAddToResult = new Button(fileGroup, SWT.CHECK);
@@ -1661,8 +1689,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     if (file.getDateTimeFormat() != null) {
       wDateTimeFormat.setText(file.getDateTimeFormat());
     }
-    wSpecifyFormat.setSelection(file.isSpecifyFormat());
 
+    wSpecifyFormat.setSelection(file.isSpecifyFormat());
+    wCreateParentFolder.setSelection(file.isCreateParentFolder());
     wAddToResult.setSelection(input.isAddToResultFilenames());
     wAutoSize.setSelection(file.isAutosizecolums());
     wIfFileExists.select(
@@ -1785,6 +1814,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     ExcelWriterTemplateField template = tfoi.getTemplate();
 
     file.setFileName(wFilename.getText());
+    file.setCreateParentFolder(wCreateParentFolder.getSelection());
     file.setStreamingData(wStreamData.getSelection());
     file.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
     file.setFileNameInField(wFileNameInField.getSelection());

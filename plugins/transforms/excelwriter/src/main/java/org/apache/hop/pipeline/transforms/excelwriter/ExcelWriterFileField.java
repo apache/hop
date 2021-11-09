@@ -126,6 +126,19 @@ public class ExcelWriterFileField {
       injectionKeyDescription = "ExcelWriterMeta.Injection.DateInFilename.Field")
   private boolean dateInFilename;
 
+
+  /** Flag: create parent folder, default to true */
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.CreateParentFolder.Field")
+  private boolean createParentFolder;
+
+  public boolean isCreateParentFolder() {
+    return createParentFolder;
+  }
+
+  public void setCreateParentFolder(boolean createParentFolder) {
+    this.createParentFolder = createParentFolder;
+  }
+
   public String getIfFileExists() {
     return ifFileExists;
   }
@@ -334,6 +347,7 @@ public class ExcelWriterFileField {
     fileNameInField = false;
     protectsheet = false;
     splitEvery = 0;
+    createParentFolder = true;
     sheetname = BaseMessages.getString(PKG, "ExcelWriterMeta.Tab.Sheetname.Text");
   }
 }
