@@ -55,6 +55,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.*;
@@ -362,13 +363,13 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "JsonInputDialog.Button.SelectFields"));
-    fdGet = new FormData();
-    fdGet.left = new FormAttachment(50, 0);
-    fdGet.bottom = new FormAttachment(100, 0);
-    wGet.setLayoutData(fdGet);
     wGet.addListener(SWT.Selection, e -> get());
 
-    setButtonPositions(new Button[] {wGet}, margin, null);
+    Button wGetSnippet = new Button(wFieldsComp, SWT.PUSH);
+    wGetSnippet.setText(BaseMessages.getString(PKG, "JsonInputDialog.Button.SelectFieldsSnippet"));
+    wGetSnippet.addListener(SWT.Selection, e -> getFromSnippet());
+
+    setButtonPositions(new Button[]{wGet, wGetSnippet}, margin, null);
 
     final int FieldsRows = input.getInputFields().length;
 
@@ -459,6 +460,24 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
+  }
+
+  private void getFromSnippet() {
+
+    EnterTextDialog getFromSnippetDialog =
+            new EnterTextDialog(
+                    shell,
+                    BaseMessages.getString(PKG, "JsonInputDialog.Button.SelectFieldsSnippet"),
+                    BaseMessages.getString(PKG, "JsonInputDialog.GetFieldsFromSnippet.Message"),
+                    "",
+                    true);
+    String text =getFromSnippetDialog.open();
+
+    //if getFromSnippetDialog dialog is cancelled, the text will be null
+    if (text != null) {
+      refreshFields(new ByteArrayInputStream(text.getBytes()));
+      wFields.optimizeTableView();
+    }
   }
 
   private void addContentTab() {
@@ -1416,28 +1435,34 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       FileInputList files = meta.getFiles(variables);
       for (FileObject fileObject : files.getFiles()) {
         try (InputStream inputStream = HopVfs.getInputStream(fileObject)) {
-          // Extract all useful paths from the file...
-          //
-          Set<String> paths = extractPaths(inputStream);
-          List<String> pathsList = new ArrayList<>(paths);
-          Collections.sort(pathsList);
-
-          for (String path : pathsList) {
-            int dotIndex = path.lastIndexOf('.');
-            if (dotIndex > 0) {
-              String name = path.substring(dotIndex + 1);
-              TableItem item = new TableItem(wFields.table, SWT.NONE);
-              item.setText(1, name);
-              item.setText(2, path);
-              item.setText(3, "String");
-            }
-          }
+          refreshFields(inputStream);
         }
       }
       wFields.optimizeTableView();
-
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error sampling JSON file(s)", e);
+    }
+  }
+
+  private void refreshFields(InputStream inputStream)  {
+    try {
+      // Extract all useful paths from the file...
+      Set<String> paths = extractPaths(inputStream);
+      List<String> pathsList = new ArrayList<>(paths);
+      Collections.sort(pathsList);
+
+      for (String path : pathsList) {
+        int dotIndex = path.lastIndexOf('.');
+        if (dotIndex > 0) {
+          String name = path.substring(dotIndex + 1);
+          TableItem item = new TableItem(wFields.table, SWT.NONE);
+          item.setText(1, name);
+          item.setText(2, path);
+          item.setText(3, "String");
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Fail to extract the path(s)", e);
     }
   }
 
