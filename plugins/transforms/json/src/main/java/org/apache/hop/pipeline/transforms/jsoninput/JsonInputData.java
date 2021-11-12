@@ -27,10 +27,6 @@ import java.io.InputStream;
 import java.util.BitSet;
 import java.util.Iterator;
 
-/**
- * @author Samatar
- * @since 21-06-2010
- */
 public class JsonInputData extends BaseFileInputTransformData implements ITransformData {
   public Object[] previousRow;
   public IRowMeta inputRowMeta;
