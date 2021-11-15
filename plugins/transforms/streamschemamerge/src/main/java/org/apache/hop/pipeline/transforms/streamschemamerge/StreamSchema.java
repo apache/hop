@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -25,8 +26,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Merge streams from multiple different transforms into a single stream. Unlike most other
@@ -72,13 +75,6 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
    */
   @Override
   public boolean init() {
-    // Casting to transform-specific implementation classes is safe
-
-    data.infoStreams = meta.getTransformIOMeta().getInfoStreams();
-    data.numTransforms = data.infoStreams.size();
-    data.rowMetas = new IRowMeta[data.numTransforms];
-    data.rowSets = new ArrayList<>();
-    data.TransformNames = new String[data.numTransforms];
 
     return super.init();
   }
@@ -99,23 +95,32 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
     if (first) {
       first = false;
 
-      for (int i = 0; i < data.infoStreams.size(); i++) {
-        data.r = findInputRowSet(data.infoStreams.get(i).getTransformName());
-        data.rowSets.add(data.r);
-        data.TransformNames[i] = data.r.getName();
-        // Avoids race condition. Row metas are not available until the previous transforms have
-        // called
-        // putRowWait at least once
-        while (data.rowMetas[i] == null && !isStopped()) {
-          data.rowMetas[i] = data.r.getRowMeta();
-        }
+      List<String> tNames = new ArrayList<>();
+      List<IStream> streams = new ArrayList<>();
+      List<IRowMeta> rowMetas = new ArrayList<>();
+      data.rowSets = new ArrayList<>();
+
+      int inputStreamsNum = meta.getTransformIOMeta().getInfoStreams().size();
+
+      for (int i = 0; i < inputStreamsNum; i++) {
+        IStream s = meta.getTransformIOMeta().getInfoStreams().get(i);
+        IRowSet r = findInputRowSet(s.getTransformName());
+        streams.add(s);
+        tNames.add(r.getName());
+        data.rowSets.add(r);
+        rowMetas.add(getPipelineMeta().getTransformFields(this, s.getTransformName()));
       }
 
-      data.schemaMapping = new SchemaMapper(data.rowMetas); // creates mapping and master output row
+      data.infoStreams = streams;
+      data.numTransforms = inputStreamsNum;
+      data.TransformNames = tNames.toArray(new String[0]);
+      data.rowMetas = rowMetas.toArray(new IRowMeta[0]);
+      // creates mapping and master output row
+      data.schemaMapping = new SchemaMapper(data.rowMetas);
       data.mapping = data.schemaMapping.getMapping();
       data.outputRowMeta = data.schemaMapping.getRowMeta();
-      setInputRowSets(
-          data.rowSets); // set the order of the inputrowsets to match the order we've defined
+      // set the order of the inputrowsets to match the order we've defined
+      setInputRowSets(data.rowSets);
       if (isDetailed()) {
         logDetailed("Finished generating mapping");
       }
@@ -184,7 +189,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
     data.currentName = null;
     data.rowMapping = null;
     data.TransformNames = null;
-    data.r = null;
+    // data.r = null;
 
     super.dispose();
   }
