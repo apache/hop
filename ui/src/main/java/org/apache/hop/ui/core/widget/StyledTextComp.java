@@ -23,6 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -246,7 +247,21 @@ public class StyledTextComp extends Composite {
 
   /** @return The caret line number, starting from 1. */
   public int getLineNumber() {
-    return textWidget.getCaretLineNumber() + 1;
+    String text = textWidget.getText();
+    if (StringUtils.isEmpty(text)) {
+      return 1;
+    }
+
+    int rowNumber = 1;
+    int textPosition = textWidget.getCaretPosition();
+    while (textPosition > 0) {
+      if (text.charAt(textPosition - 1) == '\n') {
+        rowNumber++;
+      }
+      textPosition--;
+    }
+
+    return rowNumber;
   }
 
   /** @return The caret column number, starting from 1. */
