@@ -169,9 +169,9 @@ Button[TOGGLE][FLAT] {
     border-radius: 2px;
     padding: 6px 15px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     animation: none;
     cursor: pointer;
@@ -185,9 +185,9 @@ Button[ARROW][FLAT] {
     border-radius: 2px;
     padding: 10px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     cursor: pointer;
 }
@@ -197,9 +197,9 @@ Button[PUSH]:default,
 Button[TOGGLE]:default {
     background-color: #416693;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#e2eefc),
-            to(#d4d4d4)
+        linear, left top, left bottom,
+        from(#e2eefc),
+        to(#d4d4d4)
     );
     border: 1px solid #a0b3ca;
 }
@@ -219,9 +219,9 @@ Button[ARROW]:hover,
 Button[PUSH]:hover,
 Button[TOGGLE]:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#151515),
-            to(#2a2a2a)
+        linear, left top, left bottom,
+        from(#151515),
+        to(#2a2a2a)
     );
 }
 
@@ -229,25 +229,25 @@ Button[ARROW]:pressed,
 Button[PUSH]:pressed,
 Button[TOGGLE]:pressed {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
 }
 
 Button[TOGGLE]:selected {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
 }
 
 Button[TOGGLE]:selected:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
 }
 
@@ -369,9 +369,9 @@ Combo-Button {
     border-left: 1px solid #424242;
     border-radius: 0px 2px 2px 0px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     width: 30px;
 }
@@ -401,8 +401,8 @@ Combo-List {
 }
 
 Combo-List-Item {
-    color: inherit;
-    background-color: transparent;
+    color: #ffffff;
+    background-color: #101010;
     background-image: none;
     text-decoration: none;
     text-shadow: none;
@@ -410,10 +410,11 @@ Combo-List-Item {
 }
 
 Combo-List-Item:hover, Combo-List-Item:even:hover {
-    background-color: #f0f0f0;
+    background-color: #404040;
 }
 
 Combo-List-Item:selected, Combo-List-Item:even:selected {
+    color: #e0e0e0;
     background-color: #3a3a3a;
 }
 
@@ -692,18 +693,18 @@ MenuItem[SEPARATOR] {
 MenuItem:hover {
     color: #ffffff;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#404040),
-            to(#505050)
+        linear, left top, left bottom,
+        from(#404040),
+        to(#505050)
     );
 }
 
 MenuItem:pressed {
     color: #ffffff;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#505050),
-            to(#404040)
+        linear, left top, left bottom,
+        from(#505050),
+        to(#404040)
     );
 }
 
@@ -746,26 +747,26 @@ ProgressBar {
 ProgressBar-Indicator {
     background-color: #00589f;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#5882b5),
-            to(#416693)
+        linear, left top, left bottom,
+        from(#5882b5),
+        to(#416693)
     );
     opacity: 1;
 }
 
 ProgressBar-Indicator:paused {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#818181),
-            to(#b5b5b5)
+        linear, left top, left bottom,
+        from(#818181),
+        to(#b5b5b5)
     );
 }
 
 ProgressBar-Indicator:error {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#bb1d1d),
-            to(#fc0000)
+        linear, left top, left bottom,
+        from(#bb1d1d),
+        to(#fc0000)
     );
 }
 
@@ -815,8 +816,8 @@ Shell-Titlebar {
     background-gradient-color: #202020;
     color: #ffffff;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#303030), to(#202020)
+        linear, left top, left bottom,
+        from(#303030), to(#202020)
     );
     padding: 0 10px 0 10px;
     margin: 0px;
@@ -830,8 +831,8 @@ Shell-Titlebar:inactive {
     background-color: #000000;
     background-gradient-color: #101010;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#202020), to(#101010)
+        linear, left top, left bottom,
+        from(#202020), to(#101010)
     );
 }
 
@@ -951,9 +952,9 @@ Spinner-Field {
 Spinner-UpButton {
     background-color: #efefef;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#efefef)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#efefef)
     );
     width: 30px;
     border: none;
@@ -983,9 +984,9 @@ Spinner-UpButton-Icon:hover {
 Spinner-DownButton {
     background-color: #efefef;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#efefef),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#efefef),
+        to(#1b1b1b)
     );
     width: 30px;
     border: none;
@@ -1031,9 +1032,9 @@ TabItem {
     color: #b5b5b5;
     background-color: #000001;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     background-repeat: repeat;
     background-position: left top;
@@ -1062,9 +1063,9 @@ TabItem[RIGHT_TO_LEFT]:bottom {
 
 TabItem:selected {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
     margin: 3px -1px 0px -2px;
     border: 1px solid #424242;
@@ -1107,9 +1108,9 @@ TabItem[RIGHT_TO_LEFT]:bottom:selected:first {
 
 Table {
     font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #000001;
+    background-color: #111111;
     background-image: none;
-    color: #858585;
+    color: #B5B5B5;
     border: none;
 }
 
@@ -1122,9 +1123,9 @@ TableColumn {
     background-color: #f0f0f0;
     padding: 8px 3px 8px 3px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     color: #ffffff;
     border-bottom: 1px solid #424242;
@@ -1134,9 +1135,9 @@ TableColumn {
 
 TableColumn:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+        linear, left top, left bottom,
+        from(#1b1b1b),
+        to(#060606)
     );
 }
 
@@ -1306,9 +1307,9 @@ ToolBar {
     spacing: 0;
     background-color: #001;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     border: 1px solid #424242;
     border-radius: 3px;
@@ -1317,11 +1318,11 @@ ToolBar {
 
 ToolBar[VERTICAL] {
     background-image: gradient(
-            linear, left top, right top,
-            from(#161616),
-            color-stop(45%, #060606),
-            color-stop(55%, #060606),
-            to(#161616)
+        linear, left top, right top,
+        from(#161616),
+        color-stop(45%, #060606),
+        color-stop(55%, #060606),
+        to(#161616)
     );
 }
 
@@ -1400,47 +1401,47 @@ ToolItem[VERTICAL]:selected {
 
 ToolItem:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#151515),
-            to(#2a2a2a)
+        linear, left top, left bottom,
+        from(#151515),
+        to(#2a2a2a)
     );
 }
 
 ToolItem:pressed {
     padding: 9px 8px 7px 8px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
 }
 
 ToolItem:selected {
     padding: 9px 8px 7px 8px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+        linear, left top, left bottom,
+        from(#1b1b1b),
+        to(#060606)
     );
 }
 
 ToolItem[VERTICAL]:hover {
     background-image: gradient(
-            linear, left top, right top,
-            from(#d9d9d9),
-            color-stop(45%, #161616),
-            color-stop(55%, #161616),
-            to(#d9d9d9)
+        linear, left top, right top,
+        from(#d9d9d9),
+        color-stop(45%, #161616),
+        color-stop(55%, #161616),
+        to(#d9d9d9)
     );
 }
 
 ToolItem[VERTICAL]:pressed, ToolItem[VERTICAL]:selected {
     background-image: gradient(
-            linear, left top, right top,
-            from(#161616),
-            color-stop(45%, #252525),
-            color-stop(55%, #252525),
-            to(#161616)
+        linear, left top, right top,
+        from(#161616),
+        color-stop(45%, #252525),
+        color-stop(55%, #252525),
+        to(#161616)
     );
 }
 
@@ -1506,25 +1507,25 @@ ToolItem[FLAT]:hover,
 ToolItem[FLAT]:first:hover,
 ToolItem[FLAT]:last:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
 }
 
 ToolItem[FLAT]:pressed, ToolItem[FLAT]:first:pressed, ToolItem[FLAT]:last:pressed {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
 }
 
 ToolItem[FLAT]:selected {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+        linear, left top, left bottom,
+        from(#1b1b1b),
+        to(#060606)
     );
 }
 
@@ -1595,9 +1596,9 @@ TreeColumn, GridColumn {
     color: inherit;
     background-color: #f0f0f0;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     padding: 8px 10px 8px 6px;
     border-bottom: 1px solid #424242;
@@ -1607,9 +1608,9 @@ TreeColumn, GridColumn {
 
 TreeColumn:hover, GridColumn:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+        linear, left top, left bottom,
+        from(#1b1b1b),
+        to(#060606)
     );
 }
 
@@ -1915,8 +1916,8 @@ DateTime-Calendar-Navbar {
     border-radius: 0;
     background-color: #00569c;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#416693), to(#5882b5)
+        linear, left top, left bottom,
+        from(#416693), to(#5882b5)
     );
     color: white;
     font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
@@ -1994,9 +1995,9 @@ DateTime-Calendar-NextYearButton[RIGHT_TO_LEFT]:hover {
 DateTime-UpButton {
     background-color: #f0f0f0;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#efefef)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#efefef)
     );;
     width: 30px;
     border: none;
@@ -2021,9 +2022,9 @@ DateTime-UpButton-Icon:hover {
 DateTime-DownButton {
     background-color: #f0f0f0;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#efefef),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#efefef),
+        to(#1b1b1b)
     );
     width: 30px;
     border: none;
@@ -2052,9 +2053,9 @@ DateTime-DropDownButton {
     border-left: 1px solid #424242;
     border-radius: 0px 2px 2px 0px;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     width: 30px;
 }
@@ -2105,9 +2106,9 @@ ExpandItem-Header {
     border-radius: 0;
     cursor: pointer;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     text-shadow: none;
 }
@@ -2258,9 +2259,9 @@ ToolTip {
     opacity: 1;
     color: #b5b5b5;
     background-image: gradient(
-            linear, left top, right top,
-            from(#f8f9ff),
-            to(#f4f4f4)
+        linear, left top, right top,
+        from(#f8f9ff),
+        to(#f4f4f4)
     );
     font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #fcfcfc;
@@ -2327,9 +2328,9 @@ CCombo-Button {
     cursor: default;
     background-color: #efefef;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     border: none;
     border-left: 1px solid #424242;
@@ -2458,9 +2459,9 @@ ScrollBar-DownButton {
 FileUpload {
     font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+        linear, left top, left bottom,
+        from(#060606),
+        to(#1b1b1b)
     );
     background-repeat: repeat;
     background-position: left top;
@@ -2486,17 +2487,17 @@ FileUpload:disabled {
 
 FileUpload:hover {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#151515),
-            to(#2a2a2a)
+        linear, left top, left bottom,
+        from(#151515),
+        to(#2a2a2a)
     );
 }
 
 FileUpload:pressed {
     background-image: gradient(
-            linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+        linear, left top, left bottom,
+        from(#2a2a2a),
+        to(#151515)
     );
 }
 

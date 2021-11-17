@@ -2333,6 +2333,12 @@ public class TableView extends Composite {
     }
     props.setLook(text, Props.WIDGET_STYLE_TABLE);
 
+    // There's an issue with Hop web when editing in a table
+    // The text is white on a white background for some reason
+    // However, we can force the colors here.
+    //
+    fixWebLook(text);
+
     int width = tableColumn[colNr].getWidth();
     int height = 30;
 
@@ -2345,6 +2351,19 @@ public class TableView extends Composite {
     text.setFocus();
     text.setSize(width, height);
     editor.layout();
+  }
+
+  private void fixWebLook(Control control) {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      String hopWebTheme = EnvironmentUtils.getInstance().getHopWebTheme();
+      if ("dark".equalsIgnoreCase(hopWebTheme)) {
+        control.setForeground(GuiResource.getInstance().getColorWhite());
+        control.setBackground(GuiResource.getInstance().getColorBlack());
+      } else {
+        control.setForeground(GuiResource.getInstance().getColorBlack());
+        control.setBackground(GuiResource.getInstance().getColorWhite());
+      }
+    }
   }
 
   private void setColumnWidthBasedOnTextField(final int colNr, final boolean useVariables) {
@@ -2462,6 +2481,7 @@ public class TableView extends Composite {
         comboVar.setItems(opt);
       }
       props.setLook(comboVar, Props.WIDGET_STYLE_TABLE);
+      fixWebLook(comboVar.getCComboWidget());
       comboVar.addTraverseListener(lsTraverse);
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
       comboVar.addModifyListener(lsModCombo);
@@ -2492,6 +2512,7 @@ public class TableView extends Composite {
       String cellValue = item.getText(colNr);
       combo = new Combo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
       props.setLook(combo, Props.WIDGET_STYLE_TABLE);
+      fixWebLook(combo);
       combo.addTraverseListener(lsTraverse);
       combo.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
       combo.addModifyListener(lsModCombo);
