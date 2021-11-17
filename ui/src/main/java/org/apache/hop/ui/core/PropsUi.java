@@ -34,8 +34,20 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -170,8 +182,20 @@ public class PropsUi extends Props {
   public FontData getFixedFont() {
     FontData def = getDefaultFontData();
 
-    String name =
-        getProperty(STRING_FONT_FIXED_NAME, Const.isWindows() ? "Consolas" : "Monospaced");
+    String name = getProperty(STRING_FONT_FIXED_NAME);
+    if (StringUtils.isEmpty(name)) {
+      if (Const.isWindows()) {
+        name = "Consolas";
+      } else if (Const.isLinux()) {
+        name = "Monospace";
+      } else if (Const.isOSX()) {
+        name = "Monaco";
+      } else if (EnvironmentUtils.getInstance().isWeb()) {
+        name = "monospace";
+      } else {
+        name = java.awt.Font.MONOSPACED;
+      }
+    }
     int size = Const.toInt(getProperty(STRING_FONT_FIXED_SIZE), def.getHeight());
     int style = Const.toInt(getProperty(STRING_FONT_FIXED_STYLE), def.getStyle());
 
