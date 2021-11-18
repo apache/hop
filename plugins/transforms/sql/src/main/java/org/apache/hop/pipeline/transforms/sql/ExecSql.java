@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -114,17 +115,18 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Find the indexes of the arguments
-      data.argumentIndexes = new int[meta.getArguments().length];
-      for (int i = 0; i < meta.getArguments().length; i++) {
-        data.argumentIndexes[i] = this.getInputRowMeta().indexOfValue(meta.getArguments()[i]);
+      data.argumentIndexes = new int[meta.getArguments().size()];
+      for (int i = 0; i < meta.getArguments().size(); i++) {
+        String arg = meta.getArguments().get(i);
+        data.argumentIndexes[i] = this.getInputRowMeta().indexOfValue(arg);
         if (data.argumentIndexes[i] < 0) {
           logError(
               BaseMessages.getString(PKG, "ExecSql.Log.ErrorFindingField")
-                  + meta.getArguments()[i]
+                  + arg
                   + "]");
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "ExecSql.Exception.CouldNotFindField", meta.getArguments()[i]));
+                  PKG, "ExecSql.Exception.CouldNotFindField", arg));
         }
         if (meta.isParams()) {
           if (i == 0) {
@@ -137,10 +139,6 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
 
       if (!meta.isParams()) {
         // We need to replace question marks by string value
-
-        // Find the locations of the question marks in the String...
-        // We replace the question marks with the values...
-        // We ignore quotes etc. to make inserts easier...
         data.markerPositions = new ArrayList<>();
         int len = data.sql.length();
         int pos = len - 1;
@@ -171,6 +169,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
 
         // Replace the values in the SQL string...
         //
+        DatabaseMeta dbMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
         for (int i = 0; i < numMarkers; i++) {
           // Get the appropriate value from the input row...
           //
@@ -186,7 +185,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
           if (meta.isQuoteString() && (valueMeta.getType() == IValueMeta.TYPE_STRING)) {
             // Have the database dialect do the quoting.
             // This also adds the quotes around the string
-            replaceValue = meta.getDatabaseMeta().quoteSqlString(replaceValue);
+            replaceValue = dbMeta.quoteSqlString(replaceValue);
           }
           buf.replace(pos, pos + 1, replaceValue);
         }
@@ -275,11 +274,13 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
   public boolean init() {
 
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+
+      if (meta.getConnection() == null) {
         logError(BaseMessages.getString(PKG, "ExecSql.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      data.db = new Database(this, this, databaseMeta);
 
       // Connect to the database
       try {
