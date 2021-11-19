@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,14 @@
 
 package org.apache.hop.core.svg;
 
+import org.apache.hop.core.exception.HopException;
 import org.w3c.dom.Document;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 
 /** Container for SVG image. */
 public class SvgImage {
@@ -29,5 +36,23 @@ public class SvgImage {
 
   public Document getDocument() {
     return document;
+  }
+
+  public String getSvgXml() throws HopException {
+    return getSvgXml(document);
+  }
+
+  public static final String getSvgXml(Document document) throws HopException {
+    try {
+      DOMSource domSource = new DOMSource(document);
+      StringWriter stringWriter = new StringWriter();
+      StreamResult streamResult = new StreamResult(stringWriter);
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.transform(domSource, streamResult);
+      return stringWriter.toString();
+    } catch (Exception e) {
+      throw new HopException("Error serializing SVG Image to SVG XML", e);
+    }
   }
 }

@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -7,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.ui.core.gui;
 
 import org.apache.hop.core.SwtUniversalImage;
@@ -663,7 +663,8 @@ public class GuiResource {
   // load image from svg
   //
   public Image loadAsResource(Display display, String location, int size) {
-    SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource(display, location);
+    SwtUniversalImage img =
+        SwtSvgImageUtil.getUniversalImage(display, getClass().getClassLoader(), location);
     Image image;
     if (size > 0) {
       int newSize = (int) Math.round(size * zoomFactor);
