@@ -49,7 +49,13 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -177,8 +183,8 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
             getDisplay(),
             managedClass.getClassLoader(),
             metadata.image(),
-            ConstUi.SMALL_ICON_SIZE,
-            ConstUi.SMALL_ICON_SIZE);
+            (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()),
+            (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()));
 
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
