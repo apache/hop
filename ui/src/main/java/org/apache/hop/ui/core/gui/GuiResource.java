@@ -1613,18 +1613,68 @@ public class GuiResource {
    * @return the loaded image
    */
   public Image getImage(String location, ClassLoader classLoader, int width, int height) {
+    return getImage(location, classLoader, width, height, false);
+  }
+
+  /**
+   * Loads an image from a location once. The second time, the image comes from a cache. Because of
+   * this, it's important to never dispose of the image you get from here. (easy!) The images are
+   * automatically disposed when the application ends.
+   *
+   * @param location the location of the image resource to load
+   * @param classLoader the ClassLoader to use to locate resources
+   * @param width The height to resize the image to
+   * @param height The width to resize the image to
+   * @param disabled in case you want to gray-scaled 'disabled' version of the image
+   * @return the loaded image
+   */
+  public Image getImage(
+      String location, ClassLoader classLoader, int width, int height, boolean disabled) {
     // Build image key for a specific size
     StringBuilder builder = new StringBuilder(location);
-    builder.append('|');
-    builder.append(width);
-    builder.append('|');
-    builder.append(height);
+    builder.append('|').append(width).append('|').append(height).append('|').append(disabled);
     String key = builder.toString();
 
     Image image = imageMap.get(key);
     if (image == null) {
       SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
-      image = new Image(display, getZoomedImaged(svg, display, width, height), SWT.IMAGE_COPY);
+
+      Image zoomedImaged = getZoomedImaged(svg, display, width, height);
+      if (disabled) {
+        // First disabled the image...
+        //
+        image = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
+
+        // Now darken or lighten the image...
+        //
+        float factor;
+        if (PropsUi.getInstance().isDarkMode()) {
+          factor = 0.4f;
+        } else {
+          factor = 2.5f;
+        }
+
+        ImageData data = image.getImageData();
+        for (int x = 0; x < data.width; x++) {
+          for (int y = 0; y < data.height; y++) {
+            int pixel = data.getPixel(x, y);
+            int a = (pixel >> 24) & 0xFF;
+            int b = (pixel >> 16) & 0xFF;
+            int g = (pixel >> 8) & 0xFF;
+            int r = pixel & 0xFF;
+            a = (int) (a * factor);
+            b = (int) (b * factor);
+            g = (int) (g * factor);
+            r = (int) (r * factor);
+            data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
+          }
+          image.dispose();
+          image = new Image(display, data);
+        }
+      } else {
+        image = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
+      }
+
       svg.dispose();
       imageMap.put(location, image);
     }

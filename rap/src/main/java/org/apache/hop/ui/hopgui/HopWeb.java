@@ -41,6 +41,7 @@ public class HopWeb implements ApplicationConfiguration {
 
   @Override
   public void configure(Application application) {
+
     application.addResource(
         "ui/images/logo_icon.png",
         new ResourceLoader() {
@@ -56,7 +57,6 @@ public class HopWeb implements ApplicationConfiguration {
             try {
               t.transcode(input, output);
             } catch (TranscoderException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             return new ByteArrayInputStream(outputStream.toByteArray());
