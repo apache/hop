@@ -19,7 +19,7 @@
     color: #000000;
     background-color: #001;
     background-image: none;
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
 }
 
 *:disabled {
@@ -86,7 +86,7 @@ Display {
     rwt-fontlist: 14px 'Segoe UI', Corbel, Calibri, Tahoma, 'Lucida Sans Unicode';
 
     background-image: url(resource/widget/rap/display/browser_bg.png);
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
 }
 
 SystemMessage-DisplayOverlay {
@@ -95,14 +95,14 @@ SystemMessage-DisplayOverlay {
 }
 
 ErrorBox-Titlebar {
-    font: bold 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: bold 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: white;
     background-color: #bf9869;
 }
 
 ErrorBox {
     border: 1px solid #c4a667;
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     background-color: black;
 }
@@ -140,7 +140,7 @@ Composite[BORDER] {
 /* Button default theme */
 
 Button {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-image: none;
     background-repeat: repeat;
     background-position: left top;
@@ -341,7 +341,7 @@ Button-FocusIndicator[CHECK], Button-FocusIndicator[RADIO] {
 
 Combo,
 Combo[BORDER] {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #959595;
     background-color: #000001;
     border: 1px solid #333333;
@@ -473,7 +473,7 @@ CTabFolder {
 }
 
 CTabItem {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     background-color: transparent;
     background-image: none;
@@ -541,7 +541,7 @@ Group-Label {
 /* Label default theme */
 
 Label {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     background-color: #000001;
     background-image: none;
@@ -572,7 +572,7 @@ Label-SeparatorLine {
 /* Link default theme */
 
 Link {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     background-color: #000001;
     background-image: none;
@@ -608,7 +608,7 @@ Link-Hyperlink:hover:disabled {
 /* List default theme */
 
 List {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #000001;
     border: none;
     color: #b5b5b5;
@@ -620,7 +620,7 @@ List[BORDER] {
 
 List-Item {
     padding: 5px 10px 5px 10px;
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #000001;
     color: inherit;
     background-image: none;
@@ -811,7 +811,7 @@ Shell-DisplayOverlay {
 /* Shell titlebar */
 
 Shell-Titlebar {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #000000;
     background-gradient-color: #202020;
     color: #ffffff;
@@ -919,7 +919,7 @@ Shell-CloseButton:inactive:hover {
 /* Spinner default theme */
 
 Spinner {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
     border-radius: 0 2px 2px 0;
     color: #b5b5b5;
@@ -1016,7 +1016,7 @@ Spinner-DownButton-Icon:hover {
 /* TabFolder default theme */
 
 TabFolder {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
 }
 
@@ -1107,7 +1107,7 @@ TabItem[RIGHT_TO_LEFT]:bottom:selected:first {
 /* Table default theme */
 
 Table {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #111111;
     background-image: none;
     color: #B5B5B5;
@@ -1119,7 +1119,7 @@ Table[BORDER] {
 }
 
 TableColumn {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #f0f0f0;
     padding: 8px 3px 8px 3px;
     background-image: gradient(
@@ -1242,7 +1242,7 @@ Table-Checkbox:checked:grayed:hover {
 /* Text default theme */
 
 Text {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
     border-radius: 0;
     padding: 5px 10px 5px 10px;
@@ -1301,7 +1301,7 @@ Text-Cancel-Icon {
 /* ToolBar default theme */
 
 ToolBar {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     padding: 0;
     spacing: 0;
@@ -1342,8 +1342,8 @@ ToolItem {
     background-color: transparent;
     background-image: none;
     border-radius: 0px;
-    padding: 8px;
-    spacing: 4px;
+    padding: 4px;
+    spacing: 1px;
     opacity: 1;
     animation: none;
     text-shadow: 1px 1px 1px #ccc;
@@ -1541,7 +1541,7 @@ ToolItem-Separator {
 /* Tree/Grid default theme */
 
 Tree, Grid {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #000001;
     border: none;
     color: #b5b5b5;
@@ -1592,7 +1592,7 @@ Tree-RowOverlay:selected:unfocused, Grid-RowOverlay:selected:unfocused {
 }
 
 TreeColumn, GridColumn {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: inherit;
     background-color: #f0f0f0;
     background-image: gradient(
@@ -1844,7 +1844,7 @@ Scale-Thumb:focused {
 /* DateTime default theme */
 
 DateTime {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
     border-radius: 0 2px 2px 0;
     color: #464a4e;
@@ -1920,7 +1920,7 @@ DateTime-Calendar-Navbar {
         from(#416693), to(#5882b5)
     );
     color: white;
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     text-shadow: none;
 }
 
@@ -2263,7 +2263,7 @@ ToolTip {
         from(#f8f9ff),
         to(#f4f4f4)
     );
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-color: #fcfcfc;
     animation: fadeIn 200ms linear, fadeOut 600ms ease-out;
     box-shadow: 0 0 4px #adadad;
@@ -2285,20 +2285,20 @@ ToolTip-Image[ICON_WARNING] {
 
 ToolTip-Text {
     color: #b5b5b5;
-    font: bold 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: bold 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     text-shadow: none;
 }
 
 ToolTip-Message {
     color: #b5b5b5;
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     text-shadow: none;
 }
 
 /* CCombo default theme */
 
 CCombo {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     background-color: #000001;
     background-image: none;
@@ -2393,7 +2393,7 @@ CCombo-FocusIndicator {
 /* CLabel default theme */
 
 CLabel {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: #b5b5b5;
     background-color: #000001;
     background-image: none;
@@ -2457,7 +2457,7 @@ ScrollBar-DownButton {
 /* FileUpload default theme */
 
 FileUpload {
-    font: 14px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
+    font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-image: gradient(
         linear, left top, left bottom,
         from(#060606),

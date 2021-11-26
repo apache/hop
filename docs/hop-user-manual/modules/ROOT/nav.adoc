@@ -405,6 +405,7 @@ under the License.
 ** xref:technology/azure/index.adoc[Azure]
 ** xref:technology/cassandra/index.adoc[Cassandra]
 ** xref:technology/neo4j/index.adoc[Neo4j]
+*** xref:technology/neo4j/working-with-neo4j-data.adoc[Working with Neo4j data]
 ** xref:technology/google/index.adoc[Google]
 * xref:hop-server/index.adoc[Hop Server]
 ** xref:hop-server/rest-api.adoc[REST api]

@@ -48,7 +48,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.ToolBar;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,17 +123,56 @@ public class PropsUi extends Props {
 
     populateContrastingColors();
 
-    if (!OsHelper.isWindows() & !EnvironmentUtils.getInstance().isWeb()) {
-      if (Display.isSystemDarkTheme()) {
-        setDarkMode(true);
-        setOSLookShown(true);
-      } else {
-        setDarkMode(false);
-        setOSLookShown(true);
+    if (OsHelper.isWindows()) {
+      // The user manually selected Dark Mode
+      // We'll try to change settings to make this possible.
+      //
+      if (isDarkMode()) {
+        display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", true);
+        display.setData(
+            "org.eclipse.swt.internal.win32.menuBarForegroundColor",
+            new Color(display, 0xD0, 0xD0, 0xD0));
+        display.setData(
+            "org.eclipse.swt.internal.win32.menuBarBackgroundColor",
+            new Color(display, 0x30, 0x30, 0x30));
+        display.setData(
+            "org.eclipse.swt.internal.win32.menuBarBorderColor",
+            new Color(display, 0x50, 0x50, 0x50));
+        display.setData("org.eclipse.swt.internal.win32.Canvas.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.List.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.Table.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.Text.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.Tree.use_WS_BORDER", true);
+        display.setData(
+            "org.eclipse.swt.internal.win32.Table.headerLineColor",
+            new Color(display, 0x50, 0x50, 0x50));
+        display.setData(
+            "org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
+            new Color(display, 0x80, 0x80, 0x80));
+        display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", true);
+        display.setData(
+            "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
+            new Color(display, 0xD0, 0xD0, 0xD0));
+        display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", true);
       }
     } else {
-      // TODO: temp fix for grids clean this up!
-      setOSLookShown(true);
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        if (Display.isSystemDarkTheme()) {
+          // Only set OS look shown once in case we switch to dark mode
+          // and vice versa.  We don't want to override user choices all the time.
+          // If we do it like before it becomes impossible to choose your own font and colors.
+          //
+          if (!isDarkMode()) {
+            setDarkMode(true);
+            setOSLookShown(true);
+          }
+        } else {
+          if (isDarkMode()) {
+            setDarkMode(false);
+            setOSLookShown(true);
+          }
+        }
+      }
     }
 
     if (display != null) {
@@ -145,12 +186,13 @@ public class PropsUi extends Props {
       setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle());
 
-      fontData = getDefaultFont();
+      fontData = getGraphFont();
+      int graphFontSize = (int) Math.round(fontData.getHeight() * getNativeZoomFactor());
       setProperty(STRING_FONT_GRAPH_NAME, fontData.getName());
-      setProperty(STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight());
+      setProperty(STRING_FONT_GRAPH_SIZE, "" + graphFontSize);
       setProperty(STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle());
 
-      fontData = getDefaultFont();
+      fontData = getNoteFont();
       setProperty(STRING_FONT_NOTE_NAME, fontData.getName());
       setProperty(STRING_FONT_NOTE_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_NOTE_STYLE, "" + fontData.getStyle());
