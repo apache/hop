@@ -52,9 +52,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
   private String[] previousTransforms; // transforms sending data in to this transform
 
   // text field holding the name of the field to add to the row stream
-  private Label wlTransforms;
   private TableView wTransforms;
-  private FormData fdlTransforms, fdTransforms;
 
   public StreamSchemaDialog(
       Shell parent,
@@ -106,7 +104,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
     int margin = Const.MARGIN;
 
     // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
+    Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
@@ -136,11 +134,11 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
     setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
 
     // Table with fields for inputting transform names
-    wlTransforms = new Label(shell, SWT.NONE);
+    Label wlTransforms = new Label(shell, SWT.NONE);
     wlTransforms.setText(
         BaseMessages.getString(PKG, "StreamSchemaTransformDialog.Transforms.Label"));
     props.setLook(wlTransforms);
-    fdlTransforms = new FormData();
+    FormData fdlTransforms = new FormData();
     fdlTransforms.left = new FormAttachment(0, 0);
     fdlTransforms.top = new FormAttachment(wTransformName, margin);
     wlTransforms.setLayoutData(fdlTransforms);
@@ -168,7 +166,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
             lsMod,
             props);
 
-    fdTransforms = new FormData();
+    FormData fdTransforms = new FormData();
     fdTransforms.left = new FormAttachment(0, 0);
     fdTransforms.top = new FormAttachment(wlTransforms, margin);
     fdTransforms.right = new FormAttachment(100, 0);
@@ -204,12 +202,12 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
     if (meta.getNumberOfTransforms() > 0) {
       table.removeAll();
     }
-    String[] TransformNames = meta.getTransformsToMerge();
-    for (int i = 0; i < TransformNames.length; i++) {
+    String[] transformNames = meta.getTransformsToMerge();
+    for (int i = 0; i < transformNames.length; i++) {
       TableItem ti = new TableItem(table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
-      if (TransformNames[i] != null) {
-        ti.setText(1, TransformNames[i]);
+      if (transformNames[i] != null) {
+        ti.setText(1, transformNames[i]);
       }
     }
 
@@ -257,7 +255,6 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
     if (infoStreams.size() == 0 || inputTransforms.length < infoStreams.size()) {
       if (inputTransforms.length != 0) {
-        //                meta.wipeTransformIoMeta();
         for (String inputTransform : inputTransforms) {
           meta.getTransformIOMeta()
               .addStream(new Stream(IStream.StreamType.INFO, null, "", StreamIcon.INFO, null));
@@ -291,18 +288,17 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
     transformName = wTransformName.getText();
     // set output field name
 
-    // TODO eliminate copying here and copying when placed in meta
     int nrtransforms = wTransforms.nrNonEmpty();
-    String[] TransformNames = new String[nrtransforms];
+    String[] transformNames = new String[nrtransforms];
     for (int i = 0; i < nrtransforms; i++) {
       TableItem ti = wTransforms.getNonEmpty(i);
       TransformMeta tm = pipelineMeta.findTransform(ti.getText(1));
       if (tm != null) {
-        TransformNames[i] = tm.getName();
+        transformNames[i] = tm.getName();
       }
     }
-    meta.setTransformsToMerge(TransformNames);
-    getMeta(TransformNames);
+    meta.setTransformsToMerge(transformNames);
+    getMeta(transformNames);
 
     // close the SWT dialog window
     dispose();

@@ -51,7 +51,5 @@ public class StreamSchemaData extends BaseTransformData implements ITransformDat
 
   public int[] rowMapping; // row mapping for the current row
 
-  public String[] TransformNames; // rowset names for incoming rowsets
-
-  public IRowSet r; // used for iterating over rowsets
+  public String[] transformNames; // rowset names for incoming rowsets
 }
