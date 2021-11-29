@@ -41,9 +41,6 @@ import java.util.List;
  * <p>Because this transform combines multiple streams with different RowMetas together, it is
  * deemed "not safe" and will fail if you try to run the pipeline with the "Enable Safe Mode
  * checked". Therefore it disables safe mode
- *
- * @author aoverton
- * @since 18-aug-2015
  */
 public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData>
     implements ITransform<StreamSchemaMeta, StreamSchemaData> {
@@ -113,7 +110,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 
       data.infoStreams = streams;
       data.numTransforms = inputStreamsNum;
-      data.TransformNames = tNames.toArray(new String[0]);
+      data.transformNames = tNames.toArray(new String[0]);
       data.rowMetas = rowMetas.toArray(new IRowMeta[0]);
       // creates mapping and master output row
       data.schemaMapping = new SchemaMapper(data.rowMetas);
@@ -140,8 +137,8 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
     // because rowsets are removed from the list of rowsets once they're exhausted (in the getRow()
     // method) we
     // need to use the name to find the proper index for our lookups later
-    for (int i = 0; i < data.TransformNames.length; i++) {
-      if (data.TransformNames[i].equals(data.currentName)) {
+    for (int i = 0; i < data.transformNames.length; i++) {
+      if (data.transformNames[i].equals(data.currentName)) {
         data.streamNum = i;
         break;
       }
@@ -188,8 +185,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
     data.mapping = null;
     data.currentName = null;
     data.rowMapping = null;
-    data.TransformNames = null;
-    // data.r = null;
+    data.transformNames = null;
 
     super.dispose();
   }
