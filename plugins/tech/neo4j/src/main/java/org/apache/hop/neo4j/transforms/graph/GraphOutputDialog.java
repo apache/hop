@@ -19,11 +19,13 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -45,13 +47,22 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GraphOutputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -73,7 +84,9 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
   private Button wValidateAgainstModel;
   private Button wOutOfOrderAllowed;
 
+  private CTabFolder wTabFolder;
   private TableView wFieldMappings;
+  private TableView wRelMappings;
 
   private GraphOutputMeta input;
 
@@ -302,14 +315,33 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     //
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wMapping = new Button(shell, SWT.PUSH);
-    wMapping.setText("Map fields");
+    wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
 
     // Position the buttons at the bottom of the dialog.
     //
-    setButtonPositions(new Button[] {wOk, wMapping, wCancel}, margin, null);
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
+
+    // The tab folder goes between the last control and the OK button:
+    //
+    wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(lastControl, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+
+    CTabItem wPropertiesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wPropertiesTab.setText("Field to properties mappings  ");
+
+    Composite wPropertiesComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wPropertiesComp);
+    wPropertiesComp.setLayout(new FormLayout());
 
     String[] fieldNames;
     try {
@@ -318,6 +350,11 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
       logError("Unable to get fields from previous transform", e);
       fieldNames = new String[] {};
     }
+
+    Button wMapping = new Button(wPropertiesComp, SWT.PUSH);
+    wMapping.setText("Map fields");
+    wMapping.addListener(SWT.Selection, e -> enterMapping());
+    positionBottomButtons(wPropertiesComp, new Button[] {wMapping}, margin, null);
 
     // Table: field to model mapping
     //
@@ -328,20 +365,17 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
               "Target type", ColumnInfo.COLUMN_TYPE_CCOMBO, ModelTargetType.getNames(), false),
           new ColumnInfo("Target", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
           new ColumnInfo("Property", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+          new ColumnInfo(
+              "Target hint",
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ModelTargetHint.getDescriptions(),
+              false),
         };
 
-    Label wlFieldMappings = new Label(shell, SWT.LEFT);
-    wlFieldMappings.setText("Mappings...");
-    props.setLook(wlFieldMappings);
-    FormData fdlFieldMappings = new FormData();
-    fdlFieldMappings.left = new FormAttachment(0, 0);
-    fdlFieldMappings.right = new FormAttachment(middle, -margin);
-    fdlFieldMappings.top = new FormAttachment(lastControl, margin);
-    wlFieldMappings.setLayoutData(fdlFieldMappings);
     wFieldMappings =
         new TableView(
             variables,
-            shell,
+            wPropertiesComp,
             SWT.FULL_SELECTION | SWT.MULTI,
             parameterColumns,
             input.getFieldModelMappings().size(),
@@ -352,14 +386,83 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     FormData fdFieldMappings = new FormData();
     fdFieldMappings.left = new FormAttachment(0, 0);
     fdFieldMappings.right = new FormAttachment(100, 0);
-    fdFieldMappings.top = new FormAttachment(wlFieldMappings, margin);
-    fdFieldMappings.bottom = new FormAttachment(wOk, -margin * 2);
+    fdFieldMappings.top = new FormAttachment(0, 0);
+    fdFieldMappings.bottom = new FormAttachment(wMapping, -margin, SWT.TOP);
     wFieldMappings.setLayoutData(fdFieldMappings);
-    // lastControl = wFieldMappings;
 
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-    wMapping.addListener(SWT.Selection, e -> enterMapping());
+    FormData fdPropertiesComp = new FormData();
+    fdPropertiesComp.left = new FormAttachment(0, 0);
+    fdPropertiesComp.top = new FormAttachment(0, 0);
+    fdPropertiesComp.right = new FormAttachment(100, 0);
+    fdPropertiesComp.bottom = new FormAttachment(100, 0);
+    wPropertiesComp.setLayoutData(fdPropertiesComp);
+
+    wPropertiesComp.layout();
+    wPropertiesTab.setControl(wPropertiesComp);
+
+    // Now we need a tab for the field-to-relationship mappings
+    //
+
+    CTabItem wRelationshipsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wRelationshipsTab.setText("Field to relationship mappings  ");
+
+    Composite wRelationshipsComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wRelationshipsComp);
+    wRelationshipsComp.setLayout(new FormLayout());
+
+    Button wGetFields = new Button(wRelationshipsComp, SWT.PUSH);
+    wGetFields.setText("Get fields");
+    wGetFields.addListener(SWT.Selection, e -> enterRelationshipsMapping());
+    positionBottomButtons(wRelationshipsComp, new Button[] {wGetFields}, margin, null);
+
+    // Table: field to model mapping
+    //
+    ColumnInfo[] mappingColumns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              "Mapping type",
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              RelationshipMappingType.getDescriptions(),
+              false),
+          new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
+          new ColumnInfo("Field value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(
+              "Target relationship", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+          new ColumnInfo("Source node", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+          new ColumnInfo("Target node", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+        };
+
+    wRelMappings =
+        new TableView(
+            variables,
+            wRelationshipsComp,
+            SWT.FULL_SELECTION | SWT.MULTI,
+            mappingColumns,
+            input.getRelationshipMappings().size(),
+            lsMod,
+            props);
+    props.setLook(wFieldMappings);
+    wRelMappings.addModifyListener(lsMod);
+    FormData fdRelMappings = new FormData();
+    fdRelMappings.left = new FormAttachment(0, 0);
+    fdRelMappings.right = new FormAttachment(100, 0);
+    fdRelMappings.top = new FormAttachment(0, 0);
+    fdRelMappings.bottom = new FormAttachment(wGetFields, -margin, SWT.TOP);
+    wRelMappings.setLayoutData(fdRelMappings);
+
+    FormData fdRelationshipsComp = new FormData();
+    fdRelationshipsComp.left = new FormAttachment(0, 0);
+    fdRelationshipsComp.top = new FormAttachment(0, 0);
+    fdRelationshipsComp.right = new FormAttachment(100, 0);
+    fdRelationshipsComp.bottom = new FormAttachment(100, 0);
+    wRelationshipsComp.setLayoutData(fdRelationshipsComp);
+
+    wRelationshipsComp.layout();
+    wRelationshipsTab.setControl(wRelationshipsComp);
+
+    // Select the first tab
+    //
+    wTabFolder.setSelection(0);
 
     getData();
 
@@ -386,14 +489,10 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     // Map input field names to Node/Property values
     //
     try {
-      IHopMetadataSerializer<GraphModel> modelSerializer =
-          metadataProvider.getSerializer(GraphModel.class);
-
       if (activeModel == null) {
-        if (StringUtils.isEmpty(wModel.getText())) {
+        if (!loadActiveModel()) {
           return;
         }
-        activeModel = modelSerializer.load(wModel.getText());
       }
 
       // Input fields
@@ -467,6 +566,57 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     }
   }
 
+  private boolean loadActiveModel() throws HopException {
+    try {
+      if (StringUtils.isEmpty(wModel.getText())) {
+        return false;
+      }
+      IHopMetadataSerializer<GraphModel> modelSerializer =
+          metadataProvider.getSerializer(GraphModel.class);
+      activeModel = modelSerializer.load(wModel.getText());
+
+      // Update the combo values in the table views..
+      //
+      List<String> nodeNames = new ArrayList(Arrays.asList(activeModel.getNodeNames()));
+      List<String> relNames = new ArrayList(Arrays.asList(activeModel.getRelationshipNames()));
+      List<String> allNames = new ArrayList<>(nodeNames);
+      allNames.addAll(relNames);
+      wFieldMappings.getColumns()[2].setComboValues(allNames.toArray(new String[0]));
+      wRelMappings.getColumns()[3].setComboValues(relNames.toArray(new String[0]));
+      wRelMappings.getColumns()[4].setComboValues(nodeNames.toArray(new String[0]));
+      wRelMappings.getColumns()[5].setComboValues(nodeNames.toArray(new String[0]));
+      return true;
+    } catch (Exception e) {
+      throw new HopException("Error loading graph model", e);
+    }
+  }
+
+  private void enterRelationshipsMapping() {
+    // Populate rows and set the column values in the table view for the relationships found in the
+    // model
+    //
+    try {
+      if (!loadActiveModel()) {
+        return;
+      }
+
+      String[] relationshipNames = activeModel.getRelationshipNames();
+      wRelMappings.getColumns()[2].setComboValues(relationshipNames);
+
+      // Input fields
+      //
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+      for (IValueMeta valueMeta : inputRowMeta.getValueMetaList()) {
+        wRelMappings.add(valueMeta.getName());
+      }
+
+      wRelMappings.optimizeTableView();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error listing fields or loading graph model", e);
+    }
+  }
+
   private void cancel() {
     transformName = null;
     input.setChanged(changed);
@@ -501,16 +651,35 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
       item.setText(idx++, ModelTargetType.getCode(mapping.getTargetType()));
       item.setText(idx++, Const.NVL(mapping.getTargetName(), ""));
       item.setText(idx++, Const.NVL(mapping.getTargetProperty(), ""));
+      item.setText(
+          idx++, mapping.getTargetHint() == null ? "" : mapping.getTargetHint().getDescription());
     }
-    wFieldMappings.removeEmptyRows();
-    wFieldMappings.setRowNums();
-    wFieldMappings.optWidth(true);
+    wFieldMappings.optimizeTableView();
+
+    for (int i = 0; i < input.getRelationshipMappings().size(); i++) {
+      RelationshipMapping mapping = input.getRelationshipMappings().get(i);
+      TableItem item = wRelMappings.table.getItem(i);
+      int idx = 1;
+      item.setText(idx++, mapping.getType() == null ? "" : mapping.getType().getDescription());
+      item.setText(idx++, Const.NVL(mapping.getFieldName(), ""));
+      item.setText(idx++, Const.NVL(mapping.getFieldValue(), ""));
+      item.setText(idx++, Const.NVL(mapping.getTargetRelationship(), ""));
+      item.setText(idx++, Const.NVL(mapping.getSourceNode(), ""));
+      item.setText(idx++, Const.NVL(mapping.getTargetNode(), ""));
+    }
+    wRelMappings.optimizeTableView();
 
     wReturnGraph.setSelection(input.isReturningGraph());
     wReturnGraphField.setText(Const.NVL(input.getReturnGraphField(), ""));
 
     wValidateAgainstModel.setSelection(input.isValidatingAgainstModel());
     wOutOfOrderAllowed.setSelection(input.isOutOfOrderAllowed());
+
+    try {
+      loadActiveModel();
+    } catch (HopException e) {
+      new ErrorDialog(shell, "Error", "Error loading specified graph model", e);
+    }
 
     enableFields();
   }
@@ -533,17 +702,40 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     input.setOutOfOrderAllowed(wOutOfOrderAllowed.getSelection());
 
     List<FieldModelMapping> mappings = new ArrayList<>();
-    for (int i = 0; i < wFieldMappings.nrNonEmpty(); i++) {
-      TableItem item = wFieldMappings.getNonEmpty(i);
+    for (TableItem item : wFieldMappings.getNonEmptyItems()) {
       int idx = 1;
       String sourceField = item.getText(idx++);
       ModelTargetType targetType = ModelTargetType.parseCode(item.getText(idx++));
       String targetName = item.getText(idx++);
       String targetProperty = item.getText(idx++);
+      ModelTargetHint targetHint = ModelTargetHint.getTypeFromDescription(item.getText(idx++));
 
-      mappings.add(new FieldModelMapping(sourceField, targetType, targetName, targetProperty));
+      mappings.add(
+          new FieldModelMapping(sourceField, targetType, targetName, targetProperty, targetHint));
     }
     input.setFieldModelMappings(mappings);
+
+    List<RelationshipMapping> relMappings = new ArrayList<>();
+    for (TableItem item : wRelMappings.getNonEmptyItems()) {
+      int idx = 1;
+      RelationshipMappingType mappingType =
+          RelationshipMappingType.getTypeFromDescription(item.getText(idx++));
+      String sourceFieldName = item.getText(idx++);
+      String sourceFieldValue = item.getText(idx++);
+      String targetRelationship = item.getText(idx++);
+      String sourceNode = item.getText(idx++);
+      String targetNode = item.getText(idx++);
+
+      relMappings.add(
+          new RelationshipMapping(
+              mappingType,
+              sourceFieldName,
+              sourceFieldValue,
+              targetRelationship,
+              sourceNode,
+              targetNode));
+    }
+    input.setRelationshipMappings(relMappings);
 
     dispose();
   }
