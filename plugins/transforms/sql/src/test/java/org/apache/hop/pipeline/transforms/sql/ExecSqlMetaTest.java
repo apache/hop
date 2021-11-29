@@ -23,8 +23,8 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -43,31 +43,57 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
     PluginRegistry.init(false);
     List<String> attributes =
         Arrays.asList(
-            "databaseMeta",
+            "connection",
             "sql",
-            "executedEachInputRow",
-            "updateField",
-            "insertField",
-            "deleteField",
-            "readField",
-            "singleStatement",
-            "replaceVariables",
+            "execute_each_row",
+            "update_field",
+            "insert_field",
+            "delete_field",
+            "read_field",
+            "single_statement",
+            "replace_variables",
             "quoteString",
-            "params",
+            "set_params",
             "arguments");
 
-    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> getterMap =
+        new HashMap<String, String>() {
+          {
+            put("connection", "getConnection");
+            put("sql", "getSql");
+            put("execute_each_row", "isExecutedEachInputRow");
+            put("update_field", "getUpdateField");
+            put("insert_field", "getInsertField");
+            put("delete_field", "getDeleteField");
+            put("read_field", "getReadField");
+            put("single_statement", "isSingleStatement");
+            put("replace_variables", "isReplaceVariables");
+            put("quoteString", "isQuoteString");
+            put("set_params", "isParams");
+            put("arguments", "getArguments");
+          }
+        };
     Map<String, String> setterMap =
         new HashMap<String, String>() {
           {
-            put("replaceVariables", "setVariableReplacementActive");
+            put("connection", "setConnection");
+            put("sql", "setSql");
+            put("execute_each_row", "setExecutedEachInputRow");
+            put("update_field", "setUpdateField");
+            put("insert_field", "setInsertField");
+            put("delete_field", "setDeleteField");
+            put("read_field", "setReadField");
+            put("single_statement", "setSingleStatement");
+            put("replace_variables", "setReplaceVariables");
+            put("quoteString", "setQuoteString");
+            put("set_params", "setParams");
+            put("arguments", "setArguments");
           }
         };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("arguments", stringArrayLoadSaveValidator);
+    attrValidatorMap.put(
+        "arguments", new ListLoadSaveValidator<String>(new StringLoadSaveValidator(), 5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
@@ -87,7 +113,8 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   @Override
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof ExecSqlMeta) {
-      ((ExecSqlMeta) someMeta).allocate(5);
+      ((ExecSqlMeta) someMeta).getArguments().clear();
+      ((ExecSqlMeta) someMeta).getArguments().addAll(Arrays.asList("a", "b", "c", "d", "e"));
     }
   }
 
