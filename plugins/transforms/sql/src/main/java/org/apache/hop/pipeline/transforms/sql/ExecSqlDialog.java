@@ -150,6 +150,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
           }

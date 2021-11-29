@@ -120,13 +120,9 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
         String arg = meta.getArguments().get(i);
         data.argumentIndexes[i] = this.getInputRowMeta().indexOfValue(arg);
         if (data.argumentIndexes[i] < 0) {
-          logError(
-              BaseMessages.getString(PKG, "ExecSql.Log.ErrorFindingField")
-                  + arg
-                  + "]");
+          logError(BaseMessages.getString(PKG, "ExecSql.Log.ErrorFindingField") + arg + "]");
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "ExecSql.Exception.CouldNotFindField", arg));
+              BaseMessages.getString(PKG, "ExecSql.Exception.CouldNotFindField", arg));
         }
         if (meta.isParams()) {
           if (i == 0) {
