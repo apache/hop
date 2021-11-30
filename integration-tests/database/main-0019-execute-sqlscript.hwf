@@ -72,7 +72,7 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>240</xloc>
+      <xloc>368</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -100,25 +100,87 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>416</xloc>
+      <xloc>768</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Prepare Test 2</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>
+DROP TABLE IF EXISTS public.testtable;
+
+CREATE TABLE public.testtable
+(
+    "key" varchar NULL,
+    value varchar NULL
+);
+</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>528</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Prepare Test 1</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>
+DROP TABLE IF EXISTS public.testtable;
+
+CREATE TABLE public.testtable
+(
+    "key" varchar NULL,
+    value varchar NULL
+);
+</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
-      <from>Start</from>
-      <to>0019-execute-sql-basic</to>
+      <from>0019-execute-sql-basic</from>
+      <to>Prepare Test 2</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0019-execute-sql-basic</from>
+      <from>Prepare Test 2</from>
       <to>0019-execute-sqlscript-byeachrow</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>Prepare Test 1</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare Test 1</from>
+      <to>0019-execute-sql-basic</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>
