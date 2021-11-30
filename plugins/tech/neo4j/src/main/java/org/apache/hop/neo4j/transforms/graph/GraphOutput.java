@@ -229,12 +229,28 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       data.fieldValueRelationshipMap = new HashMap<>();
       for (int i = 0; i < meta.getRelationshipMappings().size(); i++) {
         RelationshipMapping relationshipMapping = meta.getRelationshipMappings().get(i);
-        GraphOutputData.RelMappingIndexes mappingIndexes = new GraphOutputData.RelMappingIndexes();
+        GraphOutputData.RelelationshipMappingIndexes mappingIndexes =
+            new GraphOutputData.RelelationshipMappingIndexes();
 
         // If we update a relationship with a specific label, index the field used.
         //
         if (relationshipMapping.getType() == RelationshipMappingType.UsingValue) {
           String field = relationshipMapping.getFieldName();
+          if (StringUtils.isEmpty(field)) {
+            throw new HopException(
+                "Please specify a field to use to select a relationship for mapping: "
+                    + relationshipMapping);
+          }
+          if (StringUtils.isEmpty(relationshipMapping.getFieldValue())) {
+            throw new HopException(
+                "Please specify a field value to use to select a relationship for mapping: "
+                    + relationshipMapping);
+          }
+          if (StringUtils.isEmpty(relationshipMapping.getTargetRelationship())) {
+            throw new HopException(
+                "Please specify a relationship to map to for relationship mapping: "
+                    + relationshipMapping);
+          }
           mappingIndexes.fieldIndex = getInputRowMeta().indexOfValue(field);
           if (mappingIndexes.fieldIndex < 0) {
             throw new HopException(
@@ -329,6 +345,71 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                   + nodeName
                   + " with both a specific Self relationship target and None. This is not allowed.");
         }
+      }
+
+      // Node mapping field indexes
+      //
+      data.nodeMappingIndexes = new ArrayList<>();
+      data.nodeValueLabelMap = new HashMap<>();
+      for (int i = 0; i < meta.getNodeMappings().size(); i++) {
+        NodeMapping nodeMapping = meta.getNodeMappings().get(i);
+
+        // Sanity checking...
+        //
+        if (StringUtils.isEmpty(nodeMapping.getTargetNode())) {
+          throw new HopException(
+              "Please specify a valid target node for node mapping: " + nodeMapping);
+        }
+        GraphNode targetNode = data.graphModel.findNode(nodeMapping.getTargetNode());
+        if (targetNode == null) {
+          throw new HopException(
+              "Target node '"
+                  + nodeMapping.getTargetNode()
+                  + "' can not be found in the graph model. Specified in node mapping: "
+                  + nodeMapping);
+        }
+
+        int index = -1;
+        if (nodeMapping.getType() == NodeMappingType.UsingValue) {
+          if (StringUtils.isEmpty(nodeMapping.getFieldName())) {
+            throw new HopException(
+                "Please specify an input field name to use to determine the label to use in node mapping: "
+                    + nodeMapping);
+          }
+          if (StringUtils.isEmpty(nodeMapping.getFieldValue())) {
+            throw new HopException(
+                "Please specify a field value to use to determine the label to use in node mapping: "
+                    + nodeMapping);
+          }
+          if (StringUtils.isEmpty(nodeMapping.getTargetLabel())) {
+            throw new HopException("Please specify a target label in node mapping: " + nodeMapping);
+          }
+          if (!targetNode.getLabels().contains(nodeMapping.getTargetLabel())) {
+            throw new HopException(
+                "The specified target label '"
+                    + nodeMapping.getTargetLabel()
+                    + "' doesn't exist in the graph model for node '"
+                    + targetNode.getName()
+                    + "'");
+          }
+
+          index = getInputRowMeta().indexOfValue(nodeMapping.getFieldName());
+          if (index < 0) {
+            throw new HopException(
+                "Unable to find field '"
+                    + nodeMapping.getFieldName()
+                    + "' in node mapping: "
+                    + nodeMapping);
+          }
+
+          // Also keep track of the field value to node label mapping:
+          //
+          Map<String, String> valueLabelMap =
+              data.nodeValueLabelMap.computeIfAbsent(
+                  nodeMapping.getTargetNode(), f -> new HashMap<>());
+          valueLabelMap.put(nodeMapping.getFieldValue(), nodeMapping.getTargetLabel());
+        }
+        data.nodeMappingIndexes.add(index);
       }
 
       if (!meta.isReturningGraph()) {
@@ -864,7 +945,8 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
           boolean addRelationship = false;
           for (int i = 0; i < meta.getRelationshipMappings().size(); i++) {
             RelationshipMapping mapping = meta.getRelationshipMappings().get(i);
-            GraphOutputData.RelMappingIndexes mappingIndexes = data.relMappingIndexes.get(i);
+            GraphOutputData.RelelationshipMappingIndexes mappingIndexes =
+                data.relMappingIndexes.get(i);
             boolean nodesMatch =
                 sourceNodeName.equals(mapping.getSourceNode())
                     && targetNodeName.equals(mapping.getTargetNode());
@@ -956,9 +1038,16 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     }
     for (int i = 0; i < data.relMappingIndexes.size(); i++) {
       RelationshipMapping relationshipMapping = meta.getRelationshipMappings().get(i);
-      GraphOutputData.RelMappingIndexes mappingIndexes = data.relMappingIndexes.get(i);
+      GraphOutputData.RelelationshipMappingIndexes mappingIndexes = data.relMappingIndexes.get(i);
       if (relationshipMapping.getType() == RelationshipMappingType.UsingValue) {
         int index = mappingIndexes.fieldIndex;
+        String value = Const.NVL(rowMeta.getString(row, index), "");
+        pattern.append('-').append(value);
+      }
+    }
+    for (int i = 0; i < data.nodeMappingIndexes.size(); i++) {
+      int index = data.nodeMappingIndexes.get(i);
+      if (index >= 0) {
         String value = Const.NVL(rowMeta.getString(row, index), "");
         pattern.append('-').append(value);
       }
@@ -1012,7 +1101,67 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                   + "'");
         }
 
-        SelectedNode selectedNode = new SelectedNode(node, targetHint);
+        // For this selected node we need to see if there are any specific node mappings.
+        // These serve the purpose of helping with label selection if this is needed.
+        //
+        Set<String> labels = new HashSet<>();
+        boolean implicitNodeMapping = true;
+        for (int i = 0; i < meta.getNodeMappings().size(); i++) {
+          NodeMapping mapping = meta.getNodeMappings().get(i);
+          if (node.getName().equals(mapping.getTargetNode())) {
+            implicitNodeMapping = false;
+            // The mapping applies to this node
+            //
+            switch (mapping.getType()) {
+              case All:
+                labels.addAll(node.getLabels());
+                break;
+              case First:
+                if (!node.getLabels().isEmpty()) {
+                  labels.add(node.getLabels().get(0));
+                }
+                break;
+              case UsingValue:
+                // We select the label using the value in a specific field
+                //
+                int valueIndex = data.nodeMappingIndexes.get(i);
+                if (rowMeta.isNull(row, valueIndex)) {
+                  throw new HopException(
+                      "Null value found for field "
+                          + mapping.getFieldName()
+                          + " in node mapping "
+                          + mapping);
+                }
+                String value = rowMeta.getString(row, valueIndex);
+
+                // With this value we can now look up the target label
+                //
+                Map<String, String> valueLabelMap = data.nodeValueLabelMap.get(node.getName());
+                if (valueLabelMap == null) {
+                  throw new HopException(
+                      "No field-to-label mapping was specified for node " + node.getName());
+                }
+                String label = valueLabelMap.get(value);
+                if (label != null) {
+                  labels.add(label);
+                }
+                break;
+            }
+          }
+        }
+
+        // If we didn't see an explicit node label mapping we just assume all labels
+        // from the model need to be applied.
+        //
+        if (implicitNodeMapping) {
+          labels.addAll(node.getLabels());
+        }
+
+        if (labels.isEmpty()) {
+          throw new HopException("No node labels could be found for node: " + node.getName());
+        }
+
+        SelectedNode selectedNode = new SelectedNode(node, targetHint, new ArrayList<>(labels));
         nodesSet.add(selectedNode);
 
         nodeProperties.add(
@@ -1065,12 +1214,13 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     GraphNode node = selectedNode.getNode();
 
-    // Calculate the node labels
+    // Calculate the node labels clause.
+    // The list of labels was calculated during selection in selectNodesAndRelationships()
     //
-    String nodeLabels = "";
-    for (String nodeLabel : node.getLabels()) {
-      nodeLabels += ":";
-      nodeLabels += nodeLabel;
+    StringBuilder nodeLabels = new StringBuilder();
+    for (String nodeLabel : selectedNode.getLabels()) {
+      nodeLabels.append(":");
+      nodeLabels.append(nodeLabel);
     }
 
     StringBuilder matchCypher = new StringBuilder();

@@ -107,6 +107,29 @@ public class RelationshipMapping {
     return Objects.hash(type, targetRelationship, fieldName, fieldValue, sourceNode, targetNode);
   }
 
+  @Override
+  public String toString() {
+    return "RelationshipMapping{"
+        + "type="
+        + type
+        + ", targetRelationship='"
+        + targetRelationship
+        + '\''
+        + ", fieldName='"
+        + fieldName
+        + '\''
+        + ", fieldValue='"
+        + fieldValue
+        + '\''
+        + ", sourceNode='"
+        + sourceNode
+        + '\''
+        + ", targetNode='"
+        + targetNode
+        + '\''
+        + '}';
+  }
+
   /**
    * Gets type
    *

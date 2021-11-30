@@ -116,16 +116,22 @@ public class GraphOutputMeta extends BaseTransformMeta
       injectionKeyDescription = "GraphOutput.Injection.RELATIONSHIP_MAPPING")
   private List<RelationshipMapping> relationshipMappings;
 
+  @HopMetadataProperty(
+      groupKey = "node_mappings",
+      key = "node_mapping",
+      injectionGroupKey = "node_mappings",
+      injectionGroupDescription = "GraphOutput.Injection.NODE_MAPPINGS",
+      injectionKeyDescription = "GraphOutput.Injection.NODE_MAPPING")
+  private List<NodeMapping> nodeMappings;
+
   public GraphOutputMeta() {
     super();
     fieldModelMappings = new ArrayList<>();
     relationshipMappings = new ArrayList<>();
-    creatingIndexes = true;
+    nodeMappings = new ArrayList<>();
+    creatingIndexes = false;
     outOfOrderAllowed = true;
   }
-
-  @Override
-  public void setDefault() {}
 
   @Override
   public GraphOutput createTransform(
@@ -301,5 +307,19 @@ public class GraphOutputMeta extends BaseTransformMeta
   /** @param relationshipMappings The relationshipMappings to set */
   public void setRelationshipMappings(List<RelationshipMapping> relationshipMappings) {
     this.relationshipMappings = relationshipMappings;
+  }
+
+  /**
+   * Gets nodeMappings
+   *
+   * @return value of nodeMappings
+   */
+  public List<NodeMapping> getNodeMappings() {
+    return nodeMappings;
+  }
+
+  /** @param nodeMappings The nodeMappings to set */
+  public void setNodeMappings(List<NodeMapping> nodeMappings) {
+    this.nodeMappings = nodeMappings;
   }
 }

@@ -19,17 +19,23 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.hop.neo4j.model.GraphNode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SelectedNode {
   private GraphNode node;
   private ModelTargetHint hint;
+  private List<String> labels;
 
-  public SelectedNode() {}
+  public SelectedNode() {
+    this.labels = new ArrayList<>();
+  }
 
-  public SelectedNode(GraphNode node, ModelTargetHint hint) {
+  public SelectedNode(GraphNode node, ModelTargetHint hint, List<String> labels) {
     this.node = node;
     this.hint = hint;
+    this.labels = labels;
   }
 
   @Override
@@ -41,17 +47,19 @@ public class SelectedNode {
       return false;
     }
     SelectedNode that = (SelectedNode) o;
-    return Objects.equals(node, that.node) && hint == that.hint;
+    return Objects.equals(node, that.node)
+        && hint == that.hint
+        && Objects.equals(labels, that.labels);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(node, hint);
+    return Objects.hash(node, hint, labels);
   }
 
   @Override
   public String toString() {
-    return "SelectedNode{" + "node=" + node + ", hint=" + hint + '}';
+    return "SelectedNode{" + "node=" + node + ", hint=" + hint + ", labels=" + labels + '}';
   }
 
   /**
@@ -80,5 +88,19 @@ public class SelectedNode {
   /** @param hint The hint to set */
   public void setHint(ModelTargetHint hint) {
     this.hint = hint;
+  }
+
+  /**
+   * Gets labels
+   *
+   * @return value of labels
+   */
+  public List<String> getLabels() {
+    return labels;
+  }
+
+  /** @param labels The labels to set */
+  public void setLabels(List<String> labels) {
+    this.labels = labels;
   }
 }

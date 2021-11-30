@@ -19,17 +19,16 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.hop.metadata.api.IEnumHasCode;
 
-public enum RelationshipMappingType implements IEnumHasCode {
-  NoMapping("none", "No mapping"),
-  NoRelationship("no-relationship", "Do not update relationship between specified nodes"),
-  UsingValue("using-value", "Update specific relationship using field value"),
-  All("all", "Update all relationships between specified nodes (default)"),
+public enum NodeMappingType implements IEnumHasCode {
+  All("all", "Select all defined labels (default)"),
+  UsingValue("using-value", "Use a field value to select a specific label"),
+  First("first", "Select the first label"),
   ;
 
   private String code;
   private String description;
 
-  RelationshipMappingType(String code, String description) {
+  NodeMappingType(String code, String description) {
     this.code = code;
     this.description = description;
   }
@@ -42,13 +41,13 @@ public enum RelationshipMappingType implements IEnumHasCode {
     return descriptions;
   }
 
-  public static RelationshipMappingType getTypeFromDescription(String description) {
-    for (RelationshipMappingType type : values()) {
+  public static NodeMappingType getTypeFromDescription(String description) {
+    for (NodeMappingType type : values()) {
       if (type.getDescription().equals(description)) {
         return type;
       }
     }
-    return NoRelationship;
+    return All;
   }
 
   /**
