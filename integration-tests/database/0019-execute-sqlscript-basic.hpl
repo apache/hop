@@ -68,22 +68,23 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <arguments>
-</arguments>
     <connection>unit-test-db</connection>
-    <delete_field>deleted</delete_field>
     <execute_each_row>N</execute_each_row>
-    <insert_field>inserted</insert_field>
-    <set_params>N</set_params>
-    <quoteString>N</quoteString>
-    <read_field>read</read_field>
-    <replace_variables>N</replace_variables>
     <single_statement>N</single_statement>
-    <sql>delete from public.testtable;
+    <replace_variables>N</replace_variables>
+    <quoteString>N</quoteString>
+    <sql>
 insert into public.testtable (key, value) values ('key1', 'value1');
 insert into public.testtable (key, value) values ('key2', 'value2');
+
 delete from public.testtable;</sql>
+    <set_params>N</set_params>
+    <insert_field>inserted</insert_field>
     <update_field>updated</update_field>
+    <delete_field>deleted</delete_field>
+    <read_field>read</read_field>
+    <arguments>
+    </arguments>
     <attributes/>
     <GUI>
       <xloc>320</xloc>
