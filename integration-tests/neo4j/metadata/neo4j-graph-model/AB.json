@@ -1,0 +1,98 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "A",
+      "name": "A - B : One",
+      "description": "",
+      "nodeTarget": "B",
+      "label": "a_b_one",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "nodeSource": "A",
+      "name": "A - B : Two",
+      "nodeTarget": "B",
+      "label": "a_b_two",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    },
+    {
+      "nodeSource": "A",
+      "name": "A - B : Three",
+      "nodeTarget": "B",
+      "label": "a_b_three",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "type",
+          "type": "String",
+          "mandatory": false,
+          "primary": false
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 179,
+        "y": 91
+      },
+      "name": "A",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "a",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "A"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 650,
+        "y": 175
+      },
+      "name": "B",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "b",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "B"
+      ]
+    }
+  ],
+  "name": "AB",
+  "description": ""
+}

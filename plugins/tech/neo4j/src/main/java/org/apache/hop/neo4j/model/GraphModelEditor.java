@@ -33,7 +33,7 @@ import org.apache.hop.neo4j.actions.index.ObjectType;
 import org.apache.hop.neo4j.actions.index.UpdateType;
 import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.arrows.ArrowsAppImporter;
-import org.apache.hop.neo4j.model.cw.CypherWorkbenchImporter;
+import org.apache.hop.neo4j.model.sw.SolutionsWorkbenchImporter;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -421,17 +421,18 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     wExportGraph.addListener(SWT.Selection, (e) -> exportGraphToFile());
     lastControl = wExportGraph;
 
-    Button wCypherWorkbenchImportGraph = new Button(wModelComp, SWT.PUSH);
-    wCypherWorkbenchImportGraph.setText(
-        BaseMessages.getString(PKG, "GraphModelDialog.ImportGraphCW.Button"));
-    props.setLook(wCypherWorkbenchImportGraph);
-    FormData fdCypherWorkbenchImportGraph = new FormData();
-    fdCypherWorkbenchImportGraph.left = new FormAttachment(middle, 0);
-    fdCypherWorkbenchImportGraph.right = new FormAttachment(75, 0);
-    fdCypherWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
-    wCypherWorkbenchImportGraph.setLayoutData(fdCypherWorkbenchImportGraph);
-    wCypherWorkbenchImportGraph.addListener(SWT.Selection, (e) -> importGraphFromCypherWorkbench());
-    lastControl = wCypherWorkbenchImportGraph;
+    Button wSolutionsWorkbenchImportGraph = new Button(wModelComp, SWT.PUSH);
+    wSolutionsWorkbenchImportGraph.setText(
+        BaseMessages.getString(PKG, "GraphModelDialog.ImportGraphSW.Button"));
+    props.setLook(wSolutionsWorkbenchImportGraph);
+    FormData fdSolutionsWorkbenchImportGraph = new FormData();
+    fdSolutionsWorkbenchImportGraph.left = new FormAttachment(middle, 0);
+    fdSolutionsWorkbenchImportGraph.right = new FormAttachment(75, 0);
+    fdSolutionsWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
+    wSolutionsWorkbenchImportGraph.setLayoutData(fdSolutionsWorkbenchImportGraph);
+    wSolutionsWorkbenchImportGraph.addListener(
+        SWT.Selection, (e) -> importGraphFromSolutionsWorkbench());
+    lastControl = wSolutionsWorkbenchImportGraph;
 
     Button wArrowsAppImportGraph = new Button(wModelComp, SWT.PUSH);
     wArrowsAppImportGraph.setText(
@@ -1910,13 +1911,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     }
   }
 
-  private void importGraphFromCypherWorkbench() {
+  private void importGraphFromSolutionsWorkbench() {
     try {
       EnterTextDialog dialog =
           new EnterTextDialog(
               getShell(),
-              "Cypher Workbench Export",
-              "Paste the cypher workbench model export (JSON) below",
+              "Solutions Workbench Export",
+              "Paste the Solutions Workbench model export (JSON) below",
               "{}",
               true);
       String jsonModelString = dialog.open();
@@ -1926,8 +1927,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
       // The graph model is loaded, replace the one in memory
       //
-      GraphModel importedModel = CypherWorkbenchImporter.importFromCwJson(jsonModelString);
-      graphModel = CypherWorkbenchImporter.changeNamesToLabels(importedModel);
+      GraphModel importedModel = SolutionsWorkbenchImporter.importFromCwJson(jsonModelString);
+      graphModel = SolutionsWorkbenchImporter.changeNamesToLabels(importedModel);
 
       // Refresh the dialog.
       //

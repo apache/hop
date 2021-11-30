@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.neo4j.model.cw;
+package org.apache.hop.neo4j.model.sw;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class CypherWorkbenchImporter {
+public class SolutionsWorkbenchImporter {
 
   public static GraphModel importFromCwJson(String jsonString) throws HopException {
     try {

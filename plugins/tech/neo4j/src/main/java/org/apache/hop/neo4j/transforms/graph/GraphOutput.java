@@ -26,8 +26,16 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.GraphUsage;
-import org.apache.hop.neo4j.core.data.*;
-import org.apache.hop.neo4j.model.*;
+import org.apache.hop.neo4j.core.data.GraphData;
+import org.apache.hop.neo4j.core.data.GraphNodeData;
+import org.apache.hop.neo4j.core.data.GraphPropertyData;
+import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
+import org.apache.hop.neo4j.core.data.GraphRelationshipData;
+import org.apache.hop.neo4j.model.GraphModel;
+import org.apache.hop.neo4j.model.GraphNode;
+import org.apache.hop.neo4j.model.GraphProperty;
+import org.apache.hop.neo4j.model.GraphPropertyType;
+import org.apache.hop.neo4j.model.GraphRelationship;
 import org.apache.hop.neo4j.model.validation.ModelValidator;
 import org.apache.hop.neo4j.model.validation.NodeProperty;
 import org.apache.hop.neo4j.shared.NeoConnection;
@@ -41,7 +49,14 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData>
@@ -59,7 +74,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
   @Override
   public boolean init() {
-
     try {
       if (!meta.isReturningGraph()) {
         // Verify some extra metadata...
@@ -109,6 +123,10 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         return false;
       }
 
+      // Perform a few sanity checks...
+      //
+      data.graphModel.validateIntegrity();
+
       data.modelValidator = null;
       if (meta.isValidatingAgainstModel()) {
         // Validate the model...
@@ -135,8 +153,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       return false;
     }
 
-    data.nodeCount = countDistinctNodes(meta.getFieldModelMappings());
-
     return super.init();
   }
 
@@ -150,16 +166,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       }
     }
     return list;
-  }
-
-  private int countDistinctNodes(List<FieldModelMapping> fieldModelMappings) {
-    List<String> nodes = new ArrayList<>();
-    for (FieldModelMapping mapping : fieldModelMappings) {
-      if (!nodes.contains(mapping.getTargetName())) {
-        nodes.add(mapping.getTargetName());
-      }
-    }
-    return nodes.size();
   }
 
   @Override
@@ -217,12 +223,70 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         }
       }
 
+      // Relationship mappings field indexes
+      //
+      data.relMappingIndexes = new ArrayList();
+      data.fieldValueRelationshipMap = new HashMap<>();
+      for (int i = 0; i < meta.getRelationshipMappings().size(); i++) {
+        RelationshipMapping relationshipMapping = meta.getRelationshipMappings().get(i);
+        GraphOutputData.RelelationshipMappingIndexes mappingIndexes =
+            new GraphOutputData.RelelationshipMappingIndexes();
+
+        // If we update a relationship with a specific label, index the field used.
+        //
+        if (relationshipMapping.getType() == RelationshipMappingType.UsingValue) {
+          String field = relationshipMapping.getFieldName();
+          if (StringUtils.isEmpty(field)) {
+            throw new HopException(
+                "Please specify a field to use to select a relationship for mapping: "
+                    + relationshipMapping);
+          }
+          if (StringUtils.isEmpty(relationshipMapping.getFieldValue())) {
+            throw new HopException(
+                "Please specify a field value to use to select a relationship for mapping: "
+                    + relationshipMapping);
+          }
+          if (StringUtils.isEmpty(relationshipMapping.getTargetRelationship())) {
+            throw new HopException(
+                "Please specify a relationship to map to for relationship mapping: "
+                    + relationshipMapping);
+          }
+          mappingIndexes.fieldIndex = getInputRowMeta().indexOfValue(field);
+          if (mappingIndexes.fieldIndex < 0) {
+            throw new HopException(
+                "Unable to find relationship mapping field '"
+                    + field
+                    + "' to update a specific relationship");
+          }
+
+          // Can we find the specified relationship?
+          //
+          GraphRelationship relationship =
+              data.graphModel.findRelationship(relationshipMapping.getTargetRelationship());
+          if (relationship == null) {
+            throw new HopException(
+                "Unable to find relationship mapping target mapping '"
+                    + relationshipMapping.getTargetRelationship());
+          }
+
+          // Also create a map between the specified value and the relationship
+          //
+          Map<String, GraphRelationship> valueRelationshipMap =
+              data.fieldValueRelationshipMap.computeIfAbsent(field, k -> new HashMap<>());
+          valueRelationshipMap.put(
+              Const.NVL(relationshipMapping.getFieldValue(), ""), relationship);
+        }
+
+        data.relMappingIndexes.add(mappingIndexes);
+      }
+
       // Index all the mapped relationship properties
       // Relationship name --> Property --> field index
       //
       data.relationshipPropertyIndexMap = new HashMap<>();
+      Map<String, Set<ModelTargetHint>> nodeTargetHintMap = new HashMap<>();
       for (FieldModelMapping mapping : meta.getFieldModelMappings()) {
-        if (mapping.getTargetType().equals(ModelTargetType.Relationship)) {
+        if (mapping.getTargetType() == ModelTargetType.Relationship) {
           String relationshipName = mapping.getTargetName();
           GraphRelationship relationship = data.graphModel.findRelationship(relationshipName);
           if (relationship == null) {
@@ -252,15 +316,100 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
           // Save the index...
           //
           Map<GraphProperty, Integer> propertyIndexMap =
-              data.relationshipPropertyIndexMap.get(relationshipName);
-          if (propertyIndexMap == null) {
-            propertyIndexMap = new HashMap<>();
-            data.relationshipPropertyIndexMap.put(relationshipName, propertyIndexMap);
-          }
+              data.relationshipPropertyIndexMap.computeIfAbsent(
+                  relationshipName, k -> new HashMap<>());
+
           // Find the property in the graph model...
           //
           propertyIndexMap.put(graphProperty, fieldIndex);
+        } else if (mapping.getTargetType() == ModelTargetType.Node) {
+          // Keep track of the ways that a particular node is addressed
+          //
+          Set<ModelTargetHint> modelTargetHints =
+              nodeTargetHintMap.computeIfAbsent(mapping.getTargetName(), f -> new HashSet<>());
+          modelTargetHints.add(mapping.getTargetHint());
         }
+      }
+
+      // Let's now see if there are nodes addressed by SelfSource/SelfTarget but also addressed with
+      // None.
+      //
+      for (String nodeName : nodeTargetHintMap.keySet()) {
+        Set<ModelTargetHint> hints = nodeTargetHintMap.get(nodeName);
+        if (hints.contains(ModelTargetHint.SelfRelationshipSource)
+                && hints.contains(ModelTargetHint.None)
+            || hints.contains(ModelTargetHint.SelfRelationshipTarget)
+                && hints.contains(ModelTargetHint.None)) {
+          throw new HopException(
+              "There are mappings to node "
+                  + nodeName
+                  + " with both a specific Self relationship target and None. This is not allowed.");
+        }
+      }
+
+      // Node mapping field indexes
+      //
+      data.nodeMappingIndexes = new ArrayList<>();
+      data.nodeValueLabelMap = new HashMap<>();
+      for (int i = 0; i < meta.getNodeMappings().size(); i++) {
+        NodeMapping nodeMapping = meta.getNodeMappings().get(i);
+
+        // Sanity checking...
+        //
+        if (StringUtils.isEmpty(nodeMapping.getTargetNode())) {
+          throw new HopException(
+              "Please specify a valid target node for node mapping: " + nodeMapping);
+        }
+        GraphNode targetNode = data.graphModel.findNode(nodeMapping.getTargetNode());
+        if (targetNode == null) {
+          throw new HopException(
+              "Target node '"
+                  + nodeMapping.getTargetNode()
+                  + "' can not be found in the graph model. Specified in node mapping: "
+                  + nodeMapping);
+        }
+
+        int index = -1;
+        if (nodeMapping.getType() == NodeMappingType.UsingValue) {
+          if (StringUtils.isEmpty(nodeMapping.getFieldName())) {
+            throw new HopException(
+                "Please specify an input field name to use to determine the label to use in node mapping: "
+                    + nodeMapping);
+          }
+          if (StringUtils.isEmpty(nodeMapping.getFieldValue())) {
+            throw new HopException(
+                "Please specify a field value to use to determine the label to use in node mapping: "
+                    + nodeMapping);
+          }
+          if (StringUtils.isEmpty(nodeMapping.getTargetLabel())) {
+            throw new HopException("Please specify a target label in node mapping: " + nodeMapping);
+          }
+          if (!targetNode.getLabels().contains(nodeMapping.getTargetLabel())) {
+            throw new HopException(
+                "The specified target label '"
+                    + nodeMapping.getTargetLabel()
+                    + "' doesn't exist in the graph model for node '"
+                    + targetNode.getName()
+                    + "'");
+          }
+
+          index = getInputRowMeta().indexOfValue(nodeMapping.getFieldName());
+          if (index < 0) {
+            throw new HopException(
+                "Unable to find field '"
+                    + nodeMapping.getFieldName()
+                    + "' in node mapping: "
+                    + nodeMapping);
+          }
+
+          // Also keep track of the field value to node label mapping:
+          //
+          Map<String, String> valueLabelMap =
+              data.nodeValueLabelMap.computeIfAbsent(
+                  nodeMapping.getTargetNode(), f -> new HashMap<>());
+          valueLabelMap.put(nodeMapping.getFieldValue(), nodeMapping.getTargetLabel());
+        }
+        data.nodeMappingIndexes.add(index);
       }
 
       if (!meta.isReturningGraph()) {
@@ -272,20 +421,14 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         }
       }
 
+      data.relationshipsCache = new HashMap<>();
       data.cypherMap = new HashMap<>();
     }
 
     if (meta.isReturningGraph()) {
 
       //
-      GraphData graphData =
-          getGraphData(
-              data.graphModel,
-              meta.getFieldModelMappings(),
-              data.nodeCount,
-              row,
-              getInputRowMeta(),
-              data.fieldIndexes);
+      GraphData graphData = getGraphData(row, getInputRowMeta());
 
       Object[] outputRowData = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
       outputRowData[getInputRowMeta().size()] = graphData;
@@ -297,15 +440,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       // Calculate cypher statement, parameters, ... based on field-model-mappings
       //
       Map<String, Object> parameters = new HashMap<>();
-      String cypher =
-          getCypher(
-              data.graphModel,
-              meta.getFieldModelMappings(),
-              data.nodeCount,
-              row,
-              getInputRowMeta(),
-              data.fieldIndexes,
-              parameters);
+      String cypher = getCypher(row, getInputRowMeta(), parameters);
       if (log.isDebug()) {
         logDebug("Parameters found : " + parameters.size());
         logDebug("Merge statement : " + cypher);
@@ -496,14 +631,14 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
   }
 
   private static class NodeAndPropertyData {
-    public GraphNode node;
+    public SelectedNode node;
     public GraphProperty property;
     public IValueMeta sourceValueMeta;
     public Object sourceValueData;
     public int sourceFieldIndex;
 
     public NodeAndPropertyData(
-        GraphNode node,
+        SelectedNode node,
         GraphProperty property,
         IValueMeta sourceValueMeta,
         Object sourceValueData,
@@ -516,24 +651,24 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     }
   }
 
-  private static class RelationshipAndPropertyData {
-    public GraphRelationship relationship;
-    public GraphProperty property;
-    public IValueMeta sourceValueMeta;
-    public Object sourceValueData;
-    public int sourceFieldIndex;
+  private class SelectedNodesAndRelationships {
+    public Set<SelectedNode> nodes;
+    public Set<SelectedRelationship> relationships;
+    public Set<SelectedRelationship> avoided;
+    public List<NodeAndPropertyData> nodeProperties;
+    public Set<SelectedNode> ignored;
 
-    public RelationshipAndPropertyData(
-        GraphRelationship relationship,
-        GraphProperty property,
-        IValueMeta sourceValueMeta,
-        Object sourceValueData,
-        int sourceFieldIndex) {
-      this.relationship = relationship;
-      this.property = property;
-      this.sourceValueMeta = sourceValueMeta;
-      this.sourceValueData = sourceValueData;
-      this.sourceFieldIndex = sourceFieldIndex;
+    public SelectedNodesAndRelationships(
+        Set<SelectedNode> nodes,
+        Set<SelectedRelationship> relationships,
+        Set<SelectedRelationship> avoided,
+        List<NodeAndPropertyData> nodeProperties,
+        Set<SelectedNode> ignored) {
+      this.nodes = nodes;
+      this.relationships = relationships;
+      this.avoided = avoided;
+      this.nodeProperties = nodeProperties;
+      this.ignored = ignored;
     }
   }
 
@@ -541,33 +676,19 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
    * Generate the Cypher statement and parameters to use to update using a graph model, a field
    * mapping and a row of data
    *
-   * @param graphModel The model to use
-   * @param fieldModelMappings The mappings
-   * @param nodeCount
    * @param row The input row
    * @param rowMeta the input row metadata
    * @param parameters The parameters map to update
    * @return The generated cypher statement
    */
-  protected String getCypher(
-      GraphModel graphModel,
-      List<FieldModelMapping> fieldModelMappings,
-      int nodeCount,
-      Object[] row,
-      IRowMeta rowMeta,
-      int[] fieldIndexes,
-      Map<String, Object> parameters)
+  protected String getCypher(Object[] row, IRowMeta rowMeta, Map<String, Object> parameters)
       throws HopException {
 
     // We need to cache the Cypher and parameter mappings for performance
     // Basically this is determined by the bitmap of used fields being null or not null
     //
-    StringBuffer pattern = new StringBuffer();
-    for (int index : data.fieldIndexes) {
-      boolean isNull = rowMeta.isNull(row, index);
-      pattern.append(isNull ? '0' : '1');
-    }
-    CypherParameters cypherParameters = data.cypherMap.get(pattern.toString());
+    String pattern = buildCypherKeyPattern(row, rowMeta);
+    CypherParameters cypherParameters = data.cypherMap.get(pattern);
     if (cypherParameters != null) {
       setParameters(rowMeta, row, parameters, cypherParameters);
 
@@ -578,106 +699,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     cypherParameters = new CypherParameters();
 
-    // The strategy is to determine all the nodes involved and the properties to set.
-    // Then we can determine the relationships between the nodes
-    //
-    List<GraphNode> nodes = new ArrayList<>();
-    List<NodeAndPropertyData> nodeProperties = new ArrayList<>();
-    for (int f = 0; f < fieldModelMappings.size(); f++) {
-      FieldModelMapping fieldModelMapping = fieldModelMappings.get(f);
-
-      if (fieldModelMapping.getTargetType() == ModelTargetType.Node) {
-        // We pre-calculated the field indexes
-        //
-        int index = fieldIndexes[f];
-
-        IValueMeta valueMeta = rowMeta.getValueMeta(index);
-        Object valueData = row[index];
-
-        // Determine the target property and type
-        //
-        GraphNode node = graphModel.findNode(fieldModelMapping.getTargetName());
-        if (node == null) {
-          throw new HopException(
-              "Unable to find target node '" + fieldModelMapping.getTargetName() + "'");
-        }
-        GraphProperty graphProperty = node.findProperty(fieldModelMapping.getTargetProperty());
-        if (graphProperty == null) {
-          throw new HopException(
-              "Unable to find target property '"
-                  + fieldModelMapping.getTargetProperty()
-                  + "' of node '"
-                  + fieldModelMapping.getTargetName()
-                  + "'");
-        }
-        if (!nodes.contains(node)) {
-          nodes.add(node);
-        }
-        nodeProperties.add(
-            new NodeAndPropertyData(node, graphProperty, valueMeta, valueData, index));
-      }
-    }
-
-    // Evaluate whether or not the node property is primary and null
-    // In that case, we remove these nodes from the lists...
-    //
-    Set<GraphNode> ignored = new HashSet<>();
-    for (NodeAndPropertyData nodeProperty : nodeProperties) {
-      if (nodeProperty.property.isPrimary()) {
-        // Null value?
-        //
-        if (nodeProperty.sourceValueMeta.isNull(nodeProperty.sourceValueData)) {
-          if (log.isDebug()) {
-            logDebug(
-                "Detected primary null property for node "
-                    + nodeProperty.node
-                    + " property "
-                    + nodeProperty.property
-                    + " value : "
-                    + nodeProperty.sourceValueMeta.getString(nodeProperty.sourceValueData));
-          }
-
-          if (!ignored.contains(nodeProperty.node)) {
-            ignored.add(nodeProperty.node);
-          }
-        }
-      }
-    }
-
-    // Now we'll see which relationships are involved between any 2 nodes.
-    // Then we can generate the cypher statement as well...
-    //
-    // v1.0 vanilla algorithm test
-    //
-    List<GraphRelationship> relationships = new ArrayList<>();
-    for (int x = 0; x < nodes.size(); x++) {
-      for (int y = 0; y < nodes.size(); y++) {
-        if (x == y) {
-          continue;
-        }
-        GraphNode sourceNode = nodes.get(x);
-        GraphNode targetNode = nodes.get(y);
-
-        GraphRelationship relationship =
-            graphModel.findRelationship(sourceNode.getName(), targetNode.getName());
-        if (relationship != null) {
-          if (!relationships.contains(relationship)) {
-            // A new relationship we don't have yet.
-            //
-            relationships.add(relationship);
-          }
-        }
-      }
-    }
-
-    if (log.isDebug()) {
-      logDebug(
-          "Found "
-              + relationships.size()
-              + " relationships to consider : "
-              + relationships.toString());
-      logDebug("Found " + ignored.size() + " nodes to ignore : " + ignored.toString());
-    }
+    SelectedNodesAndRelationships nar = selectNodesAndRelationships(rowMeta, row);
 
     // Now we have a bunch of Node-Pairs to update...
     //
@@ -687,57 +709,86 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
     StringBuilder cypher = new StringBuilder();
 
-    Set<GraphNode> handled = new HashSet<>();
-    Map<GraphNode, Integer> nodeIndexMap = new HashMap<>();
+    Set<SelectedNode> handled = new HashSet<>();
+    Map<SelectedNode, Integer> nodeIndexMap = new HashMap<>();
 
     if (meta.isOutOfOrderAllowed()) {
       cypher.append("UNWIND $props AS pr ");
       cypher.append(Const.CR);
     }
 
-    // No relationships case...
+    // No relationships case: only node(s)
     //
-    if (nodes.size() == 1) {
-      GraphNode node = nodes.get(0);
-      addNodeCypher(
-          cypher,
-          node,
-          handled,
-          ignored,
-          parameterIndex,
-          nodeIndex,
-          nodeIndexMap,
-          nodeProperties,
-          parameters,
-          cypherParameters);
+    if (nar.relationships.isEmpty()) {
+      if (nar.nodes.isEmpty()) {
+        throw new HopException(
+            "We didn't find a node to write to.  Did you specify a field mapping to node properties?");
+      }
+      if (nar.nodes.size() > 1) {
+        log.logBasic("Warning: writing to multiple nodes but not to any relationships");
+      }
+      for (SelectedNode node : nar.nodes) {
+        addNodeCypher(
+            cypher,
+            node,
+            handled,
+            nar.ignored,
+            parameterIndex,
+            nodeIndex,
+            nodeIndexMap,
+            nar.nodeProperties,
+            parameters,
+            cypherParameters);
+      }
     } else {
-      for (GraphRelationship relationship : relationships) {
+      // Relationships & nodes
+      //
+      for (SelectedRelationship selectedRelationship : nar.relationships) {
+        if (nar.avoided.contains(selectedRelationship)) {
+          continue;
+        }
+
+        SelectedNode sourceNode = selectedRelationship.getSourceNode();
+        SelectedNode targetNode = selectedRelationship.getTargetNode();
+        GraphRelationship relationship = selectedRelationship.getRelationship();
+
         relationshipIndex++;
         if (log.isDebug()) {
           logDebug("Handling relationship : " + relationship.getName());
         }
-        GraphNode nodeSource = graphModel.findNode(relationship.getNodeSource());
-        GraphNode nodeTarget = graphModel.findNode(relationship.getNodeTarget());
+        // Add the source node to the cypher
+        //
+        addNodeCypher(
+            cypher,
+            sourceNode,
+            handled,
+            nar.ignored,
+            parameterIndex,
+            nodeIndex,
+            nodeIndexMap,
+            nar.nodeProperties,
+            parameters,
+            cypherParameters);
 
-        for (GraphNode node : new GraphNode[] {nodeSource, nodeTarget}) {
-          addNodeCypher(
-              cypher,
-              node,
-              handled,
-              ignored,
-              parameterIndex,
-              nodeIndex,
-              nodeIndexMap,
-              nodeProperties,
-              parameters,
-              cypherParameters);
-        }
+        // Add the target node
+        //
+        addNodeCypher(
+            cypher,
+            targetNode,
+            handled,
+            nar.ignored,
+            parameterIndex,
+            nodeIndex,
+            nodeIndexMap,
+            nar.nodeProperties,
+            parameters,
+            cypherParameters);
 
         // Now add the merge on the relationship...
         //
-        if (nodeIndexMap.get(nodeSource) != null && nodeIndexMap.get(nodeTarget) != null) {
-          String sourceNodeName = "node" + nodeIndexMap.get(nodeSource);
-          String targetNodeName = "node" + nodeIndexMap.get(nodeTarget);
+        if (nodeIndexMap.get(sourceNode) != null && nodeIndexMap.get(targetNode) != null) {
+          String sourceNodeName = "node" + nodeIndexMap.get(sourceNode);
+          String targetNodeName = "node" + nodeIndexMap.get(targetNode);
           String relationshipAlias = "rel" + relationshipIndex;
 
           cypher.append(
@@ -747,7 +798,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                   + relationshipAlias
                   + ":"
                   + relationship.getLabel()
-                  + "]-("
+                  + "]->("
                   + targetNodeName
                   + ") ");
           cypher.append(Const.CR);
@@ -815,9 +866,309 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     }
 
     cypherParameters.setCypher(cypher.toString());
-    data.cypherMap.put(pattern.toString(), cypherParameters);
+    data.cypherMap.put(pattern, cypherParameters);
 
     return cypher.toString();
+  }
+
+  private SelectedNodesAndRelationships selectNodesAndRelationships(IRowMeta rowMeta, Object[] row)
+      throws HopException {
+
+    // The strategy is to determine all the nodes involved and the properties to set.
+    // Then we can determine the relationships between the nodes
+    //
+    List<NodeAndPropertyData> nodeProperties = new ArrayList<>();
+    Set<SelectedNode> nodesSet = getInvolvedNodes(row, rowMeta, nodeProperties);
+
+    // Evaluate if the node property is primary and null
+    // In that case, we remove these nodes from the lists...
+    //
+    Set<SelectedNode> ignored = new HashSet<>();
+    for (NodeAndPropertyData nodeProperty : nodeProperties) {
+      if (nodeProperty.property.isPrimary()) {
+        // Null value?
+        //
+        if (nodeProperty.sourceValueMeta.isNull(nodeProperty.sourceValueData)) {
+          if (log.isDebug()) {
+            logDebug(
+                "Detected primary null property for node "
+                    + nodeProperty.node
+                    + " property "
+                    + nodeProperty.property
+                    + " value : "
+                    + nodeProperty.sourceValueMeta.getString(nodeProperty.sourceValueData));
+          }
+
+          ignored.add(nodeProperty.node);
+        }
+      }
+    }
+
+    // Now we'll see which relationships are involved between any 2 nodes.
+    // Then we can generate the cypher statement as well...
+    //
+    // v1.0 vanilla algorithm test
+    //
+    Set<SelectedRelationship> selectedRelationships = new HashSet<>();
+    Set<SelectedRelationship> avoidedRelationships = new HashSet<>();
+
+    for (SelectedNode source : nodesSet) {
+      for (SelectedNode target : nodesSet) {
+        // Skip when we have invalid combinations
+        if (source.equals(target)) {
+          continue;
+        }
+
+        String sourceNodeName = source.getNode().getName();
+        String targetNodeName = target.getNode().getName();
+
+        // Do we have a relationship in the model?
+        // For performance this uses a hashmaps to cache these graph model lookups.
+        //
+        List<GraphRelationship> relationships = findRelationships(sourceNodeName, targetNodeName);
+        if (relationships == null || relationships.isEmpty()) {
+          continue;
+        }
+
+        // Stick to the source-target as selected, nothing else
+        //
+        if (source.getHint() == ModelTargetHint.SelfRelationshipTarget
+            || target.getHint() == ModelTargetHint.SelfRelationshipSource) {
+          continue;
+        }
+
+        for (GraphRelationship relationship : relationships) {
+          // Check the mappings for this source-target combination...
+          //
+          boolean isApplicable = true;
+          boolean avoidRelationship = false;
+          boolean addRelationship = false;
+          for (int i = 0; i < meta.getRelationshipMappings().size(); i++) {
+            RelationshipMapping mapping = meta.getRelationshipMappings().get(i);
+            GraphOutputData.RelelationshipMappingIndexes mappingIndexes =
+                data.relMappingIndexes.get(i);
+            boolean nodesMatch =
+                sourceNodeName.equals(mapping.getSourceNode())
+                    && targetNodeName.equals(mapping.getTargetNode());
+            boolean relationshipMatch =
+                relationship.getName().equals(mapping.getTargetRelationship());
+
+            switch (mapping.getType()) {
+              case NoMapping:
+                // To be ignored, nothing is added
+                break;
+              case NoRelationship:
+                // No relationship is ever desired between the 2 nodes
+                //
+                if (nodesMatch) {
+                  avoidRelationship = true;
+                }
+                break;
+              case All:
+                // All relationships are added between the 2 nodes
+                //
+                if (nodesMatch) {
+                  addRelationship = true;
+                }
+                break;
+              case UsingValue:
+                // Select this relationship only if the specified value is matching
+                // with the input data
+                //
+                if (relationshipMatch) {
+                  String value = rowMeta.getString(row, mappingIndexes.fieldIndex);
+                  if (value != null && value.equals(mapping.getFieldValue())) {
+                    addRelationship = true;
+                  }
+                  isApplicable = false;
+                }
+                break;
+            }
+          }
+
+          SelectedRelationship selectedRelationship =
+              new SelectedRelationship(source, target, relationship);
+          if (addRelationship) {
+            selectedRelationships.add(selectedRelationship);
+          } else if (avoidRelationship) {
+            avoidedRelationships.add(selectedRelationship);
+          } else if (isApplicable) {
+            // We didn't find an applicable mapping for this relationship. We want to add it
+            // anyway because this is the default.  It's likely just a standard relationship
+            // between 2 nodes.
+            //
+            selectedRelationships.add(new SelectedRelationship(source, target, relationship));
+          }
+        }
+      }
+    }
+
+    if (log.isDebug()) {
+      logDebug(
+          "Found "
+              + selectedRelationships.size()
+              + " relationships to consider : "
+              + selectedRelationships.toString());
+      logDebug("Found " + ignored.size() + " nodes to ignore : " + ignored.toString());
+    }
+
+    return new SelectedNodesAndRelationships(
+        nodesSet, selectedRelationships, avoidedRelationships, nodeProperties, ignored);
+  }
+
+  /**
+   * Cache the relationships lists. This will speed up lookup in the graph model for larger models.
+   *
+   * @param sourceNodeName The name of the source node of the relationship to find
+   * @param targetNodeName The name of the target node of the relationship to find
+   * @return The list of relationships. If no relationships are found you get an empty list.
+   */
+  private List<GraphRelationship> findRelationships(String sourceNodeName, String targetNodeName) {
+    Map<String, List<GraphRelationship>> targetsMap =
+        data.relationshipsCache.computeIfAbsent(sourceNodeName, f -> new HashMap<>());
+    return targetsMap.computeIfAbsent(
+        targetNodeName, f -> data.graphModel.findRelationships(sourceNodeName, targetNodeName));
+  }
+
+  private String buildCypherKeyPattern(Object[] row, IRowMeta rowMeta) throws HopValueException {
+    StringBuffer pattern = new StringBuffer();
+    for (int index : data.fieldIndexes) {
+      boolean isNull = rowMeta.isNull(row, index);
+      pattern.append(isNull ? '0' : '1');
+    }
+    for (int i = 0; i < data.relMappingIndexes.size(); i++) {
+      RelationshipMapping relationshipMapping = meta.getRelationshipMappings().get(i);
+      GraphOutputData.RelelationshipMappingIndexes mappingIndexes = data.relMappingIndexes.get(i);
+      if (relationshipMapping.getType() == RelationshipMappingType.UsingValue) {
+        int index = mappingIndexes.fieldIndex;
+        String value = Const.NVL(rowMeta.getString(row, index), "");
+        pattern.append('-').append(value);
+      }
+    }
+    for (int i = 0; i < data.nodeMappingIndexes.size(); i++) {
+      int index = data.nodeMappingIndexes.get(i);
+      if (index >= 0) {
+        String value = Const.NVL(rowMeta.getString(row, index), "");
+        pattern.append('-').append(value);
+      }
+    }
+    return pattern.toString();
+  }
+
+  /**
+   * Get the involved nodes both as source and target nodes. Specifying the source/target node is
+   * only ever needed for self-relationships where The source and target node label is the same.
+   *
+   * @param row
+   * @param rowMeta
+   * @param nodeProperties
+   * @return
+   * @throws HopException
+   */
+  private Set<SelectedNode> getInvolvedNodes(
+      Object[] row, IRowMeta rowMeta, List<NodeAndPropertyData> nodeProperties)
+      throws HopException {
+
+    List<FieldModelMapping> fieldModelMappings = meta.getFieldModelMappings();
+
+    Set<SelectedNode> nodesSet = new HashSet<>();
+    for (int f = 0; f < fieldModelMappings.size(); f++) {
+      FieldModelMapping fieldModelMapping = fieldModelMappings.get(f);
+      ModelTargetHint targetHint = fieldModelMapping.getTargetHint();
+
+      if (fieldModelMapping.getTargetType() == ModelTargetType.Node) {
+        // We pre-calculated the field indexes
+        //
+        int index = data.fieldIndexes[f];
+
+        IValueMeta valueMeta = rowMeta.getValueMeta(index);
+        Object valueData = row[index];
+
+        // Determine the target property and type
+        //
+        GraphNode node = data.graphModel.findNode(fieldModelMapping.getTargetName());
+        if (node == null) {
+          throw new HopException(
+              "Unable to find target node '" + fieldModelMapping.getTargetName() + "'");
+        }
+        GraphProperty graphProperty = node.findProperty(fieldModelMapping.getTargetProperty());
+        if (graphProperty == null) {
+          throw new HopException(
+              "Unable to find target property '"
+                  + fieldModelMapping.getTargetProperty()
+                  + "' of node '"
+                  + fieldModelMapping.getTargetName()
+                  + "'");
+        }
+
+        // For this selected node we need to see if there are any specific node mappings.
+        // These serve the purpose of helping with label selection if this is needed.
+        //
+        Set<String> labels = new HashSet<>();
+        boolean implicitNodeMapping = true;
+        for (int i = 0; i < meta.getNodeMappings().size(); i++) {
+          NodeMapping mapping = meta.getNodeMappings().get(i);
+          if (node.getName().equals(mapping.getTargetNode())) {
+            implicitNodeMapping = false;
+            // The mapping applies to this node
+            //
+            switch (mapping.getType()) {
+              case All:
+                labels.addAll(node.getLabels());
+                break;
+              case First:
+                if (!node.getLabels().isEmpty()) {
+                  labels.add(node.getLabels().get(0));
+                }
+                break;
+              case UsingValue:
+                // We select the label using the value in a specific field
+                //
+                int valueIndex = data.nodeMappingIndexes.get(i);
+                if (rowMeta.isNull(row, valueIndex)) {
+                  throw new HopException(
+                      "Null value found for field "
+                          + mapping.getFieldName()
+                          + " in node mapping "
+                          + mapping);
+                }
+                String value = rowMeta.getString(row, valueIndex);
+
+                // With this value we can now look up the target label
+                //
+                Map<String, String> valueLabelMap = data.nodeValueLabelMap.get(node.getName());
+                if (valueLabelMap == null) {
+                  throw new HopException(
+                      "No field-to-label mapping was specified for node " + node.getName());
+                }
+                String label = valueLabelMap.get(value);
+                if (label != null) {
+                  labels.add(label);
+                }
+                break;
+            }
+          }
+        }
+
+        // If we didn't see an explicit node label mapping we just assume all labels
+        // from the model need to be applied.
+        //
+        if (implicitNodeMapping) {
+          labels.addAll(node.getLabels());
+        }
+
+        if (labels.isEmpty()) {
+          throw new HopException("No node labels could be found for node: " + node.getName());
+        }
+
+        SelectedNode selectedNode = new SelectedNode(node, targetHint, new ArrayList<>(labels));
+        nodesSet.add(selectedNode);
+
+        nodeProperties.add(
+            new NodeAndPropertyData(selectedNode, graphProperty, valueMeta, valueData, index));
+      }
+    }
+    return nodesSet;
   }
 
   private void setParameters(
@@ -843,127 +1194,133 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
   private void addNodeCypher(
       StringBuilder cypher,
-      GraphNode node,
-      Set<GraphNode> handled,
-      Set<GraphNode> ignored,
+      SelectedNode selectedNode,
+      Set<SelectedNode> handled,
+      Set<SelectedNode> ignored,
       AtomicInteger parameterIndex,
       AtomicInteger nodeIndex,
-      Map<GraphNode, Integer> nodeIndexMap,
+      Map<SelectedNode, Integer> nodeIndexMap,
       List<NodeAndPropertyData> nodeProperties,
       Map<String, Object> parameters,
       CypherParameters cypherParameters)
       throws HopValueException {
-    if (!ignored.contains(node) && !handled.contains(node)) {
+    if (ignored.contains(selectedNode) || handled.contains(selectedNode)) {
+      return;
+    }
+    // Don't update twice.
+    //
+    handled.add(selectedNode);
+    nodeIndexMap.put(selectedNode, nodeIndex.incrementAndGet());
 
-      // Don't update twice.
-      //
-      handled.add(node);
-      nodeIndexMap.put(node, nodeIndex.incrementAndGet());
+    GraphNode node = selectedNode.getNode();
 
-      // Calculate the node labels
-      //
-      String nodeLabels = "";
-      for (String nodeLabel : node.getLabels()) {
-        nodeLabels += ":";
-        nodeLabels += nodeLabel;
-      }
+    // Calculate the node labels clause.
+    // The list of labels was calculated during selection in selectNodesAndRelationships()
+    //
+    StringBuilder nodeLabels = new StringBuilder();
+    for (String nodeLabel : selectedNode.getLabels()) {
+      nodeLabels.append(":");
+      nodeLabels.append(nodeLabel);
+    }
 
-      StringBuilder matchCypher = new StringBuilder();
+    StringBuilder matchCypher = new StringBuilder();
 
-      String nodeAlias = "node" + nodeIndex;
+    String nodeAlias = "node" + nodeIndex;
 
-      cypher.append("MERGE (" + nodeAlias + nodeLabels + " { ");
+    cypher.append("MERGE (").append(nodeAlias).append(nodeLabels).append(" { ");
 
-      updateUsageMap(node.getLabels(), GraphUsage.NODE_UPDATE);
+    updateUsageMap(node.getLabels(), GraphUsage.NODE_UPDATE);
 
-      if (log.isDebug()) {
-        logBasic(" - node merge : " + node.getName());
-      }
+    if (log.isDebug()) {
+      logBasic(" - node merge : " + node.getName());
+    }
 
-      // Look up the properties to update in the node
-      //
-      boolean firstPrimary = true;
-      boolean firstMatch = true;
-      for (NodeAndPropertyData napd : nodeProperties) {
-        if (napd.node.equals(node)) {
-          // Handle the property
-          //
-          parameterIndex.incrementAndGet();
-          boolean isNull = napd.sourceValueMeta.isNull(napd.sourceValueData);
-          String parameterName = "param" + parameterIndex;
+    // Look up the properties to update in the node
+    //
+    boolean firstPrimary = true;
+    boolean firstMatch = true;
+    for (NodeAndPropertyData napd : nodeProperties) {
+      if (napd.node.equals(selectedNode)) {
+        // Handle the property
+        //
+        parameterIndex.incrementAndGet();
+        boolean isNull = napd.sourceValueMeta.isNull(napd.sourceValueData);
+        String parameterName = "param" + parameterIndex;
 
-          if (napd.property.isPrimary()) {
+        if (napd.property.isPrimary()) {
 
-            if (!firstPrimary) {
-              cypher.append(", ");
-            }
-            cypher.append(
-                napd.property.getName() + " : " + buildParameterClause(parameterName) + " ");
+          if (!firstPrimary) {
+            cypher.append(", ");
+          }
+          cypher
+              .append(napd.property.getName())
+              .append(" : ")
+              .append(buildParameterClause(parameterName))
+              .append(" ");
 
-            firstPrimary = false;
+          firstPrimary = false;
 
-            if (log.isDebug()) {
-              logBasic(
-                  "   * property match/create : "
-                      + napd.property.getName()
-                      + " with value "
-                      + napd.sourceValueMeta.toStringMeta()
-                      + " : "
-                      + napd.sourceValueMeta.getString(napd.sourceValueData));
-            }
-
-          } else {
-            // On match statement
-            //
-            if (firstMatch) {
-              matchCypher.append("SET ");
-            } else {
-              matchCypher.append(", ");
-            }
-
-            firstMatch = false;
-
-            matchCypher.append(nodeAlias + "." + napd.property.getName() + " = ");
-            if (isNull) {
-              matchCypher.append("NULL ");
-            } else {
-              matchCypher.append(buildParameterClause(parameterName) + " ");
-            }
-
-            if (log.isDebug()) {
-              logBasic(
-                  "   * property update : "
-                      + napd.property.getName()
-                      + " with value "
-                      + napd.sourceValueMeta.toStringMeta()
-                      + " : "
-                      + napd.sourceValueMeta.getString(napd.sourceValueData));
-            }
+          if (log.isDebug()) {
+            logBasic(
+                "   * property match/create : "
+                    + napd.property.getName()
+                    + " with value "
+                    + napd.sourceValueMeta.toStringMeta()
+                    + " : "
+                    + napd.sourceValueMeta.getString(napd.sourceValueData));
           }
 
-          // NULL parameters are better set with NULL directly
+        } else {
+          // On match statement
           //
-          if (!isNull) {
-            parameters.put(
-                parameterName,
-                napd.property.getType().convertFromHop(napd.sourceValueMeta, napd.sourceValueData));
-            TargetParameter targetParameter =
-                new TargetParameter(
-                    napd.sourceValueMeta.getName(),
-                    napd.sourceFieldIndex,
-                    parameterName,
-                    napd.property.getType());
-            cypherParameters.getTargetParameters().add(targetParameter);
+          if (firstMatch) {
+            matchCypher.append("SET ");
+          } else {
+            matchCypher.append(", ");
+          }
+
+          firstMatch = false;
+
+          matchCypher.append(nodeAlias).append(".").append(napd.property.getName()).append(" = ");
+          if (isNull) {
+            matchCypher.append("NULL ");
+          } else {
+            matchCypher.append(buildParameterClause(parameterName)).append(" ");
+          }
+
+          if (log.isDebug()) {
+            logBasic(
+                "   * property update : "
+                    + napd.property.getName()
+                    + " with value "
+                    + napd.sourceValueMeta.toStringMeta()
+                    + " : "
+                    + napd.sourceValueMeta.getString(napd.sourceValueData));
           }
         }
-      }
-      cypher.append("}) " + Const.CR);
 
-      // Add a SET clause if there are any non-primary key fields to update
-      //
-      if (matchCypher.length() > 0) {
-        cypher.append(matchCypher);
+        // NULL parameters are better set with NULL directly
+        //
+        if (!isNull) {
+          parameters.put(
+              parameterName,
+              napd.property.getType().convertFromHop(napd.sourceValueMeta, napd.sourceValueData));
+          TargetParameter targetParameter =
+              new TargetParameter(
+                  napd.sourceValueMeta.getName(),
+                  napd.sourceFieldIndex,
+                  parameterName,
+                  napd.property.getType());
+          cypherParameters.getTargetParameters().add(targetParameter);
+        }
       }
+    }
+    cypher.append("}) ").append(Const.CR);
+
+    // Add a SET clause if there are any non-primary key fields to update
+    //
+    if (matchCypher.length() > 0) {
+      cypher.append(matchCypher).append(Const.CR);
     }
   }
 
@@ -1006,19 +1363,10 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
    * @param nodeLabels
    * @param usage
    */
-  protected void updateUsageMap(List<String> nodeLabels, GraphUsage usage)
-      throws HopValueException {
-    Map<String, Set<String>> transformsMap = data.usageMap.get(usage.name());
-    if (transformsMap == null) {
-      transformsMap = new HashMap<>();
-      data.usageMap.put(usage.name(), transformsMap);
-    }
-
-    Set<String> labelSet = transformsMap.get(getTransformName());
-    if (labelSet == null) {
-      labelSet = new HashSet<>();
-      transformsMap.put(getTransformName(), labelSet);
-    }
+  protected void updateUsageMap(List<String> nodeLabels, GraphUsage usage) {
+    Map<String, Set<String>> transformsMap =
+        data.usageMap.computeIfAbsent(usage.name(), k -> new HashMap<>());
+    Set<String> labelSet = transformsMap.computeIfAbsent(getTransformName(), k -> new HashSet<>());
 
     for (String label : nodeLabels) {
       if (StringUtils.isNotEmpty(label)) {
@@ -1028,172 +1376,59 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
   }
 
   /**
-   * Generate the Cypher statement and parameters to use to update using a graph model, a field
-   * mapping and a row of data
+   * Generate the graph data containing the update
    *
-   * @param graphModel The model to use
-   * @param fieldModelMappings The mappings
-   * @param nodeCount
    * @param row The input row
    * @param rowMeta the input row metadata
    * @return The graph with nodes and relationships
    */
-  protected GraphData getGraphData(
-      GraphModel graphModel,
-      List<FieldModelMapping> fieldModelMappings,
-      int nodeCount,
-      Object[] row,
-      IRowMeta rowMeta,
-      int[] fieldIndexes)
-      throws HopException {
+  protected GraphData getGraphData(Object[] row, IRowMeta rowMeta) throws HopException {
 
     GraphData graphData = new GraphData();
     graphData.setSourcePipelineName(getPipelineMeta().getName());
     graphData.setSourceTransformName(getTransformMeta().getName());
 
-    // The strategy is to determine all the nodes involved and the properties to set.
-    // Then we can determine the relationships between the nodes
-    //
-    List<GraphNode> nodes = new ArrayList<>();
-    List<GraphRelationship> relationships = new ArrayList<>();
-    List<NodeAndPropertyData> nodeProperties = new ArrayList<>();
-    List<RelationshipAndPropertyData> relationshipProperties = new ArrayList<>();
-    for (int f = 0; f < fieldModelMappings.size(); f++) {
-      FieldModelMapping fieldModelMapping = fieldModelMappings.get(f);
-
-      // We pre-calculated the field indexes
-      //
-      int index = fieldIndexes[f];
-
-      IValueMeta valueMeta = rowMeta.getValueMeta(index);
-      Object valueData = row[index];
-
-      // Determine the target property and type
-      //
-      if (fieldModelMapping.getTargetType() == ModelTargetType.Node) {
-        GraphNode node = graphModel.findNode(fieldModelMapping.getTargetName());
-        if (node == null) {
-          throw new HopException(
-              "Unable to find target node '" + fieldModelMapping.getTargetName() + "'");
-        }
-        GraphProperty graphProperty = node.findProperty(fieldModelMapping.getTargetProperty());
-        if (graphProperty == null) {
-          throw new HopException(
-              "Unable to find target property '"
-                  + fieldModelMapping.getTargetProperty()
-                  + "' of node '"
-                  + fieldModelMapping.getTargetName()
-                  + "'");
-        }
-        if (!nodes.contains(node)) {
-          nodes.add(node);
-        }
-        nodeProperties.add(
-            new NodeAndPropertyData(node, graphProperty, valueMeta, valueData, index));
-      } else {
-        // Relationship
-        //
-        GraphRelationship relationship =
-            graphModel.findRelationship(fieldModelMapping.getTargetName());
-        if (relationship == null) {
-          throw new HopException(
-              "Unable to find target relationship '" + fieldModelMapping.getTargetName() + "'");
-        }
-        GraphProperty graphProperty =
-            relationship.findProperty(fieldModelMapping.getTargetProperty());
-        if (graphProperty == null) {
-          throw new HopException(
-              "Unable to find target property '"
-                  + fieldModelMapping.getTargetProperty()
-                  + "' of relationship '"
-                  + fieldModelMapping.getTargetName()
-                  + "'");
-        }
-        if (!relationships.contains(relationship)) {
-          relationships.add(relationship);
-        }
-        relationshipProperties.add(
-            new RelationshipAndPropertyData(
-                relationship, graphProperty, valueMeta, valueData, index));
-      }
-    }
-
-    // Evaluate whether or not the node property is primary and null
-    // In that case, we remove these nodes from the lists...
-    //
-    Set<GraphNode> ignored = new HashSet<>();
-    for (NodeAndPropertyData nodeProperty : nodeProperties) {
-      if (nodeProperty.property.isPrimary()) {
-        // Null value?
-        //
-        if (nodeProperty.sourceValueMeta.isNull(nodeProperty.sourceValueData)) {
-          if (log.isDebug()) {
-            logDebug(
-                "Detected primary null property for node "
-                    + nodeProperty.node
-                    + " property "
-                    + nodeProperty.property
-                    + " value : "
-                    + nodeProperty.sourceValueMeta.getString(nodeProperty.sourceValueData));
-          }
-
-          if (!ignored.contains(nodeProperty.node)) {
-            ignored.add(nodeProperty.node);
-          }
-        }
-      }
-    }
-
-    // Now we'll see which relationships are involved between any 2 nodes.
-    // Then we can generate the cypher statement as well...
-    //
-    // v1.0 vanilla algorithm test
-    //
-    for (int x = 0; x < nodes.size(); x++) {
-      for (int y = 0; y < nodes.size(); y++) {
-        if (x == y) {
-          continue;
-        }
-        GraphNode sourceNode = nodes.get(x);
-        GraphNode targetNode = nodes.get(y);
-
-        GraphRelationship relationship =
-            graphModel.findRelationship(sourceNode.getName(), targetNode.getName());
-        if (relationship != null) {
-          if (!relationships.contains(relationship)) {
-            // A new relationship we don't have yet.
-            //
-            relationships.add(relationship);
-          }
-        }
-      }
-    }
+    SelectedNodesAndRelationships nar = selectNodesAndRelationships(rowMeta, row);
 
     // Now we have a bunch of Node-Pairs to update...
     //
     AtomicInteger nodeIndex = new AtomicInteger(0);
 
-    Set<GraphNode> handled = new HashSet<>();
-    Map<GraphNode, Integer> nodeIndexMap = new HashMap<>();
+    Set<SelectedNode> handled = new HashSet<>();
+    Map<SelectedNode, Integer> nodeIndexMap = new HashMap<>();
 
-    // No relationships case...
+    // No relationships case: only node(s)
     //
-    if (nodes.size() == 1) {
-      GraphNode node = nodes.get(0);
+    if (nar.relationships.isEmpty()) {
+      if (nar.nodes.isEmpty()) {
+        throw new HopException(
+            "We didn't find a node to write to.  Did you specify a field mapping to node properties?");
+      }
+      if (nar.nodes.size() > 1) {
+        log.logBasic("Warning: writing to multiple nodes but not to any relationships");
+      }
 
-      GraphNodeData nodeData =
-          getGraphNodeData(node, handled, ignored, nodeIndex, nodeIndexMap, nodeProperties);
-      if (nodeData != null) {
-        graphData.getNodes().add(nodeData);
+      for (SelectedNode node : nar.nodes) {
+        GraphNodeData nodeData =
+            getGraphNodeData(
+                node, handled, nar.ignored, nodeIndex, nodeIndexMap, nar.nodeProperties);
+        if (nodeData != null) {
+          graphData.getNodes().add(nodeData);
+        }
       }
     } else {
-      for (GraphRelationship relationship : relationships) {
-        GraphNode nodeSource = graphModel.findNode(relationship.getNodeSource());
-        GraphNode nodeTarget = graphModel.findNode(relationship.getNodeTarget());
+      for (SelectedRelationship relationship : nar.relationships) {
+        if (nar.avoided.contains(relationship)) {
+          continue;
+        }
 
-        for (GraphNode node : new GraphNode[] {nodeSource, nodeTarget}) {
+        SelectedNode nodeSource = relationship.getSourceNode();
+        SelectedNode nodeTarget = relationship.getTargetNode();
+
+        for (SelectedNode node : new SelectedNode[] {nodeSource, nodeTarget}) {
           GraphNodeData nodeData =
-              getGraphNodeData(node, handled, ignored, nodeIndex, nodeIndexMap, nodeProperties);
+              getGraphNodeData(
+                  node, handled, nar.ignored, nodeIndex, nodeIndexMap, nar.nodeProperties);
           if (nodeData != null) {
             graphData.getNodes().add(nodeData);
           }
@@ -1202,28 +1437,27 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         // Now add the relationship...
         //
         if (nodeIndexMap.get(nodeSource) != null && nodeIndexMap.get(nodeTarget) != null) {
-
-          String sourceNodeId = getGraphNodeDataId(nodeSource, nodeProperties);
-          String targetNodeId = getGraphNodeDataId(nodeTarget, nodeProperties);
+          String sourceNodeId = getGraphNodeDataId(nodeSource, nar.nodeProperties);
+          String targetNodeId = getGraphNodeDataId(nodeTarget, nar.nodeProperties);
 
           String id = sourceNodeId + " -> " + targetNodeId;
 
           GraphRelationshipData relationshipData = new GraphRelationshipData();
           relationshipData.setId(id);
-          relationshipData.setLabel(relationship.getLabel());
+          relationshipData.setLabel(relationship.getRelationship().getLabel());
           relationshipData.setSourceNodeId(sourceNodeId);
           relationshipData.setTargetNodeId(targetNodeId);
 
           // The property set ID is simply the name of the GraphRelationship (metadata)
           //
-          relationshipData.setPropertySetId(relationship.getName());
+          relationshipData.setPropertySetId(relationship.getRelationship().getName());
 
           // Also add the optional properties...
           //
           List<GraphProperty> relProps = new ArrayList<>();
           List<Integer> relPropIndexes = new ArrayList<>();
           Map<GraphProperty, Integer> propertyIndexMap =
-              data.relationshipPropertyIndexMap.get(relationship.getName());
+              data.relationshipPropertyIndexMap.get(relationship.getRelationship().getName());
           if (propertyIndexMap != null) {
             for (GraphProperty relProp : propertyIndexMap.keySet()) {
               Integer relFieldIndex = propertyIndexMap.get(relProp);
@@ -1262,70 +1496,104 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     return graphData;
   }
 
-  private GraphNodeData getGraphNodeData(
-      GraphNode node,
-      Set<GraphNode> handled,
-      Set<GraphNode> ignored,
-      AtomicInteger nodeIndex,
-      Map<GraphNode, Integer> nodeIndexMap,
-      List<NodeAndPropertyData> nodeProperties)
+  /**
+   * Evaluate if the node property is primary and null. In that case, we ignore these nodes.
+   *
+   * @param nodeProperties
+   * @return
+   * @throws HopValueException
+   */
+  private Set<SelectedNode> getIgnoredNodesWithPkNull(List<NodeAndPropertyData> nodeProperties)
       throws HopValueException {
-    if (!ignored.contains(node) && !handled.contains(node)) {
-
-      GraphNodeData graphNodeData = new GraphNodeData();
-
-      // The property set ID is simply the name of the GraphNode (metadata)
-      //
-      graphNodeData.setPropertySetId(node.getName());
-
-      // Don't update twice.
-      //
-      handled.add(node);
-      nodeIndexMap.put(node, nodeIndex.incrementAndGet());
-
-      // Calculate the node labels
-      //
-      graphNodeData.getLabels().addAll(node.getLabels());
-
-      // Look up the properties to update in the node
-      //
-      boolean firstPrimary = true;
-      boolean firstMatch = true;
-      for (NodeAndPropertyData napd : nodeProperties) {
-        if (napd.node.equals(node)) {
-          // Handle the property
-          //
-          boolean isNull = napd.sourceValueMeta.isNull(napd.sourceValueData);
-
-          if (napd.property.isPrimary()) {
-
-            String oldId = graphNodeData.getId();
-            String propertyString = napd.sourceValueMeta.getString(napd.sourceValueData);
-            if (oldId == null) {
-              graphNodeData.setId(propertyString);
-            } else {
-              graphNodeData.setId(oldId + "-" + propertyString);
-            }
+    Set<SelectedNode> ignored = new HashSet<>();
+    for (NodeAndPropertyData nodeProperty : nodeProperties) {
+      if (nodeProperty.property.isPrimary()) {
+        // Null value?
+        //
+        if (nodeProperty.sourceValueMeta.isNull(nodeProperty.sourceValueData)) {
+          if (log.isDebug()) {
+            logDebug(
+                "Detected primary null property for node "
+                    + nodeProperty.node
+                    + " property "
+                    + nodeProperty.property
+                    + " value : "
+                    + nodeProperty.sourceValueMeta.getString(nodeProperty.sourceValueData));
           }
 
-          if (!isNull) {
-            GraphPropertyData propertyData = new GraphPropertyData();
-            propertyData.setId(napd.property.getName());
-            GraphPropertyDataType type = GraphPropertyDataType.getTypeFromHop(napd.sourceValueMeta);
-            propertyData.setType(type);
-            propertyData.setValue(type.convertFromHop(napd.sourceValueMeta, napd.sourceValueData));
-            propertyData.setPrimary(napd.property.isPrimary());
-
-            graphNodeData.getProperties().add(propertyData);
+          if (!ignored.contains(nodeProperty.node)) {
+            ignored.add(nodeProperty.node);
           }
         }
       }
-      return graphNodeData;
     }
-    return null;
+    return ignored;
   }
 
-  public String getGraphNodeDataId(GraphNode node, List<NodeAndPropertyData> nodeProperties)
+  private GraphNodeData getGraphNodeData(
+      SelectedNode node,
+      Set<SelectedNode> handled,
+      Set<SelectedNode> ignored,
+      AtomicInteger nodeIndex,
+      Map<SelectedNode, Integer> nodeIndexMap,
+      List<NodeAndPropertyData> nodeProperties)
+      throws HopValueException {
+    if (ignored.contains(node) || handled.contains(node)) {
+      return null;
+    }
+
+    GraphNodeData graphNodeData = new GraphNodeData();
+
+    // The property set ID is simply the name of the GraphNode (metadata)
+    //
+    graphNodeData.setPropertySetId(node.getNode().getName());
+
+    // Don't update twice.
+    //
+    handled.add(node);
+    nodeIndexMap.put(node, nodeIndex.incrementAndGet());
+
+    // Calculate the node labels
+    //
+    graphNodeData.getLabels().addAll(node.getNode().getLabels());
+
+    // Look up the properties to update in the node
+    //
+    boolean firstPrimary = true;
+    boolean firstMatch = true;
+    for (NodeAndPropertyData napd : nodeProperties) {
+      if (napd.node.equals(node)) {
+        // Handle the property
+        //
+        boolean isNull = napd.sourceValueMeta.isNull(napd.sourceValueData);
+
+        if (napd.property.isPrimary()) {
+
+          String oldId = graphNodeData.getId();
+          String propertyString = napd.sourceValueMeta.getString(napd.sourceValueData);
+          if (oldId == null) {
+            graphNodeData.setId(propertyString);
+          } else {
+            graphNodeData.setId(oldId + "-" + propertyString);
+          }
+        }
+
+        if (!isNull) {
+          GraphPropertyData propertyData = new GraphPropertyData();
+          propertyData.setId(napd.property.getName());
+          GraphPropertyDataType type = GraphPropertyDataType.getTypeFromHop(napd.sourceValueMeta);
+          propertyData.setType(type);
+          propertyData.setValue(type.convertFromHop(napd.sourceValueMeta, napd.sourceValueData));
+          propertyData.setPrimary(napd.property.isPrimary());
+
+          graphNodeData.getProperties().add(propertyData);
+        }
+      }
+    }
+    return graphNodeData;
+  }
+
+  public String getGraphNodeDataId(SelectedNode node, List<NodeAndPropertyData> nodeProperties)
       throws HopValueException {
 
     StringBuffer id = new StringBuffer();
