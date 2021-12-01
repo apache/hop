@@ -117,7 +117,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData>
       // Find the indexes of the arguments
       data.argumentIndexes = new int[meta.getArguments().size()];
       for (int i = 0; i < meta.getArguments().size(); i++) {
-        String arg = meta.getArguments().get(i);
+        String arg = meta.getArguments().get(i).getName();
         data.argumentIndexes[i] = this.getInputRowMeta().indexOfValue(arg);
         if (data.argumentIndexes[i] < 0) {
           logError(BaseMessages.getString(PKG, "ExecSql.Log.ErrorFindingField") + arg + "]");

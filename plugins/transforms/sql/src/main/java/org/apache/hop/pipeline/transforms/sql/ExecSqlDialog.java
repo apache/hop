@@ -611,9 +611,9 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     for (int i = 0; i < input.getArguments().size(); i++) {
       TableItem item = wFields.table.getItem(i);
-      String arg = input.getArguments().get(i);
+      ExecSqlArgumentItem arg = input.getArguments().get(i);
       if (arg != null) {
-        item.setText(1, arg);
+        item.setText(1, arg.getName());
       }
     }
     wSetParams.setSelection(input.isParams());
@@ -670,7 +670,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     input.getArguments().clear();
     for (int i = 0; i < nrargs; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getArguments().add(item.getText(1));
+      input.getArguments().add(new ExecSqlArgumentItem(item.getText(1)));
     }
 
     if (input.getConnection() == null) {
