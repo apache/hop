@@ -835,6 +835,7 @@ public class PropsUi extends Props {
     contrastingColors = new HashMap<>();
     contrastingColors.put(toRGB("#000000"), toRGB("#ffffff"));
     contrastingColors.put(toRGB("#0e3a5a"), toRGB("#c8e7fa"));
+    contrastingColors.put(toRGB("#0f3b5a"), toRGB("#c7e6fa"));
 
     contrastingColors.put(toRGB("#f0f0f0"), toRGB("#0f0f0f"));
     contrastingColors.put(toRGB("#e1e1e1"), toRGB("#303030"));
