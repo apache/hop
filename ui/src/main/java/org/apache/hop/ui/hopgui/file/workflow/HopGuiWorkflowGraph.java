@@ -62,6 +62,7 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
@@ -675,6 +676,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point real = screen2real(e.x, e.y);
     Point icon = new Point(real.x - iconOffset.x, real.y - iconOffset.y);
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
+
+    try {
+      HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, e, real, areaOwner);
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseUp.id, ext);
+      if (ext.isPreventingDefault()) {
+        redraw();
+        clearSettings();
+        return;
+      }
+    } catch (Exception ex) {
+      LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseUp extension point", ex);
+    }
 
     // Quick new hop option? (drag from one action to another)
     //

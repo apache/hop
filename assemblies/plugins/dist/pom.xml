@@ -2168,7 +2168,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-streamlookup</artifactId>
@@ -3008,6 +3008,19 @@
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-databases-snowflake</artifactId>
       <version>${hop-plugins-databases.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-assemblies-plugins-misc-async</artifactId>
+      <version>${hop-plugins-misc.version}</version>
       <type>zip</type>
       <exclusions>
         <exclusion>

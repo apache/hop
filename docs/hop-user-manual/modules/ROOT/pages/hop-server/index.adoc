@@ -16,12 +16,12 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
-:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additionally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
+:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additionally, Hop Server can also be accessed directly through a number of REST services and in combination with the Web Service and Asynchronous Web Service metadata types.
 
 = Hop Server
 
 Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration.
-Additonally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] metadata type.
+Additionally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] and xref:hop-server/async-web-service.adoc[Asynchronous Web Service] metadata types.
 
 == Starting and Stopping Hop Server
 
