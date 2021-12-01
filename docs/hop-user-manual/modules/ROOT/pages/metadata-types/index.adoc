@@ -35,6 +35,7 @@ Since metadata types are plugin types too, the available metadata types in your 
 By default, Hop contains the following metadata types:
 
 
+* xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
