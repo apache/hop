@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0021-row-denormaliser</name>
+  <name>main-0021-row-denormaliser-beam</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -49,17 +49,63 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Run Row Denormaliser Tests</name>
+      <name>0021-row-denormaliser-beam.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0021-row-denormaliser-beam.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>direct</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>delete /tmp/0021/*-*.csv</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/0021/</name>
+          <filemask>0021-row-denormaliser.*\.csv</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run Pipeline Unit Tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
-          <name>0021-row-denormaliser UNIT</name>
+          <name>0021-row-denormaliser-beam-validation UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>336</xloc>
+      <xloc>736</xloc>
       <yloc>96</yloc>
       <attributes_hac/>
     </action>
@@ -67,10 +113,24 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run Row Denormaliser Tests</to>
+      <to>delete /tmp/0021/*-*.csv</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>delete /tmp/0021/*-*.csv</from>
+      <to>0021-row-denormaliser-beam.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0021-row-denormaliser-beam.hpl</from>
+      <to>Run Pipeline Unit Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
