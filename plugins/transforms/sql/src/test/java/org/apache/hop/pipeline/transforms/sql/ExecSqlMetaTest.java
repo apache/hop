@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.sql;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -23,9 +24,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -92,9 +91,6 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
         };
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put(
-        "arguments", new ListLoadSaveValidator<String>(new StringLoadSaveValidator(), 5));
-
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
@@ -107,6 +103,55 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             attrValidatorMap,
             typeValidatorMap,
             this);
+
+    IFieldLoadSaveValidatorFactory validatorFactory =
+            loadSaveTester.getFieldLoadSaveValidatorFactory();
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(ExecSqlArgumentItem.class),
+            new ObjectValidator<>(
+                    validatorFactory,
+                    ExecSqlArgumentItem.class,
+                    Arrays.asList("name"),
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "getName");
+                      }
+                    },
+                    new HashMap<String, String>() {
+                      {
+                        put("name", "setName");
+                      }
+                    }));
+
+    validatorFactory.registerValidator(
+            validatorFactory.getName(List.class, ExecSqlArgumentItem.class),
+            new ListLoadSaveValidator<>(new ExecSqlArgumentItemFieldLoadSaveValidator()));
+  }
+
+  public class ExecSqlArgumentItemFieldLoadSaveValidator
+          implements IFieldLoadSaveValidator<ExecSqlArgumentItem> {
+    final Random rand = new Random();
+
+    @Override
+    public ExecSqlArgumentItem getTestObject() {
+
+      ExecSqlArgumentItem field =
+              new ExecSqlArgumentItem(
+                      UUID.randomUUID().toString());
+
+      return field;
+    }
+
+    @Override
+    public boolean validateTestObject(ExecSqlArgumentItem testObject, Object actual) {
+      if (!(actual instanceof ExecSqlArgumentItem)) {
+        return false;
+      }
+      ExecSqlArgumentItem another = (ExecSqlArgumentItem) actual;
+      return new EqualsBuilder()
+              .append(testObject.getName(), another.getName()).isEquals();
+    }
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -114,7 +159,15 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof ExecSqlMeta) {
       ((ExecSqlMeta) someMeta).getArguments().clear();
-      ((ExecSqlMeta) someMeta).getArguments().addAll(Arrays.asList("a", "b", "c", "d", "e"));
+      ((ExecSqlMeta) someMeta)
+          .getArguments()
+          .addAll(
+              Arrays.asList(
+                  new ExecSqlArgumentItem("a"),
+                  new ExecSqlArgumentItem("b"),
+                  new ExecSqlArgumentItem("c"),
+                  new ExecSqlArgumentItem("d"),
+                  new ExecSqlArgumentItem("e")));
     }
   }
 

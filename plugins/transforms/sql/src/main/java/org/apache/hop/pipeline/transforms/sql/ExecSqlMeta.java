@@ -119,14 +119,12 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
       key = "argument",
       groupKey = "arguments",
       injectionGroupKey = "PARAMETERS",
-      injectionGroupDescription = "ExecSqlMeta.Injection.PARAMETERS",
-      injectionKeyDescription = "ExecSqlMeta.Injection.PARAMETER_NAME",
-      injectionKey = "PARAMETER_NAME")
-  private List<String> arguments;
+      injectionGroupDescription = "ExecSqlMeta.Injection.PARAMETERS")
+  private List<ExecSqlArgumentItem> arguments;
 
   public ExecSqlMeta() {
     super();
-    arguments = new ArrayList<>();
+    arguments = new ArrayList<ExecSqlArgumentItem>();
   }
 
   /** @return Returns the true if we have to set params. */
@@ -150,12 +148,12 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
   }
 
   /** @return Returns the arguments. */
-  public List<String> getArguments() {
+  public List<ExecSqlArgumentItem> getArguments() {
     return arguments;
   }
 
   /** @param arguments The arguments to set. */
-  public void setArguments(List<String> arguments) {
+  public void setArguments(List<ExecSqlArgumentItem> arguments) {
     this.arguments = arguments;
   }
 
