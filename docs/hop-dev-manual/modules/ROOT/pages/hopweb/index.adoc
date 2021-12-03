@@ -20,7 +20,7 @@ under the License.
 
 == Building or customizing Hop Web
 
-Hop Web is available as a Docker container image from Docker Hub. Check the link:/manual/latest/hop-gui/hop-web.html[user manual for Hop Web] for more information.
+Hop Web is available as a Docker container image from Docker Hub. Check the xref:manual::hop-gui/hop-web.adoc[user manual for Hop Web] for more information.
 
 
 == Build Hop
