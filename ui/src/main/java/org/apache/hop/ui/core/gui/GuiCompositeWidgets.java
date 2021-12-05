@@ -119,7 +119,7 @@ public class GuiCompositeWidgets {
     }
 
     int extraVerticalMargin = 0;
-    if (lastControl != null && (lastControl instanceof Button)) {
+    if (lastControl instanceof Button) {
       // Checkbox: add a bit of margin
       extraVerticalMargin = (int) (3 * PropsUi.getInstance().getZoomFactor());
     }
