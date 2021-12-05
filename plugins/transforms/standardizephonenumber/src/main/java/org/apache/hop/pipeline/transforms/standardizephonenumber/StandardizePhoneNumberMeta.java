@@ -119,16 +119,14 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
         // add the output fields if specified
         int index = inputRowMeta.indexOfValue(standardize.getInputField());
         IValueMeta valueMeta = inputRowMeta.getValueMeta(index);
-        if (!Utils.isEmpty(standardize.getOutputField())) {
+        if (!Utils.isEmpty(standardize.getOutputField())
+            && !standardize.getOutputField().equals(standardize.getInputField())) {
           // created output field only if name changed
-          if (!standardize.getOutputField().equals(standardize.getInputField())) {
+          valueMeta =
+              ValueMetaFactory.createValueMeta(
+                  standardize.getOutputField(), IValueMeta.TYPE_STRING);
 
-            valueMeta =
-                ValueMetaFactory.createValueMeta(
-                    standardize.getOutputField(), IValueMeta.TYPE_STRING);
-
-            inputRowMeta.addValueMeta(valueMeta);
-          }
+          inputRowMeta.addValueMeta(valueMeta);
         }
         valueMeta.setOrigin(name);
 
@@ -200,7 +198,10 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
       for (StandardizePhoneField standardize : fields) {
 
         // See if there are missing input streams
-        IValueMeta valueMeta = prev.searchValueMeta(standardize.getInputField());
+        IValueMeta valueMeta = null;
+        if (prev != null) {
+          valueMeta = prev.searchValueMeta(standardize.getInputField());
+        }
         if (valueMeta == null) {
           String message =
               BaseMessages.getString(
@@ -211,7 +212,9 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
         }
 
         // See if there are missing input streams
-        valueMeta = prev.searchValueMeta(standardize.getCountryField());
+        if (prev != null) {
+          valueMeta = prev.searchValueMeta(standardize.getCountryField());
+        }
         if (valueMeta == null) {
           String message =
               BaseMessages.getString(

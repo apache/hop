@@ -325,12 +325,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
     Integer scrollXSelection = (Integer) stateProperties.get(STATE_SCROLL_X_SELECTION);
     if (scrollXSelection != null && horizontalScrollBar != null) {
-      horizontalScrollBar.setSelection(scrollXSelection.intValue());
+      horizontalScrollBar.setSelection(scrollXSelection);
     }
 
     Integer scrollYSelection = (Integer) stateProperties.get(STATE_SCROLL_Y_SELECTION);
     if (scrollYSelection != null && verticalScrollBar != null) {
-      verticalScrollBar.setSelection(scrollYSelection.intValue());
+      verticalScrollBar.setSelection(scrollYSelection);
     }
 
     redraw();
@@ -362,8 +362,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
     }
 
     canvas.setSize(canvasBounds.width, canvasBounds.height);
-    h.setVisible(newWidth >= canvasBounds.width);
-    v.setVisible(newHeight >= canvasBounds.height);
+    if (h != null) {
+      h.setVisible(newWidth >= canvasBounds.width);
+    }
+    if (v != null) {
+      v.setVisible(newHeight >= canvasBounds.height);
+    }
 
     int hThumb = (int) (100.0 * canvasBounds.width / newWidth);
     int vThumb = (int) (100.0 * canvasBounds.height / newHeight);

@@ -25,7 +25,6 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -200,8 +199,7 @@ public class AddSequenceMeta extends BaseTransformMeta
 
   @Override
   public Object clone() {
-    Object retval = super.clone();
-    return retval;
+    return super.clone();
   }
 
   @Override
@@ -225,10 +223,8 @@ public class AddSequenceMeta extends BaseTransformMeta
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
     IValueMeta v = new ValueMetaInteger(valueName);
-    // v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin(name);
     row.addValueMeta(v);
   }
@@ -253,7 +249,6 @@ public class AddSequenceMeta extends BaseTransformMeta
 
       if (databaseUsed) {
         db = new Database(loggingObject, variables, databaseMeta);
-
         db.connect();
         if (db.checkSequenceExists(
             variables.resolve(schemaName), variables.resolve(sequenceName))) {
@@ -284,7 +279,9 @@ public class AddSequenceMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.disconnect();
+      }
     }
 
     if (input.length > 0) {
@@ -316,8 +313,8 @@ public class AddSequenceMeta extends BaseTransformMeta
     try {
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-      retval =
-          new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
+      retval = new SqlStatement(transformMeta.getName(), databaseMeta, null);
+      // default: nothing to do!
       if (databaseUsed) {
         // Otherwise, don't bother!
         if (databaseMeta != null) {
@@ -336,12 +333,16 @@ public class AddSequenceMeta extends BaseTransformMeta
         }
       }
     } catch (HopException e) {
-      retval.setError(
-          BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
-              + Const.CR
-              + e.getMessage());
+      if (retval != null) {
+        retval.setError(
+            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
+                + Const.CR
+                + e.getMessage());
+      }
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.disconnect();
+      }
     }
 
     return retval;
