@@ -64,8 +64,8 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
     super(pipelineMap);
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
@@ -92,7 +92,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
     String webServiceName = request.getParameter("service");
     if (StringUtils.isEmpty(webServiceName)) {
-      throw new ServletException(
+      log.logError(
           "Please specify a service parameter pointing to the name of the asynchronous webservice object");
     }
 
@@ -194,7 +194,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
       // Allocate the workflow in the background...
       //
-      new Thread(() -> workflow.startExecution()).start();
+      new Thread(workflow::startExecution).start();
 
       final OutputStream outputStream = response.getOutputStream();
 
@@ -211,8 +211,8 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
       response.setStatus(HttpServletResponse.SC_OK);
 
-    } catch (Exception e) {
-      throw new ServletException("Error running asynchronous web service", e);
+    } catch (IOException | HopException e) {
+      log.logError("Error running asynchronous web service", e);
     }
   }
 
