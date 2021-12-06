@@ -212,21 +212,4 @@ public class Metrics implements IMetrics {
     return ((IMetrics) obj).getCode().equalsIgnoreCase(code);
   }
 
-  public static List<IMetrics> getDefaultMetrics() {
-    List<IMetrics> metrics = new ArrayList<>();
-
-    for (Field field : Metrics.class.getDeclaredFields()) {
-      if (field.getType().equals(Metrics.class) && field.getName().startsWith("METRIC_")) {
-        field.setAccessible(true);
-        try {
-          metrics.add((IMetrics) field.get(null));
-        } catch (Exception e) {
-          e.printStackTrace(); // it either works or doesn't, seems more like a JRE problem if it
-          // doesn't.
-        }
-      }
-    }
-
-    return metrics;
-  }
 }
