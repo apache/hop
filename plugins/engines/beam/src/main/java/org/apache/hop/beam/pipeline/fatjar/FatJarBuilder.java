@@ -18,8 +18,6 @@
 package org.apache.hop.beam.pipeline.fatjar;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.JarCache;
@@ -28,7 +26,10 @@ import org.jboss.jandex.IndexWriter;
 import org.jboss.jandex.Indexer;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -171,7 +172,6 @@ public class FatJarBuilder {
         IndexWriter indexWriter = new IndexWriter(zipOutputStream);
         indexWriter.write(indexer.complete());
         zipOutputStream.closeEntry();
-
       }
     } catch (Exception e) {
       throw new HopException("Unable to build far jar file '" + realTargetJarFile + "'", e);
