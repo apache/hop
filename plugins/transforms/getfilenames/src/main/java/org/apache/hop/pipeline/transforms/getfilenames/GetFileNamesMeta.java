@@ -122,6 +122,9 @@ public class GetFileNamesMeta extends BaseTransformMeta
   /** Flag : do not fail if no file */
   private boolean doNotFailIfNoFile;
 
+  /** Flag : raise an exception if no file */
+  private boolean raiseAnExceptionIfNoFile;
+
   public GetFileNamesMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -134,6 +137,16 @@ public class GetFileNamesMeta extends BaseTransformMeta
   /** @param doNotFailIfNoFile the doNotFailIfNoFile to set */
   public void setdoNotFailIfNoFile(boolean doNotFailIfNoFile) {
     this.doNotFailIfNoFile = doNotFailIfNoFile;
+  }
+
+  /** @return the raiseAnExceptionIfNoFile flag */
+  public boolean isRaiseAnExceptionIfNoFile() {
+    return raiseAnExceptionIfNoFile;
+  }
+
+  /** @param raiseAnExceptionIfNoFile the raiseAnExceptionIfNoFile to set */
+  public void setRaiseAnExceptionIfNoFile(boolean raiseAnExceptionIfNoFile) {
+    this.raiseAnExceptionIfNoFile = raiseAnExceptionIfNoFile;
   }
 
   /** @return Returns the filenameField. */
@@ -470,6 +483,9 @@ public class GetFileNamesMeta extends BaseTransformMeta
         .append(XmlHandler.addTagValue("filterfiletype", fileTypeFilter.toString()));
     retval.append("    </filter>").append(Const.CR);
     retval.append("    ").append(XmlHandler.addTagValue("doNotFailIfNoFile", doNotFailIfNoFile));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("raiseAnExceptionIfNoFile", raiseAnExceptionIfNoFile));
     retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
     retval.append("    ").append(XmlHandler.addTagValue("isaddresult", isaddresult));
     retval.append("    ").append(XmlHandler.addTagValue("filefield", filefield));
@@ -510,6 +526,8 @@ public class GetFileNamesMeta extends BaseTransformMeta
           FileInputList.FileTypeFilter.getByName(XmlHandler.getNodeValue(filterfiletypenode));
       doNotFailIfNoFile =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "doNotFailIfNoFile"));
+      raiseAnExceptionIfNoFile =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "raiseAnExceptionIfNoFile"));
       includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
       isaddresult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "isaddresult"));
       filefield = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filefield"));
