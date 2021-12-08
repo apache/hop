@@ -32,7 +32,7 @@ Each run configuration comes with its own set of parameters and configuration op
 When starting a new transformation click **New** next to 'Workflow run configuration'.
 All run configurations have a name, description and an engine type, each engine type has its own set of configuration options.
 
-Once created, run configurations are available from the 'Pipeline run configuration' list and are ready to use.
+Once created, run configurations are available from the 'Workflow run configuration' list and are ready to use.
 
 image:hop-gui/workflow/workflow-run-configuration.png[Workflow Run configuration,65%,align="left"]
 
