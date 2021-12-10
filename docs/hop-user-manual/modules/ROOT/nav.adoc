@@ -60,6 +60,7 @@ under the License.
 *** xref:pipeline/transforms/addfieldschangesequence.adoc[Add value fields changing sequence]
 *** xref:pipeline/transforms/addxml.adoc[Add XML]
 *** xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
+*** xref:pipeline/transforms/apache-tika.adoc[Apapache Tika]
 *** xref:pipeline/transforms/append.adoc[Append Streams]
 *** xref:pipeline/transforms/avro-decode.adoc[Avro Decode]
 *** xref:pipeline/transforms/avro-file-input.adoc[Avro File Input]

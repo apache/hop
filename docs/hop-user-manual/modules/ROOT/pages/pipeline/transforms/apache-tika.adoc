@@ -25,6 +25,9 @@ under the License.
 The Apache Tika transform parses files in all sorts of formats and extracts the text content as well as available metadata it can extract.
 This transform uses the http://tika.apache.org[Apache Tika] libraries to do the parsing.
 
+The extracted metadata is given in JSON format.
+If you need specific pieces of information from this metadata, you can extract those with a xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform.
+
 == Options
 
 [width="90%",options="header"]
@@ -36,14 +39,14 @@ This transform uses the http://tika.apache.org[Apache Tika] libraries to do the 
 Note: This name has to be unique in a single pipeline.
 
 |File tab
-|Here you can specify which files will be read and examined
+|Here you can specify which files will be read and examined.
 
 |Content tab
 |This tab has various content settings.
 For example, you can specify the file encoding, output format and so on.
 
 |Output fields tab
-|On this tab you can simply type in the names of the fields you want in the output
+|On this tab you can simply type in the names of the fields you want in the output.
 
 |===
 
