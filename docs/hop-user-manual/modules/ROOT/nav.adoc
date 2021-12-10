@@ -61,6 +61,7 @@ under the License.
 *** xref:pipeline/transforms/addxml.adoc[Add XML]
 *** xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
 *** xref:pipeline/transforms/append.adoc[Append Streams]
+*** xref:pipeline/transforms/apache-tika.adoc[Apache Tika]
 *** xref:pipeline/transforms/avro-decode.adoc[Avro Decode]
 *** xref:pipeline/transforms/avro-file-input.adoc[Avro File Input]
 *** xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs Listener]
