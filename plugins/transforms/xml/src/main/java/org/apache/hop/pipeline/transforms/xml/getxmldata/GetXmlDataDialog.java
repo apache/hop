@@ -110,7 +110,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
   private Label wlLimit;
   private Text wLimit;
 
-  private TextVar wLoopXPath;
+  private TextVar wLoopXPath, wLoopXPathSnippet;
 
   private Label wlPrunePath;
   private TextVar wPrunePath;
@@ -156,6 +156,12 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
   String precNodeName = null;
+
+  private PdOption readFilePdOption;
+  private PdOption readUrlPdOption;
+  private PdOption readXmlPdOption;
+  private PdOption readHopVfsPdOption;
+  private PdOption readSnippetPdOption;
 
   public GetXmlDataDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -579,16 +585,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     XmlConfgroupLayout.marginHeight = 10;
     wXmlConf.setLayout(XmlConfgroupLayout);
 
-    Button wbbLoopPathList = new Button(wXmlConf, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbLoopPathList);
-    wbbLoopPathList.setText(BaseMessages.getString(PKG, "GetXMLDataDialog.LoopPathList.Button"));
-    wbbLoopPathList.setToolTipText(
-        BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
-    FormData fdbLoopPathList = new FormData();
-    fdbLoopPathList.right = new FormAttachment(100, 0);
-    fdbLoopPathList.top = new FormAttachment(0, 0);
-    wbbLoopPathList.setLayoutData(fdbLoopPathList);
-
+    Button wbbLoopPathList = getWbbLoopPathList(wXmlConf);
     wbbLoopPathList.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -965,10 +962,12 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "GetXMLDataDialog.GetFields.Button"));
-    fdGet = new FormData();
-    fdGet.left = new FormAttachment(50, 0);
-    fdGet.bottom = new FormAttachment(100, 0);
-    wGet.setLayoutData(fdGet);
+
+    Button wGetSnippet = new Button(wFieldsComp, SWT.PUSH);
+    wGetSnippet.setText(BaseMessages.getString(PKG, "GetXMLDataDialog.Button.SelectFieldsSnippet"));
+    wGetSnippet.addListener(SWT.Selection, e -> getFromSnippet());
+
+    setButtonPositions(new Button[]{wGet, wGetSnippet}, margin, null);
 
     final int FieldsRows = input.getInputFields().length;
 
@@ -1222,6 +1221,83 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     return transformName;
   }
 
+  private Button getWbbLoopPathList(Composite composite) {
+    Button wbbLoopPathList = new Button(composite, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbbLoopPathList);
+    wbbLoopPathList.setText(BaseMessages.getString(PKG, "GetXMLDataDialog.LoopPathList.Button"));
+    wbbLoopPathList.setToolTipText(
+        BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
+    FormData fdbLoopPathList = new FormData();
+    fdbLoopPathList.right = new FormAttachment(100, 0);
+    fdbLoopPathList.top = new FormAttachment(0, 0);
+    wbbLoopPathList.setLayoutData(fdbLoopPathList);
+    return wbbLoopPathList;
+  }
+
+  private void getFromSnippet() {
+
+    EnterTextDialog getFromSnippetDialog =
+            new EnterTextDialog(
+                    shell,
+                    BaseMessages.getString(PKG, "GetXMLDataDialog.Button.SelectFieldsSnippet"),
+                    BaseMessages.getString(PKG, "GetXMLDataDialog.GetFieldsFromSnippet.Message"),
+                    "",
+                    true) {
+
+              @Override
+              public void enrich(EnterTextDialog enterTextDialog) {
+
+                readSnippetPdOption=new PdOption();
+                readSnippetPdOption.setUseSnippet(true);
+
+                Button wbbLoopPathList = getWbbLoopPathList(enterTextDialog.getShell());
+                wbbLoopPathList.addSelectionListener(
+                        new SelectionAdapter() {
+                          @Override
+                          public void widgetSelected(SelectionEvent e) {
+                            LoopNodesImportProgressDialog pd = new LoopNodesImportProgressDialog(enterTextDialog.getShell(), enterTextDialog.getText(), readSnippetPdOption);
+                            populateLoopPaths(enterTextDialog.getText(), pd);
+                            readSnippetPdOption.setLoopXPath(wLoopXPathSnippet.getText());
+                          }
+                        });
+
+                Label wlLoopXPath = new Label(enterTextDialog.getShell(), SWT.RIGHT);
+                wlLoopXPath.setText(BaseMessages.getString(PKG, "GetXMLDataDialog.LoopXPath.Label"));
+                props.setLook(wlLoopXPath);
+                FormData fdlLoopXPath = new FormData();
+                fdlLoopXPath.top = new FormAttachment(0, margin);
+                fdlLoopXPath.left = new FormAttachment(0, 0);
+                wlLoopXPath.setLayoutData(fdlLoopXPath);
+                wLoopXPathSnippet = new TextVar(variables, enterTextDialog.getShell(), SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+                wLoopXPathSnippet.setToolTipText(BaseMessages.getString(PKG, "GetXMLDataDialog.LoopXPath.Tooltip"));
+                props.setLook(wLoopXPathSnippet);
+                FormData fdLoopXPath = new FormData();
+                fdLoopXPath.left = new FormAttachment(wlLoopXPath, margin);
+                fdLoopXPath.right = new FormAttachment(wbbLoopPathList, -margin);
+                wLoopXPathSnippet.setLayoutData(fdLoopXPath);
+
+                FormData fdlDesc = (FormData) enterTextDialog.getWlDesc().getLayoutData();
+                fdlDesc.top = new FormAttachment(wlLoopXPath, 2 * margin);
+
+                enterTextDialog.setWOkListener(e->{
+                  try {
+                    XmlInputFieldsImportProgressDialog prd = new XmlInputFieldsImportProgressDialog(shell, enterTextDialog.getText(), readSnippetPdOption.getLoopXPath(), readSnippetPdOption);
+                    populateFields(prd, SWT.YES);
+                  } catch (HopException ex){
+                    new ErrorDialog(
+                            shell,
+                            BaseMessages.getString(PKG, "GetXMLDataDialog.FailedToGetFields.DialogTitle"),
+                            BaseMessages.getString(PKG, "GetXMLDataDialog.FailedToGetFieldsFromSnippet.DialogMessage"),
+                            ex);
+                  }
+                });
+
+              }
+            };
+    getFromSnippetDialog.open();
+
+  }
+
   private void setXMLStreamField() {
     try {
 
@@ -1345,7 +1421,11 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
                     BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Message"));
             url = d.open();
           }
-          populateLoopPaths(meta, url, true, true);
+          readUrlPdOption=new PdOption();
+          readUrlPdOption.setUseUrl(true);
+          readUrlPdOption.setValidating(meta.isValidating());
+          LoopNodesImportProgressDialog pd = new LoopNodesImportProgressDialog(shell, url, readUrlPdOption);
+          populateLoopPaths(url, pd);
 
         } else if (meta.getIsAFile()) {
           // Read file
@@ -1365,7 +1445,11 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
                       + System.getProperty("file.separator")
                       + dialog.getFileName();
             }
-            populateLoopPaths(meta, str, false, false);
+            readFilePdOption=new PdOption();
+            readFilePdOption.setEncoding(meta.getEncoding() == null ? "UTF-8" : meta.getEncoding());
+            readFilePdOption.setValidating(meta.isValidating());
+            LoopNodesImportProgressDialog pd = new LoopNodesImportProgressDialog(shell, str, readFilePdOption);
+            populateLoopPaths(str, pd);
           }
         } else {
           // Read xml
@@ -1379,7 +1463,10 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
                     null);
             xml = d.open();
           }
-          populateLoopPaths(meta, xml, true, false);
+          readXmlPdOption=new PdOption();
+          readXmlPdOption.setValidating(meta.isValidating());
+          LoopNodesImportProgressDialog pd = new LoopNodesImportProgressDialog(shell, xml, readXmlPdOption);
+          populateLoopPaths(xml, pd);
         }
       } else {
 
@@ -1389,7 +1476,12 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
           // Check the first file
 
           if (fileinputList.getFile(0).exists()) {
-            populateLoopPaths(meta, HopVfs.getFilename(fileinputList.getFile(0)), false, false);
+            readHopVfsPdOption=new PdOption();
+            readHopVfsPdOption.setValidating(meta.isValidating());
+            readHopVfsPdOption.setEncoding(meta.getEncoding() == null ? "UTF-8" : meta.getEncoding());
+            String xml = HopVfs.getFilename(fileinputList.getFile(0));
+            LoopNodesImportProgressDialog pd = new LoopNodesImportProgressDialog(shell, xml, readHopVfsPdOption);
+            populateLoopPaths(xml, pd);
           } else {
             // The file not exists !
             throw new HopException(
@@ -1452,7 +1544,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
                     BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Title"));
             url = enterStringDialog.open();
           }
-          populateFields(meta, url, true, true, clearFields);
+          XmlInputFieldsImportProgressDialog prd = new XmlInputFieldsImportProgressDialog(shell, url, variables.resolve(meta.getLoopXPath()), readUrlPdOption);
+          populateFields(prd, clearFields);
 
         } else if (meta.getIsAFile()) {
           // Read file
@@ -1473,7 +1566,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
                       + dialog.getFileName();
             }
           }
-          populateFields(meta, str, false, false, clearFields);
+          XmlInputFieldsImportProgressDialog prd = new XmlInputFieldsImportProgressDialog(shell, str, variables.resolve(meta.getLoopXPath()), readFilePdOption);
+          populateFields(prd, clearFields);
         } else {
           // Read xml
           String xml = XMLSource;
@@ -1486,14 +1580,16 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
                     null);
             xml = d.open();
           }
-          populateFields(meta, xml, true, false, clearFields);
+          XmlInputFieldsImportProgressDialog prd = new XmlInputFieldsImportProgressDialog(shell, xml, variables.resolve(meta.getLoopXPath()), readXmlPdOption);
+          populateFields(prd, clearFields);
         }
       } else {
 
         FileInputList inputList = meta.getFiles(variables);
 
         if (inputList.getFiles().size() > 0) {
-          populateFields(meta, HopVfs.getFilename(inputList.getFile(0)), false, false, clearFields);
+          XmlInputFieldsImportProgressDialog prd = new XmlInputFieldsImportProgressDialog(shell, HopVfs.getFilename(inputList.getFile(0)), variables.resolve(meta.getLoopXPath()), readHopVfsPdOption);
+          populateFields(prd, clearFields);
         }
       }
     } catch (Exception e) {
@@ -2070,31 +2166,24 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
 
   }
 
-  private void populateLoopPaths(
-      GetXmlDataMeta meta, String XMLSource, boolean dynamicXMLSource, boolean useURL) {
+  private void populateLoopPaths(String XMLSource, LoopNodesImportProgressDialog pd) {
     if (Utils.isEmpty(XMLSource)) {
       return;
     }
-    String[] list_xpath = null;
-    LoopNodesImportProgressDialog pd = null;
-    if (dynamicXMLSource) {
-      pd = new LoopNodesImportProgressDialog(shell, meta, XMLSource, useURL);
-    } else {
-      pd =
-          new LoopNodesImportProgressDialog(
-              shell, meta, XMLSource, meta.getEncoding() == null ? "UTF-8" : meta.getEncoding());
-    }
-    if (pd != null) {
-      list_xpath = pd.open();
-      if (list_xpath != null) {
-        EnterSelectionDialog s =
-            new EnterSelectionDialog(
-                shell,
-                list_xpath,
-                BaseMessages.getString(PKG, "GetXMLDataDialog.Dialog.SelectALoopPath.Title"),
-                BaseMessages.getString(PKG, "GetXMLDataDialog.Dialog.SelectALoopPath.Message"));
-        String listxpaths = s.open();
-        if (listxpaths != null) {
+    String[] list_xpath;
+    list_xpath = pd.open();
+    if (list_xpath != null) {
+      EnterSelectionDialog s =
+              new EnterSelectionDialog(
+                      shell,
+                      list_xpath,
+                      BaseMessages.getString(PKG, "GetXMLDataDialog.Dialog.SelectALoopPath.Title"),
+                      BaseMessages.getString(PKG, "GetXMLDataDialog.Dialog.SelectALoopPath.Message"));
+      String listxpaths = s.open();
+      if (listxpaths != null) {
+        if (pd.getOption().isUseSnippet()) {
+          wLoopXPathSnippet.setText(listxpaths);
+        } else {
           wLoopXPath.setText(listxpaths);
         }
       }
@@ -2102,33 +2191,13 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     this.XMLSource = XMLSource;
   }
 
-  private void populateFields(
-      GetXmlDataMeta meta,
-      String XMLSource,
-      boolean dynamicXMLSource,
-      boolean useURL,
-      int clearFields)
-      throws HopException {
+  private void populateFields(XmlInputFieldsImportProgressDialog prd, int clearFields) throws HopException {
     if (Utils.isEmpty(XMLSource)) {
       return;
     }
 
-    XmlInputFieldsImportProgressDialog prd = null;
     RowMetaAndData[] fields = null;
 
-    if (dynamicXMLSource) {
-      prd =
-          new XmlInputFieldsImportProgressDialog(
-              shell, meta, XMLSource, useURL, variables.resolve(meta.getLoopXPath()));
-    } else {
-      prd =
-          new XmlInputFieldsImportProgressDialog(
-              shell,
-              meta,
-              XMLSource,
-              meta.getEncoding() == null ? "UTF-8" : meta.getEncoding(),
-              variables.resolve(meta.getLoopXPath()));
-    }
     if (prd != null) {
       fields = prd.open();
       if (fields != null) {

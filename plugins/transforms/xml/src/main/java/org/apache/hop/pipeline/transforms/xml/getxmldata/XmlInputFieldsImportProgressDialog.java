@@ -62,8 +62,6 @@ public class XmlInputFieldsImportProgressDialog {
 
   private Shell shell;
 
-  private GetXmlDataMeta meta;
-
   private String filename;
   private String encoding;
 
@@ -78,41 +76,38 @@ public class XmlInputFieldsImportProgressDialog {
   private String xml;
   private String url;
 
+  private PdOption option;
+
   /**
    * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML
    * file
    */
   public XmlInputFieldsImportProgressDialog(
-      Shell shell, GetXmlDataMeta meta, String filename, String encoding, String loopXPath) {
-    this.shell = shell;
-    this.meta = meta;
-    this.fields = null;
-    this.filename = filename;
-    this.encoding = encoding;
-    this.nr = 0;
-    this.loopXPath = loopXPath;
-    this.list = new HashSet<>();
-    this.fieldsList = new ArrayList<>();
-  }
+          Shell shell, String xmlSource, String loopXPath, PdOption option) {
 
-  public XmlInputFieldsImportProgressDialog(
-      Shell shell, GetXmlDataMeta meta, String xmlSource, boolean useUrl, String loopXPath) {
     this.shell = shell;
-    this.meta = meta;
-    this.fields = null;
-    this.filename = null;
-    this.encoding = null;
-    this.nr = 0;
+    this.option=option;
     this.loopXPath = loopXPath;
-    this.list = new HashSet<>();
-    this.fieldsList = new ArrayList<>();
-    if (useUrl) {
+
+    if(option.isXmlSourceIsFile()){
+      this.filename = xmlSource;
+      this.xml = null;
+      this.url = null;
+    }else if(option.isUseUrl()){
+      this.filename = null;
       this.xml = null;
       this.url = xmlSource;
-    } else {
+    }else {
+      this.filename = null;
       this.xml = xmlSource;
       this.url = null;
     }
+
+    this.encoding = option.getEncoding();
+    this.nr = 0;
+    this.list = new HashSet<>();
+    this.fieldsList = new ArrayList<>();
+    this.fields = null;
   }
 
   public RowMetaAndData[] open() {
@@ -169,7 +164,7 @@ public class XmlInputFieldsImportProgressDialog {
       return null;
     }
     // Validate XML against specified schema?
-    if (meta.isValidating()) {
+    if (option.isValidating()) {
       reader.setValidation(true);
       reader.setFeature("http://apache.org/xml/features/validation/schema", true);
     } else {
