@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 /** Abstract implementation of all metadata editors. */
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
@@ -101,6 +102,18 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
             annotation.image(),
             ConstUi.LARGE_ICON_SIZE,
             ConstUi.LARGE_ICON_SIZE));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MetadataEditor<?> that = (MetadataEditor<?>) o;
+    return Objects.equals(metadata, that.metadata);
   }
 
   public Button[] createButtonsForButtonBar(final Composite parent) {
