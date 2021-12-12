@@ -82,13 +82,12 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData>
 
       // Find the row sets to read from
       //
-      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
-      String targetStreamTransformName = infoStreams.get(0).getTransformName();
+      String targetStreamTransformName = meta.getTargetXmlTransform();
       if (StringUtils.isEmpty(targetStreamTransformName)) {
         throw new HopException(
             "Please specify which transform to read the XML target stream rows from");
       }
-      String sourceStreamTransformName = infoStreams.get(1).getTransformName();
+      String sourceStreamTransformName = meta.getSourceXmlTransform();
       if (StringUtils.isEmpty(sourceStreamTransformName)) {
         throw new HopException(
             "Please specify which transform to read the XML source stream rows from");
