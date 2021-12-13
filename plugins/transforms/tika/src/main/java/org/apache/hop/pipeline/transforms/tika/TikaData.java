@@ -26,13 +26,11 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.Date;
 
 public class TikaData extends BaseTransformData implements ITransformData {
+  public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;
-  public Object[] previousRow;
-  public int nr_repeats;
 
   public FileInputList files;
-  public boolean last_file;
   public FileObject file;
   public int fileNr;
 
@@ -46,7 +44,6 @@ public class TikaData extends BaseTransformData implements ITransformData {
 
   public long fileSize;
 
-  public IRowMeta inputRowMeta;
   public String filename;
   public String shortFilename;
   public String path;
@@ -62,8 +59,6 @@ public class TikaData extends BaseTransformData implements ITransformData {
   public TikaData() {
     super();
 
-    nr_repeats = 0;
-    previousRow = null;
     fileNr = 0;
 
     totalPreviousFields = 0;

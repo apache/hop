@@ -157,12 +157,15 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
         }
 
         // Is this the last file?
-        data.last_file = (data.fileNr == data.files.nrOfFiles() - 1);
         data.file = data.files.getFile(data.fileNr);
       }
 
       // Check if file is empty
-      data.fileSize = data.file.getContent().getSize();
+      if (data.file.getContent() != null) {
+        data.fileSize = data.file.getContent().getSize();
+      } else {
+        data.fileSize = 0;
+      }
       // Move file pointer ahead!
       data.fileNr++;
 
@@ -206,7 +209,6 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
           logDetailed(BaseMessages.getString(PKG, "Tika.Log.FileOpened", data.file.toString()));
         }
       }
-
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
@@ -421,10 +423,6 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
       if (StringUtils.isNotEmpty(meta.getRootUriNameFieldName())) {
         outputRowData[indexField++] = data.rootUriName;
       }
-
-      // copy it to make sure the next step doesn't change it in between...
-      //
-      data.previousRow = data.outputRowMeta.cloneRow(outputRowData);
 
       incrementLinesInput();
       data.rowNr++;
