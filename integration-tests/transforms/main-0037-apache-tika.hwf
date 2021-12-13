@@ -59,7 +59,21 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>368</xloc>
+      <xloc>544</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Set timezone</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>
+Packages.java.util.TimeZone.setDefault(Packages.java.util.TimeZone.getTimeZone("CET"))
+
+true;</script>
+      <parallel>N</parallel>
+      <xloc>304</xloc>
       <yloc>112</yloc>
       <attributes_hac/>
     </action>
@@ -67,13 +81,40 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run Apache Tika Tests</to>
+      <to>Set timezone</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
+    <hop>
+      <from>Set timezone</from>
+      <to>Run Apache Tika Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
+    <notepad>
+      <note>Test data is saved in Central European Time</note>
+      <xloc>224</xloc>
+      <yloc>192</yloc>
+      <width>234</width>
+      <heigth>26</heigth>
+      <fontname>Inter</fontname>
+      <fontsize>11</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>200</fontcolorred>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorblue>250</fontcolorblue>
+      <backgroundcolorred>15</backgroundcolorred>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <bordercolorred>200</bordercolorred>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorblue>250</bordercolorblue>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>
