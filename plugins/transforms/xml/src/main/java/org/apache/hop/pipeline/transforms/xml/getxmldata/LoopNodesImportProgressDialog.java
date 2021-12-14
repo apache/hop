@@ -50,8 +50,6 @@ public class LoopNodesImportProgressDialog {
 
   private Shell shell;
 
-  private GetXmlDataMeta meta;
-
   private String[] Xpaths;
 
   private String filename;
@@ -63,39 +61,36 @@ public class LoopNodesImportProgressDialog {
 
   private int nr;
 
+  private PdOption option;
+
   /**
    * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML
    * file
    */
   public LoopNodesImportProgressDialog(
-      Shell shell, GetXmlDataMeta meta, String filename, String encoding) {
+      Shell shell, String xmlSource, PdOption option) {
     this.shell = shell;
-    this.meta = meta;
+    this.option=option;
     this.Xpaths = null;
-    this.filename = filename;
-    this.encoding = encoding;
-    this.listpath = new ArrayList<>();
-    this.nr = 0;
-    this.xml = null;
-    this.url = null;
-  }
 
-  public LoopNodesImportProgressDialog(
-      Shell shell, GetXmlDataMeta meta, String xmlSource, boolean useUrl) {
-    this.shell = shell;
-    this.meta = meta;
-    this.Xpaths = null;
-    this.filename = null;
-    this.encoding = null;
-    this.listpath = new ArrayList<>();
-    this.nr = 0;
-    if (useUrl) {
+    if(option.isXmlSourceIsFile()){
+      this.filename = xmlSource;
+      this.xml = null;
+      this.url = null;
+    }else if(option.isUseUrl()){
+      this.filename = null;
       this.xml = null;
       this.url = xmlSource;
-    } else {
+    }else {
+      this.filename = null;
       this.xml = xmlSource;
       this.url = null;
     }
+
+    this.encoding = option.getEncoding();
+    this.listpath = new ArrayList<>();
+    this.nr = 0;
+
   }
 
   public String[] open() {
@@ -152,7 +147,7 @@ public class LoopNodesImportProgressDialog {
       return null;
     }
     // Validate XML against specified schema?
-    if (meta.isValidating()) {
+    if (option.isValidating()) {
       reader.setValidation(true);
       reader.setFeature("http://apache.org/xml/features/validation/schema", true);
     } else {
@@ -268,5 +263,9 @@ public class LoopNodesImportProgressDialog {
         }
       }
     }
+  }
+
+  public PdOption getOption() {
+    return option;
   }
 }
