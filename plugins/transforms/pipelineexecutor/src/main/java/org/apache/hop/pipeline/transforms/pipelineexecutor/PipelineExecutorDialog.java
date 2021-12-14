@@ -818,6 +818,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wlGroupSize = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlGroupSize);
     wlGroupSize.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.GroupSize.Label"));
+    wlGroupSize.setToolTipText(BaseMessages.getString(PKG, "PipelineExecutorDialog.GroupSize.Tooltip"));
     FormData fdlGroupSize = new FormData();
     fdlGroupSize.top = new FormAttachment(0, 0);
     fdlGroupSize.left = new FormAttachment(0, 0);
