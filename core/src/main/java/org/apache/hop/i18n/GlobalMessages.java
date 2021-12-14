@@ -42,18 +42,34 @@ public class GlobalMessages extends AbstractMessageHandler {
 
   public static final String[] localeDescr = {
     "English (US)",
-    "Nederlands",
-    "Simplified Chinese",
-    "Espa\u00F1ol (Spain)",
+    "Nederlands (Beta)",
+    "Simplified Chinese (Beta)",
+    "Espa\u00F1ol (Spain) (Beta)",
     "Fran\u00E7ais",
-    "Deutsch",
-    "Portuguese (Brazil)",
-    "Portuguese (Portugal)",
-    "Espa\u00F1ol (Argentina)",
-    "Norwegian (Norway)",
+    "Deutsch (Beta)",
+    "Portuguese (Brazil) (Beta)",
+    "Portuguese (Portugal) (Beta)",
+    "Espa\u00F1ol (Argentina) (Beta)",
+    "Norwegian (Norway) (Beta)",
     "Italian (Italy)",
-    "Japanese (Japan)",
-    "Korean (Korea)",
+    "Japanese (Japan) (Beta)",
+    "Korean (Korea) (Beta)",
+  };
+
+  public static final String[] localeBetaStatus = {
+          "N", //"English (US)"
+          "Y", //"Nederlands"
+          "Y", //"Simplified Chinese"
+          "Y", //"Espa\u00F1ol (Spain)"
+          "N", //"Fran\u00E7ais"
+          "Y", //"Deutsch"
+          "Y", //"Portuguese (Brazil)"
+          "Y", //"Portuguese (Portugal)"
+          "Y", //"Espa\u00F1ol (Argentina)"
+          "Y", //"Norwegian (Norway)"
+          "N", //"Italian (Italy)"
+          "Y", //"Japanese (Japan)"
+          "Y", //"Korean (Korea)"
   };
 
   protected static GlobalMessages GMinstance = null;
