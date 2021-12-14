@@ -292,7 +292,7 @@ public class GetFileNamesMeta extends BaseTransformMeta
   @Override
   public void setDefault() {
     doNotFailIfNoFile = false;
-    fileTypeFilter = FileInputList.FileTypeFilter.FILES_AND_FOLDERS;
+    filterItemList.add(new FilterItem(FileInputList.FileTypeFilter.FILES_AND_FOLDERS.toString()));
     addResultFile = true;
     fileField = false;
     includeRowNumber = false;
@@ -599,6 +599,12 @@ public class GetFileNamesMeta extends BaseTransformMeta
   @Override
   public GetFileNamesData getTransformData() {
     return new GetFileNamesData();
+  }
+
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 
   /**

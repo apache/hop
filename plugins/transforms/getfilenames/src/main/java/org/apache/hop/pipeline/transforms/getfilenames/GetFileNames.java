@@ -99,7 +99,6 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
         // Check is filename field is provided
         if (Utils.isEmpty(meta.getDynamicFilenameField())) {
-          logError(BaseMessages.getString(PKG, "GetFileNames.Log.NoField"));
           throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoField"));
         }
 
@@ -196,7 +195,9 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
         if (!meta.isDoNotFailIfNoFile() && data.filessize == 0) {
           if (meta.isRaiseAnExceptionIfNoFile()) {
-            throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoFileStop"));
+            if (getTransformMeta().isDoingErrorHandling()) {
+              sendErrorRow(BaseMessages.getString(PKG, "GetFileNames.Log.NoFile"));
+            } else throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoFileStop"));
           }
           logError(BaseMessages.getString(PKG, "GetFileNames.Log.NoFile"));
         } else {
@@ -299,10 +300,26 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
     return true;
   }
 
+  private void sendErrorRow(String errorMsg) {
+    try {
+      String defaultErrCode = "GetFilenames001";
+      if (data.readrow != null) {
+        putError(getInputRowMeta(), data.readrow, 1, errorMsg, null, defaultErrCode);
+      } else {
+        // when no input only error fields are recognized
+        putError(new RowMeta(), new Object[0], 1, errorMsg, null, defaultErrCode);
+      }
+    } catch (HopTransformException e) {
+      logError(e.getLocalizedMessage(), e);
+    }
+  }
+
   private void handleMissingFiles() throws HopException {
     if (!meta.isDoNotFailIfNoFile() && data.files.nrOfFiles() == 0) {
       if (meta.isRaiseAnExceptionIfNoFile()) {
-        throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoFileStop"));
+        if (getTransformMeta().isDoingErrorHandling()) {
+          sendErrorRow(BaseMessages.getString(PKG, "GetFileNames.Log.NoFile"));
+        } else throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoFileStop"));
       }
       logError(BaseMessages.getString(PKG, "GetFileNames.Log.NoFile"));
       return;
