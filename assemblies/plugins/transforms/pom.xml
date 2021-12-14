@@ -155,6 +155,7 @@
     <module>tableoutput</module>
     <module>terafast</module>
     <module>textfile</module>
+    <module>tika</module>
     <module>tokenreplacement</module>
     <module>uniquerows</module>
     <module>uniquerowsbyhashset</module>

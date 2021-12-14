@@ -29,6 +29,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/addfieldschangesequence.adoc[Add value fields changing sequence]
 * xref:pipeline/transforms/addxml.adoc[Add XML]
 * xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
+* xref:pipeline/transforms/apache-tika.adoc[Apache Tika]
 * xref:pipeline/transforms/append.adoc[Append Streams]
 * xref:pipeline/transforms/avro-decode.adoc[Avro Decode]
 * xref:pipeline/transforms/avro-file-input.adoc[Avro File Input]
