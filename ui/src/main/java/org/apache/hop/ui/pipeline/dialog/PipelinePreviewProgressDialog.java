@@ -48,21 +48,23 @@ import java.util.List;
 public class PipelinePreviewProgressDialog {
   private static final Class<?> PKG = PipelineDialog.class; // For Translator
 
-  private Shell shell;
+  private final Shell shell;
   private final IVariables variables;
   private PipelineMeta pipelineMeta;
-  private String[] previewTransformNames;
-  private int[] previewSize;
+  private final String[] previewTransformNames;
+  private final int[] previewSize;
   private Pipeline pipeline;
 
   private boolean cancelled;
   private String loggingText;
   private PipelineDebugMeta pipelineDebugMeta;
 
-  /** Creates a new dialog that will handle the wait while previewing a pipeline... */
+  /**
+   * Creates a new dialog that will handle the wait while previewing a pipeline...
+   */
   public PipelinePreviewProgressDialog(
-      Shell shell,
-      IVariables variables,
+          Shell shell,
+          IVariables variables,
       PipelineMeta pipelineMeta,
       String[] previewTransformNames,
       int[] previewSize) {
@@ -83,21 +85,23 @@ public class PipelinePreviewProgressDialog {
    * Opens the progress dialog
    *
    * @param showErrorDialogs dictates whether error dialogs should be shown when errors occur - can
-   *     be set to false to let the caller control error dialogs instead.
+   *     be set to "false" to let the caller control error dialogs instead.
    * @return a {@link PipelineMeta}
    */
   public PipelineMeta open(final boolean showErrorDialogs) {
-    IRunnableWithProgress op = monitor -> doPreview(monitor, showErrorDialogs);
+    final HopGui hopGui = HopGui.getInstance();
+
+    IRunnableWithProgress op = monitor -> doPreview(hopGui, monitor, showErrorDialogs);
 
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
 
-      // Run something in the background to cancel active database queries, forecably if needed!
+      // Run something in the background to cancel active database queries, force this if needed!
       Runnable run =
-          () -> {
-            IProgressMonitor monitor = pmd.getProgressMonitor();
-            while (pmd.getShell() == null
-                || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+              () -> {
+                IProgressMonitor monitor = pmd.getProgressMonitor();
+                while (pmd.getShell() == null
+                        || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e) {
@@ -113,32 +117,21 @@ public class PipelinePreviewProgressDialog {
                 /* Ignore */
               }
             }
-          };
+              };
 
       // Start the cancel tracker in the background!
       new Thread(run).start();
 
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       if (showErrorDialogs) {
         new ErrorDialog(
-            shell,
-            BaseMessages.getString(
-                PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogTitle"),
-            BaseMessages.getString(
-                PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogMessage"),
-            e);
-      }
-      pipelineMeta = null;
-    } catch (InterruptedException e) {
-      if (showErrorDialogs) {
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(
-                PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogTitle"),
-            BaseMessages.getString(
-                PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogMessage"),
-            e);
+                shell,
+                BaseMessages.getString(
+                        PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogTitle"),
+                BaseMessages.getString(
+                        PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogMessage"),
+                e);
       }
       pipelineMeta = null;
     }
@@ -146,16 +139,16 @@ public class PipelinePreviewProgressDialog {
     return pipelineMeta;
   }
 
-  private void doPreview(final IProgressMonitor progressMonitor, final boolean showErrorDialogs) {
+  private void doPreview(final HopGui hopGui, final IProgressMonitor progressMonitor, final boolean showErrorDialogs) {
     progressMonitor.beginTask(
-        BaseMessages.getString(PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title"), 100);
+            BaseMessages.getString(PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title"), 100);
 
     // This pipeline is ready to run in preview!
     //
     pipeline =
-        new LocalPipelineEngine(pipelineMeta, variables, HopGui.getInstance().getLoggingObject());
+            new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
     pipeline.setPreview(true);
-    pipeline.setMetadataProvider(HopGui.getInstance().getMetadataProvider());
+    pipeline.setMetadataProvider(hopGui.getMetadataProvider());
 
     // Prepare the execution...
     //
