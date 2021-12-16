@@ -24,6 +24,12 @@ log() {
     echo `date '+%Y/%m/%d %H:%M:%S'`" - ${1}"
 }
 
+exitWithCode() {
+  echo "${1}" > /tmp/exitcode.txt
+  # log "wrote exit code ${1} to /tmp/exitcode.txt"
+  exit ${1}
+}
+
 #   write the hop-server config to a configuration file
 #   to avoid the password of the server being shown in ps 
 #
@@ -96,7 +102,7 @@ write_server_config() {
 }
 
 # retrieve files from volume
-# ... done via Dockerfile via specifying a volume ... 
+# ... done via Dockerfile via specifying a volume ...
 
 # allow customisation
 # e.g. to fetch hop project files from S3 or github
@@ -139,7 +145,7 @@ then
   if [ -z "${HOP_PROJECT_FOLDER}" ]
   then
     log "Error: please set variable HOP_PROJECT_FOLDER to create project ${HOP_PROJECT_NAME}"
-    exit 9;
+    exitWithCode 9;
   else
     log "The project folder is set to: ${HOP_PROJECT_FOLDER}"
   fi
@@ -149,7 +155,7 @@ then
   if [ ! -d "${HOP_PROJECT_FOLDER}" ]
   then
     log "Error: the folder specified in variable HOP_PROJECT_FOLDER does not exist: ${HOP_PROJECT_FOLDER}"
-    exit 9;
+    exitWithCode 9;
   else
     log "The specified project folder exists"
   fi
@@ -198,12 +204,13 @@ then
       /tmp/hop-server.xml \
       2>&1 | tee ${HOP_LOG_PATH}
 
+    exitWithCode $?
 else
 
   if [ -z ${HOP_RUN_CONFIG} ]
   then
     log "Please specify which run configuration you want to use to execute with variable HOP_RUN_CONFIG"
-    exit 9;
+    exitWithCode 9;
   fi
 
   log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
@@ -213,5 +220,7 @@ else
     --parameters=${HOP_RUN_PARAMETERS} \
     ${HOP_EXEC_OPTIONS} \
     2>&1 | tee ${HOP_LOG_PATH}
+
+    exitWithCode $?
 fi
   
