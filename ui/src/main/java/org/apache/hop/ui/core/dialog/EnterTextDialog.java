@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.FormInput;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -46,6 +47,7 @@ public class EnterTextDialog extends Dialog {
   private final String title;
   private final String message;
 
+  private Label wlDesc;
   private Text wDesc;
   private Button wOk;
   private final Shell parent;
@@ -143,7 +145,7 @@ public class EnterTextDialog extends Dialog {
     }
 
     // From transform line
-    Label wlDesc = new Label(shell, SWT.NONE);
+    wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
     props.setLook(wlDesc);
     FormData fdlDesc = new FormData();
@@ -171,6 +173,12 @@ public class EnterTextDialog extends Dialog {
     wDesc.setLayoutData(fdDesc);
     wDesc.setEditable(!readonly);
     wDesc.addListener(SWT.DefaultSelection, e -> ok());
+    wDesc.addListener(SWT.Modify, e -> {
+      Text source = (Text) e.widget;
+      this.text = source.getText();
+    });
+
+    enrich(this);
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(
@@ -263,5 +271,30 @@ public class EnterTextDialog extends Dialog {
 
   public void setFixed(boolean fixed) {
     this.fixed = fixed;
+  }
+
+  //An enrich method is provided for enrich the shell. By default, it does nothing.
+  public void enrich(EnterTextDialog enterTextDialog) {
+  }
+
+  public Label getWlDesc() {
+    return wlDesc;
+  }
+
+  public Text getwDesc() {
+    return wDesc;
+  }
+
+  public Shell getShell() {
+    return shell;
+  }
+
+  @Override
+  public String getText() {
+    return text;
+  }
+
+  public void setWOkListener(Listener listener){
+    wOk.addListener(SWT.Selection, listener);
   }
 }

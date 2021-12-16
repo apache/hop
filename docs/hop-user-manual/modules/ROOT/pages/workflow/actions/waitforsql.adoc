@@ -34,9 +34,9 @@ The Wait For SQL action scans a database and checks if the database meets user-d
 |Target schema|Name of the table schema to evaluate.
 |Target table name|Name of the table to evaluate.
 |Success when rows count|Defines the evaluation method used to compare the number of rows with the given value.
-|Value|Defines the value used for the evaluation
-|Maximum timeout|After this timeout period, the workflow action continues with a fail, by default, or success, if the Success on timeout option is checked.
-|Check cycle time|Sets the amount time between evaluations.
+|Row count value|Defines the row count value used for the evaluation
+|Maximum timeout|After this timeout period, the workflow action continues with a fail, by default, or success, if the Success on timeout option is checked. Expressed in seconds, 0 is infinite.
+|Check cycle time|Sets the amount of time between evaluations, expressed in seconds.
 |Success on timeout|Defines workflow action success behavior when timeout is reached---when checked, reaching the maximum timeout limit causes the workflow action to succeed.
 When left unchecked, reaching the maximum timeout limit causes the workflow action to fail.
 |Custom SQL|Enables the use of custom SQL queries.

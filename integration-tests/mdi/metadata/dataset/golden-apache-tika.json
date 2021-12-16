@@ -1,0 +1,96 @@
+{
+  "base_filename": "golden-apache-tika.csv",
+  "name": "golden-apache-tika",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "fileSize"
+    },
+    {
+      "field_comment": "",
+      "field_length": 250,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "filename"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "rowNumber"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "shortFilename"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "extension"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "path"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "hiddenFlag"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "lastModificationDate"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "uri"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "rootUri"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "checksum"
+    }
+  ],
+  "folder_name": ""
+}

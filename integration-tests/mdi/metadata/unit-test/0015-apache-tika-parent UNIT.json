@@ -1,0 +1,68 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fileSize",
+          "data_set_field": "fileSize"
+        },
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        },
+        {
+          "transform_field": "rowNumber",
+          "data_set_field": "rowNumber"
+        },
+        {
+          "transform_field": "shortFilename",
+          "data_set_field": "shortFilename"
+        },
+        {
+          "transform_field": "extension",
+          "data_set_field": "extension"
+        },
+        {
+          "transform_field": "path",
+          "data_set_field": "path"
+        },
+        {
+          "transform_field": "hiddenFlag",
+          "data_set_field": "hiddenFlag"
+        },
+        {
+          "transform_field": "lastModificationDate",
+          "data_set_field": "lastModificationDate"
+        },
+        {
+          "transform_field": "uri",
+          "data_set_field": "uri"
+        },
+        {
+          "transform_field": "rootUri",
+          "data_set_field": "rootUri"
+        },
+        {
+          "transform_field": "checksum",
+          "data_set_field": "checksum"
+        }
+      ],
+      "field_order": [
+        "rowNumber"
+      ],
+      "transform_name": "validate",
+      "data_set_name": "golden-apache-tika"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0015-apache-tika-parent UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0015-apache-tika-parent.hpl",
+  "test_type": "UNIT_TEST"
+}
