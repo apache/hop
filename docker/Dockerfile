@@ -33,14 +33,14 @@ ENV HOP_LOG_PATH=$DEPLOYMENT_PATH/hop.err.log
 ENV HOP_SHARED_JDBC_FOLDER=
 # name of the Hop project to use
 ENV HOP_PROJECT_NAME=
-# path to the home of the hop project. should start with `/files`.
+# path to the home of the Hop project..
 ENV HOP_PROJECT_DIRECTORY=
 ENV HOP_PROJECT_FOLDER=
 # name of the project config file including file extension
 ENV HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
 # environment to use with hop run
 ENV HOP_ENVIRONMENT_NAME=
-# comma separated list of paths to environment config files (including filename and file extension). paths should start with `/files`.
+# comma separated list of paths to environment config files (including filename and file extension).
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
 # hop run configuration to use
 ENV HOP_RUN_CONFIG=
