@@ -228,20 +228,45 @@ The 3 main options are:
 * `keyPassword` : the key password.
 If this is the same as the keystore password you can omit this option.
 
-Example:
-[source,xml]
+The HTTP protocol used is version 1.1 or `HTTP/1.1`.
+The type of keystore read is a Java Keystore or type: `JKS`.
+Let's take a look at how we can generate a sample keystore:
 
+[source,bash]
+----
+# Generate a new key
+#
+openssl genrsa -des3 -out hop.key
+
+# Make a new certificate
+#
+openssl req -new -x509 -key hop.key -out hop.crt
+
+# Create a PKCS12 keystore and import it into a JKS keystore
+# The resulting file is: keystore
+#
+keytool -keystore keystore -import -alias hop -file hop.crt -trustcacerts
+openssl req -new -key hop.key -out hop.csr
+openssl pkcs12 -inkey hop.key -in hop.crt -export -out hop.pkcs12
+keytool -importkeystore -srckeystore hop.pkcs12 -srcstoretype PKCS12 -destkeystore keystore
+----
+
+Here is an example of the information to include in your server XML:
+
+[source,xml]
 ----
 <hop-server-config>
   <hop-server>
     ...
 
     <sslConfig>
-      <keyStore>/path/to/keystore.jks</keyStore>
+      <keyStore>/path/to/keystore</keyStore>
       <keyStorePassword>password</keyStorePassword>
-      <keyPassword>anotherPassword</keyPassword>
+      <keyPassword>keyPassword</keyPassword>
     </sslConfig>
 
+    <!-- Add the following line to support querying over https -->
+    <sslMode>Y</sslMode>
   </hop-server>
   ...
 </hop-server-config>
