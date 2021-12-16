@@ -35,10 +35,6 @@
           "data_set_field": "hiddenFlag"
         },
         {
-          "transform_field": "lastModificationDate",
-          "data_set_field": "lastModificationDate"
-        },
-        {
           "transform_field": "uri",
           "data_set_field": "uri"
         },
