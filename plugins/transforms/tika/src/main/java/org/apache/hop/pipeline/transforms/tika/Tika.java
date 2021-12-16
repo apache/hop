@@ -286,8 +286,6 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
    */
   public String getTextFileContent(String vfsFilename, String encoding) throws HopException {
     InputStream inputStream = null;
-    InputStreamReader reader = null;
-
     String retval = null;
     try {
       // HACK: Check for local files, use a FileInputStream in that case
@@ -305,32 +303,21 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
       throw new HopException(
           BaseMessages.getString(PKG, "Tika.Error.GettingFileContent", vfsFilename, e.toString()),
           e);
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (Exception e) {
-          throw new HopException("Error closing reader", e);
-        }
-      }
-      ;
+    }
       if (inputStream != null) {
         try {
           inputStream.close();
         } catch (Exception e) {
-          throw new HopException("Error closing stream", e);
+          log.logError("Error closing reader", e);
         }
       }
-      ;
-    }
-
     return retval;
   }
 
   private void handleMissingFiles() throws HopException {
     List<FileObject> nonExistantFiles = data.files.getNonExistantFiles();
 
-    if (nonExistantFiles.size() != 0) {
+    if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
       logError(
           BaseMessages.getString(PKG, "Tika.Log.RequiredFilesTitle"),
@@ -340,7 +327,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
     }
 
     List<FileObject> nonAccessibleFiles = data.files.getNonAccessibleFiles();
-    if (nonAccessibleFiles.size() != 0) {
+    if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
       logError(
           BaseMessages.getString(PKG, "Tika.Log.RequiredFilesTitle"),
@@ -356,9 +343,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    return rowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   private Object[] getOneRow() throws HopException {
