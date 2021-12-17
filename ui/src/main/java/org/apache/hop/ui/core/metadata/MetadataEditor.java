@@ -116,6 +116,11 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     return Objects.equals(metadata, that.metadata);
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(hopGui, manager, metadata, title, toolTip, titleImage, image, isChanged, originalName);
+  }
+
   public Button[] createButtonsForButtonBar(final Composite parent) {
     return null;
   }

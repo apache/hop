@@ -363,33 +363,37 @@ public class GuiCompositeWidgets {
         // Ask for a filename
         //
         ITypeFilename typeFilename = instantiateTypeFilename(guiElements);
-        actionControl.addListener(
-            SWT.Selection,
-            e -> {
-              String filename =
-                  BaseDialog.presentFileDialog(
-                      parent.getShell(),
-                      null,
-                      variables,
-                      typeFilename.getFilterExtensions(),
-                      typeFilename.getFilterNames(),
-                      true);
-              if (StringUtils.isNotEmpty(filename)) {
-                text.setText(filename);
-              }
-            });
+        if (actionControl != null) {
+          actionControl.addListener(
+              SWT.Selection,
+              e -> {
+                String filename =
+                    BaseDialog.presentFileDialog(
+                        parent.getShell(),
+                        null,
+                        variables,
+                        typeFilename.getFilterExtensions(),
+                        typeFilename.getFilterNames(),
+                        true);
+                if (StringUtils.isNotEmpty(filename)) {
+                  text.setText(filename);
+                }
+              });
+        }
         break;
       case FOLDER:
         // ask for a folder
         //
-        actionControl.addListener(
-            SWT.Selection,
-            e -> {
-              String folder = BaseDialog.presentDirectoryDialog(parent.getShell(), variables);
-              if (StringUtils.isNotEmpty(folder)) {
-                text.setText(folder);
-              }
-            });
+        if (actionControl != null) {
+          actionControl.addListener(
+              SWT.Selection,
+              e -> {
+                String folder = BaseDialog.presentDirectoryDialog(parent.getShell(), variables);
+                if (StringUtils.isNotEmpty(folder)) {
+                  text.setText(folder);
+                }
+              });
+        }
         break;
       default:
         break;

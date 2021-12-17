@@ -51,6 +51,7 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TikaOutput {
 
@@ -205,17 +206,14 @@ public class TikaOutput {
   }
 
   @SuppressWarnings("serial")
-  public HashMap<String, OutputType> getFileOutputTypeCodes() {
-
-    return new HashMap<String, OutputType>() {
-      {
-        put("Plain text", getTEXT());
-        put("Main content", getTEXT_MAIN());
-        put("Xml", getXml());
-        put("HTML", getHTML());
-        put("JSON", getJSON());
-      }
-    };
+  public Map<String, OutputType> getFileOutputTypeCodes() {
+    Map<String, OutputType> outputTypeMap = new HashMap<>();
+    outputTypeMap.put("Plain text", getTEXT());
+    outputTypeMap.put("Main content", getTEXT_MAIN());
+    outputTypeMap.put("Xml", getXml());
+    outputTypeMap.put("HTML", getHTML());
+    outputTypeMap.put("JSON", getJSON());
+    return outputTypeMap;
   }
 
   private OutputType getTypeByName(String name) {
@@ -236,7 +234,7 @@ public class TikaOutput {
         input.close();
         out.flush();
       } catch (Exception e) {
-        throw new HopException("Error closing file", e);
+        log.logError("Error closing file", e);
       }
     }
   }
