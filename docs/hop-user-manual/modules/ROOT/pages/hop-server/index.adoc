@@ -16,12 +16,13 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
-:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additionally, Hop Server can also be accessed directly through a number of REST services and in combination with the Web Service and Asynchronous Web Service metadata types.
+:description: Hop Server is a lightweight server to run workflows and pipelines with remote run configuration as well as through a number of REST services.
 
 = Hop Server
 
-Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration.
-Additionally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] and xref:hop-server/async-web-service.adoc[Asynchronous Web Service] metadata types.
+Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configurations.
+
+Additionally, a Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] and xref:hop-server/async-web-service.adoc[Asynchronous Web Service] metadata types.
 
 == Starting and Stopping Hop Server
 
@@ -220,7 +221,10 @@ The server configuration file is found in the home folder automatically with the
 
 === SSL configuration
 
-To run the Hop server using the `https://` protocol you can add an `sslConfig` section in the `hop-server-config/hop-server` path.
+To protect traffic between a Hop Server and its clients (xref:hop-run/index.adoc[Hop Run], xref:hop-gui/index.adoc[Hop GUI], a browser, xref:hop-server/index.adoc#_query_a_server_from_the_command_line[Hop Server command line querying], ...) it's possible to use encrypt data using a secure socket layer (SSL) connection on top of the regular web traffic with a hyper treading transfer protocol (HTTP).
+The combination of both is called HTTPS.
+To run a Hop server using this `https://` protocol you can add an `sslConfig` section in the `hop-server-config/hop-server` path.
+
 The 3 main options are:
 
 * `keyStore` : the path to the java keystore file, created with `keytool`
@@ -256,8 +260,8 @@ Here is an example of the information to include in your server XML:
 [source,xml]
 ----
 <hop-server-config>
-  <hop-server>
-    ...
+<hop-server>
+...
 
     <sslConfig>
       <keyStore>/path/to/keystore</keyStore>
@@ -270,6 +274,22 @@ Here is an example of the information to include in your server XML:
   </hop-server>
   ...
 </hop-server-config>
+----
+
+=== Start Hop Server with docker
+
+It's often very convenient to run a Hop docker container since it has all the required software automatically delivered.
+For a complete description of the standard Hop docker container see the https://hop.apache.org/tech-manual/latest/docker-container.html[full reference] in the technical documentation.
+Here is an example of how you would start a "long-lived" docker container:
+
+[source,bash]
+----
+docker run \
+  -p 8080:8080 \
+  -e HOP_SERVER_PORT=8080 \
+  -e HOP_SERVER_USER=username \
+  -e HOP_SERVER_USER=password \
+  apache/incubator-hop
 ----
 
 === Stopping Hop Server
