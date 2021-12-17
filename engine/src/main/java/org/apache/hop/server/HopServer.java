@@ -44,15 +44,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
@@ -722,9 +729,22 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpClient getHttpClient() {
-    ServerConnectionManager connectionManager = ServerConnectionManager.getInstance();
-    return connectionManager.createHttpClient();
+  HttpClient getHttpClient() throws HopException {
+    try {
+      if (sslConfig != null) {
+        TrustStrategy acceptingTrustStrategy = new TrustSelfSignedStrategy();
+        SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+
+        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+        return httpClient;
+      } else {
+        ServerConnectionManager connectionManager = ServerConnectionManager.getInstance();
+        return connectionManager.createHttpClient();
+      }
+    } catch (Exception e) {
+      throw new HopException("Error creating new HTTP client", e);
+    }
   }
 
   public HopServerStatus getStatus(IVariables variables) throws Exception {
