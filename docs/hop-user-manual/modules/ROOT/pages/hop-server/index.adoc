@@ -218,6 +218,35 @@ In the sample above the environment contains configuration files with variables 
 With the environment the server also knows the project home folder.
 The server configuration file is found in the home folder automatically with the implicit relative path.
 
+=== SSL configuration
+
+To run the Hop server using the `https://` protocol you can add an `sslConfig` section in the `hop-server-config/hop-server` path.
+The 3 main options are:
+
+* `keyStore` : the path to the java keystore file, created with `keytool`
+* `keyStorePassword` : the password to the keystore file
+* `keyPassword` : the key password.
+If this is the same as the keystore password you can omit this option.
+
+Example:
+[source,xml]
+
+----
+<hop-server-config>
+  <hop-server>
+    ...
+
+    <sslConfig>
+      <keyStore>/path/to/keystore.jks</keyStore>
+      <keyStorePassword>password</keyStorePassword>
+      <keyPassword>anotherPassword</keyPassword>
+    </sslConfig>
+
+  </hop-server>
+  ...
+</hop-server-config>
+----
+
 === Stopping Hop Server
 
 In a testing setup where Hop Server was started from a terminal, the process can be terminated through `CTRL-C`.

@@ -17,29 +17,157 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The JavaScript transform allows you to create JavaScript scripts that use the available pipeline fields as variables.
+:imagesdir: ../../../assets/images
 
 = JavaScript
 
 == Description
 
-The JavaScript transform allows you to create JavaScript scripts that use the available pipeline fields as variables.
+The JavaScript transform provides a user interface for building JavaScript expressions that you can use to modify your data. The code you type in the script area is executed once for each input row.
 
-== Options
+The transform allows multiple scripts in a single transform instance.
 
-[width="90%",options="header"]
+The Javascript transform is not an input transform and therefore requires an input stream from the pipeline.
+
+image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
+
+== Javascript functions Panel
+
+image:transforms/javascript-functions.png[Javascript Functions Panel, width="35%"]
+
+The Javascript functions panel contains a tree view of scripts, constants, functions, input fields, and output fields as described below.
+
+Double click on any of the scripts, constants, functions or fields to add them to the script.
+
+Transform Scripts::
+Scripts you have created in this transform.
+
+Transform Constants::
+A number of pre-defined, static constants that control what happens to the data rows. +
+To use these constants, you must first set a pipeline_Status variable to CONTINUE_PIPELINE at the beginning of the script, so that the variable assignment is made to the first row being processed. Otherwise, any subsequent assignments to the pipeline_Status variable are ignored. +
+The available constants are:
+
+* SKIP_PIPELINE: Excludes the current row from the output row set and continues processing on the next row.
+* ERROR_PIPELINE: Excludes the current row from the output row set, generates an error, and any remaining rows are not processed.
+* CONTINUE_PIPELINE: Includes the current row in the output row set.
+* ABORT_PIPELINE: Excludes the current row from the output row set, and any remaining rows are not processed, but does not generate an error. (This constant does not display in the transform dialog, but can be used in your script)
+
+Transform Functions::
+String, numeric, date, logic, special, and file functions you can use in scripts. These included functions are implemented in Java and execute faster than JavaScript functions. Each function has a sample script demonstrating its use. Double-click the function to add it to the Javascript pane. Right-click and choose Sample to add the sample to the Javascript pane.
+
+Input Fields::
+Input fields for the transform.
+
+Output Fields::
+Output fields for the transform.
+
+
+== Javascript Panel
+
+The Javascript pane is the editing area for writing your code. You can insert constants, functions, input fields, and output fields from the Javascript functions panel on the left by double-clicking the node you want to insert or by using drag-and-drop to place the object onto the Javascript panel.
+
+The position at the bottom of the Javascript panel displays the line number and position of the cursor.
+
+The `Optimization level` selects the level of JavaScript optimization. The values are:
+
+* 1: JavaScript runs in interpreted mode.
+* 0: No optimizations are performed.
+* 1-9: All optimizations are performed. 9 performs the most optimization with faster script execution, but compiles slower. The default is 9.
+
+
+== Script types
+
+image:transforms/javascript-script-right-click.png[Javascript transform right click menu, width="35%"]
+
+You can right-click a tab in the Javascript panel to open a context menu with the following commands:
+
+* **Add new** – Add a new script tab.
+* **Add copy** – Add a copy of the existing script in a new tab.
+* **Set Transform Script** - Specify the script to execute for each incoming row. Only one tab can be set as a transform script. The first tab is a transform script by default.
+* **Set Start Script** - Specify the script to execute before processing the first row.
+* **Set End Script** – Specify the script to execute after the last row has been processed.
+* **Remove Script Type** - Specify to not execute the script. The script tab is not removed. To remove a script tab, click the Close button (the red “X”) and choose Yes to delete the script tab.
+
+The icon for the script type displays on the tab to denote the type of script on the tab. To rename a script tab, right-click the tab name in the Transform Scripts section of the Javascript functions panel, choose Rename, and enter the new name.
+
+== Fields table
+
+The Fields table contains a list of variables from your script, and enables you to add metadata to the fields, like descriptive names.
+
+[%header, width="90%"]
 |===
-|Option|Description
-|Transform name|Name of the transform this name has to be unique in a single pipeline.
-|Scripts|Displays a list of scripts you have created in this transform.
-|Constants|A list of pre-defined, static constants.
-|Functions|Contains a variety of String, Numeric, Date, Logic and specialized functions you can use to create your script.
-To add a function to your script, simply double-click on the function or drag it to the location in your script that you wish to insert it.
-|Input Fields|A list of inputs coming into the transform.
-Double-click or use drag and drop to insert the field into your script.
-|Output Fields|A list of outputs for the transform.
-|Java Script|This section is where you edit the script for this transform.
-You can insert functions, constants, input fields, etc. from the tree control on the left by double-clicking on the node you wish to insert or by dragging the object onto the Java Script panel.
-|Fields|The Fields table contains a list of variables from your script including the ability to add metadata like a descriptive name.
-|Get Variables|Retrieves a list of variables from your script.
-|Test script|Use this button to test the syntax of your script.
+|Field|Description
+|Fieldname|Specify the name of the incoming field.
+|Rename to|Specify a new name for the incoming field.
+|Type|Specify a data type for the output field.
+|Length|Specify the length of the output field.
+|Precision|Specify the precision value of the output field.
+|Replace value ‘Fieldname’ or ‘Rename to’|Specify whether to replace the value of the selected field with another value or to rename a field. The values are Y (Yes) and N (No).
+|Get variables|Retrieve a list of Javascript variables from your script.
+|Test Script|Test the syntax of your script, and displays the Generate Rows dialog box with a set of rows for testing.
 |===
+
+== Javascript Internal API Objects
+
+You can use the following internal API objects (for reference see the classes in the source):
+
+* **_PipelineName_**: A String holding the pipeline name
+* **_transform_**: the actual transforms instance for this transform (org.apache.hop.pipeline.transforms.javascript.ScriptValues)
+* **rowMeta**: The actual instance of org.apache.hop.core.row.IRowMeta
+* **row**: The actual instance of the data Object[]
+
+== Examples
+
+=== Check for the Existence of Fields in a row:
+
+[source, javascript]
+----
+var idx = getInputRowMeta().indexOfValue("lookup");
+if ( idx < 0 )
+{
+   var lookupValue = 0;
+}
+else
+{
+   var lookupValue = row[idx];
+}
+----
+
+=== Add a New Field in a Row
+
+Fields must be added to the rows in the same order to keep the structure of the row coherent.
+
+To add a field, define it as var in the Javascript pane, and add it as a field in the Fields table.
+
+=== Numeric values
+
+Most values that are assigned in JavaScript are floating point values by default, even if you think you have assigned an integer value. If you are having trouble using == or switch/case on values that you know are integers, use the following constructs:
+
+[source, javascript]
+----
+switch(parseInt(valuename))
+{
+case 1:
+case 2:
+case 3:
+ strvalueswitch = "one, two, three";
+ break;
+case 4:
+ strvalueswitch = "four";
+ break;
+default:
+ strvalueswitch = "five";
+}
+----
+
+=== Filter Rows
+
+To filter rows (remove the rows from the output for example) set the pipeline_Status variable as follows:
+
+[source,javascript]
+----
+pipeline_Status = CONTINUE_PIPELINE
+if (/* your condition here */) pipeline_Status = SKIP_PIPELINE
+----
+
+All rows matching the specified condition are removed from the output.

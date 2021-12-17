@@ -16,34 +16,22 @@
 # limitations under the License.
 #
 
-#
-# When stopping the running hop-server container with 'docker stop' it ended up with an timeout
-# and an exitcode > 0 because signals are not catched correctly.
-# It was not possible to end the container gracefully with Ctrl-C when it was started without -d 
-# option which might be annoying on a gratefull exit. Therefore this script ( run.sh ) 
-# that catches signals coming from the docker host is introduced.
-#
-
 log() {
     echo `date '+%Y/%m/%d %H:%M:%S'`" - ${1}"
 }
 
 #
-#   catch all signals that come from outside the container
-#   to be able to exit gracefully
+# Stopping a running hop web container with 'docker stop' is obviously possible.
+# Doing it with CTRL-C is just more convenient.
+# So we'll start the catalina.sh script in the background and wait until
+# we trap SIGINT or SIGTERM. At that point we'll simply stop Tomcat.
 #
-trapper() {
-    "$@" &
-    pid="$!"
-    log "Running the entrypoint script with PID ${pid}"
-    trap "log 'Stopping entrypoint script with $pid'; kill -SIGTERM $pid" SIGINT SIGTERM
 
-    while kill -0 $pid > /dev/null 2>&1; do
-        wait
-    done
-}
+catalina.sh run &
+pid="$!"
+log "Running Apache Tomcat / Hop Web with PID ${pid}"
+trap "log 'Stopping Tomcat'; catalina.sh stop" SIGINT SIGTERM
 
-trapper /opt/hop/load-and-execute.sh $@
-
-EXIT_CODE=`cat /tmp/exitcode.txt`
-exit ${EXIT_CODE}
+while kill -0 $pid > /dev/null 2>&1; do
+    wait
+done

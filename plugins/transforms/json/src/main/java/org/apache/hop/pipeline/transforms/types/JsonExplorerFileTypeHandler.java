@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
@@ -96,7 +97,7 @@ public class JsonExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
       // Save the file...
       //
-      try (OutputStream outputStream = new FileOutputStream(filename)) {
+      try (OutputStream outputStream = HopVfs.getOutputStream(filename,false)) {
         outputStream.write(wText.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
