@@ -109,7 +109,6 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
   private Button wAddResult;
 
-  private Label wlLimit;
   private Text wLimit;
 
   private Button wInclRownum;
@@ -201,10 +200,10 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     props.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.OriginFiles.Label"));
 
-    FormLayout OriginFilesgroupLayout = new FormLayout();
-    OriginFilesgroupLayout.marginWidth = 10;
-    OriginFilesgroupLayout.marginHeight = 10;
-    wOriginFiles.setLayout(OriginFilesgroupLayout);
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOriginFiles.setLayout(originFilesgroupLayout);
 
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFiles, SWT.RIGHT);
@@ -708,7 +707,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // END OF No Files Folder GROUP
     // /////////////////////////////////
 
-    wlLimit = new Label(wFilterComp, SWT.RIGHT);
+    Label wlLimit = new Label(wFilterComp, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.Limit.Label"));
     props.setLook(wlLimit);
     FormData fdlLimit = new FormData();

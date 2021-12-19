@@ -23,36 +23,36 @@ import java.util.Objects;
 
 public class FilterItem {
 
-    /** The file filter type selection */
-    @HopMetadataProperty(key = "filterfiletype"
-            , injectionKeyDescription = "GetFileNames.Injection.FilterItemTypeSelected.Label")
-    private String fileTypeFilterSelection;
+  /** The file filter type selection */
+  @HopMetadataProperty(
+      key = "filterfiletype",
+      injectionKeyDescription = "GetFileNames.Injection.FilterItemTypeSelected.Label")
+  private String fileTypeFilterSelection;
 
-    public FilterItem() {
-    }
+  public FilterItem() {}
 
-    public FilterItem(String fileTypeFilterSelection) {
-        this.fileTypeFilterSelection = fileTypeFilterSelection;
-    }
+  public FilterItem(String fileTypeFilterSelection) {
+    this.fileTypeFilterSelection = fileTypeFilterSelection;
+  }
 
-    public String getFileTypeFilterSelection() {
-        return fileTypeFilterSelection;
-    }
+  public String getFileTypeFilterSelection() {
+    return fileTypeFilterSelection;
+  }
 
-    public void setFileTypeFilterSelection(String fileTypeFilterSelection) {
-        this.fileTypeFilterSelection = fileTypeFilterSelection;
-    }
+  public void setFileTypeFilterSelection(String fileTypeFilterSelection) {
+    this.fileTypeFilterSelection = fileTypeFilterSelection;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FilterItem that = (FilterItem) o;
-        return Objects.equals(fileTypeFilterSelection, that.fileTypeFilterSelection);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    FilterItem that = (FilterItem) o;
+    return Objects.equals(fileTypeFilterSelection, that.fileTypeFilterSelection);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(fileTypeFilterSelection);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(fileTypeFilterSelection);
+  }
 }

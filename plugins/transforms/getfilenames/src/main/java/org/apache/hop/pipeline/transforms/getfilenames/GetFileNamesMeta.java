@@ -260,7 +260,6 @@ public class GetFileNamesMeta extends BaseTransformMeta
     return addResultFile;
   }
 
-
   public String getRequiredFilesDesc(String tt) {
     if (tt == null) {
       return RequiredFilesDesc[0];
@@ -284,9 +283,7 @@ public class GetFileNamesMeta extends BaseTransformMeta
 
   @Override
   public Object clone() {
-    GetFileNamesMeta retval = (GetFileNamesMeta) super.clone();
-
-    return retval;
+    return (GetFileNamesMeta) super.clone();
   }
 
   @Override
@@ -600,7 +597,6 @@ public class GetFileNamesMeta extends BaseTransformMeta
   public GetFileNamesData getTransformData() {
     return new GetFileNamesData();
   }
-
 
   @Override
   public boolean supportsErrorHandling() {

@@ -26,7 +26,10 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.*;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -154,8 +157,8 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
             }));
 
     validatorFactory.registerValidator(
-            validatorFactory.getName(List.class, FilterItem.class),
-            new ListLoadSaveValidator<FilterItem>(new FilterItemLoadSaveValidator()));
+        validatorFactory.getName(List.class, FilterItem.class),
+        new ListLoadSaveValidator<FilterItem>(new FilterItemLoadSaveValidator()));
   }
 
   @Test
@@ -168,25 +171,26 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
 
     if (someMeta instanceof GetFileNamesMeta) {
       ((GetFileNamesMeta) someMeta).getFilesList().clear();
-      ((GetFileNamesMeta) someMeta).getFilesList()
-              .addAll(
-                      Arrays.asList(
-                              new FileItem("Filename1", "w1", "ew1", "Y", "N"),
-                              new FileItem("Filename2", "w2", "ew2", "Y", "N"),
-                              new FileItem("Filename3", "w3", "ew3", "Y", "N"),
-                              new FileItem("Filename4", "w4", "ew4", "Y", "N"),
-                              new FileItem("Filename5", "w5", "ew5", "Y", "N")));
+      ((GetFileNamesMeta) someMeta)
+          .getFilesList()
+          .addAll(
+              Arrays.asList(
+                  new FileItem("Filename1", "w1", "ew1", "Y", "N"),
+                  new FileItem("Filename2", "w2", "ew2", "Y", "N"),
+                  new FileItem("Filename3", "w3", "ew3", "Y", "N"),
+                  new FileItem("Filename4", "w4", "ew4", "Y", "N"),
+                  new FileItem("Filename5", "w5", "ew5", "Y", "N")));
       ((GetFileNamesMeta) someMeta).getFilterItemList().clear();
-      ((GetFileNamesMeta) someMeta).getFilterItemList()
-              .addAll(
-                      Arrays.asList(
-                              new FilterItem("StreamField1"),
-                              new FilterItem("StreamField1"),
-                              new FilterItem("StreamField1"),
-                              new FilterItem("StreamField1"),
-                              new FilterItem("StreamField1")));
+      ((GetFileNamesMeta) someMeta)
+          .getFilterItemList()
+          .addAll(
+              Arrays.asList(
+                  new FilterItem("StreamField1"),
+                  new FilterItem("StreamField1"),
+                  new FilterItem("StreamField1"),
+                  new FilterItem("StreamField1"),
+                  new FilterItem("StreamField1")));
     }
-
   }
 
   public class FilterItemLoadSaveValidator implements IFieldLoadSaveValidator<FilterItem> {
@@ -196,8 +200,8 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
     public FilterItem getTestObject() {
 
       FilterItem field =
-              new FilterItem(
-                      FileInputList.FileTypeFilter.getByOrdinal(new Random().nextInt(3)).toString());
+          new FilterItem(
+              FileInputList.FileTypeFilter.getByOrdinal(new Random().nextInt(3)).toString());
 
       return field;
     }
@@ -209,11 +213,10 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
       }
       FilterItem another = (FilterItem) actual;
       return new EqualsBuilder()
-              .append(testObject.getFileTypeFilterSelection(), another.getFileTypeFilterSelection())
-              .isEquals();
+          .append(testObject.getFileTypeFilterSelection(), another.getFileTypeFilterSelection())
+          .isEquals();
     }
   }
-
 
   public class FileItemLoadSaveValidator implements IFieldLoadSaveValidator<FileItem> {
     final Random rand = new Random();

@@ -24,100 +24,112 @@ import java.util.Objects;
 
 public class FileItem {
 
-    private static final String NO = "N";
+  private static final String NO = "N";
 
-    /** Array of filenames */
-    @HopMetadataProperty(key = "name"
-            , injectionKeyDescription = "GetFileNames.Injection.Filename.Label")
-    private String fileName;
+  /** Array of filenames */
+  @HopMetadataProperty(
+      key = "name",
+      injectionKeyDescription = "GetFileNames.Injection.Filename.Label")
+  private String fileName;
 
-    /** Wildcard or filemask (regular expression) */
-    @HopMetadataProperty(key = "filemask"
-            , injectionKeyDescription = "GetFileNames.Injection.Filemask.Label")
-    private String fileMask;
+  /** Wildcard or filemask (regular expression) */
+  @HopMetadataProperty(
+      key = "filemask",
+      injectionKeyDescription = "GetFileNames.Injection.Filemask.Label")
+  private String fileMask;
 
-    /** Wildcard or filemask to exclude (regular expression) */
-    @HopMetadataProperty(key = "exclude_filemask"
-            , injectionKeyDescription = "GetFileNames.Injection.ExcludeFilemask.Label")
-    private String excludeFileMask;
+  /** Wildcard or filemask to exclude (regular expression) */
+  @HopMetadataProperty(
+      key = "exclude_filemask",
+      injectionKeyDescription = "GetFileNames.Injection.ExcludeFilemask.Label")
+  private String excludeFileMask;
 
-    /** Array of boolean values as string, indicating if a file is required. */
-    @HopMetadataProperty(key = "file_required"
-            , injectionKeyDescription = "GetFileNames.Injection.FileRequired.Label")
-    private String fileRequired;
+  /** Array of boolean values as string, indicating if a file is required. */
+  @HopMetadataProperty(
+      key = "file_required",
+      injectionKeyDescription = "GetFileNames.Injection.FileRequired.Label")
+  private String fileRequired;
 
-    /** Array of boolean values as string, indicating if we need to fetch sub folders. */
-    @HopMetadataProperty(key = "include_subfolders"
-            , injectionKeyDescription = "GetFileNames.Injection.IncludeSubDirs.Label")
-    private String includeSubFolders;
+  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
+  @HopMetadataProperty(
+      key = "include_subfolders",
+      injectionKeyDescription = "GetFileNames.Injection.IncludeSubDirs.Label")
+  private String includeSubFolders;
 
-    public FileItem() {
-        setDefault();
-    }
+  public FileItem() {
+    setDefault();
+  }
 
-    public FileItem(String fileName, String fileMask, String excludeFileMask, String fileRequired, String includeSubFolders) {
-        this.fileName = fileName;
-        this.fileMask = fileMask;
-        this.excludeFileMask = excludeFileMask;
-        this.fileRequired = Utils.isEmpty(fileRequired) ? NO : fileRequired;
-        this.includeSubFolders = Utils.isEmpty(includeSubFolders) ? NO : includeSubFolders;
-    }
+  public FileItem(
+      String fileName,
+      String fileMask,
+      String excludeFileMask,
+      String fileRequired,
+      String includeSubFolders) {
+    this.fileName = fileName;
+    this.fileMask = fileMask;
+    this.excludeFileMask = excludeFileMask;
+    this.fileRequired = Utils.isEmpty(fileRequired) ? NO : fileRequired;
+    this.includeSubFolders = Utils.isEmpty(includeSubFolders) ? NO : includeSubFolders;
+  }
 
-    protected void setDefault() {
-        this.fileRequired = NO;
-        this.includeSubFolders = NO;
-    }
+  protected void setDefault() {
+    this.fileRequired = NO;
+    this.includeSubFolders = NO;
+  }
 
-    public String getFileName() {
-        return fileName;
-    }
+  public String getFileName() {
+    return fileName;
+  }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 
-    public String getFileMask() {
-        return fileMask;
-    }
+  public String getFileMask() {
+    return fileMask;
+  }
 
-    public void setFileMask(String fileMask) {
-        this.fileMask = fileMask;
-    }
+  public void setFileMask(String fileMask) {
+    this.fileMask = fileMask;
+  }
 
-    public String getExcludeFileMask() {
-        return excludeFileMask;
-    }
+  public String getExcludeFileMask() {
+    return excludeFileMask;
+  }
 
-    public void setExcludeFileMask(String excludeFileMask) {
-        this.excludeFileMask = excludeFileMask;
-    }
+  public void setExcludeFileMask(String excludeFileMask) {
+    this.excludeFileMask = excludeFileMask;
+  }
 
-    public String getFileRequired() {
-        return fileRequired;
-    }
+  public String getFileRequired() {
+    return fileRequired;
+  }
 
-    public void setFileRequired(String fileRequired) {
-        this.fileRequired = fileRequired;
-    }
+  public void setFileRequired(String fileRequired) {
+    this.fileRequired = fileRequired;
+  }
 
-    public String getIncludeSubFolders() {
-        return includeSubFolders;
-    }
+  public String getIncludeSubFolders() {
+    return includeSubFolders;
+  }
 
-    public void setIncludeSubFolders(String includeSubFolders) {
-        this.includeSubFolders = includeSubFolders;
-    }
+  public void setIncludeSubFolders(String includeSubFolders) {
+    this.includeSubFolders = includeSubFolders;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FileItem fileItems = (FileItem) o;
-        return fileName.equals(fileItems.fileName) && Objects.equals(fileMask, fileItems.fileMask) && Objects.equals(excludeFileMask, fileItems.excludeFileMask);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    FileItem fileItems = (FileItem) o;
+    return fileName.equals(fileItems.fileName)
+        && Objects.equals(fileMask, fileItems.fileMask)
+        && Objects.equals(excludeFileMask, fileItems.excludeFileMask);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(fileName, fileMask, excludeFileMask);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(fileName, fileMask, excludeFileMask);
+  }
 }

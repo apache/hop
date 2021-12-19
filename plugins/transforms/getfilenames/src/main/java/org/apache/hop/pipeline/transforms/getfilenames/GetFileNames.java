@@ -64,9 +64,8 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
    * @return
    */
   private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
-    return rowData;
+    return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
   @Override
@@ -120,43 +119,40 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
         }
 
         // If wildcard field is specified, Check if field exists
-        if (!Utils.isEmpty(meta.getDynamicWildcardField())) {
+        if (!Utils.isEmpty(meta.getDynamicWildcardField()) && data.indexOfWildcardField < 0) {
+          data.indexOfWildcardField =
+              data.inputRowMeta.indexOfValue(meta.getDynamicWildcardField());
           if (data.indexOfWildcardField < 0) {
-            data.indexOfWildcardField =
-                data.inputRowMeta.indexOfValue(meta.getDynamicWildcardField());
-            if (data.indexOfWildcardField < 0) {
-              // The field is unreachable !
-              logError(
-                  BaseMessages.getString(PKG, "GetFileNames.Log.ErrorFindingField")
-                      + "["
-                      + meta.getDynamicWildcardField()
-                      + "]");
-              throw new HopException(
-                  BaseMessages.getString(
-                      PKG,
-                      "GetFileNames.Exception.CouldnotFindField",
-                      meta.getDynamicWildcardField()));
-            }
+            // The field is unreachable !
+            logError(
+                BaseMessages.getString(PKG, "GetFileNames.Log.ErrorFindingField")
+                    + "["
+                    + meta.getDynamicWildcardField()
+                    + "]");
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG,
+                    "GetFileNames.Exception.CouldnotFindField",
+                    meta.getDynamicWildcardField()));
           }
         }
         // If ExcludeWildcard field is specified, Check if field exists
-        if (!Utils.isEmpty(meta.getDynamicExcludeWildcardField())) {
+        if (!Utils.isEmpty(meta.getDynamicExcludeWildcardField())
+            && data.indexOfExcludeWildcardField < 0) {
+          data.indexOfExcludeWildcardField =
+              data.inputRowMeta.indexOfValue(meta.getDynamicExcludeWildcardField());
           if (data.indexOfExcludeWildcardField < 0) {
-            data.indexOfExcludeWildcardField =
-                data.inputRowMeta.indexOfValue(meta.getDynamicExcludeWildcardField());
-            if (data.indexOfExcludeWildcardField < 0) {
-              // The field is unreachable !
-              logError(
-                  BaseMessages.getString(PKG, "GetFileNames.Log.ErrorFindingField")
-                      + "["
-                      + meta.getDynamicExcludeWildcardField()
-                      + "]");
-              throw new HopException(
-                  BaseMessages.getString(
-                      PKG,
-                      "GetFileNames.Exception.CouldnotFindField",
-                      meta.getDynamicExcludeWildcardField()));
-            }
+            // The field is unreachable !
+            logError(
+                BaseMessages.getString(PKG, "GetFileNames.Log.ErrorFindingField")
+                    + "["
+                    + meta.getDynamicExcludeWildcardField()
+                    + "]");
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG,
+                    "GetFileNames.Exception.CouldnotFindField",
+                    meta.getDynamicExcludeWildcardField()));
           }
         }
       }
@@ -197,7 +193,8 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
           if (meta.isRaiseAnExceptionIfNoFile()) {
             if (getTransformMeta().isDoingErrorHandling()) {
               sendErrorRow(BaseMessages.getString(PKG, "GetFileNames.Log.NoFile"));
-            } else throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoFileStop"));
+            } else
+              throw new HopException(BaseMessages.getString(PKG, "GetFileNames.Log.NoFileStop"));
           }
           logError(BaseMessages.getString(PKG, "GetFileNames.Log.NoFile"));
         } else {
