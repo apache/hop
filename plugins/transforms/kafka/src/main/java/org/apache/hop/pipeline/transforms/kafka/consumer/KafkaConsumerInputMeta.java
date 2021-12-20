@@ -741,4 +741,9 @@ public class KafkaConsumerInputMeta
   public void setAutoCommit(boolean autoCommit) {
     this.autoCommit = autoCommit;
   }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
+  }
 }
