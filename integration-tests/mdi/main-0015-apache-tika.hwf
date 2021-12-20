@@ -59,6 +59,20 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
+      <xloc>528</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Set timezone</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>
+Packages.java.util.TimeZone.setDefault(Packages.java.util.TimeZone.getTimeZone("CET"))
+
+true;</script>
+      <parallel>N</parallel>
       <xloc>320</xloc>
       <yloc>112</yloc>
       <attributes_hac/>
@@ -67,10 +81,17 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run MDI Apache Tika Tests</to>
+      <to>Set timezone</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Set timezone</from>
+      <to>Run MDI Apache Tika Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
