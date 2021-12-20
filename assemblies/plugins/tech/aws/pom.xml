@@ -36,7 +36,7 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <guava.version>19.0</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <aws-java-sdk-s3.version>1.11.974</aws-java-sdk-s3.version>
         <aws-java-sdk-core.version>1.11.974</aws-java-sdk-core.version>
         <joda-time.version>2.10.10</joda-time.version>

@@ -346,7 +346,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>27.0-jre</version>
+            <version>29.0-jre</version>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
