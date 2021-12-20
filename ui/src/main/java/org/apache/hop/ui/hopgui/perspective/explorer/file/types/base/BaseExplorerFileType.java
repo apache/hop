@@ -19,6 +19,7 @@
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
@@ -164,7 +165,7 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
       ExplorerPerspective perspective = ExplorerPerspective.getInstance();
 
       ExplorerFile explorerFile = new ExplorerFile();
-      explorerFile.setName(name);
+      explorerFile.setName(Const.NVL(name, ""));
       explorerFile.setFilename(filename);
       explorerFile.setFileType(this);
       explorerFile.setTabImage(perspective.getFileTypeImage(this));
@@ -172,8 +173,7 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
       T fileTypeHandler = createFileTypeHandler(hopGui, perspective, explorerFile);
       explorerFile.setFileTypeHandler(fileTypeHandler);
 
-      CTabItem tabItem = perspective.addFile(explorerFile, fileTypeHandler);
-      explorerFile.setName(tabItem.getText());
+      perspective.addFile(explorerFile, fileTypeHandler);
 
       return fileTypeHandler;
     } catch (Exception e) {
