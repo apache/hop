@@ -35,7 +35,8 @@
     <description></description>
 
     <properties>
-        <slf4j-api.version>1.7.30</slf4j-api.version>
+        <slf4j-api.version>1.7.32</slf4j-api.version>
+        <slf4j-nop.version>1.7.32</slf4j-nop.version>
         <clickhouse.jdbc.version>1.4.4</clickhouse.jdbc.version>
     </properties>
 
@@ -57,8 +58,8 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j-api.version}</version>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j-nop.version}</version>
         </dependency>
     </dependencies>
 </project>
