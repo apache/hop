@@ -159,6 +159,7 @@ under the License.
 *** xref:pipeline/transforms/mergejoin.adoc[Merge Join]
 *** xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
 *** xref:pipeline/transforms/metainject.adoc[Metadata Injection]
+*** xref:pipeline/transforms/metadata-input.adoc[Metadata Input]
 *** xref:pipeline/transforms/metastructure.adoc[Metadata structure of stream]
 *** xref:pipeline/transforms/monetdbbulkloader.adoc[MonetDB Bulk Loader]
 *** xref:pipeline/transforms/mongodbinput.adoc[MongoDB Input]
