@@ -326,6 +326,23 @@ public class KafkaConsumerInput
       stopAll();
     }
 
+    if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
+      // Once we got an error in the called sub-pipeline, to be really safe we re-initialize it
+      // to be safe and having everything working properly once again
+      // Load and start the single threader transformation
+      //
+      try {
+        data.executor.getPipeline().stopAll();
+        data.executor.dispose();
+
+        data.rowProducer = null;
+
+        initSubPipeline();
+      } catch (Exception e) {
+        logError("Error initializing sub-transformation", e);
+        return false;
+      }
+    }
     return true;
   }
 
