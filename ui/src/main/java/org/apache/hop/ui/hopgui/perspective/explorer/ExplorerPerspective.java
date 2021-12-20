@@ -542,7 +542,12 @@ public class ExplorerPerspective implements IHopPerspective {
     }
   }
 
-  public CTabItem addFile(ExplorerFile explorerFile, IExplorerFileTypeHandler renderer) {
+  public void addFile(ExplorerFile explorerFile, IExplorerFileTypeHandler renderer) {
+
+    if(files.contains(explorerFile)){
+      return;
+    }
+
     PropsUi props = PropsUi.getInstance();
 
     // Create tab item
@@ -619,7 +624,6 @@ public class ExplorerPerspective implements IHopPerspective {
 
     updateGui();
 
-    return tabItem;
   }
 
   private void selectInTree(String filename) {
