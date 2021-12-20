@@ -60,12 +60,13 @@ You can provide values for the following environment variables:
 |Environment Variable|Default |Description
 
 |```HOP_LOG_LEVEL```
-|```Basic```
-| The log level, one of: `None`, `Error`, `Minimal`, `Basic`, `Detailed`, `Debug`, `Rowlevel`.
+|`Basic`
+| The log level.
+Use one of: `None`, `Error`, `Minimal`, `Basic`, `Detailed`, `Debug` or `Rowlevel`.
 
 |```HOP_LOG_PATH```
-|```/opt/hop/hop.err.log```
-| File path to the Hop log file
+|`/opt/hop/hop.err.log`
+| The file path to the Hop log file.
 
 |```HOP_PROJECT_NAME```
 |
@@ -80,7 +81,7 @@ If you do not set this variable, no project or environment will be created.
 | Path to the home of the Hop project.
 
 |```HOP_PROJECT_CONFIG_FILE_NAME```
-|```project-config.json```
+|`project-config.json`
 | Name of the project config file.
 
 |```HOP_ENVIRONMENT_NAME```
@@ -93,12 +94,13 @@ If you do not set this variable, no environment will be created.
 | This is a comma separated list of paths to environment config files (including filename and file extension).
 
 |```HOP_OPTIONS```
-|```-Xmx2G```
-| Any JRE options you want to set
+|`-XX:+AggressiveHeap`
+| Any JRE options you want to set.
+The `-XX:+AggressiveHeap` option tells the container to use all memory assigned to it.
 
 |```HOP_SHARED_JDBC_FOLDER```
 |
-| Path to a folder where your JDCB drivers are located
+| Path to a folder where your JDBC drivers are located.
 
 |```HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH```
 |
@@ -119,20 +121,21 @@ Here are the variables for **short-lived** containers, to execute a workflow or 
 
 |```HOP_FILE_PATH```
 | Yes
-| Path to the Hop workflow or pipeline to execute
+| The path to the Hop workflow or pipeline to execute.
+If you configured a project you can use a relative path to the project home folder.
 
 |```HOP_RUN_CONFIG```
 | Yes
-| Name of the Hop run configuration to use
+| The name of the Hop run configuration to use to execute your pipeline or workflow.
 
 |```HOP_RUN_PARAMETERS```
 | No
-| Parameters that should be passed on to the hop-run command.
-You can specify them as a comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb```.Optional.
+| Optionally, you can specify the parameters that should be passed to the pipeline or workflow you are executing.
+You can specify them as a comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb```.
 
 |===
 
-The variables you can use for the **long-lived** containers (Hop Server):
+Below are the variables you can use for a **long-lived** container, running Hop Server:
 
 |===
 |Environment Variable |Default value| Description
@@ -143,7 +146,7 @@ The variables you can use for the **long-lived** containers (Hop Server):
 
 |```HOP_SERVER_PORT```
 | `8080`
-| The port for hop-server.
+| The port the server will listen to.
 
 |```HOP_SERVER_USER```
 |`cluster`
@@ -171,11 +174,11 @@ The variables you can use for the **long-lived** containers (Hop Server):
 
 |```HOP_SERVER_KEYSTORE```
 | (optional)
-|The path to the Java keystore file you want to use to run the Hop server with SSL enabled. (https://)
+|The path to the Java keystore file you want to use to run the Hop server with SSL enabled to support https.
 
 |```HOP_SERVER_KEYSTORE_PASSWORD```
 |(optional)
-|The password of the Java keystore file you want to use to run the Hop server with SSL enabled. (https://)
+|The password of the Java keystore file you want to use to run the Hop server with SSL enabled to support https
 
 |```HOP_SERVER_KEY_PASSWORD```
 |(optional)
@@ -184,15 +187,28 @@ If both passwords are the same you can omit setting this variable.
 
 |===
 
+== Updating the Hop docker container image
+
+Make sure to get the latest updates for the Hop image by pulling them:
+
+[source,bash]
+----
+docker pull apache/incubator-hop:<tag>
+----
+
+If you do not specify a value for `:<tag>` the value `latest` will be taken.
+Latest will contain the last officially released version of Apache Hop.
+You can also specify `Development` as a tag.
+That image will contain the last built Development snapshot of Apache Hop. rxq7777
+
 == How to run the Container
 
 The most common use case will be that you run a **short-lived container** to just complete one Hop workflow or pipeline.
 
-Example for running a **workflow**:
+Below is an example of the commands to run a **workflow**:
 
 [source,bash]
 ----
-docker pull docker.io/apache/incubator-hop:<tag>
 docker run -it --rm \
   --env HOP_LOG_LEVEL=Basic \
   --env HOP_FILE_PATH='${PROJECT_HOME}/pipelines-and-workflows/main.hwf' \
