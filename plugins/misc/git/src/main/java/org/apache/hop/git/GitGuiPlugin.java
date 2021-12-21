@@ -448,10 +448,10 @@ public class GitGuiPlugin
     GuiResource guiResource = GuiResource.getInstance();
     UIFile file = null;
     // Changed git file colored blue
-    try{
+    try {
       file = changedFiles.get(HopVfs.getFileObject(path).getName().getPath());
     } catch (HopFileException e) {
-      //do nothing
+      // do nothing
     }
 
     if (file != null) {
