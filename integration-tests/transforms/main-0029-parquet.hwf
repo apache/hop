@@ -66,7 +66,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -86,9 +85,40 @@ limitations under the License.
         <test_name>
           <name>0029-parquet-input UNIT</name>
         </test_name>
+        <test_name>
+          <name>0029-parquet-input-nulls UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>464</xloc>
+      <xloc>640</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0029-parquet-output-nulls</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-parquet-output-nulls.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
@@ -103,6 +133,13 @@ limitations under the License.
     </hop>
     <hop>
       <from>0029-parquet-output</from>
+      <to>0029-parquet-output-nulls</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0029-parquet-output-nulls</from>
       <to>Run Parquet Input Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

@@ -17,6 +17,7 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -41,4 +42,5 @@ public class ParquetOutputData extends BaseTransformData implements ITransformDa
   public int rowGroupSize;
   public int pageSize;
   public int dictionaryPageSize;
+  public Schema avroSchema;
 }

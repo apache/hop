@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0029-parquet-output-nulls</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/12/21 15:43:44.219</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/12/21 15:43:44.219</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>data with nulls</from>
+      <to>${java.io.tmpdir}/nulls.parquet</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>${java.io.tmpdir}/nulls.parquet</name>
+    <type>ParquetFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compression_codec>UNCOMPRESSED</compression_codec>
+    <data_page_size>1048576</data_page_size>
+    <dictionary_page_size>1048576</dictionary_page_size>
+    <fields>
+      <field>
+        <source_field>id</source_field>
+        <target_field>id</target_field>
+      </field>
+      <field>
+        <source_field>str</source_field>
+        <target_field>str</target_field>
+      </field>
+      <field>
+        <source_field>num</source_field>
+        <target_field>num</target_field>
+      </field>
+      <field>
+        <source_field>dat</source_field>
+        <target_field>dat</target_field>
+      </field>
+      <field>
+        <source_field>bool</source_field>
+        <target_field>bool</target_field>
+      </field>
+      <field>
+        <source_field>big</source_field>
+        <target_field>big</target_field>
+      </field>
+    </fields>
+    <filename_split_size>1000000</filename_split_size>
+    <filename_base>${java.io.tmpdir}/it/parquet/nulls</filename_base>
+    <filename_create_parent_folders>Y</filename_create_parent_folders>
+    <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
+    <filename_ext>parquet</filename_ext>
+    <filename_include_copy>N</filename_include_copy>
+    <filename_include_date>N</filename_include_date>
+    <filename_include_datetime>N</filename_include_datetime>
+    <filename_include_split>N</filename_include_split>
+    <filename_include_time>N</filename_include_time>
+    <row_group_size>20000</row_group_size>
+    <version>2.0</version>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>data with nulls</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format>#</format>
+        <group/>
+        <length>-1</length>
+        <name>id</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>str</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format>#.000</format>
+        <group/>
+        <length>7</length>
+        <name>num</name>
+        <precision>3</precision>
+        <type>Number</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format>yyyy/MM/dd HH:mm:ss</format>
+        <group/>
+        <length>-1</length>
+        <name>dat</name>
+        <precision>-1</precision>
+        <type>Date</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>bool</name>
+        <precision>-1</precision>
+        <type>Boolean</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format>#.##############################</format>
+        <group/>
+        <length>60</length>
+        <name>big</name>
+        <precision>30</precision>
+        <type>BigNumber</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>a1</item>
+        <item>1.111</item>
+        <item>2021/12/01 01:01:01</item>
+        <item/>
+        <item>9876543210987654321098765432109876543210.987654321098765432109876543210</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>a2</item>
+        <item/>
+        <item>2021/12/02 02:02:02</item>
+        <item>false</item>
+        <item/>
+      </line>
+      <line>
+        <item>3</item>
+        <item>a3</item>
+        <item>3.333</item>
+        <item>2021/12/04 03:03:03</item>
+        <item>true</item>
+        <item>8765432109876543210987654321098765432109.876543210987654321098765432109</item>
+      </line>
+      <line>
+        <item>4</item>
+        <item/>
+        <item>4.444</item>
+        <item/>
+        <item>false</item>
+        <item/>
+      </line>
+      <line>
+        <item>5</item>
+        <item>a5</item>
+        <item>5.555</item>
+        <item>2021/12/05 05:05:05</item>
+        <item/>
+        <item/>
+      </line>
+      <line>
+        <item>6</item>
+        <item>a6</item>
+        <item>6.666</item>
+        <item/>
+        <item>false</item>
+        <item/>
+      </line>
+      <line>
+        <item>7</item>
+        <item>a7</item>
+        <item>7.777</item>
+        <item>2021/12/07 07:07:07</item>
+        <item>true</item>
+        <item/>
+      </line>
+      <line>
+        <item>8</item>
+        <item/>
+        <item>8.888</item>
+        <item>2021/12/08 08:08:08</item>
+        <item/>
+        <item>7654321098765432109876543210987654321098.765432109876543210987654321098</item>
+      </line>
+      <line>
+        <item>9</item>
+        <item>a9</item>
+        <item>9.999</item>
+        <item/>
+        <item>true</item>
+        <item/>
+      </line>
+      <line>
+        <item>10</item>
+        <item>a10</item>
+        <item>10.010</item>
+        <item>2021/12/10 10:10:10</item>
+        <item/>
+        <item>6543210987654321098765432109876543210987.654321098765432109876543210987</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

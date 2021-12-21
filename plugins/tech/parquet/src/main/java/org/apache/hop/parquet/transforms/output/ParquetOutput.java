@@ -17,6 +17,9 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import org.apache.avro.LogicalTypes;
+import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.Const;
@@ -29,18 +32,16 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.parquet.avro.AvroSchemaConverter;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
-import org.apache.parquet.schema.PrimitiveType;
-import org.apache.parquet.schema.Type;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData>
     implements ITransform<ParquetOutputMeta, ParquetOutputData> {
@@ -144,7 +145,8 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
     data.props = builder.build();
 
-    List<Type> types = new ArrayList<>();
+    SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
+        SchemaBuilder.record("ApacheHopParquetSchema").fields();
 
     // Build the Parquet Schema
     //
@@ -152,27 +154,57 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       ParquetField field = meta.getFields().get(i);
       IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
 
-      PrimitiveType.PrimitiveTypeName typeName = PrimitiveType.PrimitiveTypeName.BINARY;
+      // Start a new field
+      SchemaBuilder.BaseFieldTypeBuilder<Schema> fieldBuilder =
+          fieldAssembler.name(field.getTargetFieldName()).type().nullable();
 
+      // Match these data types with class ParquetWriteSupport
+      //
       switch (valueMeta.getType()) {
         case IValueMeta.TYPE_DATE:
+          Schema timestampMilliType =
+              LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
+          fieldAssembler =
+              fieldAssembler
+                  .name(field.getTargetFieldName())
+                  .type()
+                  .unionOf()
+                  .nullType()
+                  .and()
+                  .type(timestampMilliType)
+                  .endUnion()
+                  .noDefault();
+          break;
         case IValueMeta.TYPE_INTEGER:
-          typeName = PrimitiveType.PrimitiveTypeName.INT64;
+          fieldAssembler = fieldBuilder.longType().noDefault();
           break;
         case IValueMeta.TYPE_NUMBER:
-          typeName = PrimitiveType.PrimitiveTypeName.DOUBLE;
+          fieldAssembler = fieldBuilder.doubleType().noDefault();
           break;
         case IValueMeta.TYPE_BOOLEAN:
-          typeName = PrimitiveType.PrimitiveTypeName.BOOLEAN;
+          fieldAssembler = fieldBuilder.booleanType().noDefault();
+          break;
+        case IValueMeta.TYPE_STRING:
+        case IValueMeta.TYPE_BIGNUMBER:
+          // Convert BigDecimal to String,otherwise we'll have all sorts of conversion issues.
+          //
+          fieldAssembler = fieldBuilder.stringType().noDefault();
           break;
         case IValueMeta.TYPE_BINARY:
-          typeName = PrimitiveType.PrimitiveTypeName.FIXED_LEN_BYTE_ARRAY;
+          fieldAssembler = fieldBuilder.bytesType().noDefault();
           break;
+        default:
+          throw new HopException(
+              "Writing Hop data type '"
+                  + valueMeta.getTypeDesc()
+                  + "' to Parquet is not supported");
       }
-      Type type = new PrimitiveType(Type.Repetition.REQUIRED, typeName, field.getTargetFieldName());
-      types.add(type);
     }
-    MessageType messageType = new MessageType("HopParquetSchema", types);
+    data.avroSchema = fieldAssembler.endRecord();
+
+    // Convert from Avro to Parquet schema
+    //
+    MessageType messageType = new AvroSchemaConverter().convert(data.avroSchema);
 
     // Calculate the filename...
     //
@@ -197,7 +229,11 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
       data.writer =
           new ParquetWriterBuilder(
-                  messageType, data.outputFile, data.sourceFieldIndexes, meta.getFields())
+                  messageType,
+                  data.avroSchema,
+                  data.outputFile,
+                  data.sourceFieldIndexes,
+                  meta.getFields())
               .withPageSize(data.pageSize)
               .withDictionaryPageSize(data.dictionaryPageSize)
               .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)

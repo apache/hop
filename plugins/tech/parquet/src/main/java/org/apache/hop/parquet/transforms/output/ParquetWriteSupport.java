@@ -17,6 +17,8 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import org.apache.avro.LogicalType;
+import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -28,19 +30,30 @@ import org.apache.parquet.schema.MessageType;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
 
   private final MessageType messageType;
+  private final Schema avroSchema;
   private RecordConsumer recordConsumer;
   private final List<Integer> sourceFieldIndexes;
   private final List<ParquetField> fields;
+  private Map<Integer, Schema> fieldSchemas;
+  private Map<Integer, LogicalType> fieldTypes;
 
   public ParquetWriteSupport(
-      MessageType messageType, List<Integer> sourceFieldIndexes, List<ParquetField> fields) {
+      MessageType messageType,
+      Schema avroSchema,
+      List<Integer> sourceFieldIndexes,
+      List<ParquetField> fields) {
     this.messageType = messageType;
+    this.avroSchema = avroSchema;
     this.sourceFieldIndexes = sourceFieldIndexes;
     this.fields = fields;
+
+    fieldSchemas = new HashMap<>();
+    fieldTypes = new HashMap<>();
   }
 
   @Override
@@ -69,6 +82,7 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
         boolean isNull = valueMeta.isNull(valueData);
         if (!isNull) {
           recordConsumer.startField(field.getTargetFieldName(), i);
+
           switch (valueMeta.getType()) {
             case IValueMeta.TYPE_INTEGER:
               recordConsumer.addLong(valueMeta.getInteger(valueData));
@@ -85,6 +99,12 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
             case IValueMeta.TYPE_BINARY:
               byte[] bytes = valueMeta.getBinary(valueData);
               recordConsumer.addBinary(Binary.fromConstantByteArray(bytes));
+              break;
+            case IValueMeta.TYPE_BIGNUMBER:
+              // Convert to String for now...
+              //
+              String bigString = valueMeta.getString(valueData);
+              recordConsumer.addBinary(Binary.fromString(bigString));
               break;
             case IValueMeta.TYPE_STRING:
             default:
