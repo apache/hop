@@ -91,8 +91,8 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
               recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
               break;
           }
+          recordConsumer.endField(field.getTargetFieldName(), i);
         }
-        recordConsumer.endField(field.getTargetFieldName(), i);
       }
       recordConsumer.endMessage();
     } catch (HopException e) {

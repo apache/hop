@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0037-getfilename-tests-group</name>
+  <name>main-0038-getfilename-tests-group</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -49,11 +49,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0037-getfilenames-basic.hpl</name>
+      <name>0038-getfilenames-basic.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0037-getfilenames-basic.hpl</filename>
+      <filename>${PROJECT_HOME}/0038-getfilenames-basic.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -77,11 +77,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0037-getfilenames-fromfield.hpl</name>
+      <name>0038-getfilenames-fromfield.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0037-getfilenames-fromfield.hpl</filename>
+      <filename>${PROJECT_HOME}/0038-getfilenames-fromfield.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -105,11 +105,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0037-getfilenames-regexp.hpl</name>
+      <name>0038-getfilenames-regexp.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0037-getfilenames-regexp.hpl</filename>
+      <filename>${PROJECT_HOME}/0038-getfilenames-regexp.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -133,11 +133,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0037-getfilenames-nofiles-exception.hpl</name>
+      <name>0038-getfilenames-nofiles-exception.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0037-getfilenames-nofiles-exception.hpl</filename>
+      <filename>${PROJECT_HOME}/0038-getfilenames-nofiles-exception.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -161,7 +161,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Successo</name>
+      <name>Success</name>
       <description/>
       <type>SUCCESS</type>
       <attributes/>
@@ -174,35 +174,35 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0037-getfilenames-basic.hpl</to>
+      <to>0038-getfilenames-basic.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0037-getfilenames-basic.hpl</from>
-      <to>0037-getfilenames-fromfield.hpl</to>
+      <from>0038-getfilenames-basic.hpl</from>
+      <to>0038-getfilenames-fromfield.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0037-getfilenames-fromfield.hpl</from>
-      <to>0037-getfilenames-regexp.hpl</to>
+      <from>0038-getfilenames-fromfield.hpl</from>
+      <to>0038-getfilenames-regexp.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0037-getfilenames-regexp.hpl</from>
-      <to>0037-getfilenames-nofiles-exception.hpl</to>
+      <from>0038-getfilenames-regexp.hpl</from>
+      <to>0038-getfilenames-nofiles-exception.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0037-getfilenames-nofiles-exception.hpl</from>
-      <to>Successo</to>
+      <from>0038-getfilenames-nofiles-exception.hpl</from>
+      <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

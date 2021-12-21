@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -31,6 +32,7 @@ import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 /**
  * A common interface for all transform dialogs aware of the csv input format, such as CSV Input and
@@ -135,7 +137,18 @@ public interface ICsvInputAwareTransformDialog {
       if (Utils.isEmpty(realEncoding)) {
         reader = new InputStreamReader(inputStream);
       } else {
-        reader = new InputStreamReader(inputStream, realEncoding);
+        // For all UTF encoding variants: remove the BOM if it's present
+        //
+        if (realEncoding.toUpperCase().startsWith("UTF")) {
+          // Wrap the input stream in a BOM input stream.
+          // This will automatically and safely skip any byte-order-marker bytes
+          // at the start of the file.
+          //
+          BOMInputStream bomInputStream = new BOMInputStream(inputStream);
+          reader = new InputStreamReader(bomInputStream, realEncoding);
+        } else {
+          reader = new InputStreamReader(inputStream, realEncoding);
+        }
       }
     } catch (final Exception e) {
       logError(BaseMessages.getString("Dialog.ErrorGettingFileDesc.DialogMessage"), e);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,11 +62,11 @@ public class TextFileLineUtil {
             if (encodingType.isReturn(c) || encodingType.isLinefeed(c)) {
               c = reader.read(); // skip \n and \r
               if (!encodingType.isReturn(c) && !encodingType.isLinefeed(c)) {
-                // make sure its really a linefeed or cariage return
-                // raise an error this is not a DOS file
-                // so we have pulled a character from the next line
+                // Make sure it's really a linefeed or carriage return.
+                // Raise an error if this is not a DOS formatted file.
+                //
                 throw new HopFileException(
-                    BaseMessages.getString(PKG, "TextFileLineUtil.Log.SingleLineFound"));
+                        BaseMessages.getString(PKG, "TextFileLineUtil.Log.SingleLineFound"));
               }
               return line.toString();
             }

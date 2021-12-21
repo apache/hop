@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,18 +36,18 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
 
   private static final int SHELL_WIDTH = 700;
 
-  private IGetFieldsCapableTransformDialog parentDialog;
-  private boolean reloadAllFields;
+  private final IGetFieldsCapableTransformDialog parentDialog;
+  private final boolean reloadAllFields;
 
   public GetFieldsSampleDataDialog(
-      final Shell parentShell,
-      final IGetFieldsCapableTransformDialog parentDialog,
-      final boolean reloadAllFields) {
+          final Shell parentShell,
+          final IGetFieldsCapableTransformDialog parentDialog,
+          final boolean reloadAllFields) {
     super(
-        parentShell,
-        SAMPLE_SIZE,
-        BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Title"),
-        BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Message"),
+            parentShell,
+            SAMPLE_SIZE,
+            BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Title"),
+            BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Message"),
         BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.ShowSample.Message"),
         SHELL_WIDTH);
     this.parentDialog = parentDialog;
