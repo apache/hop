@@ -446,10 +446,14 @@ public class GitGuiPlugin
   public void filePainted(Tree tree, TreeItem treeItem, String path, String name) {
 
     GuiResource guiResource = GuiResource.getInstance();
-
+    UIFile file = null;
     // Changed git file colored blue
-    //
-    UIFile file = changedFiles.get(path);
+    try {
+      file = changedFiles.get(HopVfs.getFileObject(path).getName().getPath());
+    } catch (HopFileException e) {
+      // do nothing
+    }
+
     if (file != null) {
       switch (file.getChangeType()) {
         case DELETE:

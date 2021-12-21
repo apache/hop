@@ -239,7 +239,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ProcessFiles.Log.FilenameAddResult", data.sourceFile.toString()));
+                  PKG, "ProcessFiles.Log.FilenameAddResult", data.targetFile.toString()));
         }
       }
 
