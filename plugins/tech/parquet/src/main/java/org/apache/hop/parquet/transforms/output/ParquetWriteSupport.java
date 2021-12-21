@@ -17,6 +17,10 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import org.apache.avro.Conversions;
+import org.apache.avro.LogicalType;
+import org.apache.avro.LogicalTypes;
+import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -26,77 +30,94 @@ import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
 
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
 
-  private final MessageType messageType;
-  private RecordConsumer recordConsumer;
-  private final List<Integer> sourceFieldIndexes;
-  private final List<ParquetField> fields;
+    private final MessageType messageType;
+    private final Schema avroSchema;
+    private RecordConsumer recordConsumer;
+    private final List<Integer> sourceFieldIndexes;
+    private final List<ParquetField> fields;
+    private Map<Integer, Schema> fieldSchemas;
+    private Map<Integer, LogicalType> fieldTypes;
 
-  public ParquetWriteSupport(
-      MessageType messageType, List<Integer> sourceFieldIndexes, List<ParquetField> fields) {
-    this.messageType = messageType;
-    this.sourceFieldIndexes = sourceFieldIndexes;
-    this.fields = fields;
-  }
 
-  @Override
-  public WriteContext init(Configuration configuration) {
-    return new WriteContext(messageType, new HashMap<>());
-  }
+    public ParquetWriteSupport(MessageType messageType, Schema avroSchema, List<Integer> sourceFieldIndexes, List<ParquetField> fields) {
+        this.messageType = messageType;
+        this.avroSchema = avroSchema;
+        this.sourceFieldIndexes = sourceFieldIndexes;
+        this.fields = fields;
 
-  @Override
-  public void prepareForWrite(RecordConsumer recordConsumer) {
-    this.recordConsumer = recordConsumer;
-  }
-
-  @Override
-  public void write(RowMetaAndData row) {
-    recordConsumer.startMessage();
-    try {
-      // Grab the fields that are mapped...
-      // Write a value
-      //
-      for (int i = 0; i < fields.size(); i++) {
-        ParquetField field = fields.get(i);
-        int index = sourceFieldIndexes.get(i);
-        IValueMeta valueMeta = row.getValueMeta(index);
-        Object valueData = row.getData()[index];
-
-        boolean isNull = valueMeta.isNull(valueData);
-        if (!isNull) {
-          recordConsumer.startField(field.getTargetFieldName(), i);
-          switch (valueMeta.getType()) {
-            case IValueMeta.TYPE_INTEGER:
-              recordConsumer.addLong(valueMeta.getInteger(valueData));
-              break;
-            case IValueMeta.TYPE_NUMBER:
-              recordConsumer.addDouble(valueMeta.getNumber(valueData));
-              break;
-            case IValueMeta.TYPE_BOOLEAN:
-              recordConsumer.addBoolean(valueMeta.getBoolean(valueData));
-              break;
-            case IValueMeta.TYPE_DATE:
-              recordConsumer.addLong(valueMeta.getDate(valueData).getTime());
-              break;
-            case IValueMeta.TYPE_BINARY:
-              byte[] bytes = valueMeta.getBinary(valueData);
-              recordConsumer.addBinary(Binary.fromConstantByteArray(bytes));
-              break;
-            case IValueMeta.TYPE_STRING:
-            default:
-              recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
-              break;
-          }
-          recordConsumer.endField(field.getTargetFieldName(), i);
-        }
-      }
-      recordConsumer.endMessage();
-    } catch (HopException e) {
-      throw new RuntimeException("Error writing row to Parquet", e);
+        fieldSchemas = new HashMap<>();
+        fieldTypes = new HashMap<>();
     }
-  }
+
+    @Override
+    public WriteContext init(Configuration configuration) {
+        return new WriteContext(messageType, new HashMap<>());
+    }
+
+    @Override
+    public void prepareForWrite(RecordConsumer recordConsumer) {
+        this.recordConsumer = recordConsumer;
+    }
+
+    @Override
+    public void write(RowMetaAndData row) {
+        recordConsumer.startMessage();
+        try {
+            // Grab the fields that are mapped...
+            // Write a value
+            //
+            for (int i = 0; i < fields.size(); i++) {
+                ParquetField field = fields.get(i);
+                int index = sourceFieldIndexes.get(i);
+                IValueMeta valueMeta = row.getValueMeta(index);
+                Object valueData = row.getData()[index];
+
+                boolean isNull = valueMeta.isNull(valueData);
+                if (!isNull) {
+                    recordConsumer.startField(field.getTargetFieldName(), i);
+
+                    switch (valueMeta.getType()) {
+                        case IValueMeta.TYPE_INTEGER:
+                            recordConsumer.addLong(valueMeta.getInteger(valueData));
+                            break;
+                        case IValueMeta.TYPE_NUMBER:
+                            recordConsumer.addDouble(valueMeta.getNumber(valueData));
+                            break;
+                        case IValueMeta.TYPE_BOOLEAN:
+                            recordConsumer.addBoolean(valueMeta.getBoolean(valueData));
+                            break;
+                        case IValueMeta.TYPE_DATE:
+                            recordConsumer.addLong(valueMeta.getDate(valueData).getTime());
+                            break;
+                        case IValueMeta.TYPE_BINARY:
+                            byte[] bytes = valueMeta.getBinary(valueData);
+                            recordConsumer.addBinary(Binary.fromConstantByteArray(bytes));
+                            break;
+                        case IValueMeta.TYPE_BIGNUMBER:
+                            // Convert to String for now...
+                            //
+                            String bigString = valueMeta.getString(valueData);
+                            recordConsumer.addBinary(Binary.fromString(bigString));
+                            break;
+                        case IValueMeta.TYPE_STRING:
+                        default:
+                            recordConsumer.addBinary(Binary.fromString(valueMeta.getString(valueData)));
+                            break;
+                    }
+                    recordConsumer.endField(field.getTargetFieldName(), i);
+                }
+            }
+            recordConsumer.endMessage();
+        } catch (HopException e) {
+            throw new RuntimeException("Error writing row to Parquet", e);
+        }
+    }
 }
