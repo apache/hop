@@ -36,11 +36,11 @@ public class ParquetWriterBuilder
   private final List<ParquetField> fields;
 
   protected ParquetWriterBuilder(
-          MessageType messageType,
-          Schema avroSchema,
-          OutputFile path,
-          List<Integer> sourceFieldIndexes,
-          List<ParquetField> fields) {
+      MessageType messageType,
+      Schema avroSchema,
+      OutputFile path,
+      List<Integer> sourceFieldIndexes,
+      List<ParquetField> fields) {
     super(path);
     this.messageType = messageType;
     this.avroSchema = avroSchema;
