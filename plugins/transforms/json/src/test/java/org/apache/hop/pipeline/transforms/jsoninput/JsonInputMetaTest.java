@@ -41,7 +41,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/** Created by bmorrise on 3/22/16. */
 @RunWith(MockitoJUnitRunner.class)
 public class JsonInputMetaTest {
   public static final String DATA = "data";

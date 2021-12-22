@@ -56,13 +56,6 @@ import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * This class was a "copy and modification" of Hop's JsonOutputTests.
- *
- * @author Hendy Irawan <hendy@soluvas.com> Modified by Sean Flatley, removing dependency on
- *     external text file to hold expected results and modifying code to handle "Compatibility
- *     Mode".
- */
 public class JsonOutputTest extends TestCase {
 
   private static final String EXPECTED_NON_COMPATIBILITY_JSON =
