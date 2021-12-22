@@ -15,13 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.types;
+package org.apache.hop.ui.hopgui.perspective.explorer.file.types.noext;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
@@ -35,15 +32,15 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-/** How do we handle a JSON file in file explorer perspective? */
-public class JsonExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler
+/** How do we handle a log file in file explorer perspective? */
+public class NoExtensionExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler
     implements IExplorerFileTypeHandler {
 
-  public JsonExplorerFileTypeHandler(
+  public NoExtensionExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
   }
