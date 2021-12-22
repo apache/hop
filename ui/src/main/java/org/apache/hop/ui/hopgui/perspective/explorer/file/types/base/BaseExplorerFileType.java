@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
@@ -30,9 +29,12 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.Collections;
 import java.util.List;
@@ -159,6 +161,39 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     try {
       FileObject fileObject = HopVfs.getFileObject(parentVariables.resolve(filename));
       String name = fileObject.getName().getBaseName();
+
+      // Check the file size before opening.
+      // We don't want to accidentally load 25 TB in memory.
+      //
+      long fileSize = fileObject.getContent().getSize();
+      long sizeMb = fileSize / (1024 * 1024);
+
+      // What is the maximum size?
+      //
+      String maxSizeOption = ExplorerPerspectiveConfigSingleton.getConfig().getFileLoadingMaxSize();
+      long maxSizeMb = Const.toLong(hopGui.getVariables().resolve(maxSizeOption), 16);
+
+      if (sizeMb > maxSizeMb) {
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText("Open large file?");
+        box.setMessage(
+            name
+                + Const.CR
+                + Const.CR
+                + "The file to open is "
+                + sizeMb
+                + "MB in size. "
+                + "This is larger than the configured maximum of "
+                + maxSizeMb
+                + "MB.  There might be a danger of running out of memory. "
+                + Const.CR
+                + Const.CR
+                + "Are you sure you still want to open this file?");
+        int answer = box.open();
+        if ((answer & SWT.YES) == 0) {
+          return null;
+        }
+      }
 
       // Open the file in the explorer perspective
       //

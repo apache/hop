@@ -39,7 +39,6 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -59,6 +58,7 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
@@ -131,12 +131,25 @@ public class ExplorerPerspective implements IHopPerspective {
     public String path;
     public String name;
     public IHopFileType fileType;
+    public int depth;
+    public boolean folder;
+    public boolean loaded;
 
-    public TreeItemFolder(TreeItem treeItem, String path, String name, IHopFileType fileType) {
+    public TreeItemFolder(
+        TreeItem treeItem,
+        String path,
+        String name,
+        IHopFileType fileType,
+        int depth,
+        boolean folder,
+        boolean loaded) {
       this.treeItem = treeItem;
       this.path = path;
       this.name = name;
       this.fileType = fileType;
+      this.depth = depth;
+      this.folder = folder;
+      this.loaded = loaded;
     }
   }
 
@@ -377,7 +390,7 @@ public class ExplorerPerspective implements IHopPerspective {
 
     // Lazy loading...
     //
-    tree.addListener(SWT.Expand, this::lazyLoadFolder);
+    tree.addListener(SWT.Expand, this::lazyLoadFolderOnExpand);
 
     // Remember tree node expanded/Collapsed
     //
@@ -389,13 +402,25 @@ public class ExplorerPerspective implements IHopPerspective {
     GuiRegistry.getInstance().executeCallbackMethods(GUI_TOOLBAR_CREATED_CALLBACK_ID);
   }
 
-  private void lazyLoadFolder(Event event) {
+  /**
+   * This is called when a user expands a folder. We only need to lazily load the contents of the
+   * folder if it's not loaded already. To keep track of this we have a flag called "loaded" in the
+   * item data.
+   */
+  private void lazyLoadFolderOnExpand(Event event) {
     // Which folder is being expanded?
     //
     TreeItem item = (TreeItem) event.item;
     TreeItemFolder treeItemFolder = (TreeItemFolder) item.getData();
     if (treeItemFolder != null) {
-      BusyIndicator.showWhile(hopGui.getDisplay(), () -> refreshFolder(item, treeItemFolder.path));
+      if (!treeItemFolder.loaded) {
+        BusyIndicator.showWhile(
+            hopGui.getDisplay(),
+            () -> {
+              refreshFolder(item, treeItemFolder.path, treeItemFolder.depth + 1);
+              treeItemFolder.loaded = true;
+            });
+      }
     }
   }
 
@@ -417,8 +442,11 @@ public class ExplorerPerspective implements IHopPerspective {
           item.setExpanded(expanded);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expanded);
         } else {
-          tif.fileType.openFile(hopGui, tif.path, hopGui.getVariables());
-          updateGui();
+          IHopFileTypeHandler handler =
+              tif.fileType.openFile(hopGui, tif.path, hopGui.getVariables());
+          if (handler != null) {
+            updateGui();
+          }
         }
       }
     } catch (Exception e) {
@@ -880,14 +908,11 @@ public class ExplorerPerspective implements IHopPerspective {
       IHopFileType fileType = getFileType(rootFolder);
       setItemImage(rootItem, fileType);
       callPaintListeners(tree, rootItem, rootFolder, rootName, fileType);
-      setTreeItemData(rootItem, rootFolder, rootName, fileType);
-
-      // Folders have some data for easy lookup
-      rootItem.setData(new TreeItemFolder(rootItem, rootFolder, rootName, fileType));
+      setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
 
       // Paint the top level folder only
       //
-      refreshFolder(rootItem, rootFolder);
+      refreshFolder(rootItem, rootFolder, 0);
 
       tree.setRedraw(true);
 
@@ -903,8 +928,15 @@ public class ExplorerPerspective implements IHopPerspective {
     treeIsFresh = true;
   }
 
-  private void setTreeItemData(TreeItem treeItem, String path, String name, IHopFileType fileType) {
-    treeItem.setData(new TreeItemFolder(treeItem, path, name, fileType));
+  private void setTreeItemData(
+      TreeItem treeItem,
+      String path,
+      String name,
+      IHopFileType fileType,
+      int depth,
+      boolean folder,
+      boolean loaded) {
+    treeItem.setData(new TreeItemFolder(treeItem, path, name, fileType, depth, folder, loaded));
   }
 
   private void setItemImage(TreeItem treeItem, IHopFileType fileType) {
@@ -933,7 +965,7 @@ public class ExplorerPerspective implements IHopPerspective {
     return new EmptyFileType();
   }
 
-  private void refreshFolder(TreeItem item, String path) {
+  private void refreshFolder(TreeItem item, String path, int depth) {
 
     try {
       // Remove any old children in the item...
@@ -964,21 +996,52 @@ public class ExplorerPerspective implements IHopPerspective {
           childItem.setText(childName);
           setItemImage(childItem, fileType);
           callPaintListeners(tree, childItem, childPath, childName, fileType);
-          setTreeItemData(childItem, childPath, childName, fileType);
+          setTreeItemData(childItem, childPath, childName, fileType, depth, folder, true);
 
           // Recursively add children
           //
           if (child.isFolder()) {
-            // Create a new item to get the "expand" icon
+            // What is the maximum depth to lazily load?
             //
-            new TreeItem(childItem, SWT.NONE);
-            childItem.setExpanded(false);
-            TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, false);
+            String maxDepthString =
+                ExplorerPerspectiveConfigSingleton.getConfig().getLazyLoadingDepth();
+            int maxDepth = Const.toInt(hopGui.getVariables().resolve(maxDepthString), 0);
+            if (depth + 1 <= maxDepth) {
+              // Remember folder data to expand easily
+              //
+              childItem.setData(
+                  new TreeItemFolder(
+                      childItem,
+                      child.getName().getURI(),
+                      childName,
+                      fileType,
+                      depth,
+                      folder,
+                      true));
 
-            // Remember folder data to expand easily
-            //
-            childItem.setData(
-                new TreeItemFolder(childItem, child.getName().getURI(), childName, fileType));
+              // We actually load the content up to the desired depth
+              //
+              refreshFolder(childItem, childPath, depth + 1);
+            } else {
+              // Remember folder data to expand easily
+              //
+              childItem.setData(
+                  new TreeItemFolder(
+                      childItem,
+                      child.getName().getURI(),
+                      childName,
+                      fileType,
+                      depth,
+                      folder,
+                      false));
+
+              // Create a new item to get the "expand" icon but without the content behind it.
+              // The folder just contains an empty item to show the expand icon.
+              //
+              new TreeItem(childItem, SWT.NONE);
+              childItem.setExpanded(false);
+              TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, false);
+            }
           }
         }
       }
