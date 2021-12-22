@@ -77,6 +77,12 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   @Override
   public boolean processRow() throws HopException {
     Object[] row = getRow();
+    if (row == null && first) {
+      logBasic("No rows found for processing, stopping transform");
+      setOutputDone();
+      return false;
+    }
+
     if (row == null) {
       closeFile();
       setOutputDone();
@@ -94,7 +100,6 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         }
         data.sourceFieldIndexes.add(index);
       }
-
       openNewFile();
     }
 
