@@ -270,7 +270,7 @@ We also make it parameter-driven, so it any other team can use it.We create our 
 
 [source,dockerfile]
 ----
-FROM apache/incubator-hop:0.70-SNAPSHOT
+FROM apache/incubator-hop:1.1.0-SNAPSHOT
 ENV GIT_REPO_URI=https://...
 # example value: https://github.com/diethardsteiner/apache-hop-minimal-project.git
 ENV GIT_REPO_NAME=repo-name
