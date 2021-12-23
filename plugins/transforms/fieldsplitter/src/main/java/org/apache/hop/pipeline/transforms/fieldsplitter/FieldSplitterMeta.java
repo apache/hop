@@ -572,7 +572,7 @@ public class FieldSplitterMeta extends BaseTransformMeta
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.TransformReceivingFields", prev.size() + ""),
               transformMeta);
@@ -587,12 +587,12 @@ public class FieldSplitterMeta extends BaseTransformMeta
                 PKG,
                 "FieldSplitterMeta.CheckResult.SplitedFieldNotPresentInInputStream",
                 splitField);
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "FieldSplitterMeta.CheckResult.SplitedFieldFoundInInputStream",
@@ -605,7 +605,7 @@ public class FieldSplitterMeta extends BaseTransformMeta
           BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform")
               + Const.CR;
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -613,7 +613,7 @@ public class FieldSplitterMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.TransformReceivingInfoFromOtherTransform"),
               transformMeta);
@@ -621,7 +621,7 @@ public class FieldSplitterMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.NoInputReceivedFromOtherTransform"),
               transformMeta);

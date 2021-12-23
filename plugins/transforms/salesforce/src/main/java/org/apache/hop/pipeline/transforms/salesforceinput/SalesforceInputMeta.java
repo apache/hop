@@ -612,13 +612,13 @@ public class SalesforceInputMeta
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoInput"),
               transformMeta);
     }
@@ -628,13 +628,13 @@ public class SalesforceInputMeta
     if (getInputFields().length == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.FieldsOk"),
               transformMeta);
     }
@@ -644,7 +644,7 @@ public class SalesforceInputMeta
     if (includeTargetURL() && Utils.isEmpty(getTargetURLField())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoTargetURLField"),
               transformMeta);
       remarks.add(cr);
@@ -652,7 +652,7 @@ public class SalesforceInputMeta
     if (includeSQL() && Utils.isEmpty(getSQLField())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoSQLField"),
               transformMeta);
       remarks.add(cr);
@@ -660,7 +660,7 @@ public class SalesforceInputMeta
     if (includeModule() && Utils.isEmpty(moduleField)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoModuleField"),
               transformMeta);
       remarks.add(cr);
@@ -668,7 +668,7 @@ public class SalesforceInputMeta
     if (includeTimestamp() && Utils.isEmpty(getTimestampField())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoTimestampField"),
               transformMeta);
       remarks.add(cr);
@@ -676,7 +676,7 @@ public class SalesforceInputMeta
     if (includeRowNumber() && Utils.isEmpty(getRowNumberField())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoRowNumberField"),
               transformMeta);
       remarks.add(cr);
@@ -684,7 +684,7 @@ public class SalesforceInputMeta
     if (includeDeletionDate() && Utils.isEmpty(getDeletionDateField())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInputMeta.CheckResult.NoDeletionDateField"),
               transformMeta);
       remarks.add(cr);

@@ -538,13 +538,13 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "RestMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RestMeta.CheckResult.NoInpuReceived"),
               transformMeta);
     }
@@ -555,13 +555,13 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
       if (Utils.isEmpty(urlField)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.UrlfieldMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.UrlfieldOk"),
                 transformMeta);
       }
@@ -570,13 +570,13 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
       if (Utils.isEmpty(url)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.UrlMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.UrlOk"),
                 transformMeta);
       }
@@ -588,13 +588,13 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
       if (Utils.isEmpty(methodFieldName)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.MethodFieldMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.MethodFieldOk"),
                 transformMeta);
       }
@@ -603,13 +603,13 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
       if (Utils.isEmpty(method)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.MethodMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "RestMeta.CheckResult.MethodOk"),
                 transformMeta);
       }

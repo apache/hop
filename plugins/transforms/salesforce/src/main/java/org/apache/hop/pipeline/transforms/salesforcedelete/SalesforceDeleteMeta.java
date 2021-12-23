@@ -180,13 +180,13 @@ public class SalesforceDeleteMeta
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInput"),
               transformMeta);
     }

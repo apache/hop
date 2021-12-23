@@ -437,7 +437,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "IfNullMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -458,13 +458,13 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
         errorMessage =
             BaseMessages.getString(PKG, "IfNullMeta.CheckResult.FieldsFound", errorMessage);
 
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         if (fields.length > 0) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "IfNullMeta.CheckResult.AllFieldsFound"),
                   transformMeta);
           remarks.add(cr);
@@ -483,14 +483,14 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "IfNullMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "IfNullMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

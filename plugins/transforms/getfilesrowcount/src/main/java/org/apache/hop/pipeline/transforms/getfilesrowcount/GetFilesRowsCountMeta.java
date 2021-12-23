@@ -483,14 +483,14 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -501,14 +501,14 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     if (fileInputList == null || fileInputList.getFiles().size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoFiles"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "GetFilesRowsCountMeta.CheckResult.FilesOk",
@@ -520,14 +520,14 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta
     if ((RowSeparatorFormat.equals("CUSTOM")) && (RowSeparator == null)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoSeparator"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.SeparatorOk"),
               transformMeta);
       remarks.add(cr);

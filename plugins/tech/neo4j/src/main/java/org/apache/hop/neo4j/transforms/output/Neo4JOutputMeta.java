@@ -424,14 +424,14 @@ public class Neo4JOutputMeta extends BaseTransformMeta
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               "Not receiving any fields from previous transform!",
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is connected to previous one, receiving " + prev.size() + " fields",
               transformMeta);
       remarks.add(cr);
@@ -440,14 +440,14 @@ public class Neo4JOutputMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is receiving info from other transform.",
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "No input received from other transform!",
               transformMeta);
       remarks.add(cr);

@@ -199,7 +199,7 @@ public class WebServiceMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is connected to previous one, receiving " + prev.size() + " fields",
               transformMeta);
       remarks.add(cr);
@@ -209,14 +209,14 @@ public class WebServiceMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is receiving info from other transforms.",
               transformMeta);
       remarks.add(cr);
     } else if (getInFieldArgumentName() != null || getInFieldContainerName() != null) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "No input received from other transforms!",
               transformMeta);
       remarks.add(cr);

@@ -582,14 +582,14 @@ public class YamlInputMeta extends BaseTransformMeta
     if (input.length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -598,7 +598,7 @@ public class YamlInputMeta extends BaseTransformMeta
     if (getInputFields().length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoInputField"),
               transformMeta);
       remarks.add(cr);
@@ -608,14 +608,14 @@ public class YamlInputMeta extends BaseTransformMeta
       if (Utils.isEmpty(getYamlField())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
@@ -626,14 +626,14 @@ public class YamlInputMeta extends BaseTransformMeta
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "YamlInputMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "YamlInputMeta.CheckResult.FilesOk", "" + fileInputList.getFiles().size()),
                 transformMeta);

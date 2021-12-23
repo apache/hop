@@ -327,7 +327,7 @@ public class NormaliserMeta extends BaseTransformMeta
           BaseMessages.getString(
                   PKG, "NormaliserMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform")
               + Const.CR;
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 

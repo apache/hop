@@ -414,18 +414,18 @@ public class GetTableNamesMeta extends BaseTransformMeta
 
     if (database == null) {
       errorMessage = BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(tablenamefieldname)) {
       errorMessage =
           BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage =
           BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -433,13 +433,13 @@ public class GetTableNamesMeta extends BaseTransformMeta
     if (input.length > 0 && !isDynamicSchema()) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.NoInpuReceived"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "GetTableNamesMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
