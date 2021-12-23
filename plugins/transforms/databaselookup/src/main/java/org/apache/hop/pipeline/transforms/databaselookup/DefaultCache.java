@@ -25,11 +25,7 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.*;
 
-/**
- * Old code, copied from {@linkplain DatabaseLookup}
- *
- * @author Andrey Khayrutdinov
- */
+/** Old code, copied from {@linkplain DatabaseLookup} */
 public class DefaultCache implements DatabaseLookupData.ICache {
 
   public static DefaultCache newCache(DatabaseLookupData data, int cacheSize) {
@@ -136,7 +132,7 @@ public class DefaultCache implements DatabaseLookupData.ICache {
   public void storeRowInCache(
       DatabaseLookupMeta meta, IRowMeta lookupMeta, Object[] lookupRow, Object[] add) {
     RowMetaAndData rowMetaAndData = new RowMetaAndData(lookupMeta, lookupRow);
-    // DEinspanjer 2009-02-01 XXX: I want to write a test case to prove this point before checking
+    //  2009-02-01 XXX: I want to write a test case to prove this point before checking
     // in.
     // /* Don't insert a row with a duplicate key into the cache. It doesn't seem
     // * to serve a useful purpose and can potentially cause the transform to return
@@ -144,8 +140,6 @@ public class DefaultCache implements DatabaseLookupData.ICache {
     // * Additionally, if using the load all data feature, re-inserting would reverse the order
     // * specified in the transform.
     // */
-    // if (!data.look.containsKey(rowMetaAndData)) {
-    // data.look.put(rowMetaAndData, new TimedRow(add));
     // }
     map.put(rowMetaAndData, new TimedRow(add));
 
@@ -155,7 +149,7 @@ public class DefaultCache implements DatabaseLookupData.ICache {
     // That should on average remove more than 10% of the entries
     // It's not exact science, but it will be faster than the old algorithm
 
-    // DEinspanjer 2009-02-01: If you had previously set a cache size and then turned on load all,
+    // 2009-02-01: If you had previously set a cache size and then turned on load all,
     // this
     // method would throw out entries if the previous cache size wasn't big enough.
     if (!meta.isLoadingAllDataInCache()

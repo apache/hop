@@ -74,7 +74,6 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements ITransfo
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
-    // backupAllRows = input.passAllRows();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

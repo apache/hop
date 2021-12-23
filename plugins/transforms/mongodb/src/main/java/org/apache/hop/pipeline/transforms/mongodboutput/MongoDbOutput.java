@@ -401,7 +401,6 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             // CHECKSTYLE:ON
           }
         }
-        // throw new HopException(me.getMessage(), me);
       }
 
       if (result != null) {

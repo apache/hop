@@ -20,9 +20,5 @@ package org.apache.hop.laf;
 /**
  * Specific IHandler interface from which all LAF/pluggable handlers should derive to enable the
  * factory to manage them consistently.
- *
- * @author dhushon
  */
-public interface IHandler {
-  // public <E extends IHandler>LafDelegate<E> getLAFDelegate();
-}
+public interface IHandler {}

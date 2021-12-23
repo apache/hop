@@ -47,7 +47,7 @@ import java.util.TimeZone;
  */
 public class StaxPoiSheet implements IKSheet {
 
-  // set to UTC for coherence with PoiSheet;
+  // set to UTC for coherence with PoiSheet
   private static final TimeZone DATE_TZ = TimeZone.getTimeZone("UTC");
 
   private final String sheetName;

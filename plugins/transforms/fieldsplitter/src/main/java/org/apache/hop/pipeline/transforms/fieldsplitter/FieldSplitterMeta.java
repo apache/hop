@@ -455,10 +455,6 @@ public class FieldSplitterMeta extends BaseTransformMeta
         v.setGroupingSymbol(getFieldGroup()[i]);
         v.setCurrencySymbol(getFieldCurrency()[i]);
         v.setTrimType(getFieldTrimType()[i]);
-        // TODO when implemented in UI
-        // v.setDateFormatLenient(dateFormatLenient);
-        // TODO when implemented in UI
-        // v.setDateFormatLocale(dateFormatLocale);
         if (i == 0 && idx >= 0) {
           // the first valueMeta (splitField) will be replaced
           r.setValueMeta(idx, v);

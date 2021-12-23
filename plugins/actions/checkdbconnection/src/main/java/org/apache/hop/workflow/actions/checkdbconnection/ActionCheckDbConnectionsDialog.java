@@ -42,12 +42,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * This dialog allows you to edit the check database connection action settings.
- *
- * @author Samatar
- * @since 12-10-2007
- */
+/** This dialog allows you to edit the check database connection action settings. */
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // For Translator
 
@@ -124,7 +119,6 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    // fdlFields.right= new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment(wName, 2 * margin);
     wlFields.setLayoutData(fdlFields);
 
@@ -217,10 +211,6 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     return action;
   }
-
-  //  public void addDatabases() {
-  //    connections = workflowMeta.getDatabaseNames();
-  //  }
 
   public void getDatabases() {
     wFields.removeAll();

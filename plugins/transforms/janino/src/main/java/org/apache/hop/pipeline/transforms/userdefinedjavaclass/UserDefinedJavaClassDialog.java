@@ -1549,7 +1549,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void buildingFolderMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addNewItem = new MenuItem(cMenu, SWT.PUSH);
     addNewItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.AddNewTab"));
     addNewItem.addListener(SWT.Selection, e -> addCtab("", "", TabAddActions.ADD_BLANK));
@@ -1605,7 +1604,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void buildingTreeMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addDeleteItem = new MenuItem(tMenu, SWT.PUSH);
     addDeleteItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Delete.Label"));
     addDeleteItem.addListener(

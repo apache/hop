@@ -144,7 +144,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
       outputRow[data.NrPrevFields] = encryptedData;
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(

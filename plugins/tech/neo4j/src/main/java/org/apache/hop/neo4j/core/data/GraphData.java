@@ -290,7 +290,6 @@ public class GraphData {
     // Start from any relationship with given label
     //
     List<GraphRelationshipData> rels = findRelationships(labelToFollow);
-    // System.out.println("Found "+rels.size()+" relationships for "+labelToFollow);
     if (rels.size() == 0) {
       return null;
     }

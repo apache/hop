@@ -468,8 +468,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           gc.setLineWidth(1);
           gc.fillRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
           // draw the title columns
-          // gc.setBackground(EColor.BACKGROUND);
-          // gc.fillRoundRectangle(popupX, popupY, titleWidth+MINI_ICON_MARGIN, popupHeight, 7, 7);
           gc.setBackground(EColor.LIGHTGRAY);
           gc.drawRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
 
@@ -927,7 +925,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if (fs.isSendingErrorRowsToTransform(ts)) {
           color = EColor.RED;
           linestyle = ELineStyle.DASH;
-          // activeLinewidth = lineWidth + 1;
           arrow = EImage.ARROW_ERROR;
         } else {
           color = EColor.HOP_DEFAULT;

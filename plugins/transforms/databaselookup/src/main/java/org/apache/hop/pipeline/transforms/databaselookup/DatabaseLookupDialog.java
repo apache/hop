@@ -552,7 +552,6 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
                 try {
                   db.connect();
 
-                  // IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
                   String schemaTable =
                       ci.getQuotedSchemaTableCombination(variables, schemaName, tableName);
                   IRowMeta r = db.getTableFields(schemaTable);

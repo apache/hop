@@ -726,7 +726,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
     }
     incrementLinesInput();
     data.rownr++;
-    putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
     if (meta.getRowLimit() > 0 && data.rownr > meta.getRowLimit()) {
       // limit has been reached: stop now.

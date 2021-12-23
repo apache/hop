@@ -311,7 +311,7 @@ public class TransformBatchTransform extends TransformTransform {
           pipelineMeta.setMetadataProvider(metadataProvider);
 
           // When the first row ends up in the buffer we start the timer.
-          // If the rows are flushed out we reset back to -1;
+          // If the rows are flushed out we reset back to -1
           //
           lastTimerCheck = new AtomicLong(-1L);
 
@@ -621,8 +621,6 @@ public class TransformBatchTransform extends TransformTransform {
       try {
         synchronized (rowBuffer) {
           if (!rowBuffer.isEmpty()) {
-            // System.out.println( "Finishing bundle with " + rowBuffer.size() + " rows in the
-            // buffer" );
             emptyRowBuffer(new TransformFinishBundleContext(context, batchWindow));
           }
         }

@@ -391,7 +391,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     input.setEnclosure(wEnclosure.getText());
     input.setEscapeString(wEscapeString.getText());
 
-    // Table table = wFields.table;
     int nrFields = wFields.nrNonEmpty();
 
     input.allocate(nrFields);

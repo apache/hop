@@ -252,8 +252,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     // Refresh the Properties
     //
     monitorNodeProperties = false;
-    // System.out.println( "Adding " + activeNode.getProperties().size() + " properties to the node
-    // view" );
     wNodeProperties.clearAll();
     for (int i = 0; i < activeNode.getProperties().size(); i++) {
       GraphProperty property = activeNode.getProperties().get(i);
@@ -289,8 +287,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     // Refresh the Properties
     //
     monitorRelProperties = false;
-    // System.out.println( "Adding " + activeRelationship.getProperties().size() + " properties to
-    // the relationship view" );
     wRelProperties.clearAll();
     for (int i = 0; i < activeRelationship.getProperties().size(); i++) {
       GraphProperty property = activeRelationship.getProperties().get(i);
@@ -756,8 +752,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     if (activeNode != null) {
       setChanged();
       if (monitorLabels) {
-        // System.out.println( "Labels changed! " + new Date().getTime() + " found " +
-        // wNodeLabels.nrNonEmpty() + " labels" );
 
         java.util.List<String> labels = new ArrayList<>();
         for (int i = 0; i < wNodeLabels.nrNonEmpty(); i++) {
@@ -771,12 +765,10 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             if (!labels.contains(text.getText())) {
               labels.add(text.getText());
             }
-            // System.out.println( "editor content : " + text.getText() );
           }
         }
 
         activeNode.setLabels(labels);
-        // System.out.println( "Set " + activeNode.getLabels().size() + " labels on active node" );
       }
     }
   }
@@ -787,8 +779,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     if (activeNode != null) {
       setChanged();
       if (monitorNodeProperties) {
-        // System.out.println( "Labels changed! " + new Date().getTime() + " found " +
-        // wNodeProperties.nrNonEmpty() + " properties" );
 
         java.util.List<GraphProperty> properties = new ArrayList<>();
         for (int i = 0; i < wNodeProperties.nrNonEmpty(); i++) {
@@ -813,8 +803,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         }
 
         activeNode.setProperties(properties);
-        // System.out.println( "Set " + activeNode.getProperties().size() + " properties on active
-        // node" );
       }
     }
   }
@@ -1219,8 +1207,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     if (activeRelationship != null) {
       setChanged();
       if (monitorRelProperties) {
-        // System.out.println( "Relationship properties changed! " + new Date().getTime() + " found
-        // " + wRelProperties.nrNonEmpty() + " properties" );
 
         java.util.List<GraphProperty> properties = new ArrayList<>();
         for (int i = 0; i < wRelProperties.nrNonEmpty(); i++) {
@@ -1246,8 +1232,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         }
 
         activeRelationship.setProperties(properties);
-        // System.out.println( "Set " + activeRelationship.getProperties().size() + " properties on
-        // active relationship" );
       }
     }
   }
@@ -1533,9 +1517,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       //
       scoring.vertexLength += calculateDistance(vFrom, vTo);
 
-      // score += 200 * Math.sqrt( ( vertexLength - optDistance ) * ( vertexLength - optDistance )
-      // );
-
       // Penalties for crossing vertices
       //
       for (GraphRelationship otherVertex : graphModel.getRelationships()) {
@@ -1686,33 +1667,27 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private void graphMouseUp(Event e) {
     mouseDownPoint.x = -1;
     mouseDownPoint.y = -1;
-    // System.out.println("Up: ("+e.x+", "+e.y+")");
   }
 
   private void graphMouseDown(Event e) {
     mouseDownPoint.x = e.x;
     mouseDownPoint.y = e.y;
-    // System.out.println("Down: ("+e.x+", "+e.y+")");
   }
 
   private void moveGraphObject(Event e) {
     if (mouseDownPoint.x > 0 && mouseDownPoint.y > 0) {
-      // System.out.println("Move: ("+e.x+", "+e.y+")");
       // Mouse drag
       //
       AreaOwner areaOwner = AreaOwner.findArea(areaOwners, mouseDownPoint.x, mouseDownPoint.y);
       if (areaOwner != null) {
         int offsetX = mouseDownPoint.x - areaOwner.getX();
         int offsetY = mouseDownPoint.y - areaOwner.getY();
-        // System.out.println("Offset: (+"+offsetX+", "+offsetY+")");
 
         switch (areaOwner.getAreaType()) {
           case NODE:
             GraphNode graphNode = (GraphNode) areaOwner.getSubject();
             GraphPresentation p = new GraphPresentation(e.x - offsetX, e.y - offsetY);
             graphNode.setPresentation(p);
-            // System.out.println("Node move: (+"+p.getX()+", "+p.getY()+")  -->
-            // "+graphNode.getName());
             mouseDownPoint.x = e.x;
             mouseDownPoint.y = e.y;
             wCanvas.redraw();

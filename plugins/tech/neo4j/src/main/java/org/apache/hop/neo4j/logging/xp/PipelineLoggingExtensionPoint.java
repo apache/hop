@@ -113,7 +113,7 @@ public class PipelineLoggingExtensionPoint
           });
     } catch (Exception e) {
       // Let's not kill the pipeline just yet, just log the error
-      // otherwise: throw new HopException(...);
+      // otherwise: throw new HopException(...)
       //
       log.logError("Error logging to Neo4j:", e);
     }

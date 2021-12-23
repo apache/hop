@@ -49,12 +49,7 @@ import org.snmp4j.smi.UdpAddress;
 
 import java.net.InetAddress;
 
-/**
- * This dialog allows you to edit the SNMPTrap action settings.
- *
- * @author Samatar
- * @since 12-09-2008
- */
+/** This dialog allows you to edit the SNMPTrap action settings. */
 public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
 
@@ -77,8 +72,6 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
   private ActionSNMPTrap action;
 
   private Shell shell;
-
-  // private Props props;
 
   private boolean changed;
 

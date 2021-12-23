@@ -32,12 +32,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.List;
 
-/**
- * Filters input rows base on conditions.
- *
- * @author Matt
- * @since 16-apr-2003, 07-nov-2004 (rewrite)
- */
+/** Filters input rows base on conditions. */
 public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
     implements ITransform<FilterRowsMeta, FilterRowsData> {
 
@@ -98,11 +93,12 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
           TransformMeta to = targetStreams.get(0).getTransformMeta();
           PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
           if (hop != null && hop.isEnabled()) {
-            data.trueRowSet = findOutputRowSet(getTransformName(), getCopy(),
-                to.getName(), 0);
+            data.trueRowSet = findOutputRowSet(getTransformName(), getCopy(), to.getName(), 0);
             if (data.trueRowSet == null) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "FilterRows.Log.TargetTransformInvalid",
+                  BaseMessages.getString(
+                      PKG,
+                      "FilterRows.Log.TargetTransformInvalid",
                       targetStreams.get(0).getTransformName()));
             }
           }
@@ -117,7 +113,9 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
             data.falseRowSet = findOutputRowSet(getTransformName(), getCopy(), to.getName(), 0);
             if (data.falseRowSet == null) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "FilterRows.Log.TargetTransformInvalid",
+                  BaseMessages.getString(
+                      PKG,
+                      "FilterRows.Log.TargetTransformInvalid",
                       targetStreams.get(1).getTransformName()));
             }
           }
@@ -130,7 +128,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData>
     keep = keepRow(getInputRowMeta(), r); // Keep this row?
     if (!data.chosesTargetTransforms) {
       if (keep) {
-        putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, r); // copy row to output rowset(s)
       }
     } else {
       if (keep) {

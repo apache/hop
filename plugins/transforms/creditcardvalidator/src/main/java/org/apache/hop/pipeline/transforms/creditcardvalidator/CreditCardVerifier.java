@@ -23,10 +23,6 @@ import org.apache.hop.i18n.BaseMessages;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class CreditCardVerifier {
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
@@ -114,8 +110,6 @@ public class CreditCardVerifier {
         ri.UnValidMsg = getNotValidCardNames(cardId);
       }
     } else {
-      // try luhn
-      // ri.UnValidMsg="This card is unsupported!";
       if (luhnValidate(CardNumber)) {
         ri.CardValid = true;
       } else {
@@ -162,7 +156,6 @@ public class CreditCardVerifier {
       }
       return ((checksum % 10) == 0);
     } catch (Exception e) {
-      // e.printStackTrace();
       return false;
     }
   }

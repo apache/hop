@@ -31,12 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Describes a single field in a text file
- *
- * @author Matt
- * @since 19-04-2004
- */
+/** Describes a single field in a text file */
 public class BaseFileField implements Cloneable, ITextFileInputField {
   @Injection(name = "FIELD_NAME", group = "FIELDS")
   private String name;
@@ -86,9 +81,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
   private DecimalFormatSymbols dfs;
   private SimpleDateFormat daf;
 
-  // private boolean containsDot;
-  // private boolean containsComma;
-
   private static final String[] dateFormats =
       new String[] {
         "yyyy/MM/dd HH:mm:ss.SSS",
@@ -132,8 +124,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     this.repeat = false;
     this.nullString = "";
     this.ifNullValue = "";
-    // this.containsDot=false;
-    // this.containsComma=false;
   }
 
   public BaseFileField() {
@@ -466,11 +456,9 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
           } else {
             if (ch == '.') {
               contains_dot = true;
-              // containsDot = true;
             }
             if (ch == ',') {
               containsComma = true;
-              // containsComma = true;
             }
           }
         }
@@ -557,13 +545,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       type = IValueMeta.TYPE_NUMBER;
       format = numberFormats[first];
       precision = maxprecision[first];
-
-      // Wait a minute!!! What about Integers?
-      // OK, only if the precision is 0 and the length <19 (java long integer)
-      /*
-       * if (length<19 && precision==0 && !containsDot && !containsComma) { type=IValueMeta.TYPE_INTEGER;
-       * decimalSymbol=""; groupSymbol=""; }
-       */
 
       return;
     }

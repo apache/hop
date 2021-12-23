@@ -26,8 +26,6 @@ import java.util.HashMap;
  * the LafFactory provides a mechanism whereby @see IHandler s can be dynamically replaced to enable
  * user driven replacement of dynamic resolvers whether ImageHandlers, MessageHandlers, or other
  * elements of Look and Feel.
- *
- * @author dhushon
  */
 public class LafFactory {
 
@@ -42,7 +40,6 @@ public class LafFactory {
   private static HashMap<String, Class<? extends IHandler>> handlerRef = new HashMap<>();
 
   static {
-    // handlers.put(IMessageHandler.class.), (IHandler)_defMessageHandler.newInstance());
     handlerRef.put(IMessageHandler.class.getName(), _defMessageHandler);
     handlerRef.put(IPropertyHandler.class.getName(), _defPropertyHandler);
   }

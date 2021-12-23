@@ -394,25 +394,6 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     int nrFields = 0;
     int nrtypes = 0;
     allocate(nrtypes, nrFields);
-    /*
-     * Code will never execute. nrFields and nrtypes
-     * are both zero above. so for-next is skipped on both.
-     *
-     * MB - 5/2016
-     *
-    for ( int i = 0; i < nrtypes; i++ ) {
-      typeName[i] = "typename" + i;
-      typereplaceValue[i] = "typevalue" + i;
-      typereplaceMask[i] = "typemask" + i;
-      setTypeEmptyString[i] = false;
-    }
-    for ( int i = 0; i < nrFields; i++ ) {
-      fieldName[i] = "field" + i;
-      replaceValue[i] = "value" + i;
-      replaceMask[i] = "mask" + i;
-      setEmptyString[i] = false;
-    }
-    */
   }
 
   @Override

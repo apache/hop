@@ -648,10 +648,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
               + htmlClass
               + "></div>");
       out.println("<table border=\"" + tableBorder + "\">");
-      //      out.print( "<tr> <th class=\"cellTableHeader\">"
-      //          + BaseMessages.getString( PKG, "GetStatusServlet.Parameter.Title" ) + "</th> <th
-      // class=\"cellTableHeader\">"
-      //          + BaseMessages.getString( PKG, "GetStatusServlet.Value.Title" ) + "</th> </tr>" );
 
       // The max number of log lines in the back-end
       //

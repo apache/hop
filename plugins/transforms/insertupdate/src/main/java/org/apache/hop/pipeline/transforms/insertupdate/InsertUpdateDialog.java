@@ -695,7 +695,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getInfo(InsertUpdateMeta inf) {
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wReturn.nrNonEmpty();
 
@@ -722,8 +721,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
               item.getText(4)); // KeyStream2
       inf.getInsertUpdateLookupField().getLookupKeys().add(keyField);
     }
-
-    // Table ftable = wReturn.table;
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundFields", nrFields + ""));

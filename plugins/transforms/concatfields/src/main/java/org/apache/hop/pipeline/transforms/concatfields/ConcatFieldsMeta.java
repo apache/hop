@@ -148,8 +148,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    //    super.setDefault();
-    //    createparentfolder = true; // Default createparentfolder to true
     separator = ";";
     enclosure = "\"";
     setSpecifyingFormat(false);
@@ -289,7 +287,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta
 
   @Override
   public String getXml() {
-    //    String retval = super.getXml();
     StringBuilder retval = new StringBuilder(800);
     retval.append("    ").append(XmlHandler.addTagValue("separator", separator));
     retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));

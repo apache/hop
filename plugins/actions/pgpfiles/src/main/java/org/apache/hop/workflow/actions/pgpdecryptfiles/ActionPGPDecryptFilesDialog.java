@@ -47,9 +47,6 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit the Move Files action settings.
- *
- * @author Samatar Hassan
- * @since 20-02-2008
  */
 public class ActionPGPDecryptFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPGPDecryptFiles.class; // For Translator
@@ -919,7 +916,6 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
             activeDestinationFolder();
             setMovedDateTimeFormat();
-            // setAddDateBeforeExtension();
             setAddMovedDateBeforeExtension();
           }
         });
@@ -1458,10 +1454,6 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     wlMovedDateTimeFormat.setEnabled(wSpecifyMoveFormat.getSelection());
     wMovedDateTimeFormat.setEnabled(wSpecifyMoveFormat.getSelection());
-    // wAddMovedDate.setEnabled(!wSpecifyMoveFormat.getSelection());
-    // wlAddMovedDate.setEnabled(!wSpecifyMoveFormat.getSelection());
-    // wAddMovedTime.setEnabled(!wSpecifyMoveFormat.getSelection());
-    // wlAddMovedTime.setEnabled(!wSpecifyMoveFormat.getSelection());
 
   }
 

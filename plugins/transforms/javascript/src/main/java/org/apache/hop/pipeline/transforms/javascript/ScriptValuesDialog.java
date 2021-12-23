@@ -85,8 +85,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
   private Label wlPosition;
 
-  // private Button wHelp;
-
   private Tree wTree;
   private TreeItem wTreeScriptsItem;
   private TreeItem wTreeClassesitem;
@@ -497,8 +495,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
         };
     new Thread(runnable).start();
 
-    // rebuildInputFieldsTree();
-    // buildOutputFieldsTree();
     buildAddClassesListTree();
     addRenameTowTreeScriptItems();
     input.setChanged(changed);
@@ -710,14 +706,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     return (StyledTextComp) item.getControl();
   }
 
-  /*
-   * private void setStyledTextComp(String strText){ CTabItem item = folder.getSelection();
-   * ((StyledTextComp)item.getControl()).setText(strText); }
-   *
-   * private void setStyledTextComp(String strText, CTabItem item){
-   * ((StyledTextComp)item.getControl()).setText(strText); }
-   */
-
   private String getNextName(String strActualName) {
     String strRC = "";
     if (strActualName.length() == 0) {
@@ -743,7 +731,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    //    wCompatible.setSelection( input.isCompatible() );
     if (!Utils.isEmpty(Const.trim(input.getOptimizationLevel()))) {
       wOptimizationLevel.setText(input.getOptimizationLevel().trim());
     } else {
@@ -795,7 +782,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
   // Setting default active Script
   private void refresh() {
-    // CTabItem item = getCTabItemByName(strActiveScript);
     for (int i = 0; i < folder.getItemCount(); i++) {
       CTabItem item = folder.getItem(i);
       if (item.getText().equals(strActiveScript)) {
@@ -808,7 +794,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
         item.setImage(imageInactiveScript);
       }
     }
-    // modifyScriptTree(null, SET_ACTIVE_ITEM);
   }
 
   private void refreshScripts() {
@@ -842,7 +827,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getInfo(ScriptValuesMeta meta) {
-    //    meta.setCompatible( wCompatible.getSelection() );
     meta.setOptimizationLevel(wOptimizationLevel.getText());
     int nrFields = wFields.nrNonEmpty();
     meta.allocate(nrFields);
@@ -864,7 +848,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
       meta.getReplace()[i] = YES_NO_COMBO[1].equalsIgnoreCase(item.getText(6));
     }
 
-    // input.setActiveJSScript(strActiveScript);
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
       ScriptValuesScript[] jsScripts = new ScriptValuesScript[cTabs.length];
@@ -916,27 +899,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     } else {
       bInputOK = true;
     }
-
-    /*
-        if ( bInputOK && wCompatible.getSelection() ) {
-          // If in compatibility mode the "replace" column must not be "Yes"
-          int nrFields = wFields.nrNonEmpty();
-          for ( int i = 0; i < nrFields; i++ ) {
-            TableItem item = wFields.getNonEmpty( i );
-            if ( YES_NO_COMBO[ 1 ].equalsIgnoreCase( item.getText( 6 ) ) ) {
-              bInputOK = false;
-            }
-          }
-          if ( !bInputOK ) {
-            MessageBox mb = new MessageBox( shell, SWT.OK | SWT.CANCEL | SWT.ICON_ERROR );
-            mb
-              .setMessage( BaseMessages
-                .getString( PKG, "ScriptValuesDialogMod.ReplaceNotAllowedInCompatibilityMode" ) );
-            mb.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.ERROR.Label" ) );
-            mb.open();
-          }
-        }
-    */
 
     if (bInputOK) {
       getInfo(input);
@@ -1066,7 +1028,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
         // OK, now we ask the user to edit this dialog...
         //
-        //        if ( HopGui.getInstance().editTransform( pipelineMeta, genTransform ) != null ) {
         // Now run this pipeline and grab the results...
         //
         PipelinePreviewProgressDialog progressDialog =
@@ -1117,10 +1078,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
       }
 
       return true;
-      //      } else {
-      //        throw new HopException( BaseMessages.getString(
-      //          PKG, "ScriptValuesDialogMod.Exception.CouldNotGetFields" ) );
-      //      }
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -1139,7 +1096,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
     Context jscx;
     Scriptable jsscope;
-    // Script jsscript;
 
     // Making Refresh to get Active Script State
     refreshScripts();
@@ -1262,10 +1218,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
           // OK, for these input values, we're going to allow the user to edit the default values...
           // We are displaying a
           // 2)
-
-          // Add support for Value class (new Value())
-          //          Scriptable jsval = Context.toObject( Value.class, jsscope );
-          //          jsscope.put( "Value", jsscope, jsval );
 
           Scriptable jsRow = Context.toObject(row, jsscope);
           jsscope.put("row", jsscope, jsRow);
@@ -1429,9 +1381,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     itemT.setImage(GuiResource.getInstance().getImageLabel());
     itemT.setText("SKIP_PIPELINE");
     itemT.setData("SKIP_PIPELINE");
-    // itemT = new TreeItem(item, SWT.NULL);
-    // itemT.setText("ABORT_PIPELINE");
-    // itemT.setData("ABORT_PIPELINE");
     itemT = new TreeItem(item, SWT.NULL);
     itemT.setImage(GuiResource.getInstance().getImageLabel());
     itemT.setText("ERROR_PIPELINE");
@@ -1477,10 +1426,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     itemFileFunctionsGroup.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.FileFunctions.Label"));
     itemFileFunctionsGroup.setData("Function");
-
-    // Loading the Default delivered JScript Functions
-    // Method[] methods = ScriptValuesAddedFunctions.class.getMethods();
-    // String strClassType = ScriptValuesAddedFunctions.class.toString();
 
     Hashtable<String, String> hatFunctions = scVHelp.getFunctionList();
 
@@ -1548,14 +1493,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
               String strItemInToAdd = "";
               String strItemToAddOut = "";
 
-              // try{
-
-              // IRowMeta r = pipelineMeta.getPrevTransformFields(transformName);
               if (rowPrevTransformFields != null) {
-                // TreeItem item = new TreeItem(wTree, SWT.NULL);
-                // item.setText(BaseMessages.getString(PKG,
-                // "ScriptValuesDialogMod.OutputFields.Label"));
-                // String strItemToAdd="";
 
                 for (int i = 0; i < rowPrevTransformFields.size(); i++) {
                   IValueMeta valueMeta = rowPrevTransformFields.getValueMeta(i);
@@ -1602,11 +1540,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
         wScript.setSelection(iStart, iStart + strInsert.length());
       }
     }
-    /*
-     * if (item != null && item.getParentItem()!=null && !item.getData().equals("Function")) { int iStart =
-     * wScript.getCaretOffset(); String strInsert =(String)item.getData(); if(strInsert.equals("jsFunction")) strInsert
-     * = (String)item.getText(); wScript.insert(strInsert); wScript.setSelection(iStart,iStart+strInsert.length()); }
-     */
   }
 
   // Building the Tree for Additional Classes
@@ -1674,7 +1607,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void buildingFolderMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addNewItem = new MenuItem(cMenu, SWT.PUSH);
     addNewItem.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.AddNewTab"));
     addNewItem.setImage(guiresource.getImageAdd());
@@ -1791,7 +1723,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void buildingTreeMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addDeleteItem = new MenuItem(tMenu, SWT.PUSH);
     addDeleteItem.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Delete.Label"));
     addDeleteItem.setImage(guiresource.getImageDelete());
@@ -1983,9 +1914,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
       String sourceName,
       int lineno,
       Object securityDomain) {
-    // Interpreter compiler = new Interpreter();
     CompilerEnvirons evn = new CompilerEnvirons();
-    // evn.setLanguageVersion(Context.VERSION_1_5);
     evn.setOptimizationLevel(-1);
     evn.setGeneratingSource(true);
     evn.setGenerateDebugInfo(true);
@@ -1993,7 +1922,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     Parser p = new Parser(evn, errorReporter);
     ScriptNode tree = p.parse(source, "", 0); // IOException
     new NodeTransformer().transform(tree, evn);
-    // Script result = (Script)compiler.compile(scope, evn, tree, p.getEncodedSource(),false, null);
     return tree;
   }
 }

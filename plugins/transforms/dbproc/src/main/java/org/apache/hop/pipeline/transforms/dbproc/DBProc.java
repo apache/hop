@@ -37,12 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Retrieves values from a database by calling database stored procedures or functions
- *
- * @author Matt
- * @since 26-apr-2003
- */
+/** Retrieves values from a database by calling database stored procedures or functions */
 public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
     implements ITransform<DBProcMeta, DBProcData> {
 
@@ -164,7 +159,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
     try {
       Object[] outputRowData =
           runProc(data.inputRowMeta, r); // add new values to the row in rowset[0].
-      putRow(data.outputMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputMeta, outputRowData); // copy row to output rowset(s)
 
       if (checkFeedback(getLinesRead())) {
         if (log.isBasic()) {
@@ -208,7 +203,6 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
   public boolean init() {
 
     if (super.init()) {
-      //      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
       if (previous != null && previous.size() > 0) {
         data.readsRows = true;

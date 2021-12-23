@@ -34,12 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Return tables name list from Database connection *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Return tables name list from Database connection * */
 public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData>
     implements ITransform<GetTableNamesMeta, GetTableNamesData> {
 
@@ -164,7 +159,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowSyn[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowSyn); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowSyn); // copy row to output rowset(s)
 
         logInfo(outputRowSyn);
       }
@@ -193,7 +188,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowProc[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowProc); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowProc); // copy row to output rowset(s)
 
         logInfo(outputRowProc);
       }
@@ -228,7 +223,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
             outputRowView[outputIndex++] = null;
           }
           data.rownr++;
-          putRow(data.outputRowMeta, outputRowView); // copy row to output rowset(s);
+          putRow(data.outputRowMeta, outputRowView); // copy row to output rowset(s)
 
           logInfo(outputRowView);
         }
@@ -302,7 +297,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         }
 
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowTable); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowTable); // copy row to output rowset(s)
 
         logInfo(outputRowTable);
       }
@@ -341,7 +336,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowSchema[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowSchema); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowSchema); // copy row to output rowset(s)
 
         logInfo(outputRowSchema);
       }
@@ -376,7 +371,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowCatalog[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowCatalog); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowCatalog); // copy row to output rowset(s)
 
         logInfo(outputRowCatalog);
       }

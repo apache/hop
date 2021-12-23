@@ -443,7 +443,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         } else {
           color = EColor.HOP_FALSE;
           arrow = EImage.ARROW_FALSE;
-          // gc.setLineStyle( ELineStyle.DASH );
         }
       }
     } else {
@@ -488,9 +487,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     int mx, my;
     int a, b, dist;
     double angle;
-
-    // gc.setLineWidth(1);
-    // WuLine(gc, black, x1, y1, x2, y2);
 
     gc.drawLine(x1, y1, x2, y2);
 

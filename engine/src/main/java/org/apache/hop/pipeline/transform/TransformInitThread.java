@@ -55,7 +55,6 @@ public class TransformInitThread implements Runnable {
   @Override
   public void run() {
     // Set the internal variables also on the initialization thread!
-    // ((BaseTransform)combi.transform).setInternalVariables();
 
     if (!doIt) {
       // An extension point plugin decided we should not initialize the transform.

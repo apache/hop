@@ -70,8 +70,6 @@ public class LogMessage implements ILogMessage {
     //
     ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject(logChannelId);
 
-    // boolean detailedLogTurnOn = "Y".equals( EnvUtil.getSystemProperty(
-    // Const.HOP_LOG_MARK_MAPPINGS ) ) ? true : false;
     boolean detailedLogTurnOn =
         "Y".equals(HopConfig.readStringVariable(Const.HOP_LOG_MARK_MAPPINGS, "N")) ? true : false;
     if (loggingObject != null) {

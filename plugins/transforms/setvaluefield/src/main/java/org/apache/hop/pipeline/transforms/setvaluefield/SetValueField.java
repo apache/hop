@@ -119,7 +119,7 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
       for (int i = 0; i < data.indexOfField.length; i++) {
         r[data.indexOfField[i]] = r[data.indexOfReplaceByValue[i]];
       }
-      putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, r); // copy row to output rowset(s)
     } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;

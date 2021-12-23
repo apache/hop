@@ -61,13 +61,4 @@ public class SnappyCompressionProvider implements ICompressionProvider {
   public String getDefaultExtension() {
     return null;
   }
-
-  /*
-   * } else if ( sFileCompression != null && sFileCompression.equals( "Hadoop-snappy" ) ) { if ( log.isDetailed() ) {
-   * logDetailed( "This is a snappy compressed file" ); } // data.sis = new SnappyInputStream(data.fr); data.sis =
-   * HadoopCompression.getSnappyInputStream( data.in ); if ( meta.getEncoding() != null && meta.getEncoding().length() >
-   * 0 ) { data.isr = new InputStreamReader( new BufferedInputStream( data.sis, BUFFER_SIZE_INPUT_STREAM ),
-   * meta.getEncoding() ); } else { data.isr = new InputStreamReader( new BufferedInputStream( data.sis,
-   * BUFFER_SIZE_INPUT_STREAM ) ); } }
-   */
 }

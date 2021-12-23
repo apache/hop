@@ -147,7 +147,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
               varname, Const.NVL(variablesMap.get(varname), properties.getProperty(varname, "")));
         }
       }
-      // variables.clear();
       variablesMap.putAll(newVariables);
     }
 

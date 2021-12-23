@@ -23,7 +23,7 @@ import org.neo4j.driver.Session;
 import java.util.List;
 
 public class NeoConnectionUtils {
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       NeoConnectionUtils.class; // for i18n purposes, needed by Translator2!!
 
   public static final void createNodeIndex(
@@ -63,7 +63,7 @@ public class NeoConnectionUtils {
 
     // Composite index case...
     //
-    // CREATE INDEX ON :NodeLabel(property, property2, ...);
+    // CREATE INDEX ON :NodeLabel(property, property2, ...)
     //
     String indexCypher = "CREATE INDEX IF NOT EXISTS ON ";
 

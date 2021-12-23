@@ -236,12 +236,6 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
         .syncExec(
             () -> {
               // Add the newly create fields.
-              //
-              /*
-               * int nrNonEmptyFields = wFields.nrNonEmpty(); for (int i=0;i<nrNonEmptyFields;i++) { TableItem item =
-               * wFields.getNonEmpty(i); fields.put(item.getText(1), new Integer(1000000+i)); // The number is just to debug
-               * the origin of the fieldname }
-               */
 
               Set<String> keySet = fields.keySet();
               List<String> entries = new ArrayList<>(keySet);

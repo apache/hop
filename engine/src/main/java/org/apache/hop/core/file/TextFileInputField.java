@@ -32,12 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Describes a single field in a text file
- *
- * @author Matt
- * @since 19-04-2004
- */
+/** Describes a single field in a text file */
 public class TextFileInputField implements Cloneable, ITextFileInputField {
 
   @Injection(name = "INPUT_NAME", group = "INPUT_FIELDS")
@@ -88,9 +83,6 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
   private DecimalFormatSymbols dfs;
   private SimpleDateFormat daf;
 
-  // private boolean containsDot;
-  // private boolean containsComma;
-
   private static final String[] dateFormats =
       new String[] {
         "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd",
@@ -125,8 +117,6 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     this.repeat = false;
     this.nullString = "";
     this.ifNullValue = "";
-    // this.containsDot=false;
-    // this.containsComma=false;
   }
 
   public TextFileInputField() {
@@ -464,11 +454,9 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
           } else {
             if (ch == '.') {
               contains_dot = true;
-              // containsDot = true;
             }
             if (ch == ',') {
               containsComma = true;
-              // containsComma = true;
             }
           }
         }

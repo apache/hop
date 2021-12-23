@@ -31,9 +31,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>When the row set is done and no more rows will be entering the row set we will switch to
  * delivering mode.
- *
- * @author Matt
- * @since 04-05-2011
  */
 public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
   private BlockingQueue<Object[][]> putArray;
@@ -48,8 +45,6 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRo
   private int size;
 
   private final int BATCHSIZE = 2;
-
-  // private long inputTID = -1, outputTID = -1;
 
   /**
    * Create new non-blocking-queue with maxSize capacity.

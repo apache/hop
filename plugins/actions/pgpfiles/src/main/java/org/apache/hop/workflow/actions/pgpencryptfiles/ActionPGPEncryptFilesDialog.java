@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Move Files action settings.
- *
- * @author Samatar Hassan
- * @since 20-02-2008
- */
+/** This dialog allows you to edit the Move Files action settings. */
 public class ActionPGPEncryptFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
@@ -947,7 +942,6 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
             activeDestinationFolder();
             setMovedDateTimeFormat();
-            // setAddDateBeforeExtension();
             setAddMovedDateBeforeExtension();
           }
         });

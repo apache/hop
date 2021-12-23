@@ -40,9 +40,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the SQL action settings. (select the connection and the sql script
  * to be executed)
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class ActionFileExistsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFileExists.class; // For Translator
@@ -130,7 +127,6 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wName, 0);
-    // fdbFilename.height = 22;
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

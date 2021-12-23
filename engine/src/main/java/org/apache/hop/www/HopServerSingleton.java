@@ -142,8 +142,6 @@ public class HopServerSingleton {
                             .removeIncludingChildren(pipeline.getLogChannelId());
                         HopLogStore.discardLines(pipeline.getLogChannelId(), false);
 
-                        // pipelineMap.deallocateServerSocketPorts(entry);
-
                         log.logBasic(
                             "Cleaned up pipeline "
                                 + entry.getName()

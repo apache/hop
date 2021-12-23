@@ -51,12 +51,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.net.InetAddress;
 
-/**
- * This dialog allows you to edit the FTP Delete action settings.
- *
- * @author Samatar
- * @since 27-04-2008
- */
+/** This dialog allows you to edit the FTP Delete action settings. */
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
 
@@ -467,7 +462,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     FormData fdbKeyFilename = new FormData();
     fdbKeyFilename.right = new FormAttachment(100, 0);
     fdbKeyFilename.top = new FormAttachment(wlKeyFilename, 0, SWT.CENTER);
-    // fdbKeyFilename.height = 22;
     wbKeyFilename.setLayoutData(fdbKeyFilename);
 
     wKeyFilename = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -512,7 +506,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "ActionFtpDelete.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wKeyFilePass, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);

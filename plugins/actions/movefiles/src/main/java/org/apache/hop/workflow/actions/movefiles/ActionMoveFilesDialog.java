@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Move Files action settings.
- *
- * @author Samatar Hassan
- * @since 20-02-2008
- */
+/** This dialog allows you to edit the Move Files action settings. */
 public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMoveFiles.class; // For Translator
 
@@ -917,7 +912,6 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
             activeDestinationFolder();
             setMovedDateTimeFormat();
-            // setAddDateBeforeExtension();
             setAddMovedDateBeforeExtension();
           }
         });
@@ -1451,11 +1445,6 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     wlMovedDateTimeFormat.setEnabled(wSpecifyMoveFormat.getSelection());
     wMovedDateTimeFormat.setEnabled(wSpecifyMoveFormat.getSelection());
-    // wAddMovedDate.setEnabled(!wSpecifyMoveFormat.getSelection());
-    // wlAddMovedDate.setEnabled(!wSpecifyMoveFormat.getSelection());
-    // wAddMovedTime.setEnabled(!wSpecifyMoveFormat.getSelection());
-    // wlAddMovedTime.setEnabled(!wSpecifyMoveFormat.getSelection());
-
   }
 
   private void RefreshArgFromPrevious() {

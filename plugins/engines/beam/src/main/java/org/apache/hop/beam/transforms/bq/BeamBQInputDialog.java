@@ -224,7 +224,6 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
-    // lastControl = wFields;
 
     getData();
 

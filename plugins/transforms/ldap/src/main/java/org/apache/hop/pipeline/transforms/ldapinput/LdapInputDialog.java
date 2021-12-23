@@ -527,7 +527,6 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wCertificateGroup, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);

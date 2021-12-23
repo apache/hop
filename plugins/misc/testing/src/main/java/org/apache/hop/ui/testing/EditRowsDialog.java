@@ -53,9 +53,6 @@ import java.util.List;
 
 /**
  * Allows the user to edit a list of rows in a TableView.
- *
- * @author Matt
- * @since 19-03-2014
  */
 public class EditRowsDialog {
   private static final Class<?> PKG = EditRowsDialog.class; // For Translator
@@ -192,7 +189,6 @@ public class EditRowsDialog {
       return true;
     }
 
-    // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
     ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {
       IValueMeta v = rowMeta.getValueMeta(i);
