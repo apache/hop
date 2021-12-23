@@ -48,12 +48,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the FTP Get action settings.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the FTP Get action settings. */
 public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFtp.class; // For Translator
 
@@ -144,16 +139,6 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   private static final String[] encodings = {
     "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"
   };
-
-  //
-  // Original code used to fill encodings, this display all possibilities but
-  // takes 10 seconds on my pc to fill.
-  //
-  // static {
-  // SortedMap charsetMap = Charset.availableCharsets();
-  // Set charsetSet = charsetMap.keySet();
-  // encodings = (String [])charsetSet.toArray(new String[0]);
-  // }
 
   public ActionFtpDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -396,7 +381,6 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "ActionFtp.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wProxyPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);

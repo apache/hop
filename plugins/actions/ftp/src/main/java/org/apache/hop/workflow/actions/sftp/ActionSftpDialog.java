@@ -47,12 +47,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.net.InetAddress;
 
-/**
- * This dialog allows you to edit the SFTP action settings.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the SFTP action settings. */
 public class ActionSftpDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSftp.class; // For Translator
   private static final String[] FILETYPES =
@@ -322,7 +317,6 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     FormData fdbKeyFilename = new FormData();
     fdbKeyFilename.right = new FormAttachment(100, 0);
     fdbKeyFilename.top = new FormAttachment(wUsePublicKey, 0);
-    // fdbKeyFilename.height = 22;
     wbKeyFilename.setLayoutData(fdbKeyFilename);
 
     wKeyFilename = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

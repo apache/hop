@@ -262,7 +262,7 @@ public class ValueMapperMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "ValueMapperMeta.CheckResult.ReceivingFieldsFromPreviousTransforms",
@@ -275,7 +275,7 @@ public class ValueMapperMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "ValueMapperMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -283,7 +283,7 @@ public class ValueMapperMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "ValueMapperMeta.CheckResult.NotReceivingInfoFromOtherTransforms"),
               transformMeta);

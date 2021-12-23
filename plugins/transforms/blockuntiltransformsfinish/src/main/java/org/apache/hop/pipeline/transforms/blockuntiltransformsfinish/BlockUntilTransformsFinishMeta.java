@@ -80,7 +80,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(
                   PKG, "BlockUntilTransformsFinishMeta.CheckResult.NotReceivingFields"),
               transformMeta);
@@ -88,14 +88,14 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
       if (blockingTransforms.size() > 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "BlockUntilTransformsFinishMeta.CheckResult.AllTransformsFound"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(
                     PKG, "BlockUntilTransformsFinishMeta.CheckResult.NoTransformsEntered"),
                 transformMeta);
@@ -107,14 +107,14 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "BlockUntilTransformsFinishMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG,
                   "BlockUntilTransformsFinishMeta.CheckResult.NoInputReceivedFromOtherTransforms"),

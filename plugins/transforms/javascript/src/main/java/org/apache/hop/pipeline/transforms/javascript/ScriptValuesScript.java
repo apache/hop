@@ -37,17 +37,12 @@ public class ScriptValuesScript {
 
   public ScriptValuesScript() {}
 
-  // private Date dModDate;
-  // private Date dFirstDate;
-
   public ScriptValuesScript(int iScriptType, String sScriptName, String sScript) {
     super();
     this.iScriptType = iScriptType;
     this.sScriptName = sScriptName;
     this.sScript = sScript;
     bScriptActive = true;
-    // dModDate = new Date();
-    // dFirstDate = new Date();
   }
 
   public int getScriptType() {

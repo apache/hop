@@ -47,12 +47,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Dialog that allows you to edit a ActionMail object.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog that allows you to edit a ActionMail object. */
 public class ActionMailDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMail.class; // For Translator
 
@@ -1033,7 +1028,6 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     FormData fdResultFilesGroup = new FormData();
     fdResultFilesGroup.left = new FormAttachment(0, margin);
     fdResultFilesGroup.top = new FormAttachment(0, margin);
-    // fdResultFilesGroup.bottom = new FormAttachment(100, -margin);
     fdResultFilesGroup.right = new FormAttachment(100, -margin);
     wResultFilesGroup.setLayoutData(fdResultFilesGroup);
 

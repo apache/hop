@@ -358,7 +358,6 @@ public class CassandraUtils {
     }
 
     for (int i = 0; i < inputMeta.size(); i++) {
-      // if (i != keyIndex) {
       IValueMeta colMeta = inputMeta.getValueMeta(i);
       String colName = colMeta.getName();
       if (!familyMeta.columnExistsInSchema(colName) && !insertFieldsNotInMetaData) {
@@ -366,7 +365,6 @@ public class CassandraUtils {
         // Cassandra
         row[i] = null;
       }
-      // }
     }
 
     batch.add(row);
@@ -453,7 +451,6 @@ public class CassandraUtils {
       return false;
     }
 
-    // IValueMeta keyMeta = inputMeta.getValueMeta(keyIndex);
     final String quoteChar = identifierQuoteChar(cqlMajVersion);
 
     Map<String, String> columnValues = new HashMap<>();
@@ -689,7 +686,6 @@ public class CassandraUtils {
 
     int count = keyIndex.size(); // key(s)
     for (int i = 0; i < inputMeta.size(); i++) {
-      // if (i != keyIndex) {
       if (!keyIndex.contains(i)) {
         IValueMeta colMeta = inputMeta.getValueMeta(i);
         String colName = colMeta.getName();

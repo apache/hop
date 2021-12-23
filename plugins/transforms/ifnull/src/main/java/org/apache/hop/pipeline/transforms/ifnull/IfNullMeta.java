@@ -394,25 +394,6 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     int nrFields = 0;
     int nrtypes = 0;
     allocate(nrtypes, nrFields);
-    /*
-     * Code will never execute. nrFields and nrtypes
-     * are both zero above. so for-next is skipped on both.
-     *
-     * MB - 5/2016
-     *
-    for ( int i = 0; i < nrtypes; i++ ) {
-      typeName[i] = "typename" + i;
-      typereplaceValue[i] = "typevalue" + i;
-      typereplaceMask[i] = "typemask" + i;
-      setTypeEmptyString[i] = false;
-    }
-    for ( int i = 0; i < nrFields; i++ ) {
-      fieldName[i] = "field" + i;
-      replaceValue[i] = "value" + i;
-      replaceMask[i] = "mask" + i;
-      setEmptyString[i] = false;
-    }
-    */
   }
 
   @Override
@@ -437,7 +418,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "IfNullMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -458,13 +439,13 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
         errorMessage =
             BaseMessages.getString(PKG, "IfNullMeta.CheckResult.FieldsFound", errorMessage);
 
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         if (fields.length > 0) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "IfNullMeta.CheckResult.AllFieldsFound"),
                   transformMeta);
           remarks.add(cr);
@@ -483,14 +464,14 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "IfNullMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "IfNullMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

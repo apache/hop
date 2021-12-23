@@ -35,12 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Calculate new field values using pre-defined functions.
- *
- * @author Matt
- * @since 8-sep-2005
- */
+/** Calculate new field values using pre-defined functions. */
 public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData>
     implements ITransform<JavaFilterMeta, JavaFilterData> {
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
@@ -107,7 +102,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData>
 
     if (!data.chosesTargetTransforms) {
       if (keep) {
-        putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, r); // copy row to output rowset(s)
       }
     } else {
       if (keep) {

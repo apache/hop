@@ -48,12 +48,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Wait for SQL action settings.
- *
- * @author Samatar
- * @since 27-10-2008
- */
+/** This dialog allows you to edit the Wait for SQL action settings. */
 public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWaitForSql.class; // For Translator
 
@@ -257,8 +252,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            // activeSuccessCondition();
-
+            // disable selection event
           }
         });
 
@@ -485,7 +479,6 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.right = new FormAttachment(100, 0);
-    // fdlPosition.top= new FormAttachment(wSql , 0);
     fdlPosition.bottom = new FormAttachment(100, -margin);
     wlPosition.setLayoutData(fdlPosition);
 

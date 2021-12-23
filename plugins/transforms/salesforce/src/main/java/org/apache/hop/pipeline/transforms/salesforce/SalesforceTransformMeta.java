@@ -127,13 +127,13 @@ public abstract class SalesforceTransformMeta<
     if (Utils.isEmpty(getTargetUrl())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.NoURL"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.URLOk"),
               transformMeta);
     }
@@ -143,13 +143,13 @@ public abstract class SalesforceTransformMeta<
     if (Utils.isEmpty(getUsername())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.NoUsername"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.UsernameOk"),
               transformMeta);
     }
@@ -159,13 +159,13 @@ public abstract class SalesforceTransformMeta<
     if (Utils.isEmpty(getModule())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.NoModule"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceTransformMeta.CheckResult.ModuleOk"),
               transformMeta);
     }

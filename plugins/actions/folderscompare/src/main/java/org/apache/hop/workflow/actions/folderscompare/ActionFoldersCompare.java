@@ -455,7 +455,6 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                       }
                     }
                   }
-                  // logBasic(entree.getKey() + " - " + entree.getValue());
                 }
 
                 result.setResult(ok);

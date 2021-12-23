@@ -1155,11 +1155,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
 
       if (!Utils.isEmpty(encoding)) {
         wEncoding.setText(encoding);
-      } /*
-         * else { // Now select the default! String defEncoding = Const.getEnvironmentVariable("file.encoding",
-         * "UTF-8"); int idx = Const.indexOfString(defEncoding, wEncoding.getItems() ); if (idx>=0) wEncoding.select(
-         * idx ); }
-         */
+      }
     }
   }
 

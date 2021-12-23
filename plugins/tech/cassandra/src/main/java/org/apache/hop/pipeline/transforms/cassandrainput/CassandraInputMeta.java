@@ -250,7 +250,6 @@ public class CassandraInputMeta extends BaseTransformMeta
         isSelectStarQuery = true;
       } else {
         isSelectStarQuery = false;
-        // String colsS = subQ.substring(subQ.indexOf('\''), fromIndex);
         String colsS = subQ.substring(0, fromIndex);
         // Parse select expression to get selectors: columns and functions
         cols = CqlUtils.getColumnsInSelect(colsS, true);
@@ -275,9 +274,6 @@ public class CassandraInputMeta extends BaseTransformMeta
       }
 
       try {
-        /*
-         * CassandraColumnMetaData colMeta = new CassandraColumnMetaData(conn, tableName);
-         */
         ITableMetaData colMeta = kSpace.getTableMetaData(tableName);
 
         if (cols == null) {

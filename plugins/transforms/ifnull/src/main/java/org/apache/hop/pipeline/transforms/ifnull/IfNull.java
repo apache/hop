@@ -32,12 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Sets a field value to a constant if it is null
- *
- * @author Samatar
- * @since 30-06-2008
- */
+/** Sets a field value to a constant if it is null */
 public class IfNull extends BaseTransform<IfNullMeta, IfNullData>
     implements ITransform<IfNullMeta, IfNullData> {
 
@@ -166,7 +161,7 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData>
     try {
       updateFields(r);
 
-      putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
     } catch (Exception e) {
       boolean sendToErrorRow = false;

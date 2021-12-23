@@ -317,7 +317,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
       }
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRowData2); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData2); // copy row to output rowset(s)
     } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;

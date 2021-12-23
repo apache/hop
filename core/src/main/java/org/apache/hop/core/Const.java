@@ -864,20 +864,6 @@ public class Const {
     return bdtemp.longValue();
   }
 
-  /*
-   * OLD code: caused a lot of problems with very small and very large numbers. It's a miracle it worked at all. Go
-   * ahead, have a laugh... public static float round(double f, int places) { float temp = (float) (f *
-   * (Math.pow(10, places)));
-   *
-   * temp = (Math.round(temp));
-   *
-   * temp = temp / (int) (Math.pow(10, places));
-   *
-   * return temp;
-   *
-   * }
-   */
-
   /**
    * Convert a String into an integer. If the conversion fails, assign a default value.
    *

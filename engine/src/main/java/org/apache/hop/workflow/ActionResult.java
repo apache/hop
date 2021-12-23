@@ -31,9 +31,6 @@ import java.util.Date;
  * <p>--> ...
  *
  * <p>
- *
- * @author Matt
- * @since 16-mrt-2005
  */
 public class ActionResult implements Cloneable, Comparator<ActionResult>, Comparable<ActionResult> {
   private Result result;
@@ -66,7 +63,6 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
       // lightClone doesn't bother cloning all the rows.
       this.result = result.lightClone();
       this.result.setLogText(null);
-      // this.result.setRows(null);
     } else {
       this.result = null;
     }

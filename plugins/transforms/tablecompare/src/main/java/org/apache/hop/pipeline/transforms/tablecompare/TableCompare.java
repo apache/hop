@@ -189,7 +189,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     Object[] fields = compareTables(getInputRowMeta(), r);
     Object[] outputRowData = RowDataUtil.addRowData(r, getInputRowMeta().size(), fields);
-    putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
     return true;
   }
 

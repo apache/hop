@@ -221,7 +221,6 @@ public class HopLogStore {
     // Remove all the rows for these ids
     //
     LoggingBuffer bufferAppender = getInstance().appender;
-    // int beforeSize = bufferAppender.size();
     for (String id : ids) {
       // Remove it from the central log buffer
       //

@@ -123,8 +123,6 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MultiMergeJoinDialog.Shell.Label"));
 
-    // int middle = props.getMiddlePct();
-
     wlTransformName = new Label(shell, SWT.LEFT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "MultiMergeJoinDialog.TransformName.Label"));
@@ -221,7 +219,6 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
       FormData fdlTransform, fdTransform1;
 
       wlTransform = new Label(shell, SWT.LEFT);
-      // wlTransform1.setText(+i+".Label"));
       wlTransform.setText(
           BaseMessages.getString(PKG, "MultiMergeJoinMeta.InputTransform") + (index + 1));
       props.setLook(wlTransform);

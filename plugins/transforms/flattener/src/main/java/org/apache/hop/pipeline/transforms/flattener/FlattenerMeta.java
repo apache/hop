@@ -190,7 +190,7 @@ public class FlattenerMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FlattenerMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -198,7 +198,7 @@ public class FlattenerMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FlattenerMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

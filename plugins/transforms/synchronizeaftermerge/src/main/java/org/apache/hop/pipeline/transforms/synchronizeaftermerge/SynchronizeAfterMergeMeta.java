@@ -543,7 +543,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
         if (!Utils.isEmpty(tableName)) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.TableNameOK"),
                   transformMeta);
           remarks.add(cr);
@@ -557,7 +557,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
           if (r != null) {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SynchronizeAfterMergeMeta.CheckResult.TableExists"),
                     transformMeta);
@@ -580,11 +580,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
               }
             }
             if (errorFound) {
-              cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             } else {
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_OK,
+                      ICheckResult.TYPE_RESULT_OK,
                       BaseMessages.getString(
                           PKG, "SynchronizeAfterMergeMeta.CheckResult.AllLookupFieldsFound"),
                       transformMeta);
@@ -613,11 +613,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
               }
             }
             if (errorFound) {
-              cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             } else {
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_OK,
+                      ICheckResult.TYPE_RESULT_OK,
                       BaseMessages.getString(
                           PKG,
                           "SynchronizeAfterMergeMeta.CheckResult.AllFieldsToUpdateFoundInTargetTable"),
@@ -628,7 +628,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
             errorMessage =
                 BaseMessages.getString(
                     PKG, "SynchronizeAfterMergeMeta.CheckResult.CouldNotReadTableInfo");
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
           }
         }
@@ -637,7 +637,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
         if (prev != null && prev.size() > 0) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG,
                       "SynchronizeAfterMergeMeta.CheckResult.TransformReceivingDatas",
@@ -680,11 +680,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
             }
           }
           if (errorFound) {
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           } else {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SynchronizeAfterMergeMeta.CheckResult.AllFieldsFoundInInput"),
                     transformMeta);
@@ -713,11 +713,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
             }
           }
           if (errorFound) {
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           } else {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SynchronizeAfterMergeMeta.CheckResult.AllFieldsFoundInInput2"),
                     transformMeta);
@@ -785,7 +785,8 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
                           PKG, "SynchronizeAfterMergeMeta.CheckResult.FieldsTypeDifferent")
                       + Const.CR
                       + errorMsgDiffField;
-              cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMsgDiffField, transformMeta);
+              cr =
+                  new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMsgDiffField, transformMeta);
             }
             if (errorDiffLenField) {
               errorMsgDiffLenField =
@@ -805,7 +806,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
               BaseMessages.getString(
                       PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput3")
                   + Const.CR;
-          cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
         }
       } catch (HopException e) {
@@ -813,7 +814,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
             BaseMessages.getString(
                     PKG, "SynchronizeAfterMergeMeta.CheckResult.DatabaseErrorOccurred")
                 + e.getMessage();
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } finally {
         db.disconnect();
@@ -821,7 +822,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     } else {
       errorMessage =
           BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -829,7 +830,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "SynchronizeAfterMergeMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
@@ -838,7 +839,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.NoInputError"),
               transformMeta);
       remarks.add(cr);

@@ -754,14 +754,14 @@ public class LoadFileInputMeta extends BaseTransformMeta
       if (input.length == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoInputExpected"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoInput"),
                 transformMeta);
         remarks.add(cr);
@@ -770,14 +770,14 @@ public class LoadFileInputMeta extends BaseTransformMeta
       if (Utils.isEmpty(getDynamicFilenameField())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
@@ -788,14 +788,14 @@ public class LoadFileInputMeta extends BaseTransformMeta
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "LoadFileInputMeta.CheckResult.FilesOk",

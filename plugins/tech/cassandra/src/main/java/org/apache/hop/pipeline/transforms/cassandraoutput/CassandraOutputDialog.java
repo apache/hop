@@ -837,7 +837,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
       }
       table = CassandraUtils.cql3MixedCaseQuote(table);
 
-      // if (!CassandraColumnMetaData.tableExists(conn, table)) {
       if (!kSpace.tableExists(table)) {
         throw new Exception(
             "The table '"
@@ -848,8 +847,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
       }
 
       ITableMetaData cassMeta = kSpace.getTableMetaData(table);
-      // CassandraColumnMetaData cassMeta = new CassandraColumnMetaData(conn,
-      // table);
       String schemaDescription = cassMeta.describe();
       ShowMessageDialog smd =
           new ShowMessageDialog(

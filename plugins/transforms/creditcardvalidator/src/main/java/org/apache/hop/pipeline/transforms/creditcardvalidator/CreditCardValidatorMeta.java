@@ -214,29 +214,29 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     if (Utils.isEmpty(realresultfieldname)) {
       errorMessage =
           BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage =
           BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(fieldname)) {
       errorMessage =
           BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.CardFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.CardFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "CreditCardValidatorMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -244,7 +244,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);

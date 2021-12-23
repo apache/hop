@@ -35,12 +35,7 @@ import org.apache.hop.pipeline.transforms.output.MappingOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Execute a mapping: a re-usuable pipeline
- *
- * @author Matt
- * @since 22-nov-2005
- */
+/** Execute a mapping: a re-usuable pipeline */
 public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData>
     implements ITransform<SimpleMappingMeta, SimpleMappingData> {
 
@@ -185,11 +180,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     }
     simpleMappingData.mappingInput = mappingInputs.get(0);
 
-    // TODO: next line doesn't seem needed, investigate and remove if needed
-    //
-    // simpleMappingData.mappingInput.setConnectorTransforms( new ITransform[ 0 ], new
-    // ArrayList<MappingValueRename>(), null );
-
     List<MappingOutput> mappingOutputs = findMappingOutputs(simpleMappingData.mappingPipeline);
     if (mappingOutputs.isEmpty()) {
       throw new HopException(
@@ -273,9 +263,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         // Wait until the child pipeline has finished.
         data.mappingPipeline.waitUntilFinished();
       }
-      // Remove it from the list of active sub-pipelines...
-      //
-      // getPipeline().removeActiveSubPipeline( getTransformName() );
 
       // See if there was an error in the sub-pipeline, in that case, flag error etc.
       if (getData().mappingPipeline.getErrors() > 0) {

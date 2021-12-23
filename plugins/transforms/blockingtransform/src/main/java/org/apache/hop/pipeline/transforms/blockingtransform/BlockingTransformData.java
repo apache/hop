@@ -38,7 +38,7 @@ public class BlockingTransformData extends BaseTransformData implements ITransfo
 
   public IRowMeta outputRowMeta;
 
-  public int[] fieldnrs; // the corresponding field numbers;
+  public int[] fieldnrs; // the corresponding field numbers
   public FileObject fil;
 
   public BlockingTransformData() {

@@ -409,7 +409,6 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     fdReturnGraphField.right = new FormAttachment(100, 0);
     fdReturnGraphField.top = new FormAttachment(wlReturnGraphField, 0, SWT.CENTER);
     wReturnGraphField.setLayoutData(fdReturnGraphField);
-    // lastControl = wReturnGraphField;
 
     wOptionsComp.layout();
     wOptionsTab.setControl(wOptionsComp);

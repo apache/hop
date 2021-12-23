@@ -364,7 +364,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf(prev.size())),
               transformMeta);
@@ -372,7 +372,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsltMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);
@@ -399,7 +399,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
       // Result Field is missing !
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultFieldNameMissing"),
               transformMeta);
       remarks.add(cr);
@@ -411,7 +411,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
         // Result Field is missing !
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultXSLFieldNameMissing"),
                 transformMeta);
         remarks.add(cr);
@@ -419,7 +419,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
         // Result Field is provided !
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultXSLFieldNameOK"),
                 transformMeta);
         remarks.add(cr);
@@ -429,7 +429,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
         // Result Field is missing !
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorXSLFileNameMissing"),
                 transformMeta);
         remarks.add(cr);

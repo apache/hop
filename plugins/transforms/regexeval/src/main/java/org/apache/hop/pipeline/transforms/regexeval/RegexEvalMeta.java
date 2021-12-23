@@ -560,7 +560,7 @@ public class RegexEvalMeta extends BaseTransformMeta
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "RegexEvalMeta.CheckResult.ConnectedTransformOK",
@@ -570,7 +570,7 @@ public class RegexEvalMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);
@@ -580,14 +580,14 @@ public class RegexEvalMeta extends BaseTransformMeta
     if (!Utils.isEmpty(matcher)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.MatcherOK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.NoMatcher"),
               transformMeta);
       remarks.add(cr);
@@ -597,14 +597,14 @@ public class RegexEvalMeta extends BaseTransformMeta
     if (!Utils.isEmpty(resultfieldname)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.ResultFieldnameOK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.NoResultFieldname"),
               transformMeta);
       remarks.add(cr);

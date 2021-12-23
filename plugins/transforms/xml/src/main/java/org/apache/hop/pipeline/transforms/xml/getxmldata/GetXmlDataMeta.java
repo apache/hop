@@ -887,14 +887,14 @@ public class GetXmlDataMeta extends BaseTransformMeta
     if (input.length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -904,7 +904,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     if (getLoopXPath() == null || Utils.isEmpty(getLoopXPath())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoLoopXpath"),
               transformMeta);
       remarks.add(cr);
@@ -912,7 +912,7 @@ public class GetXmlDataMeta extends BaseTransformMeta
     if (getInputFields().length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInputField"),
               transformMeta);
       remarks.add(cr);
@@ -922,14 +922,14 @@ public class GetXmlDataMeta extends BaseTransformMeta
       if (Utils.isEmpty(getXMLField())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
@@ -940,14 +940,14 @@ public class GetXmlDataMeta extends BaseTransformMeta
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "GetXMLDataMeta.CheckResult.FilesOk",

@@ -382,7 +382,7 @@ public class PropertyOutputMeta extends BaseTransformMeta
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "PropertyOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -390,7 +390,7 @@ public class PropertyOutputMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.NoFields"),
               transformMeta);
       remarks.add(cr);
@@ -400,14 +400,14 @@ public class PropertyOutputMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);
@@ -417,14 +417,14 @@ public class PropertyOutputMeta extends BaseTransformMeta
     if (!Utils.isEmpty(fileName)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.FilenameOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.FilenameError"),
               transformMeta);
       remarks.add(cr);

@@ -151,8 +151,6 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
         }
       }
 
-      // System.out.println("Assembled row : "+outputRowMeta.getString(outputRow));
-
       processContext.output(new HopRow(outputRow));
       writtenCounter.inc();
 

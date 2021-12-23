@@ -39,12 +39,7 @@ import java.io.*;
 import java.net.SocketTimeoutException;
 import java.util.*;
 
-/**
- * Groups data based on aggregation rules. (sum, count, ...)
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Groups data based on aggregation rules. (sum, count, ...) */
 public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
     implements ITransform<GroupByMeta, GroupByData> {
 

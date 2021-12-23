@@ -820,8 +820,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       // file object is not properly garbaged collected and thus the file cannot
       // be deleted anymore. This is a known problem in the JVM.
 
-      // System.gc();
-
       // Unzip done...
       if (afterunzip > 0) {
         doUnzipPostProcessing(sourceFileObject, movetodir, realMovetodirectory);

@@ -163,7 +163,6 @@ public class DtdValidatorUtil {
             if (dtdFileObject.exists()) {
               if (xmlStartDTD != -1) {
                 int EndDTD = xmlStringbuffer.indexOf(">", xmlStartDTD);
-                // String DocTypeDTD = xmlStringbuffer.substring(xmlStartDTD, EndDTD + 1);
                 xmlStringbuffer.replace(xmlStartDTD, EndDTD + 1, "");
               }
 

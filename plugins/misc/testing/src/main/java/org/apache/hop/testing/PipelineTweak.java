@@ -20,5 +20,5 @@ package org.apache.hop.testing;
 public enum PipelineTweak {
   NONE,
   BYPASS_TRANSFORM,
-  REMOVE_TRANSFORM; // , REMOVE_TRANSFORMS_AFTER, REMOVE_TRANSFORMS_BEFORE;
+  REMOVE_TRANSFORM;
 }

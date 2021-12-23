@@ -66,9 +66,6 @@ import java.util.*;
  * from a .hwf file or it is generated dynamically. The declared parameters of the workflow
  * definition are then queried using listParameters() and assigned values using calls to
  * setParameterValue(..). WorkflowMeta provides methods to load, save, verify, etc.
- *
- * @author Matt
- * @since 11-08-2003
  */
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
@@ -139,11 +136,6 @@ public class WorkflowMeta extends AbstractMeta
 
   /** Adds the defaults. */
   public void addDefaults() {
-    /*
-     * addStart(); // Add starting point! addDummy(); // Add dummy! addOK(); // errors == 0 evaluation addError(); //
-     * errors != 0 evaluation
-     */
-
     clearChanged();
   }
 
@@ -488,7 +480,7 @@ public class WorkflowMeta extends AbstractMeta
       IVariables variables)
       throws HopXmlException {
     try {
-      // clear the workflows;
+      // clear the workflows
       clear();
 
       setFilename(filename);
@@ -1070,7 +1062,7 @@ public class WorkflowMeta extends AbstractMeta
     int count = 0;
     int i;
     for (i = 0; i < nrActions(); i++) {
-      // Look at all the hops;
+      // Look at all the hops
 
       ActionMeta actionMeta = getAction(i);
       if (actionMeta.getName().equalsIgnoreCase(name)) {
@@ -1502,8 +1494,6 @@ public class WorkflowMeta extends AbstractMeta
                   this,
                   BaseMessages.getString(PKG, "WorkflowMeta.SearchMetadata.DatabaseServer")));
         }
-        // if ( includePasswords )
-        // {
         if (meta.getPassword() != null) {
           stringList.add(
               new StringSearchResult(
@@ -1511,7 +1501,6 @@ public class WorkflowMeta extends AbstractMeta
                   meta,
                   this,
                   BaseMessages.getString(PKG, "WorkflowMeta.SearchMetadata.DatabasePassword")));
-          // }
         }
       }
     }

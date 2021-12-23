@@ -83,14 +83,14 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "DetectEmptyStreamMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -101,7 +101,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
@@ -109,7 +109,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "DetectEmptyStreamMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

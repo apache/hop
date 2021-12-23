@@ -473,7 +473,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
       return false;
     }
 
-    putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
     if (checkFeedback(getLinesRead())) {
       if (log.isBasic()) {

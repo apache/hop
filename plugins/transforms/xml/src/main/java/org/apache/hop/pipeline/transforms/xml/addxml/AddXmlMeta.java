@@ -300,7 +300,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "AddXMLMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -320,12 +320,12 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
       if (errorFound) {
         errorMessage =
             BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.FieldsNotFound", errorMessage);
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.AllFieldsFound"),
                 transformMeta);
         remarks.add(cr);
@@ -336,14 +336,14 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);

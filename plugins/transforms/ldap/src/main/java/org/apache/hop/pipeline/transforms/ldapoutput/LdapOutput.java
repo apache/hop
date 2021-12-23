@@ -31,12 +31,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Write to LDAP.
- *
- * @author Samatar
- * @since 21-09-2007
- */
+/** Write to LDAP. */
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
     implements ITransform<LdapOutputMeta, LdapOutputData> {
   private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // For Translator
@@ -266,7 +261,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
           break;
       }
 
-      putRow(getInputRowMeta(), outputRowData); // copy row to output rowset(s);
+      putRow(getInputRowMeta(), outputRowData); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(

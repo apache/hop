@@ -338,7 +338,6 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
 
     enableSetEmptyStringAll();
 
-    // setComboValues();
     activeSelectFields();
 
     activeSelectValuesType();

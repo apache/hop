@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinsert;
 
-import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
@@ -86,7 +85,7 @@ public class SalesforceInsertMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     boolean hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
@@ -102,7 +101,7 @@ public class SalesforceInsertMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }

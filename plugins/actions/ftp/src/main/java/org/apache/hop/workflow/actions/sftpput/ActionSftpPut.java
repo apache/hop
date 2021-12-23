@@ -738,7 +738,6 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           for (int i = 0; i < children.length; i++) {
             // Get filename of file or directory
             if (children[i].getType().equals(FileType.FILE)) {
-              // myFileList.add(children[i].getAbsolutePath());
               myFileList.add(children[i]);
             }
           } // end for

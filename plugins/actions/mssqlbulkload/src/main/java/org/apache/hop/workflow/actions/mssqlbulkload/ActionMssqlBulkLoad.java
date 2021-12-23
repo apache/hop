@@ -331,9 +331,6 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
             if (!"MSSQL".equals(db.getDatabaseMeta().getPluginId())) {
 
-              // if ( !( db.getDatabaseMeta().getIDatabase() instanceof MSSQLServerDatabaseMeta ) )
-              // {
-
               logError(
                   BaseMessages.getString(
                       PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", connection.getDatabaseName()));

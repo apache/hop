@@ -837,8 +837,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Whenever something changes, set the tooltip to the expanded version of the filename:
     wFilename.addModifyListener(
         e -> {
-          wFilename.setToolTipText(
-              ""); // StringUtil.environmentSubstitute( wFilename.getText() ) );
+          wFilename.setToolTipText("");
         });
 
     // Listen to the Browse... button

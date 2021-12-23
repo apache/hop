@@ -32,18 +32,11 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Read all files, count rows number
- *
- * @author Samatar
- * @since 24-05-2007
- */
+/** Read all files, count rows number */
 public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData>
     implements ITransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
 
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
-
-  // private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 
   public GetFilesRowsCount(
       TransformMeta transformMeta,
@@ -103,7 +96,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
         return false; // end of data or error.
       }
       if ((!meta.isFileField() && data.last_file) || meta.isFileField()) {
-        putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(PKG, "GetFilesRowsCount.Log.TotalRowsFiles"),

@@ -419,7 +419,6 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
         }
         header.append(":").append(prop.getType().getImportType());
       }
-      // GraphPropertyDataType type = prop.getType();
     }
     header.append(",:LABEL");
     header.append(Const.CR);

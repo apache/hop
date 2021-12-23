@@ -128,7 +128,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
 
     try {
       updateField(r);
-      putRow(data.getOutputRowMeta(), r); // copy row to output rowset(s);
+      putRow(data.getOutputRowMeta(), r); // copy row to output rowset(s)
     } catch (Exception e) {
       if (getTransformMeta().isDoingErrorHandling()) {
         // Simply add this row to the error row

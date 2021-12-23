@@ -372,22 +372,22 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SS
     // Target hostname
     if (Utils.isEmpty(getServerName())) {
       errorMessage = BaseMessages.getString(PKG, "SSHMeta.CheckResult.TargetHostMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "SSHMeta.CheckResult.TargetHostOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (isusePrivateKey()) {
       String keyfilename = variables.resolve(getKeyFileName());
       if (Utils.isEmpty(keyfilename)) {
         errorMessage = BaseMessages.getString(PKG, "SSHMeta.CheckResult.PrivateKeyFileNameMissing");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         errorMessage = BaseMessages.getString(PKG, "SSHMeta.CheckResult.PrivateKeyFileNameOK");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
         remarks.add(cr);
         boolean keyFileExists = false;
         try {
@@ -399,12 +399,12 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SS
           errorMessage =
               BaseMessages.getString(
                   PKG, "SSHMeta.CheckResult.PrivateKeyFileNotExist", keyfilename);
-          cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
         } else {
           errorMessage =
               BaseMessages.getString(PKG, "SSHMeta.CheckResult.PrivateKeyFileExists", keyfilename);
-          cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+          cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
           remarks.add(cr);
         }
       }
@@ -414,14 +414,14 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH, SS
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SSHMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SSHMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);

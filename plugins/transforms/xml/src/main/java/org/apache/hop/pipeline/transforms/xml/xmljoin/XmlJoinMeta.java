@@ -314,7 +314,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
           targetTransformFound = true;
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG, "XmlJoin.CheckResult.TargetXMLTransformFound", this.targetXmlTransform),
                   transformMeta);
@@ -324,7 +324,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
           sourceTransformFound = true;
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG, "XmlJoin.CheckResult.SourceXMLTransformFound", this.sourceXmlTransform),
                   transformMeta);

@@ -259,7 +259,6 @@ public class BeamConst {
             if (!uniqueNames.contains(shortName)) {
               uniqueNames.add(shortName);
               libraries.add(file.getCanonicalPath());
-              // System.out.println( "Adding library : " + file.getAbsolutePath() );
             }
           }
         }
@@ -267,8 +266,6 @@ public class BeamConst {
         System.out.println("Warning: couldn't find hop lib folder: " + libFolder);
       }
     }
-
-    // Collections.sort(libraries);
 
     return libraries;
   }
