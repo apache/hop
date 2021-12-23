@@ -26,10 +26,6 @@ import org.json.simple.JSONObject;
 import java.io.Writer;
 import java.text.*;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class JsonOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

@@ -17,27 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.types;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileTypeHandler;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
-
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 /** How do we handle a JSON file in file explorer perspective? */
 public class JsonExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler
