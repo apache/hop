@@ -55,7 +55,8 @@ import java.util.*;
 
 public class SplunkInputDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = SplunkInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      SplunkInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Text wTransformName;
 
@@ -240,7 +241,6 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     fdReturns.top = new FormAttachment(lastControl, margin);
     fdReturns.bottom = new FormAttachment(wOk, -2 * margin);
     wReturns.setLayoutData(fdReturns);
-    // lastControl = wReturns;
 
     wComposite.pack();
     Rectangle bounds = wComposite.getBounds();

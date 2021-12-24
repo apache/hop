@@ -258,7 +258,6 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
         });
 
     wlPosition = new Label(shell, SWT.NONE);
-    // wlPosition.setText(BaseMessages.getString(PKG, "DynamicSqlRowDialog.Position.Label"));
     props.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);

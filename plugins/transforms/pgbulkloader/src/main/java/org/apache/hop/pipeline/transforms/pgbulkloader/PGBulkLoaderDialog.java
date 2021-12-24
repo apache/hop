@@ -674,7 +674,6 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   private void getInfo(PGBulkLoaderMeta inf) {
     int nrFields = wReturn.nrNonEmpty();
 
-    // inf.allocate(nrFields);
     inf.getMapping().clear();
 
     inf.setDbNameOverride(wDbNameOverride.getText());

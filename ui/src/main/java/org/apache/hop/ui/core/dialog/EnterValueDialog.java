@@ -40,12 +40,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog to enter a Hop Value
- *
- * @author Matt
- * @since 01-11-2004
- */
+/** Dialog to enter a Hop Value */
 public class EnterValueDialog extends Dialog {
   private static final Class<?> PKG = EnterValueDialog.class; // For Translator
 
@@ -279,7 +274,7 @@ public class EnterValueDialog extends Dialog {
         index =
             (!Utils.isEmpty(formatString))
                 ? wFormat.indexOf(formatString)
-                : wFormat.indexOf("yyyy/MM/dd HH:mm:ss"); // default;
+                : wFormat.indexOf("yyyy/MM/dd HH:mm:ss"); // default
         // ... then we have a custom format mask
         if ((!Utils.isEmpty(formatString)) && (index < 0)) {
           wFormat.add(formatString);

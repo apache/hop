@@ -29,10 +29,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class SortRowsData extends BaseTransformData implements ITransformData {
   public List<FileObject> files;
   public List<Object[]> buffer;
@@ -47,7 +43,7 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
   // To store rows and file references
   public List<RowTempFile> tempRows;
 
-  public int[] fieldnrs; // the corresponding field numbers;
+  public int[] fieldnrs; // the corresponding field numbers
   public FileObject fil;
   public IRowMeta outputRowMeta;
   public int sortSize;

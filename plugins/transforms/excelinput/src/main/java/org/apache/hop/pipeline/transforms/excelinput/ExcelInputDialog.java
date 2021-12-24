@@ -521,7 +521,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdAccepting.left = new FormAttachment(middle, 0);
     fdAccepting.right = new FormAttachment(100, 0);
     fdAccepting.bottom = new FormAttachment(wbShowFiles, -margin * 2);
-    // fdAccepting.bottom = new FormAttachment(wAccTransform, margin);
     gAccepting.setLayoutData(fdAccepting);
 
     ColumnInfo[] colinfo = new ColumnInfo[5];

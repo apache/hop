@@ -213,7 +213,6 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       for (int cpt = 0; cpt < wsdlOperation.getParameters().size(); cpt++) {
         WsdlOpParameter param = wsdlOperation.getParameters().get(cpt);
         if (param.isArray()) {
-          // setInFieldArgumentName(param.getName().getLocalPart());
           if (param.getItemXmlType() != null) {
             ComplexType type = param.getItemComplexType();
             if (type != null) {
@@ -1278,13 +1277,6 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   /** Fields from previous transform */
   private IRowMeta prevFields;
 
-  /*
-   * Previous fields are read asynchonous because this might take some time and the user is able to do other things,
-   * where he will not need the previous fields
-   *
-   * private boolean bPreviousFieldsLoaded = false;
-   */
-
   private void setComboValues() {
     Runnable fieldLoader =
         () -> {
@@ -1298,7 +1290,6 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           }
           String[] prevTransformFieldNames = prevFields.getFieldNames();
           Arrays.sort(prevTransformFieldNames);
-          // bPreviousFieldsLoaded = true;
           for (ColumnInfo colInfo : fieldColumns) {
             colInfo.setComboValues(prevTransformFieldNames);
           }

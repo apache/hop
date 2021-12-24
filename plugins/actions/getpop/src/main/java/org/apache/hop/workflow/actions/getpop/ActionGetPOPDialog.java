@@ -51,12 +51,7 @@ import javax.mail.Folder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * This dialog allows you to edit the Get POP action settings.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the Get POP action settings. */
 public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
@@ -489,7 +484,6 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "ActionGetPOP.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wProtocol, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
@@ -832,8 +826,6 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlListmails.setLayoutData(fdlListmails);
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveAllMails.Label"));
-    // POP3 does not support retrieve unread
-    // wListmails.add( BaseMessages.getString( PKG, "ActionGetPOP.RetrieveUnreadMails.Label" ) );
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveFirstMails.Label"));
     wListmails.select(0); // +1: starts at -1
 
@@ -1000,7 +992,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            // ChooseIMAPListmails();
+            // disalbe selection event
 
           }
         });

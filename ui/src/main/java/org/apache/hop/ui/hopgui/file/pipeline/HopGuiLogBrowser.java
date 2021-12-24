@@ -123,9 +123,6 @@ public class HopGuiLogBrowser {
                                 Const.toInt(describedVariable.getValue(), Const.MAX_NR_LOG_LINES);
                           }
 
-                          // int position = text.getSelection().x;
-                          // StringBuilder buffer = new StringBuilder(text.getText());
-
                           synchronized (text) {
                             for (int i = 0; i < logLines.size(); i++) {
                               HopLoggingEvent event = logLines.get(i);
@@ -177,14 +174,7 @@ public class HopGuiLogBrowser {
 
     // Make sure the timer goes down when the Display is disposed
     // Lambda expression cannot be used here as it causes SecurityException in RAP.
-    text.getDisplay()
-        .disposeExec(
-            new Runnable() {
-              @Override
-              public void run() {
-                logRefreshTimer.cancel();
-              }
-            });
+    text.getDisplay().disposeExec(() -> logRefreshTimer.cancel());
 
     final Menu menu = new Menu(text);
     MenuItem item = new MenuItem(menu, SWT.NONE);

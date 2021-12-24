@@ -473,7 +473,6 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     input.setCompressFilesVariable(wCompress.getVariableName());
     input.setOnlyPassingUniqueRows(wUniqueRows.getSelection());
 
-    // Table table = wFields.table;
     int nrFields = wFields.nrNonEmpty();
 
     input.allocate(nrFields);

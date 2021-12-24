@@ -241,18 +241,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdTransformation.right = new FormAttachment(wbBrowse, -props.getMargin());
     wPath.setLayoutData(fdTransformation);
 
-    // FileNameInField line
-    /* Additional fields */
-/*    Label wlPipelineNameInField = new Label(shell, SWT.LEFT);
-    wlPipelineNameInField.setText(
-        BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
-    props.setLook(wlPipelineNameInField);
-    FormData fdlFileNameInField = new FormData();
-    fdlFileNameInField.left = new FormAttachment(0, 0);
-    fdlFileNameInField.top = new FormAttachment(wPath, margin);
-    fdlFileNameInField.right = new FormAttachment(middle, -margin);
-    wlPipelineNameInField.setLayoutData(fdlFileNameInField);
-*/
     wbPipelineNameInField = new Button(shell, SWT.CHECK);
     props.setLook(wbPipelineNameInField);
     wbPipelineNameInField.setText(
@@ -260,7 +248,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     FormData fdPipelineNameInField = new FormData();
     fdPipelineNameInField.left = new FormAttachment(0,0);
     fdPipelineNameInField.top = new FormAttachment(wPath, margin);
-    //fdPipelineNameInField.right = new FormAttachment(100, 0);
     wbPipelineNameInField.setLayoutData(fdPipelineNameInField);
     wbPipelineNameInField.addSelectionListener(
         new SelectionAdapter() {
@@ -1206,8 +1193,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     }
     boolean enableSize = Const.toInt(variables.resolve(wGroupSize.getText()), -1) >= 0;
     boolean enableField = !Utils.isEmpty(wGroupField.getText());
-    // boolean enableTime = Const.toInt(variables.environmentSubstitute(wGroupTime.getText()),
-    // -1)>0;
 
     wlGroupSize.setEnabled(true);
     wGroupSize.setEnabled(true);

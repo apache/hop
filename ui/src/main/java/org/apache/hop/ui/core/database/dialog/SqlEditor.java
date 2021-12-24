@@ -50,12 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-/**
- * Dialog that allows the user to launch SQL statements towards the database.
- *
- * @author Matt
- * @since 13-10-2003
- */
+/** Dialog that allows the user to launch SQL statements towards the database. */
 public class SqlEditor {
   private static final Class<?> PKG = SqlEditor.class; // For Translator
 
@@ -257,7 +252,6 @@ public class SqlEditor {
   public void getData() {
     if (input != null) {
       wScript.setText(input);
-      // if (connection!= null) wConnection.setText( connection );
     }
   }
 

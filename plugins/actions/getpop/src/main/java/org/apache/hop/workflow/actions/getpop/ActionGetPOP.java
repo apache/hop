@@ -726,7 +726,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setResult(false);
 
-    // FileObject fileObject = null;
     MailConnection mailConn = null;
     Date beginDate = null;
     Date endDate = null;
@@ -1086,8 +1085,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
               mailConn.fetchNext();
               int messagenumber = mailConn.getMessage().getMessageNumber();
               boolean okPOP3 =
-                  usePOP3 ? true : false; // (mailConn.getMessagesCounter()<nbrmailtoretrieve &&
-              // retrievemails==2)||(retrievemails!=2):false;
+                  usePOP3 ? true : false;
               boolean okIMAP = !usePOP3;
 
               if (okPOP3 || okIMAP) {

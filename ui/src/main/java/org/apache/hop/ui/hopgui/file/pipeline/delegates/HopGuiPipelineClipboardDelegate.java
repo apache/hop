@@ -99,7 +99,6 @@ public class HopGuiPipelineClipboardDelegate {
       TransformMeta[] transforms = new TransformMeta[nr];
       ArrayList<String> transformOldNames = new ArrayList<>(nr);
 
-      // Point min = new Point(loc.x, loc.y);
       Point min = new Point(99999999, 99999999);
 
       // Load the transforms...

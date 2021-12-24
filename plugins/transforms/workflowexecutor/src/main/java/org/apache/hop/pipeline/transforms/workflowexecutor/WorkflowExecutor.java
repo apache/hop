@@ -46,12 +46,7 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 import java.util.ArrayList;
 
-/**
- * Execute a workflow for every input row.
- *
- * @author Matt
- * @since 22-nov-2005
- */
+/** Execute a workflow for every input row. */
 public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData>
     implements ITransform<WorkflowExecutorMeta, WorkflowExecutorData> {
 
@@ -217,15 +212,6 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     // Copy the parameters
     data.executorWorkflow.copyParametersFromDefinitions(data.executorWorkflowMeta);
-
-    // data.executorWorkflow.setInteractive(); TODO: pass interactivity through the pipeline too for
-    // drill-down.
-
-    // TODO
-    /*
-     * if (data.executorWorkflow.isInteractive()) {
-     * data.executorWorkflow.getJobEntryListeners().addAll(parentWorkflow.getJobEntryListeners()); }
-     */
 
     // Pass the accumulated rows
     //

@@ -200,6 +200,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     return outputRow;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -330,7 +331,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
       Object[] outputRow =
           lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
       if (outputRow != null) {
-        putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s);
+        putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s)
       }
       if (checkFeedback(getLinesRead())) {
         if (log.isBasic()) {
@@ -506,6 +507,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {

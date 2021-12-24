@@ -31,7 +31,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/** Created by bmorrise on 6/27/18. */
 public class TreeToolbar extends Composite {
 
   private PropsUi props = PropsUi.getInstance();
@@ -82,8 +81,6 @@ public class TreeToolbar extends Composite {
 
     ToolItem clearSelectionFilter = new ToolItem(selectionFilterTb, SWT.PUSH);
     clearSelectionFilter.setImage(GuiResource.getInstance().getImageClearText());
-    // clearSelectionFilter.setDisabledImage( GuiResource.getInstance().getImageClearTextDisabled()
-    // );
 
     FormData fdSelectionFilterToolbar = new FormData();
     if (Const.isLinux()) {
@@ -117,9 +114,7 @@ public class TreeToolbar extends Composite {
     clearSelectionFilter.setEnabled(!Utils.isEmpty(selectionFilter.getText()));
 
     selectionFilter.addModifyListener(
-        modifyEvent -> {
-          clearSelectionFilter.setEnabled(!Utils.isEmpty(selectionFilter.getText()));
-        });
+        modifyEvent -> clearSelectionFilter.setEnabled(!Utils.isEmpty(selectionFilter.getText())));
 
     Label sep4 = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
     sep4.setBackground(GuiResource.getInstance().getColorWhite());

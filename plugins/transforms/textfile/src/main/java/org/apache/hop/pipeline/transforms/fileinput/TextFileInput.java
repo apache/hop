@@ -57,9 +57,6 @@ import java.util.*;
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Matt
- * @since 4-apr-2003
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated
@@ -206,82 +203,82 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         int length = line.length();
         boolean dencl = false;
 
-        int len_encl = (enclosure == null ? 0 : enclosure.length());
+        int lenEncl = (enclosure == null ? 0 : enclosure.length());
         int lenEsc = (escapeCharacter == null ? 0 : escapeCharacter.length());
 
         while (pos < length) {
           int from = pos;
           int next;
 
-          boolean encl_found;
-          boolean containsEscaped_enclosures = false;
+          boolean enclFound;
+          boolean containsEscapedEnclosures = false;
           boolean containsEscapedSeparators = false;
 
           // Is the field beginning with an enclosure?
           // "aa;aa";123;"aaa-aaa";000;...
-          if (len_encl > 0 && line.substring(from, from + len_encl).equalsIgnoreCase(enclosure)) {
+          if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
             if (log.isRowLevel()) {
               log.logRowlevel(
                   BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
                   BaseMessages.getString(
                       PKG,
                       "TextFileInput.Log.ConvertLineToRow",
-                      line.substring(from, from + len_encl)));
+                      line.substring(from, from + lenEncl)));
             }
-            encl_found = true;
-            int p = from + len_encl;
+            enclFound = true;
+            int p = from + lenEncl;
 
-            boolean is_enclosure =
-                len_encl > 0
-                    && p + len_encl < length
-                    && line.substring(p, p + len_encl).equalsIgnoreCase(enclosure);
+            boolean isEnclosure =
+                lenEncl > 0
+                    && p + lenEncl < length
+                    && line.substring(p, p + lenEncl).equalsIgnoreCase(enclosure);
             boolean isEscape =
                 lenEsc > 0
                     && p + lenEsc < length
                     && line.substring(p, p + lenEsc).equalsIgnoreCase(escapeCharacter);
 
-            boolean enclosure_after = false;
+            boolean enclosureAfter = false;
 
             // Is it really an enclosure? See if it's not repeated twice or escaped!
-            if ((is_enclosure || isEscape) && p < length - 1) {
-              String strnext = line.substring(p + len_encl, p + 2 * len_encl);
+            if ((isEnclosure || isEscape) && p < length - 1) {
+              String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
               if (strnext.equalsIgnoreCase(enclosure)) {
                 p++;
-                enclosure_after = true;
+                enclosureAfter = true;
                 dencl = true;
 
                 // Remember to replace them later on!
                 if (isEscape) {
-                  containsEscaped_enclosures = true;
+                  containsEscapedEnclosures = true;
                 }
               }
             }
 
             // Look for a closing enclosure!
-            while ((!is_enclosure || enclosure_after) && p < line.length()) {
+            while ((!isEnclosure || enclosureAfter) && p < line.length()) {
               p++;
-              enclosure_after = false;
-              is_enclosure =
-                  len_encl > 0
-                      && p + len_encl < length
-                      && line.substring(p, p + len_encl).equals(enclosure);
+              enclosureAfter = false;
+              isEnclosure =
+                  lenEncl > 0
+                      && p + lenEncl < length
+                      && line.substring(p, p + lenEncl).equals(enclosure);
               isEscape =
                   lenEsc > 0
                       && p + lenEsc < length
                       && line.substring(p, p + lenEsc).equals(escapeCharacter);
 
               // Is it really an enclosure? See if it's not repeated twice or escaped!
-              if ((is_enclosure || isEscape) && p < length - 1) {
+              if ((isEnclosure || isEscape) && p < length - 1) {
 
-                String strnext = line.substring(p + len_encl, p + 2 * len_encl);
+                String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
                 if (strnext.equals(enclosure)) {
                   p++;
-                  enclosure_after = true;
+                  enclosureAfter = true;
                   dencl = true;
 
                   // Remember to replace them later on!
                   if (isEscape) {
-                    containsEscaped_enclosures = true; // remember
+                    containsEscapedEnclosures = true; // remember
                   }
                 }
               }
@@ -290,7 +287,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             if (p >= length) {
               next = p;
             } else {
-              next = p + len_encl;
+              next = p + lenEncl;
             }
 
             if (log.isRowLevel()) {
@@ -299,10 +296,9 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                   BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEnclosure", "" + p));
             }
           } else {
-            encl_found = false;
+            enclFound = false;
             boolean found = false;
             int startpoint = from;
-            // int tries = 1;
             do {
               next = line.indexOf(delimiter, startpoint);
 
@@ -313,7 +309,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 if (escapeCharacter.equals(before)) {
                   // take the next separator, this one is escaped...
                   startpoint = next + 1;
-                  // tries++;
                   containsEscapedSeparators = true;
                 } else {
                   found = true;
@@ -327,8 +322,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             next = length;
           }
 
-          if (encl_found) {
-            pol = line.substring(from + len_encl, next - len_encl);
+          if (enclFound) {
+            pol = line.substring(from + lenEncl, next - lenEncl);
             if (log.isRowLevel()) {
               log.logRowlevel(
                   BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
@@ -354,7 +349,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           }
 
           // replace the escaped enclosures with enclosures...
-          if (containsEscaped_enclosures) {
+          if (containsEscapedEnclosures) {
             String replace = escapeCharacter + enclosure;
             String replaceWith = enclosure;
 
@@ -436,80 +431,80 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         int length = line.length();
         boolean dencl = false;
 
-        int len_encl = (enclosure == null ? 0 : enclosure.length());
+        int lenEncl = (enclosure == null ? 0 : enclosure.length());
         int lenEsc = (escapeCharacters == null ? 0 : escapeCharacters.length());
 
         while (pos < length) {
           int from = pos;
           int next;
 
-          boolean encl_found;
-          boolean containsEscaped_enclosures = false;
+          boolean enclFound;
+          boolean containsEscapedEnclosures = false;
           boolean containsEscapedSeparators = false;
 
           // Is the field beginning with an enclosure?
           // "aa;aa";123;"aaa-aaa";000;...
-          if (len_encl > 0 && line.substring(from, from + len_encl).equalsIgnoreCase(enclosure)) {
+          if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
             if (log.isRowLevel()) {
               log.logRowlevel(
                   BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
                   BaseMessages.getString(
-                      PKG, "TextFileInput.Log.Encloruse", line.substring(from, from + len_encl)));
+                      PKG, "TextFileInput.Log.Encloruse", line.substring(from, from + lenEncl)));
             }
-            encl_found = true;
-            int p = from + len_encl;
+            enclFound = true;
+            int p = from + lenEncl;
 
-            boolean is_enclosure =
-                len_encl > 0
-                    && p + len_encl < length
-                    && line.substring(p, p + len_encl).equalsIgnoreCase(enclosure);
+            boolean isEnclosure =
+                lenEncl > 0
+                    && p + lenEncl < length
+                    && line.substring(p, p + lenEncl).equalsIgnoreCase(enclosure);
             boolean isEscape =
                 lenEsc > 0
                     && p + lenEsc < length
                     && line.substring(p, p + lenEsc).equalsIgnoreCase(inf.getEscapeCharacter());
 
-            boolean enclosure_after = false;
+            boolean enclosureAfter = false;
 
             // Is it really an enclosure? See if it's not repeated twice or escaped!
-            if ((is_enclosure || isEscape) && p < length - 1) {
-              String strnext = line.substring(p + len_encl, p + 2 * len_encl);
+            if ((isEnclosure || isEscape) && p < length - 1) {
+              String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
               if (strnext.equalsIgnoreCase(enclosure)) {
                 p++;
-                enclosure_after = true;
+                enclosureAfter = true;
                 dencl = true;
 
                 // Remember to replace them later on!
                 if (isEscape) {
-                  containsEscaped_enclosures = true;
+                  containsEscapedEnclosures = true;
                 }
               }
             }
 
             // Look for a closing enclosure!
-            while ((!is_enclosure || enclosure_after) && p < line.length()) {
+            while ((!isEnclosure || enclosureAfter) && p < line.length()) {
               p++;
-              enclosure_after = false;
-              is_enclosure =
-                  len_encl > 0
-                      && p + len_encl < length
-                      && line.substring(p, p + len_encl).equals(enclosure);
+              enclosureAfter = false;
+              isEnclosure =
+                  lenEncl > 0
+                      && p + lenEncl < length
+                      && line.substring(p, p + lenEncl).equals(enclosure);
               isEscape =
                   lenEsc > 0
                       && p + lenEsc < length
                       && line.substring(p, p + lenEsc).equals(inf.getEscapeCharacter());
 
               // Is it really an enclosure? See if it's not repeated twice or escaped!
-              if ((is_enclosure || isEscape) && p < length - 1) {
+              if ((isEnclosure || isEscape) && p < length - 1) {
 
-                String strnext = line.substring(p + len_encl, p + 2 * len_encl);
+                String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
                 if (strnext.equals(enclosure)) {
                   p++;
-                  enclosure_after = true;
+                  enclosureAfter = true;
                   dencl = true;
 
                   // Remember to replace them later on!
                   if (isEscape) {
-                    containsEscaped_enclosures = true; // remember
+                    containsEscapedEnclosures = true; // remember
                   }
                 }
               }
@@ -518,7 +513,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             if (p >= length) {
               next = p;
             } else {
-              next = p + len_encl;
+              next = p + lenEncl;
             }
 
             if (log.isRowLevel()) {
@@ -527,10 +522,9 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                   BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEnclosure", "" + p));
             }
           } else {
-            encl_found = false;
+            enclFound = false;
             boolean found = false;
             int startpoint = from;
-            // int tries = 1;
             do {
               next = line.indexOf(delimiter, startpoint);
 
@@ -541,7 +535,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 if (inf.getEscapeCharacter().equals(before)) {
                   // take the next separator, this one is escaped...
                   startpoint = next + 1;
-                  // tries++;
                   containsEscapedSeparators = true;
                 } else {
                   found = true;
@@ -555,8 +548,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             next = length;
           }
 
-          if (encl_found && ((from + len_encl) <= (next - len_encl))) {
-            pol = line.substring(from + len_encl, next - len_encl);
+          if (enclFound && ((from + lenEncl) <= (next - lenEncl))) {
+            pol = line.substring(from + lenEncl, next - lenEncl);
             if (log.isRowLevel()) {
               log.logRowlevel(
                   BaseMessages.getString(PKG, "TextFileInput.Log.ConvertLineToRowTitle"),
@@ -582,7 +575,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           }
 
           // replace the escaped enclosures with enclosures...
-          if (containsEscaped_enclosures) {
+          if (containsEscapedEnclosures) {
             String replace = inf.getEscapeCharacter() + enclosure;
             String replaceWith = enclosure;
 
@@ -922,7 +915,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 }
 
                 if (info.isErrorLineSkipped()) {
-                  r = null; // compensates for stmt: r.setIgnore();
+                  r = null;
                 }
               } else {
                 throw new HopException(message, e);
@@ -1376,7 +1369,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
           data.previousRow = data.outputRowMeta.cloneRow(r);
         } else {
-          // int repnr = 0;
           for (int i = 0; i < meta.getInputFields().length; i++) {
             if (meta.getInputFields()[i].isRepeated()) {
               if (r[i] == null) {
@@ -1388,7 +1380,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
                 data.previousRow[i] = r[i];
               }
-              // repnr++;
             }
           }
         }
@@ -1561,10 +1552,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         // Increment the lines updated to reflect another file has been finished.
         // This allows us to give a state of progress in the run time metrics
         incrementLinesUpdated();
-        /*
-         * } else if ( sFileCompression != null && sFileCompression.equals( "Snappy" ) && data.sis != null ) {
-         * data.sis.close(); }
-         */
         data.in.close();
         data.isr.close();
         data.filename = null; // send it down the next time.
@@ -1578,19 +1565,12 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       String errorMsg =
           "Couldn't close file : " + data.file.getName().getFriendlyURI() + " --> " + e.toString();
       logError(errorMsg);
-      if (failAfterBadFile(errorMsg)) { // ( !meta.isSkipBadFiles() || data.isLastFile ){
+      if (failAfterBadFile(errorMsg)) {
         stopAll();
       }
       setErrors(getErrors() + 1);
       return false;
-    } // finally {
-    // This is for bug #5797 : it tries to assure that the file handle
-    // is actually freed/garbarge collected.
-    // XXX deinspanjer 2009-07-07: I'm stubbing this out. The bug was ancient and it is worth
-    // reevaluating
-    // to avoid the performance hit of a System GC on every file close
-    // System.gc();
-    // }
+    }
 
     return !data.isLastFile;
   }
@@ -1600,7 +1580,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     try {
       lineNumberInFile = 0;
       if (!closeLastFile() && failAfterBadFile(null)) {
-        return false; // (!meta.isSkipBadFiles() || data.isLastFile) ) return false;
+        return false;
       }
 
       if (data.getFiles().nrOfFiles() == 0) {
@@ -1743,7 +1723,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
               + " --> "
               + e.toString();
       logError(errorMsg);
-      if (failAfterBadFile(errorMsg)) { // !meta.isSkipBadFiles()) stopAll();
+      if (failAfterBadFile(errorMsg)) {
         stopAll();
       }
       setErrors(getErrors() + 1);
@@ -1806,14 +1786,6 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         logError(BaseMessages.getString(PKG, "TextFileInput.Log.Error.NoFilesSpecified"));
         return false;
       }
-
-      // If no nullif field is supplied, take the default.
-      // String null_value = nullif;
-      // if (null_value == null)
-      // {
-      // // value="";
-      // }
-      // String null_cmp = Const.rightPad(new StringBuilder(null_value), pol.length());
 
       // calculate the file format type in advance so we can use a switch
       data.fileFormatType = meta.getFileFormatTypeNr();

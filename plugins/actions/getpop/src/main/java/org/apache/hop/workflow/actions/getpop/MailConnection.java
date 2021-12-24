@@ -40,12 +40,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * MailConnection handles the process of connecting to, reading from POP3/IMAP.
- *
- * @author Samatar
- * @since 01-04-2009
- */
+/** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnection {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
@@ -636,16 +631,6 @@ public class MailConnection {
           BaseMessages.getString(PKG, "MailConnection.Error.RetrieveMessages", getFolderName()), e);
     }
   }
-
-  /*
-   * public void retrieveUnreadMessages() throws Exception { if(this.protocol==PROTOCOL_POP3) throw new
-   * HopException("Cette fonction est uniquement accessible pour le protocol POP3!"); try { Message msgsAll[]; //
-   * search term? if(this.searchTerm!=null) { msgsAll = this.folder.search(this.searchTerm); }else { msgsAll =
-   * this.folder.getMessages(); } int unreadMsgs = this.folder.getUnreadMessageCount(); int msgCount = msgsAll.length;
-   *
-   * this.messages = this.folder.getMessages(msgCount - unreadMsgs + 1, msgCount); } catch (Exception e) {
-   * this.messages= null; } }
-   */
 
   /**
    * Disconnect from the server and close folder, connection.

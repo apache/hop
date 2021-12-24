@@ -81,8 +81,6 @@ public class VariableButtonListenerFactory {
 
           if (insertTextInterface == null) {
             destination.insert(var);
-            // destination.setToolTipText(StringUtil.environmentSubstitute( destination.getText() )
-            // );
             e.doit = false;
           } else {
             insertTextInterface.insertText(var, position);

@@ -27,11 +27,7 @@ import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.svg.SvgCache;
-import org.apache.hop.core.svg.SvgCacheEntry;
-import org.apache.hop.core.svg.SvgFile;
-import org.apache.hop.core.svg.SvgImage;
-import org.apache.hop.core.svg.SvgSupport;
+import org.apache.hop.core.svg.*;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -166,7 +162,6 @@ public class SwtSvgImageUtil {
   public static SwtUniversalImage getUniversalImage(
       Display display, ClassLoader classLoader, String filename) {
     if (StringUtils.isBlank(filename)) {
-      // log.logError( "Unable to load blank image [" + filename + "]", new Exception() );
       return getImageAsResource(display, NO_IMAGE);
     }
 
