@@ -27,8 +27,6 @@ import java.util.*;
 /**
  * This class contains a messages store: for a certain Locale and for a certain messages package, it
  * keeps all the keys and values. This class can read and write messages files...
- *
- * @author matt
  */
 public class MessagesStore extends ChangedFlag {
 

@@ -29,9 +29,6 @@ import java.util.Map;
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
  * fonts, positions of windows, etc.
- *
- * @author Matt
- * @since 15-12-2003
  */
 public class Props implements Cloneable {
   private static final Class<?> PKG = Const.class; // For Translator

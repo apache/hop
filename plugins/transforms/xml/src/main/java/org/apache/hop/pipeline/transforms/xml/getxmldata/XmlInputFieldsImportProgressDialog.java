@@ -46,9 +46,6 @@ import java.util.List;
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes
  * for an XML file
- *
- * @author Samatar
- * @since 07-apr-2010
  */
 public class XmlInputFieldsImportProgressDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
@@ -83,21 +80,21 @@ public class XmlInputFieldsImportProgressDialog {
    * file
    */
   public XmlInputFieldsImportProgressDialog(
-          Shell shell, String xmlSource, String loopXPath, PdOption option) {
+      Shell shell, String xmlSource, String loopXPath, PdOption option) {
 
     this.shell = shell;
-    this.option=option;
+    this.option = option;
     this.loopXPath = loopXPath;
 
-    if(option.isXmlSourceIsFile()){
+    if (option.isXmlSourceIsFile()) {
       this.filename = xmlSource;
       this.xml = null;
       this.url = null;
-    }else if(option.isUseUrl()){
+    } else if (option.isUseUrl()) {
       this.filename = null;
       this.xml = null;
       this.url = xmlSource;
-    }else {
+    } else {
       this.filename = null;
       this.xml = xmlSource;
       this.url = null;

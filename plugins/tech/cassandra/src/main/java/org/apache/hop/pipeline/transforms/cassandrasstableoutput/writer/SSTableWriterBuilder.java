@@ -21,11 +21,7 @@ import org.apache.cassandra.config.YamlConfigurationLoader;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.hop.core.row.IRowMeta;
 
-/**
- * Builder is used to create specific SSTableWriter depending mostly on CQL version
- *
- * @author Pavel Sakun
- */
+/** Builder is used to create specific SSTableWriter depending mostly on CQL version */
 public class SSTableWriterBuilder {
   /** Path to cassandra YAML config */
   private String configFilePath;

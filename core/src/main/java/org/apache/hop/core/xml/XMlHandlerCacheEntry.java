@@ -19,12 +19,7 @@ package org.apache.hop.core.xml;
 
 import org.w3c.dom.Node;
 
-/**
- * This is an entry in an XmlHandlerCache
- *
- * @author Matt
- * @since 22-Apr-2006
- */
+/** This is an entry in an XmlHandlerCache */
 public class XMlHandlerCacheEntry {
   private Node parentNode;
   private String tag;

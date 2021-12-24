@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/** @author Tatsiana_Kasiankova */
 public class ActionHttpTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

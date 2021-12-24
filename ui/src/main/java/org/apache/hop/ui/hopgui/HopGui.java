@@ -260,11 +260,6 @@ public class HopGui
   public static void main(String[] arguments) {
     try {
 
-      /*
-            System.out.println("Sleeping for 10s for debugging");
-            Thread.sleep(10000);
-      */
-
       setupConsoleLogging();
       HopEnvironment.init();
       OsHelper.setAppName();

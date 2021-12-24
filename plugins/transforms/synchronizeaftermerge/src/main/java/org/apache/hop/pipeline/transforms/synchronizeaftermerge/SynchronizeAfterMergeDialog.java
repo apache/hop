@@ -432,10 +432,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlReturn.top = new FormAttachment(wKey, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int upInsCols = 3;
+    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.ColumnInfo.TableField"),
@@ -460,7 +460,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -556,10 +556,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wOperationOrder.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OperationOrder.Label"));
 
-    FormLayout OriginFilesgroupLayout = new FormLayout();
-    OriginFilesgroupLayout.marginWidth = 10;
-    OriginFilesgroupLayout.marginHeight = 10;
-    wOperationOrder.setLayout(OriginFilesgroupLayout);
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOperationOrder.setLayout(originFilesgroupLayout);
 
     Label wlOperationField = new Label(wOperationOrder, SWT.RIGHT);
     wlOperationField.setText(
@@ -899,9 +899,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {
@@ -1092,7 +1092,6 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
   }
 
   private void getInfo(SynchronizeAfterMergeMeta inf) {
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wReturn.nrNonEmpty();
 
@@ -1121,8 +1120,6 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       inf.getKeyStream()[i] = item.getText(3);
       inf.getKeyStream2()[i] = item.getText(4);
     }
-
-    // Table ftable = wReturn.table;
 
     if (log.isDebug()) {
       logDebug(

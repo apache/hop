@@ -28,10 +28,6 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.*;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class StreamLookupData extends BaseTransformData implements ITransformData {
   /** used to store values in used to look up things */
   public Map<RowMetaAndData, Object[]> look;

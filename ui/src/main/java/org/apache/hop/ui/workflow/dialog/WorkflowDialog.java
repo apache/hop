@@ -54,12 +54,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 
-/**
- * Allows you to edit the Workflow settings. Just feed it a WorkflowMeta object.
- *
- * @author Matt Casters
- * @since 02-jul-2003
- */
+/** Allows you to edit the Workflow settings. Just feed it a WorkflowMeta object. */
 public class WorkflowDialog extends Dialog {
   private static final Class<?> PKG = WorkflowDialog.class; // For Translator
 

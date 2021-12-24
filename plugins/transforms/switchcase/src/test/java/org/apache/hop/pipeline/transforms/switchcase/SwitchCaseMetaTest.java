@@ -26,7 +26,6 @@ import org.junit.ClassRule;
 
 import java.util.*;
 
-/** @author nhudak */
 public class SwitchCaseMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

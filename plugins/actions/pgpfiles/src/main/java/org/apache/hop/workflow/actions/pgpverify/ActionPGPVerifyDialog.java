@@ -39,12 +39,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This defines a PGP verify action.
- *
- * @author Samatar
- * @since 25-02-2011
- */
+/** This defines a PGP verify action. */
 public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
 

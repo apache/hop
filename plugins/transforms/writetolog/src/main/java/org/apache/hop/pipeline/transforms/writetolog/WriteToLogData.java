@@ -21,10 +21,6 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 16-06-2008
- */
 public class WriteToLogData extends BaseTransformData implements ITransformData {
 
   public int[] fieldnrs;

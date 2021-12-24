@@ -23,11 +23,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This class represents the transform plugin type.
- *
- * @author matt
- */
+/** This class represents the transform plugin type. */
 @PluginMainClassType(IConfigOptions.class)
 @PluginAnnotationType(ConfigPlugin.class)
 public class ConfigPluginType extends BasePluginType<ConfigPlugin> {

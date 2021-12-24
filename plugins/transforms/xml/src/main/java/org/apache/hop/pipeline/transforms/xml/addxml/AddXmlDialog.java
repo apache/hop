@@ -566,8 +566,6 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     tfoi.setOmitXMLheader(wOmitXMLHeader.getSelection());
     tfoi.setOmitNullValues(wOmitNullValues.getSelection());
 
-    // Table table = wFields.table;
-
     int nrFields = wFields.nrNonEmpty();
 
     tfoi.allocate(nrFields);

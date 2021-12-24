@@ -239,7 +239,6 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     transformName = wTransformName.getText(); // return value
-    // Table table = wFields.table;
 
     int count = wFields.nrNonEmpty();
     input.allocate(count);

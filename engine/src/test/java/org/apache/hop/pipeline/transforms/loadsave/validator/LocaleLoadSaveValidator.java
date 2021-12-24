@@ -21,7 +21,6 @@ import org.apache.hop.core.util.Utils;
 import java.util.Locale;
 import java.util.Random;
 
-/** @author Andrey Khayrutdinov */
 public class LocaleLoadSaveValidator implements IFieldLoadSaveValidator<Locale> {
   @Override
   public Locale getTestObject() {

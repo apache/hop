@@ -25,10 +25,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author Samatar
- * @since 16-06-2008
- */
 public class BlockUntilTransformsFinishData extends BaseTransformData implements ITransformData {
 
   /** */

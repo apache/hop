@@ -48,12 +48,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 
-/**
- * Converts input rows to one or more XML files.
- *
- * @author Matt
- * @since 14-jan-2006
- */
+/** Converts input rows to one or more XML files. */
 public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData>
     implements ITransform<XmlJoinMeta, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator

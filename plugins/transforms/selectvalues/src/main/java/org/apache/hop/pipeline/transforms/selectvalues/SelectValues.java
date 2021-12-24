@@ -39,12 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Select, re-order, remove or change the meta-data of the fields in the inputstreams.
- *
- * @author Matt
- * @since 5-apr-2003
- */
+/** Select, re-order, remove or change the meta-data of the fields in the inputstreams. */
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData>
     implements ITransform<SelectValuesMeta, SelectValuesData> {
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator

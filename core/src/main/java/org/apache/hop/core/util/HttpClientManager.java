@@ -34,9 +34,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
  * in Hop projects. Contains {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager
  * Connection pool} of 200 connections. Maximum connections per one route is 100. Provides inner
  * builder class for creating {@link org.apache.http.client.HttpClient HttpClients}.
- *
- * @author Yury_Bakhmutski
- * @since 06-23-2017
  */
 public class HttpClientManager {
   private static final int CONNECTIONS_PER_ROUTE = 100;

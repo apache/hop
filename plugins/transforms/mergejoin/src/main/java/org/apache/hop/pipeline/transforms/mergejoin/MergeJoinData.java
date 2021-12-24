@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
-/**
- * @author Biswapesh
- * @since 24-nov-2005
- */
 public class MergeJoinData extends BaseTransformData implements ITransformData {
   public Object[] one, two;
   public IRowMeta oneMeta, twoMeta;

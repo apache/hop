@@ -58,7 +58,6 @@
         <!-- hop components -->
         <dependencySet>
             <includes>
-                <!--<include>org.hop:hop-assemblies-demo:zip</include>-->
                 <include>org.apache.hop:hop-assemblies-libs:zip</include>
             </includes>
             <unpack>true</unpack>

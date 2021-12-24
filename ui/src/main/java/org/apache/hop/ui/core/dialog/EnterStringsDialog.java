@@ -37,11 +37,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Shows a dialog that allows you to enter values for a number of strings.
- *
- * @author Matt
- */
+/** Shows a dialog that allows you to enter values for a number of strings. */
 public class EnterStringsDialog extends Dialog {
   private static final Class<?> PKG = EnterStringsDialog.class; // For Translator
 

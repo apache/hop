@@ -36,7 +36,6 @@ import java.util.concurrent.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
-/** @author Andrey Khayrutdinov */
 public class DatabaseConnectingTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 

@@ -39,12 +39,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Dialog to test a regular expression
- *
- * @author Samatar
- * @since 20-04-2009
- */
+/** Dialog to test a regular expression */
 public class RegexEvalHelperDialog extends Dialog {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 

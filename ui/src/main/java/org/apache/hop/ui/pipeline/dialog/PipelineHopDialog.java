@@ -181,14 +181,12 @@ public class PipelineHopDialog extends Dialog {
     fdOk.top = new FormAttachment(wFlip, margin * 5);
     fdOk.left = new FormAttachment(50, -width);
     fdOk.right = new FormAttachment(50, -(margin / 2));
-    // fdOk.bottom = new FormAttachment(100, 0);
     wOk.setLayoutData(fdOk);
 
     FormData fdCancel = new FormData();
     fdCancel.top = new FormAttachment(wFlip, margin * 5);
     fdCancel.left = new FormAttachment(50, margin / 2);
     fdCancel.right = new FormAttachment(50, width);
-    // fdCancel.bottom = new FormAttachment(100, 0);
     wCancel.setLayoutData(fdCancel);
 
     // Add listeners

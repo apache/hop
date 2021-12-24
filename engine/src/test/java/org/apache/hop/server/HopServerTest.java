@@ -58,7 +58,6 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for HopServer class
  *
- * @author Pavel Sakun
  * @see HopServer
  */
 public class HopServerTest {

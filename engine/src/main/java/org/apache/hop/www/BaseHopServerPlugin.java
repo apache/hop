@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
-/** @author nhudak */
 public abstract class BaseHopServerPlugin extends BaseHttpServlet
     implements IHopServerPlugin, IHopServerRequestHandler {
   /**

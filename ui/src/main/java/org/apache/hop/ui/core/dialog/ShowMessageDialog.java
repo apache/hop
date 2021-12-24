@@ -37,12 +37,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-/**
- * Dialog to enter a text. (descriptions etc.)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to enter a text. (descriptions etc.) */
 public class ShowMessageDialog extends Dialog {
   private static final Class<?> PKG = ShowMessageDialog.class; // For Translator
 

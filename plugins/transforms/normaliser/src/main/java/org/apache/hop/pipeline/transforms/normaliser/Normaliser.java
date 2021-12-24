@@ -31,12 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Normalise de-normalised input data.
- *
- * @author Matt
- * @since 5-apr-2003
- */
+/** Normalise de-normalised input data. */
 public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData>
     implements ITransform<NormaliserMeta, NormaliserData> {
   private static final Class<?> PKG = NormaliserMeta.class; // For Translator

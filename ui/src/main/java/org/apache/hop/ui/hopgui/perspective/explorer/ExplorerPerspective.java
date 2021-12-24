@@ -832,13 +832,6 @@ public class ExplorerPerspective implements IHopPerspective {
         newFolder.createFolder();
 
         refresh();
-
-        //        IHopFileType fileType = getFileType(newPath);
-        //        TreeItem folderItem = new TreeItem(item, SWT.NONE);
-        //        folderItem.setText(folder);
-        //        setItemImage(folderItem, fileType);
-        //        callPaintListeners(tree, item, newPath, folder, fileType);
-        //        addToFolderMap(item, newPath, folder, fileType);
       } catch (Throwable e) {
         new ErrorDialog(
             getShell(),

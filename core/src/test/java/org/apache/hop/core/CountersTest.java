@@ -19,11 +19,7 @@ package org.apache.hop.core;
 
 import junit.framework.TestCase;
 
-/**
- * Test class for counters functionality.
- *
- * @author Sven Boden
- */
+/** Test class for counters functionality. */
 public class CountersTest extends TestCase {
   /** Test about all. Class is not too big. */
   public void testGeneralFunctionality() {

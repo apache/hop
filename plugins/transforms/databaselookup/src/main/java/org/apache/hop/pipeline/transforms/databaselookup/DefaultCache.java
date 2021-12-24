@@ -140,7 +140,6 @@ public class DefaultCache implements DatabaseLookupData.ICache {
     // * Additionally, if using the load all data feature, re-inserting would reverse the order
     // * specified in the transform.
     // */
-    // }
     map.put(rowMetaAndData, new TimedRow(add));
 
     // See if we have to limit the cache_size.

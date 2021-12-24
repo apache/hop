@@ -21,7 +21,6 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/** @author Andrey Khayrutdinov */
 class GtIndex extends Index {
 
   static Index lessOrEqualCache(int column, IValueMeta valueMeta, int rowsAmount) {

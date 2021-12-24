@@ -63,11 +63,7 @@ public class FilterRowsMeta extends BaseTransformMeta
     implements ITransformMeta<FilterRows, FilterRowsData> {
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
-  /**
-   * This is the main condition for the complete filter.
-   *
-   * @since version 2.1
-   */
+  /** This is the main condition for the complete filter. */
   private Condition condition;
 
   public FilterRowsMeta() {

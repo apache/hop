@@ -23,8 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A simplified rowset for transforms that always only need to only have a single row on input...
- *
- * @author matt
  */
 public class SingleRowRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
 

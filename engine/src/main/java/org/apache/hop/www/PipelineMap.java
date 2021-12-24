@@ -29,11 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This is a map between the pipeline name and the (running/waiting/finished) pipeline.
- *
- * @author Matt
- */
+/** This is a map between the pipeline name and the (running/waiting/finished) pipeline. */
 public class PipelineMap {
   private final Map<HopServerObjectEntry, PipelineData> pipelineMap;
 

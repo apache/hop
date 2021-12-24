@@ -24,7 +24,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.exception.HopException;
@@ -347,9 +346,12 @@ public class TextFileInputDialog extends BaseTransformDialog
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            if (wFilename.getText()==null||wFilename.getText().isEmpty()){
-              displayErrorDialog(new HopException(BaseMessages.getString(PKG,"TextFileInputDialog.ErrorAddingFile.ErrorMessage")),
-                      "TextFileInputDialog.ErrorAddingFile.DialogMessage");
+            if (wFilename.getText() == null || wFilename.getText().isEmpty()) {
+              displayErrorDialog(
+                  new HopException(
+                      BaseMessages.getString(
+                          PKG, "TextFileInputDialog.ErrorAddingFile.ErrorMessage")),
+                  "TextFileInputDialog.ErrorAddingFile.DialogMessage");
               return;
             }
             wFilenameList.add(
@@ -465,21 +467,28 @@ public class TextFileInputDialog extends BaseTransformDialog
   }
 
   /*check the compressed extension of the first file in the archive and change the
-  * compression mode in the content tab depending on it*/
-  private void checkCompressedFile(){
-    if(wFilenameList.getItemCount() > 0) {
+   * compression mode in the content tab depending on it*/
+  private void checkCompressedFile() {
+    if (wFilenameList.getItemCount() > 0) {
       String[] fileRecord = wFilenameList.getItem(0);
       String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
-      Collection<ICompressionProvider> compProviders = CompressionProviderFactory.getInstance().getCompressionProviders();
+      Collection<ICompressionProvider> compProviders =
+          CompressionProviderFactory.getInstance().getCompressionProviders();
       for (ICompressionProvider provider : compProviders) {
-        if (provider.getDefaultExtension() != null && provider.getDefaultExtension().equals(fileExtension)) {
+        if (provider.getDefaultExtension() != null
+            && provider.getDefaultExtension().equals(fileExtension)) {
           int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
           wCompression.select(toBeSelected);
           wCompression.setEnabled(true);
           return;
         }
       }
-      wCompression.select(ArrayUtils.indexOf(wCompression.getItems(), CompressionProviderFactory.getInstance().getCompressionProviderByName("None").getName()));
+      wCompression.select(
+          ArrayUtils.indexOf(
+              wCompression.getItems(),
+              CompressionProviderFactory.getInstance()
+                  .getCompressionProviderByName("None")
+                  .getName()));
     }
   }
 
@@ -2035,9 +2044,6 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFilemask.setEnabled(!accept);
     wbShowFiles.setEnabled(!accept);
 
-    // Keep this one active: use the sample in the file list
-    // wPreview.setEnabled(!accept);
-
     wFirst.setEnabled(!accept);
     wFirstHeader.setEnabled(!accept);
 
@@ -2718,7 +2724,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         mb.open();
       }
     } catch (HopException e) {
-      displayErrorDialog(e,"TextFileInputDialog.ErrorGettingData.DialogMessage");
+      displayErrorDialog(e, "TextFileInputDialog.ErrorGettingData.DialogMessage");
     }
   }
 
@@ -2727,7 +2733,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         shell,
         BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
         BaseMessages.getString(PKG, messageKey),
-            e);
+        e);
   }
 
   // Get the first x lines

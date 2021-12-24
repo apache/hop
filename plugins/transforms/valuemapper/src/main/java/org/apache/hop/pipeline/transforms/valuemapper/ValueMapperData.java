@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Hashtable;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class ValueMapperData extends BaseTransformData implements ITransformData {
   public IRowMeta previousMeta;
   public IRowMeta outputMeta;

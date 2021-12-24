@@ -48,12 +48,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This dialog allows you to edit the Copy Files action settings.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This dialog allows you to edit the Copy Files action settings. */
 public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
 

@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.parameters;
 
-/**
- * This is am Apache Hop Exception for the named parameters.
- *
- * @author Sven Boden
- * @since 28Feb2009
- */
+/** This is am Apache Hop Exception for the named parameters. */
 public class DuplicateParamException extends NamedParamsException {
   private static final long serialVersionUID = 5054176336008115985L;
 

@@ -24,8 +24,6 @@ import java.util.List;
  * org.apache.hop.workflow.WorkflowPainter} we keep a list of all the things we draw and the object
  * that's behind it. That should make it a lot easier to track what was drawn, setting tooltips,
  * etc.
- *
- * @author Matt
  */
 public class AreaOwner<Parent, Owner> {
 

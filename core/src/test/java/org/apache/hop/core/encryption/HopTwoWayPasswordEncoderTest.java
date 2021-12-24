@@ -24,8 +24,6 @@ import static org.junit.Assert.*;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.
- *
- * @author Matt Casters
  */
 public class HopTwoWayPasswordEncoderTest {
 

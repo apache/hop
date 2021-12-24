@@ -20,8 +20,6 @@ package org.apache.hop.core;
 /**
  * Implementing classes of this interface can provide more information about the source of the
  * CheckResult remark.
- *
- * @author mbatchel 6/25/07
  */
 public interface ICheckResultSource {
   /** @return The name of the source generating the CheckResult */

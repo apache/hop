@@ -23,10 +23,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Date;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class RowGeneratorData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public Object[] outputRowData;

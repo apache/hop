@@ -138,7 +138,6 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
 
   @Override
   public void setDefault() {
-    // complexJoin = false;
     encoding = Const.XML_ENCODING;
   }
 

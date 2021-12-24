@@ -61,9 +61,6 @@ import java.util.Collection;
  * InputStreamReader isr = new InputStreamReader(fis, guessedCharset);
  * BufferedReader br = new BufferedReader(isr);
  *
- *
- * <p>Date: 18 juil. 2002</p>
- * @author Guillaume LAFORGE
  */
 public class CharsetToolkit {
   private byte[] buffer;

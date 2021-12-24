@@ -23,7 +23,6 @@ import org.apache.hop.core.row.IValueMeta;
 import java.util.BitSet;
 import java.util.Comparator;
 
-/** @author Andrey Khayrutdinov */
 class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
 
   private final boolean isMatchingNull;

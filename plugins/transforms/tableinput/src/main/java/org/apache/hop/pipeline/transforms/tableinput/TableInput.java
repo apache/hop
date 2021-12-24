@@ -39,12 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Reads information from a database table by using freehand SQL
- *
- * @author Matt
- * @since 8-apr-2003
- */
+/** Reads information from a database table by using freehand SQL */
 public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
     implements ITransform<TableInputMeta, TableInputData> {
 

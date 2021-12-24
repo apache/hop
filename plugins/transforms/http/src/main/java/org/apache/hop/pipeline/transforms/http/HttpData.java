@@ -22,10 +22,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.http.NameValuePair;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class HttpData extends BaseTransformData implements ITransformData {
   public int[] argnrs;
   public IRowMeta outputRowMeta;

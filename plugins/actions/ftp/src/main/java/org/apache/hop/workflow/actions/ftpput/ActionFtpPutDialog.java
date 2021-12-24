@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the FTP Put action settings
- *
- * @author Samatar
- * @since 15-09-2007
- */
+/** This dialog allows you to edit the FTP Put action settings */
 public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 

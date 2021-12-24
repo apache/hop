@@ -24,8 +24,6 @@ import org.apache.hop.laf.LafFactory;
  * BaseMessage is called by all Message classes to enable the delegation of message delivery, by key
  * to be delegated to the appropriately authoritative supplier as registered in the LafFactory
  * enabling both i18n as well as pluggable look and feel (LAF)
- *
- * @author dhushon
  */
 public class BaseMessages implements ILafChangeListener<IMessageHandler> {
   static BaseMessages instance = null;

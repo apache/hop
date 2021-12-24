@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Map;
 
-/**
- * @author Matt
- * @since 18-Sep-2007
- */
 public class ClosureGeneratorData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public int parentIndex;

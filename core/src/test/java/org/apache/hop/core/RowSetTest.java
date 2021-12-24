@@ -28,11 +28,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Test class for the basic functionality of IRowSet.
- *
- * @author Sven Boden
- */
+/** Test class for the basic functionality of IRowSet. */
 public class RowSetTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 

@@ -39,8 +39,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * Shows a dialog that allows you to select the transforms you want to preview by entering a number
  * of rows.
- *
- * @author Matt
  */
 public class EnterPreviewRowsDialog extends Dialog {
   private static final Class<?> PKG = EnterPreviewRowsDialog.class; // For Translator

@@ -21,11 +21,7 @@ import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-/**
- * This class represents the transform plugin type.
- *
- * @author matt
- */
+/** This class represents the transform plugin type. */
 @PluginMainClassType(IHopImport.class)
 @PluginAnnotationType(ImportPlugin.class)
 public class ImportPluginType extends BasePluginType<ImportPlugin> {

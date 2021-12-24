@@ -22,11 +22,7 @@ import org.apache.hop.www.IHopServerPlugin;
 
 import java.util.Map;
 
-/**
- * This class represents the carte plugin type.
- *
- * @author matt
- */
+/** This class represents the carte plugin type. */
 @PluginMainClassType(IHopServerPlugin.class)
 @PluginAnnotationType(HopServerServlet.class)
 public class HopServerPluginType extends BasePluginType<HopServerServlet> {

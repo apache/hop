@@ -25,10 +25,6 @@ import java.io.OutputStreamWriter;
 import java.text.*;
 import java.util.zip.ZipOutputStream;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class AddXmlData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

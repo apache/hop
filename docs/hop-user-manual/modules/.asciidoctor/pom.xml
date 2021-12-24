@@ -125,21 +125,6 @@
                             <doctype>book</doctype>
                         </configuration>
                     </execution>
-                    <!--<execution>
-                        <id>output-pdf-book</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                        <configuration>
-                            <backend>pdf</backend>
-                            <doctype>book</doctype>
-                            <attributes>
-                                <pdf-stylesdir>${project.basedir}/target/maven-shared-archive-resources/themes</pdf-stylesdir>
-                                <pdf-style>hop</pdf-style>
-                            </attributes>
-                        </configuration>
-                    </execution>-->
                 </executions>
             </plugin>
             <plugin>

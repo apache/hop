@@ -33,10 +33,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * @author Samatar Hassan
- * @since 24-Mars-2008
- */
 public class PropertyInputData extends BaseTransformData implements ITransformData {
   public String thisline;
   public IRowMeta outputRowMeta;

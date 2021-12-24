@@ -19,12 +19,7 @@ package org.apache.hop.vfs.s3.s3common;
 
 import java.io.ByteArrayInputStream;
 
-/**
- * Custom InputStream that only virtually skips data to mimic a long running stream
- *
- * @author asimoes
- * @since 09-11-2017
- */
+/** Custom InputStream that only virtually skips data to mimic a long running stream */
 public class S3CommonWindowedSubstream extends ByteArrayInputStream {
 
   public S3CommonWindowedSubstream(byte[] buf) {

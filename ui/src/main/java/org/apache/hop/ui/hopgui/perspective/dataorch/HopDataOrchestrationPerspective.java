@@ -81,7 +81,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private Composite parent;
 
   private Composite composite;
-  private FormData formData;
 
   private CTabFolder tabFolder;
 
@@ -123,8 +122,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(
-        this); // composite != null && !composite.isDisposed() && composite.isVisible();;
+    return hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -135,15 +133,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     PropsUi props = PropsUi.getInstance();
 
     composite = new Composite(parent, SWT.NONE);
-    // composite.setBackground( GuiResource.getInstance().getColorBackground() );
     FormLayout layout = new FormLayout();
-    // layout.marginLeft = props.getMargin();
-    // layout.marginTop = props.getMargin();
     layout.marginRight = props.getMargin();
     layout.marginBottom = props.getMargin();
     composite.setLayout(layout);
 
-    formData = new FormData();
+    FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);

@@ -49,13 +49,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,9 +60,6 @@ import java.util.List;
  * Database connection) - A Combo Variable selection (editable ComboBox, for example containing all
  * connection values in the MetaStore) - New and Edit buttons (The latter opens up a generic
  * Metadata editor)
- *
- * @author Matt
- * @since 2019-12-17
  */
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
@@ -135,7 +126,6 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       boolean negativeMargin) {
     super(parentComposite, SWT.NONE);
     this.variables = variables;
-    // this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
     this.props = PropsUi.getInstance();
@@ -275,9 +265,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     layout(true, true);
   }
 
-  protected void manageMetadata() {
-    // manager.openMetaStoreExplorer();
-  }
+  protected void manageMetadata() {}
 
   /**
    * We look at the managed class name, add Dialog to it and then simply us that class to edit the

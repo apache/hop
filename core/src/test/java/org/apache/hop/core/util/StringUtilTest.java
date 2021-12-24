@@ -23,11 +23,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Test class for the basic functionality of StringUtil.
- *
- * @author Sven Boden
- */
+/** Test class for the basic functionality of StringUtil. */
 public class StringUtilTest extends TestCase {
   /** Test initCap */
   public void testinitCap() {

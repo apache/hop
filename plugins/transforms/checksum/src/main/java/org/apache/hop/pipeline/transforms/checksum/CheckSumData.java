@@ -23,12 +23,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.security.MessageDigest;
 
-/**
- * Data class for the Cheksum class
- *
- * @author Samatar Hassan
- * @since 16-06-2008
- */
+/** Data class for the Cheksum class */
 public class CheckSumData extends BaseTransformData implements ITransformData {
 
   public int[] fieldnrs;

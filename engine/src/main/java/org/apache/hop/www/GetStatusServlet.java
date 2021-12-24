@@ -741,8 +741,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for stop button
       out.println("function repositionActions( element, elementFrom ) {");
       out.println("element.style.left = ( 10 + elementFrom.getBoundingClientRect().left ) + 'px';");
-      // out.println( "element.style.top = document.getElementById( 'pipeline-table' ).offsetTop +
-      // 'px';" );
       out.println("}");
 
       // Click function for resume button

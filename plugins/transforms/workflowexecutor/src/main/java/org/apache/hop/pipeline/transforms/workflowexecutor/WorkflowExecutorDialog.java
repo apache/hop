@@ -38,11 +38,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -60,12 +56,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,15 +65,12 @@ import java.util.List;
 public class WorkflowExecutorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
-  private static int FIELD_DESCRIPTION = 1;
-  private static int FIELD_NAME = 2;
+  private static final int FIELD_DESCRIPTION = 1;
+  private static final int FIELD_NAME = 2;
 
   private WorkflowExecutorMeta workflowExecutorMeta;
 
-  private Label wlPath;
   private TextVar wPath;
-
-  private Button wbBrowse;
 
   protected Label wlRunConfiguration;
   protected ComboVar wRunConfiguration;
@@ -104,7 +92,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private Label wlGroupTime;
   private TextVar wGroupTime;
 
-  private Label wlExecutionResultTarget;
   private CCombo wExecutionResultTarget;
   private TableItem tiExecutionTimeField;
   private TableItem tiExecutionResultField;
@@ -123,24 +110,13 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private ColumnInfo[] parameterColumns;
 
-  private Label wlResultFilesTarget;
-
   private CCombo wResultFilesTarget;
-
-  private Label wlResultFileNameField;
 
   private TextVar wResultFileNameField;
 
-  private Label wlResultRowsTarget;
-
   private CCombo wResultRowsTarget;
 
-  private Label wlResultFields;
-
   private TableView wResultRowsFields;
-
-  private Button wGetParameters;
-  private Button wMapParameters;
 
   private HopWorkflowFileType<WorkflowMeta> fileType =
       HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
@@ -209,7 +185,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    wlPath = new Label(shell, SWT.LEFT);
+    Label wlPath = new Label(shell, SWT.LEFT);
     props.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Workflow.Label"));
     FormData fdlJobformation = new FormData();
@@ -218,7 +194,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlJobformation.right = new FormAttachment(50, 0);
     wlPath.setLayoutData(fdlJobformation);
 
-    wbBrowse = new Button(shell, SWT.PUSH);
+    Button wbBrowse = new Button(shell, SWT.PUSH);
     props.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
@@ -506,7 +482,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // Add a button: get parameters
     //
-    wGetParameters = new Button(wParametersComposite, SWT.PUSH);
+    Button wGetParameters = new Button(wParametersComposite, SWT.PUSH);
     wGetParameters.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.GetParameters"));
     props.setLook(wGetParameters);
@@ -520,7 +496,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // Add a button: map parameters
     //
-    wMapParameters = new Button(wParametersComposite, SWT.PUSH);
+    Button wMapParameters = new Button(wParametersComposite, SWT.PUSH);
     wMapParameters.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.MapParameters"));
     props.setLook(wMapParameters);
@@ -770,7 +746,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlExecutionResultTarget);
     wlExecutionResultTarget.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResultTarget.Label"));
@@ -915,7 +891,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFilesTarget);
     wlResultFilesTarget.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFilesTarget.Label"));
@@ -934,7 +910,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // ResultFileNameField
     //
-    wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFileNameField);
     wlResultFileNameField.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFileNameField.Label"));
@@ -983,7 +959,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultRowsTarget);
     wlResultRowsTarget.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultRowsTarget.Label"));
@@ -1000,7 +976,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdResultRowsTarget.left = new FormAttachment(0, 0); // To the right
     wResultRowsTarget.setLayoutData(fdResultRowsTarget);
 
-    wlResultFields = new Label(wInputComposite, SWT.NONE);
+    Label wlResultFields = new Label(wInputComposite, SWT.NONE);
     wlResultFields.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFields.Label"));
     props.setLook(wlResultFields);
@@ -1080,8 +1056,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     }
     boolean enableSize = Const.toInt(variables.resolve(wGroupSize.getText()), -1) >= 0;
     boolean enableField = !Utils.isEmpty(wGroupField.getText());
-    // boolean enableTime = Const.toInt(variables.environmentSubstitute(wGroupTime.getText()),
-    // -1)>0;
 
     wlGroupSize.setEnabled(true);
     wGroupSize.setEnabled(true);

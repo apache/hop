@@ -41,12 +41,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Files exist action settings.
- *
- * @author Samatar
- * @since 12-10-2007
- */
+/** This dialog allows you to edit the Files exist action settings. */
 public class ActionFilesExistDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFilesExist.class; // For Translator
 

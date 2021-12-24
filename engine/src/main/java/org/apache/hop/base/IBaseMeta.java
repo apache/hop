@@ -18,11 +18,7 @@ package org.apache.hop.base;
 
 import org.apache.hop.core.gui.Point;
 
-/**
- * Common methods of TransformMeta and ActionMeta.
- *
- * @author Alexander Buloichik
- */
+/** Common methods of TransformMeta and ActionMeta. */
 public interface IBaseMeta {
   Point getLocation();
 }

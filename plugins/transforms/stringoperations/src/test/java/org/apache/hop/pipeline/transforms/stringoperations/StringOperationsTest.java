@@ -38,7 +38,6 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for StringOperations transform
  *
- * @author Pavel Sakun
  * @see StringOperations
  */
 public class StringOperationsTest {

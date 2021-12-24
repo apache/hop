@@ -22,12 +22,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 
-/**
- * Describes a single field in an excel file
- *
- * @author Matt
- * @since 12-04-2006
- */
+/** Describes a single field in an excel file */
 public class ExcelInputField implements Cloneable {
   @Injection(name = "NAME", group = "FIELDS")
   private String name;

@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 
-/**
- * @author Matt
- * @since 28-feb-2005
- */
 public class UpdateData extends BaseTransformData implements ITransformData {
   public Database db;
 

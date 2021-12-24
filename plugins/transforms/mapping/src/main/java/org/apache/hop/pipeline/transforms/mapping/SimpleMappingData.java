@@ -28,10 +28,6 @@ import org.apache.hop.pipeline.transforms.output.MappingOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class SimpleMappingData extends BaseTransformData implements ITransformData {
   public Pipeline mappingPipeline;
 

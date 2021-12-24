@@ -55,10 +55,6 @@ import java.util.List;
  * This dialog represents an explorer type of interface on a given database connection. It shows the
  * tables defined in the visible schemas or catalogs on that connection. The interface also allows
  * you to get all kinds of information on those tables.
- *
- * @author Matt
- * @since 18-05-2003
- *     <p>
  */
 @GuiPlugin
 public class DatabaseExplorerDialog extends Dialog {
@@ -668,10 +664,6 @@ public class DatabaseExplorerDialog extends Dialog {
               previewTable(table, true);
             }
           });
-      // MenuItem miEdit   = new MenuItem(mTree, SWT.PUSH); miEdit.setText("Open ["+table+"] for
-      // editing");
-      // miEdit.addSelectionListener( new SelectionAdapter() { public void
-      // widgetSelected(SelectionEvent e) { editTable(table); }});
       MenuItem miCount = new MenuItem(mTree, SWT.PUSH);
       miCount.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.ShowSize", table));
       miCount.addSelectionListener(

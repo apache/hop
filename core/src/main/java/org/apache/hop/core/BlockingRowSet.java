@@ -26,9 +26,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is
  * synchronized to allow concurrent use of multiple Threads.
- *
- * @author Matt
- * @since 04-04-2003
  */
 public class BlockingRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
   private BlockingQueue<Object[]> queArray;

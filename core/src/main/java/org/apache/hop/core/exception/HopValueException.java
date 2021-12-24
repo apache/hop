@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This exception is used in value calculations.
- *
- * @author Matt
- * @since 30-MAR-2004
- */
+/** This exception is used in value calculations. */
 public class HopValueException extends HopException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C18L;
 

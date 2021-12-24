@@ -30,8 +30,6 @@ import java.util.Date;
  * This class contains common code from {@linkplain
  * org.apache.hop.pipeline.transforms.script.Script} and {@linkplain
  * org.apache.hop.pipeline.transforms .scriptvalues_mod.ScriptValuesMod} classes
- *
- * @author Andrey Khayrutdinov
  */
 public class JavaScriptUtils {
 

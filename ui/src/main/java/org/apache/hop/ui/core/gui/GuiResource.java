@@ -1333,19 +1333,6 @@ public class GuiResource {
     Point p = control.getParent().toDisplay(r.x, r.y);
 
     return p;
-
-    /*
-     * Point location = control.getLocation();
-     *
-     * Composite parent = control.getParent(); while (parent!=null) {
-     *
-     * Composite newParent = parent.getParent(); if (newParent!=null) { location.x+=parent.getLocation().x;
-     * location.y+=parent.getLocation().y; } else { if (parent instanceof Shell) { // Top level shell. Shell shell =
-     * (Shell)parent; Rectangle bounds = shell.getBounds(); Rectangle clientArea = shell.getClientArea(); location.x +=
-     * bounds.width-clientArea.width; location.y += bounds.height-clientArea.height; } } parent = newParent; }
-     *
-     * return location;
-     */
   }
 
   /** @return the fontMedium */

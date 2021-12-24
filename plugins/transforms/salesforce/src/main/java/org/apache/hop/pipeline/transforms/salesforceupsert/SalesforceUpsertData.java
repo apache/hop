@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * @author Samatar
- * @since 10-06-2007
- */
 public class SalesforceUpsertData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

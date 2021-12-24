@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Date;
 
-/**
- * @author Samatar
- * @since 21-06-2007
- */
 public class LoadFileInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;

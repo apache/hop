@@ -36,11 +36,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Allows the user to edit the system settings of the hop.config file.
- *
- * @author Matt
- */
+/** Allows the user to edit the system settings of the hop.config file. */
 public class HopDescribedVariablesDialog extends Dialog {
   private static final Class<?> PKG = HopDescribedVariablesDialog.class; // For Translator
 

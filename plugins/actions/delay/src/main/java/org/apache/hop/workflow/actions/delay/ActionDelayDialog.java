@@ -38,12 +38,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the delay action settings.
- *
- * @author Samatar Hassan
- * @since 21-02-2007
- */
+/** This dialog allows you to edit the delay action settings. */
 public class ActionDelayDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDelay.class; // For Translator
 

@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This Exception is throws when an error occurs loading plugins.
- *
- * @author Matt
- * @since 9-12-2004
- */
+/** This Exception is throws when an error occurs loading plugins. */
 public class HopPluginLoaderException extends HopException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C16L;
 

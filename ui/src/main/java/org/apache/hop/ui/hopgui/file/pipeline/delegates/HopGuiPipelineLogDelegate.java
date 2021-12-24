@@ -181,8 +181,6 @@ public class HopGuiPipelineLogDelegate {
 
       pipelineGraph.checkEmptyExtraView();
     }
-
-    // spoon.addPipelineLog(pipelineMeta);
   }
 
   @GuiToolbarElement(
@@ -262,15 +260,15 @@ public class HopGuiPipelineLogDelegate {
     }
 
     if (err.size() > 0) {
-      String[] err_lines = new String[err.size()];
-      for (i = 0; i < err_lines.length; i++) {
-        err_lines[i] = err.get(i);
+      String[] errLines = new String[err.size()];
+      for (i = 0; i < errLines.length; i++) {
+        errLines[i] = err.get(i);
       }
 
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
               pipelineGraph.getShell(),
-              err_lines,
+              errLines,
               BaseMessages.getString(PKG, "PipelineLog.Dialog.ErrorLines.Title"),
               BaseMessages.getString(PKG, "PipelineLog.Dialog.ErrorLines.Message"));
       line = esd.open();

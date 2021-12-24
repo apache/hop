@@ -44,12 +44,7 @@ import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCac
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Looks up values in a database using keys from input streams.
- *
- * @author Matt
- * @since 26-apr-2003
- */
+/** Looks up values in a database using keys from input streams. */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData>
     implements ITransform<DatabaseLookupMeta, DatabaseLookupData> {
 

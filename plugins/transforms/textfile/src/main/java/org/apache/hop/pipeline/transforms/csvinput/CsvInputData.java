@@ -29,10 +29,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class CsvInputData extends BaseTransformData implements ITransformData {
   public FileChannel fc;
   public ByteBuffer bb;

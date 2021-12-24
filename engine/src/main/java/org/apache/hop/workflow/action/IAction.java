@@ -128,9 +128,6 @@ import java.util.Map;
  *       <br>
  *       Finally, the passed in prevResult object must be returned.
  * </ul>
- *
- * @author Matt Casters
- * @since 18-06-04
  */
 public interface IAction extends IVariables, IHasLogChannel, IExtensionData {
 

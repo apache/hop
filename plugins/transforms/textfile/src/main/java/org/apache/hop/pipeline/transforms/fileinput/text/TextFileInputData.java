@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformData;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class TextFileInputData extends BaseFileInputTransformData {
 
   public List<TextFileLine> lineBuffer;

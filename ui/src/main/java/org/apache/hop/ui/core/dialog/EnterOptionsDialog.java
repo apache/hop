@@ -54,12 +54,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Allows you to set the configurable options for the Hop environment
- *
- * @author Matt
- * @since 15-12-2003
- */
+/** Allows you to set the configurable options for the Hop environment */
 public class EnterOptionsDialog extends Dialog {
   private static final Class<?> PKG = EnterOptionsDialog.class; // For Translator
 
@@ -856,7 +851,8 @@ public class EnterOptionsDialog extends Dialog {
     transformLayout.marginWidth = 3;
     transformLayout.marginHeight = 3;
 
-    ScrolledComposite sTransformComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite sTransformComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     sTransformComp.setLayout(new FillLayout());
 
     Composite wTransformComp = new Composite(sTransformComp, SWT.NONE);
@@ -865,7 +861,8 @@ public class EnterOptionsDialog extends Dialog {
 
     // Use DB Cache?
     Label wlTableOutputSortMappings = new Label(wTransformComp, SWT.RIGHT);
-    wlTableOutputSortMappings.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.TableOutput.SortMappings.Label"));
+    wlTableOutputSortMappings.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.TableOutput.SortMappings.Label"));
     props.setLook(wlTableOutputSortMappings);
     FormData fdlSortMappings = new FormData();
     fdlSortMappings.left = new FormAttachment(0, 0);
@@ -903,7 +900,6 @@ public class EnterOptionsDialog extends Dialog {
     sTransformComp.setMinHeight(bounds.height);
 
     wTransformTab.setControl(sTransformComp);
-
 
     // ///////////////////////////////////////////////////////////
     // / END OF TRANSFORMS TAB

@@ -23,11 +23,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This class represents the transform plugin type.
- *
- * @author matt
- */
+/** This class represents the transform plugin type. */
 @PluginMainClassType(IVfs.class)
 @PluginAnnotationType(VfsPlugin.class)
 public class VfsPluginType extends BasePluginType<VfsPlugin> {

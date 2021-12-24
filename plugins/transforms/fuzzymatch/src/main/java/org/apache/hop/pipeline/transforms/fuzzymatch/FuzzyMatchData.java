@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.HashSet;
 
-/**
- * @author Samatar
- * @since 24-jan-2010
- */
 public class FuzzyMatchData extends BaseTransformData implements ITransformData {
   public IRowMeta previousRowMeta;
   public IRowMeta outputRowMeta;

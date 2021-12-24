@@ -34,12 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Adds a sequential number to a stream of rows.
- *
- * @author Matt
- * @since 13-may-2003
- */
+/** Adds a sequential number to a stream of rows. */
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
     implements ITransform<AddSequenceMeta, AddSequenceData> {
 
@@ -153,8 +148,8 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
         if (Utils.isEmpty(meta.getConnection())) {
           logError(
-                  BaseMessages.getString(
-                          PKG, "InsertUpdate.Init.ConnectionMissing", getTransformName()));
+              BaseMessages.getString(
+                  PKG, "InsertUpdate.Init.ConnectionMissing", getTransformName()));
           return false;
         }
 

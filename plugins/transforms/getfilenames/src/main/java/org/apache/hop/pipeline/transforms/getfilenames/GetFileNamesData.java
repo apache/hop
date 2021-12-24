@@ -32,10 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class GetFileNamesData extends BaseTransformData implements ITransformData {
   public List<String> lineBuffer;
 

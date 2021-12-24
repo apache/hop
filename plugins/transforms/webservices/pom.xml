@@ -34,29 +34,10 @@
     <name>Hop Plugins Transforms Web Services</name>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>javax.wsdl</groupId>-->
-<!--            <artifactId>com.springsource.javax.wsdl</artifactId>-->
-<!--            <version>1.6.1</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
             <version>1.6.2</version>
         </dependency>
     </dependencies>
-
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>Spring Plugins</id>-->
-<!--            <url>https://repo.spring.io/libs-milestone/</url>-->
-<!--            <name>Spring Plugins</name>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--            </releases>-->
-<!--        </repository>-->
-<!--    </repositories>-->
 </project>

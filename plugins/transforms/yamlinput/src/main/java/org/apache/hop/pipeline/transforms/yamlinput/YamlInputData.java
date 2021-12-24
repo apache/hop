@@ -23,10 +23,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 21-06-2007
- */
 public class YamlInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

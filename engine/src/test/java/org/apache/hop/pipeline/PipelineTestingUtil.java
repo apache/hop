@@ -27,7 +27,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-/** @author Andrey Khayrutdinov */
 public class PipelineTestingUtil {
 
   public static List<Object[]> execute(

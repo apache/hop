@@ -25,10 +25,6 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class CubeInputData extends BaseTransformData implements ITransformData {
   public InputStream fis;
   public GZIPInputStream zip;

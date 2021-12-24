@@ -21,12 +21,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
 
-/**
- * Describes an Property field
- *
- * @author Samatar Hassan
- * @since 24-03-2008
- */
+/** Describes an Property field */
 public class PropertyInputField implements Cloneable {
   private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
 

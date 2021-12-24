@@ -549,11 +549,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     dispose();
   }
 
-  /**
-   * Listener for Configure Keys button
-   *
-   * @author A71481
-   */
+  /** Listener for Configure Keys button */
   private static class ConfigureKeyButtonListener implements Listener {
     MultiMergeJoinDialog dialog;
     Text textBox;

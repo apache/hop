@@ -23,12 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 import java.util.HashSet;
 
-/**
- * Describes an LDAP Input
- *
- * @author Samatar Hassan
- * @since 21-09-2007
- */
+/** Describes an LDAP Input */
 public class LdapInputField implements Cloneable {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 

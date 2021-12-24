@@ -23,8 +23,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 /**
  * Data class to allow a java program to inject rows of data into a pipeline. This transform can be
  * used as a starting point in such a "headless" pipeline.
- *
- * @since 22-jun-2006
  */
 public class InjectorData extends BaseTransformData implements ITransformData {
   /** Default constructor. */

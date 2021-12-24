@@ -28,11 +28,7 @@ import org.apache.hop.core.util.Utils;
 
 import java.util.*;
 
-/**
- * This class is an implementation of IVariables
- *
- * @author Sven Boden
- */
+/** This class is an implementation of IVariables */
 public class Variables implements IVariables {
   private Map<String, String> properties;
 

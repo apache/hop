@@ -46,12 +46,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the SendNagiosPassiveCheck action settings.
- *
- * @author Samatar
- * @since 01-10-2011
- */
+/** This dialog allows you to edit the SendNagiosPassiveCheck action settings. */
 public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // For Translator
 

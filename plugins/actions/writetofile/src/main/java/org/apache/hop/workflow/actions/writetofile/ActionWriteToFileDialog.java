@@ -42,12 +42,7 @@ import org.eclipse.swt.widgets.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-/**
- * This dialog allows you to edit the Write to file action settings.
- *
- * @author Samatar Hassan
- * @since 28-01-2007
- */
+/** This dialog allows you to edit the Write to file action settings. */
 public class ActionWriteToFileDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 

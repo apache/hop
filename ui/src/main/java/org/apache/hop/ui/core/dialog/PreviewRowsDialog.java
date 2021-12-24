@@ -47,12 +47,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Displays an ArrayList of rows in a TableView.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Displays an ArrayList of rows in a TableView. */
 public class PreviewRowsDialog {
   private static final Class<?> PKG = PreviewRowsDialog.class; // For Translator
 
@@ -68,12 +63,15 @@ public class PreviewRowsDialog {
 
   private final List<Object[]> buffer;
 
-  private String title, message;
+  private String title;
+  private String message;
 
   private Rectangle bounds;
 
-  private int hscroll, vscroll;
-  private int hmax, vmax;
+  private int hscroll;
+  private int vscroll;
+  private int hmax;
+  private int vmax;
 
   private final String loggingText;
 
@@ -175,11 +173,7 @@ public class PreviewRowsDialog {
 
     Button wClose = new Button(shell, SWT.PUSH);
     wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
-    wClose.addListener(
-        SWT.Selection,
-        e -> {
-          cancel();
-        });
+    wClose.addListener(SWT.Selection, e -> cancel());
     buttons.add(wClose);
 
     if (!Utils.isEmpty(loggingText)) {
@@ -193,11 +187,7 @@ public class PreviewRowsDialog {
       Button wStop = new Button(shell, SWT.PUSH);
       wStop.setText(BaseMessages.getString(PKG, "PreviewRowsDialog.Button.Stop.Label"));
       wStop.setToolTipText(BaseMessages.getString(PKG, "PreviewRowsDialog.Button.Stop.ToolTip"));
-      wStop.addListener(
-          SWT.Selection,
-          e -> {
-            cancel();
-          });
+      wStop.addListener(SWT.Selection, e -> cancel());
       buttons.add(wStop);
     }
 
@@ -540,7 +530,6 @@ public class PreviewRowsDialog {
                 wFields.table.remove(0);
               }
 
-              // wFields.table.setSelection(new TableItem[] { item, });
               wFields.table.setTopIndex(wFields.table.getItemCount() - 1);
             });
   }

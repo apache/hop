@@ -48,7 +48,6 @@ import org.eclipse.swt.widgets.*;
 
 import java.io.IOException;
 
-/** Created by bmorrise on 1/6/17. */
 public abstract class ActionBaseDialog extends ActionDialog {
   public static final Class<?> PKG = ActionBaseDialog.class;
 
@@ -66,7 +65,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Label wlName;
   protected Text wName;
-  protected FormData fdlName, fdName;
+  protected FormData fdlName;
+  protected FormData fdName;
 
   protected Button wSetLogfile;
 
@@ -104,8 +104,10 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Group gExecution;
 
-  protected Button wOk, wCancel;
-  protected Listener lsOk, lsCancel;
+  protected Button wOk;
+  protected Button wCancel;
+  protected Listener lsOk;
+  protected Listener lsCancel;
 
   protected Shell shell;
 
@@ -546,11 +548,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
       }
     }
   }
-
-  //  protected void setRadioButtons() {
-  //    wLocal.setVisible( wbLocal.getSelection() );
-  //    wServer.setVisible( wbServer.getSelection() );
-  //  }
 
   protected void setActive() {
 
