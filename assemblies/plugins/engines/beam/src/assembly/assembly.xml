@@ -174,7 +174,6 @@
         <include>io.dropwizard.metrics:metrics-jvm</include>
         <include>io.github.classgraph:classgraph</include>
 
-        <!--<include>io.grpc:grpc-all</include>-->
 
         <include>io.grpc:grpc-alts</include>
         <include>io.grpc:grpc-api</include>
@@ -190,7 +189,6 @@
         <include>io.grpc:grpc-stub</include>
         <include>io.grpc:grpc-testing</include>
 
-        <!--<include>io.netty:netty-all</include>-->
 
         <include>io.netty:netty</include>
         <include>io.netty:netty-buffer</include>
