@@ -196,8 +196,6 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
         SchemaFactory factoryXSDValidator =
             SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        factoryXSDValidator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factoryXSDValidator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
         xsdfile = HopVfs.getFileObject(xsdfilename);
 
