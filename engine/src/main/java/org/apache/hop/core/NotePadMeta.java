@@ -24,12 +24,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
-/**
- * Describes a note displayed on a Pipeline or Workflow.
- *
- * @author Matt
- * @since 28-11-2003
- */
+/** Describes a note displayed on a Pipeline or Workflow. */
 public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   public static final String XML_TAG = "notepad";
 

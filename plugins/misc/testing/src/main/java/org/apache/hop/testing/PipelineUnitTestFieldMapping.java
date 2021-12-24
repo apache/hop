@@ -22,8 +22,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 /**
  * This class simply describes a mapping between the transform fields we want to test and the data
  * set fields you want to match with.
- *
- * @author matt
  */
 public class PipelineUnitTestFieldMapping {
 

@@ -37,11 +37,7 @@ import java.sql.Timestamp;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Regression test
- *
- * @author Pavel Sakun
- */
+/** Regression test */
 public class PDI_11152_Test {
   TransformMockHelper<UpdateMeta, UpdateData> smh;
 

@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.logging;
 
-/**
- * This enumeration describes the logging status in a logging table for pipelines and workflows.
- *
- * @author matt
- */
+/** This enumeration describes the logging status in a logging table for pipelines and workflows. */
 public enum LogStatus {
   START("start"),
   END("end"),

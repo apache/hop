@@ -20,12 +20,7 @@ package org.apache.hop.pipeline.transforms.xml.addxml;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
 
-/**
- * Describes a single field in an XML output file
- *
- * @author Matt
- * @since 14-jan-2006
- */
+/** Describes a single field in an XML output file */
 public class XmlField implements Cloneable {
 
   @Injection(name = "OUTPUT_FIELD_NAME", group = "OUTPUT_FIELDS")

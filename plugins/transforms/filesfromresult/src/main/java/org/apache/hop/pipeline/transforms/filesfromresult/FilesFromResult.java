@@ -29,12 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Reads results from a previous pipeline in a Workflow
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Reads results from a previous pipeline in a Workflow */
 public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData>
     implements ITransform<FilesFromResultMeta, FilesFromResultData> {
 

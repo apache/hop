@@ -41,11 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-/**
- * Displays an ArrayList of rows in a TableView and allows you to select one.
- *
- * @author Matt
- */
+/** Displays an ArrayList of rows in a TableView and allows you to select one. */
 public class SelectRowDialog extends Dialog {
   private static final Class<?> PKG = SelectRowDialog.class; // For Translator
 

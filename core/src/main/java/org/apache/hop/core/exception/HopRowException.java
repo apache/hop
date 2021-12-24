@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This exception is used in row manipulations
- *
- * @author Matt
- * @since 23-MAR-2007
- */
+/** This exception is used in row manipulations */
 public class HopRowException extends HopException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C18L;
 

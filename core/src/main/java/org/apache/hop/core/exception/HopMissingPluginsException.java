@@ -24,12 +24,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This Exception is throws when an error occurs loading plugins.
- *
- * @author Matt
- * @since 9-12-2004
- */
+/** This Exception is throws when an error occurs loading plugins. */
 public class HopMissingPluginsException extends HopException {
   private static final long serialVersionUID = -3008319146447259788L;
 

@@ -39,12 +39,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Dialog that allows you to edit the transform error handling meta-data
- *
- * @author Matt
- * @since 31-10-2006
- */
+/** Dialog that allows you to edit the transform error handling meta-data */
 public class TransformErrorMetaDialog extends Dialog {
   private static final Class<?> PKG = ITransform.class; // For Translator
 

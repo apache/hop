@@ -38,8 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>The runner stores results of all actors, though in most cases this information is needless -
  * what is important that is the fact the execution has completed with no errors.
- *
- * @author Andrey Khayrutdinov
  */
 class ConcurrencyTestRunner<M, B> {
 

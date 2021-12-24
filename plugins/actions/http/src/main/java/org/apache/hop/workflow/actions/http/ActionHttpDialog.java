@@ -49,9 +49,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the SQL action settings. (select the connection and the sql script
  * to be executed)
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class ActionHttpDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionHttp.class; // For Translator

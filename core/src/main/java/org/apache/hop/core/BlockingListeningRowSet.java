@@ -29,9 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * synchronized to allow concurrent use of multiple Threads.
  *
  * <p>This class also monitors the idle state of a IRowSet
- *
- * @author Matt
- * @since 23-12-2010
  */
 public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
   private BlockingQueue<Object[]> queArray;

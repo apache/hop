@@ -39,12 +39,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Create Folder action settings.
- *
- * @author Sven/Samatar
- * @since 17-10-2007
- */
+/** This dialog allows you to edit the Create Folder action settings. */
 public class ActionCreateFolderDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCreateFolder.class; // For Translator
 

@@ -41,9 +41,6 @@ import java.util.Map;
 /**
  * This class describes the fact that a single Action can be used multiple times in the same
  * Workflow. Therefore it contains a link to a Action, a position, a number, etc.
- *
- * @author Matt
- * @since 01-10-2003
  */
 public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttributes, IBaseMeta {
   public static final String XML_TAG = "action";

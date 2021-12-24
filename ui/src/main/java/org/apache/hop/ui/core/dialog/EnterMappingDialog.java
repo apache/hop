@@ -39,9 +39,6 @@ import java.util.Comparator;
 
 /**
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
- *
- * @author Matt
- * @since 23-03-2006
  */
 public class EnterMappingDialog extends Dialog {
   private static final Class<?> PKG = EnterMappingDialog.class; // For Translator

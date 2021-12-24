@@ -117,11 +117,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
   @Injection(name = "COMMIT_SIZE")
   private int commitSize;
 
-  /**
-   * Preload the cache, defaults to false
-   *
-   * @author nicow2
-   */
+  /** Preload the cache, defaults to false */
   @Injection(name = "PRELOAD_CACHE")
   private boolean preloadCache = false;
 

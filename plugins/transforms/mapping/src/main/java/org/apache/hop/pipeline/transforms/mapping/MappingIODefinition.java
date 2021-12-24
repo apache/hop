@@ -25,13 +25,7 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Helps to define the input or output specifications for the Mapping transform.
- *
- * @author matt
- * @version 3.0
- * @since 2007-07-26
- */
+/** Helps to define the input or output specifications for the Mapping transform. */
 public class MappingIODefinition implements Cloneable {
 
   public static final String XML_TAG = "mapping";

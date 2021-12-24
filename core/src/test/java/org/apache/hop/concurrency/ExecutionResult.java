@@ -20,7 +20,6 @@ package org.apache.hop.concurrency;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-/** @author Andrey Khayrutdinov */
 class ExecutionResult<T> {
   static <T> ExecutionResult<T> from(Future<? extends T> future) {
     try {

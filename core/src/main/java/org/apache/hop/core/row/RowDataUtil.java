@@ -32,8 +32,6 @@ package org.apache.hop.core.row;
  * over-allocated and has enough slots. If a transform needs to create new rows from scratch, it
  * should use allocateRowData() which will return a somewhat over-allocated object array to fit the
  * desired number of fields.
- *
- * @author Matt
  */
 public class RowDataUtil {
   public static int OVER_ALLOCATE_SIZE = 10;

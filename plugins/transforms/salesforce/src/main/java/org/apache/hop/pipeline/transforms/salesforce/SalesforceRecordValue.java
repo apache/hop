@@ -21,12 +21,7 @@ import com.sforce.soap.partner.sobject.SObject;
 
 import java.util.Date;
 
-/**
- * Store a record from Salesforce extraction.
- *
- * @author Samatar
- * @since 10-06-2007
- */
+/** Store a record from Salesforce extraction. */
 public class SalesforceRecordValue {
 
   private int recordIndex;

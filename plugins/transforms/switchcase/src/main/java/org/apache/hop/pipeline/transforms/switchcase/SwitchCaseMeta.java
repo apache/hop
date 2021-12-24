@@ -428,11 +428,7 @@ public class SwitchCaseMeta extends BaseTransformMeta
     this.caseTargets = caseTargets;
   }
 
-  /**
-   * This method is added to exclude certain transforms from copy/distribute checking.
-   *
-   * @since 4.0.0
-   */
+  /** This method is added to exclude certain transforms from copy/distribute checking. */
   @Override
   public boolean excludeFromCopyDistributeVerification() {
     return true;

@@ -34,12 +34,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-/**
- * This dialogs allows you to select a number of items from a list of strings.
- *
- * @author Matt
- * @since 21-10-2004
- */
+/** This dialogs allows you to select a number of items from a list of strings. */
 public class EnterListDialog extends Dialog {
   private static final Class<?> PKG = EnterListDialog.class; // For Translator
 

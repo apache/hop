@@ -37,12 +37,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Dialog to display the results of a verify operation.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to display the results of a verify operation. */
 public class CheckResultDialog extends Dialog {
   private static final Class<?> PKG = CheckResultDialog.class; // For Translator
 

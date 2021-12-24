@@ -35,12 +35,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog to enter a text. (descriptions etc.)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to enter a text. (descriptions etc.) */
 public class EnterTextDialog extends Dialog {
   private static final Class<?> PKG = EnterTextDialog.class; // For Translator
 
@@ -173,10 +168,12 @@ public class EnterTextDialog extends Dialog {
     wDesc.setLayoutData(fdDesc);
     wDesc.setEditable(!readonly);
     wDesc.addListener(SWT.DefaultSelection, e -> ok());
-    wDesc.addListener(SWT.Modify, e -> {
-      Text source = (Text) e.widget;
-      this.text = source.getText();
-    });
+    wDesc.addListener(
+        SWT.Modify,
+        e -> {
+          Text source = (Text) e.widget;
+          this.text = source.getText();
+        });
 
     enrich(this);
 
@@ -273,9 +270,8 @@ public class EnterTextDialog extends Dialog {
     this.fixed = fixed;
   }
 
-  //An enrich method is provided for enrich the shell. By default, it does nothing.
-  public void enrich(EnterTextDialog enterTextDialog) {
-  }
+  // An enrich method is provided for enrich the shell. By default, it does nothing.
+  public void enrich(EnterTextDialog enterTextDialog) {}
 
   public Label getWlDesc() {
     return wlDesc;
@@ -294,7 +290,7 @@ public class EnterTextDialog extends Dialog {
     return text;
   }
 
-  public void setWOkListener(Listener listener){
+  public void setWOkListener(Listener listener) {
     wOk.addListener(SWT.Selection, listener);
   }
 }

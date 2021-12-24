@@ -46,12 +46,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog that allows you to enter the settings for a Shell action.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog that allows you to enter the settings for a Shell action. */
 public class ActionShellDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionShell.class; // For Translator
 

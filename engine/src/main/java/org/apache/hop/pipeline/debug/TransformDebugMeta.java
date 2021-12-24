@@ -27,8 +27,6 @@ import java.util.List;
 /**
  * This class is used to define debugging meta data for a certain transform. Basically it defines
  * for which condition a break-point becomes active.
- *
- * @author Matt
  */
 public class TransformDebugMeta {
 

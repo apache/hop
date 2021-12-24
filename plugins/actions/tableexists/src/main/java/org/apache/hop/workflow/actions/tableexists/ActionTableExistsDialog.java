@@ -49,9 +49,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the Table Exists action settings. (select the connection and the
  * table to be checked) This entry type evaluates!
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class ActionTableExistsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator

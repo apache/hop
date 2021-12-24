@@ -44,12 +44,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'copy files' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'copy files' action. */
 @Action(
     id = "COPY_FILES",
     name = "i18n::ActionCopyFiles.Name",

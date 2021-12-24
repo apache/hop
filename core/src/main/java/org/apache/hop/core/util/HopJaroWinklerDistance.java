@@ -30,8 +30,6 @@ import java.util.Arrays;
  * http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance</a>.
  *
  * <p>This code has been adapted from Apache Commons Lang 3.3.
- *
- * @since 1.0
  */
 public class HopJaroWinklerDistance {
 

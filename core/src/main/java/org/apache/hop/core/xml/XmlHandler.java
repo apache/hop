@@ -1196,12 +1196,7 @@ public class XmlHandler {
   }
 }
 
-/**
- * Handle external references and return an empty dummy document.
- *
- * @author jb
- * @since 2007-12-21
- */
+/** Handle external references and return an empty dummy document. */
 class DTDIgnoringEntityResolver implements EntityResolver {
   @Override
   public InputSource resolveEntity(java.lang.String publicID, java.lang.String systemID)

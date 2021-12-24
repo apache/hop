@@ -22,9 +22,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 /**
  * This class contains all that is needed to execute an SQL statement in a database. --> The
  * Database connection --> The SQL statement
- *
- * @author Matt
- * @since 02-dec-2004
  */
 public class SqlStatement {
   private String transformName;

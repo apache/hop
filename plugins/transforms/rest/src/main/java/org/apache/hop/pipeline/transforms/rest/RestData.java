@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.ws.rs.core.MediaType;
 
-/**
- * @author Samatar
- * @since 16-jan-2011
- */
 public class RestData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta inputRowMeta;

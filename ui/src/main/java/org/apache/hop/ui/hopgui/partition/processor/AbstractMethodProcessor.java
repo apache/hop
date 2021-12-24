@@ -23,7 +23,6 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
-/** @author Evgeniy_Lyakhov@epam.com */
 public abstract class AbstractMethodProcessor implements IMethodProcessor {
 
   public String askForSchema(String[] schemaNames, Shell shell, int defaultSelectedSchemaIndex) {

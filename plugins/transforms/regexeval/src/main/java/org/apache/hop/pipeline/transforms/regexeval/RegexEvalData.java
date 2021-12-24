@@ -23,13 +23,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.regex.Pattern;
 
-/**
- * Runtime data for the RegexEval transform.
- *
- * @author Samatar Hassan
- * @author Daniel Einspanjer
- * @since 27-03-2008
- */
+/** Runtime data for the RegexEval transform. */
 public class RegexEvalData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

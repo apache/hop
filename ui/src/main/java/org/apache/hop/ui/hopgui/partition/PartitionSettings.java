@@ -30,7 +30,6 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import java.util.Collections;
 import java.util.List;
 
-/** @author Evgeniy_Lyakhov@epam.com */
 public class PartitionSettings {
 
   private final TransformMeta transformMeta;

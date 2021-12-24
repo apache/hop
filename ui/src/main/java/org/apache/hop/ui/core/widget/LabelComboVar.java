@@ -30,12 +30,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-/**
- * Adds a line of text with a label and a variable to a composite (like a dialog shell)
- *
- * @author Matt
- * @since 17-may-2006
- */
+/** Adds a line of text with a label and a variable to a composite (like a dialog shell) */
 public class LabelComboVar extends Composite {
   private static final PropsUi props = PropsUi.getInstance();
 

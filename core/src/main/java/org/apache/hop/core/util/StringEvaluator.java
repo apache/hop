@@ -34,8 +34,6 @@ import java.util.regex.Pattern;
 /**
  * This class evaluates strings and extracts a data type. It allows you to criteria after which the
  * analysis should be completed.
- *
- * @author matt
  */
 public class StringEvaluator {
 

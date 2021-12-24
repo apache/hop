@@ -25,12 +25,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Do nothing. Pass all input data to the next transforms.
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Do nothing. Pass all input data to the next transforms. */
 public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData>
     implements ITransform<MappingOutputMeta, MappingOutputData> {
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator

@@ -24,11 +24,7 @@ import org.apache.hop.core.util.Utils;
 
 import java.util.Map;
 
-/**
- * This class represents the logging plugin type.
- *
- * @author matt
- */
+/** This class represents the logging plugin type. */
 @PluginMainClassType(ILoggingPlugin.class)
 @PluginAnnotationType(LoggingPlugin.class)
 public class LoggingPluginType extends BasePluginType<LoggingPlugin> {

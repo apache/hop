@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * Dialog that allows you to edit the settings of a Splunk connection
  *
- * @author Matt
  * @see SplunkConnection
  */
 public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {

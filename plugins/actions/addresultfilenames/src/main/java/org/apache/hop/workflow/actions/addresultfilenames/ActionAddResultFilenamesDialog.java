@@ -42,12 +42,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Delete Files action settings.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This dialog allows you to edit the Delete Files action settings. */
 public class ActionAddResultFilenamesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionAddResultFilenamesDialog.class; // For Translator
 

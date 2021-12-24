@@ -35,12 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for column exist action.
- *
- * @author Tim Ryzhov
- * @since 21-03-2017
- */
+/** Unit tests for column exist action. */
 public class WorkflowActionColumnsExistTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

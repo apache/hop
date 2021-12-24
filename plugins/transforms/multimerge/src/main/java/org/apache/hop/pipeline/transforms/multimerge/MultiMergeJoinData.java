@@ -27,10 +27,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
-/**
- * @author Biswapesh
- * @since 24-nov-2005
- */
 public class MultiMergeJoinData extends BaseTransformData implements ITransformData {
   public static class QueueEntry {
     public Object[] row;

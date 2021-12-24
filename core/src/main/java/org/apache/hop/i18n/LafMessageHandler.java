@@ -19,7 +19,6 @@ package org.apache.hop.i18n;
 
 import org.apache.hop.laf.BasePropertyHandler;
 
-/** @author dhushon */
 public class LafMessageHandler extends GlobalMessages {
 
   private static String replace = "org.apache.hop";

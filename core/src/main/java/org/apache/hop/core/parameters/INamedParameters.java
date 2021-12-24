@@ -19,11 +19,7 @@ package org.apache.hop.core.parameters;
 
 import org.apache.hop.core.variables.IVariables;
 
-/**
- * Interface to implement named parameters.
- *
- * @author Sven Boden
- */
+/** Interface to implement named parameters. */
 public interface INamedParameters extends INamedParameterDefinitions {
 
   /**

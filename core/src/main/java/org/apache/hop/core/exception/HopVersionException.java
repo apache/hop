@@ -19,12 +19,7 @@ package org.apache.hop.core.exception;
 
 import org.apache.hop.core.Const;
 
-/**
- * This is a general Hop Exception.
- *
- * @author Matt
- * @since 9-12-2004
- */
+/** This is a general Hop Exception. */
 public class HopVersionException extends Exception {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C12L;
 

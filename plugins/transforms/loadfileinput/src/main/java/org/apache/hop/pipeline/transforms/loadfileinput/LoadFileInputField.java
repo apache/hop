@@ -25,12 +25,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
-/**
- * Describes a field
- *
- * @author Samatar
- * @since 20-06-2007
- */
+/** Describes a field */
 public class LoadFileInputField implements Cloneable {
   private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
 

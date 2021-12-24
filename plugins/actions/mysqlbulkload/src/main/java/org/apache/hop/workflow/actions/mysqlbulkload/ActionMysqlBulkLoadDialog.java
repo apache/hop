@@ -49,12 +49,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog class for the MySqlBulkLoader.
- *
- * @author Samatar Hassan
- * @since Jan-2007
- */
+/** Dialog class for the MySqlBulkLoader. */
 public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMysqlBulkLoad.class; // For Translator
 

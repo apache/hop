@@ -22,10 +22,6 @@ import com.sforce.soap.partner.sobject.SObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 
-/*
- * @author Samatar
- * @since 10-06-2007
- */
 public class SalesforceInsertData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

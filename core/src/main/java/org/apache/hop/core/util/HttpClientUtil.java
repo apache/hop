@@ -39,9 +39,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Utility class contained useful methods while working with {@link
  * org.apache.http.client.HttpClient HttpClient}
- *
- * @author Yury_Bakhmutski
- * @since 06-27-2017
  */
 public class HttpClientUtil {
 

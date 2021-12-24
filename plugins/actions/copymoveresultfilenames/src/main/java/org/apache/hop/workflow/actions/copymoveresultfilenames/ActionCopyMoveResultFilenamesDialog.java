@@ -40,12 +40,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Copy/Move result filenames action settings.
- *
- * @author Samatar
- * @since 26-02-2008
- */
+/** This dialog allows you to edit the Copy/Move result filenames action settings. */
 public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
 

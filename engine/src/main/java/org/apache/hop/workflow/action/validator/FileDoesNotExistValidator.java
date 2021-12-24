@@ -27,11 +27,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Fails if a field's value is a filename and the file does not exist.
- *
- * @author mlowery
- */
+/** Fails if a field's value is a filename and the file does not exist. */
 public class FileDoesNotExistValidator extends AbstractFileValidator {
 
   private static final String KEY_FAIL_IF_EXISTS =

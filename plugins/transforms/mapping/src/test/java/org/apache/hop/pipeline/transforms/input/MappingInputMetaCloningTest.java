@@ -37,7 +37,6 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
-/** @author Andrey Khayrutdinov */
 public class MappingInputMetaCloningTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

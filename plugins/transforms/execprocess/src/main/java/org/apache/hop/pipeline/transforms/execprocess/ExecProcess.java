@@ -35,12 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Execute a process *
- *
- * @author Samatar
- * @since 03-11-2008
- */
+/** Execute a process * */
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     implements ITransform<ExecProcessMeta, ExecProcessData> {
 

@@ -33,12 +33,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to enter a number.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to enter a number. */
 public class EnterNumberDialog extends Dialog {
   private static final Class<?> PKG = EnterNumberDialog.class; // For Translator
 

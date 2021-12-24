@@ -40,7 +40,6 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-/** @author Luis Martins */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ValueMetaFactory.class})
 public class MemoryGroupByMetaGetFieldsTest {

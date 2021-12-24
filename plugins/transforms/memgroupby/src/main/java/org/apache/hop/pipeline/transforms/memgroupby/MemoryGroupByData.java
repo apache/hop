@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.HashMap;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class MemoryGroupByData extends BaseTransformData implements ITransformData {
   public class HashEntry {
     private Object[] groupData;

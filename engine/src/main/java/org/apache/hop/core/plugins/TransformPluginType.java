@@ -23,11 +23,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.util.Map;
 
-/**
- * This class represents the transform plugin type.
- *
- * @author matt
- */
+/** This class represents the transform plugin type. */
 @PluginMainClassType(ITransformMeta.class)
 @PluginAnnotationType(Transform.class)
 public class TransformPluginType extends BasePluginType<Transform> {

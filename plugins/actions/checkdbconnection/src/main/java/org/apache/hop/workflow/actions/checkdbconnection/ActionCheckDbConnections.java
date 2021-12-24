@@ -41,12 +41,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This check db connections
- *
- * @author Samatar
- * @since 10-12-2007
- */
+/** This check db connections */
 @Action(
     id = "CHECK_DB_CONNECTIONS",
     name = "i18n::ActionCheckDbConnections.Name",

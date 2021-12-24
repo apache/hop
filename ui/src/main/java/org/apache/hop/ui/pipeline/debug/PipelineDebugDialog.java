@@ -51,12 +51,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.Hashtable;
 import java.util.Map;
 
-/**
- * Allows you to edit/enter the pipeline debugging information
- *
- * @author matt
- * @since version 3.0 RC1
- */
+/** Allows you to edit/enter the pipeline debugging information */
 public class PipelineDebugDialog extends Dialog {
   private static final Class<?> PKG = PipelineDebugDialog.class; // For Translator
 

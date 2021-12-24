@@ -31,10 +31,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class TextFileOutputData extends BaseTransformData implements ITransformData {
 
   interface IFileStreamsCollection {

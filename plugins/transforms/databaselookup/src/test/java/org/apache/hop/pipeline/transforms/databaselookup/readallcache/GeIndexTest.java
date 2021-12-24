@@ -26,7 +26,6 @@ import java.util.List;
 
 import static org.junit.Assert.fail;
 
-/** @author Andrey Khayrutdinov */
 @RunWith(Parameterized.class)
 public class GeIndexTest extends IndexTestBase<LtIndex> {
 

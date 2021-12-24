@@ -19,12 +19,7 @@ package org.apache.hop.ui.i18n;
 
 import org.apache.commons.vfs2.FileObject;
 
-/**
- * Contains the occurrence of a key in a java source code file
- *
- * @author matt
- * @since 2007-09-29
- */
+/** Contains the occurrence of a key in a java source code file */
 public class KeyOccurrence implements Comparable<KeyOccurrence> {
   /** The java source file */
   private FileObject fileObject;

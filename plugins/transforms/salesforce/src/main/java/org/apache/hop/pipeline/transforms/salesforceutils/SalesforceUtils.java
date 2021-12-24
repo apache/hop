@@ -22,11 +22,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 import java.util.regex.Pattern;
 
-/**
- * Utility class to process salesforce specific features.
- *
- * @author Tatsiana_Kasiankova
- */
+/** Utility class to process salesforce specific features. */
 public class SalesforceUtils {
 
   private SalesforceUtils() {}

@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.mailinput;
 /**
  * Tests for MailInputMeta class
  *
- * @author Marc Batchelor - removed useless test case, added load/save tests
  * @see MailInputMeta
  */
 import org.apache.commons.lang.builder.EqualsBuilder;

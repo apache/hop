@@ -49,9 +49,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  *       opened
  *   <li>open() must return null
  * </ul>
- *
- * @author Matt
- * @since 29-okt-2004
  */
 public interface IActionDialog {
 

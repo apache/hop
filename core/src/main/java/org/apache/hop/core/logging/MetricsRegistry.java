@@ -27,8 +27,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * This singleton will capture all the metrics coming from the various log channels based on the log
  * channel ID.
- *
- * @author matt
  */
 public class MetricsRegistry {
   private static MetricsRegistry registry = new MetricsRegistry();

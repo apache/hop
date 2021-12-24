@@ -48,12 +48,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'check files locked' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'check files locked' action. */
 @Action(
     id = "CHECK_FILES_LOCKED",
     name = "i18n::ActionCheckFilesLocked.Name",

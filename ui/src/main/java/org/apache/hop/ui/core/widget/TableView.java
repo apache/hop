@@ -58,12 +58,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-/**
- * Widget to display or modify data, displayed in a Table format.
- *
- * @author Matt
- * @since 27-05-2003
- */
+/** Widget to display or modify data, displayed in a Table format. */
 public class TableView extends Composite {
 
   public interface ITableViewModifyListener {

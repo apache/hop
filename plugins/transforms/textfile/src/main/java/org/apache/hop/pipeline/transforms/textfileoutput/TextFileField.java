@@ -21,12 +21,7 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 
-/**
- * Describes a single field in a text file
- *
- * @author Matt
- * @since 11-05-2005
- */
+/** Describes a single field in a text file */
 public class TextFileField implements Cloneable {
   @Injection(name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS")
   private String name;

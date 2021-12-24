@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This exception is throws when and error is found in an XML snippet.
- *
- * @author Matt
- * @since 9-12-2004
- */
+/** This exception is throws when and error is found in an XML snippet. */
 public class HopXmlException extends HopException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C19L;
 

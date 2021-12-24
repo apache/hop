@@ -26,12 +26,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Writes results to a next pipeline in a Job
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Writes results to a next pipeline in a Job */
 public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultData>
     implements ITransform<RowsToResultMeta, RowsToResultData> {
   private static final Class<?> PKG = RowsToResult.class; // For Translator

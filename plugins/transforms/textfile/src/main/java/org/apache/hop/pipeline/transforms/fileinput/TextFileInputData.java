@@ -31,11 +31,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import java.io.InputStreamReader;
 import java.util.*;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- * @deprecated replaced by implementation in the ...transforms.fileinput.text package
- */
+/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
 @Deprecated
 public class TextFileInputData extends BaseTransformData implements ITransformData {
 

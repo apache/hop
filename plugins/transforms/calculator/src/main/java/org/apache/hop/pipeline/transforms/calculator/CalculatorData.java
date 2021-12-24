@@ -27,10 +27,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Matt
- * @since 8-sep-2005
- */
 public class CalculatorData extends BaseTransformData implements ITransformData {
   private IRowMeta outputRowMeta;
   private IRowMeta calcRowMeta;

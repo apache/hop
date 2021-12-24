@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-/** @author Andrey Khayrutdinov */
 public class EnumLoadSaveValidator<E extends Enum<E>> implements IFieldLoadSaveValidator<E> {
 
   private final Enum<E>[] values;

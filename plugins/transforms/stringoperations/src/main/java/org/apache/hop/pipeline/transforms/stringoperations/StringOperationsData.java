@@ -21,12 +21,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * Apply certain operations too string.
- *
- * @author Samatar Hassan
- * @since 02 April 2009
- */
+/** Apply certain operations too string. */
 public class StringOperationsData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs; // string infields

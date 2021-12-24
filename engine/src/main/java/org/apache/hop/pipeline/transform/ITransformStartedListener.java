@@ -19,11 +19,7 @@ package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
-/**
- * This listener informs the audience when a transform starts processing.
- *
- * @author matt
- */
+/** This listener informs the audience when a transform starts processing. */
 public interface ITransformStartedListener {
 
   /**

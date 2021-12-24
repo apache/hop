@@ -37,8 +37,6 @@ import java.lang.reflect.Method;
  * FormInput.Position.LEFT ); input.setPosition( 0, 130, FormInput.Widget.LABEL,
  * FormInput.Position.RIGHT ); input.setPosition( input.getLabel( ), 10, FormInput.Widget.INPUT,
  * FormInput.Position.LEFT );
- *
- * @author Robert D. Rice
  */
 public class FormInput<C extends Control> extends Object {
   public static final String vc_id = "$Id: FormInput.java 1672 2009-05-20 20:12:26Z robert $";

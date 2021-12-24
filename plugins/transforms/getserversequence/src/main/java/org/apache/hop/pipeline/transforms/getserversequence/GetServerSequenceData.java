@@ -22,10 +22,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.server.HopServer;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class GetServerSequenceData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public HopServer hopServer;

@@ -39,12 +39,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Create File action settings.
- *
- * @author Sven Boden
- * @since 28-01-2007
- */
+/** This dialog allows you to edit the Create File action settings. */
 public class ActionCreateFileDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCreateFile.class; // For Translator
 

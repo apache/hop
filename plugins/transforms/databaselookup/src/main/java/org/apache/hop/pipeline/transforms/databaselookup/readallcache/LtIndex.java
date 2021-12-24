@@ -21,7 +21,6 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/** @author Andrey Khayrutdinov */
 class LtIndex extends Index {
 
   static Index greaterOrEqualCache(int column, IValueMeta valueMeta, int rowsAmount) {

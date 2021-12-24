@@ -45,7 +45,6 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for FieldSplitter transform
  *
- * @author Pavel Sakun
  * @see FieldSplitter
  */
 public class FieldSplitterTest {

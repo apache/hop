@@ -20,12 +20,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 
-/**
- * Custom filename that represents an S3 file with the bucket and its relative path
- *
- * @author asimoes
- * @since 09-11-2017
- */
+/** Custom filename that represents an S3 file with the bucket and its relative path */
 public class S3FileName extends AbstractFileName {
   public static final String DELIMITER = "/";
 

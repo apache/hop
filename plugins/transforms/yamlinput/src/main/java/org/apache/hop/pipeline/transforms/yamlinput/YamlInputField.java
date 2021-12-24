@@ -28,9 +28,6 @@ import org.w3c.dom.Node;
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar
- * @since 20-06-2007
  */
 public class YamlInputField implements Cloneable {
   private static final Class<?> PKG = YamlInputMeta.class; // For Translator

@@ -37,12 +37,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Telnet action settings.
- *
- * @author Samatar
- * @since 19-06-2006
- */
+/** This dialog allows you to edit the Telnet action settings. */
 public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTelnet.class; // For Translator
 

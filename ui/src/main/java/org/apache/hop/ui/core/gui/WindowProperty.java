@@ -28,12 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * This class stores information about a screen, window, etc.
- *
- * @author Matt
- * @since 08-04-2004
- */
+/** This class stores information about a screen, window, etc. */
 public class WindowProperty {
   private String name;
   private boolean maximized;

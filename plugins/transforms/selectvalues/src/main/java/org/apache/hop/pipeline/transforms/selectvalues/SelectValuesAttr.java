@@ -20,11 +20,7 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 import org.apache.hop.core.IHopAttribute;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * TODO: move this to XML somewhere...
- *
- * @author matt
- */
+/** TODO: move this to XML somewhere... */
 public enum SelectValuesAttr implements IHopAttribute {
   FOO("fields", "CsvInputDialog.Fields.Label", null, IValueMeta.TYPE_NONE, null);
 

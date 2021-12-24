@@ -43,12 +43,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a column exists action.
- *
- * @author Samatar
- * @since 16-06-2008
- */
+/** This defines a column exists action. */
 @Action(
     id = "COLUMNS_EXIST",
     name = "i18n::ActionColumnsExist.Name",

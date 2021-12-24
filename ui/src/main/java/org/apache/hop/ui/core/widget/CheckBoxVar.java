@@ -36,9 +36,6 @@ import org.eclipse.swt.widgets.Listener;
 /**
  * A Widget that combines a Check Box widget with a Variable button that will insert an Environment
  * variable.
- *
- * @author Matt
- * @since 9-august-2006
  */
 public class CheckBoxVar extends Composite {
   private static final Class<?> PKG = CheckBoxVar.class; // For Translator

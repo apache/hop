@@ -48,12 +48,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'add result filenames' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'add result filenames' action. */
 @Action(
     id = "ADD_RESULT_FILENAMES",
     name = "i18n::ActionAddResultFilenames.Name",

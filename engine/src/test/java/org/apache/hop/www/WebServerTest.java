@@ -36,9 +36,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-// import org.eclipse.jetty.server.bio.SocketConnector;
-
-/** @author Tatsiana_Kasiankova */
 public class WebServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

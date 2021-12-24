@@ -25,10 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * @author Ingo Klose
- * @since 30-apr-2008
- */
 public class XmlJoinData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

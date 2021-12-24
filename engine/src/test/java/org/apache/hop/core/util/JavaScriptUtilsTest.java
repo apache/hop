@@ -30,11 +30,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-/**
- * A set of tests for {@linkplain JavaScriptUtils} class.
- *
- * @author Andrey Khayrutdinov
- */
+/** A set of tests for {@linkplain JavaScriptUtils} class. */
 public class JavaScriptUtilsTest {
 
   private static final String UNDEFINED = Undefined.class.getName();

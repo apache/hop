@@ -19,12 +19,7 @@ package org.apache.hop.core.exception;
 
 import org.apache.hop.core.Const;
 
-/**
- * This is an exception thrown by file handling (I/O)
- *
- * @author Matt
- * @since 30-MAR-2004
- */
+/** This is an exception thrown by file handling (I/O) */
 public class HopEofException extends HopFileException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C11L;
 

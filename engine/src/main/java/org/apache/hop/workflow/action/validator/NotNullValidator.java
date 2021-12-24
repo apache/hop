@@ -24,11 +24,7 @@ import org.apache.hop.core.ICheckResultSource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-/**
- * Fails if a field's value is <code>null</code>.
- *
- * @author mlowery
- */
+/** Fails if a field's value is <code>null</code>. */
 public class NotNullValidator implements IActionValidator {
 
   public static final NotNullValidator INSTANCE = new NotNullValidator();

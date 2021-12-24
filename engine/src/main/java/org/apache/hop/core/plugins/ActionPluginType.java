@@ -25,11 +25,7 @@ import org.apache.hop.workflow.action.IAction;
 
 import java.util.Map;
 
-/**
- * This plugin type handles the actions.
- *
- * @author matt
- */
+/** This plugin type handles the actions. */
 @PluginMainClassType(IAction.class)
 @PluginAnnotationType(Action.class)
 public class ActionPluginType extends BasePluginType<Action> {

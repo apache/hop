@@ -53,9 +53,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the Column Exists action settings. (select the connection and the
  * table to be checked) This entry type evaluates!
- *
- * @author Samatar
- * @since 15-06-2008
  */
 public class ActionColumnsExistDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
