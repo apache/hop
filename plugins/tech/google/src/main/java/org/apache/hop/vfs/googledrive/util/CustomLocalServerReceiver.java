@@ -61,11 +61,11 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     }
 
     this.server = new Server(this.port);
-    Connector[] arr$ = this.server.getConnectors();
-    int len$ = arr$.length;
+    Connector[] connectors = this.server.getConnectors();
+    int length = connectors.length;
 
-    for (int i$ = 0; i$ < len$; ++i$) {
-      Connector c = arr$[i$];
+    for (int i = 0; i < length; ++i) {
+      Connector c = connectors[i];
       c.setHost(this.host);
     }
 

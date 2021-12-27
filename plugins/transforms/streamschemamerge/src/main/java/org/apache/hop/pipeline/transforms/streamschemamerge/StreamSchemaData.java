@@ -28,7 +28,8 @@ import java.util.List;
 /** Holds data objects used in StreamSchema */
 public class StreamSchemaData extends BaseTransformData implements ITransformData {
 
-  public IRowMeta outputRowMeta, inRowMeta; // outgoing and incoming row meta
+  public IRowMeta outputRowMeta;
+  public IRowMeta inRowMeta; // outgoing and incoming row meta
 
   public StreamSchemaData() {
     super();
@@ -44,8 +45,8 @@ public class StreamSchemaData extends BaseTransformData implements ITransformDat
 
   public int[][] mapping; // mappings for all incoming rows
 
-  public int numTransforms,
-      streamNum; // incoming transforms and what stream the current row is from
+  public int numTransforms;
+  public int streamNum; // incoming transforms and what stream the current row is from
 
   public String currentName; // name of the rowset that sent the current row
 

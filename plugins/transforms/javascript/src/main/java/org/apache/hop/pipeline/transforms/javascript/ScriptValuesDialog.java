@@ -1260,7 +1260,8 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
               if (!varname.equalsIgnoreCase("row")
                   && !varname.equalsIgnoreCase("pipeline_Status")) {
                 int type = IValueMeta.TYPE_STRING;
-                int length = -1, precision = -1;
+                int length = -1;
+                int precision = -1;
                 Object result = jsscope.get(varname, jsscope);
                 if (result != null) {
                   String classname = result.getClass().getName();
@@ -1864,9 +1865,11 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
                   Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
                   size = text.computeSize(size.x, SWT.DEFAULT);
                   editor.horizontalAlignment = SWT.LEFT;
-                  Rectangle itemRect = item.getBounds(), rect = wTree.getClientArea();
+                  Rectangle itemRect = item.getBounds();
+                  Rectangle rect = wTree.getClientArea();
                   editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                  int left = itemRect.x, right = rect.x + rect.width;
+                  int left = itemRect.x;
+                  int right = rect.x + rect.width;
                   editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
                   editor.minimumHeight = size.y + inset * 2;
                   editor.layout();

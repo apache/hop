@@ -307,10 +307,10 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wAuthentication);
     wAuthentication.setText(BaseMessages.getString(PKG, "ActionHTTP.Authentication.Group.Label"));
 
-    FormLayout AuthenticationgroupLayout = new FormLayout();
-    AuthenticationgroupLayout.marginWidth = 10;
-    AuthenticationgroupLayout.marginHeight = 10;
-    wAuthentication.setLayout(AuthenticationgroupLayout);
+    FormLayout authenticationgroupLayout = new FormLayout();
+    authenticationgroupLayout.marginWidth = 10;
+    authenticationgroupLayout.marginHeight = 10;
+    wAuthentication.setLayout(authenticationgroupLayout);
 
     // UserName line
     Label wlUserName = new Label(wAuthentication, SWT.RIGHT);
@@ -424,10 +424,10 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wUpLoadFile);
     wUpLoadFile.setText(BaseMessages.getString(PKG, "ActionHTTP.UpLoadFile.Group.Label"));
 
-    FormLayout UpLoadFilegroupLayout = new FormLayout();
-    UpLoadFilegroupLayout.marginWidth = 10;
-    UpLoadFilegroupLayout.marginHeight = 10;
-    wUpLoadFile.setLayout(UpLoadFilegroupLayout);
+    FormLayout upLoadFilegroupLayout = new FormLayout();
+    upLoadFilegroupLayout.marginWidth = 10;
+    upLoadFilegroupLayout.marginHeight = 10;
+    wUpLoadFile.setLayout(upLoadFilegroupLayout);
 
     // UploadFile line
     wlUploadFile = new Label(wUpLoadFile, SWT.RIGHT);
@@ -483,10 +483,10 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wTargetFileGroup);
     wTargetFileGroup.setText(BaseMessages.getString(PKG, "ActionHTTP.TargetFileGroup.Group.Label"));
 
-    FormLayout TargetFileGroupgroupLayout = new FormLayout();
-    TargetFileGroupgroupLayout.marginWidth = 10;
-    TargetFileGroupgroupLayout.marginHeight = 10;
-    wTargetFileGroup.setLayout(TargetFileGroupgroupLayout);
+    FormLayout targetFileGroupgroupLayout = new FormLayout();
+    targetFileGroupgroupLayout.marginWidth = 10;
+    targetFileGroupgroupLayout.marginHeight = 10;
+    wTargetFileGroup.setLayout(targetFileGroupgroupLayout);
 
     // TargetFile line
     wlTargetFile = new Label(wTargetFileGroup, SWT.RIGHT);
@@ -636,10 +636,10 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wHeadersTab.setText(BaseMessages.getString(PKG, "ActionHTTP.Tab.Headers.Label"));
     Composite wHeadersComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wHeadersComp);
-    FormLayout HeadersLayout = new FormLayout();
-    HeadersLayout.marginWidth = 3;
-    HeadersLayout.marginHeight = 3;
-    wHeadersComp.setLayout(HeadersLayout);
+    FormLayout headersLayout = new FormLayout();
+    headersLayout.marginWidth = 3;
+    headersLayout.marginHeight = 3;
+    wHeadersComp.setLayout(headersLayout);
 
     int rows =
         action.getHeaderName() == null

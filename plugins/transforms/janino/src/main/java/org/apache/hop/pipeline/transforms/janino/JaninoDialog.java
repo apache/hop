@@ -193,10 +193,9 @@ public class JaninoDialog extends BaseTransformDialog implements ITransformDialo
     new Thread(runnable).start();
 
     wFields.addModifyListener(
-        arg0 -> {
-          // Now set the combo's
-          shell.getDisplay().asyncExec(() -> setComboBoxes());
-        });
+        arg0 ->
+            // Now set the combo's
+            shell.getDisplay().asyncExec(() -> setComboBoxes()));
 
     getData();
     currentMeta.setChanged(changed);

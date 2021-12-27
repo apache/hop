@@ -2466,7 +2466,8 @@ public class Const {
    */
   public static String removeCRLF(String in) {
     if ((in != null) && (in.length() > 0)) {
-      int inLen = in.length(), posn = 0;
+      int inLen = in.length();
+      int posn = 0;
       char[] tmp = new char[inLen];
       char ch;
       for (int i = 0; i < inLen; i++) {
@@ -2492,7 +2493,8 @@ public class Const {
    */
   public static String removeChar(String in, char badChar) {
     if ((in != null) && (in.length() > 0)) {
-      int inLen = in.length(), posn = 0;
+      int inLen = in.length();
+      int posn = 0;
       char[] tmp = new char[inLen];
       char ch;
       for (int i = 0; i < inLen; i++) {
@@ -2598,11 +2600,11 @@ public class Const {
   public static String[] GetAvailableFontNames() {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     Font[] fonts = ge.getAllFonts();
-    String[] FontName = new String[fonts.length];
+    String[] fontName = new String[fonts.length];
     for (int i = 0; i < fonts.length; i++) {
-      FontName[i] = fonts[i].getFontName();
+      fontName[i] = fonts[i].getFontName();
     }
-    return FontName;
+    return fontName;
   }
 
   /**

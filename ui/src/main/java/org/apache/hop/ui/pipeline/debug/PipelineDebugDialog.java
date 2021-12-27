@@ -65,7 +65,7 @@ public class PipelineDebugDialog extends Dialog {
   private PropsUi props;
   private int retval;
 
-  private Button wOk, wCancel, wLaunch;
+  private Button wLaunch;
 
   private TableView wTransforms;
 
@@ -78,9 +78,6 @@ public class PipelineDebugDialog extends Dialog {
   private Button wFirstRows;
   private Button wPauseBreakPoint;
   private Condition condition;
-  private IRowMeta transformInputFields;
-  private ConditionEditor wCondition;
-  private Label wlCondition;
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
   private int previousIndex;
 
@@ -122,7 +119,7 @@ public class PipelineDebugDialog extends Dialog {
     margin = props.getMargin();
     middle = props.getMiddlePct();
 
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.Configure.Label"));
     wOk.addSelectionListener(
         new SelectionAdapter() {
@@ -140,7 +137,7 @@ public class PipelineDebugDialog extends Dialog {
             ok(false);
           }
         });
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addSelectionListener(
         new SelectionAdapter() {
@@ -439,6 +436,7 @@ public class PipelineDebugDialog extends Dialog {
     }
 
     // The input fields...
+    IRowMeta transformInputFields;
     try {
       transformInputFields =
           pipelineDebugMeta.getPipelineMeta().getTransformFields(variables, transformMeta);
@@ -446,7 +444,7 @@ public class PipelineDebugDialog extends Dialog {
       transformInputFields = new RowMeta();
     }
 
-    wlCondition = new Label(wComposite, SWT.RIGHT);
+    Label wlCondition = new Label(wComposite, SWT.RIGHT);
     props.setLook(wlCondition);
     wlCondition.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.Condition.Label"));
     wlCondition.setToolTipText(
@@ -457,7 +455,8 @@ public class PipelineDebugDialog extends Dialog {
     fdlCondition.top = new FormAttachment(wPauseBreakPoint, margin);
     wlCondition.setLayoutData(fdlCondition);
 
-    wCondition = new ConditionEditor(wComposite, SWT.BORDER, condition, transformInputFields);
+    ConditionEditor wCondition =
+        new ConditionEditor(wComposite, SWT.BORDER, condition, transformInputFields);
     FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment(middle, 0);
     fdCondition.right = new FormAttachment(100, 0);

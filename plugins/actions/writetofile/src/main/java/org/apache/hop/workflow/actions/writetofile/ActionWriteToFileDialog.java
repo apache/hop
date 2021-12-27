@@ -18,10 +18,10 @@
 package org.apache.hop.workflow.actions.writetofile;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -134,10 +134,10 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     props.setLook(wFileGroup);
     wFileGroup.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Group.File.Label"));
 
-    FormLayout FileGroupLayout = new FormLayout();
-    FileGroupLayout.marginWidth = 10;
-    FileGroupLayout.marginHeight = 10;
-    wFileGroup.setLayout(FileGroupLayout);
+    FormLayout fileGroupLayout = new FormLayout();
+    fileGroupLayout.marginWidth = 10;
+    fileGroupLayout.marginHeight = 10;
+    wFileGroup.setLayout(fileGroupLayout);
 
     // Filename line
     Label wlFilename = new Label(wFileGroup, SWT.RIGHT);
@@ -244,10 +244,10 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     props.setLook(wContentGroup);
     wContentGroup.setText(BaseMessages.getString(PKG, "ActionWriteToFile.Group.Content.Label"));
 
-    FormLayout ContentGroupLayout = new FormLayout();
-    ContentGroupLayout.marginWidth = 10;
-    ContentGroupLayout.marginHeight = 10;
-    wContentGroup.setLayout(ContentGroupLayout);
+    FormLayout contentGroupLayout = new FormLayout();
+    contentGroupLayout.marginWidth = 10;
+    contentGroupLayout.marginHeight = 10;
+    wContentGroup.setLayout(contentGroupLayout);
 
     // Encoding
     Label wlEncoding = new Label(wContentGroup, SWT.RIGHT);
@@ -270,7 +270,9 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable Focuslost
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -289,7 +291,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     wContent =
         new Text(wContentGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wContent, PropsUi.WIDGET_STYLE_FIXED);
+    props.setLook(wContent, Props.WIDGET_STYLE_FIXED);
     wContent.addModifyListener(lsMod);
     FormData fdContent = new FormData();
     fdContent.left = new FormAttachment(middle, 0);

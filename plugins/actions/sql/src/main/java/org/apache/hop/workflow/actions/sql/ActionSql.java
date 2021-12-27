@@ -217,13 +217,14 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
               logDetailed(BaseMessages.getString(PKG, "ActionSQL.SQLFileExists", realfilename));
             }
 
-            InputStream IS = HopVfs.getInputStream(sqlFile);
+            InputStream inputStream = HopVfs.getInputStream(sqlFile);
             try {
-              InputStreamReader BIS = new InputStreamReader(new BufferedInputStream(IS, 500));
+              InputStreamReader inputStreamReader =
+                  new InputStreamReader(new BufferedInputStream(inputStream, 500));
               StringBuilder lineSB = new StringBuilder(256);
               lineSB.setLength(0);
 
-              BufferedReader buff = new BufferedReader(BIS);
+              BufferedReader buff = new BufferedReader(inputStreamReader);
               String sLine = null;
               theSql = Const.CR;
 
@@ -235,7 +236,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
                 }
               }
             } finally {
-              IS.close();
+              inputStream.close();
             }
           } catch (Exception e) {
             throw new HopDatabaseException(

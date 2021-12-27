@@ -57,7 +57,8 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData>
     }
 
     List<Integer> normFieldList;
-    int i, e;
+    int i;
+    int e;
 
     if (first) { // INITIALISE
 
@@ -139,7 +140,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData>
     // of re-creating them - better for GC over time
     String typeValue;
     Object[] outputRowData;
-    int outputIndex, nr, normFieldListSz;
+    int outputIndex, nr;
     Object value;
 
     // Now do the normalization
@@ -167,7 +168,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData>
       // Then add the normalized fields...
       //
       normFieldList = data.typeToFieldIndex.get(typeValue);
-      normFieldListSz = normFieldList.size();
+      int normFieldListSz = normFieldList.size();
       for (i = 0; i < normFieldListSz; i++) {
         value = r[normFieldList.get(i)];
         outputRowData[outputIndex++] = value;

@@ -25,13 +25,19 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.List;
 
 public class MergeJoinData extends BaseTransformData implements ITransformData {
-  public Object[] one, two;
-  public IRowMeta oneMeta, twoMeta;
+  public Object[] one;
+  public Object[] two;
+  public IRowMeta oneMeta;
+  public IRowMeta twoMeta;
   public IRowMeta outputRowMeta; // just for speed: oneMeta+twoMeta
-  public Object[] one_dummy, two_dummy;
-  public List<Object[]> ones, twos;
-  public Object[] one_next, two_next;
-  public boolean one_optional, two_optional;
+  public Object[] one_dummy;
+  public Object[] two_dummy;
+  public List<Object[]> ones;
+  public List<Object[]> twos;
+  public Object[] one_next;
+  public Object[] two_next;
+  public boolean one_optional;
+  public boolean two_optional;
   public int[] keyNrs1;
   public int[] keyNrs2;
 

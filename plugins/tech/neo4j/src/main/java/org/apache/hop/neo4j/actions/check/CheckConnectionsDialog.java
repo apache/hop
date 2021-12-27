@@ -47,7 +47,7 @@ import java.util.List;
 
 public class CheckConnectionsDialog extends ActionDialog implements IActionDialog {
 
-  private static Class<?> PKG = CheckConnectionsDialog.class; // For Translator
+  private static final Class<?> PKG = CheckConnectionsDialog.class; // For Translator
 
   private Shell shell;
 
@@ -57,10 +57,6 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
   private Text wName;
   private TableView wConnections;
-
-  private Button wOk, wCancel;
-
-  private String[] availableConnectionNames;
 
   public CheckConnectionsDialog(
       Shell parent, IAction iAction, WorkflowMeta workflowMeta, IVariables variables) {
@@ -96,10 +92,10 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     // Add buttons first, then the list of connections dynamically sizing
     // Put these buttons at the bottom
     //
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
@@ -136,6 +132,7 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     fdlConnections.top = new FormAttachment(wName, margin);
     wlConnections.setLayoutData(fdlConnections);
 
+    String[] availableConnectionNames;
     try {
       IHopMetadataSerializer<NeoConnection> connectionSerializer =
           getMetadataProvider().getSerializer(NeoConnection.class);

@@ -403,19 +403,19 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
 
       if (meta.isInFields()) {
         // get XML field value
-        String Fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
+        String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
 
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "GetXMLData.Log.XMLStream", meta.getXMLField(), Fieldvalue));
+                  PKG, "GetXMLData.Log.XMLStream", meta.getXMLField(), fieldvalue));
         }
 
         if (meta.getIsAFile()) {
           FileObject file = null;
           try {
             // XML source is a file.
-            file = HopVfs.getFileObject(resolve(Fieldvalue));
+            file = HopVfs.getFileObject(resolve(fieldvalue));
 
             if (meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0) {
               logBasic(
@@ -466,7 +466,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
           }
 
           // Open the XML document
-          if (!setDocument(Fieldvalue, null, xmltring, url)) {
+          if (!setDocument(fieldvalue, null, xmltring, url)) {
             throw new HopException(
                 BaseMessages.getString(PKG, "GetXMLData.Log.UnableCreateDocument"));
           }

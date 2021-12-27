@@ -50,7 +50,8 @@ public class ShowMessageDialog extends Dialog {
     buttonTextByFlagDefaults.put(SWT.NO, BaseMessages.getString(PKG, "System.Button.No"));
   }
 
-  private String title, message;
+  private String title;
+  private String message;
 
   private Shell shell;
   private PropsUi props;
@@ -70,8 +71,6 @@ public class ShowMessageDialog extends Dialog {
   private int timeOut;
 
   private List<Button> buttons;
-
-  private List<SelectionAdapter> adapters;
 
   private FormLayout formLayout;
   private FormData fdlDesc;
@@ -208,7 +207,7 @@ public class ShowMessageDialog extends Dialog {
     wlDesc.setLayoutData(fdlDesc);
 
     buttons = new ArrayList<>();
-    adapters = new ArrayList<>();
+    List<SelectionAdapter> adapters = new ArrayList<>();
 
     for (Map.Entry<Integer, String> entry : buttonTextByFlag.entrySet()) {
       Integer buttonFlag = entry.getKey();

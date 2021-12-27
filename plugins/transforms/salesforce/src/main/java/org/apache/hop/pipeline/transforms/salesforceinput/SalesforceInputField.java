@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 /** Describes an SalesforceInput field */
 public class SalesforceInputField implements Cloneable {
-  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

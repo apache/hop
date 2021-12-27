@@ -33,7 +33,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetServerStatusDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = GetServerStatusDialog.class; // For Translator
+  private static final Class<?> PKG = GetServerStatusDialog.class; // For Translator
   private final GetServerStatusMeta input;
 
   int middle;

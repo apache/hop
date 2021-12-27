@@ -1227,10 +1227,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       if (j > -1) {
         String varName = rest.substring(i + open.length(), j);
         DateFormat dateFormat = new SimpleDateFormat(varName);
-        Object Value = dateFormat.format(datetime);
+        Object value = dateFormat.format(datetime);
 
         buffer.append(rest.substring(0, i));
-        buffer.append(Value);
+        buffer.append(value);
         rest = rest.substring(j + close.length());
       } else {
         // no closing tag found; end the search

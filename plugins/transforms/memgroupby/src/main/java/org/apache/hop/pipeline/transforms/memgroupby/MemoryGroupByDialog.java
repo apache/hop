@@ -191,10 +191,10 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     fdlAgg.top = new FormAttachment(wGroup, margin);
     wlAgg.setLayoutData(fdlAgg);
 
-    int UpInsCols = 4;
-    int UpInsRows = (input.getAggregateField() != null ? input.getAggregateField().length : 1);
+    int upInsCols = 4;
+    int upInsRows = (input.getAggregateField() != null ? input.getAggregateField().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.Name"),
@@ -226,7 +226,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

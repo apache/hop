@@ -162,11 +162,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionSNMPTrap.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
 
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     wServerName =
@@ -240,10 +240,10 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     props.setLook(wAdvancedSettings);
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionSNMPTrap.AdvancedSettings.Group.Label"));
-    FormLayout AdvancedSettingsgroupLayout = new FormLayout();
-    AdvancedSettingsgroupLayout.marginWidth = 10;
-    AdvancedSettingsgroupLayout.marginHeight = 10;
-    wAdvancedSettings.setLayout(AdvancedSettingsgroupLayout);
+    FormLayout advancedSettingsgroupLayout = new FormLayout();
+    advancedSettingsgroupLayout.marginWidth = 10;
+    advancedSettingsgroupLayout.marginHeight = 10;
+    wAdvancedSettings.setLayout(advancedSettingsgroupLayout);
 
     // Target type
     Label wlTargetType = new Label(wAdvancedSettings, SWT.RIGHT);
@@ -377,10 +377,10 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     Group wMessageGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wMessageGroup);
     wMessageGroup.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.MessageGroup.Group.Label"));
-    FormLayout MessageGroupgroupLayout = new FormLayout();
-    MessageGroupgroupLayout.marginWidth = 10;
-    MessageGroupgroupLayout.marginHeight = 10;
-    wMessageGroup.setLayout(MessageGroupgroupLayout);
+    FormLayout messageGroupgroupLayout = new FormLayout();
+    messageGroupgroupLayout.marginWidth = 10;
+    messageGroupgroupLayout.marginHeight = 10;
+    wMessageGroup.setLayout(messageGroupgroupLayout);
 
     // Message line
     Label wlMessage = new Label(wMessageGroup, SWT.RIGHT);

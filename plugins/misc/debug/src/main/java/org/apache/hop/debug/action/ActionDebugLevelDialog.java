@@ -47,12 +47,7 @@ public class ActionDebugLevelDialog extends Dialog {
   private Button wLoggingRows;
   private Button wLoggingFiles;
 
-  private Control lastControl;
-
   private PropsUi props;
-
-  private int middle;
-  private int margin;
 
   private boolean ok;
 
@@ -71,8 +66,8 @@ public class ActionDebugLevelDialog extends Dialog {
     props.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageServer());
 
-    middle = props.getMiddlePct();
-    margin = Const.MARGIN + 2;
+    int middle = props.getMiddlePct();
+    int margin = Const.MARGIN + 2;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -98,7 +93,7 @@ public class ActionDebugLevelDialog extends Dialog {
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
     fdName.right = new FormAttachment(100, 0);
     wLogLevel.setLayoutData(fdName);
-    lastControl = wLogLevel;
+    Control lastControl = wLogLevel;
 
     // Log result details?
     Label wlLoggingResult = new Label(shell, SWT.RIGHT);

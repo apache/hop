@@ -59,7 +59,8 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   private int borderColorBlue;
 
   private Point location;
-  public int width, height;
+  public int width;
+  public int height;
   private boolean selected;
 
   private boolean changed;

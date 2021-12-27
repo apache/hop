@@ -45,16 +45,8 @@ public class FieldSelectionDialog extends BaseDialog {
     this.numFields = numNewFields;
 
     // Define buttons
-    this.buttons.put(
-        BaseMessages.getString(PKG, "System.Button.Cancel"),
-        event -> {
-          cancel();
-        });
-    this.buttons.put(
-        BaseMessages.getString(PKG, "System.Button.OK"),
-        event -> {
-          ok();
-        });
+    this.buttons.put(BaseMessages.getString(PKG, "System.Button.Cancel"), event -> cancel());
+    this.buttons.put(BaseMessages.getString(PKG, "System.Button.OK"), event -> ok());
   }
 
   @Override

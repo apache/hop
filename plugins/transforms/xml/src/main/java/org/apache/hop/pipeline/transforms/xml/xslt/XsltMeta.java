@@ -436,15 +436,15 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
 
       } else {
         // Check if it's exist and it's a file
-        String RealFilename = variables.resolve(xslFilename);
-        File f = new File(RealFilename);
+        String realFilename = variables.resolve(xslFilename);
+        File f = new File(realFilename);
 
         if (f.exists()) {
           if (f.isFile()) {
             cr =
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_OK,
-                    BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileExists", RealFilename),
+                    BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileExists", realFilename),
                     transformMeta);
             remarks.add(cr);
           } else {
@@ -452,7 +452,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_ERROR,
                     BaseMessages.getString(
-                        PKG, "XsltMeta.CheckResult.ExistsButNoFile", RealFilename),
+                        PKG, "XsltMeta.CheckResult.ExistsButNoFile", realFilename),
                     transformMeta);
             remarks.add(cr);
           }
@@ -460,7 +460,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileNotExists", RealFilename),
+                  BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileNotExists", realFilename),
                   transformMeta);
           remarks.add(cr);
         }

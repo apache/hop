@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Shell;
 public class PrintSpool {
   private PrinterData printerdata;
   private Printer printer;
-  private PaletteData palette;
 
   public PrintSpool() {
     printerdata = Printer.getDefaultPrinterData();
@@ -70,6 +69,7 @@ public class PrintSpool {
   }
 
   public PaletteData getPaletteData() {
+    PaletteData palette;
     switch (getDepth()) {
       case 1:
         palette = new PaletteData(new RGB[] {new RGB(0, 0, 0), new RGB(255, 255, 255)});

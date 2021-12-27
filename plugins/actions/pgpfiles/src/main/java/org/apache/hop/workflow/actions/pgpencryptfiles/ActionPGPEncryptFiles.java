@@ -350,7 +350,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      String MoveToFolder = resolve(destinationFolder);
+      String moveToFolder = resolve(destinationFolder);
       // Get source and destination files, also wildcard
       String[] vSourceFileFolder = sourceFileFolder;
       String[] vuserid = userId;
@@ -358,7 +358,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       String[] vwildcard = wildcard;
 
       if (ifFileExists.equals("move_file")) {
-        if (Utils.isEmpty(MoveToFolder)) {
+        if (Utils.isEmpty(moveToFolder)) {
           logError(
               toString(),
               BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Log.Error.MoveToFolderMissing"));
@@ -366,26 +366,26 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
         FileObject folder = null;
         try {
-          folder = HopVfs.getFileObject(MoveToFolder);
+          folder = HopVfs.getFileObject(moveToFolder);
           if (!folder.exists()) {
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
-                      PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder));
+                      PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", moveToFolder));
             }
             if (createMoveToFolder) {
               folder.createFolder();
             } else {
               logError(
                   BaseMessages.getString(
-                      PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder));
+                      PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", moveToFolder));
               return result;
             }
           }
           if (!folder.getType().equals(FileType.FOLDER)) {
             logError(
                 BaseMessages.getString(
-                    PKG, "ActionPGPEncryptFiles.Log.Error.NotFolder", MoveToFolder));
+                    PKG, "ActionPGPEncryptFiles.Log.Error.NotFolder", moveToFolder));
             return result;
           }
         } catch (Exception e) {
@@ -393,7 +393,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               BaseMessages.getString(
                   PKG,
                   "ActionPGPEncryptFiles.Log.Error.GettingMoveToFolder",
-                  MoveToFolder,
+                  moveToFolder,
                   e.getMessage()));
           return result;
         } finally {
@@ -462,7 +462,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 vWildcardPrevious,
                 parentWorkflow,
                 result,
-                MoveToFolder)) {
+                moveToFolder)) {
               // The process fail
               // Update Errors
               updateErrors();
@@ -514,7 +514,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 vwildcard[i],
                 parentWorkflow,
                 result,
-                MoveToFolder)) {
+                moveToFolder)) {
               // Update Errors
               updateErrors();
             }
@@ -611,12 +611,12 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       String wildcard,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result,
-      String MoveToFolder) {
+      String moveToFolder) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
     FileObject movetofolderfolder = null;
-    FileObject Currentfile = null;
+    FileObject currentfile = null;
 
     // Get real source, destination file and wildcard
     String realSourceFilefoldername = resolve(sourcefilefoldername);
@@ -628,8 +628,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername);
       destinationfilefolder = HopVfs.getFileObject(realDestinationFilefoldername);
-      if (!Utils.isEmpty(MoveToFolder)) {
-        movetofolderfolder = HopVfs.getFileObject(MoveToFolder);
+      if (!Utils.isEmpty(moveToFolder)) {
+        movetofolderfolder = HopVfs.getFileObject(moveToFolder);
       }
 
       if (sourcefilefolder.exists()) {
@@ -782,11 +782,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                     return false;
                   }
                   // Fetch files in list one after one ...
-                  Currentfile = fileObjects[j];
+                  currentfile = fileObjects[j];
 
                   if (!EncryptOneFile(
                       actionType,
-                      Currentfile,
+                      currentfile,
                       sourcefilefolder,
                       realuserID,
                       realDestinationFilefoldername,
@@ -820,7 +820,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           BaseMessages.getString(
               PKG,
               "ActionPGPEncryptFiles.Error.Exception.MoveProcess",
-              realSourceFilefoldername.toString(),
+              realSourceFilefoldername,
               destinationfilefolder.toString(),
               e.getMessage()));
       // Update Errors
@@ -840,9 +840,9 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           /* Ignore */
         }
       }
-      if (Currentfile != null) {
+      if (currentfile != null) {
         try {
-          Currentfile.close();
+          currentfile.close();
         } catch (IOException ex) {
           /* Ignore */
         }
@@ -1078,7 +1078,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
   private boolean EncryptOneFile(
       int actionType,
-      FileObject Currentfile,
+      FileObject currentfile,
       FileObject sourcefilefolder,
       String userID,
       String realDestinationFilefoldername,
@@ -1090,11 +1090,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     FileObject filename = null;
 
     try {
-      if (!Currentfile.toString().equals(sourcefilefolder.toString())) {
+      if (!currentfile.toString().equals(sourcefilefolder.toString())) {
         // Pass over the Base folder itself
 
         // return destination short filename
-        String sourceshortfilename = Currentfile.getName().getBaseName();
+        String sourceshortfilename = currentfile.getName().getBaseName();
         String shortfilename = sourceshortfilename;
         try {
           shortfilename = getDestinationFilename(sourceshortfilename);
@@ -1103,7 +1103,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               BaseMessages.getString(
                   PKG,
                   "ActionPGPEncryptFiles.Error.GettingFilename",
-                  Currentfile.getName().getBaseName(),
+                  currentfile.getName().getBaseName(),
                   e.toString()));
           return entrystatus;
         }
@@ -1112,8 +1112,9 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         String shortFilenameFromBaseFolder = shortfilename;
         if (!isDoNotKeepFolderStructure()) {
           shortFilenameFromBaseFolder =
-              Currentfile.toString()
-                  .substring(sourcefilefolder.toString().length(), Currentfile.toString().length());
+              currentfile
+                  .toString()
+                  .substring(sourcefilefolder.toString().length(), currentfile.toString().length());
         }
         shortFilenameFromBaseFolder =
             shortFilenameFromBaseFolder.substring(
@@ -1125,19 +1126,19 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             HopVfs.getFileObject(
                 realDestinationFilefoldername + Const.FILE_SEPARATOR + shortFilenameFromBaseFolder);
 
-        if (!Currentfile.getParent().toString().equals(sourcefilefolder.toString())) {
+        if (!currentfile.getParent().toString().equals(sourcefilefolder.toString())) {
 
           // Not in the Base Folder..Only if include sub folders
           if (includeSubFolders) {
             // Folders..only if include subfolders
-            if (Currentfile.getType() != FileType.FOLDER) {
+            if (currentfile.getType() != FileType.FOLDER) {
 
               if (GetFileWildcard(sourceshortfilename, realWildcard)) {
                 entrystatus =
                     EncryptFile(
                         actionType,
                         shortfilename,
-                        Currentfile,
+                        currentfile,
                         userID,
                         filename,
                         movetofolderfolder,
@@ -1149,14 +1150,14 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         } else {
           // In the Base Folder...
           // Folders..only if include subfolders
-          if (Currentfile.getType() != FileType.FOLDER) {
+          if (currentfile.getType() != FileType.FOLDER) {
             // file...Check if exists
             if (GetFileWildcard(sourceshortfilename, realWildcard)) {
               entrystatus =
                   EncryptFile(
                       actionType,
                       shortfilename,
-                      Currentfile,
+                      currentfile,
                       userID,
                       filename,
                       movetofolderfolder,
@@ -1343,7 +1344,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return shortfilename;
   }
 
-  private String getMoveDestinationFilename(String shortsourcefilename, String DateFormat)
+  private String getMoveDestinationFilename(String shortsourcefilename, String dateFormat)
       throws Exception {
     String shortfilename = shortsourcefilename;
     int lenstring = shortsourcefilename.length();
@@ -1359,8 +1360,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     SimpleDateFormat daf = new SimpleDateFormat();
     Date now = new Date();
 
-    if (DateFormat != null) {
-      daf.applyPattern(DateFormat);
+    if (dateFormat != null) {
+      daf.applyPattern(dateFormat);
       String dt = daf.format(now);
       shortfilename += dt;
     } else {
@@ -1449,8 +1450,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     this.addDateBeforeExtension = addDateBeforeExtension;
   }
 
-  public void setAddMovedDateBeforeExtension(boolean AddMovedDateBeforeExtension) {
-    this.addMovedDateBeforeExtension = AddMovedDateBeforeExtension;
+  public void setAddMovedDateBeforeExtension(boolean addMovedDateBeforeExtension) {
+    this.addMovedDateBeforeExtension = addMovedDateBeforeExtension;
   }
 
   public boolean isSpecifyFormat() {
@@ -1461,8 +1462,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     this.specifyFormat = specifyFormat;
   }
 
-  public void setSpecifyMoveFormat(boolean SpecifyMoveFormat) {
-    this.specifyMoveFormat = SpecifyMoveFormat;
+  public void setSpecifyMoveFormat(boolean specifyMoveFormat) {
+    this.specifyMoveFormat = specifyMoveFormat;
   }
 
   public boolean isSpecifyMoveFormat() {
@@ -1513,8 +1514,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return gpgLocation;
   }
 
-  public void setDoNotKeepFolderStructure(boolean DoNotKeepFolderStructure) {
-    this.doNotKeepFolderStructure = DoNotKeepFolderStructure;
+  public void setDoNotKeepFolderStructure(boolean doNotKeepFolderStructure) {
+    this.doNotKeepFolderStructure = doNotKeepFolderStructure;
   }
 
   public void setIncludeSubFolders(boolean includeSubFolders) {

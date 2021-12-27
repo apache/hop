@@ -119,10 +119,10 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     props.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "UniqueRowsByHashSetDialog.Settings.Label"));
 
-    FormLayout SettingsgroupLayout = new FormLayout();
-    SettingsgroupLayout.marginWidth = 10;
-    SettingsgroupLayout.marginHeight = 10;
-    wSettings.setLayout(SettingsgroupLayout);
+    FormLayout settingsgroupLayout = new FormLayout();
+    settingsgroupLayout.marginWidth = 10;
+    settingsgroupLayout.marginHeight = 10;
+    wSettings.setLayout(settingsgroupLayout);
 
     Label wlStoreValues = new Label(wSettings, SWT.RIGHT);
     wlStoreValues.setText(

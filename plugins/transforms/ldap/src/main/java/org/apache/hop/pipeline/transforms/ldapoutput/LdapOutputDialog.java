@@ -360,10 +360,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wAuthenticationGroup.setText(
         BaseMessages.getString(PKG, "LdapOutputDialog.Group.AuthenticationGroup.Label"));
 
-    FormLayout AuthenticationGroupLayout = new FormLayout();
-    AuthenticationGroupLayout.marginWidth = 10;
-    AuthenticationGroupLayout.marginHeight = 10;
-    wAuthenticationGroup.setLayout(AuthenticationGroupLayout);
+    FormLayout authenticationGroupLayout = new FormLayout();
+    authenticationGroupLayout.marginWidth = 10;
+    authenticationGroupLayout.marginHeight = 10;
+    wAuthenticationGroup.setLayout(authenticationGroupLayout);
 
     // using authentication ?
     Label wlUsingAuthentication = new Label(wAuthenticationGroup, SWT.RIGHT);
@@ -621,10 +621,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "LdapOutputDialog.Group.Settings.Label"));
 
-    FormLayout SettingsLayout = new FormLayout();
-    SettingsLayout.marginWidth = 10;
-    SettingsLayout.marginHeight = 10;
-    wSettings.setLayout(SettingsLayout);
+    FormLayout settingsLayout = new FormLayout();
+    settingsLayout.marginWidth = 10;
+    settingsLayout.marginHeight = 10;
+    wSettings.setLayout(settingsLayout);
 
     // Operation
     Label wlOperation = new Label(wSettings, SWT.RIGHT);
@@ -749,10 +749,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wRenameGroup);
     wRenameGroup.setText(BaseMessages.getString(PKG, "LdapOutputDialog.Group.RenameGroup.Label"));
 
-    FormLayout RenameGroupLayout = new FormLayout();
-    RenameGroupLayout.marginWidth = 10;
-    RenameGroupLayout.marginHeight = 10;
-    wRenameGroup.setLayout(RenameGroupLayout);
+    FormLayout renameGroupLayout = new FormLayout();
+    renameGroupLayout.marginWidth = 10;
+    renameGroupLayout.marginHeight = 10;
+    wRenameGroup.setLayout(renameGroupLayout);
 
     // OldDn fieldname
     wlOldDnField = new Label(wRenameGroup, SWT.RIGHT);
@@ -883,10 +883,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wFields);
     wFields.setText(BaseMessages.getString(PKG, "LdapOutputDialog.Group.Fields.Label"));
 
-    FormLayout FieldsLayout = new FormLayout();
-    FieldsLayout.marginWidth = 10;
-    FieldsLayout.marginHeight = 10;
-    wFields.setLayout(FieldsLayout);
+    FormLayout fieldsLayout2 = new FormLayout();
+    fieldsLayout2.marginWidth = 10;
+    fieldsLayout2.marginHeight = 10;
+    wFields.setLayout(fieldsLayout2);
 
     // Basedn line
     wlBaseDN = new Label(wFields, SWT.RIGHT);
@@ -925,10 +925,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdlReturn.top = new FormAttachment(wBaseDN, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int upInsCols = 3;
+    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "LdapOutputUpdateDialog.ColumnInfo.TableField"),
@@ -954,7 +954,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
             wFields,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

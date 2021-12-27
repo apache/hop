@@ -49,13 +49,21 @@ import org.eclipse.swt.widgets.*;
 public class XsdValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
 
-  private LabelTextVar wResultField, wValidationMsg, wIfXMLValid, wIfXMLUnValid;
-  private CCombo wXMLStream, wXSDSource, wXSDDefinedColumn;
+  private LabelTextVar wResultField;
+  private LabelTextVar wValidationMsg;
+  private LabelTextVar wIfXMLValid;
+  private LabelTextVar wIfXMLUnValid;
+  private CCombo wXMLStream;
+  private CCombo wXSDSource;
+  private CCombo wXSDDefinedColumn;
 
   private Label wlFilename;
   private Label wlXSDDefinedColumn;
 
-  private Button wbbFilename, wAddValidationMsg, wOutputStringField, wXMLSourceFile;
+  private Button wbbFilename;
+  private Button wAddValidationMsg;
+  private Button wOutputStringField;
+  private Button wXMLSourceFile;
 
   private final XsdValidatorMeta input;
 

@@ -143,7 +143,8 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
           new DataInputStream(
               new BufferedInputStream(HopVfs.getInputStream(HopVfs.getFilename(file2))));
 
-      char ch1, ch2;
+      char ch1;
+      char ch2;
       while (in1.available() != 0 && in2.available() != 0) {
         ch1 = (char) in1.readByte();
         ch2 = (char) in2.readByte();

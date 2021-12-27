@@ -114,10 +114,10 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     props.setLook(wGPGGroup);
     wGPGGroup.setText(BaseMessages.getString(PKG, "PGPEncryptStreamDialog.GPGGroup.Label"));
 
-    FormLayout GPGGroupgroupLayout = new FormLayout();
-    GPGGroupgroupLayout.marginWidth = 10;
-    GPGGroupgroupLayout.marginHeight = 10;
-    wGPGGroup.setLayout(GPGGroupgroupLayout);
+    FormLayout gpggroupgrouplayout = new FormLayout();
+    gpggroupgrouplayout.marginWidth = 10;
+    gpggroupgrouplayout.marginHeight = 10;
+    wGPGGroup.setLayout(gpggroupgrouplayout);
 
     // GPGLocation fieldname ...
     Label wlGPGLocation = new Label(wGPGGroup, SWT.RIGHT);
@@ -386,7 +386,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
       try {
         String fieldvalue = wStreamFieldName.getText();
         wStreamFieldName.removeAll();
-        String Keyfieldvalue = wKeyNameFieldName.getText();
+        String keyNameFieldNameText = wKeyNameFieldName.getText();
         wKeyNameFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
@@ -396,8 +396,8 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
         if (fieldvalue != null) {
           wStreamFieldName.setText(fieldvalue);
         }
-        if (Keyfieldvalue != null) {
-          wKeyNameFieldName.setText(Keyfieldvalue);
+        if (keyNameFieldNameText != null) {
+          wKeyNameFieldName.setText(keyNameFieldNameText);
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

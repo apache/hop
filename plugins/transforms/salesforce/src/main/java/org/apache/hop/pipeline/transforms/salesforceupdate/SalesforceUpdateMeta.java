@@ -47,7 +47,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/salesforceupdate.html")
 public class SalesforceUpdateMeta
     extends SalesforceTransformMeta<SalesforceUpdate, SalesforceUpdateData> {
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   /** Field value to update */
   private String[] updateLookup;

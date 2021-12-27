@@ -273,8 +273,8 @@ public class StreamSchemaMeta extends BaseTransformMeta
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
       IRowMeta prev,
-      String input[],
-      String output[],
+      String[] input,
+      String[] output,
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {

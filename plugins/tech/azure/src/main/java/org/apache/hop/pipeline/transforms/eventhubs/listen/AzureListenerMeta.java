@@ -141,10 +141,10 @@ public class AzureListenerMeta extends BaseTransformMeta
       //
       try {
         PipelineMeta batchTransMeta = loadBatchPipelineMeta(this, metadataProvider, variables);
-        IRowMeta TransformFields =
+        IRowMeta transformFields =
             batchTransMeta.getTransformFields(variables, variables.resolve(batchOutputTransform));
         rowMeta.clear();
-        rowMeta.addRowMeta(TransformFields);
+        rowMeta.addRowMeta(transformFields);
         return;
       } catch (Exception e) {
         throw new HopTransformException(

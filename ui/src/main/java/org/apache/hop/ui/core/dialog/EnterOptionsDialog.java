@@ -66,10 +66,18 @@ public class EnterOptionsDialog extends Dialog {
 
   private CTabFolder wTabFolder;
 
-  private FontData fixedFontData, graphFontData, noteFontData;
-  private Font fixedFont, graphFont, noteFont;
-  private RGB backgroundRGB, graphColorRGB, tabColorRGB;
-  private Color background, graphColor, tabColor;
+  private FontData fixedFontData;
+  private FontData graphFontData;
+  private FontData noteFontData;
+  private Font fixedFont;
+  private Font graphFont;
+  private Font noteFont;
+  private RGB backgroundRGB;
+  private RGB graphColorRGB;
+  private RGB tabColorRGB;
+  private Color background;
+  private Color graphColor;
+  private Color tabColor;
 
   private Canvas wFFont;
 
@@ -82,8 +90,6 @@ public class EnterOptionsDialog extends Dialog {
   private Canvas wGrColor;
 
   private Canvas wTabColor;
-
-  private Text wFilename;
 
   private Text wIconSize;
 
@@ -878,7 +884,6 @@ public class EnterOptionsDialog extends Dialog {
     fdUseCache.top = new FormAttachment(wlTableOutputSortMappings, 0, SWT.CENTER);
     fdUseCache.right = new FormAttachment(100, 0);
     wbTableOutputSortMappings.setLayoutData(fdUseCache);
-    Control lastControl = wlTableOutputSortMappings;
 
     wbTableOutputSortMappings.setSelection(props.sortTableOutputMappings());
 
@@ -933,7 +938,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(0, margin);
     wlFilename.setLayoutData(fdlFilename);
-    wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Text wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilename.setText(Const.NVL(HopConfig.getInstance().getConfigFilename(), ""));
     wFilename.setEditable(false);
     props.setLook(wFilename);
@@ -1224,7 +1229,6 @@ public class EnterOptionsDialog extends Dialog {
     fdbUseGlobalFileBookmarks.top = new FormAttachment(wlUseGlobalFileBookmarks, 0, SWT.CENTER);
     fdbUseGlobalFileBookmarks.right = new FormAttachment(100, 0);
     wbUseGlobalFileBookmarks.setLayoutData(fdbUseGlobalFileBookmarks);
-    lastControl = wbUseGlobalFileBookmarks;
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);

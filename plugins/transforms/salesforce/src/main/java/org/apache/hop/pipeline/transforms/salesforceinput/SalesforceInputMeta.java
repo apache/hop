@@ -62,7 +62,7 @@ public class SalesforceInputMeta
     extends SalesforceTransformMeta<SalesforceInput, SalesforceInputData> {
   public static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
   /** Flag indicating that we should include the generated SQL in the output */
   @Injection(name = "INCLUDE_SQL_IN_OUTPUT")

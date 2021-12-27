@@ -26,9 +26,6 @@ public class SSTableWriterBuilder {
   /** Path to cassandra YAML config */
   private String configFilePath;
 
-  /** CQL Version */
-  private int cqlVersion;
-
   /** The directory to output to */
   private String directory;
 
@@ -87,7 +84,7 @@ public class SSTableWriterBuilder {
   }
 
   public SSTableWriterBuilder withCqlVersion(int cqlVersion) {
-    this.cqlVersion = cqlVersion;
+    /** CQL Version */
     return this;
   }
 

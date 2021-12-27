@@ -66,8 +66,8 @@ import java.util.List;
 public class PipelineExecutorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = PipelineExecutorDialog.class; // For Translator
 
-  private static int FIELD_DESCRIPTION = 1;
-  private static int FIELD_NAME = 2;
+  private static final int FIELD_DESCRIPTION = 1;
+  private static final int FIELD_NAME = 2;
 
   private PipelineExecutorMeta pipelineExecutorMeta;
 
@@ -76,8 +76,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   protected Label wlRunConfiguration;
   protected ComboVar wRunConfiguration;
-
-  private Button wbBrowse;
 
   private Button wbPipelineNameInField;
 
@@ -101,7 +99,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   private Label wlGroupTime;
   private TextVar wGroupTime;
 
-  private Label wlExecutionResultTarget;
   private CCombo wExecutionResultTarget;
   private TableItem tiExecutionTimeField;
   private TableItem tiExecutionResultField;
@@ -122,24 +119,13 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   private ColumnInfo[] parameterColumns;
 
-  private Label wlResultFilesTarget;
-
   private CCombo wResultFilesTarget;
-
-  private Label wlResultFileNameField;
 
   private TextVar wResultFileNameField;
 
-  private Label wlResultRowsTarget;
-
   private CCombo wOutputRowsSource;
 
-  private Label wlOutputFields;
-
   private TableView wOutputFields;
-
-  private Button wGetParameters;
-  private Button wMapParameters;
 
   private boolean gotPreviousFields = false;
 
@@ -169,7 +155,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     ModifyListener lsMod = e -> pipelineExecutorMeta.setChanged();
 
-    int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     Label wicon = new Label(shell, SWT.RIGHT);
@@ -224,7 +209,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdlTransformation.right = new FormAttachment(50, 0);
     wlPath.setLayoutData(fdlTransformation);
 
-    wbBrowse = new Button(shell, SWT.PUSH);
+    Button wbBrowse = new Button(shell, SWT.PUSH);
     props.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
@@ -244,9 +229,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wbPipelineNameInField = new Button(shell, SWT.CHECK);
     props.setLook(wbPipelineNameInField);
     wbPipelineNameInField.setText(
-            BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.PipelineNameInField.Label"));
     FormData fdPipelineNameInField = new FormData();
-    fdPipelineNameInField.left = new FormAttachment(0,0);
+    fdPipelineNameInField.left = new FormAttachment(0, 0);
     fdPipelineNameInField.top = new FormAttachment(wPath, margin);
     wbPipelineNameInField.setLayoutData(fdPipelineNameInField);
     wbPipelineNameInField.addSelectionListener(
@@ -300,7 +285,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(wPipelineNameField, PropsUi.getInstance().getMargin());
+    fdlRunConfiguration.top =
+        new FormAttachment(wPipelineNameField, PropsUi.getInstance().getMargin());
     fdlRunConfiguration.right = new FormAttachment(50, 0);
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
@@ -365,10 +351,10 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
         }
       } catch (HopException ke) {
         new ErrorDialog(
-                shell,
-                BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogTitle"),
-                BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogMessage"),
-                ke);
+            shell,
+            BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogTitle"),
+            BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogMessage"),
+            ke);
       }
       gotPreviousFields = true;
     }
@@ -600,7 +586,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     // Add a button: get parameters
     //
-    wGetParameters = new Button(wParametersComposite, SWT.PUSH);
+    Button wGetParameters = new Button(wParametersComposite, SWT.PUSH);
     wGetParameters.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.Parameters.GetParameters"));
     props.setLook(wGetParameters);
@@ -613,7 +599,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     // Add a button: get parameters
     //
-    wMapParameters = new Button(wParametersComposite, SWT.PUSH);
+    Button wMapParameters = new Button(wParametersComposite, SWT.PUSH);
     wMapParameters.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.Parameters.MapParameters"));
     props.setLook(wMapParameters);
@@ -805,7 +791,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wlGroupSize = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlGroupSize);
     wlGroupSize.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.GroupSize.Label"));
-    wlGroupSize.setToolTipText(BaseMessages.getString(PKG, "PipelineExecutorDialog.GroupSize.Tooltip"));
+    wlGroupSize.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.GroupSize.Tooltip"));
     FormData fdlGroupSize = new FormData();
     fdlGroupSize.top = new FormAttachment(0, 0);
     fdlGroupSize.left = new FormAttachment(0, 0);
@@ -882,7 +869,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlExecutionResultTarget);
     wlExecutionResultTarget.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.ExecutionResultTarget.Label"));
@@ -1028,7 +1015,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFilesTarget);
     wlResultFilesTarget.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.ResultFilesTarget.Label"));
@@ -1047,7 +1034,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     // ResultFileNameField
     //
-    wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFileNameField);
     wlResultFileNameField.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.ResultFileNameField.Label"));
@@ -1096,7 +1083,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultRowsTarget);
     wlResultRowsTarget.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.OutputRowsSource.Label"));
@@ -1113,7 +1100,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdResultRowsTarget.left = new FormAttachment(0, 0); // To the right
     wOutputRowsSource.setLayoutData(fdResultRowsTarget);
 
-    wlOutputFields = new Label(wInputComposite, SWT.NONE);
+    Label wlOutputFields = new Label(wInputComposite, SWT.NONE);
     wlOutputFields.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.ResultFields.Label"));
     props.setLook(wlOutputFields);

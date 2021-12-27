@@ -125,13 +125,13 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
   private boolean performLookup;
 
   @Injection(name = "ORDER_INSERT")
-  private String OrderInsert;
+  private String orderInsert;
 
   @Injection(name = "ORDER_UPDATE")
-  private String OrderUpdate;
+  private String orderUpdate;
 
   @Injection(name = "ORDER_DELETE")
-  private String OrderDelete;
+  private String orderDelete;
 
   public SynchronizeAfterMergeMeta() {
     super(); // allocate BaseTransformMeta
@@ -183,27 +183,27 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
   }
 
   public String getOrderInsert() {
-    return OrderInsert;
+    return orderInsert;
   }
 
   public String getOrderUpdate() {
-    return OrderUpdate;
+    return orderUpdate;
   }
 
   public String getOrderDelete() {
-    return OrderDelete;
+    return orderDelete;
   }
 
   public void setOrderInsert(String insert) {
-    this.OrderInsert = insert;
+    this.orderInsert = insert;
   }
 
   public void setOrderUpdate(String update) {
-    this.OrderUpdate = update;
+    this.orderUpdate = update;
   }
 
   public void setOrderDelete(String delete) {
-    this.OrderDelete = delete;
+    this.orderDelete = delete;
   }
 
   public void setOperationOrderField(String operationOrderField) {
@@ -369,7 +369,8 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
       throws HopXmlException {
     this.metadataProvider = metadataProvider;
     try {
-      int nrkeys, nrvalues;
+      int nrkeys;
+      int nrvalues;
       this.databases = databases;
       String con = XmlHandler.getTagValue(transformNode, "connection");
       databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
@@ -384,9 +385,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "tablename_in_field"));
       tablenameField = XmlHandler.getTagValue(transformNode, "tablename_field");
       operationOrderField = XmlHandler.getTagValue(transformNode, "operation_order_field");
-      OrderInsert = XmlHandler.getTagValue(transformNode, "order_insert");
-      OrderUpdate = XmlHandler.getTagValue(transformNode, "order_update");
-      OrderDelete = XmlHandler.getTagValue(transformNode, "order_delete");
+      orderInsert = XmlHandler.getTagValue(transformNode, "order_insert");
+      orderUpdate = XmlHandler.getTagValue(transformNode, "order_update");
+      orderDelete = XmlHandler.getTagValue(transformNode, "order_delete");
 
       Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
       nrkeys = XmlHandler.countNodes(lookup, "key");
@@ -445,9 +446,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.DefaultTableName");
     operationOrderField = null;
-    OrderInsert = null;
-    OrderUpdate = null;
-    OrderDelete = null;
+    orderInsert = null;
+    orderUpdate = null;
+    orderDelete = null;
     performLookup = false;
 
     int nrkeys = 0;
@@ -491,9 +492,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
     retval
         .append("    ")
         .append(XmlHandler.addTagValue("operation_order_field", operationOrderField));
-    retval.append("    ").append(XmlHandler.addTagValue("order_insert", OrderInsert));
-    retval.append("    ").append(XmlHandler.addTagValue("order_update", OrderUpdate));
-    retval.append("    ").append(XmlHandler.addTagValue("order_delete", OrderDelete));
+    retval.append("    ").append(XmlHandler.addTagValue("order_insert", orderInsert));
+    retval.append("    ").append(XmlHandler.addTagValue("order_update", orderUpdate));
+    retval.append("    ").append(XmlHandler.addTagValue("order_delete", orderDelete));
 
     retval.append("    <lookup>").append(Const.CR);
     retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
@@ -796,7 +797,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta
                       + errorMsgDiffLenField;
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_WARNING, errorMsgDiffLenField, transformMeta);
+                      ICheckResult.TYPE_RESULT_WARNING, errorMsgDiffLenField, transformMeta);
             }
             remarks.add(cr);
           }

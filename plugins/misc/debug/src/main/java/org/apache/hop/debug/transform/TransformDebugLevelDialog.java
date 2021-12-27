@@ -28,8 +28,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -49,14 +47,8 @@ public class TransformDebugLevelDialog extends Dialog {
   private Combo wLogLevel;
   private Text wStartRow;
   private Text wEndRow;
-  private ConditionEditor wCondition;
-
-  private Control lastControl;
 
   private PropsUi props;
-
-  private int middle;
-  private int margin;
 
   private boolean ok;
 
@@ -77,8 +69,8 @@ public class TransformDebugLevelDialog extends Dialog {
     props.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageServer());
 
-    middle = props.getMiddlePct();
-    margin = Const.MARGIN + 2;
+    int middle = props.getMiddlePct();
+    int margin = Const.MARGIN + 2;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -104,7 +96,7 @@ public class TransformDebugLevelDialog extends Dialog {
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
     fdName.right = new FormAttachment(100, 0);
     wLogLevel.setLayoutData(fdName);
-    lastControl = wLogLevel;
+    Control lastControl = wLogLevel;
 
     // Start row option
     Label wlStartRow = new Label(shell, SWT.RIGHT);
@@ -163,7 +155,8 @@ public class TransformDebugLevelDialog extends Dialog {
     fdlCondition.left = new FormAttachment(0, 0);
     fdlCondition.right = new FormAttachment(middle, -margin);
     wlCondition.setLayoutData(fdlCondition);
-    wCondition = new ConditionEditor(shell, SWT.NONE, debugLevel.getCondition(), inputRowMeta);
+    ConditionEditor wCondition =
+        new ConditionEditor(shell, SWT.NONE, debugLevel.getCondition(), inputRowMeta);
     props.setLook(wCondition);
     FormData fdCondition = new FormData();
     fdCondition.top = new FormAttachment(lastControl, margin);
@@ -171,7 +164,6 @@ public class TransformDebugLevelDialog extends Dialog {
     fdCondition.right = new FormAttachment(100, 0);
     fdCondition.bottom = new FormAttachment(wOK, 0);
     wCondition.setLayoutData(fdCondition);
-    lastControl = wCondition;
 
     getData();
 

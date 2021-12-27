@@ -95,7 +95,8 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
   private Button wAddFileToResult;
 
-  private Button wbSourceDirectory, wbSourceFile;
+  private Button wbSourceDirectory;
+  private Button wbSourceFile;
 
   private Button wbMovetoDirectory;
 

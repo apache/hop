@@ -660,34 +660,34 @@ public class LdapConnection {
   }
 
   /**
-   * Convert the SID into string format
+   * Convert the sid into string format
    *
-   * @param SID
-   * @return String representation of SID
+   * @param sid
+   * @return String representation of sid
    */
-  private static String getSIDAsString(byte[] SID) {
+  private static String getSIDAsString(byte[] sid) {
     long version;
     long authority;
     long count;
     long rid;
     String strSID;
     strSID = "S";
-    version = SID[0];
+    version = sid[0];
     strSID = strSID + "-" + Long.toString(version);
-    authority = SID[4];
+    authority = sid[4];
     for (int i = 0; i < 4; i++) {
       authority <<= 8;
-      authority += SID[4 + i] & 0xFF;
+      authority += sid[4 + i] & 0xFF;
     }
     strSID = strSID + "-" + Long.toString(authority);
-    count = SID[2];
+    count = sid[2];
     count <<= 8;
-    count += SID[1] & 0xFF;
+    count += sid[1] & 0xFF;
     for (int j = 0; j < count; j++) {
-      rid = SID[11 + (j * 4)] & 0xFF;
+      rid = sid[11 + (j * 4)] & 0xFF;
       for (int k = 1; k < 4; k++) {
         rid <<= 8;
-        rid += SID[11 - k + (j * 4)] & 0xFF;
+        rid += sid[11 - k + (j * 4)] & 0xFF;
       }
       strSID = strSID + "-" + Long.toString(rid);
     }

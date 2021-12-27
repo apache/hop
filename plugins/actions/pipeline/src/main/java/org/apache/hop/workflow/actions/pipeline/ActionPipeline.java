@@ -95,8 +95,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   public boolean setAppendLogfile;
 
-  public String logfile, logext;
-  public boolean addDate, addTime;
+  public String logfile;
+  public String logext;
+  public boolean addDate;
+  public boolean addTime;
 
   public LogLevel logFileLevel;
 

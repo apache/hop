@@ -192,7 +192,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
     // the field mapping grid in between on the left
     //
-    ColumnInfo[] FieldMappingColumns =
+    ColumnInfo[] fieldMappingColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(
@@ -211,7 +211,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
             new Variables(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
-            FieldMappingColumns,
+            fieldMappingColumns,
             location.getFieldMappings().size(),
             null,
             props);
@@ -225,7 +225,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
     // the field mapping grid in between on the left
     //
-    ColumnInfo[] FieldOrderColumns =
+    ColumnInfo[] fieldOrderColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(
@@ -239,7 +239,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
             new Variables(),
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
-            FieldOrderColumns,
+            fieldOrderColumns,
             location.getFieldOrder().size(),
             null,
             props);

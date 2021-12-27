@@ -44,11 +44,6 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     implements ITransform<FileMetadataMeta, FileMetadataData> {
 
   private Object[] r;
-  private int idx;
-  private Object[] outputRow;
-  private DelimiterDetector.DetectionResult delimiters;
-  private String fileName;
-  private Charset detectedCharset;
   private Charset defaultCharset = Charsets.ISO_8859_1;
   private long limitRows;
 
@@ -143,16 +138,16 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
   private void buildOutputRows() throws HopTransformException {
 
     // which index does the next field go to
-    idx = data.isReceivingInput ? getInputRowMeta().size() : 0;
+    int idx = data.isReceivingInput ? getInputRowMeta().size() : 0;
 
     // prepare an output row
-    outputRow =
+    Object[] outputRow =
         data.isReceivingInput
             ? RowDataUtil.createResizedCopy(r, data.outputRowMeta.size())
             : RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
     // get the configuration from the dialog
-    fileName = resolve(meta.getFileName());
+    String fileName = resolve(meta.getFileName());
 
     // if the file does not exist, just send an empty row
     try {
@@ -202,11 +197,11 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     }
 
     // guess the charset
-    detectedCharset = detectCharset(fileName);
+    Charset detectedCharset = detectCharset(fileName);
     outputRow[idx++] = detectedCharset;
 
     // guess the delimiters
-    delimiters =
+    DelimiterDetector.DetectionResult delimiters =
         detectDelimiters(fileName, detectedCharset, delimiterCandidates, enclosureCandidates);
 
     if (delimiters == null) {

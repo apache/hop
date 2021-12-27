@@ -47,7 +47,7 @@ import java.util.List;
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDelay.class; // For Translator
 
-  private static String DEFAULT_MAXIMUM_TIMEOUT = "0";
+  private static final String DEFAULT_MAXIMUM_TIMEOUT = "0";
 
   private String maximumTimeout; // maximum timeout in seconds
 
@@ -102,31 +102,31 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
-    int Multiple;
-    String Waitscale;
+    int multiple;
+    String waitscale;
 
     // Scale time
     switch (scaleTime) {
       case 0:
         // Second
-        Multiple = 1000;
-        Waitscale = BaseMessages.getString(PKG, "ActionDelay.SScaleTime.Label");
+        multiple = 1000;
+        waitscale = BaseMessages.getString(PKG, "ActionDelay.SScaleTime.Label");
         break;
       case 1:
         // Minute
-        Multiple = 60000;
-        Waitscale = BaseMessages.getString(PKG, "ActionDelay.MnScaleTime.Label");
+        multiple = 60000;
+        waitscale = BaseMessages.getString(PKG, "ActionDelay.MnScaleTime.Label");
         break;
       default:
         // Hour
-        Multiple = 3600000;
-        Waitscale = BaseMessages.getString(PKG, "ActionDelay.HrScaleTime.Label");
+        multiple = 3600000;
+        waitscale = BaseMessages.getString(PKG, "ActionDelay.HrScaleTime.Label");
         break;
     }
 
     try {
       // starttime (in seconds ,Minutes or Hours)
-      double timeStart = (double) System.currentTimeMillis() / (double) Multiple;
+      double timeStart = (double) System.currentTimeMillis() / (double) multiple;
 
       double iMaximumTimeout =
           Const.toInt(getRealMaximumTimeout(), Const.toInt(DEFAULT_MAXIMUM_TIMEOUT, 0));
@@ -134,7 +134,7 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
-                PKG, "ActionDelay.LetsWaitFor.Label", iMaximumTimeout, Waitscale));
+                PKG, "ActionDelay.LetsWaitFor.Label", iMaximumTimeout, waitscale));
       }
 
       boolean continueLoop = true;
@@ -148,14 +148,14 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
                 PKG,
                 "ActionDelay.MaximumTimeReset.Label",
                 String.valueOf(iMaximumTimeout),
-                String.valueOf(Waitscale)));
+                String.valueOf(waitscale)));
       }
 
       // Loop until the delay time has expired.
       //
       while (continueLoop && !parentWorkflow.isStopped()) {
         // Update Time value
-        double now = (double) System.currentTimeMillis() / (double) Multiple;
+        double now = (double) System.currentTimeMillis() / (double) multiple;
 
         // Let's check the limit time
         if ((iMaximumTimeout >= 0) && (now >= (timeStart + iMaximumTimeout))) {

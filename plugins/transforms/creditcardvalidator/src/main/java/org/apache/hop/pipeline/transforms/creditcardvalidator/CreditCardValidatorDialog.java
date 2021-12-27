@@ -49,7 +49,8 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
 
   private CCombo wFieldName;
 
-  private TextVar wResult, wFileType;
+  private TextVar wResult;
+  private TextVar wFileType;
 
   private TextVar wNotValidMsg;
 
@@ -126,7 +127,9 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wFieldName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Disable focuslost
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -166,10 +169,10 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wOutputFields.setText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.OutputFields.Label"));
 
-    FormLayout OutputFieldsgroupLayout = new FormLayout();
-    OutputFieldsgroupLayout.marginWidth = 10;
-    OutputFieldsgroupLayout.marginHeight = 10;
-    wOutputFields.setLayout(OutputFieldsgroupLayout);
+    FormLayout outputFieldsgroupLayout = new FormLayout();
+    outputFieldsgroupLayout.marginWidth = 10;
+    outputFieldsgroupLayout.marginHeight = 10;
+    wOutputFields.setLayout(outputFieldsgroupLayout);
 
     // Result fieldname ...
     Label wlResult = new Label(wOutputFields, SWT.RIGHT);

@@ -175,7 +175,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
     miClose.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           if (activeItem != null) {
             activeItem.getTypeHandler().close();
           }
@@ -186,10 +186,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
     miCloseOthers.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           TabItemHandler currentItem = activeItem;
           items.forEach(
-              (item) -> {
+              item -> {
                 if (!item.equals(currentItem)) {
                   // FIXME: Works only if you activate the item
                   activeItem = item;
@@ -203,14 +203,13 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
     miCloseAll.addListener(
         SWT.Selection,
-        (event) -> {
-          items.forEach(
-              (item) -> {
-                // FIXME: Works only if you activate the item
-                activeItem = item;
-                item.getTypeHandler().close();
-              });
-        });
+        event ->
+            items.forEach(
+                item -> {
+                  // FIXME: Works only if you activate the item
+                  activeItem = item;
+                  item.getTypeHandler().close();
+                }));
 
     // Support reorder tab item
     new TabFolderReorder(tabFolder);

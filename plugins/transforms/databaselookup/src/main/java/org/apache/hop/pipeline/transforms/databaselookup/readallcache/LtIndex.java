@@ -52,7 +52,8 @@ class LtIndex extends Index {
     } else {
       BitSet bitSet = context.getWorkingSet();
 
-      int start, end;
+      int start;
+      int end;
       if (firstValue < values.length / 2) {
         start = 0;
         end = firstValue;

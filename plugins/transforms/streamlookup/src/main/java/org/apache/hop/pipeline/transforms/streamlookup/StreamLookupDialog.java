@@ -299,10 +299,10 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     fdlReturn.top = new FormAttachment(wKey, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 4;
-    int UpInsRows = (input.getValue() != null ? input.getValue().length : 1);
+    int upInsCols = 4;
+    int upInsRows = (input.getValue() != null ? input.getValue().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "StreamLookupDialog.ColumnInfo.FieldReturn"),
@@ -331,7 +331,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

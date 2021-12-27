@@ -1009,8 +1009,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       Object startObject,
       Object endObject)
       throws HopException {
-    int mx, my;
-    int a, b, dist;
+    int mx;
+    int my;
+    int a;
+    int b;
+    int dist;
     double angle;
 
     gc.drawLine(x1, y1, x2, y2);

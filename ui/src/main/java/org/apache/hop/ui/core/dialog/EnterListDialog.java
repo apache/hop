@@ -46,7 +46,8 @@ public class EnterListDialog extends Dialog {
   private final Hashtable<Integer, String> selection;
 
   private Shell shell;
-  private List wListSource, wListDest;
+  private List wListSource;
+  private List wListDest;
 
   private boolean opened;
 

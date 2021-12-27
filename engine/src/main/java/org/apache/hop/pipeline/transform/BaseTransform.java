@@ -175,7 +175,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private TransformMeta[] prevTransforms;
 
-  private int currentInputRowSetNr, currentOutputRowSetNr;
+  private int currentInputRowSetNr;
+  private int currentOutputRowSetNr;
 
   /** The rowsets on the input, size() == nr of source transforms */
   private List<IRowSet> inputRowSets;

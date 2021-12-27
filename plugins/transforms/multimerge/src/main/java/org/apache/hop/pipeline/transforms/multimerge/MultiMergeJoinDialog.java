@@ -216,7 +216,8 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     String[] inputTransforms = getInputTransformNames();
     for (int index = 0; index < inputTransforms.length; index++) {
       Label wlTransform;
-      FormData fdlTransform, fdTransform1;
+      FormData fdlTransform;
+      FormData fdTransform1;
 
       wlTransform = new Label(shell, SWT.LEFT);
       wlTransform.setText(

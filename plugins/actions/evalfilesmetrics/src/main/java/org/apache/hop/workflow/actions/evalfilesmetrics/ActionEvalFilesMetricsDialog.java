@@ -55,7 +55,8 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
   private Text wName;
 
   private Label wlSourceFileFolder;
-  private Button wbSourceFileFolder, wbSourceDirectory;
+  private Button wbSourceFileFolder;
+  private Button wbSourceDirectory;
 
   private TextVar wSourceFileFolder;
 

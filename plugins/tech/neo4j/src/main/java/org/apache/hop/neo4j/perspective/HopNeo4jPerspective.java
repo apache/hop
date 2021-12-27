@@ -83,19 +83,15 @@ public class HopNeo4jPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "9000-perspective-neo4j";
 
-  private Image neo4jImage;
-
   private HopGui hopGui;
   private Composite parent;
   private Composite composite;
-  private FormData formData;
   private Combo wExecutions;
   private CTabFolder tabFolder;
   private TableView wResults;
   private Text wLogging;
   private Tree wTree;
   private Text wCypher;
-  private Image lineageImage;
   private Color errorLineBackground;
   private Combo wAmount;
   private Button wOnlyRoot;
@@ -151,10 +147,10 @@ public class HopNeo4jPerspective implements IHopPerspective {
     PropsUi props = PropsUi.getInstance();
 
     int size = (int) Math.round((double) ConstUi.SMALL_ICON_SIZE * props.getZoomFactor());
-    neo4jImage =
+    Image neo4jImage =
         SwtSvgImageUtil.getImage(
             hopGui.getDisplay(), this.getClass().getClassLoader(), "neo4j_logo.svg", size, size);
-    lineageImage =
+    Image lineageImage =
         SwtSvgImageUtil.getImage(
             hopGui.getDisplay(), this.getClass().getClassLoader(), "lineage.svg", size, size);
     errorLineBackground = new Color(hopGui.getDisplay(), 201, 232, 251);
@@ -168,7 +164,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     layout.marginBottom = props.getMargin();
     composite.setLayout(layout);
 
-    formData = new FormData();
+    FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);

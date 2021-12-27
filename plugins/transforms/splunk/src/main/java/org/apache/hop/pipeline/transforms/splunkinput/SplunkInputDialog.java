@@ -221,7 +221,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     fdbGetReturnFields.right = new FormAttachment(100, 0);
     fdbGetReturnFields.top = new FormAttachment(lastControl, margin);
     wbGetReturnFields.setLayoutData(fdbGetReturnFields);
-    wbGetReturnFields.addListener(SWT.Selection, (e) -> getReturnValues());
+    wbGetReturnFields.addListener(SWT.Selection, e -> getReturnValues());
     lastControl = wbGetReturnFields;
 
     wReturns =

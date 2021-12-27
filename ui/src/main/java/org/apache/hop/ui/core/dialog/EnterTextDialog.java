@@ -24,7 +24,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.FormInput;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -50,7 +49,9 @@ public class EnterTextDialog extends Dialog {
   private final PropsUi props;
   private String text;
   private boolean fixed;
-  private boolean readonly, modal, singleLine;
+  private boolean readonly;
+  private boolean modal;
+  private boolean singleLine;
   private String origText;
 
   /**
@@ -253,12 +254,12 @@ public class EnterTextDialog extends Dialog {
   }
 
   public static final void editDescription(
-      Shell shell, IDescription IDescription, String shellText, String message) {
+      Shell shell, IDescription iDescription, String shellText, String message) {
     EnterTextDialog textDialog =
-        new EnterTextDialog(shell, shellText, message, IDescription.getDescription());
+        new EnterTextDialog(shell, shellText, message, iDescription.getDescription());
     String description = textDialog.open();
     if (description != null) {
-      IDescription.setDescription(description);
+      iDescription.setDescription(description);
     }
   }
 

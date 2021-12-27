@@ -87,7 +87,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   private boolean changed;
 
   private Group wSocksProxy;
-  private LabelTextVar wSocksProxyHost, wSocksProxyPort, wSocksProxyUsername, wSocksProxyPassword;
+  private LabelTextVar wSocksProxyHost;
+  private LabelTextVar wSocksProxyPort;
+  private LabelTextVar wSocksProxyUsername;
+  private LabelTextVar wSocksProxyPassword;
 
   private LabelTextVar wPort;
 
@@ -215,11 +218,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionFtpDelete.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
 
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // Protocol
     Label wlProtocol = new Label(wServerSettings, SWT.RIGHT);
@@ -545,10 +548,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFilesComp);
 
-    FormLayout AdvancedLayout = new FormLayout();
-    AdvancedLayout.marginWidth = 3;
-    AdvancedLayout.marginHeight = 3;
-    wFilesComp.setLayout(AdvancedLayout);
+    FormLayout advancedLayout = new FormLayout();
+    advancedLayout.marginWidth = 3;
+    advancedLayout.marginHeight = 3;
+    wFilesComp.setLayout(advancedLayout);
 
     // ////////////////////////
     // START OF Advanced SETTINGS GROUP///
@@ -558,11 +561,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionFtpDelete.AdvancedSettings.Group.Label"));
 
-    FormLayout AdvancedSettingsgroupLayout = new FormLayout();
-    AdvancedSettingsgroupLayout.marginWidth = 10;
-    AdvancedSettingsgroupLayout.marginHeight = 10;
+    FormLayout advancedSettingsgroupLayout = new FormLayout();
+    advancedSettingsgroupLayout.marginWidth = 10;
+    advancedSettingsgroupLayout.marginHeight = 10;
 
-    wAdvancedSettings.setLayout(AdvancedSettingsgroupLayout);
+    wAdvancedSettings.setLayout(advancedSettingsgroupLayout);
 
     // Timeout line
     wTimeout =
@@ -617,11 +620,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wRemoteSettings.setText(
         BaseMessages.getString(PKG, "ActionFtpDelete.RemoteSettings.Group.Label"));
 
-    FormLayout RemoteSettinsgroupLayout = new FormLayout();
-    RemoteSettinsgroupLayout.marginWidth = 10;
-    RemoteSettinsgroupLayout.marginHeight = 10;
+    FormLayout remoteSettinsgroupLayout = new FormLayout();
+    remoteSettinsgroupLayout.marginWidth = 10;
+    remoteSettinsgroupLayout.marginHeight = 10;
 
-    wRemoteSettings.setLayout(RemoteSettinsgroupLayout);
+    wRemoteSettings.setLayout(remoteSettinsgroupLayout);
 
     // Get arguments from previous result...
     Label wlGetPrevious = new Label(wRemoteSettings, SWT.RIGHT);
@@ -815,10 +818,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     Composite wSocksProxyComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSocksProxyComp);
 
-    FormLayout SoxProxyLayout = new FormLayout();
-    SoxProxyLayout.marginWidth = 3;
-    SoxProxyLayout.marginHeight = 3;
-    wSocksProxyComp.setLayout(SoxProxyLayout);
+    FormLayout soxProxyLayout = new FormLayout();
+    soxProxyLayout.marginWidth = 3;
+    soxProxyLayout.marginHeight = 3;
+    wSocksProxyComp.setLayout(soxProxyLayout);
 
     // ////////////////////////////////////////////////////////
     // Start of Proxy Group
@@ -827,10 +830,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     props.setLook(wSocksProxy);
     wSocksProxy.setText(BaseMessages.getString(PKG, "ActionFtpDelete.SocksProxy.Group.Label"));
 
-    FormLayout SocksProxyGroupLayout = new FormLayout();
-    SocksProxyGroupLayout.marginWidth = 10;
-    SocksProxyGroupLayout.marginHeight = 10;
-    wSocksProxy.setLayout(SocksProxyGroupLayout);
+    FormLayout socksProxyGroupLayout = new FormLayout();
+    socksProxyGroupLayout.marginWidth = 10;
+    socksProxyGroupLayout.marginHeight = 10;
+    wSocksProxy.setLayout(socksProxyGroupLayout);
 
     // host line
     wSocksProxyHost =

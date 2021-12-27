@@ -39,7 +39,7 @@ import java.util.List;
 
 public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputData>
     implements ITransform<MongoDbInputMeta, MongoDbInputData> {
-  private static Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
+  private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
 
   private boolean serverDetermined;
   private Object[] currentInputRowDrivingQuery = null;

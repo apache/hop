@@ -249,7 +249,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     item.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           if (event.detail == SWT.ARROW) {
             Rectangle rect = item.getBounds();
             Point pt = new Point(rect.x, rect.y + rect.height);

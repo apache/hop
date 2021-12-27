@@ -42,7 +42,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class CypherScriptDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = CypherScriptDialog.class; // For Translator
+  private static final Class<?> PKG = CypherScriptDialog.class; // For Translator
 
   private Shell shell;
 
@@ -54,8 +54,6 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
   private MetaSelectionLine<NeoConnection> wConnection;
   private TextVar wScript;
   private Button wReplaceVariables;
-
-  private Button wOk, wCancel;
 
   public CypherScriptDialog(
       Shell parent, IAction iAction, WorkflowMeta workflowMeta, IVariables variables) {
@@ -130,10 +128,10 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
 
     // Add buttons first, then the script field can use dynamic sizing
     //
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
@@ -180,7 +178,7 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons(
         shell,
         new Button[] {
-          wOk, wCancel,
+                wOk, wCancel,
         },
         margin,
         null);

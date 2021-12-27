@@ -136,9 +136,9 @@ public class CombinationLookupMeta extends BaseTransformMeta
   @Injection(name = "LAST_UPDATE_FIELD")
   private String lastUpdateField;
 
-  public static String CREATION_METHOD_AUTOINC = "autoinc";
-  public static String CREATION_METHOD_SEQUENCE = "sequence";
-  public static String CREATION_METHOD_TABLEMAX = "tablemax";
+  public static final String CREATION_METHOD_AUTOINC = "autoinc";
+  public static final String CREATION_METHOD_SEQUENCE = "sequence";
+  public static final String CREATION_METHOD_TABLEMAX = "tablemax";
 
   @Injection(name = "CONNECTIONNAME")
   public void setConnection(String connectionName) {
@@ -325,7 +325,8 @@ public class CombinationLookupMeta extends BaseTransformMeta
       throws HopXmlException {
     this.databases = databases;
     try {
-      String commit, csize;
+      String commit;
+      String csize;
 
       schemaName = XmlHandler.getTagValue(transformNode, "schema");
       tableName = XmlHandler.getTagValue(transformNode, "table");
@@ -823,7 +824,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
             // What fields do we put int the index?
             // Only the hashcode or all fields?
             String crIndex = "";
-            String cr_uniqIndex = "";
+            String crUniqIndex = "";
             String[] idxFields = null;
             if (useHash) {
               if (hashField != null && hashField.length() > 0) {
@@ -858,10 +859,10 @@ public class CombinationLookupMeta extends BaseTransformMeta
               String[] techKeyArr = new String[] {technicalKeyField};
               if (!db.checkIndexExists(schemaTable, techKeyArr)) {
                 String indexname = "idx_" + tableName + "_pk";
-                cr_uniqIndex =
+                crUniqIndex =
                     db.getCreateIndexStatement(
                         schemaTable, indexname, techKeyArr, true, true, false, true);
-                cr_uniqIndex += Const.CR;
+                crUniqIndex += Const.CR;
               }
             }
 
@@ -884,7 +885,7 @@ public class CombinationLookupMeta extends BaseTransformMeta
                 crSeq += Const.CR;
               }
             }
-            retval.setSql(variables.resolve(crTable + cr_uniqIndex + crIndex + crSeq));
+            retval.setSql(variables.resolve(crTable + crUniqIndex + crIndex + crSeq));
           } catch (HopException e) {
             retval.setError(
                 BaseMessages.getString(PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred")

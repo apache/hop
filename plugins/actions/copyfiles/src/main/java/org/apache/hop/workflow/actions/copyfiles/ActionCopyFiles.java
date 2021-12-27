@@ -253,9 +253,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     List<RowMetaAndData> rows = result.getRows();
     RowMetaAndData resultRow = null;
 
-    int NbrFail = 0;
+    int nbrFail = 0;
 
-    NbrFail = 0;
+    nbrFail = 0;
 
     if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ActionCopyFiles.Log.Starting"));
@@ -310,7 +310,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 parentWorkflow,
                 result)) {
               // The copy process fail
-              NbrFail++;
+              nbrFail++;
             }
           } else {
             if (isDetailed()) {
@@ -347,7 +347,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 parentWorkflow,
                 result)) {
               // The copy process fail
-              NbrFail++;
+              nbrFail++;
             }
           } else {
             if (isDetailed()) {
@@ -368,11 +368,11 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
 
     // Check if all files was process with success
-    if (NbrFail == 0) {
+    if (nbrFail == 0) {
       result.setResult(true);
       result.setNrErrors(0);
     } else {
-      result.setNrErrors(NbrFail);
+      result.setNrErrors(nbrFail);
     }
 
     return result;

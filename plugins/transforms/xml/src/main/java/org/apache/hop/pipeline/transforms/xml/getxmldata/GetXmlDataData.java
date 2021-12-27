@@ -31,7 +31,9 @@ import java.text.*;
 import java.util.*;
 
 public class GetXmlDataData extends BaseTransformData implements ITransformData {
-  public String thisline, nextline, lastline;
+  public String thisline;
+  public String nextline;
+  public String lastline;
   public Object[] previousRow;
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

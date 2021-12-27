@@ -53,7 +53,7 @@ import java.util.Map;
     categoryDescription = "Input",
     keywords = "Load text from file,Tika,Apache,content analysis toolkit")
 public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, TikaData> {
-  private static Class<?> PKG = TikaMeta.class; // for Translator
+  private static final Class<?> PKG = TikaMeta.class; // for Translator
 
   /** The list of files to read */
   @HopMetadataProperty(

@@ -203,13 +203,13 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
   @Override
   public Result execute(Result previousResult, int nr) {
-    String ReplaceIgnore;
-    String IgnoreNbrLignes = "";
-    String ListOfColumn = "";
-    String LocalExec = "";
-    String PriorityText = "";
-    String LineTerminatedby = "";
-    String FieldTerminatedby = "";
+    String replaceIgnore;
+    String ignoreNbrLignes = "";
+    String listOfColumn = "";
+    String localExec = "";
+    String priorityText = "";
+    String lineTerminatedby = "";
+    String fieldTerminatedby = "";
 
     Result result = previousResult;
     result.setResult(false);
@@ -272,59 +272,59 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                 // Set the REPLACE or IGNORE
                 if (isReplacedata()) {
-                  ReplaceIgnore = "REPLACE";
+                  replaceIgnore = "REPLACE";
                 } else {
-                  ReplaceIgnore = "IGNORE";
+                  replaceIgnore = "IGNORE";
                 }
 
                 // Set the IGNORE LINES
                 if (Const.toInt(getRealIgnorelines(), 0) > 0) {
-                  IgnoreNbrLignes = "IGNORE " + getRealIgnorelines() + " LINES";
+                  ignoreNbrLignes = "IGNORE " + getRealIgnorelines() + " LINES";
                 }
 
                 // Set list of Column
                 if (getRealListattribut() != null) {
-                  ListOfColumn = "(" + MysqlString(getRealListattribut()) + ")";
+                  listOfColumn = "(" + MysqlString(getRealListattribut()) + ")";
                 }
 
                 // Local File execution
                 if (isLocalInfile()) {
-                  LocalExec = "LOCAL";
+                  localExec = "LOCAL";
                 }
 
                 // Prority
                 if (prorityvalue == 1) {
                   // LOW
-                  PriorityText = "LOW_PRIORITY";
+                  priorityText = "LOW_PRIORITY";
                 } else if (prorityvalue == 2) {
                   // CONCURRENT
-                  PriorityText = "CONCURRENT";
+                  priorityText = "CONCURRENT";
                 }
 
                 // Fields ....
                 if (getRealSeparator() != null
                     || getRealEnclosed() != null
                     || getRealEscaped() != null) {
-                  FieldTerminatedby = "FIELDS ";
+                  fieldTerminatedby = "FIELDS ";
 
                   if (getRealSeparator() != null) {
-                    FieldTerminatedby =
-                        FieldTerminatedby
+                    fieldTerminatedby =
+                        fieldTerminatedby
                             + "TERMINATED BY '"
                             + Const.replace(getRealSeparator(), "'", "''")
                             + "'";
                   }
                   if (getRealEnclosed() != null) {
-                    FieldTerminatedby =
-                        FieldTerminatedby
+                    fieldTerminatedby =
+                        fieldTerminatedby
                             + " ENCLOSED BY '"
                             + Const.replace(getRealEnclosed(), "'", "''")
                             + "'";
                   }
                   if (getRealEscaped() != null) {
 
-                    FieldTerminatedby =
-                        FieldTerminatedby
+                    fieldTerminatedby =
+                        fieldTerminatedby
                             + " ESCAPED BY '"
                             + Const.replace(getRealEscaped(), "'", "''")
                             + "'";
@@ -333,12 +333,12 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                 // LINES ...
                 if (getRealLinestarted() != null || getRealLineterminated() != null) {
-                  LineTerminatedby = "LINES ";
+                  lineTerminatedby = "LINES ";
 
                   // Line starting By
                   if (getRealLinestarted() != null) {
-                    LineTerminatedby =
-                        LineTerminatedby
+                    lineTerminatedby =
+                        lineTerminatedby
                             + "STARTING BY '"
                             + Const.replace(getRealLinestarted(), "'", "''")
                             + "'";
@@ -346,38 +346,38 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                   // Line terminating By
                   if (getRealLineterminated() != null) {
-                    LineTerminatedby =
-                        LineTerminatedby
+                    lineTerminatedby =
+                        lineTerminatedby
                             + " TERMINATED BY '"
                             + Const.replace(getRealLineterminated(), "'", "''")
                             + "'";
                   }
                 }
 
-                String SqlBulkLoad =
+                String sqlBulkLoad =
                     "LOAD DATA "
-                        + PriorityText
+                        + priorityText
                         + " "
-                        + LocalExec
+                        + localExec
                         + " INFILE '"
                         + realFilename.replace('\\', '/')
                         + "' "
-                        + ReplaceIgnore
+                        + replaceIgnore
                         + " INTO TABLE "
                         + realTablename
                         + " "
-                        + FieldTerminatedby
+                        + fieldTerminatedby
                         + " "
-                        + LineTerminatedby
+                        + lineTerminatedby
                         + " "
-                        + IgnoreNbrLignes
+                        + ignoreNbrLignes
                         + " "
-                        + ListOfColumn
+                        + listOfColumn
                         + ";";
 
                 try {
                   // Run the SQL
-                  db.execStatement(SqlBulkLoad);
+                  db.execStatement(sqlBulkLoad);
 
                   // Everything is OK...we can deconnect now
                   db.disconnect();

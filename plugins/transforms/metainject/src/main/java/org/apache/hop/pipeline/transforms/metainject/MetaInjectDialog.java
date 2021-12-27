@@ -102,7 +102,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   // the target file
   //
   private TextVar wTargetFile;
-  private Button wbFilename; // Browse for optional target file
 
   // don't execute the transformation
   //
@@ -452,7 +451,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdlTargetFile.top = new FormAttachment(wSourceFields, 10);
     wlTargetFile.setLayoutData(fdlTargetFile);
 
-    wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
+    // Browse for optional target file
+    Button wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbFilename.setToolTipText(
@@ -485,21 +485,21 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     wCreateParentFolder = new Button(wOptionsComp, SWT.CHECK);
     wCreateParentFolder.setText(
-            BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Label"));
+        BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Label"));
     wCreateParentFolder.setToolTipText(
-            BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Tooltip"));
+        BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Tooltip"));
     props.setLook(wCreateParentFolder);
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment(0, 0);
     fdCreateParentFolder.top = new FormAttachment(wTargetFile, margin);
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                metaInjectMeta.setChanged();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            metaInjectMeta.setChanged();
+          }
+        });
 
     // the streaming source transform
     //

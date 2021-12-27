@@ -50,7 +50,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/salesforceupsert.html")
 public class SalesforceUpsertMeta
     extends SalesforceTransformMeta<SalesforceUpsert, SalesforceUpsertData> {
-  private static Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
 
   /** UpsertField */
   private String UpsertField;

@@ -162,13 +162,13 @@ public class DtdValidatorUtil {
 
             if (dtdFileObject.exists()) {
               if (xmlStartDTD != -1) {
-                int EndDTD = xmlStringbuffer.indexOf(">", xmlStartDTD);
-                xmlStringbuffer.replace(xmlStartDTD, EndDTD + 1, "");
+                int endDTD = xmlStringbuffer.indexOf(">", xmlStartDTD);
+                xmlStringbuffer.replace(xmlStartDTD, endDTD + 1, "");
               }
 
               String xmlRootnodeDTD = xmlDocDTD.getDocumentElement().getNodeName();
 
-              String RefDTD =
+              String refDTD =
                   "<?xml version='"
                       + xmlDocDTD.getXmlVersion()
                       + "' encoding='"
@@ -180,7 +180,7 @@ public class DtdValidatorUtil {
                       + "'>\n";
 
               int xmloffsetDTD = xmlStringbuffer.indexOf("<" + xmlRootnodeDTD);
-              xmlStringbuffer.replace(0, xmloffsetDTD, RefDTD);
+              xmlStringbuffer.replace(0, xmloffsetDTD, refDTD);
             } else {
               log.logError(
                   BaseMessages.getString(PKG, "ActionDTDValidator.ERRORDTDFileNotExists.Subject"),

@@ -797,10 +797,10 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AddResult.Label"));
@@ -865,8 +865,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions(new Button[] {wbGetFields}, margin, null);
 
     final int FieldsRows = input.getField().length;
-    int FieldsWidth = 600;
-    int FieldsHeight = 150;
+    int fieldsWidth = 600;
+    int fieldsHeight = 150;
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -923,7 +923,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             FieldsRows,
             lsMod,
             props);
-    wFields.setSize(FieldsWidth, FieldsHeight);
+    wFields.setSize(fieldsWidth, fieldsHeight);
     wFields.addModifyListener(arg0 -> checkAlerts());
 
     FormData fdFields = new FormData();

@@ -46,15 +46,11 @@ public class EnterSearchDialog {
   private boolean searchingNotes;
   private String filterString;
 
-  private Label wlTransform;
   private Button wTransform;
 
-  private Label wlDB;
   private Button wDB;
-  private Label wlNote;
   private Button wNote;
 
-  private Label wlFilter;
   private Text wFilter;
 
   public EnterSearchDialog(Shell parentShell) {
@@ -83,7 +79,7 @@ public class EnterSearchDialog {
     int margin = props.getMargin();
 
     // Search Transforms?...
-    wlTransform = new Label(shell, SWT.RIGHT);
+    Label wlTransform = new Label(shell, SWT.RIGHT);
     wlTransform.setText(BaseMessages.getString(PKG, "EnterSearchDialog.Transform.Label"));
     props.setLook(wlTransform);
     FormData fdlTransform = new FormData();
@@ -102,7 +98,7 @@ public class EnterSearchDialog {
     wTransform.setLayoutData(fdTransform);
 
     // Search databases...
-    wlDB = new Label(shell, SWT.RIGHT);
+    Label wlDB = new Label(shell, SWT.RIGHT);
     wlDB.setText(BaseMessages.getString(PKG, "EnterSearchDialog.DB.Label"));
     props.setLook(wlDB);
     FormData fdlDB = new FormData();
@@ -120,7 +116,7 @@ public class EnterSearchDialog {
     wDB.setLayoutData(fdDB);
 
     // Search notes...
-    wlNote = new Label(shell, SWT.RIGHT);
+    Label wlNote = new Label(shell, SWT.RIGHT);
     wlNote.setText(BaseMessages.getString(PKG, "EnterSearchDialog.Note.Label"));
     props.setLook(wlNote);
     FormData fdlNote = new FormData();
@@ -138,7 +134,7 @@ public class EnterSearchDialog {
     wNote.setLayoutData(fdNote);
 
     // Filter line
-    wlFilter = new Label(shell, SWT.RIGHT);
+    Label wlFilter = new Label(shell, SWT.RIGHT);
     wlFilter.setText(
         BaseMessages.getString(PKG, "EnterSearchDialog.FilterSelection.Label")); // Select filter
     props.setLook(wlFilter);

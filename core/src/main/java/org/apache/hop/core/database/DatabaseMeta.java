@@ -61,9 +61,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   // Comparator for sorting databases alphabetically by name
   public static final Comparator<DatabaseMeta> comparator =
-      (DatabaseMeta dbm1, DatabaseMeta dbm2) -> {
-        return dbm1.getName().compareToIgnoreCase(dbm2.getName());
-      };
+      (DatabaseMeta dbm1, DatabaseMeta dbm2) -> dbm1.getName().compareToIgnoreCase(dbm2.getName());
 
   @HopMetadataProperty(key = "rdbms")
   private IDatabase iDatabase;

@@ -658,10 +658,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       String replyToAddress = resolve(replyToAddresses);
       if (!Utils.isEmpty(replyToAddress)) {
         // Split the mail-address: variables separated
-        String[] reply_Address_List = resolve(replyToAddress).split(" ");
-        InternetAddress[] address = new InternetAddress[reply_Address_List.length];
-        for (int i = 0; i < reply_Address_List.length; i++) {
-          address[i] = new InternetAddress(reply_Address_List[i]);
+        String[] replyAddressList = resolve(replyToAddress).split(" ");
+        InternetAddress[] address = new InternetAddress[replyAddressList.length];
+        for (int i = 0; i < replyAddressList.length; i++) {
+          address[i] = new InternetAddress(replyAddressList[i]);
         }
         msg.setReplyTo(address);
       }

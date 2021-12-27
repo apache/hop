@@ -478,35 +478,12 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
             getMetadata().getManualUrls().size(),
             e -> setChanged(),
             props);
-    wUrls.table.addListener(
-        SWT.Selection,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.MouseDown,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.MouseUp,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.FocusIn,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.FocusOut,
-        e -> {
-          enableFields();
-        });
-    wUrls.addModifyListener(
-        e -> {
-          enableFields();
-        });
+    wUrls.table.addListener(SWT.Selection, e -> enableFields());
+    wUrls.table.addListener(SWT.MouseDown, e -> enableFields());
+    wUrls.table.addListener(SWT.MouseUp, e -> enableFields());
+    wUrls.table.addListener(SWT.FocusIn, e -> enableFields());
+    wUrls.table.addListener(SWT.FocusOut, e -> enableFields());
+    wUrls.addModifyListener(e -> enableFields());
 
     FormData fdUrls = new FormData();
     fdUrls.top = new FormAttachment(0, 0);

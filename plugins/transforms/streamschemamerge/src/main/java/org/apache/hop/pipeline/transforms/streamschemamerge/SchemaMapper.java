@@ -32,7 +32,7 @@ public class SchemaMapper {
   IRowMeta row; // resolved row meta
   int[][] mapping;
 
-  public SchemaMapper(IRowMeta info[]) throws HopPluginException {
+  public SchemaMapper(IRowMeta[] info) throws HopPluginException {
     unionMerge(info);
   }
 
@@ -42,7 +42,7 @@ public class SchemaMapper {
    *
    * @param info row metas for the fields to merge
    */
-  private void unionMerge(IRowMeta info[]) throws HopPluginException {
+  private void unionMerge(IRowMeta[] info) throws HopPluginException {
     // do set up
     mapping = new int[info.length][];
     IRowMeta base = info[0].clone();

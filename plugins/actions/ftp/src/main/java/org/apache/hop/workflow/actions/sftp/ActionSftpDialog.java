@@ -197,10 +197,10 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     props.setLook(wServerSettings);
     wServerSettings.setText(BaseMessages.getString(PKG, "ActionSftp.ServerSettings.Group.Label"));
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
@@ -518,10 +518,10 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFilesComp);
 
-    FormLayout FilesLayout = new FormLayout();
-    FilesLayout.marginWidth = 3;
-    FilesLayout.marginHeight = 3;
-    wFilesComp.setLayout(FilesLayout);
+    FormLayout filesLayout = new FormLayout();
+    filesLayout.marginWidth = 3;
+    filesLayout.marginHeight = 3;
+    wFilesComp.setLayout(filesLayout);
 
     // ////////////////////////
     // START OF Source files GROUP///
@@ -529,10 +529,10 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     Group wSourceFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
     props.setLook(wSourceFiles);
     wSourceFiles.setText(BaseMessages.getString(PKG, "ActionSftp.SourceFiles.Group.Label"));
-    FormLayout SourceFilesgroupLayout = new FormLayout();
-    SourceFilesgroupLayout.marginWidth = 10;
-    SourceFilesgroupLayout.marginHeight = 10;
-    wSourceFiles.setLayout(SourceFilesgroupLayout);
+    FormLayout sourceFilesgroupLayout = new FormLayout();
+    sourceFilesgroupLayout.marginWidth = 10;
+    sourceFilesgroupLayout.marginHeight = 10;
+    wSourceFiles.setLayout(sourceFilesgroupLayout);
 
     // Get arguments from previous result...
     Label wlGetPrevious = new Label(wSourceFiles, SWT.RIGHT);
@@ -651,10 +651,10 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     Group wTargetFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
     props.setLook(wTargetFiles);
     wTargetFiles.setText(BaseMessages.getString(PKG, "ActionSftp.TargetFiles.Group.Label"));
-    FormLayout TargetFilesgroupLayout = new FormLayout();
-    TargetFilesgroupLayout.marginWidth = 10;
-    TargetFilesgroupLayout.marginHeight = 10;
-    wTargetFiles.setLayout(TargetFilesgroupLayout);
+    FormLayout targetFilesgroupLayout = new FormLayout();
+    targetFilesgroupLayout.marginWidth = 10;
+    targetFilesgroupLayout.marginHeight = 10;
+    wTargetFiles.setLayout(targetFilesgroupLayout);
 
     // TargetDirectory line
     Label wlTargetDirectory = new Label(wTargetFiles, SWT.RIGHT);
@@ -800,7 +800,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToSftp(boolean checkFolder, String Remotefoldername) {
+  private boolean connectToSftp(boolean checkFolder, String remotefoldername) {
     boolean retval = false;
     try {
       WorkflowMeta workflowMeta = getWorkflowMeta();
@@ -832,7 +832,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
         retval = true;
       }
       if (checkFolder) {
-        retval = sftpclient.folderExists(Remotefoldername);
+        retval = sftpclient.folderExists(remotefoldername);
       }
     } catch (Exception e) {
       if (sftpclient != null) {

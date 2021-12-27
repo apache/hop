@@ -46,13 +46,13 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
     implements ITransform<AzureListenerMeta, AzureListenerData> {
 
   public AzureListener(
-      TransformMeta TransformMeta,
+      TransformMeta transformMeta,
       AzureListenerMeta meta,
       AzureListenerData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    super(TransformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -294,7 +294,7 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
                 }
               })
           .thenAccept(
-              (unused) -> {
+              unused -> {
                 // This stage will only execute if registerEventProcessor succeeded.
                 // If it completed exceptionally, this stage will be skipped.
                 //
@@ -309,19 +309,18 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
                 }
               })
           .thenCompose(
-              (unused) -> {
-                // This stage will only execute if registerEventProcessor succeeded.
-                //
-                // Processing of events continues until unregisterEventProcessor is called.
-                // Unregistering shuts down the
-                // receivers on all currently owned leases, shuts down the instances of the event
-                // processor class, and
-                // releases the leases for other instances of EventProcessorHost to claim.
-                //
-                return host.unregisterEventProcessor();
-              })
+              unused ->
+                  // This stage will only execute if registerEventProcessor succeeded.
+                  //
+                  // Processing of events continues until unregisterEventProcessor is called.
+                  // Unregistering shuts down the
+                  // receivers on all currently owned leases, shuts down the instances of the event
+                  // processor class, and
+                  // releases the leases for other instances of EventProcessorHost to claim.
+                  //
+                  host.unregisterEventProcessor())
           .exceptionally(
-              (e) -> {
+              e -> {
                 logError("Failure while unregistering: " + e.toString());
                 if (e.getCause() != null) {
                   logError("Inner exception: " + e.getCause().toString());

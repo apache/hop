@@ -39,13 +39,13 @@ public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData>
     implements ITransform<AzureWriterMeta, AzureWriterData> {
 
   public AzureWrite(
-      TransformMeta TransformMeta,
+      TransformMeta transformMeta,
       AzureWriterMeta meta,
       AzureWriterData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    super(TransformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override

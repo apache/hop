@@ -60,9 +60,6 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
   private ComboVar wContentType;
   private Button wListStatus;
 
-  private int middle;
-  private int margin;
-
   public WebServiceEditor(HopGui hopGui, MetadataManager<WebService> manager, WebService metadata) {
     super(hopGui, manager, metadata);
   }
@@ -72,8 +69,8 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
 
     PropsUi props = PropsUi.getInstance();
 
-    middle = props.getMiddlePct();
-    margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());
@@ -143,11 +140,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdbbFilename.right = new FormAttachment(100, 0);
     fdbbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbbFilename.setLayoutData(fdbbFilename);
-    wbbFilename.addListener(
-        SWT.Selection,
-        e -> {
-          selectPipelineFilename(parent);
-        });
+    wbbFilename.addListener(SWT.Selection, e -> selectPipelineFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
     props.setLook(wbnFilename);
@@ -156,11 +149,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
     fdbnFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbnFilename.setLayoutData(fdbnFilename);
-    wbnFilename.addListener(
-        SWT.Selection,
-        e -> {
-          createPipelineFile(parent);
-        });
+    wbnFilename.addListener(SWT.Selection, e -> createPipelineFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
     props.setLook(wboFilename);
@@ -169,11 +158,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
     fdboFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wboFilename.setLayoutData(fdboFilename);
-    wboFilename.addListener(
-        SWT.Selection,
-        e -> {
-          openPipelineFile(parent);
-        });
+    wboFilename.addListener(SWT.Selection, e -> openPipelineFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wFilename);
@@ -262,7 +247,6 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdListStatus.right = new FormAttachment(100, 0);
     fdListStatus.top = new FormAttachment(wlListStatus, 0, SWT.CENTER);
     wListStatus.setLayoutData(fdListStatus);
-    lastControl = wlListStatus;
 
     setWidgetsContent();
 

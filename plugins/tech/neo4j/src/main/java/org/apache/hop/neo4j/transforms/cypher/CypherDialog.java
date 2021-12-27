@@ -66,7 +66,8 @@ import java.util.Map;
 
 public class CypherDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = CypherMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      CypherMeta.class; // for i18n purposes, needed by Translator2!!
 
   private CTabFolder wTabFolder;
 
@@ -460,7 +461,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wbGetParameters.setLayoutData(fdbGetParameters);
     wbGetParameters.addListener(
         SWT.Selection,
-        (e) -> {
+        e -> {
           try {
             IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
@@ -572,7 +573,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     fdbGetReturnFields.right = new FormAttachment(100, 0);
     fdbGetReturnFields.top = new FormAttachment(wlReturns, 0, SWT.BOTTOM);
     wbGetReturnFields.setLayoutData(fdbGetReturnFields);
-    wbGetReturnFields.addListener(SWT.Selection, (e) -> getReturnValues());
+    wbGetReturnFields.addListener(SWT.Selection, e -> getReturnValues());
 
     wReturns =
         new TableView(

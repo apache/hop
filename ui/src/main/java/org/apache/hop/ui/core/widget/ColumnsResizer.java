@@ -61,7 +61,8 @@ public class ColumnsResizer implements Listener {
         TableColumn column = (TableColumn) event.widget;
         Table table = column.getParent();
         TableColumn[] columns = table.getColumns();
-        int firstWidth = 0, restWidth = 0;
+        int firstWidth = 0;
+        int restWidth = 0;
         int len = Math.min(weights.length, columns.length);
         for (int i = 0; i <= colIdx; i++) {
           firstWidth += columns[i].getWidth();

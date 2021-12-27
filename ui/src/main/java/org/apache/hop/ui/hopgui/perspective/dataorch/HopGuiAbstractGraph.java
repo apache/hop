@@ -60,7 +60,9 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected CTabItem parentTabItem;
 
-  protected Point offset, iconOffset, noteOffset;
+  protected Point offset;
+  protected Point iconOffset;
+  protected Point noteOffset;
 
   protected ScrolledComposite wsCanvas;
   protected Canvas canvas;
