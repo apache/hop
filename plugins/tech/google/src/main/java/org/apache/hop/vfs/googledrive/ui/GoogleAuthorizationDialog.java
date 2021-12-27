@@ -115,9 +115,7 @@ public class GoogleAuthorizationDialog extends Dialog {
 
       helpLabel.addListener(
           SWT.MouseExit,
-          event -> {
-            helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170)));
-          });
+          event -> helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170))));
 
       Label cancelButton = new Label(dialog, SWT.NONE);
       Image closeImage =

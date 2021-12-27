@@ -81,7 +81,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private LabelTextVar wAuthPass;
 
-  private LabelTextVar wReply, wReplyName;
+  private LabelTextVar wReply;
+  private LabelTextVar wReplyName;
 
   private LabelTextVar wSubject;
 
@@ -105,7 +106,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private TextVar wComment;
 
-  private Button wOnlyComment, wUseHTML, wUsePriority;
+  private Button wOnlyComment;
+  private Button wUseHTML;
+  private Button wUsePriority;
 
   private Label wlEncoding;
   private CCombo wEncoding;
@@ -126,15 +129,22 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private ActionMail action;
 
-  private boolean backupDate, backupChanged;
+  private boolean backupDate;
+  private boolean backupChanged;
 
   private boolean gotEncodings = false;
 
   private LabelTextVar wReplyToAddress;
 
-  private Label wlImageFilename, wlContentID, wlFields;
-  private Button wbImageFilename, wbaImageFilename, wbdImageFilename, wbeImageFilename;
-  private TextVar wImageFilename, wContentID;
+  private Label wlImageFilename;
+  private Label wlContentID;
+  private Label wlFields;
+  private Button wbImageFilename;
+  private Button wbaImageFilename;
+  private Button wbdImageFilename;
+  private Button wbeImageFilename;
+  private TextVar wImageFilename;
+  private TextVar wContentID;
   private TableView wFields;
 
   public ActionMailDialog(

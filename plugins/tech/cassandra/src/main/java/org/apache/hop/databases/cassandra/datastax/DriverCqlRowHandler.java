@@ -230,7 +230,9 @@ public class DriverCqlRowHandler implements CqlRowHandler {
 
   protected static <T> T[] copyExcluding(T[] source, T[] target, List<Integer> toRemove) {
     int removed = toRemove.size();
-    int start = 0, dest = 0, removeCount = 0;
+    int start = 0;
+    int dest = 0;
+    int removeCount = 0;
     for (int idx : toRemove) {
       int len = idx - start;
       if (len > 0) {

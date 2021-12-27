@@ -48,7 +48,7 @@ import java.util.List;
 public class TransformMetaStructureMeta extends BaseTransformMeta
     implements ITransformMeta<TransformMetaStructure, TransformMetaStructureData> {
 
-  private static Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
+  private static final Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includePositionField;

@@ -107,13 +107,13 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData>
           data.setEmptyString = new boolean[typeLength];
 
           // return all type codes
-          HashSet<String> AlllistTypes = new HashSet<>();
+          HashSet<String> alllistTypes = new HashSet<>();
           for (int i = 0; i < IValueMeta.typeCodes.length; i++) {
-            AlllistTypes.add(IValueMeta.typeCodes[i]);
+            alllistTypes.add(IValueMeta.typeCodes[i]);
           }
 
           for (int i = 0; i < meta.getValueTypes().length; i++) {
-            if (!AlllistTypes.contains(meta.getValueTypes()[i].getTypeName())) {
+            if (!alllistTypes.contains(meta.getValueTypes()[i].getTypeName())) {
               throw new HopException(
                   BaseMessages.getString(
                       PKG,

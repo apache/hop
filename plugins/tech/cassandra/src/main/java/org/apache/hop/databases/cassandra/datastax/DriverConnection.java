@@ -40,7 +40,8 @@ public class DriverConnection implements Connection, AutoCloseable {
 
   private String host;
   private int port = 9042;
-  private String username, password;
+  private String username;
+  private String password;
   private Map<String, String> opts = new HashMap<>();
   private Cluster cluster;
   private boolean useCompression;

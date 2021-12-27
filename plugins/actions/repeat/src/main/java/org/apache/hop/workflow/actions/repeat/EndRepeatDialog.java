@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.*;
 
 public class EndRepeatDialog extends ActionDialog implements IActionDialog {
 
-  private static Class<?> PKG = EndRepeatDialog.class; // For Translator
+  private static final Class<?> PKG = EndRepeatDialog.class; // For Translator
 
   private Shell shell;
 

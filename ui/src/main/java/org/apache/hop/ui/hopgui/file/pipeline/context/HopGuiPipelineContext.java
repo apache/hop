@@ -88,16 +88,15 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
               transformPlugin.getName(),
               transformPlugin.getDescription(),
               transformPlugin.getImageFile(),
-              (shiftClicked, controlClicked, t) -> {
-                pipelineGraph.pipelineTransformDelegate.newTransform(
-                    pipelineMeta,
-                    transformPlugin.getIds()[0],
-                    transformPlugin.getName(),
-                    transformPlugin.getDescription(),
-                    controlClicked,
-                    true,
-                    click);
-              });
+              (shiftClicked, controlClicked, t) ->
+                  pipelineGraph.pipelineTransformDelegate.newTransform(
+                      pipelineMeta,
+                      transformPlugin.getIds()[0],
+                      transformPlugin.getName(),
+                      transformPlugin.getDescription(),
+                      controlClicked,
+                      true,
+                      click));
       createTransformAction.getKeywords().addAll(Arrays.asList(transformPlugin.getKeywords()));
       createTransformAction.setCategory(transformPlugin.getCategory());
       createTransformAction.setCategoryOrder(

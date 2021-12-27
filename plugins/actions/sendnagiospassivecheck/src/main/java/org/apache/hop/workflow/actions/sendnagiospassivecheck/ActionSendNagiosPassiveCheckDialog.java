@@ -158,11 +158,11 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
 
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     wServerName =
@@ -268,10 +268,10 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     props.setLook(wSenderSettings);
     wSenderSettings.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderSettings.Group.Label"));
-    FormLayout SenderSettingsgroupLayout = new FormLayout();
-    SenderSettingsgroupLayout.marginWidth = 10;
-    SenderSettingsgroupLayout.marginHeight = 10;
-    wSenderSettings.setLayout(SenderSettingsgroupLayout);
+    FormLayout senderSettingsgroupLayout = new FormLayout();
+    senderSettingsgroupLayout.marginWidth = 10;
+    senderSettingsgroupLayout.marginHeight = 10;
+    wSenderSettings.setLayout(senderSettingsgroupLayout);
 
     // SenderServerName line
     wSenderServerName =
@@ -369,10 +369,10 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     props.setLook(wMessageGroup);
     wMessageGroup.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.MessageGroup.Group.Label"));
-    FormLayout MessageGroupgroupLayout = new FormLayout();
-    MessageGroupgroupLayout.marginWidth = 10;
-    MessageGroupgroupLayout.marginHeight = 10;
-    wMessageGroup.setLayout(MessageGroupgroupLayout);
+    FormLayout messageGroupgroupLayout = new FormLayout();
+    messageGroupgroupLayout.marginWidth = 10;
+    messageGroupgroupLayout.marginHeight = 10;
+    wMessageGroup.setLayout(messageGroupgroupLayout);
 
     // Message line
     Label wlMessage = new Label(wMessageGroup, SWT.RIGHT);

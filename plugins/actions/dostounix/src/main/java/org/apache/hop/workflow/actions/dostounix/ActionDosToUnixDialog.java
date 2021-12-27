@@ -58,7 +58,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
   private Text wName;
 
   private Label wlSourceFileFolder;
-  private Button wbSourceFileFolder, wbSourceDirectory;
+  private Button wbSourceFileFolder;
+  private Button wbSourceDirectory;
 
   private TextVar wSourceFileFolder;
 
@@ -84,7 +85,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
   // Add File to result
 
-  private CCombo wSuccessCondition, wAddFilenameToResult;
+  private CCombo wSuccessCondition;
+  private CCombo wAddFilenameToResult;
 
   private Label wlNrErrorsLessThan;
   private TextVar wNrErrorsLessThan;

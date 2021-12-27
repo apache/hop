@@ -484,9 +484,9 @@ public class PropertyOutputMeta extends BaseTransformMeta
     return valuefield;
   }
 
-  /** @param KeyField the keyfield to set */
-  public void setKeyField(String KeyField) {
-    this.keyfield = KeyField;
+  /** @param keyField the keyfield to set */
+  public void setKeyField(String keyField) {
+    this.keyfield = keyField;
   }
 
   /** @param valuefield the valuefield to set */

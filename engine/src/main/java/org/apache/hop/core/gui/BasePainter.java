@@ -54,7 +54,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Point area;
 
-  protected IScrollBar hori, vert;
+  protected IScrollBar hori;
+  protected IScrollBar vert;
 
   protected List<AreaOwner> areaOwners;
 

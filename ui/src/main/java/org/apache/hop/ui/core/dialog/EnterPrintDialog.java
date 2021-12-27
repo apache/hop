@@ -56,10 +56,16 @@ public class EnterPrintDialog extends Dialog {
   private Shell shell;
   private PropsUi props;
 
-  public int nrcols, nrrows, scale;
+  public int nrcols;
+  public int nrrows;
+  public int scale;
   public Point page;
-  public double factorx, factory;
-  public double leftMargin, rightMargin, topMargin, bottomMargin;
+  public double factorx;
+  public double factory;
+  public double leftMargin;
+  public double rightMargin;
+  public double topMargin;
+  public double bottomMargin;
 
   public EnterPrintDialog(
       Shell parent,

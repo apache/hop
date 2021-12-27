@@ -106,7 +106,7 @@ public class HopDescribedVariablesDialog extends Dialog {
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int FieldsRows = 0;
+    int fieldsRows = 0;
 
     ColumnInfo[] columns = {
       new ColumnInfo(
@@ -135,7 +135,7 @@ public class HopDescribedVariablesDialog extends Dialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             columns,
-            FieldsRows,
+            fieldsRows,
             null,
             props);
 

@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.*;
 
 public class MongoDbInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
+  private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
 
   private MetaSelectionLine<MongoDbConnection> wConnection;
 

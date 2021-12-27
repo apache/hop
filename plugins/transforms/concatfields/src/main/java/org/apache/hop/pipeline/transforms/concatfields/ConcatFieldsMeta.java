@@ -156,7 +156,8 @@ public class ConcatFieldsMeta extends BaseTransformMeta
     disableEnclosureFix = false;
     padded = false;
 
-    int i, nrFields = 0;
+    int i;
+    int nrFields = 0;
 
     allocate(nrFields);
 

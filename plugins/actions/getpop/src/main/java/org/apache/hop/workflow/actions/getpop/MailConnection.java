@@ -51,7 +51,6 @@ public class MailConnection {
   private String username;
   private String password;
   private boolean usessl;
-  private boolean write;
   private boolean useproxy;
   private String proxyusername;
   /** Protocol used. Should be PROTOCOL_POP3 (0) for POP3 and PROTOCOL_IMAP (1) to IMAP */
@@ -306,7 +305,6 @@ public class MailConnection {
    */
   public void openFolder(String folderName, boolean defaultFolder, boolean write)
       throws HopException {
-    this.write = write;
     try {
       if (getFolder() != null) {
         // A folder is already opened
@@ -342,7 +340,7 @@ public class MailConnection {
               BaseMessages.getString(PKG, "ActionGetMailsFromPOP.InvalidFolder.Label"));
         }
       }
-      if (this.write) {
+      if (write) {
         if (log.isDebug()) {
           log.logDebug(
               BaseMessages.getString(
@@ -759,13 +757,13 @@ public class MailConnection {
 
       if (disposition.equalsIgnoreCase(Part.ATTACHMENT)
           || disposition.equalsIgnoreCase(Part.INLINE)) {
-        String MimeText = null;
+        String mimeText = null;
         try {
-          MimeText = MimeUtility.decodeText(part.getFileName());
+          mimeText = MimeUtility.decodeText(part.getFileName());
         } catch (Exception e) {
           // Ignore errors
         }
-        if (MimeText != null) {
+        if (mimeText != null) {
           String filename = MimeUtility.decodeText(part.getFileName());
           if (isWildcardMatch(filename, pattern)) {
             // Save file
@@ -793,12 +791,13 @@ public class MailConnection {
     if (fileName == null || folderName == null) {
       throw new IllegalArgumentException("Cannot have null arguments to findValidTarget");
     }
-    String fileNameRoot = FilenameUtils.getBaseName(fileName),
-        ext = "." + FilenameUtils.getExtension(fileName);
+    String fileNameRoot = FilenameUtils.getBaseName(fileName);
+    String ext = "." + FilenameUtils.getExtension(fileName);
     if ((ext.length() == 1)) { // only a "."
       ext = "";
     }
-    String rtn = "", base = FilenameUtils.concat(folderName, fileNameRoot);
+    String rtn = "";
+    String base = FilenameUtils.concat(folderName, fileNameRoot);
     int baseSz = base.length();
     StringBuilder build = new StringBuilder(baseSz).append(base);
     int i = -1;
@@ -1356,13 +1355,13 @@ public class MailConnection {
           if ((disposition != null)
               && (disposition.equalsIgnoreCase(Part.ATTACHMENT)
                   || disposition.equalsIgnoreCase(Part.INLINE))) {
-            String MimeText = null;
+            String mimeText = null;
             try {
-              MimeText = MimeUtility.decodeText(part.getFileName());
+              mimeText = MimeUtility.decodeText(part.getFileName());
             } catch (Exception e) {
               // Ignore errors
             }
-            if (MimeText != null) {
+            if (mimeText != null) {
               String filename = MimeUtility.decodeText(part.getFileName());
               if (isWildcardMatch(filename, pattern)) {
                 retval++;

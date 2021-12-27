@@ -43,7 +43,6 @@ public class HopToStringFn extends DoFn<HopRow, String> {
   private List<String> xpPluginClasses;
 
   private transient IRowMeta rowMeta;
-  private transient Counter initCounter;
   private transient Counter readCounter;
   private transient Counter outputCounter;
   private transient Counter errorCounter;
@@ -71,7 +70,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
   @Setup
   public void setUp() {
     try {
-      initCounter = Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName);
+      Counter initCounter = Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName);
       readCounter = Metrics.counter(Pipeline.METRIC_NAME_READ, counterName);
       outputCounter = Metrics.counter(Pipeline.METRIC_NAME_OUTPUT, counterName);
       errorCounter = Metrics.counter(Pipeline.METRIC_NAME_ERROR, counterName);

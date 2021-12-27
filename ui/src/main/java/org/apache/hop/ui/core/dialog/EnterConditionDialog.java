@@ -44,9 +44,6 @@ public class EnterConditionDialog extends Dialog {
   private Shell shell;
   private ConditionEditor wCond;
 
-  private Button wOk;
-  private Button wCancel;
-
   private Condition condition;
   private IRowMeta fields;
 
@@ -81,10 +78,10 @@ public class EnterConditionDialog extends Dialog {
     }
 
     // Buttons
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);

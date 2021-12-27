@@ -64,7 +64,9 @@ public class PipelineDialog extends Dialog {
 
   private CTabFolder wTabFolder;
 
-  private CTabItem wPipelineTab, wParamTab, wMonitorTab;
+  private CTabItem wPipelineTab;
+  private CTabItem wParamTab;
+  private CTabItem wMonitorTab;
 
   private Text wPipelineName;
   private Button wNameFilenameSync;
@@ -739,7 +741,7 @@ public class PipelineDialog extends Dialog {
   }
 
   private void ok() {
-    boolean OK = true;
+    boolean ok = true;
 
     pipelineMeta.setName(wPipelineName.getText());
     pipelineMeta.setNameSynchronizedWithFilename(wNameFilenameSync.getSelection());
@@ -796,7 +798,7 @@ public class PipelineDialog extends Dialog {
       mb.open();
       wTransformPerfInterval.setFocus();
       wTransformPerfInterval.selectAll();
-      OK = false;
+      ok = false;
     }
 
     for (IPipelineDialogPlugin extraTab : extraTabs) {
@@ -807,7 +809,7 @@ public class PipelineDialog extends Dialog {
       }
     }
 
-    if (OK) {
+    if (ok) {
       pipelineMeta.setChanged(changed || pipelineMeta.hasChanged());
       dispose();
     }

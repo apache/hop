@@ -60,26 +60,33 @@ import java.util.regex.Pattern;
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = XmlWellFormed.class; // For Translator
 
-  public static String SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED = "success_when_at_least";
-  public static String SUCCESS_IF_BAD_FORMED_FILES_LESS = "success_if_bad_formed_files_less";
-  public static String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+  public static final String SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED = "success_when_at_least";
+  public static final String SUCCESS_IF_BAD_FORMED_FILES_LESS = "success_if_bad_formed_files_less";
+  public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
-  public static String ADD_ALL_FILENAMES = "all_filenames";
-  public static String ADD_WELL_FORMED_FILES_ONLY = "only_well_formed_filenames";
-  public static String ADD_BAD_FORMED_FILES_ONLY = "only_bad_formed_filenames";
+  public static final String ADD_ALL_FILENAMES = "all_filenames";
+  public static final String ADD_WELL_FORMED_FILES_ONLY = "only_well_formed_filenames";
+  public static final String ADD_BAD_FORMED_FILES_ONLY = "only_bad_formed_filenames";
 
+  /** @Deprecated no longer used */
   @Deprecated public boolean argFromPrevious;
+
+  /** @Deprecated no longer used */
   @Deprecated public boolean includeSubfolders;
 
+  /** @Deprecated no longer used */
   @Deprecated public String[] sourceFileFolders;
+
+  /** @Deprecated no longer used */
   @Deprecated public String[] wildcard;
+
   private String nrErrorsLessThan;
   private String successCondition;
   private String resultFilenames;
 
-  int NrAllErrors = 0;
-  int NrBadFormed = 0;
-  int NrWellFormed = 0;
+  int nrAllErrors = 0;
+  int nrBadFormed = 0;
+  int nrWellFormed = 0;
   int limitFiles = 0;
   int nrErrors = 0;
 
@@ -178,8 +185,8 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     RowMetaAndData resultRow = null;
 
     nrErrors = 0;
-    NrWellFormed = 0;
-    NrBadFormed = 0;
+    nrWellFormed = 0;
+    nrBadFormed = 0;
     limitFiles = Const.toInt(resolve(getNrErrorsLessThan()), 10);
     successConditionBroken = false;
     successConditionBrokenExit = false;
@@ -204,12 +211,12 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "ActionXMLWellFormed.Error.SuccessConditionbroken", "" + NrAllErrors));
+                    PKG, "ActionXMLWellFormed.Error.SuccessConditionbroken", "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
-          result.setEntryNr(NrAllErrors);
-          result.setNrLinesRejected(NrBadFormed);
-          result.setNrLinesWritten(NrWellFormed);
+          result.setEntryNr(nrAllErrors);
+          result.setNrLinesRejected(nrBadFormed);
+          result.setNrLinesWritten(nrWellFormed);
           return result;
         }
 
@@ -236,12 +243,12 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           if (!successConditionBrokenExit) {
             logError(
                 BaseMessages.getString(
-                    PKG, "ActionXMLWellFormed.Error.SuccessConditionbroken", "" + NrAllErrors));
+                    PKG, "ActionXMLWellFormed.Error.SuccessConditionbroken", "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
-          result.setEntryNr(NrAllErrors);
-          result.setNrLinesRejected(NrBadFormed);
-          result.setNrLinesWritten(NrWellFormed);
+          result.setEntryNr(nrAllErrors);
+          result.setNrLinesRejected(nrBadFormed);
+          result.setNrLinesWritten(nrWellFormed);
           return result;
         }
 
@@ -259,9 +266,9 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     }
 
     // Success Condition
-    result.setNrErrors(NrAllErrors);
-    result.setNrLinesRejected(NrBadFormed);
-    result.setNrLinesWritten(NrWellFormed);
+    result.setNrErrors(nrAllErrors);
+    result.setNrLinesRejected(nrBadFormed);
+    result.setNrLinesWritten(nrWellFormed);
     if (getSuccessStatus()) {
       result.setNrErrors(0);
       result.setResult(true);
@@ -279,18 +286,18 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           BaseMessages.getString(PKG, "ActionXMLWellFormed.Log.Info.FilesInError", "" + nrErrors));
       logDetailed(
           BaseMessages.getString(
-              PKG, "ActionXMLWellFormed.Log.Info.FilesInBadFormed", "" + NrBadFormed));
+              PKG, "ActionXMLWellFormed.Log.Info.FilesInBadFormed", "" + nrBadFormed));
       logDetailed(
           BaseMessages.getString(
-              PKG, "ActionXMLWellFormed.Log.Info.FilesInWellFormed", "" + NrWellFormed));
+              PKG, "ActionXMLWellFormed.Log.Info.FilesInWellFormed", "" + nrWellFormed));
       logDetailed("=======================================");
     }
   }
 
   private boolean checkIfSuccessConditionBroken() {
     boolean retval = false;
-    if ((NrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (NrBadFormed >= limitFiles
+    if ((nrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrBadFormed >= limitFiles
             && getSuccessCondition().equals(SUCCESS_IF_BAD_FORMED_FILES_LESS))) {
       retval = true;
     }
@@ -300,10 +307,10 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   private boolean getSuccessStatus() {
     boolean retval = false;
 
-    if ((NrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (NrWellFormed >= limitFiles
+    if ((nrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+        || (nrWellFormed >= limitFiles
             && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED))
-        || (NrBadFormed < limitFiles
+        || (nrBadFormed < limitFiles
             && getSuccessCondition().equals(SUCCESS_IF_BAD_FORMED_FILES_LESS))) {
       retval = true;
     }
@@ -321,7 +328,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateAllErrors() {
-    NrAllErrors = nrErrors + NrBadFormed;
+    nrAllErrors = nrErrors + nrBadFormed;
   }
 
   public static class XMLTreeHandler extends DefaultHandler {}
@@ -343,7 +350,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
       String sourcefilefoldername, String wildcard, IWorkflowEngine parentWorkflow, Result result) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
-    FileObject CurrentFile = null;
+    FileObject currentFile = null;
 
     // Get real source file and wilcard
     String realSourceFilefoldername = resolve(sourcefilefoldername);
@@ -414,26 +421,26 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
                       BaseMessages.getString(
                           PKG,
                           "ActionXMLWellFormed.Error.SuccessConditionbroken",
-                          "" + NrAllErrors));
+                          "" + nrAllErrors));
                   successConditionBrokenExit = true;
                 }
                 return false;
               }
               // Fetch files in list one after one ...
-              CurrentFile = fileObjects[j];
+              currentFile = fileObjects[j];
 
-              if (!CurrentFile.getParent().toString().equals(sourcefilefolder.toString())) {
+              if (!currentFile.getParent().toString().equals(sourcefilefolder.toString())) {
                 // Not in the Base Folder..Only if include sub folders
                 if (includeSubfolders) {
-                  if (GetFileWildcard(CurrentFile.toString(), realWildcard)) {
-                    checkOneFile(CurrentFile, result, parentWorkflow);
+                  if (GetFileWildcard(currentFile.toString(), realWildcard)) {
+                    checkOneFile(currentFile, result, parentWorkflow);
                   }
                 }
 
               } else {
                 // In the base folder
-                if (GetFileWildcard(CurrentFile.toString(), realWildcard)) {
-                  checkOneFile(CurrentFile, result, parentWorkflow);
+                if (GetFileWildcard(currentFile.toString(), realWildcard)) {
+                  checkOneFile(currentFile, result, parentWorkflow);
                 }
               }
             }
@@ -469,9 +476,9 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
           /* Ignore */
         }
       }
-      if (CurrentFile != null) {
+      if (currentFile != null) {
         try {
-          CurrentFile.close();
+          currentFile.close();
         } catch (IOException ex) {
           /* Ignore */
         }
@@ -518,11 +525,11 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateWellFormed() {
-    NrWellFormed++;
+    nrWellFormed++;
   }
 
   private void updateBadFormed() {
-    NrBadFormed++;
+    nrBadFormed++;
     updateAllErrors();
   }
 

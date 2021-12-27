@@ -234,10 +234,10 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "PropertyInputDialog.wOriginFiles.Label"));
 
-    FormLayout OriginFilesgroupLayout = new FormLayout();
-    OriginFilesgroupLayout.marginWidth = 10;
-    OriginFilesgroupLayout.marginHeight = 10;
-    wOriginFiles.setLayout(OriginFilesgroupLayout);
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOriginFiles.setLayout(originFilesgroupLayout);
 
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFiles, SWT.RIGHT);
@@ -810,10 +810,10 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "PropertyInputDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "PropertyInputDialog.AddResult.Label"));

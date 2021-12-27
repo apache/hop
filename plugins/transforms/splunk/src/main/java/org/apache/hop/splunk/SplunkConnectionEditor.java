@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.*;
  * @see SplunkConnection
  */
 public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       SplunkConnectionEditor.class; // for i18n purposes, needed by Translator2!!
 
   // Connection properties

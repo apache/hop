@@ -86,23 +86,23 @@ public class CreditCardVerifier {
     return (id > -1 && id < NotValidCardNames.length ? NotValidCardNames[id] : null);
   }
 
-  public static ReturnIndicator CheckCC(String CardNumber) {
+  public static ReturnIndicator CheckCC(String cardNumber) {
     ReturnIndicator ri = new ReturnIndicator();
 
-    if (Utils.isEmpty(CardNumber)) {
+    if (Utils.isEmpty(cardNumber)) {
       ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.EmptyNumber");
       return ri;
     }
 
-    Matcher m = Pattern.compile("[^\\d\\s.-]").matcher(CardNumber);
+    Matcher m = Pattern.compile("[^\\d\\s.-]").matcher(cardNumber);
     if (m.find()) {
       ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.OnlyNumbers");
       return ri;
     }
 
-    int cardId = getCardID(CardNumber);
+    int cardId = getCardID(cardNumber);
     if (cardId > -1) {
-      if (luhnValidate(CardNumber)) {
+      if (luhnValidate(cardNumber)) {
         ri.CardValid = true;
         ri.CardType = getCardName(cardId);
       } else {
@@ -110,7 +110,7 @@ public class CreditCardVerifier {
         ri.UnValidMsg = getNotValidCardNames(cardId);
       }
     } else {
-      if (luhnValidate(CardNumber)) {
+      if (luhnValidate(cardNumber)) {
         ri.CardValid = true;
       } else {
         ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");

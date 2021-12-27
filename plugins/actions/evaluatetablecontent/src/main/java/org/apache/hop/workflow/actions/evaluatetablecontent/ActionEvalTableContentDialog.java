@@ -55,7 +55,8 @@ import org.eclipse.swt.widgets.*;
 public class ActionEvalTableContentDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionEvalTableContent.class; // For Translator
 
-  private Button wbTable, wbSqlTable;
+  private Button wbTable;
+  private Button wbSqlTable;
 
   private Text wName;
 
@@ -224,10 +225,10 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wSuccessGroup.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessGroup.Group.Label"));
 
-    FormLayout SuccessGroupLayout = new FormLayout();
-    SuccessGroupLayout.marginWidth = 10;
-    SuccessGroupLayout.marginHeight = 10;
-    wSuccessGroup.setLayout(SuccessGroupLayout);
+    FormLayout successGroupLayout = new FormLayout();
+    successGroupLayout.marginWidth = 10;
+    successGroupLayout.marginHeight = 10;
+    wSuccessGroup.setLayout(successGroupLayout);
 
     // Success Condition
     Label wlSuccessCondition = new Label(wSuccessGroup, SWT.RIGHT);
@@ -298,10 +299,10 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wCustomGroup.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.CustomGroup.Group.Label"));
 
-    FormLayout CustomGroupLayout = new FormLayout();
-    CustomGroupLayout.marginWidth = 10;
-    CustomGroupLayout.marginHeight = 10;
-    wCustomGroup.setLayout(CustomGroupLayout);
+    FormLayout customGroupLayout = new FormLayout();
+    customGroupLayout.marginWidth = 10;
+    customGroupLayout.marginHeight = 10;
+    wCustomGroup.setLayout(customGroupLayout);
 
     // custom Sql?
     Label wlCustomSql = new Label(wCustomGroup, SWT.RIGHT);

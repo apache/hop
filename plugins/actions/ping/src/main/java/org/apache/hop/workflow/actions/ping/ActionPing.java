@@ -59,8 +59,8 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
   private String timeout;
   public String defaultTimeOut = "3000";
   private String nbrPackets;
-  private String Windows_CHAR = "-n";
-  private String NIX_CHAR = "-c";
+  private static final String WINDOWS_CHAR = "-n";
+  private static final String NIX_CHAR = "-c";
 
   public String classicPing = "classicPing";
   public int iclassicPing = 0;
@@ -275,18 +275,18 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     boolean retval = false;
     try {
       String lignePing = "";
-      String CmdPing = "ping ";
+      String cmdPing = "ping ";
       if (Const.isWindows()) {
-        CmdPing += hostname + " " + Windows_CHAR + " " + nrpackets;
+        cmdPing += hostname + " " + WINDOWS_CHAR + " " + nrpackets;
       } else {
-        CmdPing += hostname + " " + NIX_CHAR + " " + nrpackets;
+        cmdPing += hostname + " " + NIX_CHAR + " " + nrpackets;
       }
 
       if (log.isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ActionPing.NbrPackets.Label", "" + nrpackets));
-        logDetailed(BaseMessages.getString(PKG, "ActionPing.ExecClassicPing.Label", CmdPing));
+        logDetailed(BaseMessages.getString(PKG, "ActionPing.ExecClassicPing.Label", cmdPing));
       }
-      Process processPing = Runtime.getRuntime().exec(CmdPing);
+      Process processPing = Runtime.getRuntime().exec(cmdPing);
       try {
         processPing.waitFor();
       } catch (InterruptedException e) {

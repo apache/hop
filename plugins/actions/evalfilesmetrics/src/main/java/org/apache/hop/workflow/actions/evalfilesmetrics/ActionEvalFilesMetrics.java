@@ -167,9 +167,9 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
   private BigDecimal filesCount;
   private long nrErrors;
 
-  private String ResultFieldFile;
-  private String ResultFieldWildcard;
-  private String ResultFieldIncludesubFolders;
+  private String resultFieldFile;
+  private String resultFieldWildcard;
+  private String resultFieldIncludesubFolders;
 
   private BigDecimal compareValue;
   private BigDecimal minValue;
@@ -185,9 +185,9 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     evaluationType = EVALUATE_TYPE_SIZE;
     successConditionType = SUCCESS_NUMBER_CONDITION_GREATER;
     resultFilenamesWildcard = null;
-    ResultFieldFile = null;
-    ResultFieldWildcard = null;
-    ResultFieldIncludesubFolders = null;
+    resultFieldFile = null;
+    resultFieldWildcard = null;
+    resultFieldIncludesubFolders = null;
   }
 
   public ActionEvalFilesMetrics() {
@@ -221,14 +221,14 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     retval
         .append("      ")
         .append(XmlHandler.addTagValue("result_filenames_wildcard", resultFilenamesWildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("Result_field_file", ResultFieldFile));
+    retval.append("      ").append(XmlHandler.addTagValue("Result_field_file", resultFieldFile));
     retval
         .append("      ")
-        .append(XmlHandler.addTagValue("Result_field_wildcard", ResultFieldWildcard));
+        .append(XmlHandler.addTagValue("Result_field_wildcard", resultFieldWildcard));
     retval
         .append("      ")
         .append(
-            XmlHandler.addTagValue("Result_field_includesubfolders", ResultFieldIncludesubFolders));
+            XmlHandler.addTagValue("Result_field_includesubfolders", resultFieldIncludesubFolders));
 
     retval.append("      <fields>").append(Const.CR);
     if (sourceFileFolder != null) {
@@ -307,9 +307,9 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
       }
 
       resultFilenamesWildcard = XmlHandler.getTagValue(entrynode, "result_filenames_wildcard");
-      ResultFieldFile = XmlHandler.getTagValue(entrynode, "result_field_file");
-      ResultFieldWildcard = XmlHandler.getTagValue(entrynode, "result_field_wildcard");
-      ResultFieldIncludesubFolders =
+      resultFieldFile = XmlHandler.getTagValue(entrynode, "result_field_file");
+      resultFieldWildcard = XmlHandler.getTagValue(entrynode, "result_field_wildcard");
+      resultFieldIncludesubFolders =
           XmlHandler.getTagValue(entrynode, "result_field_includesubfolders");
       comparevalue = XmlHandler.getTagValue(entrynode, "comparevalue");
       minvalue = XmlHandler.getTagValue(entrynode, "minvalue");
@@ -744,27 +744,27 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
   }
 
   public String getResultFieldFile() {
-    return this.ResultFieldFile;
+    return this.resultFieldFile;
   }
 
   public void setResultFieldFile(String field) {
-    this.ResultFieldFile = field;
+    this.resultFieldFile = field;
   }
 
   public String getResultFieldWildcard() {
-    return this.ResultFieldWildcard;
+    return this.resultFieldWildcard;
   }
 
   public void setResultFieldWildcard(String field) {
-    this.ResultFieldWildcard = field;
+    this.resultFieldWildcard = field;
   }
 
   public String getResultFieldIncludeSubfolders() {
-    return this.ResultFieldIncludesubFolders;
+    return this.resultFieldIncludesubFolders;
   }
 
   public void setResultFieldIncludeSubfolders(String field) {
-    this.ResultFieldIncludesubFolders = field;
+    this.resultFieldIncludesubFolders = field;
   }
 
   private void ProcessFileFolder(
@@ -775,7 +775,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
       Result result) {
 
     FileObject sourcefilefolder = null;
-    FileObject CurrentFile = null;
+    FileObject currentFile = null;
 
     // Get real source file and wildcard
     String realSourceFilefoldername = resolve(sourcefilefoldername);
@@ -844,19 +844,19 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
           if (fileObjects != null) {
             for (int j = 0; j < fileObjects.length && !parentWorkflow.isStopped(); j++) {
               // Fetch files in list one after one ...
-              CurrentFile = fileObjects[j];
+              currentFile = fileObjects[j];
 
-              if (!CurrentFile.getParent().toString().equals(sourcefilefolder.toString())) {
+              if (!currentFile.getParent().toString().equals(sourcefilefolder.toString())) {
                 // Not in the Base Folder..Only if include sub folders
                 if (includeSubFolders) {
-                  if (GetFileWildcard(CurrentFile.getName().getBaseName(), realWildcard)) {
-                    getFileSize(CurrentFile, result, parentWorkflow);
+                  if (GetFileWildcard(currentFile.getName().getBaseName(), realWildcard)) {
+                    getFileSize(currentFile, result, parentWorkflow);
                   }
                 }
               } else {
                 // In the base folder
-                if (GetFileWildcard(CurrentFile.getName().getBaseName(), realWildcard)) {
-                  getFileSize(CurrentFile, result, parentWorkflow);
+                if (GetFileWildcard(currentFile.getName().getBaseName(), realWildcard)) {
+                  getFileSize(currentFile, result, parentWorkflow);
                 }
               }
             }
@@ -892,9 +892,9 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
           /* Ignore */
         }
       }
-      if (CurrentFile != null) {
+      if (currentFile != null) {
         try {
-          CurrentFile.close();
+          currentFile.close();
         } catch (IOException ex) {
           /* Ignore */
         }

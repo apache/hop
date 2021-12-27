@@ -37,10 +37,10 @@ import org.eclipse.swt.widgets.*;
 public class EnterNumberDialog extends Dialog {
   private static final Class<?> PKG = EnterNumberDialog.class; // For Translator
 
-  private Label wlNumber, wlCheckbox;
   protected Text wNumber;
-  private FormData fdlNumber, fdNumber, fdlCheckbox, fdCheckbox;
-  protected Button wOk, wCancel, wCheckbox;
+  protected Button wOk;
+  protected Button wCancel;
+  protected Button wCheckbox;
   private boolean hideCancelButton;
 
   protected Shell shell;
@@ -92,20 +92,18 @@ public class EnterNumberDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(shellText);
 
-    int length = Const.LENGTH;
-
     // From transform line
-    wlNumber = new Label(shell, SWT.NONE);
+    Label wlNumber = new Label(shell, SWT.NONE);
     wlNumber.setText(lineText);
     props.setLook(wlNumber);
-    fdlNumber = new FormData();
+    FormData fdlNumber = new FormData();
     fdlNumber.left = new FormAttachment(0, 0);
     fdlNumber.top = new FormAttachment(0, 0);
     wlNumber.setLayoutData(fdlNumber);
     wNumber = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNumber.setText("100");
     props.setLook(wNumber);
-    fdNumber = new FormData();
+    FormData fdNumber = new FormData();
     fdNumber.left = new FormAttachment(0, 0);
     fdNumber.top = new FormAttachment(wlNumber, BaseDialog.LABEL_SPACING);
     fdNumber.right = new FormAttachment(100, 0);
@@ -115,13 +113,13 @@ public class EnterNumberDialog extends Dialog {
     if (StringUtils.isNotBlank(checkboxLabel)) {
       wCheckbox = new Button(shell, SWT.CHECK);
       props.setLook(wCheckbox);
-      fdCheckbox = new FormData();
+      FormData fdCheckbox = new FormData();
       fdCheckbox.left = new FormAttachment(0, 0);
       fdCheckbox.top = new FormAttachment(wNumber, BaseDialog.ELEMENT_SPACING);
       fdCheckbox.width = ConstUi.CHECKBOX_WIDTH;
       wCheckbox.setLayoutData(fdCheckbox);
 
-      wlCheckbox = new Label(shell, SWT.LEFT);
+      Label wlCheckbox = new Label(shell, SWT.LEFT);
       wlCheckbox.addMouseListener(
           new MouseAdapter() {
             @Override
@@ -132,7 +130,7 @@ public class EnterNumberDialog extends Dialog {
           });
       wlCheckbox.setText(checkboxLabel);
       props.setLook(wlCheckbox);
-      fdlCheckbox = new FormData();
+      FormData fdlCheckbox = new FormData();
       fdlCheckbox.left = new FormAttachment(wCheckbox, 0);
       fdlCheckbox.top = new FormAttachment(wCheckbox, 0, SWT.CENTER);
       wlCheckbox.setLayoutData(fdlCheckbox);

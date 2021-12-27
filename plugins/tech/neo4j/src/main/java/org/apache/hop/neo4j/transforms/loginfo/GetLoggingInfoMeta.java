@@ -54,7 +54,7 @@ import java.util.List;
 @InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
 public class GetLoggingInfoMeta extends BaseTransformMeta
     implements ITransformMeta<GetLoggingInfo, GetLoggingInfoData> {
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
 
   @Injection(name = "FIELD_NAME")

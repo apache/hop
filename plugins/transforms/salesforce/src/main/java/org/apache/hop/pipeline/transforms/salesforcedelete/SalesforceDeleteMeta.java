@@ -47,10 +47,10 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/salesforcedelete.html")
 public class SalesforceDeleteMeta
     extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   /** Deletefield */
-  private String DeleteField;
+  private String deleteField;
 
   /** Batch size */
   private String batchSize;
@@ -71,14 +71,14 @@ public class SalesforceDeleteMeta
     this.rollbackAllChangesOnError = rollbackAllChangesOnError;
   }
 
-  /** @param DeleteField The DeleteField to set. */
-  public void setDeleteField(String DeleteField) {
-    this.DeleteField = DeleteField;
+  /** @param deleteField The DeleteField to set. */
+  public void setDeleteField(String deleteField) {
+    this.deleteField = deleteField;
   }
 
   /** @return Returns the DeleteField. */
   public String getDeleteField() {
-    return this.DeleteField;
+    return this.deleteField;
   }
 
   /** @param batchSize */

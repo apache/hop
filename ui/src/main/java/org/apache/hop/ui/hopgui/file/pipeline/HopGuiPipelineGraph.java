@@ -3960,8 +3960,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.toolBar = toolBar;
   }
 
-  private ToolItem closeItem;
-
   private ToolItem minMaxItem;
 
   /** Add an extra view to the main composite SashForm */
@@ -4005,7 +4003,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
 
-    closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+    ToolItem closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClosePanel());
     closeItem.setToolTipText(
         BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.CloseButton.Tooltip"));

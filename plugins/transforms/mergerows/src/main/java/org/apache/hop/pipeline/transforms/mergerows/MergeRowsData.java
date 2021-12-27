@@ -25,7 +25,8 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class MergeRowsData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 
-  public Object[] one, two;
+  public Object[] one;
+  public Object[] two;
   public int[] keyNrs;
   public int[] valueNrs;
 

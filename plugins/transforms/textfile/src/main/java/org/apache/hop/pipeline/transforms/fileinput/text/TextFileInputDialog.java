@@ -236,7 +236,8 @@ public class TextFileInputDialog extends BaseTransformDialog
   // Wizard info...
   private Vector<ITextFileInputField> fields;
 
-  private int middle, margin;
+  private int middle;
+  private int margin;
   private ModifyListener lsMod;
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
@@ -1404,10 +1405,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "TextFileInputDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "TextFileInputDialog.AddResult.Label"));
@@ -1830,12 +1831,12 @@ public class TextFileInputDialog extends BaseTransformDialog
     CTabItem wFilterTab = new CTabItem(wTabFolder, SWT.NONE);
     wFilterTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilterTab.TabTitle"));
 
-    FormLayout FilterLayout = new FormLayout();
-    FilterLayout.marginWidth = Const.FORM_MARGIN;
-    FilterLayout.marginHeight = Const.FORM_MARGIN;
+    FormLayout filterLayout = new FormLayout();
+    filterLayout.marginWidth = Const.FORM_MARGIN;
+    filterLayout.marginHeight = Const.FORM_MARGIN;
 
     Composite wFilterComp = new Composite(wTabFolder, SWT.NONE);
-    wFilterComp.setLayout(FilterLayout);
+    wFilterComp.setLayout(filterLayout);
     props.setLook(wFilterComp);
 
     final int FilterRows = input.getFilter().length;

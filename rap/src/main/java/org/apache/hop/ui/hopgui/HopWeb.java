@@ -64,16 +64,16 @@ public class HopWeb implements ApplicationConfiguration {
         });
     Arrays.asList("org/apache/hop/ui/hopgui/clipboard.js").stream()
         .forEach(
-            str -> {
-              application.addResource(
-                  "js/" + FilenameUtils.getName(str),
-                  new ResourceLoader() {
-                    @Override
-                    public InputStream getResourceAsStream(String resourceName) throws IOException {
-                      return this.getClass().getClassLoader().getResourceAsStream(str);
-                    }
-                  });
-            });
+            str ->
+                application.addResource(
+                    "js/" + FilenameUtils.getName(str),
+                    new ResourceLoader() {
+                      @Override
+                      public InputStream getResourceAsStream(String resourceName)
+                          throws IOException {
+                        return this.getClass().getClassLoader().getResourceAsStream(str);
+                      }
+                    }));
 
     // Only 2 choices for now
     //

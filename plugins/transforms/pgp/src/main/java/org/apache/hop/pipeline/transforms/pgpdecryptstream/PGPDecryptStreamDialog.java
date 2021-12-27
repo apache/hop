@@ -119,10 +119,10 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     props.setLook(wGPGGroup);
     wGPGGroup.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.GPGGroup.Label"));
 
-    FormLayout GPGGroupgroupLayout = new FormLayout();
-    GPGGroupgroupLayout.marginWidth = 10;
-    GPGGroupgroupLayout.marginHeight = 10;
-    wGPGGroup.setLayout(GPGGroupgroupLayout);
+    FormLayout gpggroupgrouplayout = new FormLayout();
+    gpggroupgrouplayout.marginWidth = 10;
+    gpggroupgrouplayout.marginHeight = 10;
+    wGPGGroup.setLayout(gpggroupgrouplayout);
 
     // GPGLocation fieldname ...
     Label wlGPGLocation = new Label(wGPGGroup, SWT.RIGHT);

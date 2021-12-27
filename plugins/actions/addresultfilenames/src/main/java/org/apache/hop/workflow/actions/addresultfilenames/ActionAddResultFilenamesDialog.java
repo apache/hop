@@ -52,7 +52,8 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
   private Text wName;
 
   private Label wlFilename;
-  private Button wbFilename, wbDirectory;
+  private Button wbFilename;
+  private Button wbDirectory;
   private TextVar wFilename;
 
   private Button wIncludeSubfolders;

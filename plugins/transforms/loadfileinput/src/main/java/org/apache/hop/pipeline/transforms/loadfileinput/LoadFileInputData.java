@@ -28,7 +28,9 @@ import java.util.Date;
 public class LoadFileInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;
-  public String thisline, nextline, lastline;
+  public String thisline;
+  public String nextline;
+  public String lastline;
   public Object[] previousRow;
   public int nr_repeats;
 

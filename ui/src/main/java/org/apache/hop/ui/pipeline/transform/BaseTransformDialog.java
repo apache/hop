@@ -82,13 +82,27 @@ public class BaseTransformDialog extends Dialog {
   protected Text wTransformName;
 
   /** The FormData for the transform name and its label. */
-  protected FormData fdlTransformName, fdTransformName;
+  protected FormData fdlTransformName;
+
+  protected FormData fdTransformName;
 
   /** Common dialog buttons. */
-  protected Button wOk, wGet, wPreview, wSql, wCreate, wCancel;
+  protected Button wOk;
+
+  protected Button wGet;
+  protected Button wPreview;
+  protected Button wSql;
+  protected Button wCreate;
+  protected Button wCancel;
 
   /** FormData for the common dialog buttons. */
-  protected FormData fdOk, fdGet, fdPreview, fdSql, fdCreate, fdCancel;
+  protected FormData fdOk;
+
+  protected FormData fdGet;
+  protected FormData fdPreview;
+  protected FormData fdSql;
+  protected FormData fdCreate;
+  protected FormData fdCancel;
 
   /** The metadata for the associated pipeline. */
   protected PipelineMeta pipelineMeta;
@@ -100,7 +114,9 @@ public class BaseTransformDialog extends Dialog {
   protected Listener lsResize;
 
   /** Whether the dialog (and its backup) have changed. */
-  protected boolean changed, backupChanged;
+  protected boolean changed;
+
+  protected boolean backupChanged;
 
   /** The base transform meta. */
   protected ITransformMeta baseTransformMeta;
@@ -524,10 +540,9 @@ public class BaseTransformDialog extends Dialog {
    */
   public static final ModifyListener getModifyListenerTooltipText(
       IVariables variables, final TextVar textField) {
-    return e -> {
-      // maybe replace this with extra arguments
-      textField.setToolTipText(variables.resolve(textField.getText()));
-    };
+    return e ->
+        // maybe replace this with extra arguments
+        textField.setToolTipText(variables.resolve(textField.getText()));
   }
 
   /**

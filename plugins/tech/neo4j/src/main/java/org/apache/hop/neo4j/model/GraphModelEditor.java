@@ -73,7 +73,7 @@ import java.util.*;
 
 public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       GraphModelEditor.class; // for i18n purposes, needed by Translator2!!
 
   private CTabFolder wTabs;
@@ -106,7 +106,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private GraphModel graphModel;
   private GraphNode activeNode;
   private GraphRelationship activeRelationship;
-  private Button wImportNode;
 
   private Point mouseDownPoint;
   private Canvas wCanvas;
@@ -403,7 +402,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdImportGraph.right = new FormAttachment(75, 0);
     fdImportGraph.top = new FormAttachment(lastControl, 50);
     wImportGraph.setLayoutData(fdImportGraph);
-    wImportGraph.addListener(SWT.Selection, (e) -> importGraphFromFile());
+    wImportGraph.addListener(SWT.Selection, e -> importGraphFromFile());
     lastControl = wImportGraph;
 
     Button wExportGraph = new Button(wModelComp, SWT.PUSH);
@@ -414,7 +413,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdExportGraph.right = new FormAttachment(75, 0);
     fdExportGraph.top = new FormAttachment(lastControl, margin);
     wExportGraph.setLayoutData(fdExportGraph);
-    wExportGraph.addListener(SWT.Selection, (e) -> exportGraphToFile());
+    wExportGraph.addListener(SWT.Selection, e -> exportGraphToFile());
     lastControl = wExportGraph;
 
     Button wSolutionsWorkbenchImportGraph = new Button(wModelComp, SWT.PUSH);
@@ -427,7 +426,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdSolutionsWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
     wSolutionsWorkbenchImportGraph.setLayoutData(fdSolutionsWorkbenchImportGraph);
     wSolutionsWorkbenchImportGraph.addListener(
-        SWT.Selection, (e) -> importGraphFromSolutionsWorkbench());
+        SWT.Selection, e -> importGraphFromSolutionsWorkbench());
     lastControl = wSolutionsWorkbenchImportGraph;
 
     Button wArrowsAppImportGraph = new Button(wModelComp, SWT.PUSH);
@@ -439,7 +438,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdArrowsAppImportGraph.right = new FormAttachment(75, 0);
     fdArrowsAppImportGraph.top = new FormAttachment(lastControl, margin);
     wArrowsAppImportGraph.setLayoutData(fdArrowsAppImportGraph);
-    wArrowsAppImportGraph.addListener(SWT.Selection, (e) -> importGraphFromArrowsApp());
+    wArrowsAppImportGraph.addListener(SWT.Selection, e -> importGraphFromArrowsApp());
     lastControl = wArrowsAppImportGraph;
 
     Button wCreateIndexAction = new Button(wModelComp, SWT.PUSH);
@@ -451,7 +450,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdCreateIndexAction.right = new FormAttachment(75, 0);
     fdCreateIndexAction.top = new FormAttachment(lastControl, 50);
     wCreateIndexAction.setLayoutData(fdCreateIndexAction);
-    wCreateIndexAction.addListener(SWT.Selection, (e) -> copyIndexActionToClipboard());
+    wCreateIndexAction.addListener(SWT.Selection, e -> copyIndexActionToClipboard());
 
     FormData fdModelComp = new FormData();
     fdModelComp.left = new FormAttachment(0, 0);
@@ -501,23 +500,23 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     //
     Button wNewNode = new Button(wNodesComp, SWT.PUSH);
     wNewNode.setText("New node");
-    wNewNode.addListener(SWT.Selection, (e) -> newNode());
+    wNewNode.addListener(SWT.Selection, e -> newNode());
 
     Button wDeleteNode = new Button(wNodesComp, SWT.PUSH);
     wDeleteNode.setText("Delete node");
-    wDeleteNode.addListener(SWT.Selection, (e) -> deleteNode());
+    wDeleteNode.addListener(SWT.Selection, e -> deleteNode());
 
     Button wCopyNode = new Button(wNodesComp, SWT.PUSH);
     wCopyNode.setText("Copy node");
-    wCopyNode.addListener(SWT.Selection, (e) -> copyNode());
+    wCopyNode.addListener(SWT.Selection, e -> copyNode());
 
-    wImportNode = new Button(wNodesComp, SWT.PUSH);
+    Button wImportNode = new Button(wNodesComp, SWT.PUSH);
     wImportNode.setText("Import properties");
-    wImportNode.addListener(SWT.Selection, (e) -> importNodeProperties());
+    wImportNode.addListener(SWT.Selection, e -> importNodeProperties());
 
     Button wNewRelationshipNode = new Button(wNodesComp, SWT.PUSH);
     wNewRelationshipNode.setText("New relationship");
-    wNewRelationshipNode.addListener(SWT.Selection, (e) -> newRelationshipFromNode());
+    wNewRelationshipNode.addListener(SWT.Selection, e -> newRelationshipFromNode());
 
     BaseTransformDialog.positionBottomButtons(
         wNodesComp,

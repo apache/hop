@@ -381,6 +381,7 @@ public class TextFileOutputMeta extends BaseTransformMeta
    * @return Returns the splitEvery.
    * @deprecated use {@link #getSplitEvery(IVariables)} or {@link #getSplitEveryRows()}
    */
+  @Deprecated
   public int getSplitEvery() {
     return Const.toInt(splitEveryRows, 0);
   }
@@ -412,6 +413,7 @@ public class TextFileOutputMeta extends BaseTransformMeta
    * @param splitEvery The splitEvery to set.
    * @deprecated use {@link #setSplitEveryRows(String)}
    */
+  @Deprecated
   public void setSplitEvery(int splitEvery) {
     splitEveryRows = Integer.toString(splitEvery);
   }
@@ -585,12 +587,12 @@ public class TextFileOutputMeta extends BaseTransformMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "SpecifyFormat")));
       setDateTimeFormat(XmlHandler.getTagValue(transformNode, "file", "date_time_format"));
 
-      String AddToResultFiles =
+      String addToResultFiles =
           XmlHandler.getTagValue(transformNode, "file", "add_to_result_filenames");
-      if (Utils.isEmpty(AddToResultFiles)) {
+      if (Utils.isEmpty(addToResultFiles)) {
         addToResultFilenames = true;
       } else {
-        addToResultFilenames = "Y".equalsIgnoreCase(AddToResultFiles);
+        addToResultFilenames = "Y".equalsIgnoreCase(addToResultFiles);
       }
 
       padded = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "pad"));
@@ -678,7 +680,8 @@ public class TextFileOutputMeta extends BaseTransformMeta
 
     newline = getNewLine(fileFormat);
 
-    int i, nrFields = 0;
+    int i;
+    int nrFields = 0;
 
     allocate(nrFields);
 

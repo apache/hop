@@ -159,7 +159,8 @@ public class BeanInjector<Meta extends Object> {
           "Property '" + propName + "' not found for injection to " + root.getClass());
     }
 
-    String dataName, dataValue;
+    String dataName;
+    String dataValue;
     if (data != null) {
       dataName = dataN;
       dataValue = null;

@@ -60,7 +60,9 @@ public class CheckResultDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Color red, green, yellow;
+  private Color red;
+  private Color green;
+  private Color yellow;
 
   private boolean showSuccessfulResults = false;
 

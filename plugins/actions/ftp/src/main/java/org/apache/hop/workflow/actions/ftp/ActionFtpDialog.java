@@ -56,7 +56,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
   private LabelTextVar wServerName;
 
-  private LabelTextVar wSocksProxyHost, wSocksProxyPort, wSocksProxyUsername, wSocksProxyPassword;
+  private LabelTextVar wSocksProxyHost;
+  private LabelTextVar wSocksProxyPort;
+  private LabelTextVar wSocksProxyUsername;
+  private LabelTextVar wSocksProxyPassword;
 
   private LabelTextVar wUserName;
 
@@ -132,7 +135,6 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   private CCombo wSuccessCondition;
 
   private FTPClient ftpclient = null;
-  private String pwdFolder = null;
 
   // These should not be translated, they are required to exist on all
   // platforms according to the documentation of "Charset".
@@ -159,7 +161,6 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
     ModifyListener lsMod =
         e -> {
-          pwdFolder = null;
           ftpclient = null;
           action.setChanged();
         };
@@ -401,10 +402,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wAdvancedSettings);
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionFtp.AdvancedSettings.Group.Label"));
-    FormLayout AdvancedSettingsgroupLayout = new FormLayout();
-    AdvancedSettingsgroupLayout.marginWidth = 10;
-    AdvancedSettingsgroupLayout.marginHeight = 10;
-    wAdvancedSettings.setLayout(AdvancedSettingsgroupLayout);
+    FormLayout advancedSettingsgroupLayout = new FormLayout();
+    advancedSettingsgroupLayout.marginWidth = 10;
+    advancedSettingsgroupLayout.marginHeight = 10;
+    wAdvancedSettings.setLayout(advancedSettingsgroupLayout);
 
     // Binary mode selection...
     Label wlBinaryMode = new Label(wAdvancedSettings, SWT.RIGHT);
@@ -518,10 +519,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFilesComp);
 
-    FormLayout FilesLayout = new FormLayout();
-    FilesLayout.marginWidth = 3;
-    FilesLayout.marginHeight = 3;
-    wFilesComp.setLayout(FilesLayout);
+    FormLayout filesLayout = new FormLayout();
+    filesLayout.marginWidth = 3;
+    filesLayout.marginHeight = 3;
+    wFilesComp.setLayout(filesLayout);
 
     // ////////////////////////
     // START OF Remote SETTINGS GROUP///
@@ -993,10 +994,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wAdvancedComp);
 
-    FormLayout AdvancedLayout = new FormLayout();
-    AdvancedLayout.marginWidth = 3;
-    AdvancedLayout.marginHeight = 3;
-    wAdvancedComp.setLayout(AdvancedLayout);
+    FormLayout advancedLayout = new FormLayout();
+    advancedLayout.marginWidth = 3;
+    advancedLayout.marginHeight = 3;
+    wAdvancedComp.setLayout(advancedLayout);
 
     // SuccessOngrouping?
     // ////////////////////////
@@ -1101,10 +1102,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     Composite wSocksProxyComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSocksProxyComp);
 
-    FormLayout SoxProxyLayout = new FormLayout();
-    SoxProxyLayout.marginWidth = 3;
-    SoxProxyLayout.marginHeight = 3;
-    wSocksProxyComp.setLayout(SoxProxyLayout);
+    FormLayout soxProxyLayout = new FormLayout();
+    soxProxyLayout.marginWidth = 3;
+    soxProxyLayout.marginHeight = 3;
+    wSocksProxyComp.setLayout(soxProxyLayout);
 
     // ////////////////////////////////////////////////////////
     // Start of Proxy Group
@@ -1113,10 +1114,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     props.setLook(wSocksProxy);
     wSocksProxy.setText(BaseMessages.getString(PKG, "ActionFtp.SocksProxy.Group.Label"));
 
-    FormLayout SocksProxyGroupLayout = new FormLayout();
-    SocksProxyGroupLayout.marginWidth = 10;
-    SocksProxyGroupLayout.marginHeight = 10;
-    wSocksProxy.setLayout(SocksProxyGroupLayout);
+    FormLayout socksProxyGroupLayout = new FormLayout();
+    socksProxyGroupLayout.marginWidth = 10;
+    socksProxyGroupLayout.marginHeight = 10;
+    wSocksProxy.setLayout(socksProxyGroupLayout);
 
     // host line
     wSocksProxyHost =
@@ -1252,15 +1253,14 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     closeFtpConnection();
   }
 
-  private void checkRemoteFolder(boolean FtpFolfer, boolean checkMoveFolder, String foldername) {
-    if (!Utils.isEmpty(foldername)) {
-      if (connectToFtp(FtpFolfer, checkMoveFolder)) {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", foldername) + Const.CR);
-        mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
-        mb.open();
-      }
+  private void checkRemoteFolder(boolean ftpFolfer, boolean checkMoveFolder, String foldername) {
+    if (!Utils.isEmpty(foldername) && connectToFtp(ftpFolfer, checkMoveFolder)) {
+
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", foldername) + Const.CR);
+      mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
+      mb.open();
     }
   }
 

@@ -63,9 +63,12 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
   /** List of ColumnInfo that should have the previous fields combo box */
   private final List<ColumnInfo> fieldColumns = new ArrayList<>();
 
-  private Button wSelectFields, wSelectValuesType;
-  private Label wlFields, wlValueTypes;
-  private TableView wFields, wValueTypes;
+  private Button wSelectFields;
+  private Button wSelectValuesType;
+  private Label wlFields;
+  private Label wlValueTypes;
+  private TableView wFields;
+  private TableView wValueTypes;
 
   private Label wlReplaceByValue;
 
@@ -146,10 +149,10 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook(wAllFields);
     wAllFields.setText(BaseMessages.getString(PKG, "IfNullDialog.AllFields.Label"));
 
-    FormLayout AllFieldsgroupLayout = new FormLayout();
-    AllFieldsgroupLayout.marginWidth = 10;
-    AllFieldsgroupLayout.marginHeight = 10;
-    wAllFields.setLayout(AllFieldsgroupLayout);
+    FormLayout allFieldsgroupLayout = new FormLayout();
+    allFieldsgroupLayout.marginWidth = 10;
+    allFieldsgroupLayout.marginHeight = 10;
+    wAllFields.setLayout(allFieldsgroupLayout);
 
     // Replace by Value
     wlReplaceByValue = new Label(wAllFields, SWT.RIGHT);
@@ -349,8 +352,8 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void addFields() {
-    int FieldsCols = 4;
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
+    int fieldsCols = 4;
+    ColumnInfo[] colinf = new ColumnInfo[fieldsCols];
 
     // Table with fields
     wlFields = new Label(shell, SWT.NONE);

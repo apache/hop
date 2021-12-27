@@ -48,11 +48,13 @@ import org.eclipse.swt.widgets.*;
 
 public class SalesforceDeleteDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   private SalesforceDeleteMeta input;
 
-  private LabelTextVar wUserName, wURL, wPassword;
+  private LabelTextVar wUserName;
+  private LabelTextVar wURL;
+  private LabelTextVar wPassword;
 
   private TextVar wBatchSize;
 

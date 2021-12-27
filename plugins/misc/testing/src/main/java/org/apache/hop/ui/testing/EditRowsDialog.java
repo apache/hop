@@ -71,12 +71,15 @@ public class EditRowsDialog {
 
   private PropsUi props;
 
-  private String title, message;
+  private String title;
+  private String message;
 
   private Rectangle bounds;
 
-  private int hscroll, vscroll;
-  private int hmax, vmax;
+  private int hscroll;
+  private int vscroll;
+  private int hmax;
+  private int vmax;
 
   private IRowMeta rowMeta;
 

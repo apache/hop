@@ -601,9 +601,9 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {

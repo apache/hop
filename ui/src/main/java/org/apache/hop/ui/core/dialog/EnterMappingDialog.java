@@ -81,8 +81,6 @@ public class EnterMappingDialog extends Dialog {
 
   private Button wSourceHide;
   private Button wTargetHide;
-  private Button wSourceAuto;
-  private Button wTargetAuto;
 
   private List wResult;
 
@@ -191,7 +189,7 @@ public class EnterMappingDialog extends Dialog {
     wTargetHide.addListener(SWT.Selection, e -> refreshMappings());
 
     // Automatic source selection
-    wSourceAuto = new Button(shell, SWT.CHECK);
+    Button wSourceAuto = new Button(shell, SWT.CHECK);
     wSourceAuto.setText(
         BaseMessages.getString(PKG, "EnterMappingDialog.AutoTargetSelection.Label"));
     wSourceAuto.setSelection(true);
@@ -203,7 +201,7 @@ public class EnterMappingDialog extends Dialog {
     wSourceAuto.setLayoutData(fdSourceAuto);
 
     // Automatic target selection
-    wTargetAuto = new Button(shell, SWT.CHECK);
+    Button wTargetAuto = new Button(shell, SWT.CHECK);
     wTargetAuto.setText(
         BaseMessages.getString(PKG, "EnterMappingDialog.AutoSourceSelection.Label"));
     wTargetAuto.setSelection(false);

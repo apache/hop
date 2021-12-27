@@ -41,9 +41,7 @@ import org.eclipse.swt.widgets.*;
 public class InjectorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = InjectorMeta.class; // For Translator
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
   private InjectorMeta input;
 
@@ -93,10 +91,10 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
-    wlFields = new Label(shell, SWT.NONE);
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "InjectorDialog.Fields.Label"));
     props.setLook(wlFields);
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wTransformName, margin);
     wlFields.setLayoutData(fdlFields);
@@ -141,7 +139,7 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
 
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
@@ -188,7 +186,6 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
     }
 
     transformName = wTransformName.getText(); // return value
-    int nrFields = wFields.nrNonEmpty();
 
     input.getInjectorFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {

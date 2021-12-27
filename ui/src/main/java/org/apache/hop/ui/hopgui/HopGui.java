@@ -424,7 +424,7 @@ public class HopGui
         item.setData(perspective);
         item.addListener(
             SWT.Selection,
-            (event) -> setActivePerspective((IHopPerspective) event.widget.getData()));
+            event -> setActivePerspective((IHopPerspective) event.widget.getData()));
 
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
         Image image =

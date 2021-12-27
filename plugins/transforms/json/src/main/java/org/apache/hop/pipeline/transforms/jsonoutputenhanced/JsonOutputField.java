@@ -37,8 +37,8 @@ public class JsonOutputField implements Cloneable {
     return isJSONFragment;
   }
 
-  public void setJSONFragment(boolean JSONFragment) {
-    isJSONFragment = JSONFragment;
+  public void setJSONFragment(boolean jsonFragment) {
+    isJSONFragment = jsonFragment;
   }
 
   public boolean isRemoveIfBlank() {

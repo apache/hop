@@ -104,11 +104,15 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
   private ActionShell action;
 
-  private boolean backupChanged, backupLogfile, backupDate, backupTime;
+  private boolean backupChanged;
+  private boolean backupLogfile;
+  private boolean backupDate;
+  private boolean backupTime;
 
   private Label wlAppendLogfile;
 
-  private Button wAppendLogfile, wInsertScript;
+  private Button wAppendLogfile;
+  private Button wInsertScript;
 
   private Display display;
 
@@ -573,13 +577,13 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     CTabItem wScriptTab = new CTabItem(wTabFolder, SWT.NONE);
     wScriptTab.setText(BaseMessages.getString(PKG, "ActionShell.Tab.Script.Label"));
 
-    FormLayout ScriptLayout = new FormLayout();
-    ScriptLayout.marginWidth = 3;
-    ScriptLayout.marginHeight = 3;
+    FormLayout scriptLayout = new FormLayout();
+    scriptLayout.marginWidth = 3;
+    scriptLayout.marginHeight = 3;
 
     Composite wScriptComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wScriptComp);
-    wScriptComp.setLayout(ScriptLayout);
+    wScriptComp.setLayout(scriptLayout);
 
     // Script line
 

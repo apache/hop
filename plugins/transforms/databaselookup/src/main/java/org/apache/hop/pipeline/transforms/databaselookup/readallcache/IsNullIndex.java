@@ -49,7 +49,8 @@ class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
     } else {
       int length = values.length;
 
-      int start, end;
+      int start;
+      int end;
       if (afterLastValue < length / 2) {
         start = 0;
         end = afterLastValue;

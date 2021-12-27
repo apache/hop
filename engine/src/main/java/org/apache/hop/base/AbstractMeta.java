@@ -93,8 +93,10 @@ public abstract class AbstractMeta
 
   protected IHopMetadataProvider metadataProvider;
 
-  protected String createdUser, modifiedUser;
-  protected Date createdDate, modifiedDate;
+  protected String createdUser;
+  protected String modifiedUser;
+  protected Date createdDate;
+  protected Date modifiedDate;
 
   protected final ChangedFlag changedFlag = new ChangedFlag();
 
@@ -752,7 +754,8 @@ public abstract class AbstractMeta
    *     found: null.
    */
   public NotePadMeta getNote(int x, int y) {
-    int i, s;
+    int i;
+    int s;
     s = notes.size();
     for (i = s - 1; i >= 0; i--) {
       // Back to front because drawing goes from start to end

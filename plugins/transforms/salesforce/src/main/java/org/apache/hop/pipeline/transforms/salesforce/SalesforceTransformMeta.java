@@ -40,7 +40,7 @@ public abstract class SalesforceTransformMeta<
         Main extends SalesforceTransform, Data extends SalesforceTransformData>
     extends BaseTransformMeta implements ITransformMeta<Main, Data> {
 
-  private static Class<?> PKG = SalesforceTransformMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 
   /** The Salesforce Target URL */
   @Injection(name = "SALESFORCE_URL")

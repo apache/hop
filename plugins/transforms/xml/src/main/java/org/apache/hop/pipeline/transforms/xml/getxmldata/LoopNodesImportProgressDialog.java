@@ -47,7 +47,7 @@ public class LoopNodesImportProgressDialog {
 
   private Shell shell;
 
-  private String[] Xpaths;
+  private String[] xpaths;
 
   private String filename;
   private String xml;
@@ -67,7 +67,7 @@ public class LoopNodesImportProgressDialog {
   public LoopNodesImportProgressDialog(Shell shell, String xmlSource, PdOption option) {
     this.shell = shell;
     this.option = option;
-    this.Xpaths = null;
+    this.xpaths = null;
 
     if (option.isXmlSourceIsFile()) {
       this.filename = xmlSource;
@@ -92,7 +92,7 @@ public class LoopNodesImportProgressDialog {
     IRunnableWithProgress op =
         monitor -> {
           try {
-            Xpaths = doScan(monitor);
+            xpaths = doScan(monitor);
           } catch (Exception e) {
             e.printStackTrace();
             throw new InvocationTargetException(
@@ -126,7 +126,7 @@ public class LoopNodesImportProgressDialog {
           e);
     }
 
-    return Xpaths;
+    return xpaths;
   }
 
   @SuppressWarnings("unchecked")
@@ -218,14 +218,14 @@ public class LoopNodesImportProgressDialog {
         /* Ignore */
       }
     }
-    String[] list_xpath = listpath.toArray(new String[listpath.size()]);
+    String[] listXpath = listpath.toArray(new String[listpath.size()]);
 
     monitor.setTaskName(
         BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.NodesReturned"));
 
     monitor.done();
 
-    return list_xpath;
+    return listXpath;
   }
 
   private void addLoopXPath(Node node, IProgressMonitor monitor) {

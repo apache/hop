@@ -77,12 +77,6 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
 
   private String[] samples;
 
-  // Guess fields...
-  private NumberFormat nf;
-  private DecimalFormat df;
-  private DecimalFormatSymbols dfs;
-  private SimpleDateFormat daf;
-
   private static final String[] dateFormats =
       new String[] {
         "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd",
@@ -336,10 +330,11 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
   }
 
   public void guessType() {
-    nf = NumberFormat.getInstance();
-    df = (DecimalFormat) nf;
-    dfs = new DecimalFormatSymbols();
-    daf = new SimpleDateFormat();
+    // Guess fields...
+    NumberFormat nf = NumberFormat.getInstance();
+    DecimalFormat df = (DecimalFormat) nf;
+    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+    SimpleDateFormat daf = new SimpleDateFormat();
 
     daf.setLenient(false);
 

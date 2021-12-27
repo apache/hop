@@ -133,7 +133,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
   private Button wSelectFolder;
 
-  private Label wlFolderField, wlDynamicFolder;
+  private Label wlFolderField;
+  private Label wlDynamicFolder;
   private CCombo wFolderField;
   private Button wDynamicFolder;
 

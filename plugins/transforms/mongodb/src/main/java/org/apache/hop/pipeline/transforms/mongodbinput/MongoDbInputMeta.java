@@ -55,7 +55,7 @@ import java.util.List;
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>
     implements ITransformMeta<MongoDbInput, MongoDbInputData> {
-  protected static Class<?> PKG = MongoDbInputMeta.class; // For Translator
+  protected static final Class<?> PKG = MongoDbInputMeta.class; // For Translator
 
   @Injection(name = "JSON_OUTPUT_FIELD")
   private String jsonFieldName;
@@ -118,13 +118,13 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         executeForEachIncomingRow = executeForEachR.equalsIgnoreCase("Y");
       }
 
-      Node mongo_fields = XmlHandler.getSubNode(node, "mongo_fields");
-      if (mongo_fields != null && XmlHandler.countNodes(mongo_fields, "mongo_field") > 0) {
-        int nrFields = XmlHandler.countNodes(mongo_fields, "mongo_field");
+      Node mongoFields = XmlHandler.getSubNode(node, "mongo_fields");
+      if (mongoFields != null && XmlHandler.countNodes(mongoFields, "mongo_field") > 0) {
+        int nrFields = XmlHandler.countNodes(mongoFields, "mongo_field");
 
         fields = new ArrayList<>();
         for (int i = 0; i < nrFields; i++) {
-          Node fieldNode = XmlHandler.getSubNodeByNr(mongo_fields, "mongo_field", i);
+          Node fieldNode = XmlHandler.getSubNodeByNr(mongoFields, "mongo_field", i);
 
           MongoField newField = new MongoField();
           newField.fieldName = XmlHandler.getTagValue(fieldNode, "field_name");

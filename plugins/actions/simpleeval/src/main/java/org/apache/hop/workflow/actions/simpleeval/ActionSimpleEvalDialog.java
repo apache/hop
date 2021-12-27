@@ -61,7 +61,9 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   private Label wlSuccessCondition;
   private Label wlFieldType;
   private Label wlMask;
-  private CCombo wSuccessCondition, wValueType, wFieldType;
+  private CCombo wSuccessCondition;
+  private CCombo wValueType;
+  private CCombo wFieldType;
   private ComboVar wMask;
 
   private Label wlSuccessNumberCondition;

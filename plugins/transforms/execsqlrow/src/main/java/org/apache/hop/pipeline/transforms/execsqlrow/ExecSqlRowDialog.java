@@ -228,10 +228,10 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "ExecSqlRowDialog.wAdditionalFields.Label"));
 
-    FormLayout AdditionalFieldsgroupLayout = new FormLayout();
-    AdditionalFieldsgroupLayout.marginWidth = 10;
-    AdditionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(AdditionalFieldsgroupLayout);
+    FormLayout additionalFieldsgroupLayout = new FormLayout();
+    additionalFieldsgroupLayout.marginWidth = 10;
+    additionalFieldsgroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
 
     // insert field
     Label wlInsertField = new Label(wAdditionalFields, SWT.RIGHT);

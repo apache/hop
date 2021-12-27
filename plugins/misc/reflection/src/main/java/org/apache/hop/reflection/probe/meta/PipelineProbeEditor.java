@@ -139,11 +139,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     fdbbFilename.right = new FormAttachment(100, 0);
     fdbbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbbFilename.setLayoutData(fdbbFilename);
-    wbbFilename.addListener(
-        SWT.Selection,
-        e -> {
-          selectPipelineFilename(parent);
-        });
+    wbbFilename.addListener(SWT.Selection, e -> selectPipelineFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
     props.setLook(wbnFilename);
@@ -152,11 +148,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
     fdbnFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbnFilename.setLayoutData(fdbnFilename);
-    wbnFilename.addListener(
-        SWT.Selection,
-        e -> {
-          createPipelineFile(parent);
-        });
+    wbnFilename.addListener(SWT.Selection, e -> createPipelineFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
     props.setLook(wboFilename);
@@ -165,11 +157,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
     fdboFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wboFilename.setLayoutData(fdboFilename);
-    wboFilename.addListener(
-        SWT.Selection,
-        e -> {
-          openPipelineFile(parent);
-        });
+    wboFilename.addListener(SWT.Selection, e -> openPipelineFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wFilename);

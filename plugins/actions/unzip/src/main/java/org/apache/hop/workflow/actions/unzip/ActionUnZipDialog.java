@@ -57,7 +57,8 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private Text wName;
 
   private Label wlZipFilename;
-  private Button wbZipFilename, wbSourceDirectory;
+  private Button wbZipFilename;
+  private Button wbSourceDirectory;
   private TextVar wZipFilename;
 
   private ActionUnZip action;

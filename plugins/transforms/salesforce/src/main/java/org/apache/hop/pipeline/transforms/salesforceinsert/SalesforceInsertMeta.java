@@ -50,7 +50,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/salesforceinsert.html")
 public class SalesforceInsertMeta
     extends SalesforceTransformMeta<SalesforceInsert, SalesforceInsertData> {
-  private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 
   /** Field value to update */
   private String[] updateLookup;

@@ -191,7 +191,7 @@ public class TabFolderReorder {
 
     @Override
     public Object nativeToJava(TransferData transferData) {
-      byte bytes[] = (byte[]) super.nativeToJava(transferData);
+      byte[] bytes = (byte[]) super.nativeToJava(transferData);
       if (bytes == null) {
         return null;
       }

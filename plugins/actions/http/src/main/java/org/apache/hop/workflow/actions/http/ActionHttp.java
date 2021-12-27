@@ -316,7 +316,9 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
     // Get previous result rows...
     List<RowMetaAndData> resultRows;
-    String urlFieldnameToUse, uploadFieldnameToUse, destinationFieldnameToUse;
+    String urlFieldnameToUse;
+    String uploadFieldnameToUse;
+    String destinationFieldnameToUse;
 
     if (Utils.isEmpty(urlFieldname)) {
       urlFieldnameToUse = URL_FIELDNAME;

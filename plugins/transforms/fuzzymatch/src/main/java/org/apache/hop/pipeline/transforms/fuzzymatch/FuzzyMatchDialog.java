@@ -156,10 +156,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
 
-    FormLayout GeneralLayout = new FormLayout();
-    GeneralLayout.marginWidth = 3;
-    GeneralLayout.marginHeight = 3;
-    wGeneralComp.setLayout(GeneralLayout);
+    FormLayout generalLayout = new FormLayout();
+    generalLayout.marginWidth = 3;
+    generalLayout.marginHeight = 3;
+    wGeneralComp.setLayout(generalLayout);
 
     // /////////////////////////////////
     // START OF Lookup Fields GROUP
@@ -169,10 +169,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wLookupGroup);
     wLookupGroup.setText(BaseMessages.getString(PKG, "FuzzyMatchDialog.Group.Lookup.Label"));
 
-    FormLayout LookupgroupLayout = new FormLayout();
-    LookupgroupLayout.marginWidth = 10;
-    LookupgroupLayout.marginHeight = 10;
-    wLookupGroup.setLayout(LookupgroupLayout);
+    FormLayout lookupgroupLayout = new FormLayout();
+    lookupgroupLayout.marginWidth = 10;
+    lookupgroupLayout.marginHeight = 10;
+    wLookupGroup.setLayout(lookupgroupLayout);
 
     // Source transform line...
     Label wlTransform = new Label(wLookupGroup, SWT.RIGHT);
@@ -250,10 +250,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wMainStreamGroup.setText(
         BaseMessages.getString(PKG, "FuzzyMatchDialog.Group.MainStreamGroup.Label"));
 
-    FormLayout MainStreamgroupLayout = new FormLayout();
-    MainStreamgroupLayout.marginWidth = 10;
-    MainStreamgroupLayout.marginHeight = 10;
-    wMainStreamGroup.setLayout(MainStreamgroupLayout);
+    FormLayout mainStreamgroupLayout = new FormLayout();
+    mainStreamgroupLayout.marginWidth = 10;
+    mainStreamgroupLayout.marginHeight = 10;
+    wMainStreamGroup.setLayout(mainStreamgroupLayout);
 
     // MainStreamFieldname field
     Label wlMainStreamField = new Label(wMainStreamGroup, SWT.RIGHT);
@@ -305,10 +305,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wSettingsGroup.setText(
         BaseMessages.getString(PKG, "FuzzyMatchDialog.Group.SettingsGroup.Label"));
 
-    FormLayout SettingsgroupLayout = new FormLayout();
-    SettingsgroupLayout.marginWidth = 10;
-    SettingsgroupLayout.marginHeight = 10;
-    wSettingsGroup.setLayout(SettingsgroupLayout);
+    FormLayout settingsgroupLayout = new FormLayout();
+    settingsgroupLayout.marginWidth = 10;
+    settingsgroupLayout.marginHeight = 10;
+    wSettingsGroup.setLayout(settingsgroupLayout);
 
     // Algorithm
     Label wlAlgorithm = new Label(wSettingsGroup, SWT.RIGHT);
@@ -486,10 +486,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFieldsComp);
 
-    FormLayout FieldsLayout = new FormLayout();
-    FieldsLayout.marginWidth = 3;
-    FieldsLayout.marginHeight = 3;
-    wFieldsComp.setLayout(FieldsLayout);
+    FormLayout fieldsLayout = new FormLayout();
+    fieldsLayout.marginWidth = 3;
+    fieldsLayout.marginHeight = 3;
+    wFieldsComp.setLayout(fieldsLayout);
 
     // /////////////////////////////////
     // START OF OutputFields Fields GROUP
@@ -500,10 +500,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wOutputFieldsGroup.setText(
         BaseMessages.getString(PKG, "FuzzyMatchDialog.Group.OutputFieldsGroup.Label"));
 
-    FormLayout OutputFieldsgroupLayout = new FormLayout();
-    OutputFieldsgroupLayout.marginWidth = 10;
-    OutputFieldsgroupLayout.marginHeight = 10;
-    wOutputFieldsGroup.setLayout(OutputFieldsgroupLayout);
+    FormLayout outputFieldsgroupLayout = new FormLayout();
+    outputFieldsgroupLayout.marginWidth = 10;
+    outputFieldsgroupLayout.marginHeight = 10;
+    wOutputFieldsGroup.setLayout(outputFieldsgroupLayout);
 
     Label wlmatchField = new Label(wOutputFieldsGroup, SWT.RIGHT);
     wlmatchField.setText(BaseMessages.getString(PKG, "FuzzyMatchDialog.MatchField.Label"));
@@ -566,10 +566,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlu.right = new FormAttachment(100, 0);
     wGetLU.setLayoutData(fdlu);
 
-    int UpInsCols = 2;
-    int UpInsRows = (input.getValue() != null ? input.getValue().length : 1);
+    int upInsCols = 2;
+    int upInsRows = (input.getValue() != null ? input.getValue().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "FuzzyMatchDialog.ColumnInfo.FieldReturn"),
@@ -588,7 +588,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
             wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

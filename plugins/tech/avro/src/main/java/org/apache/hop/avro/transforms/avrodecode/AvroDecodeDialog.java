@@ -62,7 +62,6 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
 
   private Combo wSourceField;
   private TableView wFields;
-  private ColumnInfo[] fieldsColumns;
   private RowProducer rowProducer;
 
   public AvroDecodeDialog(
@@ -153,7 +152,7 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
     fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
 
-    fieldsColumns =
+    ColumnInfo[] fieldsColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.SourceField"),

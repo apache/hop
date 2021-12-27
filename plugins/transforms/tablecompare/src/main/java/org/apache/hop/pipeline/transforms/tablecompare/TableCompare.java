@@ -428,7 +428,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         // Now grab rows of data and start comparing the individual rows ...
         //
-        IRowMeta oneMeta = null, twoMeta = null;
+        IRowMeta oneMeta = null;
+        IRowMeta twoMeta = null;
 
         Object[] one = data.referenceDb.getRow(refSet);
         if (one != null) {

@@ -98,7 +98,7 @@ public class NoAuthMongoClientWrapperTest {
 
   private NoAuthMongoClientWrapper noAuthMongoClientWrapper;
 
-  private static Class<?> PKG = NoAuthMongoClientWrapper.class; // For Translator
+  private static final Class<?> PKG = NoAuthMongoClientWrapper.class; // For Translator
 
   @Before
   public void setUp() throws Exception {

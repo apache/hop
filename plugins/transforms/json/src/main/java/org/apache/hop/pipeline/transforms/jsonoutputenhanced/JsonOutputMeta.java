@@ -56,7 +56,7 @@ import java.util.List;
     groups = {"GENERAL", "FIELDS"})
 public class JsonOutputMeta extends BaseFileOutputMeta
     implements ITransformMeta<JsonOutput, JsonOutputData> {
-  private static Class<?> PKG = JsonOutputMeta.class;
+  private static final Class<?> PKG = JsonOutputMeta.class;
 
   /** Operations type */
   @Injection(name = "OPERATION", group = "GENERAL")

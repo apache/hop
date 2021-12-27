@@ -126,7 +126,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
   private String encoding;
 
   /** Dynamic FilenameField */
-  private String DynamicFilenameField;
+  private String dynamicFilenameField;
 
   /** Is In fields */
   private boolean fileinfield;
@@ -292,12 +292,12 @@ public class LoadFileInputMeta extends BaseTransformMeta
    *************************************/
   /** */
   public String getDynamicFilenameField() {
-    return DynamicFilenameField;
+    return dynamicFilenameField;
   }
 
   /** */
-  public void setDynamicFilenameField(String DynamicFilenameField) {
-    this.DynamicFilenameField = DynamicFilenameField;
+  public void setDynamicFilenameField(String dynamicFilenameField) {
+    this.dynamicFilenameField = dynamicFilenameField;
   }
 
   /************************************
@@ -308,8 +308,8 @@ public class LoadFileInputMeta extends BaseTransformMeta
     return fileinfield;
   }
 
-  public void setFileInFields(boolean IsInFields) {
-    this.fileinfield = IsInFields;
+  public void setFileInFields(boolean isInFields) {
+    this.fileinfield = isInFields;
   }
 
   /** @return Returns the fileMask. */
@@ -484,7 +484,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     retval.append("      </" + FIELDS + ">" + Const.CR);
     retval.append("    " + XmlHandler.addTagValue(LIMIT, rowLimit));
     retval.append("    " + XmlHandler.addTagValue(IS_IN_FIELDS, fileinfield));
-    retval.append("    " + XmlHandler.addTagValue(DYNAMIC_FILENAME_FIELD, DynamicFilenameField));
+    retval.append("    " + XmlHandler.addTagValue(DYNAMIC_FILENAME_FIELD, dynamicFilenameField));
     retval.append("    ").append(XmlHandler.addTagValue(SHORT_FILE_FIELD_NAME, shortFileFieldName));
     retval.append("    ").append(XmlHandler.addTagValue(PATH_FIELD_NAME, pathFieldName));
     retval.append("    ").append(XmlHandler.addTagValue(HIDDEN_FIELD_NAME, hiddenFieldName));
@@ -548,7 +548,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
 
       fileinfield = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, IS_IN_FIELDS));
 
-      DynamicFilenameField = XmlHandler.getTagValue(transformNode, DYNAMIC_FILENAME_FIELD);
+      dynamicFilenameField = XmlHandler.getTagValue(transformNode, DYNAMIC_FILENAME_FIELD);
       shortFileFieldName = XmlHandler.getTagValue(transformNode, SHORT_FILE_FIELD_NAME);
       pathFieldName = XmlHandler.getTagValue(transformNode, PATH_FIELD_NAME);
       hiddenFieldName = XmlHandler.getTagValue(transformNode, HIDDEN_FIELD_NAME);
@@ -612,7 +612,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     rowLimit = 0;
 
     fileinfield = false;
-    DynamicFilenameField = null;
+    dynamicFilenameField = null;
   }
 
   @Override
@@ -888,9 +888,9 @@ public class LoadFileInputMeta extends BaseTransformMeta
     if (rowLimit != that.rowLimit) {
       return false;
     }
-    if (DynamicFilenameField != null
-        ? !DynamicFilenameField.equals(that.DynamicFilenameField)
-        : that.DynamicFilenameField != null) {
+    if (dynamicFilenameField != null
+        ? !dynamicFilenameField.equals(that.dynamicFilenameField)
+        : that.dynamicFilenameField != null) {
       return false;
     }
     if (encoding != null ? !encoding.equals(that.encoding) : that.encoding != null) {
@@ -971,7 +971,7 @@ public class LoadFileInputMeta extends BaseTransformMeta
     result = 31 * result + (int) (rowLimit ^ (rowLimit >>> 32));
     result = 31 * result + (inputFields != null ? Arrays.hashCode(inputFields) : 0);
     result = 31 * result + (encoding != null ? encoding.hashCode() : 0);
-    result = 31 * result + (DynamicFilenameField != null ? DynamicFilenameField.hashCode() : 0);
+    result = 31 * result + (dynamicFilenameField != null ? dynamicFilenameField.hashCode() : 0);
     result = 31 * result + (fileinfield ? 1 : 0);
     result = 31 * result + (addresultfile ? 1 : 0);
     result = 31 * result + (fileRequired != null ? Arrays.hashCode(fileRequired) : 0);
