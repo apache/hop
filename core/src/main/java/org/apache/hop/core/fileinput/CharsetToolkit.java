@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 /**
@@ -176,13 +177,13 @@ public class CharsetToolkit {
     // if the file has a Byte Order Marker, we can assume the file is in UTF-xx
     // otherwise, the file would not be human readable
     if (hasUTF8Bom(buffer)) {
-      return Charset.forName("UTF-8");
+      return StandardCharsets.UTF_8;
     }
     if (hasUTF16LEBom(buffer)) {
-      return Charset.forName("UTF-16LE");
+      return StandardCharsets.UTF_16LE;
     }
     if (hasUTF16BEBom(buffer)) {
-      return Charset.forName("UTF-16BE");
+      return StandardCharsets.UTF_16BE;
     }
 
     // if a byte has its most significant bit set, the file is in UTF-8 or in the default encoding
@@ -276,37 +277,26 @@ public class CharsetToolkit {
       if (this.enforce8Bit) {
         return this.defaultCharset;
       } else {
-        return Charset.forName("US-ASCII");
+        return StandardCharsets.US_ASCII;
       }
     }
     // if no invalid UTF-8 were encountered, we can assume the encoding is UTF-8,
     // otherwise the file would not be human readable
     if (validU8Char) {
-      return Charset.forName("UTF-8");
+      return StandardCharsets.UTF_8;
     }
     // finally, if it's not UTF-8 nor US-ASCII, let's assume the encoding is the default encoding
     return this.defaultCharset;
   }
 
-  public static Charset guessEncoding(File f, int bufferLength)
-      throws FileNotFoundException, IOException {
-    FileInputStream fis = new FileInputStream(f);
-    byte[] buffer = new byte[bufferLength];
-    fis.read(buffer);
-    fis.close();
+  public static Charset guessEncoding(File f, int bufferLength) throws IOException {
+    byte[] buffer;
+    try (FileInputStream fis = new FileInputStream(f)) {
+      buffer = new byte[bufferLength];
+      fis.read(buffer);
+    }
     CharsetToolkit toolkit = new CharsetToolkit(buffer);
     toolkit.setDefaultCharset(getDefaultSystemCharset());
-    return toolkit.guessEncoding();
-  }
-
-  public static Charset guessEncoding(File f, int bufferLength, Charset defaultCharset)
-      throws FileNotFoundException, IOException {
-    FileInputStream fis = new FileInputStream(f);
-    byte[] buffer = new byte[bufferLength];
-    fis.read(buffer);
-    fis.close();
-    CharsetToolkit toolkit = new CharsetToolkit(buffer);
-    toolkit.setDefaultCharset(defaultCharset);
     return toolkit.guessEncoding();
   }
 
