@@ -200,13 +200,13 @@ public class NormaliserMeta extends BaseTransformMeta
 
     // Get a unique list of the occurrences of the type
     //
-    List<String> norm_occ = new ArrayList<>();
-    List<String> field_occ = new ArrayList<>();
+    List<String> normOcc = new ArrayList<>();
+    List<String> fieldOcc = new ArrayList<>();
     int maxlen = 0;
     for (int i = 0; i < normaliserFields.length; i++) {
-      if (!norm_occ.contains(normaliserFields[i].getNorm())) {
-        norm_occ.add(normaliserFields[i].getNorm());
-        field_occ.add(normaliserFields[i].getName());
+      if (!normOcc.contains(normaliserFields[i].getNorm())) {
+        normOcc.add(normaliserFields[i].getNorm());
+        fieldOcc.add(normaliserFields[i].getName());
       }
 
       if (normaliserFields[i].getValue().length() > maxlen) {
@@ -225,9 +225,9 @@ public class NormaliserMeta extends BaseTransformMeta
     // Add the new fields that need to be created.
     // Use the same data type as the original fieldname...
     //
-    for (int i = 0; i < norm_occ.size(); i++) {
-      String normname = norm_occ.get(i);
-      String fieldname = field_occ.get(i);
+    for (int i = 0; i < normOcc.size(); i++) {
+      String normname = normOcc.get(i);
+      String fieldname = fieldOcc.get(i);
       IValueMeta v = row.searchValueMeta(fieldname);
       if (v != null) {
         v = v.clone();
@@ -327,7 +327,7 @@ public class NormaliserMeta extends BaseTransformMeta
           BaseMessages.getString(
                   PKG, "NormaliserMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform")
               + Const.CR;
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -375,7 +375,9 @@ public class NormaliserMeta extends BaseTransformMeta
     @Injection(name = "NORMALISED", group = "FIELDS")
     private String norm;
 
-    public NormaliserField() {}
+    public NormaliserField() {
+      // Do nothing
+    }
 
     /** @return the name */
     public String getName() {

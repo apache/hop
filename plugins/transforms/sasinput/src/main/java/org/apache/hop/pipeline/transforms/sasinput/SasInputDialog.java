@@ -53,7 +53,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public class SasInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SasInputMeta.class; // for Translator
+  private static final Class<?> PKG = SasInputMeta.class; // for Translator
 
   private CCombo wAccField;
 

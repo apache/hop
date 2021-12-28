@@ -60,7 +60,6 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
     List<StandardizePhoneField> standardizes = input.getFields();
     if (standardizes.size() > 0) {
       Table table = wFields.getTable();
-      // table.removeAll();
       for (int i = 0; i < standardizes.size(); i++) {
         StandardizePhoneField standardize = standardizes.get(i);
         TableItem item = new TableItem(table, SWT.NONE);
@@ -255,17 +254,16 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
                               TableItem item = wFields.table.getItem(i);
 
                               // Input field
-                              if (!Utils.isEmpty(item.getText(1))) {
-                                if (!inputFields.contains(item.getText(1))) {
-                                  item.setBackground(GuiResource.getInstance().getColorRed());
-                                }
+                              if (!Utils.isEmpty(item.getText(1))
+                                  && !inputFields.contains(item.getText(1))) {
+                                item.setBackground(GuiResource.getInstance().getColorRed());
                               }
 
                               // Country field
-                              if (!Utils.isEmpty(item.getText(3))) {
-                                if (!inputFields.contains(item.getText(3))) {
-                                  item.setBackground(GuiResource.getInstance().getColorRed());
-                                }
+                              if (!Utils.isEmpty(item.getText(3))
+                                  && !inputFields.contains(item.getText(3))) {
+
+                                item.setBackground(GuiResource.getInstance().getColorRed());
                               }
                             }
                           }

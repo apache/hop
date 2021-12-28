@@ -35,7 +35,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
-/** @author Andrey Khayrutdinov */
 @RunWith(PowerMockRunner.class)
 public class EditRowsDialog_EmptyStringVsNull_Test {
 

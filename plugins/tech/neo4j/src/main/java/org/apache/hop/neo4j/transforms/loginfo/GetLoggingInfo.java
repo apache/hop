@@ -39,12 +39,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Get information from the System or the supervising pipeline.
- *
- * @author Matt
- * @since 4-aug-2003
- */
+/** Get information from the System or the supervising pipeline. */
 public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData>
     implements ITransform<GetLoggingInfoMeta, GetLoggingInfoData> {
 

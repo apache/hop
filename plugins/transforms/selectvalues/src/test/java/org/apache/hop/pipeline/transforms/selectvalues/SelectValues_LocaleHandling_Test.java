@@ -35,11 +35,7 @@ import java.util.Locale;
 
 import static org.mockito.Mockito.*;
 
-/**
- * Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday.
- *
- * @author Andrey Khayrutdinov
- */
+/** Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday. */
 public class SelectValues_LocaleHandling_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

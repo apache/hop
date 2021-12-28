@@ -26,10 +26,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class SQLFileOutputData extends BaseTransformData implements ITransformData {
   public int splitnr;
 

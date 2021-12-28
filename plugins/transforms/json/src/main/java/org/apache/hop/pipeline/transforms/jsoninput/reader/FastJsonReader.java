@@ -32,12 +32,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-/**
- * @author Samatar
- * @author edube
- * @author jadametz
- * @since 2015-08-18
- */
 public class FastJsonReader implements IJsonReader {
   private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
@@ -240,7 +234,7 @@ public class FastJsonReader implements IJsonReader {
     int i = 0;
     for (JsonPath path : paths) {
       List<Object> result = getReadContext().read(path);
-      if (result.size() != lastSize && lastSize > 0 & result.size() != 0) {
+      if (result.size() != lastSize && lastSize > 0 && result.size() != 0) {
         throw new JsonInputException(
             BaseMessages.getString(
                 PKG,

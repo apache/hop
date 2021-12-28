@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transform.errorhandling;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 
-/** @author Johnny Vanhentenyk */
 public interface IFileErrorHandler {
 
   /**

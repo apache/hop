@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-csv-input-utf-bom.csv",
+  "name": "golden-csv-input-utf-bom",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "﻿field1"
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "field2"
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "field3"
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "field4"
+    }
+  ],
+  "folder_name": ""
+}

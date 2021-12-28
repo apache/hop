@@ -28,7 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-/** @author Tatsiana_Kasiankova */
 public class SalesforceUtilsTest {
 
   private static ILogChannel logMock;

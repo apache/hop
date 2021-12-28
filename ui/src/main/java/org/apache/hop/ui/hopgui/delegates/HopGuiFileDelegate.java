@@ -105,11 +105,13 @@ public class HopGuiFileDelegate {
     }
 
     IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
-    hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
+    if (fileTypeHandler != null) {
+      hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
 
-    // Also save the state of Hop GUI
-    //
-    hopGui.auditDelegate.writeLastOpenFiles();
+      // Also save the state of Hop GUI
+      //
+      hopGui.auditDelegate.writeLastOpenFiles();
+    }
 
     return fileTypeHandler;
   }

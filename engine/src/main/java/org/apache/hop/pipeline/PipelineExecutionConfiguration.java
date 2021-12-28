@@ -135,7 +135,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
         newVariables.put(
             varname, Const.NVL(variablesMap.get(varname), sp.getProperty(varname, "")));
       }
-      // variables.clear();
       variablesMap.putAll(newVariables);
     }
 
@@ -170,7 +169,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
               varname, Const.NVL(variablesMap.get(varname), sp.getProperty(varname, "")));
         }
       }
-      // variables.clear();
       variablesMap.putAll(newVariables);
     }
 
@@ -234,7 +232,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
 
     // IMPORTANT remote debugging is not yet supported
     //
-    // xml.append(pipelineDebugMeta.getXml());
 
     xml.append("    ").append(XmlHandler.addTagValue("log_level", logLevel.getCode()));
     xml.append("    ").append(XmlHandler.addTagValue("log_file", setLogfile));

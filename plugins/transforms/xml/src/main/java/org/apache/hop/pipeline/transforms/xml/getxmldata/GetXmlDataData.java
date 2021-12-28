@@ -30,12 +30,10 @@ import java.io.FileInputStream;
 import java.text.*;
 import java.util.*;
 
-/**
- * @author Samatar
- * @since 21-06-2007
- */
 public class GetXmlDataData extends BaseTransformData implements ITransformData {
-  public String thisline, nextline, lastline;
+  public String thisline;
+  public String nextline;
+  public String lastline;
   public Object[] previousRow;
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

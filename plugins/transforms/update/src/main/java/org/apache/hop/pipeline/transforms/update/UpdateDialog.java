@@ -114,6 +114,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
         };
     SelectionListener lsSelection =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setTableFieldCombo();
@@ -245,6 +246,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wBatch.setLayoutData(fdBatch);
     wBatch.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             setFlags();
             input.setChanged();
@@ -270,6 +272,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wSkipLookup.setLayoutData(fdSkipLookup);
     wSkipLookup.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setActiveIgnoreLookup();
@@ -293,6 +296,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wErrorIgnored.setLayoutData(fdErrorIgnored);
     wErrorIgnored.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             setFlags();
@@ -409,13 +413,13 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     fdlReturn.top = new FormAttachment(wKey, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 2;
-    int UpInsRows =
+    int upInsCols = 2;
+    int upInsRows =
         (input.getLookupField().getUpdateFields() != null
             ? input.getLookupField().getUpdateFields().size()
             : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "UpdateDialog.ColumnInfo.TableField"),
@@ -435,7 +439,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -486,12 +490,14 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getSchemaNames();
           }
         });
     wbTable.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             getTableName();
           }
@@ -561,9 +567,9 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {
@@ -689,7 +695,6 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void getInfo(UpdateMeta inf) {
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wReturn.nrNonEmpty();
 
@@ -711,8 +716,6 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
       inf.getLookupField().getLookupKeys().add(keyItem);
     }
-
-    // Table ftable = wReturn.table;
 
     logDebug(BaseMessages.getString(PKG, "UpdateDialog.Log.FoundFields", nrFields + ""));
     // CHECKSTYLE:Indentation:OFF

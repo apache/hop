@@ -19,11 +19,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.variables.IVariables;
 
-/**
- * Processor of Filters. Kind of inversion principle, and to make unit testing easier.
- *
- * @author Sven Boden
- */
+/** Processor of Filters. Kind of inversion principle, and to make unit testing easier. */
 public class TextFileFilterProcessor {
 
   /** The filters to process */

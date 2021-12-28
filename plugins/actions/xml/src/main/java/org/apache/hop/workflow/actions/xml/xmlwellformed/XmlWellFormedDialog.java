@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the XML valid job entry settings.
- *
- * @author Samatar Hassan
- * @since 26-03-2008
- */
+/** This dialog allows you to edit the XML valid job entry settings. */
 public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = XmlWellFormedDialog.class; // For Translator
 
@@ -63,7 +58,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private Text wName;
 
   private Label wlSourceFileFolder;
-  private Button wbSourceFileFolder, wbSourceDirectory;
+  private Button wbSourceFileFolder;
+  private Button wbSourceDirectory;
 
   private TextVar wSourceFileFolder;
 
@@ -89,7 +85,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
   // Add File to result
 
-  private CCombo wSuccessCondition, wAddFilenameToResult;
+  private CCombo wSuccessCondition;
+  private CCombo wAddFilenameToResult;
 
   private Label wlNrErrorsLessThan;
   private TextVar wNrErrorsLessThan;
@@ -808,19 +805,19 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
         nr++;
       }
     }
-    String[] source_filefolder = new String[nr];
+    String[] sourceFilefolder = new String[nr];
     String[] wildcard = new String[nr];
     nr = 0;
     for (int i = 0; i < nritems; i++) {
       String source = wFields.getNonEmpty(i).getText(1);
       String wild = wFields.getNonEmpty(i).getText(2);
       if (source != null && source.length() != 0) {
-        source_filefolder[nr] = source;
+        sourceFilefolder[nr] = source;
         wildcard[nr] = wild;
         nr++;
       }
     }
-    action.setSourceFileFolders(source_filefolder);
+    action.setSourceFileFolders(sourceFilefolder);
     action.setSourceWildcards(wildcard);
     dispose();
   }

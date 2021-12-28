@@ -21,12 +21,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
-/**
- * Class to keep track of which color is a system color (managed by the OS) and which is not.
- *
- * @author Matt
- * @since 2006-06-15
- */
+/** Class to keep track of which color is a system color (managed by the OS) and which is not. */
 public class ManagedColor {
   private Color color;
   private boolean systemColor;

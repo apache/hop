@@ -29,12 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/**
- * Get information from the System or the supervising pipeline.
- *
- * @author Matt
- * @since 4-aug-2003
- */
+/** Get information from the System or the supervising pipeline. */
 public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
     implements ITransform<GetVariableMeta, GetVariableData> {
 
@@ -132,8 +127,6 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
   public boolean init() {
 
     if (super.init()) {
-      // Add init code here.
-      //      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
       if (previous != null && previous.size() > 0) {
         data.readsRows = true;

@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the eval files metrics action settings.
- *
- * @author Samatar Hassan
- * @since 26-02-2010
- */
+/** This dialog allows you to edit the eval files metrics action settings. */
 public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
 
@@ -60,7 +55,8 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
   private Text wName;
 
   private Label wlSourceFileFolder;
-  private Button wbSourceFileFolder, wbSourceDirectory;
+  private Button wbSourceFileFolder;
+  private Button wbSourceDirectory;
 
   private TextVar wSourceFileFolder;
 
@@ -525,8 +521,6 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     fdFields.right = new FormAttachment(wbeSourceFileFolder, -margin);
     fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
-
-    // RefreshArgFromPrevious();
 
     // Add the file to the list of files...
     SelectionAdapter selA =

@@ -33,9 +33,6 @@ import java.util.List;
 /**
  * Takes care of displaying a dialog that will handle the wait while where determining the impact of
  * a pipeline on the used databases.
- *
- * @author Matt
- * @since 04-apr-2005
  */
 public class AnalyseImpactProgressDialog {
   private static final Class<?> PKG = AnalyseImpactProgressDialog.class; // For Translator

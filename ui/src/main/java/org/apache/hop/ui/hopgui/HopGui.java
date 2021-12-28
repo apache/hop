@@ -260,11 +260,6 @@ public class HopGui
   public static void main(String[] arguments) {
     try {
 
-      /*
-            System.out.println("Sleeping for 10s for debugging");
-            Thread.sleep(10000);
-      */
-
       setupConsoleLogging();
       HopEnvironment.init();
       OsHelper.setAppName();
@@ -429,7 +424,7 @@ public class HopGui
         item.setData(perspective);
         item.addListener(
             SWT.Selection,
-            (event) -> setActivePerspective((IHopPerspective) event.widget.getData()));
+            event -> setActivePerspective((IHopPerspective) event.widget.getData()));
 
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
         Image image =

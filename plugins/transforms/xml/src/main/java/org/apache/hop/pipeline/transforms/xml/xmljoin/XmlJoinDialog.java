@@ -68,9 +68,6 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
   private final XmlJoinMeta input;
 
-  // private Button wMinWidth;
-  // private Listener lsMinWidth;
-
   private boolean gotEncodings = false;
 
   public XmlJoinDialog(
@@ -182,10 +179,10 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     // Source Group
     Group gSource = new Group(shell, SWT.NONE);
     gSource.setText(BaseMessages.getString(PKG, "XmlJoin.SourceGroup.Label"));
-    FormLayout SourceLayout = new FormLayout();
-    SourceLayout.marginHeight = margin;
-    SourceLayout.marginWidth = margin;
-    gSource.setLayout(SourceLayout);
+    FormLayout sourceLayout = new FormLayout();
+    sourceLayout.marginHeight = margin;
+    sourceLayout.marginWidth = margin;
+    gSource.setLayout(sourceLayout);
     props.setLook(gSource);
     FormData fdSource = new FormData();
     fdSource.left = new FormAttachment(0, 0);
@@ -233,10 +230,10 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     // Join Group
     Group gJoin = new Group(shell, SWT.NONE);
     gJoin.setText(BaseMessages.getString(PKG, "XmlJoin.JoinGroup.Label"));
-    FormLayout JoinLayout = new FormLayout();
-    JoinLayout.marginHeight = margin;
-    JoinLayout.marginWidth = margin;
-    gJoin.setLayout(JoinLayout);
+    FormLayout joinLayout = new FormLayout();
+    joinLayout.marginHeight = margin;
+    joinLayout.marginWidth = margin;
+    gJoin.setLayout(joinLayout);
     props.setLook(gJoin);
     FormData fdJoin = new FormData();
     fdJoin.left = new FormAttachment(0, 0);
@@ -316,10 +313,10 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     // Result Group
     Group gResult = new Group(shell, SWT.NONE);
     gResult.setText(BaseMessages.getString(PKG, "XmlJoin.ResultGroup.Label"));
-    FormLayout ResultLayout = new FormLayout();
-    ResultLayout.marginHeight = margin;
-    ResultLayout.marginWidth = margin;
-    gResult.setLayout(ResultLayout);
+    FormLayout resultLayout = new FormLayout();
+    resultLayout.marginHeight = margin;
+    resultLayout.marginWidth = margin;
+    gResult.setLayout(resultLayout);
     props.setLook(gResult);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(0, 0);

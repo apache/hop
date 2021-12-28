@@ -60,10 +60,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
   private SimpleMappingMeta mappingMeta;
 
-  private Label wlPath;
   private TextVar wPath;
-
-  private Button wbBrowse;
 
   private CTabFolder wTabFolder;
 
@@ -72,10 +69,6 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   protected boolean transModified;
 
   private ModifyListener lsMod;
-
-  private int middle;
-
-  private int margin;
 
   private MappingParameters mappingParameters;
 
@@ -178,8 +171,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     formLayout.marginWidth = 15;
     formLayout.marginHeight = 15;
 
-    margin = props.getMargin();
-    middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Shell.Title"));
@@ -227,7 +219,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    wlPath = new Label(shell, SWT.LEFT);
+    Label wlPath = new Label(shell, SWT.LEFT);
     props.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
@@ -236,7 +228,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdlTransformation.right = new FormAttachment(50, 0);
     wlPath.setLayoutData(fdlTransformation);
 
-    wbBrowse = new Button(shell, SWT.PUSH);
+    Button wbBrowse = new Button(shell, SWT.PUSH);
     props.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Browse.Label"));
     FormData fdBrowse = new FormData();

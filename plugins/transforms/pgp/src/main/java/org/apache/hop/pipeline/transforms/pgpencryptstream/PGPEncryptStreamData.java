@@ -22,10 +22,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class PGPEncryptStreamData extends BaseTransformData implements ITransformData {
   public int indexOfField;
   public IRowMeta previousRowMeta;

@@ -293,7 +293,6 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
         data.two = data.two_next;
         break;
       case 1:
-        // if (log.isDebug()) logDebug("First stream has missing key");
         /*
          * First stream is greater than the second stream. This means: a) This key is missing in the first stream b)
          * Second stream may have finished So, if full/right outer join is set and 2nd stream is not null, we push a
@@ -355,7 +354,6 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
         }
         break;
       case -1:
-        // if (log.isDebug()) logDebug("Second stream has missing key");
         /*
          * Second stream is greater than the first stream. This means: a) This key is missing in the second stream b)
          * First stream may have finished So, if full/left outer join is set and 1st stream is not null, we push a

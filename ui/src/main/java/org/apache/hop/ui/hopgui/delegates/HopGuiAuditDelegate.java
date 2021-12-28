@@ -106,15 +106,16 @@ public class HopGuiAuditDelegate {
               } else {
                 // Regular filename
                 IHopFileTypeHandler fileTypeHandler = hopGui.fileDelegate.fileOpen(filename);
+                if (fileTypeHandler != null) {
+                  // Restore zoom, scroll and so on
+                  AuditState auditState = auditStateMap.get(filename);
+                  if (auditState != null && fileTypeHandler != null) {
+                    fileTypeHandler.applyStateProperties(auditState.getStateMap());
 
-                // Restore zoom, scroll and so on
-                AuditState auditState = auditStateMap.get(filename);
-                if (auditState != null && fileTypeHandler != null) {
-                  fileTypeHandler.applyStateProperties(auditState.getStateMap());
-
-                  Boolean bActive = (Boolean) auditState.getStateMap().get(STATE_PROPERTY_ACTIVE);
-                  if (bActive != null && bActive.booleanValue()) {
-                    activeFileTypeHandler = fileTypeHandler;
+                    Boolean bActive = (Boolean) auditState.getStateMap().get(STATE_PROPERTY_ACTIVE);
+                    if (bActive != null && bActive.booleanValue()) {
+                      activeFileTypeHandler = fileTypeHandler;
+                    }
                   }
                 }
               }

@@ -34,12 +34,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Performs a cartesian product between 2 or more input streams.
- *
- * @author Matt
- * @since 29-apr-2003
- */
+/** Performs a cartesian product between 2 or more input streams. */
 public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
     implements ITransform<JoinRowsMeta, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
@@ -62,7 +57,6 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
     // Since we haven't called getRow() yet we need to wait until we have all input row sets
     // available to us.
     //
-    // openRemoteInputTransformSocketsOnce();
 
     try {
       // Start with the caching of the data, write later...
@@ -103,7 +97,6 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
         data.size[i] = 0;
         data.rs[i] = inputRowSets.get(i);
         data.cache[i] = null;
-        // data.row[i] = null;
         data.position[i] = 0;
 
         data.dataInputStream[i] = null;

@@ -52,9 +52,6 @@ import java.util.Arrays;
 /**
  * This dialog allows you to edit the Truncate Tables action settings. (select the connection and
  * the table to be truncated)
- *
- * @author Samatar
- * @since 22-07-2008
  */
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class; // For Translator

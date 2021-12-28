@@ -35,7 +35,6 @@ import java.util.StringTokenizer;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-/** @author Andrey Khayrutdinov */
 public class ReadAllCacheTest {
 
   private DatabaseLookupData transformData;

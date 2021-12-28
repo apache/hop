@@ -30,7 +30,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-/** @author Andrey Khayrutdinov */
 @RunWith(Parameterized.class)
 public class IsNullIndexTest {
 

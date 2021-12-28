@@ -17,11 +17,7 @@
 
 package org.apache.hop.resource;
 
-/**
- * This describes the top level resource after an export
- *
- * @author matt
- */
+/** This describes the top level resource after an export */
 public class TopLevelResource {
   private String baseResourceName;
   private String archiveName;

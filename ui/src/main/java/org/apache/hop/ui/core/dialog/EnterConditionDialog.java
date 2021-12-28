@@ -35,12 +35,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * This dialog allows you to enter a condition in a graphical way.
- *
- * @author Matt
- * @since 29-07-2004
- */
+/** This dialog allows you to enter a condition in a graphical way. */
 public class EnterConditionDialog extends Dialog {
   private static final Class<?> PKG = EnterConditionDialog.class; // For Translator
 
@@ -48,9 +43,6 @@ public class EnterConditionDialog extends Dialog {
 
   private Shell shell;
   private ConditionEditor wCond;
-
-  private Button wOk;
-  private Button wCancel;
 
   private Condition condition;
   private IRowMeta fields;
@@ -86,10 +78,10 @@ public class EnterConditionDialog extends Dialog {
     }
 
     // Buttons
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);

@@ -47,7 +47,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 
-/** @author Andrey Khayrutdinov */
 public class SelectValuesTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

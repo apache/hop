@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.loadsave.validator;
 
 import java.util.Random;
 
-/** @author Andrey Khayrutdinov */
 public class IntLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
   private final Integer maxValue;
 

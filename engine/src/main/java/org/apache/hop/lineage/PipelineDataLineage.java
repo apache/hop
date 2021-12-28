@@ -34,8 +34,6 @@ import java.util.*;
  * As such, it's a hierarchical view of the pipeline.<br>
  *
  * <p>This view will allow us to see immediately where a certain value is being manipulated.<br>
- *
- * @author matt
  */
 public class PipelineDataLineage {
   private PipelineMeta pipelineMeta;

@@ -124,7 +124,7 @@ public class StreamLookupMeta extends BaseTransformMeta
     if (thisTransformIO != null
         && thisTransformIO.getInfoStreams() != null
         && thatTransformIO != null
-        && thisTransformIO.getInfoStreams() != null) {
+        && thatTransformIO.getInfoStreams() != null) {
       List<IStream> thisInfoStream = thisTransformIO.getInfoStreams();
       List<IStream> thatInfoStream = thatTransformIO.getInfoStreams();
       thatInfoStream.get(0).setStreamType(thisInfoStream.get(0).getStreamType());
@@ -149,7 +149,8 @@ public class StreamLookupMeta extends BaseTransformMeta
   private void readData(Node transformNode) throws HopXmlException {
     try {
       String dtype;
-      int nrkeys, nrvalues;
+      int nrkeys;
+      int nrvalues;
 
       String lookupFromTransformName = XmlHandler.getTagValue(transformNode, "from");
       IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
@@ -203,8 +204,7 @@ public class StreamLookupMeta extends BaseTransformMeta
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
+      stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
     }
   }
 
@@ -495,12 +495,6 @@ public class StreamLookupMeta extends BaseTransformMeta
       remarks.add(cr);
     }
   }
-
-  //  @Override
-  //  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-  //                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-  //    return new StreamLookup( transformMeta, this, data, cnr, pipelineMeta, pipeline );
-  //  }
 
   @Override
   public StreamLookupData getTransformData() {

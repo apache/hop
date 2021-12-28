@@ -22,8 +22,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 /**
  * Utility class that contains the case value, the target transform name and the resolved target
  * transform
- *
- * @author matt
  */
 public class SwitchCaseTarget implements Cloneable {
   /** The value to switch over */

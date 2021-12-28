@@ -69,12 +69,11 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
 
   @Override
   public ISearchableCallback getSearchCallback() {
-    return (searchable, searchResult) -> {
-      // Open the metadata object...
-      //
-      new MetadataManager(HopGui.getInstance().getVariables(), metadataProvider, managedClass)
-          .editMetadata(searchable.getName());
-    };
+    return (searchable, searchResult) ->
+        // Open the metadata object...
+        //
+        new MetadataManager(HopGui.getInstance().getVariables(), metadataProvider, managedClass)
+            .editMetadata(searchable.getName());
   }
 
   /**

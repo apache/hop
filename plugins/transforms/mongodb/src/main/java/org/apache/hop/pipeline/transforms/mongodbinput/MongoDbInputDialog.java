@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.*;
 
 public class MongoDbInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
+  private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
 
   private MetaSelectionLine<MongoDbConnection> wConnection;
 
@@ -295,19 +295,12 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     props.setLook(wJsonQuery, PropsUi.WIDGET_STYLE_FIXED);
     wJsonQuery.addModifyListener(lsMod);
 
-    /*
-     * wJsonQuery = new TextVar( variables, wQueryComp, SWT.SINGLE | SWT.LEFT |
-     * SWT.BORDER); props.setLook(wJsonQuery);
-     * wJsonQuery.addModifyListener(lsMod);
-     */
     FormData fdJsonQuery = new FormData();
     fdJsonQuery.left = new FormAttachment(0, 0);
     fdJsonQuery.top = new FormAttachment(wlJsonQuery, margin);
     fdJsonQuery.right = new FormAttachment(100, -2 * margin);
     fdJsonQuery.bottom = new FormAttachment(lastControl, -2 * margin);
-    // wJsonQuery.setLayoutData(fdJsonQuery);
     wJsonQuery.setLayoutData(fdJsonQuery);
-    // lastControl = wJsonQuery;
     lastControl = wJsonQuery;
 
     fd = new FormData();

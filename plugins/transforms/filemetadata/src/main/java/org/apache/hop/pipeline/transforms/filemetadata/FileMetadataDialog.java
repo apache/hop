@@ -80,18 +80,6 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     meta = (FileMetadataMeta) in;
   }
 
-  //  private final String[] emptyFieldList = new String[0];
-  //
-  //  private String[] getFieldListForCombo() {
-  //    String[] items;
-  //    try {
-  //      RowMetaInterface r = pipelineMeta.getPrevTransformFields(TransformName);
-  //      items = r.getFieldNames();
-  //    } catch (KettleException exception) {
-  //      items = emptyFieldList;
-  //    }
-  //    return items;
-  //  }
 
   private void setEncodings() {
     // Encoding of the text file:
@@ -349,7 +337,6 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdQueryGroup.top = new FormAttachment(wFilename, margin);
     fdQueryGroup.bottom = new FormAttachment(wOk, -2 * margin);
     gDelimitedLayout.setLayoutData(fdQueryGroup);
-    // lastControl = gDelimitedLayout;
 
     // populate the dialog with the values from the meta object
     populateDialog();

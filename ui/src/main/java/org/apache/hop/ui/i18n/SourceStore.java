@@ -24,11 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Read the messages files for the source folders of the specified locale.
- *
- * @author matt
- */
+/** Read the messages files for the source folders of the specified locale. */
 public class SourceStore {
 
   private Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences;
@@ -63,7 +59,6 @@ public class SourceStore {
         messagesStore.read(directories);
         messagesMap.put(messagesPackage, messagesStore);
       } catch (Exception e) {
-        // e.printStackTrace();
       }
     }
   }

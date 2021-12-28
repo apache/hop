@@ -317,7 +317,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
           } else {
             errorMessage =
                 BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.InvalidDBQuery");
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
           }
 

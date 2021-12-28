@@ -20,10 +20,6 @@ package org.apache.hop.pipeline.transforms.dummy;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class DummyData extends BaseTransformData implements ITransformData {
 
   public DummyData() {

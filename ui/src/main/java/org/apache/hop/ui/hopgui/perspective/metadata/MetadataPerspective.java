@@ -660,7 +660,6 @@ public class MetadataPerspective implements IHopPerspective {
           if (!manager.getSerializer().exists(newName)) {
             metadata.setName(newName);
             manager.getSerializer().save(metadata);
-            // manager.editWithEditor(newName);
             break;
           } else {
             copyNr++;

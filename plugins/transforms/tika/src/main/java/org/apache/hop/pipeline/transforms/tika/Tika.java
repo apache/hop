@@ -41,13 +41,12 @@ import org.json.simple.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
 
 public class Tika extends BaseTransform<TikaMeta, TikaData>
     implements ITransform<TikaMeta, TikaData> {
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       TikaMeta.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
 
   public Tika(
@@ -125,17 +124,17 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
         } // end if first
 
         // get field value
-        String Fieldvalue = data.inputRowMeta.getString(data.readRow, data.indexOfFilenameField);
+        String fieldvalue = data.inputRowMeta.getString(data.readRow, data.indexOfFilenameField);
 
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "Tika.Log.Stream", meta.getDynamicFilenameField(), Fieldvalue));
+                  PKG, "Tika.Log.Stream", meta.getDynamicFilenameField(), fieldvalue));
         }
 
         try {
           // Source is a file.
-          data.file = HopVfs.getFileObject(Fieldvalue);
+          data.file = HopVfs.getFileObject(fieldvalue);
         } catch (HopFileException e) {
           throw new HopException(e);
         } finally {
@@ -304,13 +303,13 @@ public class Tika extends BaseTransform<TikaMeta, TikaData>
           BaseMessages.getString(PKG, "Tika.Error.GettingFileContent", vfsFilename, e.toString()),
           e);
     }
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (Exception e) {
-          log.logError("Error closing reader", e);
-        }
+    if (inputStream != null) {
+      try {
+        inputStream.close();
+      } catch (Exception e) {
+        log.logError("Error closing reader", e);
       }
+    }
     return retval;
   }
 

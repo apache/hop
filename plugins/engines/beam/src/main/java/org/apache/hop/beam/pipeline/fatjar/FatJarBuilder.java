@@ -159,7 +159,6 @@ public class FatJarBuilder {
         // Add the META-INF/services files...
         //
         for (String entryName : fileContentMap.keySet()) {
-          // System.out.println( "Entry merged: " + entryName );
           String fileContent = fileContentMap.get(entryName);
           zipOutputStream.putNextEntry(new ZipEntry(entryName));
           zipOutputStream.write(fileContent.getBytes("UTF-8"));

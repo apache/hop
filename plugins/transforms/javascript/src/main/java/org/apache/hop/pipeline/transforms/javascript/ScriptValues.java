@@ -37,9 +37,6 @@ import org.mozilla.javascript.*;
 /**
  * Executes a JavaScript on the values in the input stream. Selected calculated values can then be
  * put on the output stream.
- *
- * @author Matt
- * @since 5-April-2003
  */
 public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData>
     implements ITransform<ScriptValuesMeta, ScriptValuesData> {
@@ -69,8 +66,6 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
   private String strEndScript = "";
 
-  // public static Row insertRow;
-
   public Script script;
 
   public ScriptValues(
@@ -97,7 +92,6 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
 
     // Allocate fields_used
     data.fieldsUsed = new int[nr];
-    //    data.values_used = new Value[ nr ];
 
     nr = 0;
     // Count the occurrences of the values.
@@ -316,10 +310,6 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
     // Keep an index...
     int outputIndex = rowMeta.size();
 
-    // Keep track of the changed values...
-    //
-    //    final Map<Integer, Value> usedRowValues;
-
     try {
       try {
         Scriptable jsrow = Context.toObject(row, data.scope);
@@ -429,9 +419,6 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
   public Object getValueFromJScript(Object result, int i) throws HopValueException {
     String fieldName = meta.getFieldname()[i];
     if (!Utils.isEmpty(fieldName)) {
-      // res.setName(meta.getRename()[i]);
-      // res.setType(meta.getType()[i]);
-
       try {
         return (result == null)
             ? null
@@ -491,7 +478,6 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         }
       } catch (Exception er) {
         // Eat this error, it's typically : "Calling Context.exit without previous Context.enter"
-        // logError(BaseMessages.getString(PKG, "System.Log.UnexpectedError"), er);
       }
 
       setOutputDone();
@@ -559,7 +545,6 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       }
     } catch (Exception er) {
       // Eat this error, it's typically : "Calling Context.exit without previous Context.enter"
-      // logError(BaseMessages.getString(PKG, "System.Log.UnexpectedError"), er);
     }
 
     super.dispose();

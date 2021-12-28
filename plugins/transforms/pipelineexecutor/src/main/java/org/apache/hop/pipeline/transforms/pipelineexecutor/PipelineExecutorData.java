@@ -28,10 +28,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
-/**
- * @author Matt
- * @since 18-mar-2013
- */
 public class PipelineExecutorData extends BaseTransformData implements ITransformData {
   private IPipelineEngine<PipelineMeta> executorPipeline;
   private PipelineMeta executorPipelineMeta;

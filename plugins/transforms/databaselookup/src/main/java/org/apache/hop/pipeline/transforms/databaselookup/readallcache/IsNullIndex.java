@@ -23,7 +23,6 @@ import org.apache.hop.core.row.IValueMeta;
 import java.util.BitSet;
 import java.util.Comparator;
 
-/** @author Andrey Khayrutdinov */
 class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
 
   private final boolean isMatchingNull;
@@ -50,7 +49,8 @@ class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
     } else {
       int length = values.length;
 
-      int start, end;
+      int start;
+      int end;
       if (afterLastValue < length / 2) {
         start = 0;
         end = afterLastValue;

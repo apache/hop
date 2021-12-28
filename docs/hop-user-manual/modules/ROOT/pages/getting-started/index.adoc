@@ -18,7 +18,7 @@ under the License.
 :imagesdir: ../../assets/images
 :page-pagination:
 :page-pagination-no-back:
-:description: The Apache Hop (Incubating) Getting Started guide walks new Hop users through the Hop concepts and the bare necessities to get started building workflows and pipelines.
+:description: The Apache Hop Getting Started guide walks new Hop users through the Hop concepts and the bare necessities to get started building workflows and pipelines.
 
 = Getting Started
 

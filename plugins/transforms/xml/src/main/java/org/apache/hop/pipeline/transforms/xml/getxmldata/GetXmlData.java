@@ -57,9 +57,6 @@ import java.util.zip.GZIPInputStream;
 /**
  * Read XML files, parse them and convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar,Brahim
- * @since 20-06-2007
  */
 public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
     implements ITransform<GetXmlDataMeta, GetXmlDataData> {
@@ -78,7 +75,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
   }
 
   protected boolean setDocument(
-      String StringXML, FileObject file, boolean IsInXMLField, boolean readurl)
+      String stringXML, FileObject file, boolean isInXMLField, boolean readurl)
       throws HopException {
 
     this.prevRow = buildEmptyRow(); // pre-allocate previous row
@@ -163,15 +160,15 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
             });
       }
 
-      if (IsInXMLField) {
+      if (isInXMLField) {
         // read string to parse
-        data.document = reader.read(new StringReader(StringXML));
-      } else if (readurl && HopVfs.startsWithScheme(StringXML)) {
-        data.document = reader.read(HopVfs.getInputStream(StringXML));
+        data.document = reader.read(new StringReader(stringXML));
+      } else if (readurl && HopVfs.startsWithScheme(stringXML)) {
+        data.document = reader.read(HopVfs.getInputStream(stringXML));
       } else if (readurl) {
         // read url as source
         HttpClient client = HttpClientManager.getInstance().createDefaultClient();
-        HttpGet method = new HttpGet(StringXML);
+        HttpGet method = new HttpGet(stringXML);
         method.addHeader("Accept-Encoding", "gzip");
         HttpResponse response = client.execute(method);
         Header contentEncoding = response.getFirstHeader("Content-Encoding");
@@ -406,19 +403,19 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
 
       if (meta.isInFields()) {
         // get XML field value
-        String Fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
+        String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
 
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "GetXMLData.Log.XMLStream", meta.getXMLField(), Fieldvalue));
+                  PKG, "GetXMLData.Log.XMLStream", meta.getXMLField(), fieldvalue));
         }
 
         if (meta.getIsAFile()) {
           FileObject file = null;
           try {
             // XML source is a file.
-            file = HopVfs.getFileObject(resolve(Fieldvalue));
+            file = HopVfs.getFileObject(resolve(fieldvalue));
 
             if (meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0) {
               logBasic(
@@ -469,7 +466,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
           }
 
           // Open the XML document
-          if (!setDocument(Fieldvalue, null, xmltring, url)) {
+          if (!setDocument(fieldvalue, null, xmltring, url)) {
             throw new HopException(
                 BaseMessages.getString(PKG, "GetXMLData.Log.UnableCreateDocument"));
           }
@@ -726,7 +723,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
     }
     incrementLinesInput();
     data.rownr++;
-    putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
     if (meta.getRowLimit() > 0 && data.rownr > meta.getRowLimit()) {
       // limit has been reached: stop now.
@@ -790,16 +787,16 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
         // Get field
         GetXmlDataField xmlDataField = meta.getInputFields()[i];
         // Get the Path to look for
-        String XPathValue = xmlDataField.getResolvedXPath();
+        String xPathValue = xmlDataField.getResolvedXPath();
 
         if (meta.isuseToken()) {
           // See if user use Token inside path field
           // The syntax is : @_Fieldname-
           // Apache Hop will search for Fieldname value and replace it
           // Fieldname must be defined before the current node
-          XPathValue = substituteToken(XPathValue, outputRowData);
+          xPathValue = substituteToken(xPathValue, outputRowData);
           if (isDetailed()) {
-            logDetailed(XPathValue);
+            logDetailed(xPathValue);
           }
         }
 
@@ -808,12 +805,11 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
 
         // Handle namespaces
         if (meta.isNamespaceAware()) {
-          XPath xpathField = node.createXPath(addNSPrefix(XPathValue, data.PathValue));
+          XPath xpathField = node.createXPath(addNSPrefix(xPathValue, data.PathValue));
           xpathField.setNamespaceURIs(data.NAMESPACE);
           if (xmlDataField.getResultType() == GetXmlDataField.RESULT_TYPE_VALUE_OF) {
             nodevalue = xpathField.valueOf(node);
           } else {
-            // nodevalue=xpathField.selectSingleNode(node).asXML();
             Node n = xpathField.selectSingleNode(node);
             if (n != null) {
               nodevalue = n.asXML();
@@ -823,10 +819,9 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
           }
         } else {
           if (xmlDataField.getResultType() == GetXmlDataField.RESULT_TYPE_VALUE_OF) {
-            nodevalue = node.valueOf(XPathValue);
+            nodevalue = node.valueOf(xPathValue);
           } else {
-            // nodevalue=node.selectSingleNode(XPathValue).asXML();
-            Node n = node.selectSingleNode(XPathValue);
+            Node n = node.selectSingleNode(xPathValue);
             if (n != null) {
               nodevalue = n.asXML();
             } else {
@@ -951,16 +946,16 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
       // search for closing string
       if (j > -1) {
         String varName = rest.substring(i + data.tokenStart.length(), j);
-        Object Value = varName;
+        Object value = varName;
 
         for (int k = 0; k < data.nrInputFields; k++) {
-          GetXmlDataField Tmp_xmlInputField = meta.getInputFields()[k];
-          if (Tmp_xmlInputField.getName().equalsIgnoreCase(varName)) {
-            Value = "'" + outputRowData[data.totalpreviousfields + k] + "'";
+          GetXmlDataField tmpXmlInputField = meta.getInputFields()[k];
+          if (tmpXmlInputField.getName().equalsIgnoreCase(varName)) {
+            value = "'" + outputRowData[data.totalpreviousfields + k] + "'";
           }
         }
         buffer.append(rest.substring(0, i));
-        buffer.append(Value);
+        buffer.append(value);
         rest = rest.substring(j + data.tokenEnd.length());
       } else {
         // no closing tag found; end the search
@@ -986,25 +981,25 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
       for (int i = 0; i < data.nrInputFields; i++) {
         GetXmlDataField xmlDataField = meta.getInputFields()[i];
         // Resolve variable substitution
-        String XPathValue = resolve(xmlDataField.getXPath());
+        String xPathValue = resolve(xmlDataField.getXPath());
         if (xmlDataField.getElementType() == GetXmlDataField.ELEMENT_TYPE_ATTRIBUT) {
           // We have an attribute
           // do we need to add leading @?
           // Only put @ to the last element in path, not in front at all
-          int last = XPathValue.lastIndexOf(GetXmlDataMeta.N0DE_SEPARATOR);
+          int last = xPathValue.lastIndexOf(GetXmlDataMeta.N0DE_SEPARATOR);
           if (last > -1) {
             last++;
-            String attribut = XPathValue.substring(last, XPathValue.length());
+            String attribut = xPathValue.substring(last, xPathValue.length());
             if (!attribut.startsWith(GetXmlDataMeta.AT)) {
-              XPathValue = XPathValue.substring(0, last) + GetXmlDataMeta.AT + attribut;
+              xPathValue = xPathValue.substring(0, last) + GetXmlDataMeta.AT + attribut;
             }
           } else {
-            if (!XPathValue.startsWith(GetXmlDataMeta.AT)) {
-              XPathValue = GetXmlDataMeta.AT + XPathValue;
+            if (!xPathValue.startsWith(GetXmlDataMeta.AT)) {
+              xPathValue = GetXmlDataMeta.AT + xPathValue;
             }
           }
         }
-        xmlDataField.setResolvedXPath(XPathValue);
+        xmlDataField.setResolvedXPath(xPathValue);
       }
 
       data.PathValue = resolve(meta.getLoopXPath());

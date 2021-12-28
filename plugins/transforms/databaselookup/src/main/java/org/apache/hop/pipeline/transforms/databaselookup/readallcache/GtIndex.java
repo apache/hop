@@ -21,7 +21,6 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/** @author Andrey Khayrutdinov */
 class GtIndex extends Index {
 
   static Index lessOrEqualCache(int column, IValueMeta valueMeta, int rowsAmount) {
@@ -53,7 +52,8 @@ class GtIndex extends Index {
     } else {
       BitSet bitSet = context.getWorkingSet();
 
-      int start, end;
+      int start;
+      int end;
       if (firstValue < length / 2) {
         start = 0;
         end = firstValue;

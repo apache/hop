@@ -25,8 +25,6 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 /**
  * This class takes care of mapping output data from the mapping transform back to the parent
  * pipeline, renaming columns mainly.
- *
- * @author matt
  */
 public class RowOutputDataMapper extends RowAdapter {
 

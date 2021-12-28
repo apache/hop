@@ -341,13 +341,13 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     fdlReturn.top = new FormAttachment(wKey, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows =
+    int upInsCols = 3;
+    int upInsRows =
         (input.getInsertUpdateLookupField().getValueFields() != null
             ? input.getInsertUpdateLookupField().getValueFields().size()
             : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "InsertUpdateDialog.ColumnInfo.TableField"),
@@ -372,7 +372,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -695,7 +695,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getInfo(InsertUpdateMeta inf) {
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wReturn.nrNonEmpty();
 
@@ -722,8 +721,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
               item.getText(4)); // KeyStream2
       inf.getInsertUpdateLookupField().getLookupKeys().add(keyField);
     }
-
-    // Table ftable = wReturn.table;
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundFields", nrFields + ""));
@@ -754,9 +751,9 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {

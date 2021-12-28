@@ -24,9 +24,6 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
  * execution of threads and restart them later on without loosing track of the situation. Typically
  * the ITransformData implementing class will contain result sets, temporary data, caching indexes,
  * etc.
- *
- * @author Matt
- * @since 20-jan-2005
  */
 public interface ITransformData {
 

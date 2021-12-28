@@ -33,8 +33,6 @@ import java.util.List;
  *   <li>ValidatorContext putSomeObject(Object someObject)
  *   <li>void putSomeObject(ValidatorContext context, Object someObject)
  * </ul>
- *
- * @author mlowery
  */
 public interface IActionValidator {
 

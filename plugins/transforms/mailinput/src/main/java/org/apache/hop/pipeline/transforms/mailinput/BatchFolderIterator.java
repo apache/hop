@@ -61,8 +61,6 @@ public class BatchFolderIterator implements Iterator<Message> {
     this.batchLast = this.start - 1;
 
     messages = new Message[0];
-    // if (!getNextBatch() || msgCount == SIZE_ERR) throw new RuntimeException("TODO:"); //TODO
-
   }
 
   public Message getMessage() {

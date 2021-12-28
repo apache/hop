@@ -22,8 +22,6 @@ import org.apache.hop.core.row.IValueMeta;
 /**
  * Utility class to hold the result of a set of string evaluations: a valid conversion metadata
  * object (with data type, trim options, etc) and the minimum and maximum value encountered.
- *
- * @author matt
  */
 public class StringEvaluationResult {
 

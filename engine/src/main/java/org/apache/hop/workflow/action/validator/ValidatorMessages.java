@@ -23,11 +23,7 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-/**
- * Utility class for getting formatted strings from validator resource bundle.
- *
- * @author mlowery
- */
+/** Utility class for getting formatted strings from validator resource bundle. */
 public class ValidatorMessages {
 
   private static final String BUNDLE_NAME = "org.apache.hop.workflow.entry.messages.validator";

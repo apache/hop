@@ -57,7 +57,8 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
 
   private Text wName;
   private Button wRepeat;
-  private Spinner wIntervalSeconds, wIntervalMinutes;
+  private Spinner wIntervalSeconds;
+  private Spinner wIntervalMinutes;
   private CCombo wType;
   private Spinner wHour;
   private Spinner wMinutes;
@@ -67,7 +68,6 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
   public ActionStartDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    ;
     this.action = (ActionStart) action;
   }
 

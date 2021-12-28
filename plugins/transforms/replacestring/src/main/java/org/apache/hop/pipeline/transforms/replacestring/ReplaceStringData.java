@@ -23,10 +23,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.regex.Pattern;
 
-/**
- * @author Samatar Hassan
- * @since 28 September 2008
- */
 public class ReplaceStringData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs;

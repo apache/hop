@@ -34,36 +34,19 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.*;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
  * fonts, positions of windows, etc.
- *
- * @author Matt
- * @since 15-12-2003
  */
 public class PropsUi extends Props {
 
-  private static String OS = System.getProperty("os.name").toLowerCase();
+  private static final String OS = System.getProperty("os.name").toLowerCase();
 
   private static double nativeZoomFactor;
 
@@ -588,7 +571,7 @@ public class PropsUi extends Props {
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
         }
-        font = null; // GuiResource.getInstance().getFontDefault();
+        font = null;
         break;
       case WIDGET_STYLE_FIXED:
         if (!this.isOSLookShown()) {
@@ -600,7 +583,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TABLE:
         foreground = gui.getColorBackground();
         background = gui.getColorBackground();
-        font = null; // gui.getFontGrid();
+        font = null;
         break;
       case WIDGET_STYLE_NOTEPAD:
         foreground = gui.getColorBackground();
@@ -631,7 +614,7 @@ public class PropsUi extends Props {
         break;
       default:
         background = gui.getColorBackground();
-        font = null; // gui.getFontDefault();
+        font = null;
         break;
     }
 
@@ -883,7 +866,6 @@ public class PropsUi extends Props {
       if (contrastingRGB != null) {
         return contrastingRGB;
       }
-      // return new RGB(255-rgb.red, 255-rgb.green, 255-rgb.blue);
     }
     return rgb;
   }

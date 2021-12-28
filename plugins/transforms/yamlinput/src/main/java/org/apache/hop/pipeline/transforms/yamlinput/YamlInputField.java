@@ -28,9 +28,6 @@ import org.w3c.dom.Node;
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Samatar
- * @since 20-06-2007
  */
 public class YamlInputField implements Cloneable {
   private static final Class<?> PKG = YamlInputMeta.class; // For Translator
@@ -225,24 +222,24 @@ public class YamlInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol(String group_symbol) {
-    this.groupSymbol = group_symbol;
+  public void setGroupSymbol(String groupSymbol) {
+    this.groupSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {

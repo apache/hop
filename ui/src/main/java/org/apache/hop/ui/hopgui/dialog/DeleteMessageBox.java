@@ -26,11 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Displays the delete message box to confirm deletes of multiple transforms or actions
- *
- * @author David Kincade
- */
+/** Displays the delete message box to confirm deletes of multiple transforms or actions */
 public class DeleteMessageBox extends MessageBox {
   private static final Class<?> PKG = DeleteMessageBox.class; // For Translator
 

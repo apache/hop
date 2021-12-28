@@ -46,7 +46,6 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for IfNull transform
  *
- * @author Ivan Pogodin
  * @see IfNull
  */
 @RunWith(PowerMockRunner.class)

@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "﻿field1",
+          "data_set_field": "﻿field1"
+        },
+        {
+          "transform_field": "field2",
+          "data_set_field": "field2"
+        },
+        {
+          "transform_field": "field3",
+          "data_set_field": "field3"
+        },
+        {
+          "transform_field": "field4",
+          "data_set_field": "field4"
+        }
+      ],
+      "field_order": [
+        "﻿field1",
+        "field2",
+        "field3",
+        "field4"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-csv-input-utf-bom"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0039-csv-input-utf-bom UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0039-csv-input-utf-bom.hpl",
+  "test_type": "UNIT_TEST"
+}

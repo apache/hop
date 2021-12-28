@@ -53,7 +53,7 @@ import java.util.Map;
     categoryDescription = "Input",
     keywords = "Load text from file,Tika,Apache,content analysis toolkit")
 public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, TikaData> {
-  private static Class<?> PKG = TikaMeta.class; // for Translator
+  private static final Class<?> PKG = TikaMeta.class; // for Translator
 
   /** The list of files to read */
   @HopMetadataProperty(
@@ -349,14 +349,14 @@ public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, 
     if (input.length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "TikaMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "TikaMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -366,14 +366,14 @@ public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, 
       if (StringUtils.isEmpty(getDynamicFilenameField())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "TikaMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "TikaMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
@@ -384,14 +384,14 @@ public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, 
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "TikaMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "TikaMeta.CheckResult.FilesOk", "" + fileInputList.getFiles().size()),
                 transformMeta);

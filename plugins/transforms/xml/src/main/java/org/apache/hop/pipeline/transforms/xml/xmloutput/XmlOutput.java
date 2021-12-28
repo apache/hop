@@ -44,9 +44,6 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Converts input rows to one or more XML files.
- *
- * @author Matt
- * @since 14-jan-2006
  */
 public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
     implements ITransform<XmlOutputMeta, XmlOutputData> {
@@ -336,7 +333,6 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
     } catch (Exception e) {
       logError("Error opening new file : " + e.toString());
     }
-    // System.out.println("end of newFile(), splitnr="+splitnr);
 
     data.splitnr++;
 
@@ -361,15 +357,11 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
         data.writer.writeEndElement();
         data.writer.writeCharacters(EOL);
 
-        // System.out.println("Closed xml file...");
-
         data.writer.writeEndDocument();
         data.writer.close();
 
         if (meta.isZipped()) {
-          // System.out.println("close zip entry ");
           data.zip.closeEntry();
-          // System.out.println("finish file...");
           data.zip.finish();
           data.zip.close();
         }

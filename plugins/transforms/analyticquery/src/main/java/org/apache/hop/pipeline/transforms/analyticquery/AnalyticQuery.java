@@ -30,12 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/**
- * Performs analytic queries (LEAD/LAG, etc) based on a group
- *
- * @author ngoodman
- * @since 27-jan-2009
- */
+/** Performs analytic queries (LEAD/LAG, etc) based on a group */
 public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData>
     implements ITransform<AnalyticQueryMeta, AnalyticQueryData> {
 

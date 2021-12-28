@@ -66,10 +66,7 @@ public abstract class ConfigurationDialog extends Dialog {
   private Display display;
   private Shell parent;
   private Button wOk;
-  private Button wCancel;
   protected FormData fdDetails;
-  private FormData fdTabFolder;
-  private CTabFolder tabFolder;
   private Button alwaysShowOption;
 
   protected HopGui hopGui;
@@ -228,9 +225,9 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected void parametersSectionLayout(Class<?> PKG, String prefix) {
 
-    tabFolder = new CTabFolder(shell, SWT.BORDER);
+    CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(gDetails, 15);
@@ -345,7 +342,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
     // Bottom buttons and separator
 
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 

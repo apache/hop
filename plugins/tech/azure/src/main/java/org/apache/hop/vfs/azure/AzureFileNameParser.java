@@ -69,7 +69,6 @@ public class AzureFileNameParser extends HostFileNameParser {
       scheme = UriParser.extractScheme(filename, name);
       UriParser.canonicalizePath(name, 0, name.length(), this);
       UriParser.fixSeparators(name);
-      // final String rootFile = extractRootPrefix(filename, name);
       fileType = UriParser.normalisePath(name);
       path = name.toString();
     }

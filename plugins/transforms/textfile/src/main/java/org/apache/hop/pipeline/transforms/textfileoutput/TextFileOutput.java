@@ -49,12 +49,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Converts input rows to text and then writes this text to one or more files.
- *
- * @author Matt
- * @since 4-apr-2003
- */
+/** Converts input rows to text and then writes this text to one or more files. */
 public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFileOutputData>
     extends BaseTransform<Meta, Data> implements ITransform<Meta, Data> {
 

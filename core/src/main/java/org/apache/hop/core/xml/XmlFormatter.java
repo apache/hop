@@ -27,8 +27,6 @@ import java.util.List;
  *
  * <p>It preserve formatting only in cases: 1) inside one tag if there are only characters, 2) in
  * comments, 3) if there are some characters outside tags
- *
- * @author Alexander Buloichik
  */
 public class XmlFormatter {
   private static final String TRANSFORM_PREFIX = "  ";

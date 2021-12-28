@@ -37,7 +37,6 @@ import static org.mockito.Mockito.when;
 /**
  * Tests for double line endings in CsvInput transform
  *
- * @author Pavel Sakun
  * @see CsvInput
  */
 public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {

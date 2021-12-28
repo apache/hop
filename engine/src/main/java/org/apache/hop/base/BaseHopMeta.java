@@ -23,7 +23,8 @@ public abstract class BaseHopMeta<T> {
   public static final String XML_TAG = "hop";
 
   public boolean split = false;
-  protected T from, to;
+  protected T from;
+  protected T to;
   protected boolean enabled;
   protected boolean changed;
   private boolean errorHop;

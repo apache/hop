@@ -28,12 +28,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 
-/**
- * Encrypt a stream with GPG *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Encrypt a stream with GPG * */
 public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEncryptStreamData>
     implements ITransform<PGPEncryptStreamMeta, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
@@ -144,7 +139,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
       outputRow[data.NrPrevFields] = encryptedData;
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(

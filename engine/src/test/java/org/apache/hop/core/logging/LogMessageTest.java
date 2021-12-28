@@ -29,7 +29,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/** @author Tatsiana_Kasiankova */
 public class LogMessageTest {
   private LogMessage logMessage;
 

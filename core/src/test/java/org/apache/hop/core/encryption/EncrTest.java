@@ -28,8 +28,6 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.
- *
- * @author Sven Boden
  */
 public class EncrTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

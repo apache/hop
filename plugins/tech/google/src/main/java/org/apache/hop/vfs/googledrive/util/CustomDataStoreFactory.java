@@ -117,10 +117,10 @@ public class CustomDataStoreFactory extends AbstractDataStoreFactory {
 
       try {
         List<V> result = Lists.newArrayList();
-        Iterator i$ = this.keyValueMap.values().iterator();
+        Iterator iterator = this.keyValueMap.values().iterator();
 
-        while (i$.hasNext()) {
-          byte[] bytes = (byte[]) i$.next();
+        while (iterator.hasNext()) {
+          byte[] bytes = (byte[]) iterator.next();
           result.add(IOUtils.deserialize(bytes));
         }
 

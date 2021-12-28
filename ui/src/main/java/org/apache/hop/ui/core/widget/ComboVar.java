@@ -36,9 +36,6 @@ import org.eclipse.swt.widgets.Listener;
  * A Widget that combines a Text widget with a Variable button that will insert an Environment
  * variable. The tool tip of the text widget shows the content of the Text widget with expanded
  * variables.
- *
- * @author Matt
- * @since 17-may-2006
  */
 public class ComboVar extends Composite {
   private static final Class<?> PKG = ComboVar.class; // For Translator
@@ -87,9 +84,6 @@ public class ComboVar extends Composite {
     this.insertTextInterface = insertTextInterface;
     this.variables = variables;
 
-    // props.setLook(this);
-
-    // int margin = props.getMargin();
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
     formLayout.marginHeight = 0;

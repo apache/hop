@@ -51,7 +51,7 @@ import java.util.List;
 
 public class RepeatDialog extends ActionDialog implements IActionDialog {
 
-  private static Class<?> PKG = RepeatDialog.class; // For Translator
+  private static final Class<?> PKG = RepeatDialog.class; // For Translator
 
   private static final String COLON_SEPARATOR = " : ";
 
@@ -61,14 +61,12 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
   private Text wName;
   private TextVar wFilename;
-  private Button wbbFilename; // Browse for a file
   private TextVar wVariableName;
   private TextVar wVariableValue;
   private TextVar wDelay;
   private Button wKeepValues;
   private TableView wParameters;
 
-  private Group wLogFileGroup;
   private Button wLogFileEnabled;
   private Label wlLogFileBase;
   private TextVar wLogFileBase;
@@ -85,8 +83,6 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
   private Label wlLogFileUpdateInterval;
   private TextVar wLogFileUpdateInterval;
   private ComboVar wRunConfiguration;
-
-  private Button wOK, wCancel;
 
   public RepeatDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -145,7 +141,8 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     // The filename browse button
     //
-    wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    // Browse for a file
+    Button wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
@@ -251,7 +248,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wKeepValues.setLayoutData(fdKeepValues);
     lastControl = wlKeepValues;
 
-    wLogFileGroup = new Group(shell, SWT.SHADOW_NONE);
+    Group wLogFileGroup = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wLogFileGroup);
     wLogFileGroup.setText("Logging file");
     FormLayout logFileGroupLayout = new FormLayout();
@@ -421,10 +418,10 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     // Add buttons first, then the script field can use dynamic sizing
     //
-    wOK = new Button(shell, SWT.PUSH);
+    Button wOK = new Button(shell, SWT.PUSH);
     wOK.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOK.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 

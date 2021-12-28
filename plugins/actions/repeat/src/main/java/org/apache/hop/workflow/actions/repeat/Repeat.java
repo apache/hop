@@ -253,13 +253,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     pipeline.setLogLevel(getLogLevel());
     pipeline.setMetadataProvider(getMetadataProvider());
 
-    // Inform the parent workflow we started something here...
-    /*
-    for ( IDelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {
-      delegationListener.transformationDelegationStarted( pipeline, new TransExecutionConfiguration() );
-    }
-     */
-
     // Start logging before execution...
     //
     LogChannelFileWriter fileWriter = null;
@@ -377,13 +370,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     // Link both ways!
     workflow.getWorkflowTracker().setParentWorkflowTracker(parentWorkflow.getWorkflowTracker());
 
-    // Inform the parent workflow we started something here...
-    /*
-    for ( DelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {
-      delegationListener.jobDelegationStarted( workflow, new WorkflowExecutionConfiguration() );
-    }
-     */
-
     // Start logging before execution...
     //
     LogChannelFileWriter fileWriter = null;
@@ -411,10 +397,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       INamedParameters subParams, IVariables subVars, INamedParameters... params) {
     // Inherit
     for (INamedParameters param : params) {
-      if (param != null) {
-        // TODO : Merge
-        // subParams.mergeParametersWith(param, true);
-      }
+      if (param != null) {}
     }
 
     // Any parameters to initialize from the workflow action?

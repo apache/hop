@@ -44,12 +44,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-/**
- * Search and replace in string.
- *
- * @author Samatar Hassan
- * @since 28 September 2007
- */
+/** Search and replace in string. */
 public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 

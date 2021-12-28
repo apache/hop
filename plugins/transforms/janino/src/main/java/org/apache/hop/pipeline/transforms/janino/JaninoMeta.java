@@ -222,7 +222,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "JaninoMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -233,14 +233,14 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "JaninoMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "JaninoMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);

@@ -397,8 +397,6 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
         }
         String originalLocation = ftpClient.printWorkingDirectory();
         try {
-          // does not work for folders
-          // folderExist=ftpClient.exists(realMoveToFolder);
           // try switching to the 'move to' folder.
           ftpClient.changeWorkingDirectory(realMoveToFolder);
           // Switch back to the previous location.

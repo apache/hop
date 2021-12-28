@@ -31,12 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -47,39 +42,26 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TikaDialog extends BaseTransformDialog implements ITransformDialog {
-  public static final int dateLengths[] = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
-  private static Class<?> PKG = TikaMeta.class; // for Translator
+  public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
+  private static final Class<?> PKG = TikaMeta.class; // for Translator
   private static final String[] YES_NO_COMBO =
       new String[] {
         BaseMessages.getString(PKG, "System.Combo.No"),
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
   private final TikaMeta input;
-  private TikaOutput tikaOutput;
   private CTabFolder wTabFolder;
   private Label wlFilename;
   private Button wbbFilename; // Browse: add file or directory
@@ -94,15 +76,12 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
   private Label wlExcludeFilemask;
   private TextVar wExcludeFilemask;
   private Button wbShowFiles;
-  private Label wlFilenameField;
   private CCombo wFilenameField;
   private Button wFilenameInField;
   private Label wlAddResult;
   private Button wAddResult;
   private Button wIgnoreEmptyFile;
-  private Label wlInclFilenameField;
   private TextVar wInclFilenameField;
-  private Label wlRowNumField;
   private TextVar wRowNumField;
   private Text wLimit;
   private Label wlEncoding;
@@ -139,6 +118,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     Shell parent = getParent();
 
     ClassLoader loader = input.getClass().getClassLoader();
+    TikaOutput tikaOutput;
     try {
       tikaOutput = new TikaOutput(loader, LogChannel.UI, variables);
     } catch (Exception e) {
@@ -247,7 +227,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
         });
 
     // If Filename defined in a Field
-    wlFilenameField = new Label(wOutputField, SWT.RIGHT);
+    Label wlFilenameField = new Label(wOutputField, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameField.Label"));
     props.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
@@ -482,10 +462,10 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(wFileConf);
     wFileConf.setText(BaseMessages.getString(PKG, "TikaDialog.FileConf.Label"));
 
-    FormLayout XmlConfgroupLayout = new FormLayout();
-    XmlConfgroupLayout.marginWidth = 10;
-    XmlConfgroupLayout.marginHeight = 10;
-    wFileConf.setLayout(XmlConfgroupLayout);
+    FormLayout xmlConfgroupLayout = new FormLayout();
+    xmlConfgroupLayout.marginWidth = 10;
+    xmlConfgroupLayout.marginHeight = 10;
+    wFileConf.setLayout(xmlConfgroupLayout);
 
     wlEncoding = new Label(wFileConf, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "TikaDialog.Encoding.Label"));
@@ -637,6 +617,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
                 wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(), "Y", "Y");
@@ -654,6 +635,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Delete files from the list of files...
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int[] idx = wFilenameList.getSelectionIndices();
             wFilenameList.remove(idx);
@@ -665,6 +647,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Edit the selected file & remove from the list...
     wbeFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             int idx = wFilenameList.getSelectionIndex();
             if (idx >= 0) {
@@ -682,6 +665,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Show the files that are selected at this time...
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             try {
               TikaMeta tikaMeta = new TikaMeta();
@@ -715,16 +699,12 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
         });
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener(
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            wFilename.setToolTipText(wFilename.getText());
-          }
-        });
+    wFilename.addModifyListener(e -> wFilename.setToolTipText(wFilename.getText()));
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             if (!StringUtils.isEmpty(wFilemask.getText())
                 || !StringUtils.isEmpty(wExcludeFilemask.getText())) // A mask: a directory!
@@ -834,7 +814,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       gotEncodings = true;
       String encoding = wEncoding.getText();
       wEncoding.removeAll();
-      ArrayList<Charset> values = new ArrayList<Charset>(Charset.availableCharsets().values());
+      ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
       for (int i = 0; i < values.size(); i++) {
         Charset charSet = (Charset) values.get(i);
         wEncoding.add(charSet.displayName());
@@ -842,12 +822,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       if (!StringUtils.isEmpty(encoding)) {
         wEncoding.setText(encoding);
-      } /*else {
-         // Now select the default!
-         String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
-         int idx = Const.indexOfString(defEncoding, wEncoding.getItems() );
-         if (idx>=0) wEncoding.select( idx );
-        }*/
+      }
     }
   }
 
@@ -1104,7 +1079,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     }
 
     {
-      wlInclFilenameField = new Label(wOutputFieldsComp, SWT.RIGHT);
+      Label wlInclFilenameField = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlInclFilenameField.setText(
           BaseMessages.getString(PKG, "TikaDialog.InclFilenameField.Label"));
       props.setLook(wlInclFilenameField);
@@ -1126,7 +1101,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     }
 
     {
-      wlRowNumField = new Label(wOutputFieldsComp, SWT.RIGHT);
+      Label wlRowNumField = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlRowNumField.setText(BaseMessages.getString(PKG, "TikaDialog.RowNum.Label"));
       props.setLook(wlRowNumField);
       FormData fdlRowNumField = new FormData();

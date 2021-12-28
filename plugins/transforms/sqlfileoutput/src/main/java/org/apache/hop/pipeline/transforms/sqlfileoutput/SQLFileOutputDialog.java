@@ -769,7 +769,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
     getData();
     activateTruncate();
-    input.setChanged(changed); // backupChanged);
+    input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

@@ -74,14 +74,11 @@ public class MetadataExplorerDialog {
 
   private Shell shell;
 
-  private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
 
   private Tree tree;
 
   private PropsUi props;
-
-  private Button closeButton;
 
   private static MetadataExplorerDialog activeInstance;
 
@@ -108,7 +105,7 @@ public class MetadataExplorerDialog {
 
     // Create a toolbar at the top of the main composite...
     //
-    toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    ToolBar toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
@@ -119,7 +116,7 @@ public class MetadataExplorerDialog {
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
 
-    closeButton = new Button(shell, SWT.PUSH);
+    Button closeButton = new Button(shell, SWT.PUSH);
     closeButton.setText(BaseMessages.getString(PKG, "System.Button.Close"));
     BaseTransformDialog.positionBottomButtons(
         shell,

@@ -23,9 +23,6 @@ import org.apache.hop.core.variables.IVariables;
 /**
  * Implementing classes of this interface know how to express themselves using XML They also can
  * construct themselves using XML.
- *
- * @author Matt
- * @since 29-jan-2004
  */
 public interface IXml {
   /**

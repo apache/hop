@@ -169,7 +169,7 @@ public class CubeOutputMeta extends BaseTransformMeta
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "CubeOutputMeta.CheckResult.ReceivingFields", String.valueOf(prev.size())),
               transformMeta);
@@ -178,7 +178,7 @@ public class CubeOutputMeta extends BaseTransformMeta
 
     cr =
         new CheckResult(
-            CheckResult.TYPE_RESULT_COMMENT,
+            ICheckResult.TYPE_RESULT_COMMENT,
             BaseMessages.getString(PKG, "CubeOutputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);

@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.logging;
 
-/**
- * The logging hierarchy of a pipeline or workflow
- *
- * @author matt
- */
+/** The logging hierarchy of a pipeline or workflow */
 public class LoggingHierarchy {
   private String rootChannelId; // from the xform or workflow
   private ILoggingObject loggingObject;

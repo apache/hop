@@ -731,7 +731,6 @@ public class ContextDialog extends Dialog {
   }
 
   private void onResize(Event event) {
-    // wCanvas.redraw();
     updateVerticalBar();
   }
 
@@ -816,7 +815,6 @@ public class ContextDialog extends Dialog {
             gc.setForeground(GuiResource.getInstance().getColorBlack());
           }
           org.eclipse.swt.graphics.Point categoryExtent = gc.textExtent(categoryAndOrder.category);
-          // gc.drawLine( margin, y-1, scrolledCompositeBounds.width - xMargin, y-1 );
           gc.drawText(categoryAndOrder.category, x, y);
           areaOwners.add(
               new AreaOwner<>(
@@ -997,7 +995,6 @@ public class ContextDialog extends Dialog {
       //
       if (scroll && totalContentHeight > 0) {
         Rectangle itemArea = selectedItem.getAreaOwner().getArea();
-        // System.out.println("selectItem " +itemArea);
         org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
         ScrollBar verticalBar = wScrolledComposite.getVerticalBar();

@@ -75,10 +75,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
   private Button wUnloggedBatch;
 
-  private Label wlKeyField;
   private TextVar wKeyField;
-
-  private Button wbGetFields;
 
   private Button wbCreateTable;
 
@@ -393,7 +390,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         e -> wTtlValue.setToolTipText(variables.resolve(wTtlValue.getText())));
 
     // key field line
-    wlKeyField = new Label(wWriteComp, SWT.RIGHT);
+    Label wlKeyField = new Label(wWriteComp, SWT.RIGHT);
     props.setLook(wlKeyField);
     wlKeyField.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.KeyField.Label"));
     FormData fdlKeyField = new FormData();
@@ -402,7 +399,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
 
-    wbGetFields = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
+    Button wbGetFields = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.GetFields.Button"));
     FormData fdbGetFields = new FormData();
@@ -837,7 +834,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
       }
       table = CassandraUtils.cql3MixedCaseQuote(table);
 
-      // if (!CassandraColumnMetaData.tableExists(conn, table)) {
       if (!kSpace.tableExists(table)) {
         throw new Exception(
             "The table '"
@@ -848,8 +844,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
       }
 
       ITableMetaData cassMeta = kSpace.getTableMetaData(table);
-      // CassandraColumnMetaData cassMeta = new CassandraColumnMetaData(conn,
-      // table);
       String schemaDescription = cassMeta.describe();
       ShowMessageDialog smd =
           new ShowMessageDialog(

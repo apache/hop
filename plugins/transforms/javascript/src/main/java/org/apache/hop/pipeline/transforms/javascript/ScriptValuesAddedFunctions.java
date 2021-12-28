@@ -2166,7 +2166,8 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           && !isNull(argList[1])
           && !isUndefined(argList[0])
           && !isUndefined(argList[1])) {
-        FileObject fileSource = null, fileDestination = null;
+        FileObject fileSource = null;
+        FileObject fileDestination = null;
 
         try {
           // Source file to copy

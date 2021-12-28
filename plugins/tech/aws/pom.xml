@@ -34,7 +34,7 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <slf4j-api.version>1.7.7</slf4j-api.version>
+        <slf4j-api.version>1.7.32</slf4j-api.version>
         <guava.version>19.0</guava.version>
 
         <!-- Test dependencies -->

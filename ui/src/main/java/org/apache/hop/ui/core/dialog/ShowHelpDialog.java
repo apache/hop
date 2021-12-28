@@ -57,9 +57,6 @@ public class ShowHelpDialog extends Dialog {
 
   private ToolItem tltmBack;
   private ToolItem tltmForward;
-  private ToolItem tltmRefresh;
-  private ToolItem tltmHome;
-  private ToolItem tltmPrint;
 
   private Text textURL;
 
@@ -104,7 +101,7 @@ public class ShowHelpDialog extends Dialog {
     navigateToolBar.setCursor(cursorHand);
     navigateToolBar.setBackground(navigateToolBar.getParent().getBackground());
 
-    tltmHome = new ToolItem(navigateToolBar, SWT.NONE);
+    ToolItem tltmHome = new ToolItem(navigateToolBar, SWT.NONE);
     tltmHome.setImage(GuiResource.getInstance().getImageHome());
     tltmHome.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Home"));
     tltmHome.setEnabled(true);
@@ -126,7 +123,7 @@ public class ShowHelpDialog extends Dialog {
       tltmForward.addListener(SWT.Selection, e -> forward());
     }
 
-    tltmRefresh = new ToolItem(navigateToolBar, SWT.NONE);
+    ToolItem tltmRefresh = new ToolItem(navigateToolBar, SWT.NONE);
     tltmRefresh.setImage(GuiResource.getInstance().getImageRefresh());
     tltmRefresh.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Refresh"));
     tltmRefresh.addListener(SWT.Selection, e -> refresh());
@@ -139,7 +136,7 @@ public class ShowHelpDialog extends Dialog {
     printToolBar.setCursor(cursorHand);
     printToolBar.setBackground(printToolBar.getParent().getBackground());
 
-    tltmPrint = new ToolItem(printToolBar, SWT.NONE);
+    ToolItem tltmPrint = new ToolItem(printToolBar, SWT.NONE);
     tltmPrint.setImage(GuiResource.getInstance().getImagePrint());
     tltmPrint.setToolTipText(BaseMessages.getString(PKG, "HopGui.Documentation.Tooltip.Print"));
     tltmPrint.setEnabled(true);
@@ -175,7 +172,9 @@ public class ShowHelpDialog extends Dialog {
     ProgressListener progressListener =
         new ProgressListener() {
           @Override
-          public void changed(ProgressEvent event) {}
+          public void changed(ProgressEvent event) {
+            // Disable changed event
+          }
 
           @Override
           public void completed(ProgressEvent event) {

@@ -29,12 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Sample rows. Filter rows based on line number
- *
- * @author Samatar
- * @since 2-jun-2003
- */
+/** Sample rows. Filter rows based on line number */
 public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData>
     implements ITransform<SampleRowsMeta, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator

@@ -30,12 +30,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Write commands to SSH *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Write commands to SSH * */
 public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
   private static final Class<?> PKG = SSHMeta.class; // For Translator
 

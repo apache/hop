@@ -26,11 +26,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Transform that will abort after having seen 'x' number of rows on its input.
- *
- * @author Sven Boden
- */
+/** Transform that will abort after having seen 'x' number of rows on its input. */
 public class Abort extends BaseTransform<AbortMeta, AbortData>
     implements ITransform<AbortMeta, AbortData> {
 

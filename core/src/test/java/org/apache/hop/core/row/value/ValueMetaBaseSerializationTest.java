@@ -32,7 +32,6 @@ import java.util.TimeZone;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-/** @author Andrey Khayrutdinov */
 public class ValueMetaBaseSerializationTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 

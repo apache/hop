@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-/** Author = Shailesh Ahuja */
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import org.apache.hop.core.exception.HopException;

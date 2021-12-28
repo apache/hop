@@ -149,13 +149,13 @@ public class SampleRowsMeta extends BaseTransformMeta
     if (Utils.isEmpty(linesrange)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.LinesRangeMissing"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.LinesRangeOk"),
               transformMeta);
     }
@@ -170,7 +170,7 @@ public class SampleRowsMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "SampleRowsMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -181,13 +181,13 @@ public class SampleRowsMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "SampleRowsMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

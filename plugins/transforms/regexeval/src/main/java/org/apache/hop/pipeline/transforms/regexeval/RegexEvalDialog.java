@@ -61,8 +61,16 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
   private final RegexEvalMeta input;
 
   private Label wlReplaceFields;
-  private Button wCanonEq, wCaseInsensitive, wComment, wDotAll, wMultiline;
-  private Button wUnicode, wUnix, wUseVar, wAllowCaptureGroups, wReplaceFields;
+  private Button wCanonEq;
+  private Button wCaseInsensitive;
+  private Button wComment;
+  private Button wDotAll;
+  private Button wMultiline;
+  private Button wUnicode;
+  private Button wUnix;
+  private Button wUseVar;
+  private Button wAllowCaptureGroups;
+  private Button wReplaceFields;
 
   private Label wlFields;
   private TableView wFields;
@@ -334,8 +342,6 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdScript.right = new FormAttachment(100, -10);
     fdScript.bottom = new FormAttachment(wUseVar, -2 * margin);
     wScript.setLayoutData(fdScript);
-    // SelectionAdapter lsVar = VariableButtonListenerFactory.getSelectionAdapter(shell, wScript);
-    // wScript.addKeyListener(TextVar.getControlSpaceKeyListener(wScript, lsVar));
 
     FormLayout bottomLayout = new FormLayout();
     bottomLayout.marginWidth = Const.FORM_MARGIN;

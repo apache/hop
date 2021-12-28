@@ -25,11 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This class contains a list of data rows as well as the IRowMeta to describe it.
- *
- * @author matt
- */
+/** This class contains a list of data rows as well as the IRowMeta to describe it. */
 public class RowBuffer {
 
   public static final String XML_TAG = "row-buffer";

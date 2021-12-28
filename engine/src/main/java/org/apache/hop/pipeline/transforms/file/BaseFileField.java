@@ -31,12 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Describes a single field in a text file
- *
- * @author Matt
- * @since 19-04-2004
- */
+/** Describes a single field in a text file */
 public class BaseFileField implements Cloneable, ITextFileInputField {
   @Injection(name = "FIELD_NAME", group = "FIELDS")
   private String name;
@@ -79,15 +74,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
   private String ifNullValue;
 
   private String[] samples;
-
-  // Guess fields...
-  private NumberFormat nf;
-  private DecimalFormat df;
-  private DecimalFormatSymbols dfs;
-  private SimpleDateFormat daf;
-
-  // private boolean containsDot;
-  // private boolean containsComma;
 
   private static final String[] dateFormats =
       new String[] {
@@ -132,8 +118,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     this.repeat = false;
     this.nullString = "";
     this.ifNullValue = "";
-    // this.containsDot=false;
-    // this.containsComma=false;
   }
 
   public BaseFileField() {
@@ -260,24 +244,24 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     return groupSymbol;
   }
 
-  public void setGroupSymbol(String group_symbol) {
-    this.groupSymbol = group_symbol;
+  public void setGroupSymbol(String groupSymbol) {
+    this.groupSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {
@@ -328,30 +312,31 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
   }
 
   public void guessTrimType() {
-    boolean spaces_before = false;
-    boolean spaces_after = false;
+    boolean spacesBefore = false;
+    boolean spacesAfter = false;
 
     for (int i = 0; i < samples.length; i++) {
-      spaces_before |= Const.nrSpacesBefore(samples[i]) > 0;
-      spaces_after |= Const.nrSpacesAfter(samples[i]) > 0;
+      spacesBefore |= Const.nrSpacesBefore(samples[i]) > 0;
+      spacesAfter |= Const.nrSpacesAfter(samples[i]) > 0;
       samples[i] = Const.trim(samples[i]);
     }
 
     trimtype = IValueMeta.TRIM_TYPE_NONE;
 
-    if (spaces_before) {
+    if (spacesBefore) {
       trimtype |= IValueMeta.TRIM_TYPE_LEFT;
     }
-    if (spaces_after) {
+    if (spacesAfter) {
       trimtype |= IValueMeta.TRIM_TYPE_RIGHT;
     }
   }
 
   public void guessType() {
-    nf = NumberFormat.getInstance();
-    df = (DecimalFormat) nf;
-    dfs = new DecimalFormatSymbols();
-    daf = new SimpleDateFormat();
+    // Guess fields...
+    NumberFormat nf = NumberFormat.getInstance();
+    DecimalFormat df = (DecimalFormat) nf;
+    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+    SimpleDateFormat daf = new SimpleDateFormat();
 
     daf.setLenient(false);
 
@@ -368,7 +353,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     // ////////////////////////////
 
     // See if all samples can be transformed into a date...
-    int datefmt_cnt = dateFormats.length;
+    int datefmtCnt = dateFormats.length;
     boolean[] datefmt = new boolean[dateFormats.length];
     for (int i = 0; i < dateFormats.length; i++) {
       datefmt[i] = true;
@@ -382,7 +367,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
         for (int x = 0; x < dateFormats.length; x++) {
           if (samples[i] == null || Const.onlySpaces(samples[i]) || samples[i].length() == 0) {
             datefmt[x] = false;
-            datefmt_cnt--;
+            datefmtCnt--;
           }
 
           if (datefmt[x]) {
@@ -396,11 +381,11 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
 
               if (year < 1800 || year > 2200) {
                 datefmt[x] = false; // Don't try it again in the future.
-                datefmt_cnt--; // One less that works..
+                datefmtCnt--; // One less that works..
               }
             } catch (Exception e) {
               datefmt[x] = false; // Don't try it again in the future.
-              datefmt_cnt--; // One less that works..
+              datefmtCnt--; // One less that works..
             }
           }
         }
@@ -410,7 +395,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     // If it is a date, copy info over to the format etc. Then return with the info.
     // If all samples where NULL values, we can't really decide what the type is.
     // So we're certainly not going to take a date, just take a string in that case.
-    if (datefmt_cnt > 0 && datenul != samples.length) {
+    if (datefmtCnt > 0 && datenul != samples.length) {
       int first = -1;
       for (int i = 0; i < dateFormats.length && first < 0; i++) {
         if (datefmt[i]) {
@@ -440,11 +425,11 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       numfmt[i] = true;
       maxprecision[i] = -1;
     }
-    int numfmt_cnt = numberFormats.length;
+    int numfmtCnt = numberFormats.length;
     int numnul = 0;
 
     for (int i = 0; i < samples.length && isnumber; i++) {
-      boolean contains_dot = false;
+      boolean containsDot = false;
       boolean containsComma = false;
 
       String field = samples[i];
@@ -462,38 +447,36 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
               && ch != 'e' // exponential
           ) {
             isnumber = false;
-            numfmt_cnt = 0;
+            numfmtCnt = 0;
           } else {
             if (ch == '.') {
-              contains_dot = true;
-              // containsDot = true;
+              containsDot = true;
             }
             if (ch == ',') {
               containsComma = true;
-              // containsComma = true;
             }
           }
         }
         // If it's still a number, try to parse it as a double
         if (isnumber) {
-          if (contains_dot && !containsComma) { // American style 174.5
+          if (containsDot && !containsComma) { // American style 174.5
 
             dfs.setDecimalSeparator('.');
             decimalSymbol = ".";
             dfs.setGroupingSeparator(',');
             groupSymbol = ",";
-          } else if (!contains_dot && containsComma) { // European style 174,5
+          } else if (!containsDot && containsComma) { // European style 174,5
 
             dfs.setDecimalSeparator(',');
             decimalSymbol = ",";
             dfs.setGroupingSeparator('.');
             groupSymbol = ".";
-          } else if (contains_dot && containsComma) { // Both appear!
+          } else if (containsDot && containsComma) { // Both appear!
 
             // What's the last occurance: decimal point!
-            int idx_dot = field.indexOf('.');
+            int idxDot = field.indexOf('.');
             int idxCom = field.indexOf(',');
-            if (idx_dot > idxCom) {
+            if (idxDot > idxCom) {
               dfs.setDecimalSeparator('.');
               decimalSymbol = ".";
               dfs.setGroupingSeparator(',');
@@ -514,7 +497,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
               try {
                 int prec = -1;
                 // Try long integers first....
-                if (!contains_dot && !containsComma) {
+                if (!containsDot && !containsComma) {
                   try {
                     Long.parseLong(field);
                     prec = 0;
@@ -536,7 +519,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
                 }
               } catch (Exception e) {
                 numfmt[x] = false; // Don't try it again in the future.
-                numfmt_cnt--; // One less that works..
+                numfmtCnt--; // One less that works..
               }
             }
           }
@@ -546,7 +529,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
 
     // Still a number? Grab the result and return.
     // If all sample strings are empty or represent NULL values we can't take a number as type.
-    if (numfmt_cnt > 0 && numnul != samples.length) {
+    if (numfmtCnt > 0 && numnul != samples.length) {
       int first = -1;
       for (int i = 0; i < numberFormats.length && first < 0; i++) {
         if (numfmt[i]) {
@@ -557,13 +540,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       type = IValueMeta.TYPE_NUMBER;
       format = numberFormats[first];
       precision = maxprecision[first];
-
-      // Wait a minute!!! What about Integers?
-      // OK, only if the precision is 0 and the length <19 (java long integer)
-      /*
-       * if (length<19 && precision==0 && !containsDot && !containsComma) { type=IValueMeta.TYPE_INTEGER;
-       * decimalSymbol=""; groupSymbol=""; }
-       */
 
       return;
     }

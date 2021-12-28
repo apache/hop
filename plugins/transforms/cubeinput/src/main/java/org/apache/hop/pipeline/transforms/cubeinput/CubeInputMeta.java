@@ -202,7 +202,7 @@ public class CubeInputMeta extends BaseTransformMeta
 
     cr =
         new CheckResult(
-            CheckResult.TYPE_RESULT_COMMENT,
+            ICheckResult.TYPE_RESULT_COMMENT,
             BaseMessages.getString(PKG, "CubeInputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);

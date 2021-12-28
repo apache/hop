@@ -61,9 +61,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   // Comparator for sorting databases alphabetically by name
   public static final Comparator<DatabaseMeta> comparator =
-      (DatabaseMeta dbm1, DatabaseMeta dbm2) -> {
-        return dbm1.getName().compareToIgnoreCase(dbm2.getName());
-      };
+      (DatabaseMeta dbm1, DatabaseMeta dbm2) -> dbm1.getName().compareToIgnoreCase(dbm2.getName());
 
   @HopMetadataProperty(key = "rdbms")
   private IDatabase iDatabase;
@@ -323,8 +321,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   /*
    * Sets the type of database.
    *
-   * @param db_type The database type public void setDatabaseType(int db_type) { iDatabase this.databaseType =
-   * db_type; }
+   * @param db_type The database type public void
    */
 
   /**
@@ -555,10 +552,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     if (iDatabase.supportsOptionsInURL()) {
       url = appendExtraOptions(variables, url, getExtraOptions());
     }
-    // else {
-    // We need to put all these options in a Properties file later (Oracle & Co.)
-    // This happens at connect time...
-    // }
 
     return url;
   }

@@ -95,17 +95,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
       String account = config.getAccount();
 
-      /*
-      			if (account == null || account.length() == 0)
-      				account = ((GenericFileName) fileName).getUserName();
-      */
-
       String key = config.getKey();
-
-      /*
-      			if (key == null || key.length() == 0)
-      				key = ((GenericFileName) fileName).getPassword();
-      */
 
       String storageConnectionString =
           String.format(

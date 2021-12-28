@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-/** Author = Shailesh Ahuja */
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -47,7 +46,7 @@ import java.util.TimeZone;
  */
 public class StaxPoiSheet implements IKSheet {
 
-  // set to UTC for coherence with PoiSheet;
+  // set to UTC for coherence with PoiSheet
   private static final TimeZone DATE_TZ = TimeZone.getTimeZone("UTC");
 
   private final String sheetName;

@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import javax.crypto.KeyGenerator;
 import java.util.Random;
 
-/**
- * @author Samatar Hassan
- * @since 24-jan-2005
- */
 public class RandomValueData extends BaseTransformData implements ITransformData {
   boolean readsRows;
 

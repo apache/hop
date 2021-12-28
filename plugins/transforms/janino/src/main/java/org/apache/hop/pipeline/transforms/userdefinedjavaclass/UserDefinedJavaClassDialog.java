@@ -85,9 +85,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private Tree wTree;
   private TreeItem wTreeClassesItem;
 
-  private Image imageActiveScript, imageInactiveScript;
-  private CTabFolder folder, wTabFolder;
-  private Menu cMenu, tMenu;
+  private Image imageActiveScript;
+  private Image imageInactiveScript;
+  private CTabFolder folder;
+  private CTabFolder wTabFolder;
+  private Menu cMenu;
+  private Menu tMenu;
 
   // Suport for Rename Tree
   private TreeItem[] lastItem;
@@ -113,16 +116,23 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private static final GuiResource guiResource = GuiResource.getInstance();
 
-  private TreeItem itemInput, itemInfo, itemOutput;
-  private IRowMeta inputRowMeta, infoRowMeta, outputRowMeta;
+  private TreeItem itemInput;
+  private TreeItem itemInfo;
+  private TreeItem itemOutput;
+  private IRowMeta inputRowMeta;
+  private IRowMeta infoRowMeta;
+  private IRowMeta outputRowMeta;
 
   private RowGeneratorMeta genMeta;
 
   private CTabItem fieldsTab;
 
   private int margin;
-  private TableView wInfoTransforms, wTargetTransforms, wParameters;
-  private String[] prevTransformNames, nextTransformNames;
+  private TableView wInfoTransforms;
+  private TableView wTargetTransforms;
+  private TableView wParameters;
+  private String[] prevTransformNames;
+  private String[] nextTransformNames;
 
   public UserDefinedJavaClassDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -1549,7 +1559,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void buildingFolderMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addNewItem = new MenuItem(cMenu, SWT.PUSH);
     addNewItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.AddNewTab"));
     addNewItem.addListener(SWT.Selection, e -> addCtab("", "", TabAddActions.ADD_BLANK));
@@ -1605,7 +1614,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void buildingTreeMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addDeleteItem = new MenuItem(tMenu, SWT.PUSH);
     addDeleteItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Delete.Label"));
     addDeleteItem.addListener(
@@ -1750,9 +1758,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
                   Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
                   size = text.computeSize(size.x, SWT.DEFAULT);
                   editor.horizontalAlignment = SWT.LEFT;
-                  Rectangle itemRect = item.getBounds(), rect = wTree.getClientArea();
+                  Rectangle itemRect = item.getBounds();
+                  Rectangle rect = wTree.getClientArea();
                   editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                  int left = itemRect.x, right = rect.x + rect.width;
+                  int left = itemRect.x;
+                  int right = rect.x + rect.width;
                   editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
                   editor.minimumHeight = size.y + inset * 2;
                   editor.layout();

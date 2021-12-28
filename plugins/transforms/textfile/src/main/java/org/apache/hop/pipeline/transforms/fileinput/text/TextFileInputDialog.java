@@ -24,7 +24,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.exception.HopException;
@@ -237,7 +236,8 @@ public class TextFileInputDialog extends BaseTransformDialog
   // Wizard info...
   private Vector<ITextFileInputField> fields;
 
-  private int middle, margin;
+  private int middle;
+  private int margin;
   private ModifyListener lsMod;
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
@@ -347,9 +347,12 @@ public class TextFileInputDialog extends BaseTransformDialog
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            if (wFilename.getText()==null||wFilename.getText().isEmpty()){
-              displayErrorDialog(new HopException(BaseMessages.getString(PKG,"TextFileInputDialog.ErrorAddingFile.ErrorMessage")),
-                      "TextFileInputDialog.ErrorAddingFile.DialogMessage");
+            if (wFilename.getText() == null || wFilename.getText().isEmpty()) {
+              displayErrorDialog(
+                  new HopException(
+                      BaseMessages.getString(
+                          PKG, "TextFileInputDialog.ErrorAddingFile.ErrorMessage")),
+                  "TextFileInputDialog.ErrorAddingFile.DialogMessage");
               return;
             }
             wFilenameList.add(
@@ -465,21 +468,28 @@ public class TextFileInputDialog extends BaseTransformDialog
   }
 
   /*check the compressed extension of the first file in the archive and change the
-  * compression mode in the content tab depending on it*/
-  private void checkCompressedFile(){
-    if(wFilenameList.getItemCount() > 0) {
+   * compression mode in the content tab depending on it*/
+  private void checkCompressedFile() {
+    if (wFilenameList.getItemCount() > 0) {
       String[] fileRecord = wFilenameList.getItem(0);
       String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
-      Collection<ICompressionProvider> compProviders = CompressionProviderFactory.getInstance().getCompressionProviders();
+      Collection<ICompressionProvider> compProviders =
+          CompressionProviderFactory.getInstance().getCompressionProviders();
       for (ICompressionProvider provider : compProviders) {
-        if (provider.getDefaultExtension() != null && provider.getDefaultExtension().equals(fileExtension)) {
+        if (provider.getDefaultExtension() != null
+            && provider.getDefaultExtension().equals(fileExtension)) {
           int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
           wCompression.select(toBeSelected);
           wCompression.setEnabled(true);
           return;
         }
       }
-      wCompression.select(ArrayUtils.indexOf(wCompression.getItems(), CompressionProviderFactory.getInstance().getCompressionProviderByName("None").getName()));
+      wCompression.select(
+          ArrayUtils.indexOf(
+              wCompression.getItems(),
+              CompressionProviderFactory.getInstance()
+                  .getCompressionProviderByName("None")
+                  .getName()));
     }
   }
 
@@ -1395,10 +1405,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "TextFileInputDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "TextFileInputDialog.AddResult.Label"));
@@ -1821,12 +1831,12 @@ public class TextFileInputDialog extends BaseTransformDialog
     CTabItem wFilterTab = new CTabItem(wTabFolder, SWT.NONE);
     wFilterTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilterTab.TabTitle"));
 
-    FormLayout FilterLayout = new FormLayout();
-    FilterLayout.marginWidth = Const.FORM_MARGIN;
-    FilterLayout.marginHeight = Const.FORM_MARGIN;
+    FormLayout filterLayout = new FormLayout();
+    filterLayout.marginWidth = Const.FORM_MARGIN;
+    filterLayout.marginHeight = Const.FORM_MARGIN;
 
     Composite wFilterComp = new Composite(wTabFolder, SWT.NONE);
-    wFilterComp.setLayout(FilterLayout);
+    wFilterComp.setLayout(filterLayout);
     props.setLook(wFilterComp);
 
     final int FilterRows = input.getFilter().length;
@@ -2034,9 +2044,6 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlFilemask.setEnabled(!accept);
     wFilemask.setEnabled(!accept);
     wbShowFiles.setEnabled(!accept);
-
-    // Keep this one active: use the sample in the file list
-    // wPreview.setEnabled(!accept);
 
     wFirst.setEnabled(!accept);
     wFirstHeader.setEnabled(!accept);
@@ -2718,7 +2725,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         mb.open();
       }
     } catch (HopException e) {
-      displayErrorDialog(e,"TextFileInputDialog.ErrorGettingData.DialogMessage");
+      displayErrorDialog(e, "TextFileInputDialog.ErrorGettingData.DialogMessage");
     }
   }
 
@@ -2727,7 +2734,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         shell,
         BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
         BaseMessages.getString(PKG, messageKey),
-            e);
+        e);
   }
 
   // Get the first x lines

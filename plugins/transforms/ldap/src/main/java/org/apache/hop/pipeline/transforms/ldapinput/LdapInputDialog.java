@@ -206,10 +206,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wHostGroup);
     wHostGroup.setText(BaseMessages.getString(PKG, "LdapInputDialog.Group.HostGroup.Label"));
 
-    FormLayout HostGroupLayout = new FormLayout();
-    HostGroupLayout.marginWidth = 10;
-    HostGroupLayout.marginHeight = 10;
-    wHostGroup.setLayout(HostGroupLayout);
+    FormLayout hostGroupLayout = new FormLayout();
+    hostGroupLayout.marginWidth = 10;
+    hostGroupLayout.marginHeight = 10;
+    wHostGroup.setLayout(hostGroupLayout);
 
     // Host line
     Label wlHost = new Label(wHostGroup, SWT.RIGHT);
@@ -297,10 +297,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wAuthenticationGroup.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.Group.AuthenticationGroup.Label"));
 
-    FormLayout AuthenticationGroupLayout = new FormLayout();
-    AuthenticationGroupLayout.marginWidth = 10;
-    AuthenticationGroupLayout.marginHeight = 10;
-    wAuthenticationGroup.setLayout(AuthenticationGroupLayout);
+    FormLayout authenticationGroupLayout = new FormLayout();
+    authenticationGroupLayout.marginWidth = 10;
+    authenticationGroupLayout.marginHeight = 10;
+    wAuthenticationGroup.setLayout(authenticationGroupLayout);
 
     // using authentication ?
     Label wlUsingAuthentication = new Label(wAuthenticationGroup, SWT.RIGHT);
@@ -388,10 +388,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wCertificateGroup.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.Group.CertificateGroup.Label"));
 
-    FormLayout CertificateGroupLayout = new FormLayout();
-    CertificateGroupLayout.marginWidth = 10;
-    CertificateGroupLayout.marginHeight = 10;
-    wCertificateGroup.setLayout(CertificateGroupLayout);
+    FormLayout certificateGroupLayout = new FormLayout();
+    certificateGroupLayout.marginWidth = 10;
+    certificateGroupLayout.marginHeight = 10;
+    wCertificateGroup.setLayout(certificateGroupLayout);
 
     // set TrustStore?
     wlSetTrustStore = new Label(wCertificateGroup, SWT.RIGHT);
@@ -527,7 +527,6 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wCertificateGroup, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
@@ -552,13 +551,13 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     CTabItem wSearchTab = new CTabItem(wTabFolder, SWT.NONE);
     wSearchTab.setText(BaseMessages.getString(PKG, "LdapInputDialog.Search.Tab"));
 
-    FormLayout SearchLayout = new FormLayout();
-    SearchLayout.marginWidth = 3;
-    SearchLayout.marginHeight = 3;
+    FormLayout searchLayout = new FormLayout();
+    searchLayout.marginWidth = 3;
+    searchLayout.marginHeight = 3;
 
     Composite wSearchComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSearchComp);
-    wSearchComp.setLayout(SearchLayout);
+    wSearchComp.setLayout(searchLayout);
 
     // /////////////////////////////////
     // START OF Search GROUP

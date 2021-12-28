@@ -42,11 +42,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Test class for the "Get XML Data" transform.
- *
- * @author Sven Boden
- */
+/** Test class for the "Get XML Data" transform. */
 public class GetXMLDataTest extends TestCase {
   public IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();

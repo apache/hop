@@ -19,10 +19,6 @@ package org.apache.hop.core.logging;
 
 public interface ILoggingPlugin extends IHopLoggingEventListener {
 
-  // @Override
-  // public void eventAdded(LoggingEvent event);
-  //
-
   void init();
 
   void dispose();

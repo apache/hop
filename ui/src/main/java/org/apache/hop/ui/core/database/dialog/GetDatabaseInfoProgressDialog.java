@@ -33,9 +33,6 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables,
  * views etc we can reach in the database.
- *
- * @author Matt
- * @since 07-apr-2005
  */
 public class GetDatabaseInfoProgressDialog {
   private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class; // For Translator
@@ -73,8 +70,8 @@ public class GetDatabaseInfoProgressDialog {
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(true, op);
-      
-      if ( pmd.getProgressMonitor().isCanceled() ) return null;      
+
+      if (pmd.getProgressMonitor().isCanceled()) return null;
     } catch (InvocationTargetException e) {
       showErrorDialog(e);
       return null;

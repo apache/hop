@@ -51,12 +51,7 @@ import javax.mail.Folder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * This dialog allows you to edit the Get POP action settings.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the Get POP action settings. */
 public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
@@ -304,10 +299,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wServerSettings);
     wServerSettings.setText(BaseMessages.getString(PKG, "ActionGetPOP.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
@@ -489,7 +484,6 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "ActionGetPOP.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wProtocol, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
@@ -511,10 +505,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wTargetFolder);
     wTargetFolder.setText(BaseMessages.getString(PKG, "ActionGetPOP.TargetFolder.Group.Label"));
 
-    FormLayout TargetFoldergroupLayout = new FormLayout();
-    TargetFoldergroupLayout.marginWidth = 10;
-    TargetFoldergroupLayout.marginHeight = 10;
-    wTargetFolder.setLayout(TargetFoldergroupLayout);
+    FormLayout targetFoldergroupLayout = new FormLayout();
+    targetFoldergroupLayout.marginWidth = 10;
+    targetFoldergroupLayout.marginHeight = 10;
+    wTargetFolder.setLayout(targetFoldergroupLayout);
 
     // OutputDirectory line
     wlOutputDirectory = new Label(wTargetFolder, SWT.RIGHT);
@@ -765,10 +759,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wSettingsTab.setText(BaseMessages.getString(PKG, "ActionGetPOP.Tab.Pop.Label"));
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSettingsComp);
-    FormLayout PopLayout = new FormLayout();
-    PopLayout.marginWidth = 3;
-    PopLayout.marginHeight = 3;
-    wSettingsComp.setLayout(PopLayout);
+    FormLayout popLayout = new FormLayout();
+    popLayout.marginWidth = 3;
+    popLayout.marginHeight = 3;
+    wSettingsComp.setLayout(popLayout);
 
     // Action type
     Label wlActionType = new Label(wSettingsComp, SWT.RIGHT);
@@ -816,10 +810,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wPOP3Settings);
     wPOP3Settings.setText(BaseMessages.getString(PKG, "ActionGetPOP.POP3Settings.Group.Label"));
 
-    FormLayout POP3SettingsgroupLayout = new FormLayout();
-    POP3SettingsgroupLayout.marginWidth = 10;
-    POP3SettingsgroupLayout.marginHeight = 10;
-    wPOP3Settings.setLayout(POP3SettingsgroupLayout);
+    FormLayout pop3Settingsgrouplayout = new FormLayout();
+    pop3Settingsgrouplayout.marginWidth = 10;
+    pop3Settingsgrouplayout.marginHeight = 10;
+    wPOP3Settings.setLayout(pop3Settingsgrouplayout);
 
     // List of mails of retrieve
     wlListmails = new Label(wPOP3Settings, SWT.RIGHT);
@@ -832,8 +826,6 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wlListmails.setLayoutData(fdlListmails);
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveAllMails.Label"));
-    // POP3 does not support retrieve unread
-    // wListmails.add( BaseMessages.getString( PKG, "ActionGetPOP.RetrieveUnreadMails.Label" ) );
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveFirstMails.Label"));
     wListmails.select(0); // +1: starts at -1
 
@@ -906,10 +898,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wIMAPSettings);
     wIMAPSettings.setText(BaseMessages.getString(PKG, "ActionGetPOP.IMAPSettings.Groupp.Label"));
 
-    FormLayout IMAPSettingsgroupLayout = new FormLayout();
-    IMAPSettingsgroupLayout.marginWidth = 10;
-    IMAPSettingsgroupLayout.marginHeight = 10;
-    wIMAPSettings.setLayout(IMAPSettingsgroupLayout);
+    FormLayout imapSettingsgroupLayout = new FormLayout();
+    imapSettingsgroupLayout.marginWidth = 10;
+    imapSettingsgroupLayout.marginHeight = 10;
+    wIMAPSettings.setLayout(imapSettingsgroupLayout);
 
     // SelectFolder button
     wSelectFolder = new Button(wIMAPSettings, SWT.PUSH);
@@ -1000,7 +992,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            // ChooseIMAPListmails();
+            // disalbe selection event
 
           }
         });
@@ -1164,10 +1156,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wHeader);
     wHeader.setText(BaseMessages.getString(PKG, "ActionGetPOP.Header.Group.Label"));
 
-    FormLayout HeadergroupLayout = new FormLayout();
-    HeadergroupLayout.marginWidth = 10;
-    HeadergroupLayout.marginHeight = 10;
-    wHeader.setLayout(HeadergroupLayout);
+    FormLayout headergroupLayout = new FormLayout();
+    headergroupLayout.marginWidth = 10;
+    headergroupLayout.marginHeight = 10;
+    wHeader.setLayout(headergroupLayout);
 
     // Sender line: label, text, negate checkbox
     //
@@ -1271,10 +1263,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wContent);
     wContent.setText(BaseMessages.getString(PKG, "ActionGetPOP.Content.Group.Label"));
 
-    FormLayout ContentgroupLayout = new FormLayout();
-    ContentgroupLayout.marginWidth = 10;
-    ContentgroupLayout.marginHeight = 10;
-    wContent.setLayout(ContentgroupLayout);
+    FormLayout contentgroupLayout = new FormLayout();
+    contentgroupLayout.marginWidth = 10;
+    contentgroupLayout.marginHeight = 10;
+    wContent.setLayout(contentgroupLayout);
 
     // Body: label, text, negate checkbox
     //
@@ -1320,10 +1312,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook(wReceivedDate);
     wReceivedDate.setText(BaseMessages.getString(PKG, "ActionGetPOP.ReceivedDate.Group.Label"));
 
-    FormLayout ReceivedDategroupLayout = new FormLayout();
-    ReceivedDategroupLayout.marginWidth = 10;
-    ReceivedDategroupLayout.marginHeight = 10;
-    wReceivedDate.setLayout(ReceivedDategroupLayout);
+    FormLayout receivedDategroupLayout = new FormLayout();
+    receivedDategroupLayout.marginWidth = 10;
+    receivedDategroupLayout.marginHeight = 10;
+    wReceivedDate.setLayout(receivedDategroupLayout);
 
     // Received Date Condition line: label, text, negate checkbox
     //

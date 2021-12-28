@@ -43,15 +43,12 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = GetLoggingInfo.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      GetLoggingInfo.class; // for i18n purposes, needed by Translator2!!
 
-  private Label wlTransformname;
   private Text wTransformname;
-  private FormData fdlTransformname, fdTransformname;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
   private GetLoggingInfoMeta input;
 
@@ -108,10 +105,10 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
 
     // Transform name line
-    wlTransformname = new Label(shell, SWT.RIGHT);
+    Label wlTransformname = new Label(shell, SWT.RIGHT);
     wlTransformname.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformname);
-    fdlTransformname = new FormData();
+    FormData fdlTransformname = new FormData();
     fdlTransformname.left = new FormAttachment(0, 0);
     fdlTransformname.right = new FormAttachment(middle, -margin);
     fdlTransformname.top = new FormAttachment(0, margin);
@@ -120,16 +117,16 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     wTransformname.setText(transformName);
     props.setLook(wTransformname);
     wTransformname.addModifyListener(lsMod);
-    fdTransformname = new FormData();
+    FormData fdTransformname = new FormData();
     fdTransformname.left = new FormAttachment(middle, 0);
     fdTransformname.top = new FormAttachment(0, margin);
     fdTransformname.right = new FormAttachment(100, 0);
     wTransformname.setLayoutData(fdTransformname);
 
-    wlFields = new Label(shell, SWT.NONE);
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.Fields.Label"));
     props.setLook(wlFields);
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wTransformname, margin);
     wlFields.setLayoutData(fdlFields);
@@ -189,7 +186,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
             lsMod,
             props);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);

@@ -20,10 +20,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
-/**
- * @author Samatar Hassan
- * @since 21-09-2007
- */
 public class LdapOutputData extends BaseTransformData implements ITransformData {
   LdapConnection connection;
   int indexOfDNField;

@@ -56,9 +56,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
   private ModPartitioner partitioner;
   private String fieldName;
 
-  private Label wlFieldname;
   private CCombo wFieldname;
-  private FormData fdlFieldname, fdFieldname;
 
   public ModPartitionerDialog(
       Shell parent,
@@ -100,10 +98,10 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
 
     int middle = props.getMiddlePct();
 
-    wlFieldname = new Label(shell, SWT.RIGHT);
+    Label wlFieldname = new Label(shell, SWT.RIGHT);
     wlFieldname.setText("Fieldname");
     props.setLook(wlFieldname);
-    fdlFieldname = new FormData();
+    FormData fdlFieldname = new FormData();
     fdlFieldname.left = new FormAttachment(0, 0);
     fdlFieldname.right = new FormAttachment(middle, -margin);
     fdlFieldname.top = new FormAttachment(0, margin);
@@ -112,7 +110,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     wFieldname.setText(fieldName == null ? "" : fieldName);
     props.setLook(wFieldname);
     wFieldname.addModifyListener(lsMod);
-    fdFieldname = new FormData();
+    FormData fdFieldname = new FormData();
     fdFieldname.left = new FormAttachment(middle, 0);
     fdFieldname.top = new FormAttachment(0, margin);
     fdFieldname.right = new FormAttachment(100, 0);

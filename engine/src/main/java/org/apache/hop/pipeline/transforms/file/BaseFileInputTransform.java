@@ -42,11 +42,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.util.*;
 
-/**
- * This class contains base functionality for file-based input transforms.
- *
- * @author Alexander Buloichik
- */
+/** This class contains base functionality for file-based input transforms. */
 public abstract class BaseFileInputTransform<
         Meta extends BaseFileInputMeta, Data extends BaseFileInputTransformData>
     extends BaseTransform<Meta, Data> implements IBaseFileInputTransformControl {
@@ -151,7 +147,7 @@ public abstract class BaseFileInputTransform<
             + data.currentFileIndex
             + " : "
             + data.file.getName().getFriendlyURI();
-    if (!failAfterBadFile(errorMsg)) { // !meta.isSkipBadFiles()) stopAll();
+    if (!failAfterBadFile(errorMsg)) {
       return true;
     }
     stopAll();

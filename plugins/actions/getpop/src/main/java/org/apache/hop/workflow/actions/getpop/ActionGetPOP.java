@@ -726,7 +726,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setResult(false);
 
-    // FileObject fileObject = null;
     MailConnection mailConn = null;
     Date beginDate = null;
     Date endDate = null;
@@ -1086,8 +1085,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
               mailConn.fetchNext();
               int messagenumber = mailConn.getMessage().getMessageNumber();
               boolean okPOP3 =
-                  usePOP3 ? true : false; // (mailConn.getMessagesCounter()<nbrmailtoretrieve &&
-              // retrievemails==2)||(retrievemails!=2):false;
+                  usePOP3 ? true : false;
               boolean okIMAP = !usePOP3;
 
               if (okPOP3 || okIMAP) {
@@ -1229,10 +1227,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       if (j > -1) {
         String varName = rest.substring(i + open.length(), j);
         DateFormat dateFormat = new SimpleDateFormat(varName);
-        Object Value = dateFormat.format(datetime);
+        Object value = dateFormat.format(datetime);
 
         buffer.append(rest.substring(0, i));
-        buffer.append(Value);
+        buffer.append(value);
         rest = rest.substring(j + close.length());
       } else {
         // no closing tag found; end the search

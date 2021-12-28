@@ -17,12 +17,7 @@
 
 package org.apache.hop.core;
 
-/**
- * Defines that the class implementing this interface contains a description
- *
- * @author Matt
- * @since 21-aug-2006
- */
+/** Defines that the class implementing this interface contains a description */
 public interface IDescription {
   void setDescription(String description);
 

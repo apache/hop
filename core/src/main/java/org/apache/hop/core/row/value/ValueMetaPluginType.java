@@ -24,11 +24,7 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.Map;
 
-/**
- * This class represents the value meta plugin type.
- *
- * @author matt
- */
+/** This class represents the value meta plugin type. */
 @PluginMainClassType(IValueMeta.class)
 @PluginAnnotationType(ValueMetaPlugin.class)
 public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> {

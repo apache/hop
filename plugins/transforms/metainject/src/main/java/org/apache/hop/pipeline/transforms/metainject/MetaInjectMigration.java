@@ -20,11 +20,7 @@ package org.apache.hop.pipeline.transforms.metainject;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * This class converts old mapping info into new one.
- *
- * @author Alexander Buloichik
- */
+/** This class converts old mapping info into new one. */
 public class MetaInjectMigration {
   /** Migrate mapping from 7.0 version. */
   public static void migrateFrom70(

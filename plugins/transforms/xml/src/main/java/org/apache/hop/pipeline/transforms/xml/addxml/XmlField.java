@@ -20,12 +20,7 @@ package org.apache.hop.pipeline.transforms.xml.addxml;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
 
-/**
- * Describes a single field in an XML output file
- *
- * @author Matt
- * @since 14-jan-2006
- */
+/** Describes a single field in an XML output file */
 public class XmlField implements Cloneable {
 
   @Injection(name = "OUTPUT_FIELD_NAME", group = "OUTPUT_FIELDS")
@@ -159,24 +154,24 @@ public class XmlField implements Cloneable {
     return groupingSymbol;
   }
 
-  public void setGroupingSymbol(String group_symbol) {
-    this.groupingSymbol = group_symbol;
+  public void setGroupingSymbol(String groupSymbol) {
+    this.groupingSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {

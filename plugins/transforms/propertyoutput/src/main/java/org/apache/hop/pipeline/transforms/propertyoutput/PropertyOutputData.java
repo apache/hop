@@ -27,12 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Properties;
 
-/**
- * Output rows to Properties file and create a file.
- *
- * @author Samatar
- * @since 13-Apr-2008
- */
+/** Output rows to Properties file and create a file. */
 public class PropertyOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

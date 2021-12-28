@@ -49,12 +49,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Read a simple CSV file Just output Strings found in the file...
- *
- * @author Matt
- * @since 2007-07-05
- */
+/** Read a simple CSV file Just output Strings found in the file... */
 public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData>
     implements ITransform<CsvInputMeta, CsvInputData> {
 

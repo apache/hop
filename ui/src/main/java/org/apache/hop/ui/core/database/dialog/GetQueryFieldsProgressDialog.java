@@ -34,9 +34,6 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out which fields
  * are output by a certain SQL query on a database.
- *
- * @author Matt
- * @since 12-may-2005
  */
 public class GetQueryFieldsProgressDialog {
   private static final Class<?> PKG = GetQueryFieldsProgressDialog.class; // For Translator

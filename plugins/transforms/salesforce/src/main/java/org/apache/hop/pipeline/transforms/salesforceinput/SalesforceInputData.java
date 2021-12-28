@@ -22,10 +22,6 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 
 import java.util.GregorianCalendar;
 
-/*
- * @author Samatar
- * @since 10-06-2007
- */
 public class SalesforceInputData extends SalesforceTransformData {
   public int nr_repeats;
   public long rownr;

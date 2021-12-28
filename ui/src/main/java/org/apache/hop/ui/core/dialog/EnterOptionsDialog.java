@@ -54,12 +54,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Allows you to set the configurable options for the Hop environment
- *
- * @author Matt
- * @since 15-12-2003
- */
+/** Allows you to set the configurable options for the Hop environment */
 public class EnterOptionsDialog extends Dialog {
   private static final Class<?> PKG = EnterOptionsDialog.class; // For Translator
 
@@ -71,10 +66,18 @@ public class EnterOptionsDialog extends Dialog {
 
   private CTabFolder wTabFolder;
 
-  private FontData fixedFontData, graphFontData, noteFontData;
-  private Font fixedFont, graphFont, noteFont;
-  private RGB backgroundRGB, graphColorRGB, tabColorRGB;
-  private Color background, graphColor, tabColor;
+  private FontData fixedFontData;
+  private FontData graphFontData;
+  private FontData noteFontData;
+  private Font fixedFont;
+  private Font graphFont;
+  private Font noteFont;
+  private RGB backgroundRGB;
+  private RGB graphColorRGB;
+  private RGB tabColorRGB;
+  private Color background;
+  private Color graphColor;
+  private Color tabColor;
 
   private Canvas wFFont;
 
@@ -87,8 +90,6 @@ public class EnterOptionsDialog extends Dialog {
   private Canvas wGrColor;
 
   private Canvas wTabColor;
-
-  private Text wFilename;
 
   private Text wIconSize;
 
@@ -856,7 +857,8 @@ public class EnterOptionsDialog extends Dialog {
     transformLayout.marginWidth = 3;
     transformLayout.marginHeight = 3;
 
-    ScrolledComposite sTransformComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite sTransformComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     sTransformComp.setLayout(new FillLayout());
 
     Composite wTransformComp = new Composite(sTransformComp, SWT.NONE);
@@ -865,7 +867,8 @@ public class EnterOptionsDialog extends Dialog {
 
     // Use DB Cache?
     Label wlTableOutputSortMappings = new Label(wTransformComp, SWT.RIGHT);
-    wlTableOutputSortMappings.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.TableOutput.SortMappings.Label"));
+    wlTableOutputSortMappings.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.TableOutput.SortMappings.Label"));
     props.setLook(wlTableOutputSortMappings);
     FormData fdlSortMappings = new FormData();
     fdlSortMappings.left = new FormAttachment(0, 0);
@@ -881,7 +884,6 @@ public class EnterOptionsDialog extends Dialog {
     fdUseCache.top = new FormAttachment(wlTableOutputSortMappings, 0, SWT.CENTER);
     fdUseCache.right = new FormAttachment(100, 0);
     wbTableOutputSortMappings.setLayoutData(fdUseCache);
-    Control lastControl = wlTableOutputSortMappings;
 
     wbTableOutputSortMappings.setSelection(props.sortTableOutputMappings());
 
@@ -903,7 +905,6 @@ public class EnterOptionsDialog extends Dialog {
     sTransformComp.setMinHeight(bounds.height);
 
     wTransformTab.setControl(sTransformComp);
-
 
     // ///////////////////////////////////////////////////////////
     // / END OF TRANSFORMS TAB
@@ -937,7 +938,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(0, margin);
     wlFilename.setLayoutData(fdlFilename);
-    wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Text wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilename.setText(Const.NVL(HopConfig.getInstance().getConfigFilename(), ""));
     wFilename.setEditable(false);
     props.setLook(wFilename);
@@ -1228,7 +1229,6 @@ public class EnterOptionsDialog extends Dialog {
     fdbUseGlobalFileBookmarks.top = new FormAttachment(wlUseGlobalFileBookmarks, 0, SWT.CENTER);
     fdbUseGlobalFileBookmarks.right = new FormAttachment(100, 0);
     wbUseGlobalFileBookmarks.setLayoutData(fdbUseGlobalFileBookmarks);
-    lastControl = wbUseGlobalFileBookmarks;
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);

@@ -47,7 +47,6 @@ import static org.mockito.Mockito.*;
 /**
  * Test for StreamLookup transform
  *
- * @author Pavel Sakun
  * @see StreamLookup
  */
 public class StreamLookupTest {

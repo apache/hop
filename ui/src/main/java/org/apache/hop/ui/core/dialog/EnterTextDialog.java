@@ -24,7 +24,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.FormInput;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -35,12 +34,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog to enter a text. (descriptions etc.)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to enter a text. (descriptions etc.) */
 public class EnterTextDialog extends Dialog {
   private static final Class<?> PKG = EnterTextDialog.class; // For Translator
 
@@ -55,7 +49,9 @@ public class EnterTextDialog extends Dialog {
   private final PropsUi props;
   private String text;
   private boolean fixed;
-  private boolean readonly, modal, singleLine;
+  private boolean readonly;
+  private boolean modal;
+  private boolean singleLine;
   private String origText;
 
   /**
@@ -173,10 +169,12 @@ public class EnterTextDialog extends Dialog {
     wDesc.setLayoutData(fdDesc);
     wDesc.setEditable(!readonly);
     wDesc.addListener(SWT.DefaultSelection, e -> ok());
-    wDesc.addListener(SWT.Modify, e -> {
-      Text source = (Text) e.widget;
-      this.text = source.getText();
-    });
+    wDesc.addListener(
+        SWT.Modify,
+        e -> {
+          Text source = (Text) e.widget;
+          this.text = source.getText();
+        });
 
     enrich(this);
 
@@ -256,12 +254,12 @@ public class EnterTextDialog extends Dialog {
   }
 
   public static final void editDescription(
-      Shell shell, IDescription IDescription, String shellText, String message) {
+      Shell shell, IDescription iDescription, String shellText, String message) {
     EnterTextDialog textDialog =
-        new EnterTextDialog(shell, shellText, message, IDescription.getDescription());
+        new EnterTextDialog(shell, shellText, message, iDescription.getDescription());
     String description = textDialog.open();
     if (description != null) {
-      IDescription.setDescription(description);
+      iDescription.setDescription(description);
     }
   }
 
@@ -273,9 +271,8 @@ public class EnterTextDialog extends Dialog {
     this.fixed = fixed;
   }
 
-  //An enrich method is provided for enrich the shell. By default, it does nothing.
-  public void enrich(EnterTextDialog enterTextDialog) {
-  }
+  // An enrich method is provided for enrich the shell. By default, it does nothing.
+  public void enrich(EnterTextDialog enterTextDialog) {}
 
   public Label getWlDesc() {
     return wlDesc;
@@ -294,7 +291,7 @@ public class EnterTextDialog extends Dialog {
     return text;
   }
 
-  public void setWOkListener(Listener listener){
+  public void setWOkListener(Listener listener) {
     wOk.addListener(SWT.Selection, listener);
   }
 }

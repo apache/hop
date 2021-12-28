@@ -48,7 +48,6 @@ import static org.mockito.Mockito.when;
 /**
  * Tests for SalesforceInsert transform
  *
- * @author Pavel Sakun
  * @see SalesforceInsert
  */
 public class SalesForceDateFieldTest {

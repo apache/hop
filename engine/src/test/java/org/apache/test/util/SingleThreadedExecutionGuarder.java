@@ -37,8 +37,6 @@ import static org.junit.Assert.assertNotNull;
 /**
  * This is a base class for creating guard tests, that check a transform cannot be executed in the
  * single-threaded mode
- *
- * @author Andrey Khayrutdinov
  */
 public abstract class SingleThreadedExecutionGuarder<Meta extends ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

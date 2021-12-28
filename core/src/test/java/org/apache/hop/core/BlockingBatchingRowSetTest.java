@@ -30,11 +30,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-/**
- * Test class for the basic functionality of the blocking & batching row set.
- *
- * @author Matt Casters
- */
+/** Test class for the basic functionality of the blocking & batching row set. */
 public class BlockingBatchingRowSetTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 

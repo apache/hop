@@ -33,12 +33,7 @@ import org.eclipse.swt.widgets.Shell;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-/**
- * Takes care of displaying a dialog that will handle the wait while checking a pipeline...
- *
- * @author Matt
- * @since 16-mrt-2005
- */
+/** Takes care of displaying a dialog that will handle the wait while checking a pipeline... */
 public class CheckPipelineProgressDialog {
   private static final Class<?> PKG = CheckPipelineProgressDialog.class; // For Translator
 

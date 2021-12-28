@@ -15,28 +15,6 @@
  * limitations under the License.
  */
 
-/*! ******************************************************************************
- *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- ******************************************************************************/
-
 package org.apache.hop.neo4j.perspective;
 
 import org.apache.commons.lang.StringUtils;
@@ -105,19 +83,15 @@ public class HopNeo4jPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "9000-perspective-neo4j";
 
-  private Image neo4jImage;
-
   private HopGui hopGui;
   private Composite parent;
   private Composite composite;
-  private FormData formData;
   private Combo wExecutions;
   private CTabFolder tabFolder;
   private TableView wResults;
   private Text wLogging;
   private Tree wTree;
   private Text wCypher;
-  private Image lineageImage;
   private Color errorLineBackground;
   private Combo wAmount;
   private Button wOnlyRoot;
@@ -173,10 +147,10 @@ public class HopNeo4jPerspective implements IHopPerspective {
     PropsUi props = PropsUi.getInstance();
 
     int size = (int) Math.round((double) ConstUi.SMALL_ICON_SIZE * props.getZoomFactor());
-    neo4jImage =
+    Image neo4jImage =
         SwtSvgImageUtil.getImage(
             hopGui.getDisplay(), this.getClass().getClassLoader(), "neo4j_logo.svg", size, size);
-    lineageImage =
+    Image lineageImage =
         SwtSvgImageUtil.getImage(
             hopGui.getDisplay(), this.getClass().getClassLoader(), "lineage.svg", size, size);
     errorLineBackground = new Color(hopGui.getDisplay(), 201, 232, 251);
@@ -190,7 +164,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     layout.marginBottom = props.getMargin();
     composite.setLayout(layout);
 
-    formData = new FormData();
+    FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
@@ -595,7 +569,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
             Result pathResult = tx.run(errorPathCypher.toString(), errorPathParams);
 
             while (pathResult.hasNext()) {
-              // System.out.println("Path found!");
               Record pathRecord = pathResult.next();
               Value pathValue = pathRecord.get(0);
               Path path = pathValue.asPath();
@@ -604,7 +577,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
                 HistoryResult pathExecution = new HistoryResult();
                 pathExecution.setId(LoggingCore.getStringValue(node, "id"));
                 pathExecution.setName(LoggingCore.getStringValue(node, "name"));
-                // System.out.println(" - Node name : "+pathExecution.getName());
                 pathExecution.setType(LoggingCore.getStringValue(node, "type"));
                 pathExecution.setCopy(LoggingCore.getStringValue(node, "copy"));
                 pathExecution.setRegistrationDate(
@@ -656,7 +628,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
             if (wTree.getItemCount() > 0) {
               TreeItem firstItem = wTree.getItem(0);
               wTree.setSelection(firstItem);
-              // handleItemSelection( item );
             }
 
             //

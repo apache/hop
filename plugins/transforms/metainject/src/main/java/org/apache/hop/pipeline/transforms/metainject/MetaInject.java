@@ -39,19 +39,13 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Read a simple CSV file Just output Strings found in the file...
- *
- * @author Matt
- * @since 2007-07-05
- */
+/** Read a simple CSV file Just output Strings found in the file... */
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     implements ITransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class; // For Translator
@@ -292,7 +286,6 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     }
   }
 
-
   private void createParentFolder(String filename) throws Exception {
     // Check for parent folder
     FileObject parentfolder = null;
@@ -304,35 +297,31 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
       if (parentfolder.exists()) {
         if (isDetailed()) {
           logDetailed(
-                  BaseMessages.getString(
-                          PKG,
-                          "MetaInject.Log.ParentFolderExist",
-                          HopVfs.getFriendlyURI(parentfolder)));
+              BaseMessages.getString(
+                  PKG, "MetaInject.Log.ParentFolderExist", HopVfs.getFriendlyURI(parentfolder)));
         }
       } else {
         if (isDetailed()) {
           logDetailed(
-                  BaseMessages.getString(
-                          PKG,
-                          "MetaInject.Log.ParentFolderNotExist",
-                          HopVfs.getFriendlyURI(parentfolder)));
+              BaseMessages.getString(
+                  PKG, "MetaInject.Log.ParentFolderNotExist", HopVfs.getFriendlyURI(parentfolder)));
         }
         if (meta.isCreateParentFolder()) {
           parentfolder.createFolder();
           if (isDetailed()) {
             logDetailed(
-                    BaseMessages.getString(
-                            PKG,
-                            "MetaInject.Log.ParentFolderCreated",
-                            HopVfs.getFriendlyURI(parentfolder)));
+                BaseMessages.getString(
+                    PKG,
+                    "MetaInject.Log.ParentFolderCreated",
+                    HopVfs.getFriendlyURI(parentfolder)));
           }
         } else {
           throw new HopException(
-                  BaseMessages.getString(
-                          PKG,
-                          "MetaInject.Log.ParentFolderNotExistCreateIt",
-                          HopVfs.getFriendlyURI(parentfolder),
-                          HopVfs.getFriendlyURI(filename)));
+              BaseMessages.getString(
+                  PKG,
+                  "MetaInject.Log.ParentFolderNotExistCreateIt",
+                  HopVfs.getFriendlyURI(parentfolder),
+                  HopVfs.getFriendlyURI(filename)));
         }
       }
     } finally {

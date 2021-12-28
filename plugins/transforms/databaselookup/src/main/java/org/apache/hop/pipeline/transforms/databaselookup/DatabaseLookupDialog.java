@@ -26,7 +26,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -350,13 +349,13 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     fdlReturn.top = new FormAttachment(wKey, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 5;
-    int UpInsRows =
+    int upInsCols = 5;
+    int upInsRows =
         input.getLookup().getReturnValues().isEmpty()
             ? 1
             : input.getLookup().getReturnValues().size();
 
-    ColumnInfo[] ciReturn = new ColumnInfo[UpInsCols];
+    ColumnInfo[] ciReturn = new ColumnInfo[upInsCols];
 
     ciReturn[0] =
         new ColumnInfo(
@@ -387,7 +386,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
         new ColumnInfo(
             BaseMessages.getString(PKG, "DatabaseLookupDialog.TrimTypeColumn.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ValueMetaString.trimTypeDesc,
+            ValueMetaBase.trimTypeDesc,
             true);
 
     tableFieldColumns.add(ciReturn[0]);
@@ -398,7 +397,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -542,9 +541,9 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
             if (!Utils.isEmpty(tableName)) {
               DatabaseMeta ci = pipelineMeta.findDatabase(connectionName, variables);
               if (ci != null) {
@@ -552,7 +551,6 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
                 try {
                   db.connect();
 
-                  // IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
                   String schemaTable =
                       ci.getQuotedSchemaTableCombination(variables, schemaName, tableName);
                   IRowMeta r = db.getTableFields(schemaTable);
@@ -630,8 +628,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
       item.setText(
           5,
           Const.NVL(
-              ValueMetaString.getTrimTypeDesc(
-                  ValueMetaString.getTrimTypeByCode(returnValue.getTrimType())),
+              ValueMetaBase.getTrimTypeDesc(
+                  ValueMetaBase.getTrimTypeByCode(returnValue.getTrimType())),
               ValueMetaBase.trimTypeCode[0]));
     }
     wSchema.setText(Const.NVL(input.getSchemaName(), ""));
@@ -687,7 +685,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
       returnValue.setDefaultValue(item.getText(3));
       returnValue.setDefaultType(item.getText(4));
       returnValue.setTrimType(
-          ValueMetaString.getTrimTypeCode(ValueMetaString.getTrimTypeByDesc(item.getText(5))));
+          ValueMetaBase.getTrimTypeCode(ValueMetaBase.getTrimTypeByDesc(item.getText(5))));
       lookup.getReturnValues().add(returnValue);
     }
 

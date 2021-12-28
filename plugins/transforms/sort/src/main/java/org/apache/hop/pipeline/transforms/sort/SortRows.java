@@ -43,12 +43,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * Sort the rows in the input-streams based on certain criteria
- *
- * @author Matt
- * @since 29-apr-2003
- */
+/** Sort the rows in the input-streams based on certain criteria */
 public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData>
     implements ITransform<SortRowsMeta, SortRowsData> {
   private static final Class<?> PKG = SortRows.class; // For Translator

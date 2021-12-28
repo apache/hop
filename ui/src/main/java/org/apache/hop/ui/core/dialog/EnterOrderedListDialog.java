@@ -145,7 +145,6 @@ public class EnterOrderedListDialog extends Dialog {
     props.setLook(middlePane);
 
     Label label = new Label(middlePane, SWT.NONE);
-    // label.setText("TEST");
     label.setLayoutData(new FormDataBuilder().top().left().result());
     props.setLook(label);
 

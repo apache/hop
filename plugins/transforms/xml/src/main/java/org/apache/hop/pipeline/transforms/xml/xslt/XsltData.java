@@ -31,10 +31,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
-/**
- * @author Samatar
- * @since 24-jan-2005
- */
 public class XsltData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

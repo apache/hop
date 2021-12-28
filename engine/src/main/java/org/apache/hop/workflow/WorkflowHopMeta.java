@@ -27,12 +27,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This class defines a hop from one action copy to another.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This class defines a hop from one action copy to another. */
 public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneable {
   private static final Class<?> PKG = WorkflowHopMeta.class; // For Translator
 

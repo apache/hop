@@ -51,9 +51,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * This dialog allows you to edit the MYSQL Bulk Load To a file action settings. (select the
  * connection and the table to be checked) This action evaluates!
- *
- * @author Samatar
- * @since 06-03-2006
  */
 public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
@@ -231,7 +228,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
-    // fdbFilename.height = 22;
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

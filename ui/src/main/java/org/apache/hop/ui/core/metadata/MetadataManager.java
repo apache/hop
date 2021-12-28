@@ -47,9 +47,6 @@ import java.util.List;
 
 /**
  * This is a utility class which allows you to create or edit metadata objects in a generic fashion
- *
- * @author Matt
- * @since 2020-01-21
  */
 public class MetadataManager<T extends IHopMetadata> {
 

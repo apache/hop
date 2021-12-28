@@ -25,12 +25,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Data structure used by Denormaliser during processing
- *
- * @author Matt
- * @since 19-jan-2006
- */
+/** Data structure used by Denormaliser during processing */
 public class DenormaliserData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

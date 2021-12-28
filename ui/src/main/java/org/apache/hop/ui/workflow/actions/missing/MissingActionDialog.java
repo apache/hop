@@ -49,7 +49,6 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
   private Shell shell;
   private List<MissingAction> missingActions;
   private int mode;
-  private PropsUi props;
 
   /** A reference to the action interface */
   protected IAction action;
@@ -99,7 +98,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
   @Override
   public IAction open() {
 
-    this.props = PropsUi.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     Shell parent = this.getParent();
     Display display = parent.getDisplay();

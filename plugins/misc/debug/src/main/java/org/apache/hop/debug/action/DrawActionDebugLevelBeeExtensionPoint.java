@@ -74,7 +74,6 @@ public class DrawActionDebugLevelBeeExtensionPoint extends BeePainter
       }
     } catch (Exception e) {
       // Ignore error, not that important
-      // logChannelInterface.logError( "Unable to handle specific debug level", e );
     }
   }
 }

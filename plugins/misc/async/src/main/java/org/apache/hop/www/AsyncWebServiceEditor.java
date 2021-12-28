@@ -37,11 +37,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Editor that allows you to change Asynchronous Web Service metadata
@@ -138,11 +134,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdbbFilename.right = new FormAttachment(100, 0);
     fdbbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbbFilename.setLayoutData(fdbbFilename);
-    wbbFilename.addListener(
-        SWT.Selection,
-        e -> {
-          selectWorkflowFilename(parent);
-        });
+    wbbFilename.addListener(SWT.Selection, e -> selectWorkflowFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
     props.setLook(wbnFilename);
@@ -151,11 +143,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
     fdbnFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wbnFilename.setLayoutData(fdbnFilename);
-    wbnFilename.addListener(
-        SWT.Selection,
-        e -> {
-          createWorkflowFile(parent);
-        });
+    wbnFilename.addListener(SWT.Selection, e -> createWorkflowFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
     props.setLook(wboFilename);
@@ -164,11 +152,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
     fdboFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wboFilename.setLayoutData(fdboFilename);
-    wboFilename.addListener(
-        SWT.Selection,
-        e -> {
-          openWorkflowFile(parent);
-        });
+    wboFilename.addListener(SWT.Selection, e -> openWorkflowFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     props.setLook(wFilename);
@@ -215,7 +199,6 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdContentVar.right = new FormAttachment(100, 0);
     fdContentVar.top = new FormAttachment(wlContentVar, 0, SWT.CENTER);
     wContentVar.setLayoutData(fdContentVar);
-    // lastControl = wlContentVar;
 
     setWidgetsContent();
 
@@ -345,6 +328,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     return wName.setFocus();
   }
 
+  @Override
   public void setChanged() {
     this.isChanged = true;
     MetadataPerspective.getInstance().updateEditor(this);

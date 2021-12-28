@@ -53,7 +53,6 @@ public class AreaOwner {
     while (li.hasPrevious()) {
       AreaOwner areaOwner = li.previous();
       if (areaOwner.contains(x, y)) {
-        // System.out.println("Match: "+areaOwner.getAreaType()+" on ("+x+", "+y+")");
         return areaOwner;
       }
     }
@@ -61,8 +60,6 @@ public class AreaOwner {
   }
 
   private boolean contains(int locX, int locY) {
-    // System.out.println("Checking ("+locX+", "+locY+") against ("+x+", "+y+", "+(x+width)+",
-    // "+(y+height)+")");
 
     return locX >= x && locY >= y && locX <= x + width && locY <= y + height;
   }

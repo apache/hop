@@ -47,7 +47,7 @@ import java.util.Set;
  */
 public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData>
     implements ITransform<MongoDbOutputMeta, MongoDbOutputData> {
-  private static Class<?> PKG = MongoDbOutputMeta.class; // For Translator
+  private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   protected MongoDbOutputData.MongoTopLevel mongoTopLevelStructure =
       MongoDbOutputData.MongoTopLevel.INCONSISTENT;
@@ -401,7 +401,6 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             // CHECKSTYLE:ON
           }
         }
-        // throw new HopException(me.getMessage(), me);
       }
 
       if (result != null) {

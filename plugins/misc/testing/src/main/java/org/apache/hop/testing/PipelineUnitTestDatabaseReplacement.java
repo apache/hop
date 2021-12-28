@@ -23,8 +23,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
  * This class simply replaces all occurrences of a certain database connection with another one. It
  * allows developers to point to a test database for lookup data and database related transforms
  * like database lookup, dimension lookup and so on.
- *
- * @author matt
  */
 public class PipelineUnitTestDatabaseReplacement {
 

@@ -69,7 +69,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
   private String tableName;
   private boolean truncateTable;
 
-  private boolean AddToResult;
+  private boolean addToResult;
 
   private boolean createTable;
 
@@ -106,12 +106,12 @@ public class SQLFileOutputMeta extends BaseTransformMeta
   private String dateformat;
 
   /** Start New line for each statement */
-  private boolean StartNewLine;
+  private boolean startNewLine;
 
   /** Flag: create parent folder if needed */
   private boolean createparentfolder;
 
-  private boolean DoNotOpenNewFileInit;
+  private boolean doNotOpenNewFileInit;
 
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
@@ -250,20 +250,20 @@ public class SQLFileOutputMeta extends BaseTransformMeta
 
   /** @return Returns the Add to result filesname flag. */
   public boolean AddToResult() {
-    return AddToResult;
+    return addToResult;
   }
 
   /** @return Returns the Start new line flag. */
   public boolean StartNewLine() {
-    return StartNewLine;
+    return startNewLine;
   }
 
   public boolean isDoNotOpenNewFileInit() {
-    return DoNotOpenNewFileInit;
+    return doNotOpenNewFileInit;
   }
 
-  public void setDoNotOpenNewFileInit(boolean DoNotOpenNewFileInit) {
-    this.DoNotOpenNewFileInit = DoNotOpenNewFileInit;
+  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
+    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
   /** @return Returns the create table flag. */
@@ -276,14 +276,14 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     this.truncateTable = truncateTable;
   }
 
-  /** @param AddToResult The Add file to result to set. */
-  public void setAddToResult(boolean AddToResult) {
-    this.AddToResult = AddToResult;
+  /** @param addToResult The Add file to result to set. */
+  public void setAddToResult(boolean addToResult) {
+    this.addToResult = addToResult;
   }
 
-  /** @param StartNewLine The Start NEw Line to set. */
-  public void setStartNewLine(boolean StartNewLine) {
-    this.StartNewLine = StartNewLine;
+  /** @param startNewLine The Start NEw Line to set. */
+  public void setStartNewLine(boolean startNewLine) {
+    this.startNewLine = startNewLine;
   }
 
   /** @param createTable The create table flag to set. */
@@ -386,9 +386,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta
       createTable = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "create"));
       encoding = XmlHandler.getTagValue(transformNode, "encoding");
       dateformat = XmlHandler.getTagValue(transformNode, "dateformat");
-      AddToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "AddToResult"));
+      addToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "AddToResult"));
 
-      StartNewLine = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "StartNewLine"));
+      startNewLine = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "StartNewLine"));
 
       fileName = XmlHandler.getTagValue(transformNode, "file", "name");
       createparentfolder =
@@ -406,7 +406,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
       timeInFilename =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_time"));
       splitEvery = Const.toInt(XmlHandler.getTagValue(transformNode, "file", "splitevery"), 0);
-      DoNotOpenNewFileInit =
+      doNotOpenNewFileInit =
           "Y"
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformNode, "file", "DoNotOpenNewFileInit"));
@@ -421,7 +421,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     databaseMeta = null;
     tableName = "";
     createparentfolder = false;
-    DoNotOpenNewFileInit = false;
+    doNotOpenNewFileInit = false;
   }
 
   @Override
@@ -438,9 +438,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     retval.append("    " + XmlHandler.addTagValue("create", createTable));
     retval.append("    " + XmlHandler.addTagValue("encoding", encoding));
     retval.append("    " + XmlHandler.addTagValue("dateformat", dateformat));
-    retval.append("    " + XmlHandler.addTagValue("addtoresult", AddToResult));
+    retval.append("    " + XmlHandler.addTagValue("addtoresult", addToResult));
 
-    retval.append("    " + XmlHandler.addTagValue("startnewline", StartNewLine));
+    retval.append("    " + XmlHandler.addTagValue("startnewline", startNewLine));
 
     retval.append("    <file>" + Const.CR);
     retval.append("      " + XmlHandler.addTagValue("name", fileName));
@@ -452,7 +452,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     retval.append("      " + XmlHandler.addTagValue("add_time", timeInFilename));
     retval.append("      " + XmlHandler.addTagValue("splitevery", splitEvery));
     retval.append("      " + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
-    retval.append("      " + XmlHandler.addTagValue("DoNotOpenNewFileInit", DoNotOpenNewFileInit));
+    retval.append("      " + XmlHandler.addTagValue("DoNotOpenNewFileInit", doNotOpenNewFileInit));
 
     retval.append("      </file>" + Const.CR);
 
@@ -473,7 +473,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     if (databaseMeta != null) {
       CheckResult cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.ConnectionExists"),
               transformMeta);
       remarks.add(cr);
@@ -484,7 +484,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
 
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.ConnectionOk"),
                 transformMeta);
         remarks.add(cr);
@@ -496,7 +496,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
           if (db.checkTableExists(schemaName, tableName)) {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SQLFileOutputMeta.CheckResult.TableAccessible", schemaTable),
                     transformMeta);
@@ -506,7 +506,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
             if (r != null) {
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_OK,
+                      ICheckResult.TYPE_RESULT_OK,
                       BaseMessages.getString(
                           PKG, "SQLFileOutputMeta.CheckResult.TableOk", schemaTable),
                       transformMeta);
@@ -519,7 +519,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
               if (prev != null && prev.size() > 0) {
                 cr =
                     new CheckResult(
-                        CheckResult.TYPE_RESULT_OK,
+                        ICheckResult.TYPE_RESULT_OK,
                         BaseMessages.getString(
                             PKG, "SQLFileOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
                         transformMeta);
@@ -542,12 +542,12 @@ public class SQLFileOutputMeta extends BaseTransformMeta
                           "SQLFileOutputMeta.CheckResult.FieldsNotFoundInOutput",
                           errorMessage);
 
-                  cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+                  cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
                   remarks.add(cr);
                 } else {
                   cr =
                       new CheckResult(
-                          CheckResult.TYPE_RESULT_OK,
+                          ICheckResult.TYPE_RESULT_OK,
                           BaseMessages.getString(
                               PKG, "SQLFileOutputMeta.CheckResult.AllFieldsFoundInOutput"),
                           transformMeta);
@@ -570,12 +570,13 @@ public class SQLFileOutputMeta extends BaseTransformMeta
                           PKG, "SQLFileOutputMeta.CheckResult.FieldsNotFound", errorMessage);
 
                   cr =
-                      new CheckResult(CheckResult.TYPE_RESULT_WARNING, errorMessage, transformMeta);
+                      new CheckResult(
+                          ICheckResult.TYPE_RESULT_WARNING, errorMessage, transformMeta);
                   remarks.add(cr);
                 } else {
                   cr =
                       new CheckResult(
-                          CheckResult.TYPE_RESULT_OK,
+                          ICheckResult.TYPE_RESULT_OK,
                           BaseMessages.getString(
                               PKG, "SQLFileOutputMeta.CheckResult.AllFieldsFound"),
                           transformMeta);
@@ -584,7 +585,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
               } else {
                 cr =
                     new CheckResult(
-                        CheckResult.TYPE_RESULT_ERROR,
+                        ICheckResult.TYPE_RESULT_ERROR,
                         BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.NoFields"),
                         transformMeta);
                 remarks.add(cr);
@@ -592,7 +593,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
             } else {
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_ERROR,
+                      ICheckResult.TYPE_RESULT_ERROR,
                       BaseMessages.getString(
                           PKG, "SQLFileOutputMeta.CheckResult.TableNotAccessible"),
                       transformMeta);
@@ -601,7 +602,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
           } else {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_ERROR,
+                    ICheckResult.TYPE_RESULT_ERROR,
                     BaseMessages.getString(
                         PKG, "SQLFileOutputMeta.CheckResult.TableError", schemaTable),
                     transformMeta);
@@ -610,7 +611,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_ERROR,
+                  ICheckResult.TYPE_RESULT_ERROR,
                   BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.NoTableName"),
                   transformMeta);
           remarks.add(cr);
@@ -618,7 +619,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
       } catch (HopException e) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "SQLFileOutputMeta.CheckResult.UndefinedError", e.getMessage()),
                 transformMeta);
@@ -629,7 +630,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     } else {
       CheckResult cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.NoConnection"),
               transformMeta);
       remarks.add(cr);
@@ -639,14 +640,14 @@ public class SQLFileOutputMeta extends BaseTransformMeta
     if (input.length > 0) {
       CheckResult cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       CheckResult cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SQLFileOutputMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);

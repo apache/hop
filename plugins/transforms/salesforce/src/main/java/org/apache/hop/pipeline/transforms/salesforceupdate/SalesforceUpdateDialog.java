@@ -60,7 +60,7 @@ import java.util.*;
 
 public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   private Map<String, Integer> inputFields;
 
@@ -70,7 +70,9 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   private SalesforceUpdateMeta input;
 
-  private LabelTextVar wUserName, wURL, wPassword;
+  private LabelTextVar wUserName;
+  private LabelTextVar wURL;
+  private LabelTextVar wPassword;
 
   private TextVar wBatchSize;
 
@@ -235,7 +237,6 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
@@ -404,10 +405,10 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     fdlReturn.top = new FormAttachment(wSettingsGroup, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int upInsCols = 3;
+    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.ColumnInfo.TableField"),
@@ -434,7 +435,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

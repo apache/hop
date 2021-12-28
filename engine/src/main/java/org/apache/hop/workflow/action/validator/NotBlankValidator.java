@@ -27,8 +27,6 @@ import java.util.List;
 /**
  * Fails if the field's value is either <code>null</code>, an empty string, or a string containing
  * only whitespace.
- *
- * @author mlowery
  */
 public class NotBlankValidator implements IActionValidator {
 

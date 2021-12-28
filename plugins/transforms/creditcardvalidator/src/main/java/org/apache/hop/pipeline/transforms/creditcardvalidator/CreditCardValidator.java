@@ -28,12 +28,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Check if a Credit Card is valid *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Check if a Credit Card is valid * */
 public class CreditCardValidator
     extends BaseTransform<CreditCardValidatorMeta, CreditCardValidatorData>
     implements ITransform<CreditCardValidatorMeta, CreditCardValidatorData> {
@@ -141,7 +136,7 @@ public class CreditCardValidator
       }
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(

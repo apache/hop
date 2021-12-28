@@ -743,7 +743,6 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
    * @throws HopDatabaseException If something went wrong while selecting the values from the db
    * @throws HopValueException If something went wrong while adding the data to the cache
    * @throws HopConfigException If the transform configuration is incomplete
-   * @author nwyrwa
    */
   private void preloadCache(IRowMeta hashRowMeta)
       throws HopDatabaseException, HopValueException, HopConfigException {

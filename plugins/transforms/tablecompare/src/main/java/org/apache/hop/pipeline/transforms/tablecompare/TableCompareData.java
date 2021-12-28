@@ -22,10 +22,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Matt
- * @since 19-11-2009
- */
 public class TableCompareData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

@@ -143,11 +143,11 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
     return true;
   }
 
-  protected Node getConfigNodeFromZIP(Object archiveUrl, Object fileName, String xml_tag)
+  protected Node getConfigNodeFromZIP(Object archiveUrl, Object fileName, String xmlTag)
       throws HopXmlException {
     String configUrl = MessageFormat.format(ZIP_CONT, archiveUrl, fileName);
     Document configDoc = XmlHandler.loadXmlFile(configUrl);
-    return XmlHandler.getSubNode(configDoc, xml_tag);
+    return XmlHandler.getSubNode(configDoc, xmlTag);
   }
 
   public static final String getMetaStoreJsonFromZIP(Object archiveUrl)

@@ -51,9 +51,6 @@ import java.util.regex.Pattern;
  * <p>
  *
  * <p>
- *
- * @author Matt
- * @since 8-06-2004
  */
 public class Condition implements Cloneable {
   public static final String XML_TAG = "condition";
@@ -699,7 +696,6 @@ public class Condition implements Cloneable {
 
       retval.append(Const.CR);
     } else {
-      // retval+="<COMP "+level+", "+show_negate+", "+show_operator+">";
 
       // Group is negated?
       if (isNegated() && (showNegate || level > 0)) {

@@ -109,7 +109,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
       // We also need to commit/rollback at the end of this workflow...
       //
       addWorkflowFinishedListener(
-          (workflow) -> {
+          workflow -> {
             String group = (String) workflow.getExtensionDataMap().get(Const.CONNECTION_GROUP);
             List<Database> databases = DatabaseConnectionMap.getInstance().getDatabases(group);
             Result result = workflow.getResult();

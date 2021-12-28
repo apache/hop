@@ -41,7 +41,7 @@ import java.util.Iterator;
 
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData>
     implements ITransform<TokenReplacementMeta, TokenReplacementData> {
-  private static Class<?> PKG = TokenReplacementMeta.class; // For Translator
+  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   public TokenReplacement(
       TransformMeta transformMeta,

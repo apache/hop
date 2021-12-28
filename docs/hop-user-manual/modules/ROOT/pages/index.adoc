@@ -20,7 +20,7 @@ under the License.
 
 = Hop User Manual
 
-The Apache Hop (Incubating) User Manual contains all the information you need to develop and deploy data solutions with Apache Hop.
+The Apache Hop User Manual contains all the information you need to develop and deploy data solutions with Apache Hop.
 
 We've listed a number of starting points that might find useful to you.
 Check the full list of topics on the left hand side.

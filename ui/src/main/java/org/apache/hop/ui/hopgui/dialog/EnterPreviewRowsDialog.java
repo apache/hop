@@ -39,19 +39,13 @@ import org.eclipse.swt.widgets.*;
 /**
  * Shows a dialog that allows you to select the transforms you want to preview by entering a number
  * of rows.
- *
- * @author Matt
  */
 public class EnterPreviewRowsDialog extends Dialog {
   private static final Class<?> PKG = EnterPreviewRowsDialog.class; // For Translator
 
   private String transformName;
 
-  private Label wlTransformList;
   private List wTransformList;
-  private FormData fdlTransformList, fdTransformList;
-  private Button wShow, wClose;
-  private Listener lsShow, lsClose;
 
   private Shell shell;
   private java.util.List<String> transformNames;
@@ -94,13 +88,13 @@ public class EnterPreviewRowsDialog extends Dialog {
     int margin = props.getMargin();
 
     // Filename line
-    wlTransformList = new Label(shell, SWT.NONE);
+    Label wlTransformList = new Label(shell, SWT.NONE);
     wlTransformList.setText(
         BaseMessages.getString(
             PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Message")); // Transform
     // name :
     props.setLook(wlTransformList);
-    fdlTransformList = new FormData();
+    FormData fdlTransformList = new FormData();
     fdlTransformList.left = new FormAttachment(0, 0);
     fdlTransformList.top = new FormAttachment(0, margin);
     wlTransformList.setLayoutData(fdlTransformList);
@@ -113,7 +107,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     }
     wTransformList.select(0);
     props.setLook(wTransformList);
-    fdTransformList = new FormData();
+    FormData fdTransformList = new FormData();
     fdTransformList.left = new FormAttachment(middle, 0);
     fdTransformList.top = new FormAttachment(0, margin);
     fdTransformList.bottom = new FormAttachment(100, -60);
@@ -127,16 +121,16 @@ public class EnterPreviewRowsDialog extends Dialog {
           }
         });
 
-    wShow = new Button(shell, SWT.PUSH);
+    Button wShow = new Button(shell, SWT.PUSH);
     wShow.setText(BaseMessages.getString(PKG, "System.Button.Show"));
 
-    wClose = new Button(shell, SWT.PUSH);
+    Button wClose = new Button(shell, SWT.PUSH);
     wClose.setText(BaseMessages.getString(PKG, "System.Button.Close"));
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wShow, wClose}, margin, null);
     // Add listeners
-    lsShow = e -> show();
-    lsClose = e -> close();
+    Listener lsShow = e -> show();
+    Listener lsClose = e -> close();
 
     wShow.addListener(SWT.Selection, lsShow);
     wClose.addListener(SWT.Selection, lsClose);
@@ -175,7 +169,9 @@ public class EnterPreviewRowsDialog extends Dialog {
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
-  public void getData() {}
+  public void getData() {
+    // Disable getData
+  }
 
   private void close() {
     dispose();

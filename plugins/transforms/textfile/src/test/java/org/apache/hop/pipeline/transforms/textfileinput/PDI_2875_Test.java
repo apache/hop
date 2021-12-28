@@ -33,7 +33,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /***
- * @author Pavel Sakun
+ *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 public class PDI_2875_Test {

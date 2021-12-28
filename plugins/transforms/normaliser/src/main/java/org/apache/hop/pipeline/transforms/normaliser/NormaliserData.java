@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class NormaliserData extends BaseTransformData implements ITransformData {
   public List<String> type_occ;
   public int maxlen;

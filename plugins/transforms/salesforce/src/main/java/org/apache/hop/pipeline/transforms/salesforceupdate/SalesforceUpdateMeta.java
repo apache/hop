@@ -47,7 +47,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/salesforceupdate.html")
 public class SalesforceUpdateMeta
     extends SalesforceTransformMeta<SalesforceUpdate, SalesforceUpdateData> {
-  private static Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
   /** Field value to update */
   private String[] updateLookup;
@@ -260,13 +260,13 @@ public class SalesforceUpdateMeta
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceUpdateMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceUpdateMeta.CheckResult.NoInput"),
               transformMeta);
     }
@@ -276,13 +276,13 @@ public class SalesforceUpdateMeta
     if (getUpdateLookup().length == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceUpdateMeta.CheckResult.NoFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceUpdateMeta.CheckResult.FieldsOk"),
               transformMeta);
     }

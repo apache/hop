@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Move Files action settings.
- *
- * @author Samatar Hassan
- * @since 20-02-2008
- */
+/** This dialog allows you to edit the Move Files action settings. */
 public class ActionPGPEncryptFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator
 
@@ -60,10 +55,10 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
   private Text wName;
 
   private Label wlSourceFileFolder;
-  private Button wbSourceFileFolder,
-      wbDestinationFileFolder,
-      wbSourceDirectory,
-      wbDestinationDirectory;
+  private Button wbSourceFileFolder;
+  private Button wbDestinationFileFolder;
+  private Button wbSourceDirectory;
+  private Button wbDestinationDirectory;
 
   private TextVar wSourceFileFolder;
 
@@ -674,13 +669,13 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wDestinationFileTab.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationFileTab.Label"));
 
-    FormLayout DestcontentLayout = new FormLayout();
-    DestcontentLayout.marginWidth = 3;
-    DestcontentLayout.marginHeight = 3;
+    FormLayout destcontentLayout = new FormLayout();
+    destcontentLayout.marginWidth = 3;
+    destcontentLayout.marginHeight = 3;
 
     Composite wDestinationFileComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wDestinationFileComp);
-    wDestinationFileComp.setLayout(DestcontentLayout);
+    wDestinationFileComp.setLayout(destcontentLayout);
 
     // DestinationFile grouping?
     // ////////////////////////
@@ -947,7 +942,6 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
             activeDestinationFolder();
             setMovedDateTimeFormat();
-            // setAddDateBeforeExtension();
             setAddMovedDateBeforeExtension();
           }
         });
@@ -972,10 +966,10 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wMoveToGroup.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.GroupMoveToGroup.Label"));
 
-    FormLayout MovetoLayoutFile = new FormLayout();
-    MovetoLayoutFile.marginWidth = 10;
-    MovetoLayoutFile.marginHeight = 10;
-    wMoveToGroup.setLayout(MovetoLayoutFile);
+    FormLayout movetoLayoutFile = new FormLayout();
+    movetoLayoutFile.marginWidth = 10;
+    movetoLayoutFile.marginHeight = 10;
+    wMoveToGroup.setLayout(movetoLayoutFile);
 
     // DestinationFolder line
     wlDestinationFolder = new Label(wMoveToGroup, SWT.RIGHT);

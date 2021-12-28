@@ -293,10 +293,9 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     new Thread(runnable).start();
 
     wFields.addModifyListener(
-        arg0 -> {
-          // Now set the combo's
-          shell.getDisplay().asyncExec(() -> setComboBoxes());
-        });
+        arg0 ->
+            // Now set the combo's
+            shell.getDisplay().asyncExec(() -> setComboBoxes()));
 
     getData();
 

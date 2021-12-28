@@ -25,12 +25,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
-/**
- * Describes an XML field and the position in an XML field.
- *
- * @author Samatar, Brahim
- * @since 20-06-2007
- */
+/** Describes an XML field and the position in an XML field. */
 public class GetXmlDataField implements Cloneable {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
@@ -349,24 +344,24 @@ public class GetXmlDataField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol(String group_symbol) {
-    this.groupSymbol = group_symbol;
+  public void setGroupSymbol(String groupSymbol) {
+    this.groupSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {

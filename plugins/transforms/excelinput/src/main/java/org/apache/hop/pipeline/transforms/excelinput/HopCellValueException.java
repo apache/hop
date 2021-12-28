@@ -26,9 +26,6 @@ import org.apache.hop.i18n.BaseMessages;
  *
  * <p>If we were really obsessive, we'd cache both the names and indexes of all the items, including
  * the input file. But this will do for a start.
- *
- * @author timh
- * @since 14-FEB-2008
  */
 public class HopCellValueException extends HopException {
 

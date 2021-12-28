@@ -243,7 +243,6 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
   private void getInfo(GetVariableMeta input) throws HopException {
 
     transformName = wTransformName.getText(); // return value
-    // Table table = wFields.table;
 
     int count = wFields.nrNonEmpty();
     input.allocate(count);
