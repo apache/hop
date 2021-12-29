@@ -26,6 +26,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -171,7 +172,11 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
         if (Const.indexOfString(requestParameter, pipelineParameters) < 0) {
           workflow.setVariable(requestParameter, Const.NVL(requestParameterValue, ""));
         } else {
-          workflow.setParameterValue(requestParameter, Const.NVL(requestParameterValue, ""));
+          try {
+            workflow.setParameterValue(requestParameter, Const.NVL(requestParameterValue, ""));
+          } catch (UnknownParamException e) {
+            log.logError("Error running asynchronous web service", e);
+          }
         }
       }
       workflow.activateParameters(workflow);
@@ -196,30 +201,34 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
       //
       new Thread(workflow::startExecution).start();
 
-      final OutputStream outputStream = response.getOutputStream();
+      try (OutputStream outputStream = response.getOutputStream()) {
 
-      // Report the ID in a JSON block
-      //
-      JSONObject json = new JSONObject();
-      json.put("name", workflowMeta.getName());
-      json.put("id", serverObjectId);
+        // Report the ID in a JSON block
+        //
+        JSONObject json = new JSONObject();
+        json.put("name", workflowMeta.getName());
+        json.put("id", serverObjectId);
 
-      String jsonString = json.toJSONString();
-      outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
-      outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
-      outputStream.flush();
-
+        String jsonString = json.toJSONString();
+        outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
+        outputStream.write("\n".getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
+      } catch (IOException e) {
+        log.logError("Error running asynchronous web service", e);
+      }
       response.setStatus(HttpServletResponse.SC_OK);
-
     } catch (IOException | HopException e) {
       log.logError("Error running asynchronous web service", e);
     }
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    super.doPost(request, response);
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      super.doPost(request, response);
+    } catch (ServletException | IOException e) {
+      log.logError("Error running asynchronous web service", e);
+    }
   }
 
   public String toString() {

@@ -178,14 +178,16 @@ public class DatabaseMetaInformation {
             //
             String sql = databaseMeta.getSqlListOfSchemas();
             if (!Utils.isEmpty(sql)) {
-              Statement schemaStatement = db.getConnection().createStatement();
-              ResultSet schemaResultSet = schemaStatement.executeQuery(sql);
-              while (schemaResultSet != null && schemaResultSet.next()) {
-                String schemaName = schemaResultSet.getString("name");
-                schemaList.add(new Schema(schemaName));
+              try (Statement schemaStatement = db.getConnection().createStatement()) {
+                ResultSet schemaResultSet = schemaStatement.executeQuery(sql);
+                while (schemaResultSet != null && schemaResultSet.next()) {
+                  String schemaName = schemaResultSet.getString("name");
+                  schemaList.add(new Schema(schemaName));
+                }
+                if (schemaResultSet != null) {
+                  schemaResultSet.close();
+                }
               }
-              schemaResultSet.close();
-              schemaStatement.close();
             } else {
               ResultSet schemaResultSet = dbmd.getSchemas();
               while (schemaResultSet != null && schemaResultSet.next()) {
@@ -194,7 +196,9 @@ public class DatabaseMetaInformation {
               }
               // Close the schema ResultSet immediately
               //
-              schemaResultSet.close();
+              if (schemaResultSet != null) {
+                schemaResultSet.close();
+              }
             }
           }
           for (Schema schema : schemaList) {
