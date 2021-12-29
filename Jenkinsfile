@@ -36,8 +36,8 @@ pipeline {
 
     environment {
         MAVEN_SKIP_RC = true
-        DOCKER_REPO='docker.io/apache/incubator-hop'
-        DOCKER_REPO_WEB='docker.io/apache/incubator-hop-web'
+        DOCKER_REPO='docker.io/apache/hop'
+        DOCKER_REPO_WEB='docker.io/apache/hop-web'
     }
 
     options {
