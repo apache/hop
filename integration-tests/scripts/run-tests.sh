@@ -31,6 +31,11 @@ if [ -z "${SUREFIRE_REPORT}" ]; then
   SUREFIRE_REPORT="true"
 fi
 
+# Get kafka parameters
+if [ -z "${BOOTSTRAP_SERVERS}" ]; then
+    BOOTSTRAP_SERVERS=kafka:9092
+fi
+
 # Get database parameters
 if [ -z "${POSTGRES_HOST}" ]; then
     POSTGRES_HOST=postgres
@@ -139,6 +144,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
                 -p POSTGRES_PORT=${POSTGRES_PORT} \
                 -p POSTGRES_USER=${POSTGRES_USER} \
                 -p POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+                -p BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS} \
                 -f $hop_file > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
 
             #Capture exit code
