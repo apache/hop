@@ -17,7 +17,6 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -28,7 +27,6 @@ import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 import java.sql.DatabaseMetaData;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;

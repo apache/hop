@@ -46,7 +46,7 @@ import java.util.List;
     name = "i18n::JsonOutput.name",
     description = "i18n::JsonOutput.description",
     categoryDescription = "i18n::JsonOutput.category",
-    keywords = {"json", "javascript", "object", "notation"},
+    keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/jsonoutput.html")
 public class JsonOutputMeta extends BaseFileOutputMeta
     implements ITransformMeta<JsonOutput, JsonOutputData> {
@@ -87,7 +87,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   /** The output fields */
   private JsonOutputField[] outputFields;
 
-  private boolean AddToResult;
+  private boolean addToResult;
 
   /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
   private boolean fileAppended;
@@ -98,18 +98,18 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   /** Flag: create parent folder if needed */
   private boolean createparentfolder;
 
-  private boolean DoNotOpenNewFileInit;
+  private boolean doNotOpenNewFileInit;
 
   public JsonOutputMeta() {
     super(); // allocate BaseTransformMeta
   }
 
   public boolean isDoNotOpenNewFileInit() {
-    return DoNotOpenNewFileInit;
+    return doNotOpenNewFileInit;
   }
 
-  public void setDoNotOpenNewFileInit(boolean DoNotOpenNewFileInit) {
-    this.DoNotOpenNewFileInit = DoNotOpenNewFileInit;
+  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
+    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
   /** @return Returns the create parent folder flag. */
@@ -143,8 +143,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta
   }
 
   /** @return Returns the Add to result filesname flag. */
-  public boolean AddToResult() {
-    return AddToResult;
+  public boolean addToResult() {
+    return addToResult;
   }
 
   public int getOperationType() {
@@ -223,9 +223,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     return retval;
   }
 
-  /** @param AddToResult The Add file to result to set. */
-  public void setAddToResult(boolean AddToResult) {
-    this.AddToResult = AddToResult;
+  /** @param addToResult The Add file to result to set. */
+  public void setAddToResult(boolean addToResult) {
+    this.addToResult = addToResult;
   }
 
   private void readData(Node transformnode) throws HopXmlException {
@@ -240,7 +240,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "compatibility_mode"));
 
       encoding = XmlHandler.getTagValue(transformnode, "encoding");
-      AddToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "AddToResult"));
+      addToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "AddToResult"));
       fileName = XmlHandler.getTagValue(transformnode, "file", "name");
       createparentfolder =
           "Y"
@@ -254,7 +254,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "add_date"));
       timeInFilename =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "add_time"));
-      DoNotOpenNewFileInit =
+      doNotOpenNewFileInit =
           "Y"
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformnode, "file", "DoNotOpenNewFileInit"));
@@ -283,7 +283,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     jsonBloc = "data";
     nrRowsInBloc = "1";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
-    extension = "js";
+    extension = "json";
     int nrFields = 0;
 
     allocate(nrFields);
@@ -331,7 +331,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
         .append(XmlHandler.addTagValue("operation_type", getOperationTypeCode(operationType)));
     retval.append("    ").append(XmlHandler.addTagValue("compatibility_mode", compatibilityMode));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-    retval.append("    ").append(XmlHandler.addTagValue("addtoresult", AddToResult));
+    retval.append("    ").append(XmlHandler.addTagValue("addtoresult", addToResult));
     retval.append("    <file>" + Const.CR);
     retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
     retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
@@ -344,7 +344,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
         .append(XmlHandler.addTagValue("create_parent_folder", createparentfolder));
     retval
         .append("      ")
-        .append(XmlHandler.addTagValue("DoNotOpenNewFileInit", DoNotOpenNewFileInit));
+        .append(XmlHandler.addTagValue("DoNotOpenNewFileInit", doNotOpenNewFileInit));
     retval.append("      </file>" + Const.CR);
 
     retval.append("    <fields>").append(Const.CR);
@@ -380,7 +380,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
       if (Utils.isEmpty(variables.resolve(getOutputValue()))) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"),
                 transformMeta);
         remarks.add(cr);
@@ -389,7 +389,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     if (Utils.isEmpty(variables.resolve(getFileName()))) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "JsonOutput.Error.MissingTargetFilename"),
               transformMeta);
       remarks.add(cr);
@@ -398,7 +398,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "JsonOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -418,12 +418,12 @@ public class JsonOutputMeta extends BaseFileOutputMeta
       if (errorFound) {
         errorMessage =
             BaseMessages.getString(PKG, "JsonOutputMeta.CheckResult.FieldsNotFound", errorMessage);
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "JsonOutputMeta.CheckResult.AllFieldsFound"),
                 transformMeta);
         remarks.add(cr);
@@ -434,14 +434,14 @@ public class JsonOutputMeta extends BaseFileOutputMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "JsonOutputMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "JsonOutputMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);
@@ -449,7 +449,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta
 
     cr =
         new CheckResult(
-            CheckResult.TYPE_RESULT_COMMENT,
+            ICheckResult.TYPE_RESULT_COMMENT,
             BaseMessages.getString(PKG, "JsonOutputMeta.CheckResult.FilesNotChecked"),
             transformMeta);
     remarks.add(cr);

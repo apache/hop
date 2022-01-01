@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.MailInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.MailInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::MailInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/emailinput.html")
 public class MailInputMeta extends BaseTransformMeta
     implements ITransformMeta<MailInput, MailInputData> {
@@ -353,14 +354,14 @@ public class MailInputMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "MailInputMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "MailInputMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);

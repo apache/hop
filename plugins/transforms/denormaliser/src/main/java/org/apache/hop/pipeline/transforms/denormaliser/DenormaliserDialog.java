@@ -187,7 +187,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     fdlTarget.top = new FormAttachment(wGroup, margin);
     wlTarget.setLayoutData(fdlTarget);
 
-    int UpInsRows =
+    int upInsRows =
         (input.getDenormaliserTargetFields() != null
             ? input.getDenormaliserTargetFields().size()
             : 1);
@@ -256,7 +256,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciTarget,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

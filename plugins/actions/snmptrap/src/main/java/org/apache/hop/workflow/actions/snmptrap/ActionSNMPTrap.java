@@ -51,6 +51,7 @@ import java.net.InetAddress;
     description = "i18n::ActionSNMPTrap.Description",
     image = "SNMP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    keywords = "i18n::ActionSNMPTrap.keyword",
     documentationUrl = "/workflow/actions/snmptrap.html")
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
@@ -68,13 +69,13 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   private String engineid;
 
   /** Default retries */
-  private static int DEFAULT_RETRIES = 1;
+  private static final int DEFAULT_RETRIES = 1;
 
   /** Default timeout to 500 milliseconds */
-  private static int DEFAULT_TIME_OUT = 5000;
+  private static final int DEFAULT_TIME_OUT = 5000;
 
   /** Default port */
-  public static int DEFAULT_PORT = 162;
+  public static final int DEFAULT_PORT = 162;
 
   public static final String[] targetTypeDesc =
       new String[] {
@@ -292,7 +293,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
     String servername = resolve(serverName);
     int nrPort = Const.toInt(resolve("" + port), DEFAULT_PORT);
-    String Oid = resolve(oid);
+    String oid = resolve(this.oid);
     int timeOut = Const.toInt(resolve("" + timeout), DEFAULT_TIME_OUT);
     int retry = Const.toInt(resolve("" + nrretry), 1);
     String messageString = resolve(message);
@@ -329,8 +330,8 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
         // create the PDU
         pdu1.setGenericTrap(6);
         pdu1.setSpecificTrap(PDUv1.ENTERPRISE_SPECIFIC);
-        pdu1.setEnterprise(new OID(Oid));
-        pdu1.add(new VariableBinding(new OID(Oid), new OctetString(messageString)));
+        pdu1.setEnterprise(new OID(oid));
+        pdu1.add(new VariableBinding(new OID(oid), new OctetString(messageString)));
 
         response = snmp.send(pdu1, target);
 
@@ -384,7 +385,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
         // create the PDU
         ScopedPDU pdu = new ScopedPDU();
-        pdu.add(new VariableBinding(new OID(Oid), new OctetString(messageString)));
+        pdu.add(new VariableBinding(new OID(oid), new OctetString(messageString)));
         pdu.setType(PDU.TRAP);
         if (!Utils.isEmpty(engineID)) {
           pdu.setContextEngineID(new OctetString(engineID));

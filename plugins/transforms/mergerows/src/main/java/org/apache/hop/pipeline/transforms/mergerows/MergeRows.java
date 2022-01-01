@@ -38,9 +38,6 @@ import java.util.List;
 /**
  * Merge rows from 2 sorted streams to detect changes. Use this as feed for a dimension in case you
  * have no time stamps in your source system.
- *
- * @author Matt
- * @since 19-dec-2005
  */
 public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData>
     implements ITransform<MergeRowsMeta, MergeRowsData> {

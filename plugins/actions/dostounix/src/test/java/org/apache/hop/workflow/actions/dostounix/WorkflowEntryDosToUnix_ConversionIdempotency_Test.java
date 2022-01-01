@@ -29,7 +29,6 @@ import java.io.OutputStream;
 
 import static org.junit.Assert.assertEquals;
 
-/** @author Andrey Khayrutdinov */
 public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

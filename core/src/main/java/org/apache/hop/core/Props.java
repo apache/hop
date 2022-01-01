@@ -29,12 +29,13 @@ import java.util.Map;
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
  * fonts, positions of windows, etc.
- *
- * @author Matt
- * @since 15-12-2003
  */
 public class Props implements Cloneable {
   private static final Class<?> PKG = Const.class; // For Translator
+
+  protected static final String NO = "N";
+
+  protected static final String YES = "Y";
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 
@@ -95,6 +96,8 @@ public class Props implements Cloneable {
 
   public static final String STRING_DEFAULT_PREVIEW_SIZE = "DefaultPreviewSize";
 
+  public static final String TABLEOUTPUT_SORT_MAPPINGS = "TableOutputSortMappings";
+
   protected ILogChannel log;
 
   public static final int WIDGET_STYLE_DEFAULT = 0;
@@ -153,6 +156,15 @@ public class Props implements Cloneable {
   public boolean useDBCache() {
     String use = getProperty(STRING_USE_DB_CACHE);
     return !"N".equalsIgnoreCase(use);
+  }
+
+  public boolean sortTableOutputMappings() {
+    String sortMappings = getProperty(TABLEOUTPUT_SORT_MAPPINGS);
+    return YES.equalsIgnoreCase(sortMappings); // Default = OFF
+  }
+
+  public void setTableOutputSortMappings(boolean value) {
+    setProperty(TABLEOUTPUT_SORT_MAPPINGS, value ? YES : NO);
   }
 
   /**

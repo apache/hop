@@ -174,6 +174,7 @@ GET `+http://localhost:8081/hop/workflowImage/?name=<NAME>>&id=<ID>+`
 result::
 an SVG image of the workflow graph
 
+[#_getworkflowstatus]
 == getWorkflowStatus
 
 name::

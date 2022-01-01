@@ -29,12 +29,7 @@ public class Management {
   private static OperatingSystemMXBean bean = null;
   private static ThreadMXBean tbean = null;
 
-  /**
-   * Return infos like current PID, JVM memory, ...
-   *
-   * @author Samatar
-   * @since 2008-apr-29
-   */
+  /** Return infos like current PID, JVM memory, ... */
 
   /** @return Process CPU time in nanoseconds */
   public static long getPID() {

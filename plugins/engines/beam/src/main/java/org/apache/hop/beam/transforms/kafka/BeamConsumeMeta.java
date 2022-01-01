@@ -51,6 +51,7 @@ import java.util.Map;
     description = "Get messages from Kafka topics (Kafka Consumer)",
     image = "beam-kafka-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    keywords = "i18n::BeamConsumeMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamkafkaconsume.html")
 public class BeamConsumeMeta extends BaseTransformMeta
     implements ITransformMeta<BeamConsume, DummyData>, IBeamPipelineTransformHandler {

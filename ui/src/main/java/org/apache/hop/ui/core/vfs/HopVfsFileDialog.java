@@ -136,7 +136,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private GuiToolbarWidgets browserToolbarWidgets;
   private GuiToolbarWidgets bookmarksToolbarWidgets;
   private Button wOk;
-  private SashForm sashForm;
   private Combo wFilters;
   private String message;
 
@@ -283,7 +282,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     // Above this we have a sash form
     //
-    sashForm = new SashForm(shell, SWT.HORIZONTAL);
+    SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL);
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.top = new FormAttachment(navigateComposite, props.getMargin());

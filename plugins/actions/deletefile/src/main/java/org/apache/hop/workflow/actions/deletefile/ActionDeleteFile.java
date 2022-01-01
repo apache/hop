@@ -50,6 +50,7 @@ import java.util.List;
     description = "i18n::ActionDeleteFile.Description",
     image = "DeleteFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionDeleteFile.keyword",
     documentationUrl = "/workflow/actions/deletefile.html")
 public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFile.class; // For Translator

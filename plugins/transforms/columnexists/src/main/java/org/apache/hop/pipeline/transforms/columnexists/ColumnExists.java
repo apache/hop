@@ -129,7 +129,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       // get tablename
       if (meta.isTablenameInfield()) {
         data.tableName = getInputRowMeta().getString(r, data.indexOfTablename);
-          data.tableName = data.db.getDatabaseMeta().quoteField(data.tableName);
+        data.tableName = data.db.getDatabaseMeta().quoteField(data.tableName);
       }
       // get columnname
       String columnname = getInputRowMeta().getString(r, data.indexOfColumnname);

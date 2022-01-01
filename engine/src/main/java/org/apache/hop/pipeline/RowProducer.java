@@ -23,11 +23,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Allows you to "Inject" rows into a transform.
- *
- * @author Matt
- */
+/** Allows you to "Inject" rows into a transform. */
 public class RowProducer {
   private IRowSet rowSet;
   private ITransform transform;

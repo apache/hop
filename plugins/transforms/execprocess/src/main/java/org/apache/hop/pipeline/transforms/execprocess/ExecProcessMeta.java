@@ -47,6 +47,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.ExecProcess",
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    keywords = "i18n::ExecProcessMeta.keyword",
     documentationUrl = "/pipeline/transforms/execprocess.html")
 public class ExecProcessMeta extends BaseTransformMeta
     implements ITransformMeta<ExecProcess, ExecProcessData> {
@@ -263,19 +264,19 @@ public class ExecProcessMeta extends BaseTransformMeta
 
     if (Utils.isEmpty(resultfieldname)) {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
     if (Utils.isEmpty(processfield)) {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
@@ -283,14 +284,14 @@ public class ExecProcessMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "ExecProcessMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.NoInpuReceived"),
               transformMeta);
     }

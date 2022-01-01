@@ -41,11 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-/**
- * Displays an ArrayList of rows in a TableView and allows you to select one.
- *
- * @author Matt
- */
+/** Displays an ArrayList of rows in a TableView and allows you to select one. */
 public class SelectRowDialog extends Dialog {
   private static final Class<?> PKG = SelectRowDialog.class; // For Translator
 
@@ -108,7 +104,7 @@ public class SelectRowDialog extends Dialog {
 
     IRowMeta rowMeta = buffer.get(0).getRowMeta();
 
-    int FieldsRows = buffer.size();
+    int fieldsRows = buffer.size();
 
     ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {
@@ -124,7 +120,7 @@ public class SelectRowDialog extends Dialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            fieldsRows,
             null,
             props);
 

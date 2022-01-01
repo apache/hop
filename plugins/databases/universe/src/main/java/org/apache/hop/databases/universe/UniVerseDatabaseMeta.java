@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains IBM UniVerse database specific information through static final members
- *
- * @author Matt
- * @since 16-nov-2006
  */
-@DatabaseMetaPlugin(type = "UNIVERSE", typeDescription = "UniVerse database")
+@DatabaseMetaPlugin(type = "UNIVERSE", typeDescription = "IBM UniVerse database", documentationUrl = "/database/databases/universe.html")
 @GuiPlugin(id = "GUI-UniVerseDatabaseMeta")
 public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int MAX_VARCHAR_LENGTH = 65535;

@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.workflow.actions.util;
@@ -198,18 +197,7 @@ public class FtpClientUtil {
   }
 
   public static boolean fileExists(FTPClient ftpClient, String filename) throws IOException {
-    InputStream checkInputStream = ftpClient.retrieveFileStream(filename);
-    if (checkInputStream == null) {
-      return false;
-    }
-    int replyCode = ftpClient.getReplyCode();
-    if (replyCode == 500) {
-      return false;
-    }
-    // Don't leave this dangling...
-    //
-    checkInputStream.close();
-
-    return true;
+    String[] filenames = ftpClient.listNames(filename);
+    return filenames != null && filenames.length > 0;
   }
 }

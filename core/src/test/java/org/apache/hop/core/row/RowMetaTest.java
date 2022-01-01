@@ -360,9 +360,8 @@ public class RowMetaTest {
     assertNotNull(newRowMeta.needRealClone);
     assertEquals(
         5,
-        list
-            .size()); // Should still only be charly, dup and bin, charly_1, bin_1 - adding a string
-                      // doesn't change of result
+        list.size()); // Should still only be charly, dup and bin, charly_1, bin_1 - adding a string
+    // doesn't change of result
   }
 
   // @Test

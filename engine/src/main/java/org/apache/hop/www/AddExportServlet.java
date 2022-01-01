@@ -55,8 +55,6 @@ import java.util.UUID;
  * a zip file. It ends up in a temporary file.
  *
  * <p>The servlet returns the name of the file stored.
- *
- * @author matt
  */
 @HopServerServlet(id = "addExport", name = "Upload a resources export file")
 public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -109,11 +107,9 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
       // Pass the input directly to a temporary file
       //
-      // int size = 0;
       int c;
       while ((c = in.read()) != -1) {
         outputStream.write(c);
-        // size++;
       }
 
       outputStream.flush();

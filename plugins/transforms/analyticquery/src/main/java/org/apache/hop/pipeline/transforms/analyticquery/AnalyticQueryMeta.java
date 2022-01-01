@@ -45,6 +45,7 @@ import java.util.List;
     description = "i18n::AnalyticQuery.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+    keywords = "i18n::AnalyticQueryMeta.keyword",
     documentationUrl = "/pipeline/transforms/analyticquery.html")
 public class AnalyticQueryMeta extends BaseTransformMeta
     implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {

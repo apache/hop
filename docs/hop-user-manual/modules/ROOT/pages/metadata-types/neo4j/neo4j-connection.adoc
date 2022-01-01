@@ -58,7 +58,7 @@ A feature available on plugins version 5.0 or higher against Neo4j server 4.0 or
 |information only.
 The port on which the Neo4j browser runs
 
-|Use routing
+|Use routing, neo4j:// protocol?
 |enable this option to use the bolt+routing protocol
 
 |Routing policy
@@ -78,7 +78,7 @@ Make sure to check our v4 upgrade notes
 
 == Aura
 
-Aura To connect to an Aura version 4 database we would set the following options:
+To connect to an Aura version 4 database we would set the following options:
 
 |===
 |Option |Value
@@ -92,16 +92,13 @@ Aura To connect to an Aura version 4 database we would set the following options
 |Bolt port
 |7687
 
-|Use routing
-|Enabled
-
-|neo4j:// protocol
+|Use routing, neo4j:// protocol?
 |Enabled
 
 |Routing policy
 |neo4j+s
 
-|Encryption
+|Use Encryption?
 |Enabled
 
 |Username

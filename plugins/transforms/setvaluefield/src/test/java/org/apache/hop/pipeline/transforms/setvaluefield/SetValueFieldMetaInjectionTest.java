@@ -33,7 +33,7 @@ public class SetValueFieldMetaInjectionTest extends BaseMetadataInjectionTest<Se
 
   @Test
   public void test() throws Exception {
-    check("FIELD_NAME", () -> meta.getFieldName()[0]);
-    check("REPLACE_BY_FIELD_VALUE", () -> meta.getReplaceByFieldValue()[0]);
+    check("FIELD_NAME", () -> meta.getFields().get(0).getFieldName());
+    check("REPLACE_BY_FIELD_VALUE", () -> meta.getFields().get(0).getReplaceByField());
   }
 }

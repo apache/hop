@@ -818,6 +818,7 @@
 
                         <!-- External Integration Test Exclusion -->
                         <exclude>**/integration-tests/**/*.txt</exclude>
+                        <exclude>**/integration-tests/**/*.csv</exclude>
                         <exclude>**/integration-tests/**/*.json</exclude>
                         <exclude>**/integration-tests/**/*.json.old</exclude>
 
@@ -1063,7 +1064,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <!--          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>-->
                     <show>public</show>
                 </configuration>
                 <reportSets>

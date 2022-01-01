@@ -44,12 +44,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the XML valid action settings.
- *
- * @author Samatar Hassan
- * @since 01-01-2000
- */
+/** This dialog allows you to edit the XML valid action settings. */
 public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
 
@@ -66,7 +61,9 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   private Label wlSuccessCondition;
   private Label wlFieldType;
   private Label wlMask;
-  private CCombo wSuccessCondition, wValueType, wFieldType;
+  private CCombo wSuccessCondition;
+  private CCombo wValueType;
+  private CCombo wFieldType;
   private ComboVar wMask;
 
   private Label wlSuccessNumberCondition;

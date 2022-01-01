@@ -183,18 +183,6 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
     for (int c = 0; c < childNodes.getLength(); c++) {
       Node childNode = childNodes.item(c);
 
-      /*
-      if ( "metadata".equals( childNode.getNodeName() ) ) {
-        continue; // skip some junk
-      }
-      if ( "defs".equals( childNode.getNodeName() ) ) {
-        continue; // skip some junk
-      }
-      if ( "sodipodi:namedview".equals( childNode.getNodeName() ) ) {
-        continue; // skip some junk
-      }
-       */
-
       // Copy this node over to the svgSvg element
       //
       Node childNodeCopy = domFactory.importNode(childNode, true);

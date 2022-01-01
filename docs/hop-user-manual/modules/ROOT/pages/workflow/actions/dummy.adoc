@@ -16,9 +16,10 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Dummy action does not add any functionality, but can be useful as a placeholder action or as a workflow layout helper.
 
 = Dummy
 
 == Description
 
-The Dummy action does nothing.
+The Dummy action does not add any functionality, but can be useful as a placeholder action or as a workflow layout helper.

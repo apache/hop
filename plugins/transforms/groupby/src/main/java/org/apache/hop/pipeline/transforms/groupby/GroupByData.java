@@ -27,10 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class GroupByData extends BaseTransformData implements ITransformData {
   public Object[] previous;
 

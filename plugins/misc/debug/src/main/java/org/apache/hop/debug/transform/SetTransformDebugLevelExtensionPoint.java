@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @ExtensionPoint(
     id = "SetTransformDebugLevelExtensionPoint",
     description = "Set Transform Debug Level Extension Point Plugin",
-    extensionPointId = "TransformationStartThreads")
+    extensionPointId = "PipelineStartThreads")
 /** set the debug level right before the transform starts to run */
 public class SetTransformDebugLevelExtensionPoint
     implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
@@ -54,13 +54,15 @@ public class SetTransformDebugLevelExtensionPoint
         pipeline.getPipelineMeta().getAttributesMap().get(Defaults.DEBUG_GROUP);
 
     if (transformLevelMap != null) {
-
       log.logDetailed(
           "Set debug level information on pipeline : " + pipeline.getPipelineMeta().getName());
 
+      // Figure out which transforms were involved from the map.
+      // Trying to go after each transform in a very large pipeline might otherwise
+      // slow things down.
+      //
       List<String> transformNames = new ArrayList<>();
       for (String key : transformLevelMap.keySet()) {
-
         int index = key.indexOf(" : ");
         if (index > 0) {
           String transformName = key.substring(0, index);
@@ -71,15 +73,12 @@ public class SetTransformDebugLevelExtensionPoint
       }
 
       for (String transformName : transformNames) {
-
         log.logDetailed("Handling debug level for transform : " + transformName);
 
         try {
-
           final TransformDebugLevel debugLevel =
               DebugLevelUtil.getTransformDebugLevel(transformLevelMap, transformName);
           if (debugLevel != null) {
-
             log.logDetailed("Found debug level info for transform " + transformName);
 
             List<IEngineComponent> transformCopies = pipeline.getComponentCopies(transformName);
@@ -87,7 +86,6 @@ public class SetTransformDebugLevelExtensionPoint
             if (debugLevel.getStartRow() < 0
                 && debugLevel.getEndRow() < 0
                 && debugLevel.getCondition().isEmpty()) {
-
               log.logDetailed(
                   "Set logging level for transform "
                       + transformName
@@ -96,7 +94,6 @@ public class SetTransformDebugLevelExtensionPoint
 
               // Just a general log level on the transform
               //
-              String logLevelCode = transformLevelMap.get(transformName);
               for (IEngineComponent transformCopy : transformCopies) {
                 LogLevel logLevel = debugLevel.getLogLevel();
                 transformCopy.getLogChannel().setLogLevel(logLevel);
@@ -109,7 +106,6 @@ public class SetTransformDebugLevelExtensionPoint
                         + transformCopy.getCopyNr());
               }
             } else {
-
               // We need to look at every row
               //
               for (IEngineComponent transformCopy : transformCopies) {
@@ -120,8 +116,7 @@ public class SetTransformDebugLevelExtensionPoint
                 transformCopy.addRowListener(
                     new IRowListener() {
                       @Override
-                      public void rowReadEvent(IRowMeta rowMeta, Object[] row)
-                          throws HopTransformException {
+                      public void rowReadEvent(IRowMeta rowMeta, Object[] row) {
                         rowCounter.incrementAndGet();
                         boolean enabled = false;
 
@@ -164,8 +159,7 @@ public class SetTransformDebugLevelExtensionPoint
                       }
 
                       @Override
-                      public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                          throws HopTransformException {}
+                      public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) {}
                     });
               }
             }

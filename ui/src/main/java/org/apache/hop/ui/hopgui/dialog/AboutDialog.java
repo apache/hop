@@ -98,7 +98,7 @@ public class AboutDialog extends Dialog {
 
     // Widget application name
     Label wName = new Label(composite, SWT.CENTER);
-    wName.setText("Apache Hop\n(Incubating)");
+    wName.setText("Apache Hop");
     wName.setFont(GuiResource.getInstance().getFontBold());
     wName.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
     props.setLook(wName);

@@ -17,10 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class ReturnIndicator {
   public String CardType;
   public boolean CardValid;

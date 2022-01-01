@@ -21,11 +21,13 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -209,6 +211,57 @@ public class ExcelWriterTransform
     data.sheet = null;
     data.wb = null;
     data.clearStyleCache(0);
+  }
+
+  private void createParentFolder(String filename) throws Exception {
+    // Check for parent folder
+    FileObject parentfolder = null;
+    try {
+      // Get parent folder
+      parentfolder = HopVfs.getFileObject(filename).getParent();
+      if (parentfolder.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+                  BaseMessages.getString(
+                          PKG,
+                          "ExcelWriter.Log.ParentFolderExist",
+                          HopVfs.getFriendlyURI(parentfolder)));
+        }
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+                  BaseMessages.getString(
+                          PKG,
+                          "ExcelWriter.Log.ParentFolderNotExist",
+                          HopVfs.getFriendlyURI(parentfolder)));
+        }
+        if (meta.getFile().isCreateParentFolder()) {
+          parentfolder.createFolder();
+          if (isDetailed()) {
+            logDetailed(
+                    BaseMessages.getString(
+                            PKG,
+                            "ExcelWriter.Log.ParentFolderCreated",
+                            HopVfs.getFriendlyURI(parentfolder)));
+          }
+        } else {
+          throw new HopException(
+                  BaseMessages.getString(
+                          PKG,
+                          "ExcelWriter.Log.ParentFolderNotExistCreateIt",
+                          HopVfs.getFriendlyURI(parentfolder),
+                          HopVfs.getFriendlyURI(filename)));
+        }
+      }
+    } finally {
+      if (parentfolder != null) {
+        try {
+          parentfolder.close();
+        } catch (Exception ex) {
+          // Ignore
+        }
+      }
+    }
   }
 
   private void closeOutputFile() throws HopException {
@@ -628,6 +681,11 @@ public class ExcelWriterTransform
 
       data.file = HopVfs.getFileObject(buildFilename);
 
+      if (!HopVfs.getFileObject(buildFilename).getParent().exists() && meta.getFile().isCreateParentFolder()) {
+        logDebug("Create parent directory for " + buildFilename + " because it does not exist.");
+        createParentFolder(buildFilename);
+      }
+
       if (log.isDebug()) {
         logDebug(
             BaseMessages.getString(PKG, "ExcelWriterTransform.Log.OpeningFile", buildFilename));
@@ -643,6 +701,7 @@ public class ExcelWriterTransform
         setErrors(1);
         throw new HopException("Could not delete stale file " + buildFilename);
       }
+
 
       // adding filename to result
       if (meta.isAddToResultFilenames()) {

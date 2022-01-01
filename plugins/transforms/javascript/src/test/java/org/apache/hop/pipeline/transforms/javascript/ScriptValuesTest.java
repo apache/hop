@@ -34,7 +34,6 @@ import java.math.BigDecimal;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-/** @author Andrey Khayrutdinov */
 public class ScriptValuesTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

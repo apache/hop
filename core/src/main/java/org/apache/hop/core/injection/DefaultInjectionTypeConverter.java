@@ -19,11 +19,7 @@ package org.apache.hop.core.injection;
 
 import org.apache.hop.core.exception.HopValueException;
 
-/**
- * Default type converter for metadata injection.
- *
- * @author Alexander Buloichik
- */
+/** Default type converter for metadata injection. */
 public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
   @Override
   public String string2string(String v) {

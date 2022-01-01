@@ -29,8 +29,6 @@ import java.util.List;
  * Then it also explains what the plugin meta class is called and classes the plugin interface
  * itself.<br>
  * It also explains us where to load plugins of this type.<br>
- *
- * @author matt
  */
 public interface IPluginType<T extends Annotation> {
 

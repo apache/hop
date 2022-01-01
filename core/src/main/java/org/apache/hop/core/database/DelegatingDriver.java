@@ -29,8 +29,6 @@ import java.util.logging.Logger;
  * making DriverManager believe that the parent class loader is used.
  *
  * <p>It's an unfortunate hack but it works fine.
- *
- * @author matt
  */
 public class DelegatingDriver implements Driver {
   private final Driver driver;

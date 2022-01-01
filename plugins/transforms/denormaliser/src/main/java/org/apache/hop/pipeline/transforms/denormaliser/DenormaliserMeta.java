@@ -43,6 +43,7 @@ import java.util.List;
     name = "i18n::Denormaliser.Name",
     description = "i18n::Denormaliser.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::DenormaliserMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowdenormaliser.html")
 public class DenormaliserMeta extends BaseTransformMeta
     implements ITransformMeta<Denormaliser, DenormaliserData> {

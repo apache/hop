@@ -34,10 +34,11 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "Neo4jImport",
-    name = "Neo4j Import",
-    description = "Runs an import command using the provided CSV files ",
+    name = "i18n::ImporterMeta.name",
+    description = "i18n::ImporterMeta.description",
     image = "neo4j_import.svg",
-    categoryDescription = "Neo4j",
+    categoryDescription = "i18n::ImporterMeta.categoryDescription",
+    keywords = "i18n::ImporterMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-import.html")
 public class ImporterMeta extends BaseTransformMeta
     implements ITransformMeta<Importer, ImporterData> {

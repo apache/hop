@@ -48,6 +48,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.TableOutput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TableOutput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html")
 public class TableOutputMeta extends BaseTransformMeta
     implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
@@ -696,7 +697,8 @@ public class TableOutputMeta extends BaseTransformMeta
       String[] input,
       String[] output,
       IRowMeta info,
-      IHopMetadataProvider metadataProvider) throws HopTransformException {
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
     try {
       DatabaseMeta databaseMeta =
@@ -737,8 +739,8 @@ public class TableOutputMeta extends BaseTransformMeta
         }
       }
     } catch (HopException e) {
-        throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
   }
 
@@ -811,15 +813,20 @@ public class TableOutputMeta extends BaseTransformMeta
     DatabaseMeta databaseMeta =
         getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
+    return getTableFields(databaseMeta, realTableName, realSchemaName, variables);
+  }
+
+  public IRowMeta getTableFields(DatabaseMeta databaseMeta, String tableName, String schemaName, IVariables variables) throws HopException {
+
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
 
-        if (!Utils.isEmpty(realTableName)) {
+        if (!Utils.isEmpty(tableName)) {
           // Check if this table exists...
-          if (db.checkTableExists(realSchemaName, realTableName)) {
-            return db.getTableFieldsMeta(realSchemaName, realTableName);
+          if (db.checkTableExists(schemaName, tableName)) {
+            return db.getTableFieldsMeta(schemaName, tableName);
           } else {
             throw new HopException(
                 BaseMessages.getString(PKG, "TableOutputMeta.Exception.TableNotFound"));

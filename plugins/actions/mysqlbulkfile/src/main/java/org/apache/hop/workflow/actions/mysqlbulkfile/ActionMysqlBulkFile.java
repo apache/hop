@@ -56,6 +56,7 @@ import java.util.List;
     description = "i18n::ActionMysqlBulkFile.Description",
     image = "MysqlBulkFile.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
+    keywords = "i18n::ActionMysqlBulkFile.keyword",
     documentationUrl = "/workflow/actions/mysqlbulkfile.html")
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMysqlBulkFile.class; // For Translator
@@ -191,13 +192,13 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   @Override
   public Result execute(Result previousResult, int nr) {
 
-    String LimitNbrLignes = "";
-    String ListOfColumn = "*";
+    String limitNbrLignes = "";
+    String listOfColumn = "*";
     String strHighPriority = "";
-    String OutDumpText = "";
-    String OptionEnclosed = "";
-    String FieldSeparator = "";
-    String LinesTerminated = "";
+    String outDumpText = "";
+    String optionEnclosed = "";
+    String fieldSeparator = "";
+    String linesTerminated = "";
 
     Result result = previousResult;
     result.setResult(false);
@@ -289,23 +290,23 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
               // Set the Limit lines
               if (Const.toInt(getRealLimitlines(), 0) > 0) {
-                LimitNbrLignes = "LIMIT " + getRealLimitlines();
+                limitNbrLignes = "LIMIT " + getRealLimitlines();
               }
 
               // Set list of Column, if null get all columns (*)
               if (getRealListColumn() != null) {
-                ListOfColumn = MysqlString(getRealListColumn());
+                listOfColumn = MysqlString(getRealListColumn());
               }
 
               // Fields separator
               if (getRealSeparator() != null && outDumpValue == 0) {
-                FieldSeparator =
+                fieldSeparator =
                     "FIELDS TERMINATED BY '" + Const.replace(getRealSeparator(), "'", "''") + "'";
               }
 
               // Lines Terminated by
               if (getRealLineterminated() != null && outDumpValue == 0) {
-                LinesTerminated =
+                linesTerminated =
                     "LINES TERMINATED BY '"
                         + Const.replace(getRealLineterminated(), "'", "''")
                         + "'";
@@ -318,10 +319,10 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
               if (getRealEnclosed() != null && outDumpValue == 0) {
                 if (isOptionEnclosed()) {
-                  OptionEnclosed = "OPTIONALLY ";
+                  optionEnclosed = "OPTIONALLY ";
                 }
-                OptionEnclosed =
-                    OptionEnclosed
+                optionEnclosed =
+                    optionEnclosed
                         + "ENCLOSED BY '"
                         + Const.replace(getRealEnclosed(), "'", "''")
                         + "'";
@@ -329,38 +330,38 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
               // OutFile or Dumpfile
               if (outDumpValue == 0) {
-                OutDumpText = "INTO OUTFILE";
+                outDumpText = "INTO OUTFILE";
               } else {
-                OutDumpText = "INTO DUMPFILE";
+                outDumpText = "INTO DUMPFILE";
               }
 
-              String FILEBulkFile =
+              String fileBulkFile =
                   "SELECT "
                       + strHighPriority
                       + " "
-                      + ListOfColumn
+                      + listOfColumn
                       + " "
-                      + OutDumpText
+                      + outDumpText
                       + " '"
                       + realFilename
                       + "' "
-                      + FieldSeparator
+                      + fieldSeparator
                       + " "
-                      + OptionEnclosed
+                      + optionEnclosed
                       + " "
-                      + LinesTerminated
+                      + linesTerminated
                       + " FROM "
                       + realTablename
                       + " "
-                      + LimitNbrLignes
+                      + limitNbrLignes
                       + " LOCK IN SHARE MODE";
 
               try {
                 if (log.isDetailed()) {
-                  logDetailed(FILEBulkFile);
+                  logDetailed(fileBulkFile);
                 }
                 // Run the SQL
-                PreparedStatement ps = db.prepareSql(FILEBulkFile);
+                PreparedStatement ps = db.prepareSql(fileBulkFile);
                 ps.execute();
 
                 // Everything is OK...we can disconnect now
@@ -465,8 +466,8 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
   @Override
   public String getRealFilename() {
-    String RealFile = resolve(getFilename());
-    return RealFile.replace('\\', '/');
+    String realFile = resolve(getFilename());
+    return realFile.replace('\\', '/');
   }
 
   public void setSeparator(String separator) {
@@ -541,18 +542,18 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     /*
      * handle forbiden char like '
      */
-    String ReturnString = "";
+    String returnString = "";
     String[] split = listcolumns.split(",");
 
     for (int i = 0; i < split.length; i++) {
-      if (ReturnString.equals("")) {
-        ReturnString = "`" + Const.trim(split[i]) + "`";
+      if (returnString.equals("")) {
+        returnString = "`" + Const.trim(split[i]) + "`";
       } else {
-        ReturnString = ReturnString + ", `" + Const.trim(split[i]) + "`";
+        returnString = returnString + ", `" + Const.trim(split[i]) + "`";
       }
     }
 
-    return ReturnString;
+    return returnString;
   }
 
   @Override

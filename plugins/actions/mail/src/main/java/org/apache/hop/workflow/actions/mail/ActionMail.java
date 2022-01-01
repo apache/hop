@@ -70,6 +70,7 @@ import java.util.zip.ZipOutputStream;
     description = "i18n::ActionMail.Description",
     image = "Mail.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
+    keywords = "i18n::ActionMail.keyword",
     documentationUrl = "/workflow/actions/mail.html")
 public class ActionMail extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMail.class; // For Translator
@@ -612,12 +613,6 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
     if (usingAuthentication) {
       props.put("mail." + protocol + ".auth", "true");
-
-      /*
-       * authenticator = new Authenticator() { protected PasswordAuthentication getPasswordAuthentication() { return new
-       * PasswordAuthentication( StringUtil.environmentSubstitute(Const.NVL(authenticationUser, "")),
-       * StringUtil.environmentSubstitute(Const.NVL(authenticationPassword, "")) ); } };
-       */
     }
 
     Session session = Session.getInstance(props);
@@ -663,10 +658,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       String replyToAddress = resolve(replyToAddresses);
       if (!Utils.isEmpty(replyToAddress)) {
         // Split the mail-address: variables separated
-        String[] reply_Address_List = resolve(replyToAddress).split(" ");
-        InternetAddress[] address = new InternetAddress[reply_Address_List.length];
-        for (int i = 0; i < reply_Address_List.length; i++) {
-          address[i] = new InternetAddress(reply_Address_List[i]);
+        String[] replyAddressList = resolve(replyToAddress).split(" ");
+        InternetAddress[] address = new InternetAddress[replyAddressList.length];
+        for (int i = 0; i < replyAddressList.length; i++) {
+          address[i] = new InternetAddress(replyAddressList[i]);
         }
         msg.setReplyTo(address);
       }
@@ -868,7 +863,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                   MimeBodyPart files = new MimeBodyPart();
                   URLDataSource fds = new URLDataSource(file.getURL());
 
-                  // get a data IHandler to manipulate this file type;
+                  // get a data IHandler to manipulate this file type
                   files.setDataHandler(new DataHandler(fds));
                   // include the file in the data source
                   files.setFileName(file.getName().getBaseName());
@@ -876,7 +871,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                   // insist on base64 to preserve line endings
                   files.addHeader("Content-Transfer-Encoding", "base64");
 
-                  // add the part with the file in the BodyPart();
+                  // add the part with the file in the BodyPart()
                   parts.addBodyPart(files);
                   nrattachedFiles++;
                   logBasic("Added file '" + fds.getName() + "' to the mail message.");
@@ -951,11 +946,11 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
               // create a data source
               MimeBodyPart files = new MimeBodyPart();
               FileDataSource fds = new FileDataSource(masterZipfile);
-              // get a data IHandler to manipulate this file type;
+              // get a data IHandler to manipulate this file type
               files.setDataHandler(new DataHandler(fds));
               // include the file in the data source
               files.setFileName(fds.getName());
-              // add the part with the file in the BodyPart();
+              // add the part with the file in the BodyPart()
               parts.addBodyPart(files);
             }
           }

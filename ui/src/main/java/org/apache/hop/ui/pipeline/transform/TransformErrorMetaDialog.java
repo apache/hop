@@ -39,12 +39,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Dialog that allows you to edit the transform error handling meta-data
- *
- * @author Matt
- * @since 31-10-2006
- */
+/** Dialog that allows you to edit the transform error handling meta-data */
 public class TransformErrorMetaDialog extends Dialog {
   private static final Class<?> PKG = ITransform.class; // For Translator
 
@@ -52,23 +47,21 @@ public class TransformErrorMetaDialog extends Dialog {
   private TransformErrorMeta transformErrorMeta;
   private List<TransformMeta> targetTransforms;
 
-  private Composite composite;
   private Shell shell;
 
   // Service
   private Text wSourceTransform;
   private CCombo wTargetTransform;
   private Button wEnabled;
-  private TextVar wNrErrors, wErrDesc, wErrFields, wErrCodes;
-  private TextVar wMaxErrors, wMaxPct, wMinPctRows;
-  private Button wOk, wCancel;
-
-  private ModifyListener lsMod;
+  private TextVar wNrErrors;
+  private TextVar wErrDesc;
+  private TextVar wErrFields;
+  private TextVar wErrCodes;
+  private TextVar wMaxErrors;
+  private TextVar wMaxPct;
+  private TextVar wMinPctRows;
 
   private PropsUi props;
-
-  private int middle;
-  private int margin;
 
   private TransformErrorMeta originalTransformErrorMeta;
   private boolean ok;
@@ -96,10 +89,10 @@ public class TransformErrorMetaDialog extends Dialog {
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
 
-    lsMod = e -> transformErrorMeta.setChanged();
+    ModifyListener lsMod = e -> transformErrorMeta.setChanged();
 
-    middle = props.getMiddlePct();
-    margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -112,10 +105,10 @@ public class TransformErrorMetaDialog extends Dialog {
     // First, add the buttons...
 
     // Buttons
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(" &OK ");
 
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(" &Cancel ");
 
     Button[] buttons = new Button[] {wOk, wCancel};
@@ -123,7 +116,7 @@ public class TransformErrorMetaDialog extends Dialog {
 
     // The rest stays above the buttons...
 
-    composite = new Composite(shell, SWT.NONE);
+    Composite composite = new Composite(shell, SWT.NONE);
     props.setLook(composite);
     composite.setLayout(new FormLayout());
 

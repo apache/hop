@@ -37,7 +37,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** @author Andrey Khayrutdinov */
 public class TransformMetaTest {
 
   private static final IVariables variables = new Variables();

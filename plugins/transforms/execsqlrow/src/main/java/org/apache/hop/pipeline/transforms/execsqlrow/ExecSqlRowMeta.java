@@ -46,6 +46,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.ExecSqlRow",
     description = "i18n::BaseTransform.TypeTooltipDesc.ExecSqlRow",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::ExecSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsqlrow.html")
 @InjectionSupported(localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS")
 public class ExecSqlRowMeta extends BaseTransformMeta
@@ -286,7 +287,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta
     if (databaseMeta != null) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.ConnectionExists"),
               transformMeta);
       remarks.add(cr);
@@ -298,7 +299,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta
         db.connect();
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.DBConnectionOK"),
                 transformMeta);
         remarks.add(cr);
@@ -306,13 +307,13 @@ public class ExecSqlRowMeta extends BaseTransformMeta
         if (sqlField != null && sqlField.length() != 0) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.SQLFieldNameEntered"),
                   transformMeta);
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_ERROR,
+                  ICheckResult.TYPE_RESULT_ERROR,
                   BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.SQLFieldNameMissing"),
                   transformMeta);
         }
@@ -320,7 +321,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta
       } catch (HopException e) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.ErrorOccurred")
                     + e.getMessage(),
                 transformMeta);
@@ -331,7 +332,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.ConnectionNeeded"),
               transformMeta);
       remarks.add(cr);
@@ -340,14 +341,14 @@ public class ExecSqlRowMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.TransformReceivingInfoOK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "ExecSqlRowMeta.CheckResult.NoInputReceivedError"),
               transformMeta);
       remarks.add(cr);

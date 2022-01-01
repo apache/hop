@@ -58,12 +58,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Combo wProject;
   private TableView wConfigFiles;
 
-  private int margin;
-  private int middle;
-
   private IVariables variables;
-  private Button wbSelect;
-  private Button wbNew;
   private Button wbEdit;
 
   private String originalName;
@@ -92,8 +87,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     props.setLook(shell);
 
-    margin = Const.MARGIN + 2;
-    middle = Const.MIDDLE_PCT;
+    int margin = Const.MARGIN + 2;
+    int middle = Const.MIDDLE_PCT;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -177,7 +172,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlConfigFiles.top = new FormAttachment(lastControl, margin);
     wlConfigFiles.setLayoutData(fdlConfigFiles);
 
-    wbSelect = new Button(shell, SWT.PUSH);
+    Button wbSelect = new Button(shell, SWT.PUSH);
     props.setLook(wbSelect);
     wbSelect.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Select"));
     FormData fdAdd = new FormData();
@@ -214,7 +209,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wConfigFiles.setLayoutData(fdConfigFiles);
     wConfigFiles.table.addListener(SWT.Selection, this::setButtonStates);
 
-    wbNew = new Button(shell, SWT.PUSH);
+    Button wbNew = new Button(shell, SWT.PUSH);
     props.setLook(wbNew);
     wbNew.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.New"));
     FormData fdNew = new FormData();

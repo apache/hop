@@ -36,9 +36,6 @@ import java.util.List;
 /**
  * The Coalesce Transformation selects the first non null value from a group of input fields and
  * passes it down the stream or returns null if all the fields are null.
- *
- * @author Nicolas ADMENT
- * @since 18-mai-2016
  */
 public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     implements ITransform<CoalesceMeta, CoalesceData> {

@@ -27,11 +27,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests LDAP Input Transform
- *
- * @author nhudak
- */
+/** Tests LDAP Input Transform */
 public class LdapInputTest {
   private static TransformMockHelper<LdapInputMeta, LdapInputData> mockHelper;
 

@@ -23,11 +23,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This plugin allows you to capture additional information concerning actions.
- *
- * @author matt
- */
+/** This plugin allows you to capture additional information concerning actions. */
 @PluginMainClassType(IWorkflowDialogPlugin.class)
 @PluginAnnotationType(WorkflowDialogPlugin.class)
 public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugin> {

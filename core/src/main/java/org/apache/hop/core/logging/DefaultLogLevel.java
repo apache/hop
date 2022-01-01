@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.logging;
 
-/**
- * Retains the default log level during execution
- *
- * @author matt
- */
+/** Retains the default log level during execution */
 public class DefaultLogLevel {
   private static DefaultLogLevel defaultLogLevel;
 

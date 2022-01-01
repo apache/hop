@@ -55,9 +55,6 @@ import java.util.List;
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables,
  * views etc we can reach in the database.
- *
- * @author Matt
- * @since 07-apr-2005
  */
 public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProgressDialog {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator

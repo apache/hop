@@ -106,7 +106,6 @@ public class ValueMetaAndData {
     try {
       retval.append(XmlHandler.addTagValue("text", meta.getCompatibleString(valueData), false));
     } catch (HopValueException e) {
-      // LogWriter.getInstance().logError(toString(), Const.getStackTracker(e));
       retval.append(XmlHandler.addTagValue("text", "", false));
     }
     retval.append(XmlHandler.addTagValue("length", meta.getLength(), false));

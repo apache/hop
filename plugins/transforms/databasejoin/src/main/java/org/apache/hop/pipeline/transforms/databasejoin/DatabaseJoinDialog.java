@@ -384,15 +384,15 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wUseVars.setSelection(input.isReplaceVariables());
     if (input.getParameters() != null) {
       int i = 0;
-      for (ParameterField field: input.getParameters()) {
+      for (ParameterField field : input.getParameters()) {
         TableItem item = wParam.table.getItem(i++);
         if (field != null) {
           item.setText(1, field.getName());
           item.setText(2, field.getType());
         }
       }
-    }  
-    
+    }
+
     wParam.setRowNums();
     wParam.optWidth(true);
 
@@ -422,8 +422,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
         BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.ParametersFound")
             + nrparam
             + " parameters");
- 
-    List<ParameterField> parameters = new ArrayList<>();    
+
+    List<ParameterField> parameters = new ArrayList<>();
     for (int i = 0; i < nrparam; i++) {
       TableItem item = wParam.getNonEmpty(i);
       ParameterField field = new ParameterField();
@@ -431,7 +431,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
       field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(2)));
       parameters.add(field);
     }
-    input.setParameters(parameters);      
+    input.setParameters(parameters);
 
     transformName = wTransformName.getText(); // return value
 

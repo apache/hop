@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/** @since 24-jan-2005 */
 public class MongoDbInputData extends BaseTransformData implements ITransformData {
 
   public static final int MONGO_DEFAULT_PORT = 27017;
@@ -46,7 +45,6 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
   public IRowMeta outputRowMeta;
 
   public MongoClientWrapper clientWrapper;
-  // public DB db;
   public MongoCollectionWrapper collection;
 
   /** cursor for a standard query */

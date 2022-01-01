@@ -33,8 +33,6 @@ import java.util.Map;
  *
  * <p>Modeled after <code>org.apache.struts.validator.FieldChecks</code> and <code>
  * org.apache.commons.collections.PredicateUtils</code>.
- *
- * @author mlowery
  */
 public class ActionValidatorUtils {
 
@@ -117,9 +115,6 @@ public class ActionValidatorUtils {
       List<ICheckResult> remarks,
       String mask,
       int levelOnFail) {
-    // TODO review.  Appears unused, and would cause stackoverflow if it _was_ used.  commenting
-    // out.
-    // return validateMask( source, propertyName, remarks, mask, LEVEL_FAILURE_DEFAULT );
     throw new UnsupportedOperationException();
   }
 

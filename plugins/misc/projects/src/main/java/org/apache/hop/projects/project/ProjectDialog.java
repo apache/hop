@@ -23,6 +23,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -499,22 +500,48 @@ public class ProjectDialog extends Dialog {
     try {
       // Do some extra validations to prevent bad data ending up in the projects configuration
       //
+
       String homeFolder = wHome.getText();
       if (StringUtils.isEmpty(variables.resolve(homeFolder))) {
         throw new HopException("Please specify a home folder for your project");
       }
-      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists()) {
-        throw new HopException(
-            "Please specify an existing home folder for your project. Folder '"
-                + homeFolder
-                + "' doesn't seem to exist.");
+
+      // If the home folder doesn't exists and project is new aks if want it created
+      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists() && !this.editMode) {
+        MessageBox box =
+            new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText(BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Message", homeFolder));
+        int anwser = box.open();
+        if ((anwser & SWT.YES) != 0) {
+          HopVfs.getFileObject(homeFolder).createFolder();
+        }
       }
 
-      // Renaming the project is not supported.
-      //
+      // Definitely check if home folder exists or not
+      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists()) {
+        String msgPre = "Please specify an existing home folder for your project. Folder '";
+        String msgPost = "' doesn't seem to exist.";
+        if (this.editMode) {
+          msgPre = "Project '" + wName.getText() + " is already existing. Changing its home directory to '";
+          msgPost = "' is not supported!";
+        }
+        throw new HopException(msgPre + homeFolder + msgPost);
+      }
+
+      // Renaming the project is not supported
       String projectName = wName.getText();
       if (StringUtils.isEmpty(projectName)) {
         throw new HopException("Please give your new project a name");
+      }
+
+      if (Utils.isEmpty(wHome.getText())) {
+        throw new HopException("Please specify project's home directory path!");
+      }
+
+      if (Utils.isEmpty(wConfigFile.getText())) {
+        throw new HopException("Please specify project's configuration file relative path!");
       }
 
       if (wParentProject.getText() != null

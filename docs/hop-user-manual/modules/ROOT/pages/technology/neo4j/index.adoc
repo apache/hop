@@ -62,3 +62,9 @@ The path you get is the exact path that was followed from for example the "grand
 * xref:pipeline/transforms/neo4j-output.adoc[Neo4j Output]: Write nodes and/or relationships to a Neo4j graph
 * xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
 
+== Examples
+
+The Neo4j examples included in the release downloads is described in document:
+
+xref:technology/neo4j/working-with-neo4j-data.adoc[Working with Neo4j data]
+

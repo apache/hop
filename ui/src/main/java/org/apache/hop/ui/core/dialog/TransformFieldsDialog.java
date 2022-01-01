@@ -39,9 +39,6 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * Displays the meta-data on the Values in a row as well as the Transform origin of the Value.
- *
- * @author Matt
- * @since 19-06-2003
  */
 public class TransformFieldsDialog extends Dialog {
   private static final Class<?> PKG = TransformFieldsDialog.class; // For Translator
@@ -223,20 +220,7 @@ public class TransformFieldsDialog extends Dialog {
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(buttons[0], -margin * 2);
     wFields.setLayoutData(fdFields);
-
-    wFields.table.addMouseListener(
-        new MouseListener() {
-          @Override
-          public void mouseDoubleClick(MouseEvent arg0) {
-            edit();
-          }
-
-          @Override
-          public void mouseDown(MouseEvent arg0) {}
-
-          @Override
-          public void mouseUp(MouseEvent arg0) {}
-        });
+    wFields.getTable().addListener(SWT.MouseDoubleClick, e ->  edit());
 
     getData();
 
@@ -284,7 +268,7 @@ public class TransformFieldsDialog extends Dialog {
   private void edit() {
     int idx = wFields.table.getSelectionIndex();
     if (idx >= 0) {
-      transformName = wFields.table.getItem(idx).getText(5);
+      transformName = wFields.table.getItem(idx).getText(6);
       dispose();
     } else {
       transformName = null;

@@ -21,10 +21,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 14-08-2007
- */
 public class XsdValidatorData extends BaseTransformData implements ITransformData {
   public int xmlindex;
   public int xsdindex;

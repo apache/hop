@@ -22,8 +22,6 @@ import java.lang.annotation.*;
 /**
  * The class painted with this annotation is providing an additional user-interface in the Workflow
  * Setting dialog in the form of a new tab.
- *
- * @author matt
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

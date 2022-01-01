@@ -40,12 +40,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
-/**
- * Executes a XSL Transform on the values in the input stream.
- *
- * @author Samatar
- * @since 15-Oct-2007
- */
+/** Executes a XSL Transform on the values in the input stream. */
 public class Xslt extends BaseTransform<XsltMeta, XsltData>
     implements ITransform<XsltMeta, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
@@ -272,7 +267,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData>
       }
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
     } catch (Exception e) {
       String errorMessage = e.getClass().toString() + ": " + e.getMessage();

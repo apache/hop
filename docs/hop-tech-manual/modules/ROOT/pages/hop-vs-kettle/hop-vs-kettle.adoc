@@ -79,7 +79,7 @@ under the License.
 |Advanced GUI features: memory, native zooom, ...|No|Yes
 |Metadata Injection|Yes|Yes (most transforms)
 |Mapping (sub-transformation/pipeline|Yes|Yes(simplified)
-|Web Interface|WebSpoon|HopWeb (in progress)
+|Web Interface|WebSpoon|HopWeb
 |APL 2.0 license compliance|LGPL doubts regarding pentaho-metastore library|Yes
 |Pluggable metadata objects|No|Yes
 |GUI plugin architecture|XUL based (XML)|Java annotations

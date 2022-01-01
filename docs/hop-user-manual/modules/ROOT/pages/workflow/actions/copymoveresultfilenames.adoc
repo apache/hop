@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Copy Or Move Files From Result action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
 
 = Copy Or Move Files from result
 
 == Description
 
-This workflow action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
+The Copy Or Move Files From Result action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
 
 == Options
 

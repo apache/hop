@@ -34,8 +34,7 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <commons-io.version>1.4</commons-io.version>
-        <slf4j-api.version>1.7.7</slf4j-api.version>
+        <slf4j-api.version>1.7.32</slf4j-api.version>
         <guava.version>19.0</guava.version>
 
         <!-- Test dependencies -->
@@ -51,12 +50,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

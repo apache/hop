@@ -16,14 +16,18 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Get A File With FTP action retrieves one or more files from an FTP server.
 
 = Get a file with FTP
 
 == Description
 
-Use the Get a File with FTP workflow action to retrieve one or more files from an FTP server.
+The Get A File With FTP action retrieves one or more files from an FTP server.
+
 This workflow action does not "crawl" systems.
+
 It will not, for example, access a remote directory and go to other directories to find files that match a wildcard.
+
 This workflow retrieves files from one directory exclusively.
 
 == Options

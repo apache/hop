@@ -36,8 +36,6 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <commons-io.version>1.4</commons-io.version>
-        <slf4j-api.version>1.7.7</slf4j-api.version>
         <guava.version>19.0</guava.version>
         <aws-java-sdk-s3.version>1.11.974</aws-java-sdk-s3.version>
         <aws-java-sdk-core.version>1.11.974</aws-java-sdk-core.version>

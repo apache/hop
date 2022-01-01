@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionSFTP.Description",
     image = "SFTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
+    keywords = "i18n::ActionSftp.keyword",
     documentationUrl = "/workflow/actions/sftp.html")
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSftp.class; // For Translator
@@ -432,7 +433,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     String realTargetDirectory = resolve(targetDirectory);
     String realKeyFilename = null;
     String realPassPhrase = null;
-    FileObject TargetFolder = null;
+    FileObject targetFolder = null;
 
     try {
       // Let's perform some checks before starting
@@ -456,9 +457,9 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       }
 
       if (!Utils.isEmpty(realTargetDirectory)) {
-        TargetFolder = HopVfs.getFileObject(realTargetDirectory);
-        boolean TargetFolderExists = TargetFolder.exists();
-        if (TargetFolderExists) {
+        targetFolder = HopVfs.getFileObject(realTargetDirectory);
+        boolean targetFolderExists = targetFolder.exists();
+        if (targetFolderExists) {
           if (log.isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
@@ -474,7 +475,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
             return result;
           } else {
             // create target folder
-            TargetFolder.createFolder();
+            targetFolder.createFolder();
             if (log.isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
@@ -484,9 +485,9 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
         }
       }
 
-      if (TargetFolder != null) {
-        TargetFolder.close();
-        TargetFolder = null;
+      if (targetFolder != null) {
+        targetFolder.close();
+        targetFolder = null;
       }
 
       // Create sftp client to host ...
@@ -640,9 +641,9 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       }
 
       try {
-        if (TargetFolder != null) {
-          TargetFolder.close();
-          TargetFolder = null;
+        if (targetFolder != null) {
+          targetFolder.close();
+          targetFolder = null;
         }
         if (listPreviousFilenames != null) {
           listPreviousFilenames = null;

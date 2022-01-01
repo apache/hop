@@ -43,12 +43,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Delete Folders action settings.
- *
- * @author Samatar Hassan
- * @since 13-05-2008
- */
+/** This dialog allows you to edit the Delete Folders action settings. */
 public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
 

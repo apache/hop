@@ -27,12 +27,7 @@ import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.util.*;
 
-/**
- * Performs an insert/update/delete depending on the value of a field.
- *
- * @author Samatar
- * @since 13-10-2008
- */
+/** Performs an insert/update/delete depending on the value of a field. */
 public class SynchronizeAfterMergeData extends BaseTransformData implements ITransformData {
   public Database db;
 
@@ -43,7 +38,6 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
 
   public int indexOfOperationOrderField;
 
-  // List<String> updateColumns = new ArrayList<>();
   /**
    * Mapping between the SQL and the actual prepared statement. Normally this is only one, but in
    * case we have more then one, it's convenient to have this.

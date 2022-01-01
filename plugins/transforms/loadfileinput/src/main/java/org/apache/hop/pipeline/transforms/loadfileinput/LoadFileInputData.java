@@ -25,14 +25,12 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.Date;
 
-/**
- * @author Samatar
- * @since 21-06-2007
- */
 public class LoadFileInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;
-  public String thisline, nextline, lastline;
+  public String thisline;
+  public String nextline;
+  public String lastline;
   public Object[] previousRow;
   public int nr_repeats;
 

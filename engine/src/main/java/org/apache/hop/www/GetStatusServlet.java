@@ -648,10 +648,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
               + htmlClass
               + "></div>");
       out.println("<table border=\"" + tableBorder + "\">");
-      //      out.print( "<tr> <th class=\"cellTableHeader\">"
-      //          + BaseMessages.getString( PKG, "GetStatusServlet.Parameter.Title" ) + "</th> <th
-      // class=\"cellTableHeader\">"
-      //          + BaseMessages.getString( PKG, "GetStatusServlet.Value.Title" ) + "</th> </tr>" );
 
       // The max number of log lines in the back-end
       //
@@ -745,8 +741,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for stop button
       out.println("function repositionActions( element, elementFrom ) {");
       out.println("element.style.left = ( 10 + elementFrom.getBoundingClientRect().left ) + 'px';");
-      // out.println( "element.style.top = document.getElementById( 'pipeline-table' ).offsetTop +
-      // 'px';" );
       out.println("}");
 
       // Click function for resume button

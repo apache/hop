@@ -41,18 +41,13 @@ import java.util.List;
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes
  * for an XML file
- *
- * @author Samatar
- * @since 07-apr-2010
  */
 public class LoopNodesImportProgressDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
   private Shell shell;
 
-  private GetXmlDataMeta meta;
-
-  private String[] Xpaths;
+  private String[] xpaths;
 
   private String filename;
   private String xml;
@@ -63,46 +58,41 @@ public class LoopNodesImportProgressDialog {
 
   private int nr;
 
+  private PdOption option;
+
   /**
    * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML
    * file
    */
-  public LoopNodesImportProgressDialog(
-      Shell shell, GetXmlDataMeta meta, String filename, String encoding) {
+  public LoopNodesImportProgressDialog(Shell shell, String xmlSource, PdOption option) {
     this.shell = shell;
-    this.meta = meta;
-    this.Xpaths = null;
-    this.filename = filename;
-    this.encoding = encoding;
-    this.listpath = new ArrayList<>();
-    this.nr = 0;
-    this.xml = null;
-    this.url = null;
-  }
+    this.option = option;
+    this.xpaths = null;
 
-  public LoopNodesImportProgressDialog(
-      Shell shell, GetXmlDataMeta meta, String xmlSource, boolean useUrl) {
-    this.shell = shell;
-    this.meta = meta;
-    this.Xpaths = null;
-    this.filename = null;
-    this.encoding = null;
-    this.listpath = new ArrayList<>();
-    this.nr = 0;
-    if (useUrl) {
+    if (option.isXmlSourceIsFile()) {
+      this.filename = xmlSource;
+      this.xml = null;
+      this.url = null;
+    } else if (option.isUseUrl()) {
+      this.filename = null;
       this.xml = null;
       this.url = xmlSource;
     } else {
+      this.filename = null;
       this.xml = xmlSource;
       this.url = null;
     }
+
+    this.encoding = option.getEncoding();
+    this.listpath = new ArrayList<>();
+    this.nr = 0;
   }
 
   public String[] open() {
     IRunnableWithProgress op =
         monitor -> {
           try {
-            Xpaths = doScan(monitor);
+            xpaths = doScan(monitor);
           } catch (Exception e) {
             e.printStackTrace();
             throw new InvocationTargetException(
@@ -136,7 +126,7 @@ public class LoopNodesImportProgressDialog {
           e);
     }
 
-    return Xpaths;
+    return xpaths;
   }
 
   @SuppressWarnings("unchecked")
@@ -152,7 +142,7 @@ public class LoopNodesImportProgressDialog {
       return null;
     }
     // Validate XML against specified schema?
-    if (meta.isValidating()) {
+    if (option.isValidating()) {
       reader.setValidation(true);
       reader.setFeature("http://apache.org/xml/features/validation/schema", true);
     } else {
@@ -228,14 +218,14 @@ public class LoopNodesImportProgressDialog {
         /* Ignore */
       }
     }
-    String[] list_xpath = listpath.toArray(new String[listpath.size()]);
+    String[] listXpath = listpath.toArray(new String[listpath.size()]);
 
     monitor.setTaskName(
         BaseMessages.getString(PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.NodesReturned"));
 
     monitor.done();
 
-    return list_xpath;
+    return listXpath;
   }
 
   private void addLoopXPath(Node node, IProgressMonitor monitor) {
@@ -268,5 +258,9 @@ public class LoopNodesImportProgressDialog {
         }
       }
     }
+  }
+
+  public PdOption getOption() {
+    return option;
   }
 }

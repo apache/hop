@@ -26,12 +26,23 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiToolbarWidgets extends BaseGuiWidgets {
@@ -141,24 +152,11 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
       case BUTTON:
         ToolItem item = new ToolItem(toolBar, SWT.NONE);
-        if (StringUtils.isNotEmpty(toolbarItem.getImage())) {
-          item.setImage(
-              GuiResource.getInstance()
-                  .getImage(
-                      toolbarItem.getImage(),
-                      toolbarItem.getClassLoader(),
-                      ConstUi.SMALL_ICON_SIZE,
-                      ConstUi.SMALL_ICON_SIZE));
-        }
-        if (StringUtils.isNotEmpty(toolbarItem.getDisabledImage())) {
-          item.setDisabledImage(
-              GuiResource.getInstance()
-                  .getImage(
-                      toolbarItem.getDisabledImage(),
-                      toolbarItem.getClassLoader(),
-                      ConstUi.SMALL_ICON_SIZE,
-                      ConstUi.SMALL_ICON_SIZE));
-        }
+        setImages(
+            item,
+            toolbarItem.getClassLoader(),
+            toolbarItem.getImage(),
+            toolbarItem.getDisabledImage());
         if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
           item.setToolTipText(toolbarItem.getToolTip());
         }
@@ -217,6 +215,26 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
       default:
         break;
+    }
+  }
+
+  private void setImages(
+      ToolItem item, ClassLoader classLoader, String location, String disabledLocation) {
+    GuiResource gr = GuiResource.getInstance();
+    int width = ConstUi.SMALL_ICON_SIZE;
+    int height = ConstUi.SMALL_ICON_SIZE;
+
+    if (StringUtils.isNotEmpty(location)) {
+      item.setImage(gr.getImage(location, classLoader, width, height));
+
+      Image disabledImage;
+      if (StringUtils.isNotEmpty(disabledLocation)) {
+        disabledImage = gr.getImage(disabledLocation, classLoader, width, height);
+      } else {
+        // Grayscale the normal image
+        disabledImage = gr.getImage(location, classLoader, width, height, true);
+      }
+      item.setDisabledImage(disabledImage);
     }
   }
 

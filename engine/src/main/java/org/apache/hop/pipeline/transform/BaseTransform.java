@@ -175,7 +175,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private TransformMeta[] prevTransforms;
 
-  private int currentInputRowSetNr, currentOutputRowSetNr;
+  private int currentInputRowSetNr;
+  private int currentOutputRowSetNr;
 
   /** The rowsets on the input, size() == nr of source transforms */
   private List<IRowSet> inputRowSets;
@@ -1868,13 +1869,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     rowData = rowSet.getRow();
     while (rowData == null && !rowSet.isDone() && !stopped.get()) {
       rowData = rowSet.getRow();
-
-      // Verify deadlocks!
-      //
-      /*
-       * if (rowData==null) { if (getInputRowSets().size()>1 && getLinesRead()==deadLockCounter) {
-       * verifyInputDeadLock(); } deadLockCounter=getLinesRead(); }
-       */
     }
 
     // Still nothing: no more rows to be had?
@@ -2168,7 +2162,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       prevTransforms = new TransformMeta[nrInput];
       nextTransforms = new TransformMeta[nrOutput];
 
-      currentInputRowSetNr = 0; // we start with input[0];
+      currentInputRowSetNr = 0; // we start with input[0]
 
       if (log.isDetailed()) {
         logDetailed(

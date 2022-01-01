@@ -29,8 +29,6 @@ import java.util.Map;
 /**
  * This singleton class remembers whether or not a TreeItem is expanded. When the tree is refreshed,
  * it remembers, making for a better user experience.
- *
- * @author Matt
  */
 public class TreeMemory {
   private static TreeMemory treeMemory;
@@ -104,7 +102,7 @@ public class TreeMemory {
   }
 
   public void storeExpanded(String treeName, String[] path, boolean expanded) {
-    TreeMemoryEntry key = new TreeMemoryEntry(treeName, path); // key.hashCode();
+    TreeMemoryEntry key = new TreeMemoryEntry(treeName, path);
     if (expanded) {
       map.put(key, Boolean.valueOf(expanded));
     } else {
@@ -114,10 +112,6 @@ public class TreeMemory {
 
   public boolean isExpanded(String treeName, String[] path) {
     TreeMemoryEntry key = new TreeMemoryEntry(treeName, path);
-    /*
-     * // key.hashCode() Set<TreeMemoryEntry> keySet = map.keySet(); for (Iterator<TreeMemoryEntry> iterator =
-     * keySet.iterator(); iterator.hasNext();) { TreeMemoryEntry entry = iterator.next();
-     */
 
     Boolean expanded = map.get(key);
     if (expanded != null) {

@@ -24,7 +24,6 @@ import org.apache.hop.core.row.IValueMeta;
 import java.util.Arrays;
 import java.util.Comparator;
 
-/** @author Andrey Khayrutdinov */
 abstract class Index {
 
   final int column;

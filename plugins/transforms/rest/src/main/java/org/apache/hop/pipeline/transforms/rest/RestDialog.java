@@ -82,7 +82,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
   private Label wlBody;
   private ComboVar wBody;
 
-  private ColumnInfo[] colinf, colinfoparams;
+  private ColumnInfo[] colinf;
+  private ColumnInfo[] colinfoparams;
 
   private String[] fieldNames;
 
@@ -94,8 +95,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
   private TextVar wProxyPort;
 
-  private Label wlParameters, wlMatrixParameters;
-  private TableView wParameters, wMatrixParameters;
+  private Label wlParameters;
+  private Label wlMatrixParameters;
+  private TableView wParameters;
+  private TableView wMatrixParameters;
 
   private TextVar wResponseTime;
   private TextVar wResponseHeader;
@@ -187,10 +190,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
     Group gSettings = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
     gSettings.setText(BaseMessages.getString(PKG, "RestDialog.SettingsGroup.Label"));
-    FormLayout SettingsLayout = new FormLayout();
-    SettingsLayout.marginWidth = 3;
-    SettingsLayout.marginHeight = 3;
-    gSettings.setLayout(SettingsLayout);
+    FormLayout settingsLayout = new FormLayout();
+    settingsLayout.marginWidth = 3;
+    settingsLayout.marginHeight = 3;
+    gSettings.setLayout(settingsLayout);
     props.setLook(gSettings);
 
     wlUrl = new Label(gSettings, SWT.RIGHT);
@@ -435,10 +438,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
     Group gOutputFields = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
     gOutputFields.setText(BaseMessages.getString(PKG, "RestDialog.OutputFieldsGroup.Label"));
-    FormLayout OutputFieldsLayout = new FormLayout();
-    OutputFieldsLayout.marginWidth = 3;
-    OutputFieldsLayout.marginHeight = 3;
-    gOutputFields.setLayout(OutputFieldsLayout);
+    FormLayout outputFieldsLayout = new FormLayout();
+    outputFieldsLayout.marginWidth = 3;
+    outputFieldsLayout.marginHeight = 3;
+    gOutputFields.setLayout(outputFieldsLayout);
     props.setLook(gOutputFields);
 
     // Result line...
@@ -717,10 +720,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
     Group gSSLTrustStore = new Group(wSSLComp, SWT.SHADOW_ETCHED_IN);
     gSSLTrustStore.setText(BaseMessages.getString(PKG, "RestDialog.SSLTrustStoreGroup.Label"));
-    FormLayout SSLTrustStoreLayout = new FormLayout();
-    SSLTrustStoreLayout.marginWidth = 3;
-    SSLTrustStoreLayout.marginHeight = 3;
-    gSSLTrustStore.setLayout(SSLTrustStoreLayout);
+    FormLayout sslTrustStoreLayout = new FormLayout();
+    sslTrustStoreLayout.marginWidth = 3;
+    sslTrustStoreLayout.marginHeight = 3;
+    gSSLTrustStore.setLayout(sslTrustStoreLayout);
     props.setLook(gSSLTrustStore);
 
     // TrustStoreFile line

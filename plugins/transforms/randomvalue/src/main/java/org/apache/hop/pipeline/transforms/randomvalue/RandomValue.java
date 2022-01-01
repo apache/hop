@@ -34,12 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Get random value.
- *
- * @author Matt, Samatar
- * @since 8-8-2008
- */
+/** Get random value. */
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     implements ITransform<RandomValueMeta, RandomValueData> {
 

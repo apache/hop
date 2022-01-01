@@ -61,7 +61,7 @@ import java.util.List;
     description = "i18n::PipelineExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/pipelineexecutor.html",
-    keywords = "")
+    keywords = "i18n::PipelineExecutorMeta.keyword")
 public class PipelineExecutorMeta
     extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
     implements ITransformMeta<PipelineExecutor, PipelineExecutorData>, ISubPipelineAwareMeta {
@@ -74,6 +74,12 @@ public class PipelineExecutorMeta
 
   /** The name of the pipeline run configuration with which we want to execute the pipeline. */
   private String runConfigurationName;
+
+  /** Flag that indicate that pipeline name is specified in a stream's field */
+  private boolean filenameInField;
+
+  /** Name of the field containing the pipeline file's name */
+  private String filenameField;
 
   /**
    * The number of input rows that are sent as result rows to the workflow in one go, defaults to
@@ -225,6 +231,8 @@ public class PipelineExecutorMeta
 
     retval.append("    ").append(XmlHandler.addTagValue("run_configuration", runConfigurationName));
     retval.append("    ").append(XmlHandler.addTagValue("filename", filename));
+    retval.append("    ").append(XmlHandler.addTagValue("filenameInField", filenameInField));
+    retval.append("    ").append(XmlHandler.addTagValue("filenameField", filenameField));
 
     retval.append("    ").append(XmlHandler.addTagValue("group_size", groupSize));
     retval.append("    ").append(XmlHandler.addTagValue("group_field", groupField));
@@ -343,6 +351,9 @@ public class PipelineExecutorMeta
     try {
       runConfigurationName = XmlHandler.getTagValue(transformNode, "run_configuration");
       filename = XmlHandler.getTagValue(transformNode, "filename");
+      filenameInField =
+              "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filenameInField"));
+      filenameField = XmlHandler.getTagValue(transformNode, "filenameField");
 
       groupSize = XmlHandler.getTagValue(transformNode, "group_size");
       groupField = XmlHandler.getTagValue(transformNode, "group_field");
@@ -416,6 +427,8 @@ public class PipelineExecutorMeta
   public void setDefault() {
     parameters = new PipelineExecutorParameters();
     parameters.setInheritingAllVariables(true);
+
+    filenameInField = false;
 
     groupSize = "1";
     groupField = "";
@@ -1101,4 +1114,22 @@ public class PipelineExecutorMeta
   public void setRunConfigurationName(String runConfigurationName) {
     this.runConfigurationName = runConfigurationName;
   }
+
+
+  public boolean isFilenameInField() {
+    return filenameInField;
+  }
+
+  public void setFilenameInField(boolean filenameInField) {
+    this.filenameInField = filenameInField;
+  }
+
+  public String getFilenameField() {
+    return filenameField;
+  }
+
+  public void setFilenameField(String filenameField) {
+    this.filenameField = filenameField;
+  }
+
 }

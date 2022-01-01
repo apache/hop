@@ -101,9 +101,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
 
     @Override
-    public void flush() throws IOException {
-      // outputStream.flush();
-    }
+    public void flush() throws IOException {}
 
     @Override
     public void close() throws IOException {
@@ -390,16 +388,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected void doRename(FileObject newfile) throws Exception {
-    // if (getType().equals(FileType.FOLDER)) {
-    // service.putObject(bucket.getName(), getS3Key(newfile.getName())
-    // + FileName.SEPARATOR, getEmptyInputStream(),
-    // getEmptyMetadata());
-    //
-    // } else {
-    // service.copyObject(bucket.getName(), object.getKey(),
-    // bucket.getName(), getS3Key(newfile.getName()));
-    // }
-    // service.deleteObject(bucket.getName(), object.getKey());
     throw new UnsupportedOperationException();
   }
 

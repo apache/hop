@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -439,6 +439,8 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
   public void batchComplete() throws HopException {
     handleLastRow();
     data.previous = null;
+    // Re-initialize and assume we're starting from scratch again
+    first = true;
   }
 
   /**

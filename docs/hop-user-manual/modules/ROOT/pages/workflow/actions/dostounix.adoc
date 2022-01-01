@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The DOS To Unix action converts files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
 
 = Dos To Unix
 
 == Description
 
-Convert files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
-When the format is unknown, it has also a guess function and converts to the other format.
+The DOS To Unix action converts files from Windows (DOS) Format (lines end with CR/LF) to Linux/Unix Format (lines end with LF) and vice versa.
+
+When the format is unknown, this action also has a guess function and converts to the other format.
 
 == Options
 

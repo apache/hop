@@ -63,7 +63,7 @@ import java.util.*;
 
 public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 
   private Map<String, Integer> inputFields;
 
@@ -73,7 +73,9 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private SalesforceInsertMeta input;
 
-  private LabelTextVar wUserName, wURL, wPassword;
+  private LabelTextVar wUserName;
+  private LabelTextVar wURL;
+  private LabelTextVar wPassword;
 
   private TextVar wBatchSize;
 
@@ -239,7 +241,6 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInsertDialog.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
@@ -408,10 +409,10 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wOutFieldsGroup.setText(
         BaseMessages.getString(PKG, "SalesforceInsertDialog.OutFieldsGroup.Label"));
 
-    FormLayout OutFieldsGroupLayout = new FormLayout();
-    OutFieldsGroupLayout.marginWidth = 10;
-    OutFieldsGroupLayout.marginHeight = 10;
-    wOutFieldsGroup.setLayout(OutFieldsGroupLayout);
+    FormLayout outFieldsGroupLayout = new FormLayout();
+    outFieldsGroupLayout.marginWidth = 10;
+    outFieldsGroupLayout.marginHeight = 10;
+    wOutFieldsGroup.setLayout(outFieldsGroupLayout);
 
     // SalesforceIDFieldName
     Label wlSalesforceIDFieldName = new Label(wOutFieldsGroup, SWT.RIGHT);
@@ -454,10 +455,10 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     fdlReturn.top = new FormAttachment(wOutFieldsGroup, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int upInsCols = 3;
+    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SalesforceInsertDialog.ColumnInfo.TableField"),
@@ -484,7 +485,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 

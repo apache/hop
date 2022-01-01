@@ -50,9 +50,10 @@ import java.util.*;
 
 @Action(
     id = "Repeat",
-    name = "Repeat",
-    description = "Repeat execution of a workflow or a transformation",
+    name = "i18n::Repeat.name",
+    description = "i18n::Repeat.description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    keywords = "i18n::Repeat.keywords",
     image = "repeat.svg",
     documentationUrl = "/workflow/actions/repeat.html")
 public class Repeat extends ActionBase implements IAction, Cloneable {
@@ -252,13 +253,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     pipeline.setLogLevel(getLogLevel());
     pipeline.setMetadataProvider(getMetadataProvider());
 
-    // Inform the parent workflow we started something here...
-    /*
-    for ( IDelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {
-      delegationListener.transformationDelegationStarted( pipeline, new TransExecutionConfiguration() );
-    }
-     */
-
     // Start logging before execution...
     //
     LogChannelFileWriter fileWriter = null;
@@ -376,13 +370,6 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     // Link both ways!
     workflow.getWorkflowTracker().setParentWorkflowTracker(parentWorkflow.getWorkflowTracker());
 
-    // Inform the parent workflow we started something here...
-    /*
-    for ( DelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {
-      delegationListener.jobDelegationStarted( workflow, new WorkflowExecutionConfiguration() );
-    }
-     */
-
     // Start logging before execution...
     //
     LogChannelFileWriter fileWriter = null;
@@ -410,10 +397,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       INamedParameters subParams, IVariables subVars, INamedParameters... params) {
     // Inherit
     for (INamedParameters param : params) {
-      if (param != null) {
-        // TODO : Merge
-        // subParams.mergeParametersWith(param, true);
-      }
+      if (param != null) {}
     }
 
     // Any parameters to initialize from the workflow action?

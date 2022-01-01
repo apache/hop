@@ -54,12 +54,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import java.util.List;
 
-/**
- * This dialog allows you to edit the pipeline action (ActionPipeline)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the pipeline action (ActionPipeline) */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
 

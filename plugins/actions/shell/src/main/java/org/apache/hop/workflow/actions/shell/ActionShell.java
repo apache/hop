@@ -59,6 +59,7 @@ import java.util.*;
     description = "i18n::ActionShell.Description",
     image = "shell.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+    keywords = "i18n::ActionShell.keyword",
     documentationUrl = "/workflow/actions/shell.html")
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionShell.class; // For Translator
@@ -73,8 +74,10 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
   public boolean setLogfile;
 
-  public String logfile, logext;
-  public boolean addDate, addTime;
+  public String logfile;
+  public String logext;
+  public boolean addDate;
+  public boolean addTime;
 
   public LogLevel logFileLevel;
 

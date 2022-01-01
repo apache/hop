@@ -27,10 +27,6 @@ import javax.xml.stream.XMLInputFactory;
 import java.io.InputStream;
 import java.util.Map;
 
-/**
- * @author Jens Bleuel
- * @since 2011-01-13
- */
 public class XmlInputStreamData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

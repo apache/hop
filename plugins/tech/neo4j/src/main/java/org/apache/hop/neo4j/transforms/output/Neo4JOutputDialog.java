@@ -55,7 +55,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class Neo4JOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = Neo4JOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      Neo4JOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Neo4JOutputMeta input;
 
@@ -79,7 +80,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
   private TableView wToPropsGrid;
   private TableView wToLabelGrid;
   private TableView wRelPropsGrid;
-  private String[] fieldNames;
 
   private Button wReadOnlyFromNode;
   private Button wReadOnlyToNode;
@@ -104,6 +104,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     changed = input.hasChanged();
 
     // Fields
+    String[] fieldNames;
     try {
       IRowMeta prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
       fieldNames = prevFields.getFieldNames();
@@ -791,8 +792,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     wReadOnlyToNode.setSelection(input.isReadOnlyToNode());
 
     if (input.getFromNodeLabels() != null) {
-      String fromNodeLabels[] = input.getFromNodeLabels();
-      String fromNodeLabelValues[] = input.getFromNodeLabelValues();
+      String[] fromNodeLabels = input.getFromNodeLabels();
+      String[] fromNodeLabelValues = input.getFromNodeLabelValues();
 
       for (int i = 0; i < fromNodeLabels.length; i++) {
         TableItem item = wFromLabelGrid.table.getItem(i);
@@ -813,8 +814,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     }
 
     if (input.getToNodeLabels() != null) {
-      String toNodeLabels[] = input.getToNodeLabels();
-      String toNodeLabelValues[] = input.getToNodeLabelValues();
+      String[] toNodeLabels = input.getToNodeLabels();
+      String[] toNodeLabelValues = input.getToNodeLabelValues();
 
       for (int i = 0; i < toNodeLabels.length; i++) {
         TableItem item = wToLabelGrid.table.getItem(i);
@@ -868,8 +869,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     input.setReadOnlyFromNode(wReadOnlyFromNode.getSelection());
     input.setReadOnlyToNode(wReadOnlyToNode.getSelection());
 
-    String fromNodeLabels[] = new String[wFromLabelGrid.nrNonEmpty()];
-    String fromNodeLabelValues[] = new String[wFromLabelGrid.nrNonEmpty()];
+    String[] fromNodeLabels = new String[wFromLabelGrid.nrNonEmpty()];
+    String[] fromNodeLabelValues = new String[wFromLabelGrid.nrNonEmpty()];
     for (int i = 0; i < fromNodeLabels.length; i++) {
       TableItem item = wFromLabelGrid.table.getItem(i);
       fromNodeLabels[i] = item.getText(1);
@@ -878,8 +879,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     input.setFromNodeLabels(fromNodeLabels);
     input.setFromNodeLabelValues(fromNodeLabelValues);
 
-    String toNodeLabels[] = new String[wToLabelGrid.nrNonEmpty()];
-    String toNodeLabelValues[] = new String[wToLabelGrid.nrNonEmpty()];
+    String[] toNodeLabels = new String[wToLabelGrid.nrNonEmpty()];
+    String[] toNodeLabelValues = new String[wToLabelGrid.nrNonEmpty()];
     for (int i = 0; i < toNodeLabels.length; i++) {
       TableItem item = wToLabelGrid.table.getItem(i);
       toNodeLabels[i] = item.getText(1);
@@ -889,10 +890,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     input.setToNodeLabelValues(toNodeLabelValues);
 
     int nbFromPropLines = wFromPropsGrid.nrNonEmpty();
-    String fromNodeProps[] = new String[nbFromPropLines];
-    String fromNodePropNames[] = new String[nbFromPropLines];
-    String fromNodePropTypes[] = new String[nbFromPropLines];
-    boolean fromNodePropPrimary[] = new boolean[nbFromPropLines];
+    String[] fromNodeProps = new String[nbFromPropLines];
+    String[] fromNodePropNames = new String[nbFromPropLines];
+    String[] fromNodePropTypes = new String[nbFromPropLines];
+    boolean[] fromNodePropPrimary = new boolean[nbFromPropLines];
 
     for (int i = 0; i < fromNodeProps.length; i++) {
       TableItem item = wFromPropsGrid.table.getItem(i);
@@ -907,10 +908,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     input.setFromNodePropPrimary(fromNodePropPrimary);
 
     int nbToPropLines = wToPropsGrid.nrNonEmpty();
-    String toNodeProps[] = new String[nbToPropLines];
-    String toNodePropNames[] = new String[nbToPropLines];
-    String toNodePropTypes[] = new String[nbToPropLines];
-    boolean toNodePropPrimary[] = new boolean[nbToPropLines];
+    String[] toNodeProps = new String[nbToPropLines];
+    String[] toNodePropNames = new String[nbToPropLines];
+    String[] toNodePropTypes = new String[nbToPropLines];
+    boolean[] toNodePropPrimary = new boolean[nbToPropLines];
 
     for (int i = 0; i < toNodeProps.length; i++) {
       TableItem item = wToPropsGrid.table.getItem(i);
@@ -928,9 +929,9 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     input.setRelationshipValue(wRelValue.getText());
 
     int nbRelProps = wRelPropsGrid.nrNonEmpty();
-    String relProps[] = new String[nbRelProps];
-    String relPropNames[] = new String[nbRelProps];
-    String relPropTypes[] = new String[nbRelProps];
+    String[] relProps = new String[nbRelProps];
+    String[] relPropNames = new String[nbRelProps];
+    String[] relPropTypes = new String[nbRelProps];
     for (int i = 0; i < relProps.length; i++) {
       TableItem item = wRelPropsGrid.table.getItem(i);
       relProps[i] = item.getText(1);

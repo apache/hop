@@ -155,10 +155,10 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     Composite wServiceComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wServiceComp);
 
-    FormLayout GenLayout = new FormLayout();
-    GenLayout.marginWidth = Const.FORM_MARGIN;
-    GenLayout.marginHeight = Const.FORM_MARGIN;
-    wServiceComp.setLayout(GenLayout);
+    FormLayout genLayout = new FormLayout();
+    genLayout.marginWidth = Const.FORM_MARGIN;
+    genLayout.marginHeight = Const.FORM_MARGIN;
+    wServiceComp.setLayout(genLayout);
 
     // What's the hostname
     Label wlHostname = new Label(wServiceComp, SWT.RIGHT);

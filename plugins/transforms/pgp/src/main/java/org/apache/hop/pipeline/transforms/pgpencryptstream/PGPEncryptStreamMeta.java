@@ -48,6 +48,7 @@ import java.util.List;
     name = "i18n::PGPEncryptStream.Name",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
+    keywords = "i18n::PGPEncryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
 public class PGPEncryptStreamMeta extends BaseTransformMeta
     implements ITransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
@@ -220,48 +221,48 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta
     if (Utils.isEmpty(gpgLocation)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.GPGLocationMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.GPGLocationOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     if (!isKeynameInField()) {
       if (Utils.isEmpty(keyname)) {
         errorMessage =
             BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.KeyNameMissing");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.KeyNameOK");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       }
     }
     if (Utils.isEmpty(resultFieldName)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(streamfield)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.StreamFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.StreamFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "PGPEncryptStreamMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -269,7 +270,7 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);

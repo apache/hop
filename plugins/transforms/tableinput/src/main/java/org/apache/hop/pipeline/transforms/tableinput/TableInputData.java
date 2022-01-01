@@ -26,10 +26,6 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.sql.ResultSet;
 
-/**
- * @author Matt
- * @since 20-jan-2005
- */
 public class TableInputData extends BaseTransformData implements ITransformData {
   public Object[] nextrow;
   public Object[] thisrow;

@@ -206,7 +206,6 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent se) {
-            // wSeparator.insert("\t");
             wSeparator.getTextWidget().insert("\t");
           }
         });

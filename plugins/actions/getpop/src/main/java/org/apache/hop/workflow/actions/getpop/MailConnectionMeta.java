@@ -19,12 +19,7 @@ package org.apache.hop.workflow.actions.getpop;
 
 import org.apache.hop.i18n.BaseMessages;
 
-/**
- * MailConnection handles the process of connecting to, reading from POP3/IMAP.
- *
- * @author Samatar
- * @since 01-04-2009
- */
+/** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnectionMeta {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 

@@ -103,10 +103,6 @@ public abstract class TransformClassBase {
     parent.addRowListenerImpl(rowListener);
   }
 
-  //  public void addTransformListener( ITransformListener transformListener ) {
-  //    parent.addTransformListenerImpl( transformListener );
-  //  }
-
   public boolean checkFeedback(long lines) {
     return parent.checkFeedbackImpl(lines);
   }
@@ -138,10 +134,6 @@ public abstract class TransformClassBase {
   public IRowSet findOutputRowSet(String from, int fromcopy, String to, int tocopy) {
     return parent.findOutputRowSetImpl(from, fromcopy, to, tocopy);
   }
-
-  //  public int getClusterSize() {
-  //    return parent.getClusterSizeImpl();
-  //  }ITransformListener
 
   public int getCopy() {
     return parent.getCopyImpl();
@@ -332,10 +324,6 @@ public abstract class TransformClassBase {
   public boolean isStopped() {
     return parent.isStoppedImpl();
   }
-
-  //  public boolean isUsingThreadPriorityManagment() {
-  //    return parent.isUsingThreadPriorityManagmentImpl();
-  //  }
 
   public void logBasic(String s) {
     parent.logBasicImpl(s);

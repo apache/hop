@@ -26,12 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * Contains the base IRowSet class to help implement IRowSet variants.
- *
- * @author Matt
- * @since 22-01-2010
- */
+/** Contains the base IRowSet class to help implement IRowSet variants. */
 abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
   protected IRowMeta rowMeta;
 

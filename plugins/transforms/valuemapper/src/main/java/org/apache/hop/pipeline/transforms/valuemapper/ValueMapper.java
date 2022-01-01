@@ -30,12 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Hashtable;
 
-/**
- * Convert Values in a certain fields to other values
- *
- * @author Matt
- * @since 3-apr-2006
- */
+/** Convert Values in a certain fields to other values */
 public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     implements ITransform<ValueMapperMeta, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator

@@ -144,9 +144,9 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     fdlFields.top = new FormAttachment(wUseVars, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int FieldsCols = 4;
+    int fieldsCols = 4;
     final int FieldsRows = input.getFields().size();
-    colinf = new ColumnInfo[FieldsCols];
+    colinf = new ColumnInfo[fieldsCols];
     colinf[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetValueConstantDialog.Fieldname.Column"),

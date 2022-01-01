@@ -24,7 +24,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 
-/** @author Vadim_Polynkov */
 public class WorkflowEntryPipelineDialogTest {
 
   private static final String FILE_NAME = "TestPipeline.hpl";

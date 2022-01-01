@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
 import java.util.BitSet;
 
-/** @author Andrey Khayrutdinov */
 class SearchingContext {
   private BitSet candidates;
   private boolean noResult;

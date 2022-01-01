@@ -129,9 +129,6 @@ import java.util.Map;
  *       implementation of IValueMeta), and appending them to the IRowMeta object. The section
  *       Working with Fields goes into deeper detail on IValueMeta.
  * </ul>
- *
- * @author Matt
- * @since 4-aug-2004
  */
 public interface ITransformMeta<Main extends ITransform, Data extends ITransformData> {
   /** Set default values */
@@ -213,18 +210,10 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    */
   IRowMeta getTableFields(IVariables variables);
 
-  /**
-   * This method is added to exclude certain transforms from layout checking.
-   *
-   * @since 2.5.0
-   */
+  /** This method is added to exclude certain transforms from layout checking. */
   boolean excludeFromRowLayoutVerification();
 
-  /**
-   * This method is added to exclude certain transforms from copy/distribute checking.
-   *
-   * @since 4.0.0
-   */
+  /** This method is added to exclude certain transforms from copy/distribute checking. */
   boolean excludeFromCopyDistributeVerification();
 
   ITransform createTransform(

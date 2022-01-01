@@ -27,9 +27,6 @@ import java.io.EOFException;
 /**
  * This class represents a single entry in a database cache. A single entry in this case usually
  * means: a single SQL query.
- *
- * @author Matt
- * @since 15-01-04
  */
 public class DbCacheEntry {
   private String dbname;

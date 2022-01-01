@@ -18,6 +18,7 @@
 package org.apache.hop.testing.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -84,6 +85,15 @@ public class UnitTestUtil {
       testPipeline.initializeFrom(variables);
       testPipeline.setLogLevel(logLevel);
       testPipeline.setMetadataProvider(metadataProvider);
+
+      // Set parameter values based on parent values (if any)
+      //
+      testPipeline.copyParametersFromDefinitions(testPipelineMeta);
+      for (String parameterName : testPipelineMeta.listParameters()) {
+        String parameterValue = variables.getVariable(parameterName);
+        testPipeline.setParameterValue(parameterName, parameterValue);
+      }
+      testPipeline.activateParameters(testPipeline);
 
       // Don't show to unit tests results dialog in case of errors
       //

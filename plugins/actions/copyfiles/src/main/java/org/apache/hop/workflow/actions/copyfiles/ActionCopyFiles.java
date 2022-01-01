@@ -44,18 +44,14 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'copy files' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'copy files' action. */
 @Action(
     id = "COPY_FILES",
     name = "i18n::ActionCopyFiles.Name",
     description = "i18n::ActionCopyFiles.Description",
     image = "CopyFiles.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionCopyFiles.keyword",
     documentationUrl = "/workflow/actions/copyfiles.html")
 public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
@@ -257,9 +253,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     List<RowMetaAndData> rows = result.getRows();
     RowMetaAndData resultRow = null;
 
-    int NbrFail = 0;
+    int nbrFail = 0;
 
-    NbrFail = 0;
+    nbrFail = 0;
 
     if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ActionCopyFiles.Log.Starting"));
@@ -314,7 +310,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 parentWorkflow,
                 result)) {
               // The copy process fail
-              NbrFail++;
+              nbrFail++;
             }
           } else {
             if (isDetailed()) {
@@ -351,7 +347,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 parentWorkflow,
                 result)) {
               // The copy process fail
-              NbrFail++;
+              nbrFail++;
             }
           } else {
             if (isDetailed()) {
@@ -372,11 +368,11 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
 
     // Check if all files was process with success
-    if (NbrFail == 0) {
+    if (nbrFail == 0) {
       result.setResult(true);
       result.setNrErrors(0);
     } else {
-      result.setNrErrors(NbrFail);
+      result.setNrErrors(nbrFail);
     }
 
     return result;

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.ssh;
 
 import com.trilead.ssh2.Connection;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -29,7 +30,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -71,7 +71,8 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
 
   private LabelTextVar wPassphrase;
 
-  private LabelTextVar wResultOutFieldName, wResultErrFieldName;
+  private LabelTextVar wResultOutFieldName;
+  private LabelTextVar wResultErrFieldName;
 
   private Label wlCommand;
   private StyledTextComp wCommand;
@@ -149,7 +150,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
@@ -446,13 +447,13 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
     wSettingsTab.setText(BaseMessages.getString(PKG, "SSHDialog.Settings.Tab"));
 
-    FormLayout SettingsLayout = new FormLayout();
-    SettingsLayout.marginWidth = 3;
-    SettingsLayout.marginHeight = 3;
+    FormLayout settingsLayout = new FormLayout();
+    settingsLayout.marginWidth = 3;
+    settingsLayout.marginHeight = 3;
 
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSettingsComp);
-    wSettingsComp.setLayout(SettingsLayout);
+    wSettingsComp.setLayout(settingsLayout);
 
     // ///////////////////////////////
     // START OF Output GROUP //
@@ -513,11 +514,11 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     props.setLook(wCommands);
     wCommands.setText(BaseMessages.getString(PKG, "SSHDialog.LogSettings.Group.Label"));
 
-    FormLayout LogSettingsgroupLayout = new FormLayout();
-    LogSettingsgroupLayout.marginWidth = 10;
-    LogSettingsgroupLayout.marginHeight = 10;
+    FormLayout logSettingsgroupLayout = new FormLayout();
+    logSettingsgroupLayout.marginWidth = 10;
+    logSettingsgroupLayout.marginHeight = 10;
 
-    wCommands.setLayout(LogSettingsgroupLayout);
+    wCommands.setLayout(logSettingsgroupLayout);
 
     // Is command defined in a Field
     Label wlDynamicCommand = new Label(wCommands, SWT.RIGHT);

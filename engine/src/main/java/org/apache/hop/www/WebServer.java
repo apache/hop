@@ -20,6 +20,7 @@ package org.apache.hop.www;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -32,6 +33,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HopServer;
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.*;
 import org.eclipse.jetty.server.*;
@@ -240,14 +242,6 @@ public class WebServer {
         "com.sun.jersey.config.property.packages", "org.apache.hop.www.jaxrs");
     root.addServlet(jerseyServletHolder, "/api/*");
 
-    // setup static resource serving
-    // ResourceHandler mobileResourceHandler = new ResourceHandler();
-    // mobileResourceHandler.setWelcomeFiles(new String[]{"index.html"});
-    // mobileResourceHandler.setResourceBase(getClass().getClassLoader().
-    // getResource("org.apache.hop/www/mobile").toExternalForm());
-    // Context mobileContext = new Context(contexts, "/mobile", Context.SESSIONS);
-    // mobileContext.setHandler(mobileResourceHandler);
-
     // Allow png files to be shown for pipelines and workflows...
     //
     ResourceHandler resourceHandler = new ResourceHandler();
@@ -330,14 +324,34 @@ public class WebServer {
   private ServerConnector getConnector() {
     if (sslConfig != null) {
       log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.SslModeUsing"));
-      SslConnectionFactory connector = new SslConnectionFactory();
 
-      SslContextFactory contextFactory = new SslContextFactory();
-      contextFactory.setKeyStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
-      contextFactory.setKeyStorePassword(sslConfig.getKeyStorePassword());
-      contextFactory.setKeyManagerPassword(sslConfig.getKeyPassword());
-      contextFactory.setKeyStoreType(sslConfig.getKeyStoreType());
-      return new ServerConnector(server, connector);
+      HttpConfiguration httpConfig = new HttpConfiguration();
+      httpConfig.setSecureScheme("https");
+      httpConfig.setSecurePort(port);
+
+      String keyStorePassword =
+          Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyStorePassword());
+      String keyPassword = Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyPassword());
+
+      SslContextFactory.Client factory = new SslContextFactory.Client();
+      factory.setKeyStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
+      factory.setKeyStorePassword(keyStorePassword);
+      factory.setKeyManagerPassword(keyPassword);
+      factory.setKeyStoreType(sslConfig.getKeyStoreType());
+      factory.setTrustStoreResource(new PathResource(new File(sslConfig.getKeyStore())));
+      factory.setTrustStorePassword(keyStorePassword);
+
+      HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+      httpsConfig.addCustomizer(new SecureRequestCustomizer());
+
+      ServerConnector sslConnector =
+          new ServerConnector(
+              server,
+              new SslConnectionFactory(factory, HttpVersion.HTTP_1_1.asString()),
+              new HttpConnectionFactory(httpsConfig));
+      sslConnector.setPort(port);
+
+      return sslConnector;
     } else {
       return new ServerConnector(server);
     }

@@ -30,12 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/**
- * Replace Field value by a constant value.
- *
- * @author Samatar
- * @since 30-06-2008
- */
+/** Replace Field value by a constant value. */
 public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData>
     implements ITransform<SetValueConstantMeta, SetValueConstantData> {
   private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
@@ -68,8 +63,6 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
       data.setOutputRowMeta(getInputRowMeta().clone());
       meta.getFields(
           data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider);
-      // Create convert meta-data objects that will contain Date & Number formatters
-      // data.convertRowMeta = data.outputRowMeta.clone();
 
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
@@ -128,7 +121,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
 
     try {
       updateField(r);
-      putRow(data.getOutputRowMeta(), r); // copy row to output rowset(s);
+      putRow(data.getOutputRowMeta(), r); // copy row to output rowset(s)
     } catch (Exception e) {
       if (getTransformMeta().isDoingErrorHandling()) {
         // Simply add this row to the error row

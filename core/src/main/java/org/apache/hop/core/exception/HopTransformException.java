@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This Exception is used when handling transforms.
- *
- * @author Matt
- * @since 9-12-2004
- */
+/** This Exception is used when handling transforms. */
 public class HopTransformException extends HopPipelineException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C15L;
 

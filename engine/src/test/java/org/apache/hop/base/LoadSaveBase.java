@@ -41,7 +41,6 @@ import java.util.Map;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** @author Andrey Khayrutdinov */
 public abstract class LoadSaveBase<T> {
 
   final Class<T> clazz;

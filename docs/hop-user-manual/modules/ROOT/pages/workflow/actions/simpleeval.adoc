@@ -16,17 +16,20 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Simple Evaluation action evaluates contents of a variable or a field in the result stream.
 
 :openvar: ${
 :closevar: }
+
 = Simple Evaluation
 
 == Description
 
-The Simple Evaluation action can be used to evaluate contents of a variable or a field in the result stream.
+The Simple Evaluation action evaluates contents or value of a variable or a field in the result stream.
 
 Connect two actions with the output of the Simple Evaluation.
-The green connection will be called on success, the red one on failure.
+
+The green (success) hop will be called if the condition was evaluated successfully, the red (failure) one will be called if the condition wasn't evaluated successfully.
 
 == Options
 

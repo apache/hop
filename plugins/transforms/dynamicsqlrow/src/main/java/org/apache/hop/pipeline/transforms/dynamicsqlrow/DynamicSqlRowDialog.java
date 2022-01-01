@@ -258,7 +258,6 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
         });
 
     wlPosition = new Label(shell, SWT.NONE);
-    // wlPosition.setText(BaseMessages.getString(PKG, "DynamicSqlRowDialog.Position.Label"));
     props.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
@@ -381,7 +380,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    
+
     input.setConnection(wConnection.getText());
     input.setRowLimit(Const.toInt(wLimit.getText(), 0));
     input.setSql(wSql.getText());
@@ -392,7 +391,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
 
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText(),variables) == null) {
+    if (pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DynamicSQLRowDialog.InvalidConnection.DialogMessage"));

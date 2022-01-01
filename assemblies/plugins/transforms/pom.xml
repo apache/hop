@@ -74,6 +74,8 @@
     <module>fileexists</module>
     <module>filelocked</module>
     <module>filemetadata</module>
+    <module>filesfromresult</module>
+    <module>filestoresult</module>
     <module>filterrows</module>
     <module>flattener</module>
     <module>fuzzymatch</module>
@@ -153,6 +155,7 @@
     <module>tableoutput</module>
     <module>terafast</module>
     <module>textfile</module>
+    <module>tika</module>
     <module>tokenreplacement</module>
     <module>uniquerows</module>
     <module>uniquerowsbyhashset</module>

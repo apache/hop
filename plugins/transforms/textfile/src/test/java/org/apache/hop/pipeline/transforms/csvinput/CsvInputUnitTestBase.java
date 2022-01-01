@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/** @author Andrey Khayrutdinov */
 public abstract class CsvInputUnitTestBase {
 
   static final String BUFFER_SIZE = "1024";

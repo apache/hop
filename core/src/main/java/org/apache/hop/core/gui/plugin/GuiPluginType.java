@@ -22,11 +22,7 @@ import org.apache.hop.core.plugins.PluginAnnotationType;
 
 import java.util.Map;
 
-/**
- * This class represents a plugin type for GUI elements like menus and toolbars.
- *
- * @author matt
- */
+/** This class represents a plugin type for GUI elements like menus and toolbars. */
 @PluginAnnotationType(GuiPlugin.class)
 public class GuiPluginType extends BasePluginType<GuiPlugin> {
   private static GuiPluginType pluginType;

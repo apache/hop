@@ -38,8 +38,6 @@ import java.security.cert.X509Certificate;
 /**
  * Encapsulates the Apache commons HTTP connection manager with a singleton. We can use this to
  * limit the number of open connections to hop servers.
- *
- * @author matt
  */
 public class ServerConnectionManager {
 
@@ -60,7 +58,6 @@ public class ServerConnectionManager {
             new SecureRandom());
         SSLContext.setDefault(context);
       } catch (Exception e) {
-        // log.logError( "Default SSL context hasn't been initialized", e );
       }
     }
     manager = new PoolingHttpClientConnectionManager();

@@ -40,7 +40,9 @@ public class BeanLevelInfo<Meta extends Object> {
   /** Field of transform, or null if bean has getter/setter. */
   public Field field;
   /** Getter and setter. */
-  public Method getter, setter;
+  public Method getter;
+
+  public Method setter;
   /** Dimension of level. */
   public DIMENSION dim = DIMENSION.NONE;
   /** Values converter. */

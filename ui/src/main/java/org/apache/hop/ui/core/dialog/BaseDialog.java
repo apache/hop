@@ -413,11 +413,7 @@ public abstract class BaseDialog extends Dialog {
           button.addListener(SWT.Selection, listener);
         } else {
           // fall back on simply closing the dialog
-          button.addListener(
-              SWT.Selection,
-              event -> {
-                dispose();
-              });
+          button.addListener(SWT.Selection, event -> dispose());
         }
         buttonArr[index++] = button;
       }

@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This exception is thrown in case there is an error in the Hop plugin loader
- *
- * @author matt
- */
+/** This exception is thrown in case there is an error in the Hop plugin loader */
 public class HopPluginNotFoundException extends HopPluginException {
 
   private static final long serialVersionUID = 1L;

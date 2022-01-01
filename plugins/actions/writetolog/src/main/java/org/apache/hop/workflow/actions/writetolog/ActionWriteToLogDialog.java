@@ -41,9 +41,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit a ActionWriteToLog object.
- */
+/** This dialog allows you to edit a ActionWriteToLog object. */
 public class ActionWriteToLogDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
 
@@ -168,7 +166,9 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdlLogMessage.right = new FormAttachment(middle, -margin);
     wlLogMessage.setLayoutData(fdlLogMessage);
 
-    wLogMessage = new TextVar(variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    wLogMessage =
+        new TextVar(
+            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wLogMessage.setText(BaseMessages.getString(PKG, "WriteToLog.Name.Default"));
     props.setLook(wLogMessage, Props.WIDGET_STYLE_FIXED);
     wLogMessage.addModifyListener(lsMod);

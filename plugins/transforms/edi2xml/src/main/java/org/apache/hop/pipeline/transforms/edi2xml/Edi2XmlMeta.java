@@ -44,6 +44,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Edi2Xml",
     description = "i18n::BaseTransform.TypeTooltipDesc.Edi2Xml",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    keywords = "i18n::Edi2XmlMeta.keyword",
     documentationUrl = "/pipeline/transforms/edi2xml.html")
 public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi2Xml, Edi2XmlData> {
 
@@ -137,14 +138,14 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is receiving input from other transforms.",
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "No input received from other transforms!",
               transformMeta);
       remarks.add(cr);
@@ -155,7 +156,7 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     if (prev.searchValueMeta(realInputField) != null) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is seeing input field: " + realInputField,
               transformMeta);
       remarks.add(cr);
@@ -163,14 +164,14 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
       if (prev.searchValueMeta(realInputField).isString()) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 "Field " + realInputField + " is a string type",
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 "Field " + realInputField + " is not a string type!",
                 transformMeta);
         remarks.add(cr);
@@ -179,7 +180,7 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "Transform is not seeing input field: " + realInputField + "!",
               transformMeta);
       remarks.add(cr);

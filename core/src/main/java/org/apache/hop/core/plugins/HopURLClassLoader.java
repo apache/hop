@@ -109,15 +109,6 @@ public class HopURLClassLoader extends URLClassLoader {
       // Get the jar, load the bytes from the jar file, construct class from scratch as in snippet
       // below...
 
-      /*
-       *
-       * loaded = super.findClass(name);
-       *
-       * URL url = super.findResource(newName);
-       *
-       * InputStream clis = getResourceAsStream(newName);
-       */
-
       String newName = name.replace('.', '/');
       InputStream is = getResourceAsStream(newName);
       byte[] driverBytes = toBytes(is);

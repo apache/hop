@@ -16,14 +16,17 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Wait For File action waits and periodically checks for a file.
 
 = Wait for file
 
 == Description
 
-The Wait for file action can be used to wait for a file.
+The Wait For File action waits and periodically checks for a file.
+
 This workflow action will sleep and periodically check whether the specified file exists after which the flow will continue.
-The action can either wait indefinitely for the file or it can timeout after a certain time.
+
+The action can either wait indefinitely for the file or it can time out after a certain time.
 
 == Options
 

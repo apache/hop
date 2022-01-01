@@ -28,9 +28,6 @@ import org.eclipse.jetty.util.security.Password;
 /**
  * This class handles basic encryption of passwords in Hop. Note that it's not really encryption,
  * it's more obfuscation. Passwords are <b>difficult</b> to read, not impossible.
- *
- * @author Matt
- * @since 17-12-2003
  */
 public class Encr {
 

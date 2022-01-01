@@ -47,11 +47,7 @@ public class BaseMessageDialog extends BaseDialog {
       final int width) {
     super(shell, title, width);
     this.message = message;
-    this.buttons.put(
-        buttonLabel,
-        event -> {
-          dispose();
-        });
+    this.buttons.put(buttonLabel, event -> dispose());
   }
 
   @Override

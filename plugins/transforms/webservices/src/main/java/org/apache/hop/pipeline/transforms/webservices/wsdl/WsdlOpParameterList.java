@@ -160,21 +160,9 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
    */
   @SuppressWarnings("unchecked")
   private void addOutputParameter(WsdlOpParameter responseParam) {
-    //
-    // is this in IN/OUT param ?
-    //
-    /*
-     * for (WsdlOpParameter param : this) { if (param.equals(responseParam)) {
-     * param.setMode(WsdlOpParameter.ParameterMode.INOUT); return; } }
-     */
-
-    // If made we it to this far, we're talking about an out mode param
-    // responseParam.setMode(WsdlOpParameter.ParameterMode.OUT);
-
     List<String> parameterOrder = _operation.getParameterOrdering();
     if (parameterOrder != null) {
       if (!parameterOrder.contains(responseParam.getName().getLocalPart())) {
-        // assert _returnParam == null : "Invalid state!!!";
         _returnParam = responseParam;
       } else {
         add(responseParam);

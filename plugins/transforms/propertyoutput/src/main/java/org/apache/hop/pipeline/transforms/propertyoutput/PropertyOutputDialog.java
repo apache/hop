@@ -651,7 +651,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     getData();
     activateFilenameInField();
 
-    input.setChanged(changed); // backupChanged);
+    input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

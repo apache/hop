@@ -63,4 +63,6 @@ It also gives you:
 * The ability to include a row number in the output
 * The ability to limit the number of rows returned
 * The ability to add the filename(s) to the result list
+* The ability to print an error message in case no files/folders are found without stop processing
+* The ability to raise an exception and stop processing in case no files/folders are found
 

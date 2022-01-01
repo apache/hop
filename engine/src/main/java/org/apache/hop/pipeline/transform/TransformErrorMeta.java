@@ -31,11 +31,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This class contains the metadata to handle proper error handling on a transform level.
- *
- * @author Matt
- */
+/** This class contains the metadata to handle proper error handling on a transform level. */
 public class TransformErrorMeta extends ChangedFlag implements Cloneable {
   public static final String XML_ERROR_TAG = "error";
   public static final String XML_SOURCE_TRANSFORM_TAG = "source_transform";

@@ -60,6 +60,7 @@ import java.util.List;
     description = "i18n::ActionMssqlBulkLoad.Description",
     image = "MssqlBulkLoad.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
+    keywords = "i18n::ActionMssqlBulkLoad.keyword",
     documentationUrl = "/workflow/actions/mssqlbulkload.html")
 public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
@@ -280,12 +281,12 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
   @Override
   public Result execute(Result previousResult, int nr) {
-    String TakeFirstNbrLines = "";
-    String LineTerminatedby = "";
-    String FieldTerminatedby = "";
+    String takeFirstNbrLines = "";
+    String lineTerminatedby = "";
+    String fieldTerminatedby = "";
     boolean useFieldSeparator = false;
-    String UseCodepage = "";
-    String ErrorfileName = "";
+    String useCodepage = "";
+    String errorfileName = "";
 
     Result result = previousResult;
     result.setResult(false);
@@ -330,9 +331,6 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
             if (!"MSSQL".equals(db.getDatabaseMeta().getPluginId())) {
 
-              // if ( !( db.getDatabaseMeta().getIDatabase() instanceof MSSQLServerDatabaseMeta ) )
-              // {
-
               logError(
                   BaseMessages.getString(
                       PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", connection.getDatabaseName()));
@@ -354,8 +352,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // FIELDTERMINATOR
-                String Fieldterminator = getRealFieldTerminator();
-                if (Utils.isEmpty(Fieldterminator)
+                String fieldTerminator = getRealFieldTerminator();
+                if (Utils.isEmpty(fieldTerminator)
                     && (datafiletype.equals("char") || datafiletype.equals("widechar"))) {
                   logError(
                       BaseMessages.getString(
@@ -364,7 +362,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 } else {
                   if (datafiletype.equals("char") || datafiletype.equals("widechar")) {
                     useFieldSeparator = true;
-                    FieldTerminatedby = "FIELDTERMINATOR='" + Fieldterminator + "'";
+                    fieldTerminatedby = "FIELDTERMINATOR='" + fieldTerminator + "'";
                   }
                 }
                 // Check Specific Code page
@@ -377,10 +375,10 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                     return result;
 
                   } else {
-                    UseCodepage = "CODEPAGE = '" + realCodePage + "'";
+                    useCodepage = "CODEPAGE = '" + realCodePage + "'";
                   }
                 } else {
-                  UseCodepage = "CODEPAGE = '" + codepage + "'";
+                  useCodepage = "CODEPAGE = '" + codepage + "'";
                 }
 
                 // Check Error file
@@ -402,99 +400,99 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                     daf.applyPattern("yyyMMdd_HHmmss");
                     String d = daf.format(now);
 
-                    ErrorfileName = "ERRORFILE ='" + realErrorFile + "_" + d + "'";
+                    errorfileName = "ERRORFILE ='" + realErrorFile + "_" + d + "'";
                   } else {
-                    ErrorfileName = "ERRORFILE ='" + realErrorFile + "'";
+                    errorfileName = "ERRORFILE ='" + realErrorFile + "'";
                   }
                 }
 
                 // ROWTERMINATOR
-                String Rowterminator = getRealLineterminated();
-                if (!Utils.isEmpty(Rowterminator)) {
-                  LineTerminatedby = "ROWTERMINATOR='" + Rowterminator + "'";
+                String rowterminator = getRealLineterminated();
+                if (!Utils.isEmpty(rowterminator)) {
+                  lineTerminatedby = "ROWTERMINATOR='" + rowterminator + "'";
                 }
 
                 // Start file at
                 if (startfile > 0) {
-                  TakeFirstNbrLines = "FIRSTROW=" + startfile;
+                  takeFirstNbrLines = "FIRSTROW=" + startfile;
                 }
 
                 // End file at
                 if (endfile > 0) {
-                  TakeFirstNbrLines = "LASTROW=" + endfile;
+                  takeFirstNbrLines = "LASTROW=" + endfile;
                 }
 
                 // Truncate table?
-                String SqlBulkLoad = "";
+                String sqlBulkLoad = "";
                 if (truncate) {
-                  SqlBulkLoad = "TRUNCATE TABLE " + realTablename + ";";
+                  sqlBulkLoad = "TRUNCATE TABLE " + realTablename + ";";
                 }
 
                 // Build BULK Command
-                SqlBulkLoad =
-                    SqlBulkLoad
+                sqlBulkLoad =
+                    sqlBulkLoad
                         + "BULK INSERT "
                         + realTablename
                         + " FROM "
                         + "'"
                         + realFilename.replace('\\', '/')
                         + "'";
-                SqlBulkLoad = SqlBulkLoad + " WITH (";
+                sqlBulkLoad = sqlBulkLoad + " WITH (";
                 if (useFieldSeparator) {
-                  SqlBulkLoad = SqlBulkLoad + FieldTerminatedby;
+                  sqlBulkLoad = sqlBulkLoad + fieldTerminatedby;
                 } else {
-                  SqlBulkLoad = SqlBulkLoad + "DATAFILETYPE ='" + datafiletype + "'";
+                  sqlBulkLoad = sqlBulkLoad + "DATAFILETYPE ='" + datafiletype + "'";
                 }
 
-                if (LineTerminatedby.length() > 0) {
-                  SqlBulkLoad = SqlBulkLoad + "," + LineTerminatedby;
+                if (lineTerminatedby.length() > 0) {
+                  sqlBulkLoad = sqlBulkLoad + "," + lineTerminatedby;
                 }
-                if (TakeFirstNbrLines.length() > 0) {
-                  SqlBulkLoad = SqlBulkLoad + "," + TakeFirstNbrLines;
+                if (takeFirstNbrLines.length() > 0) {
+                  sqlBulkLoad = sqlBulkLoad + "," + takeFirstNbrLines;
                 }
-                if (UseCodepage.length() > 0) {
-                  SqlBulkLoad = SqlBulkLoad + "," + UseCodepage;
+                if (useCodepage.length() > 0) {
+                  sqlBulkLoad = sqlBulkLoad + "," + useCodepage;
                 }
                 String realFormatFile = resolve(formatfilename);
                 if (realFormatFile != null) {
-                  SqlBulkLoad = SqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
+                  sqlBulkLoad = sqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
                 if (firetriggers) {
-                  SqlBulkLoad = SqlBulkLoad + ",FIRE_TRIGGERS";
+                  sqlBulkLoad = sqlBulkLoad + ",FIRE_TRIGGERS";
                 }
                 if (keepnulls) {
-                  SqlBulkLoad = SqlBulkLoad + ",KEEPNULLS";
+                  sqlBulkLoad = sqlBulkLoad + ",KEEPNULLS";
                 }
                 if (keepidentity) {
-                  SqlBulkLoad = SqlBulkLoad + ",KEEPIDENTITY";
+                  sqlBulkLoad = sqlBulkLoad + ",KEEPIDENTITY";
                 }
                 if (checkconstraints) {
-                  SqlBulkLoad = SqlBulkLoad + ",CHECK_CONSTRAINTS";
+                  sqlBulkLoad = sqlBulkLoad + ",CHECK_CONSTRAINTS";
                 }
                 if (tablock) {
-                  SqlBulkLoad = SqlBulkLoad + ",TABLOCK";
+                  sqlBulkLoad = sqlBulkLoad + ",TABLOCK";
                 }
                 if (orderby != null) {
-                  SqlBulkLoad = SqlBulkLoad + ",ORDER ( " + orderby + " " + orderdirection + ")";
+                  sqlBulkLoad = sqlBulkLoad + ",ORDER ( " + orderby + " " + orderdirection + ")";
                 }
-                if (ErrorfileName.length() > 0) {
-                  SqlBulkLoad = SqlBulkLoad + ", " + ErrorfileName;
+                if (errorfileName.length() > 0) {
+                  sqlBulkLoad = sqlBulkLoad + ", " + errorfileName;
                 }
                 if (maxerrors > 0) {
-                  SqlBulkLoad = SqlBulkLoad + ", MAXERRORS=" + maxerrors;
+                  sqlBulkLoad = sqlBulkLoad + ", MAXERRORS=" + maxerrors;
                 }
                 if (batchsize > 0) {
-                  SqlBulkLoad = SqlBulkLoad + ", BATCHSIZE=" + batchsize;
+                  sqlBulkLoad = sqlBulkLoad + ", BATCHSIZE=" + batchsize;
                 }
                 if (rowsperbatch > 0) {
-                  SqlBulkLoad = SqlBulkLoad + ", ROWS_PER_BATCH=" + rowsperbatch;
+                  sqlBulkLoad = sqlBulkLoad + ", ROWS_PER_BATCH=" + rowsperbatch;
                 }
                 // End of Bulk command
-                SqlBulkLoad = SqlBulkLoad + ")";
+                sqlBulkLoad = sqlBulkLoad + ")";
 
                 try {
                   // Run the SQL
-                  db.execStatement(SqlBulkLoad);
+                  db.execStatement(sqlBulkLoad);
 
                   // Everything is OK...we can disconnect now
                   db.disconnect();

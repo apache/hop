@@ -28,13 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This is a map between the workflow name and the (running/waiting/finished) workflow.
- *
- * @author Matt
- * @since 26-SEP-2007
- * @since 3.0.0
- */
+/** This is a map between the workflow name and the (running/waiting/finished) workflow. */
 public class WorkflowMap {
   private final Map<HopServerObjectEntry, IWorkflowEngine<WorkflowMeta>> workflowMap;
   private final Map<HopServerObjectEntry, WorkflowConfiguration> configurationMap;

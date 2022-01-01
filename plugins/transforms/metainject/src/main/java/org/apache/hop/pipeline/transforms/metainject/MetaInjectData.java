@@ -26,10 +26,6 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class MetaInjectData extends BaseTransformData implements ITransformData {
   public PipelineMeta pipelineMeta;
   public Map<String, ITransformMeta> transformInjectionMetasMap;

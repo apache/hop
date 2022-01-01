@@ -49,7 +49,6 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
@@ -261,11 +260,6 @@ public class HopGui
   public static void main(String[] arguments) {
     try {
 
-      /*
-            System.out.println("Sleeping for 10s for debugging");
-            Thread.sleep(10000);
-      */
-
       setupConsoleLogging();
       HopEnvironment.init();
       OsHelper.setAppName();
@@ -430,7 +424,7 @@ public class HopGui
         item.setData(perspective);
         item.addListener(
             SWT.Selection,
-            (event) -> setActivePerspective((IHopPerspective) event.widget.getData()));
+            event -> setActivePerspective((IHopPerspective) event.widget.getData()));
 
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
         Image image =

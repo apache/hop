@@ -41,74 +41,33 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog to enter a text. (descriptions etc.)
- *
- * @author Samatar
- * @since 20-04-2009
- */
+/** Dialog to enter a text. (descriptions etc.) */
 public class NotePadDialog extends Dialog {
   private static final Class<?> PKG = NotePadDialog.class; // For Translator
 
   private NotePadMeta notePadMeta;
 
-  private Label wlDesc;
   private StyledTextComp wDesc;
-  private FormData fdlDesc, fdDesc;
-  private Button wOk, wCancel;
 
   private Shell shell;
   private String title;
   private PropsUi props;
 
   private CTabFolder wNoteFolder;
-  private FormData fdNoteFolder;
 
-  private CTabItem wNoteContentTab, wNoteFontTab;
-  private FormData fdNoteContentComp, fdNoteFontComp;
-
-  private Label wlFontName;
   private CCombo wFontName;
-  private FormData fdlFontName, fdFontName;
 
-  private Label wlFontSize;
   private Spinner wFontSize;
-  private FormData fdlFontSize, fdFontSize;
 
-  private Label wlFontBold;
   private Button wFontBold;
-  private FormData fdlFontBold, fdFontBold;
 
-  private Label wlFontItalic;
   private Button wFontItalic;
-  private FormData fdlFontItalic, fdFontItalic;
-
-  private Button wbBackGroundColorChange;
-  private FormData fdBackGroundColorChange;
 
   private Label wBackGroundColor;
-  private FormData fdBackGroundColor;
-
-  private Button wbFontColorChange;
-  private FormData fdFontColorChange;
 
   private Label wFontColor;
-  private FormData fdFontColor;
-
-  private Button wbBorderColorChange;
-  private FormData fdBorderColorChange;
 
   private Label wBorderColor;
-  private FormData fdBorderColor;
-
-  private Label wlFontColor;
-  private FormData fdlFontColor;
-
-  private Label wlBackGroundColor;
-  private FormData fdlBackGroundColor;
-
-  private Label wlBorderColor;
-  private FormData fdlBorderColor;
 
   private GuiResource guiresource = GuiResource.getInstance();
 
@@ -158,10 +117,10 @@ public class NotePadDialog extends Dialog {
 
     // Some buttons at the bottom
     //
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
@@ -172,7 +131,7 @@ public class NotePadDialog extends Dialog {
     // ////////////////////////
     // START OF NOTE CONTENT TAB///
     // /
-    wNoteContentTab = new CTabItem(wNoteFolder, SWT.NONE);
+    CTabItem wNoteContentTab = new CTabItem(wNoteFolder, SWT.NONE);
     wNoteContentTab.setText(BaseMessages.getString(PKG, "NotePadDialog.ContentTab.Note"));
     Composite wNoteContentComp = new Composite(wNoteFolder, SWT.NONE);
     props.setLook(wNoteContentComp);
@@ -183,10 +142,10 @@ public class NotePadDialog extends Dialog {
     wNoteContentComp.setLayout(fileLayout);
 
     // From transform line
-    wlDesc = new Label(wNoteContentComp, SWT.NONE);
+    Label wlDesc = new Label(wNoteContentComp, SWT.NONE);
     wlDesc.setText(BaseMessages.getString(PKG, "NotePadDialog.ContentTab.Note.Label"));
     props.setLook(wlDesc);
-    fdlDesc = new FormData();
+    FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(0, margin);
     wlDesc.setLayoutData(fdlDesc);
@@ -197,16 +156,14 @@ public class NotePadDialog extends Dialog {
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 
     wDesc.setText("");
-    // props.setLook(wDesc, PropsUi.WIDGET_STYLE_FIXED);
-    // props.setLook(wDesc);
-    fdDesc = new FormData();
+    FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
     fdDesc.right = new FormAttachment(100, -10);
     fdDesc.bottom = new FormAttachment(100, -margin);
     wDesc.setLayoutData(fdDesc);
 
-    fdNoteContentComp = new FormData();
+    FormData fdNoteContentComp = new FormData();
     fdNoteContentComp.left = new FormAttachment(0, 0);
     fdNoteContentComp.top = new FormAttachment(0, 0);
     fdNoteContentComp.right = new FormAttachment(100, 0);
@@ -222,7 +179,7 @@ public class NotePadDialog extends Dialog {
     // ////////////////////////
     // START OF NOTE FONT TAB///
     // /
-    wNoteFontTab = new CTabItem(wNoteFolder, SWT.NONE);
+    CTabItem wNoteFontTab = new CTabItem(wNoteFolder, SWT.NONE);
     wNoteFontTab.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Label"));
     Composite wNoteFontComp = new Composite(wNoteFolder, SWT.NONE);
     props.setLook(wNoteFontComp);
@@ -233,10 +190,10 @@ public class NotePadDialog extends Dialog {
     wNoteFontComp.setLayout(notefontLayout);
 
     // Font name
-    wlFontName = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlFontName = new Label(wNoteFontComp, SWT.RIGHT);
     wlFontName.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Name.Label"));
     props.setLook(wlFontName);
-    fdlFontName = new FormData();
+    FormData fdlFontName = new FormData();
     fdlFontName.left = new FormAttachment(margin, margin);
     fdlFontName.top = new FormAttachment(0, 3 * margin);
     fdlFontName.right = new FormAttachment(middle, -margin);
@@ -244,7 +201,7 @@ public class NotePadDialog extends Dialog {
     wFontName = new CCombo(wNoteFontComp, SWT.BORDER | SWT.READ_ONLY);
     wFontName.setItems(Const.GetAvailableFontNames());
     props.setLook(wFontName);
-    fdFontName = new FormData();
+    FormData fdFontName = new FormData();
     fdFontName.left = new FormAttachment(middle, 0);
     fdFontName.top = new FormAttachment(0, 3 * margin);
     fdFontName.right = new FormAttachment(100, -margin);
@@ -259,10 +216,10 @@ public class NotePadDialog extends Dialog {
         });
 
     // FontSize line
-    wlFontSize = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlFontSize = new Label(wNoteFontComp, SWT.RIGHT);
     wlFontSize.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Size.Label"));
     props.setLook(wlFontSize);
-    fdlFontSize = new FormData();
+    FormData fdlFontSize = new FormData();
     fdlFontSize.left = new FormAttachment(margin, margin);
     fdlFontSize.top = new FormAttachment(wFontName, margin);
     fdlFontSize.right = new FormAttachment(middle, -margin);
@@ -271,7 +228,7 @@ public class NotePadDialog extends Dialog {
     wFontSize.setMinimum(0);
     wFontSize.setMaximum(70);
     wFontSize.setIncrement(1);
-    fdFontSize = new FormData();
+    FormData fdFontSize = new FormData();
     fdFontSize.left = new FormAttachment(middle, 0);
     fdFontSize.top = new FormAttachment(wFontName, margin);
     fdFontSize.right = new FormAttachment(100, -margin);
@@ -285,17 +242,17 @@ public class NotePadDialog extends Dialog {
         });
 
     // Font bold?
-    wlFontBold = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlFontBold = new Label(wNoteFontComp, SWT.RIGHT);
     wlFontBold.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Bold.Label"));
     props.setLook(wlFontBold);
-    fdlFontBold = new FormData();
+    FormData fdlFontBold = new FormData();
     fdlFontBold.left = new FormAttachment(margin, margin);
     fdlFontBold.top = new FormAttachment(wFontSize, margin);
     fdlFontBold.right = new FormAttachment(middle, -margin);
     wlFontBold.setLayoutData(fdlFontBold);
     wFontBold = new Button(wNoteFontComp, SWT.CHECK);
     props.setLook(wFontBold);
-    fdFontBold = new FormData();
+    FormData fdFontBold = new FormData();
     fdFontBold.left = new FormAttachment(middle, 0);
     fdFontBold.top = new FormAttachment(wlFontBold, 0, SWT.CENTER);
     fdFontBold.right = new FormAttachment(100, -margin);
@@ -308,17 +265,17 @@ public class NotePadDialog extends Dialog {
           }
         });
     // Font Italic?
-    wlFontItalic = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlFontItalic = new Label(wNoteFontComp, SWT.RIGHT);
     wlFontItalic.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Italic.Label"));
     props.setLook(wlFontItalic);
-    fdlFontItalic = new FormData();
+    FormData fdlFontItalic = new FormData();
     fdlFontItalic.left = new FormAttachment(margin, margin);
     fdlFontItalic.top = new FormAttachment(wlFontBold, margin);
     fdlFontItalic.right = new FormAttachment(middle, -margin);
     wlFontItalic.setLayoutData(fdlFontItalic);
     wFontItalic = new Button(wNoteFontComp, SWT.CHECK);
     props.setLook(wFontItalic);
-    fdFontItalic = new FormData();
+    FormData fdFontItalic = new FormData();
     fdFontItalic.left = new FormAttachment(middle, 0);
     fdFontItalic.top = new FormAttachment(wlFontItalic, 0, SWT.CENTER);
     fdFontItalic.right = new FormAttachment(100, -margin);
@@ -331,22 +288,22 @@ public class NotePadDialog extends Dialog {
           }
         });
     // Font color line
-    wlFontColor = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlFontColor = new Label(wNoteFontComp, SWT.RIGHT);
     wlFontColor.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Label"));
     props.setLook(wlFontColor);
-    fdlFontColor = new FormData();
+    FormData fdlFontColor = new FormData();
     fdlFontColor.left = new FormAttachment(margin, margin);
     fdlFontColor.top = new FormAttachment(wFontItalic, 2 * margin);
     fdlFontColor.right = new FormAttachment(middle, -margin);
     wlFontColor.setLayoutData(fdlFontColor);
 
     // Change font color
-    wbFontColorChange = new Button(wNoteFontComp, SWT.PUSH);
+    Button wbFontColorChange = new Button(wNoteFontComp, SWT.PUSH);
     wbFontColorChange.setImage(guiresource.getImageColor());
     wbFontColorChange.setToolTipText(
         BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Change.Tooltip"));
     props.setLook(wbFontColorChange);
-    fdFontColorChange = new FormData();
+    FormData fdFontColorChange = new FormData();
     fdFontColorChange.top = new FormAttachment(wlFontItalic, 2 * margin);
     fdFontColorChange.right = new FormAttachment(100, -margin);
     wbFontColorChange.setLayoutData(fdFontColorChange);
@@ -373,30 +330,30 @@ public class NotePadDialog extends Dialog {
     wFontColor.setToolTipText(BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Tooltip"));
     props.setLook(wFontColor);
     wFontColor.setEnabled(false);
-    fdFontColor = new FormData();
+    FormData fdFontColor = new FormData();
     fdFontColor.left = new FormAttachment(wlFontColor, margin);
     fdFontColor.top = new FormAttachment(wFontItalic, 2 * margin);
     fdFontColor.right = new FormAttachment(wbFontColorChange, -margin);
     wFontColor.setLayoutData(fdFontColor);
 
     // Background color line
-    wlBackGroundColor = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlBackGroundColor = new Label(wNoteFontComp, SWT.RIGHT);
     wlBackGroundColor.setText(
         BaseMessages.getString(PKG, "NotePadDialog.Font.BackGroundColor.Label"));
     props.setLook(wlBackGroundColor);
-    fdlBackGroundColor = new FormData();
+    FormData fdlBackGroundColor = new FormData();
     fdlBackGroundColor.left = new FormAttachment(margin, margin);
     fdlBackGroundColor.top = new FormAttachment(wFontColor, 2 * margin);
     fdlBackGroundColor.right = new FormAttachment(middle, -margin);
     wlBackGroundColor.setLayoutData(fdlBackGroundColor);
 
     // Change Background color
-    wbBackGroundColorChange = new Button(wNoteFontComp, SWT.PUSH);
+    Button wbBackGroundColorChange = new Button(wNoteFontComp, SWT.PUSH);
     wbBackGroundColorChange.setImage(guiresource.getImageColor());
     wbBackGroundColorChange.setToolTipText(
         BaseMessages.getString(PKG, "NotePadDialog.Font.BackGroundColor.Change.Tooltip"));
     props.setLook(wbBackGroundColorChange);
-    fdBackGroundColorChange = new FormData();
+    FormData fdBackGroundColorChange = new FormData();
     fdBackGroundColorChange.top = new FormAttachment(wFontColor, 2 * margin);
     fdBackGroundColorChange.right = new FormAttachment(100, -margin);
     fdBackGroundColorChange.right = new FormAttachment(100, -margin);
@@ -425,29 +382,29 @@ public class NotePadDialog extends Dialog {
         BaseMessages.getString(PKG, "NotePadDialog.Font.BackGroundColor.Tooltip"));
     props.setLook(wBackGroundColor);
     wBackGroundColor.setEnabled(false);
-    fdBackGroundColor = new FormData();
+    FormData fdBackGroundColor = new FormData();
     fdBackGroundColor.left = new FormAttachment(wlBackGroundColor, margin);
     fdBackGroundColor.top = new FormAttachment(wFontColor, 2 * margin);
     fdBackGroundColor.right = new FormAttachment(wbBackGroundColorChange, -margin);
     wBackGroundColor.setLayoutData(fdBackGroundColor);
 
     // Border color line
-    wlBorderColor = new Label(wNoteFontComp, SWT.RIGHT);
+    Label wlBorderColor = new Label(wNoteFontComp, SWT.RIGHT);
     wlBorderColor.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.BorderColor.Label"));
     props.setLook(wlBorderColor);
-    fdlBorderColor = new FormData();
+    FormData fdlBorderColor = new FormData();
     fdlBorderColor.left = new FormAttachment(margin, margin);
     fdlBorderColor.top = new FormAttachment(wBackGroundColor, 2 * margin);
     fdlBorderColor.right = new FormAttachment(middle, -margin);
     wlBorderColor.setLayoutData(fdlBorderColor);
 
     // Change border color
-    wbBorderColorChange = new Button(wNoteFontComp, SWT.PUSH);
+    Button wbBorderColorChange = new Button(wNoteFontComp, SWT.PUSH);
     wbBorderColorChange.setImage(guiresource.getImageColor());
     wbBorderColorChange.setToolTipText(
         BaseMessages.getString(PKG, "NotePadDialog.Font.BorderColor.Change.Tooltip"));
     props.setLook(wbBorderColorChange);
-    fdBorderColorChange = new FormData();
+    FormData fdBorderColorChange = new FormData();
     fdBorderColorChange.top = new FormAttachment(wBackGroundColor, 2 * margin);
     fdBorderColorChange.right = new FormAttachment(100, -margin);
     wbBorderColorChange.setLayoutData(fdBorderColorChange);
@@ -474,13 +431,13 @@ public class NotePadDialog extends Dialog {
         BaseMessages.getString(PKG, "NotePadDialog.Font.BorderColor.Tooltip"));
     props.setLook(wBorderColor);
     wBorderColor.setEnabled(false);
-    fdBorderColor = new FormData();
+    FormData fdBorderColor = new FormData();
     fdBorderColor.left = new FormAttachment(wlBorderColor, margin);
     fdBorderColor.top = new FormAttachment(wBackGroundColor, 2 * margin);
     fdBorderColor.right = new FormAttachment(wbBorderColorChange, -margin);
     wBorderColor.setLayoutData(fdBorderColor);
 
-    fdNoteFontComp = new FormData();
+    FormData fdNoteFontComp = new FormData();
     fdNoteFontComp.left = new FormAttachment(0, 0);
     fdNoteFontComp.top = new FormAttachment(0, 0);
     fdNoteFontComp.right = new FormAttachment(100, 0);
@@ -493,7 +450,7 @@ public class NotePadDialog extends Dialog {
     // / END OF NOTE FONT TAB
     // ///////////////////////////////////////////////////////////
 
-    fdNoteFolder = new FormData();
+    FormData fdNoteFolder = new FormData();
     fdNoteFolder.left = new FormAttachment(0, 0);
     fdNoteFolder.top = new FormAttachment(0, margin);
     fdNoteFolder.right = new FormAttachment(100, 0);

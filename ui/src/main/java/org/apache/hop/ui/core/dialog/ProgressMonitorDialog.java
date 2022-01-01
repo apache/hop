@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.InvocationTargetException;
 
+/** A modal dialog that displays progress during a long running operation. */
 public class ProgressMonitorDialog {
   private static final Class<?> PKG = ProgressMonitorDialog.class; // For Translator
 
@@ -42,7 +43,6 @@ public class ProgressMonitorDialog {
   private Display display;
   protected IProgressMonitor progressMonitor;
 
-  private Label wlImage;
   private Label wlTask;
   private Label wlSubTask;
   private ProgressBar wProgressBar;
@@ -56,9 +56,9 @@ public class ProgressMonitorDialog {
   }
 
   /**
-   * Gets progressMonitor
+   * Returns the progress monitor to use for operations run in this progress dialog.
    *
-   * @return value of progressMonitor
+   * @return the progress monitor
    */
   public IProgressMonitor getProgressMonitor() {
     return progressMonitor;
@@ -69,8 +69,10 @@ public class ProgressMonitorDialog {
 
     PropsUi props = PropsUi.getInstance();
 
-    shell = new Shell(parent, SWT.RESIZE | (cancelable ? SWT.CLOSE : SWT.NONE));
+    shell =
+        new Shell(parent, SWT.RESIZE | SWT.APPLICATION_MODAL | (cancelable ? SWT.CLOSE : SWT.NONE));
     shell.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.Shell.Title"));
+    shell.setImage(GuiResource.getInstance().getImageHopUi());
     props.setLook(shell);
 
     display = shell.getDisplay();
@@ -88,7 +90,7 @@ public class ProgressMonitorDialog {
     // An image at the top right...
     // TODO: rotate this image somehow
     //
-    wlImage = new Label(shell, SWT.NONE);
+    Label wlImage = new Label(shell, SWT.NONE);
     wlImage.setImage(GuiResource.getInstance().getImageHopUi());
     props.setLook(wlImage);
     FormData fdlImage = new FormData();
@@ -127,11 +129,7 @@ public class ProgressMonitorDialog {
     if (cancelable) {
       Button wCancel = new Button(shell, SWT.PUSH);
       wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
-      wCancel.addListener(
-          SWT.Selection,
-          e -> {
-            isCancelled = true;
-          });
+      wCancel.addListener(SWT.Selection, e -> isCancelled = true);
       BaseTransformDialog.positionBottomButtons(
           shell, new Button[] {wCancel}, margin, wProgressBar);
     }
@@ -154,23 +152,22 @@ public class ProgressMonitorDialog {
     // Execute the long running task
     //
     Runnable longRunnable =
-        () -> {
-          // Always do the work in a different thread...
-          // This keeps the shell updating properly as long as
-          // display.asyncExec is used
-          //
-          new Thread(
-                  () -> {
-                    try {
-                      runnable.run(progressMonitor);
-                    } catch (InvocationTargetException e) {
-                      targetException = e;
-                    } catch (InterruptedException e) {
-                      interruptedException = e;
-                    }
-                  })
-              .start();
-        };
+        () ->
+            // Always do the work in a different thread...
+            // This keeps the shell updating properly as long as
+            // display.asyncExec is used
+            //
+            new Thread(
+                    () -> {
+                      try {
+                        runnable.run(progressMonitor);
+                      } catch (InvocationTargetException e) {
+                        targetException = e;
+                      } catch (InterruptedException e) {
+                        interruptedException = e;
+                      }
+                    })
+                .start();
     display.asyncExec(longRunnable);
 
     // Handle the event loop until we're done with this shell...

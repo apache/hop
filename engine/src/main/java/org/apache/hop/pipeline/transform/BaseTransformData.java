@@ -22,9 +22,6 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 /**
  * This class is the base class for the ITransformData and contains the methods to set and retrieve
  * the status of the transform data.
- *
- * @author Matt
- * @since 20-jan-2005
  */
 public abstract class BaseTransformData implements ITransformData {
 

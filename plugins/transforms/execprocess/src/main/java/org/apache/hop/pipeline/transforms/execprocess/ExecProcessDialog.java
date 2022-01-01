@@ -56,7 +56,10 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
 
   private Button wFailWhenNotSuccess;
 
-  private LabelTextVar wOutputDelim, wResult, wExitValue, wError;
+  private LabelTextVar wOutputDelim;
+  private LabelTextVar wResult;
+  private LabelTextVar wExitValue;
+  private LabelTextVar wError;
 
   private final ExecProcessMeta input;
   private boolean gotPreviousFields = false;

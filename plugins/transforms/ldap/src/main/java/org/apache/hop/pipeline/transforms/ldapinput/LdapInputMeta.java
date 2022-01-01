@@ -50,7 +50,7 @@ import static org.apache.hop.core.ICheckResult.*;
     description = "i18n::LdapInput.Description",
     image = "ldapinput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    keywords = {"ldap", "input"},
+    keywords = "i18n::LdapInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapinput.html")
 public class LdapInputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
@@ -75,7 +75,7 @@ public class LdapInputMeta extends BaseTransformMeta
   private int rowLimit;
 
   /** The Host name */
-  private String Host;
+  private String host;
 
   /** The User name */
   private String userName;
@@ -274,12 +274,12 @@ public class LdapInputMeta extends BaseTransformMeta
   /** @return Returns the host name. */
   @Override
   public String getHost() {
-    return Host;
+    return host;
   }
 
   /** @param host The host to set. */
   public void setHost(String host) {
-    this.Host = host;
+    this.host = host;
   }
 
   /** @return Returns the user name. */
@@ -415,7 +415,7 @@ public class LdapInputMeta extends BaseTransformMeta
     retval.append("    ").append(XmlHandler.addTagValue("useauthentication", useAuthentication));
     retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
     retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("host", Host));
+    retval.append("    ").append(XmlHandler.addTagValue("host", host));
     retval.append("    ").append(XmlHandler.addTagValue("username", userName));
     retval
         .append("    ")
@@ -524,7 +524,7 @@ public class LdapInputMeta extends BaseTransformMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "useauthentication"));
       includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
       rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      Host = XmlHandler.getTagValue(transformNode, "host");
+      host = XmlHandler.getTagValue(transformNode, "host");
       userName = XmlHandler.getTagValue(transformNode, "username");
       setPassword(
           Encr.decryptPasswordOptionallyEncrypted(
@@ -628,7 +628,7 @@ public class LdapInputMeta extends BaseTransformMeta
     this.useAuthentication = false;
     this.includeRowNumber = false;
     this.rowNumberField = "";
-    this.Host = "";
+    this.host = "";
     this.userName = "";
     this.password = "";
     this.port = "389";
@@ -728,8 +728,8 @@ public class LdapInputMeta extends BaseTransformMeta
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
       IRowMeta prev,
-      String input[],
-      String output[],
+      String[] input,
+      String[] output,
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
@@ -769,7 +769,7 @@ public class LdapInputMeta extends BaseTransformMeta
     remarks.add(cr);
 
     // Check hostname
-    if (Utils.isEmpty(Host)) {
+    if (Utils.isEmpty(host)) {
       cr =
           new CheckResult(
               TYPE_RESULT_ERROR,

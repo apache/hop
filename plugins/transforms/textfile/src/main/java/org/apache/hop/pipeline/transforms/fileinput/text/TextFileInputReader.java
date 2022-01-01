@@ -35,11 +35,7 @@ import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import java.io.BufferedInputStream;
 import java.io.InputStreamReader;
 
-/**
- * Reader for one text file.
- *
- * @author Alexander Buloichik
- */
+/** Reader for one text file. */
 public class TextFileInputReader implements IBaseFileInputReader {
   private static final int BUFFER_SIZE_INPUT_STREAM = 8192;
 
@@ -378,7 +374,6 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
           data.previousRow = data.outputRowMeta.cloneRow(r);
         } else {
-          // int repnr = 0;
           for (int i = 0; i < meta.inputFields.length; i++) {
             if (meta.inputFields[i].isRepeated()) {
               if (r[i] == null) {
@@ -390,7 +385,6 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
                 data.previousRow[i] = r[i];
               }
-              // repnr++;
             }
           }
         }
@@ -427,10 +421,6 @@ public class TextFileInputReader implements IBaseFileInputReader {
         // Increment the lines updated to reflect another file has been finished.
         // This allows us to give a state of progress in the run time metrics
         transform.incrementLinesUpdated();
-        /*
-         * } else if ( sFileCompression != null && sFileCompression.equals( "Snappy" ) && data.sis != null ) {
-         * data.sis.close(); }
-         */
         if (in != null) {
           BaseTransform.closeQuietly(in);
         }
@@ -451,18 +441,11 @@ public class TextFileInputReader implements IBaseFileInputReader {
       String errorMsg =
           "Couldn't close file : " + data.file.getName().getFriendlyURI() + " --> " + e.toString();
       log.logError(errorMsg);
-      if (transform.failAfterBadFile(errorMsg)) { // ( !meta.isSkipBadFiles() || data.isLastFile ){
+      if (transform.failAfterBadFile(errorMsg)) {
         transform.stopAll();
       }
       transform.setErrors(transform.getErrors() + 1);
-    } // finally {
-    // This is for bug #5797 : it tries to assure that the file handle
-    // is actually freed/garbarge collected.
-    // XXX deinspanjer 2009-07-07: I'm stubbing this out. The bug was ancient and it is worth
-    // reevaluating
-    // to avoid the performance hit of a System GC on every file close
-    // System.gc();
-    // }
+    }
   }
 
   protected boolean tryToReadLine(boolean applyFilter) throws HopFileException {

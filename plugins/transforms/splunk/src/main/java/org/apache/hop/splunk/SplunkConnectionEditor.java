@@ -36,11 +36,10 @@ import org.eclipse.swt.widgets.*;
 /**
  * Dialog that allows you to edit the settings of a Splunk connection
  *
- * @author Matt
  * @see SplunkConnection
  */
 public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       SplunkConnectionEditor.class; // for i18n purposes, needed by Translator2!!
 
   // Connection properties

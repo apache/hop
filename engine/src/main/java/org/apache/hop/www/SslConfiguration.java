@@ -25,7 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
-/** @author Tatsiana_Kasiankova */
 public class SslConfiguration {
   private static final Class<?> PKG = SslConfiguration.class; // For Translator
 

@@ -52,12 +52,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * This dialog allows you to edit the workflow action (ActionWorkflow)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the workflow action (ActionWorkflow) */
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 

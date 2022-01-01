@@ -41,7 +41,8 @@ import org.eclipse.swt.widgets.*;
 
 public class ImporterDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = ImporterMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      ImporterMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Text wTransformName;
 
@@ -51,7 +52,6 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
   private TextVar wAdminCommand;
   private TextVar wBaseFolder;
 
-  private Button wVerbose;
   private Button wHighIo;
   private Button wCacheOnHeap;
   private Button wIgnoreEmptyStrings;
@@ -262,7 +262,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     fdlVerbose.right = new FormAttachment(middle, -margin);
     fdlVerbose.top = new FormAttachment(lastControl, 2 * margin);
     wlVerbose.setLayoutData(fdlVerbose);
-    wVerbose = new Button(wComposite, SWT.CHECK | SWT.LEFT);
+    Button wVerbose = new Button(wComposite, SWT.CHECK | SWT.LEFT);
     props.setLook(wVerbose);
     FormData fdVerbose = new FormData();
     fdVerbose.left = new FormAttachment(middle, 0);

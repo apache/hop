@@ -18,15 +18,10 @@
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 
-/**
- * Describes a single field in a text file
- *
- * @author Matt
- * @since 11-05-2005
- */
+/** Describes a single field in a text file */
 public class TextFileField implements Cloneable {
   @Injection(name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS")
   private String name;
@@ -146,24 +141,24 @@ public class TextFileField implements Cloneable {
     return groupingSymbol;
   }
 
-  public void setGroupingSymbol(String group_symbol) {
-    this.groupingSymbol = group_symbol;
+  public void setGroupingSymbol(String groupSymbol) {
+    this.groupingSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {
@@ -197,14 +192,14 @@ public class TextFileField implements Cloneable {
 
   @Injection(name = "OUTPUT_TRIM", group = "OUTPUT_FIELDS")
   public void setTrimTypeByDesc(String value) {
-    this.trimType = ValueMetaString.getTrimTypeByDesc(value);
+    this.trimType = ValueMetaBase.getTrimTypeByDesc(value);
   }
 
   public String getTrimTypeCode() {
-    return ValueMetaString.getTrimTypeCode(trimType);
+    return ValueMetaBase.getTrimTypeCode(trimType);
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaString.getTrimTypeDesc(trimType);
+    return ValueMetaBase.getTrimTypeDesc(trimType);
   }
 }

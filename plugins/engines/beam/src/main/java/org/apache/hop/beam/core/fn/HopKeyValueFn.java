@@ -46,7 +46,6 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(HopKeyValueFn.class);
 
-  private transient IRowMeta inputRowMeta;
   private transient int[] keyIndexes;
   private transient int[] valueIndexes;
 
@@ -80,7 +79,7 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
       // Initialize Hop Beam
       //
       BeamHop.init(transformPluginClasses, xpPluginClasses);
-      inputRowMeta = JsonRowMeta.fromJson(inputRowMetaJson);
+      IRowMeta inputRowMeta = JsonRowMeta.fromJson(inputRowMetaJson);
 
       // Calculate key indexes
       //

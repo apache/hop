@@ -174,7 +174,6 @@
         <include>io.dropwizard.metrics:metrics-jvm</include>
         <include>io.github.classgraph:classgraph</include>
 
-        <!--<include>io.grpc:grpc-all</include>-->
 
         <include>io.grpc:grpc-alts</include>
         <include>io.grpc:grpc-api</include>
@@ -190,7 +189,6 @@
         <include>io.grpc:grpc-stub</include>
         <include>io.grpc:grpc-testing</include>
 
-        <!--<include>io.netty:netty-all</include>-->
 
         <include>io.netty:netty</include>
         <include>io.netty:netty-buffer</include>
@@ -218,7 +216,6 @@
         <include>javax.xml.bind:jaxb-api</include>
         <include>javax.xml.stream:stax-api</include>
         <include>joda-time:joda-time</include>
-        <include>log4j:log4j</include>
         <include>net.razorvine:pyrolite</include>
         <include>net.sf.py4j:py4j</include>
         <include>org.apache.avro:avro</include>
@@ -291,7 +288,6 @@
         <include>org.apache.htrace:htrace-core</include>
         <include>org.apache.ivy:ivy</include>
         <include>org.apache.kafka:kafka-clients</include>
-        <include>org.apache.logging.log4j:log4j-api</include>
         <include>org.apache.spark:spark-core_2.11</include>
         <include>org.apache.spark:spark-kvstore_2.11</include>
         <include>org.apache.spark:spark-launcher_2.11</include>

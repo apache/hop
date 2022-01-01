@@ -48,18 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'add result filenames' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'add result filenames' action. */
 @Action(
     id = "ADD_RESULT_FILENAMES",
     name = "i18n::ActionAddResultFilenames.Name",
     description = "i18n::ActionAddResultFilenames.Description",
     image = "AddResultFileNames.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionAddResultFilenames.keyword",
     documentationUrl = "/workflow/actions/addresultfilenames.html")
 public class ActionAddResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAddResultFilenames.class; // For Translator

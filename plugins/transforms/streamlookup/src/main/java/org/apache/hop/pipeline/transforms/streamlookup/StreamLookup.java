@@ -45,9 +45,6 @@ import java.util.Collections;
  *
  * <p>TODO: add warning with conflicting types OR modify the lookup values to the input row type.
  * (this is harder to do as currently we don't know the types)
- *
- * @author Matt
- * @since 26-apr-2003
  */
 public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData>
     implements ITransform<StreamLookupMeta, StreamLookupData> {
@@ -473,7 +470,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
       return false;
     }
 
-    putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
     if (checkFeedback(getLinesRead())) {
       if (log.isBasic()) {

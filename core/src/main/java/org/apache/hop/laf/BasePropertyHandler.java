@@ -21,8 +21,6 @@ package org.apache.hop.laf;
  * This is a static accessor for the dynamic property loader and should be used by all classes
  * requiring access to property files. The static accessor provides a notification from the
  * LafFactory when the concrete handler is changed at runtime should the LAF be changed.
- *
- * @author dhushon
  */
 public class BasePropertyHandler implements ILafChangeListener<IPropertyHandler> {
 

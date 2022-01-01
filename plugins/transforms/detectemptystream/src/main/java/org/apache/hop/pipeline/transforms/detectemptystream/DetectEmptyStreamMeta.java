@@ -41,6 +41,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.DetectEmptyStream",
     description = "i18n::BaseTransform.TypeTooltipDesc.DetectEmptyStream",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::DetectEmptyStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/detectemptystream.html")
 public class DetectEmptyStreamMeta extends BaseTransformMeta
     implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
@@ -82,14 +83,14 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "DetectEmptyStreamMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -100,7 +101,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "DetectEmptyStreamMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
@@ -108,7 +109,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "DetectEmptyStreamMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

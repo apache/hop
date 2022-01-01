@@ -17,12 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
-/**
- * Describes a single field in an Json output file
- *
- * @author Samatar
- * @since 14-june-2010
- */
+/** Describes a single field in an Json output file */
 public class JsonOutputField implements Cloneable {
   private String fieldName;
   private String elementName;

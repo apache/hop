@@ -21,12 +21,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 
-/**
- * Class to keep track of which font is a system font (managed by the OS) and which is not.
- *
- * @author Matt
- * @since 2006-06-15
- */
+/** Class to keep track of which font is a system font (managed by the OS) and which is not. */
 public class ManagedFont {
   private Font font;
   private boolean systemFont;

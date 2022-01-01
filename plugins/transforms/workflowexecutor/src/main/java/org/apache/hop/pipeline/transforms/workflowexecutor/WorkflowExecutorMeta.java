@@ -65,7 +65,7 @@ import java.util.Map;
     description = "i18n::WorkflowExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/workflowexecutor.html",
-    keywords = "")
+    keywords = "i18n::WorkflowExecutorMeta.keyword")
 public class WorkflowExecutorMeta extends BaseTransformMeta
     implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 

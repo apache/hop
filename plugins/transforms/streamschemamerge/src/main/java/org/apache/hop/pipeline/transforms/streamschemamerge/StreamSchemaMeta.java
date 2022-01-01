@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::StreamSchemaTransform.Name",
     description = "i18n::StreamSchemaTransform.TooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::StreamSchemaMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamschemamerge.html")
 public class StreamSchemaMeta extends BaseTransformMeta
     implements ITransformMeta<StreamSchema, StreamSchemaData> {
@@ -184,7 +185,6 @@ public class StreamSchemaMeta extends BaseTransformMeta
    */
   private void readData(Node transformNode) throws HopXmlException {
     try {
-      // TODO put the strings in a config file or make constants in this file
       Node transforms = XmlHandler.getSubNode(transformNode, "transforms");
       int nrtransforms = XmlHandler.countNodes(transforms, "transform");
 
@@ -273,8 +273,8 @@ public class StreamSchemaMeta extends BaseTransformMeta
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
       IRowMeta prev,
-      String input[],
-      String output[],
+      String[] input,
+      String[] output,
       IRowMeta info,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
@@ -285,14 +285,14 @@ public class StreamSchemaMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "StreamSchemaTransform.CheckResult.ReceivingRows.OK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "StreamSchemaTransform.CheckResult.ReceivingRows.ERROR"),
               transformMeta);
       remarks.add(cr);
@@ -311,13 +311,6 @@ public class StreamSchemaMeta extends BaseTransformMeta
   public void resetTransformIoMeta() {
     // Do nothing, don't reset as there is no need to do this.
   }
-
-  /** Has original function of resetTransformIoMeta, but we only want to call it when appropriate */
-  /*
-  	public void wipeTransformIoMeta() {
-  		ioMeta = null;
-  	}
-  */
 
   /**
    * Called by Apache Hop to get a new instance of the transform implementation. A standard

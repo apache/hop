@@ -46,10 +46,11 @@ import java.util.List;
     description = "i18n::SalesforceUpsert.TypeTooltipDesc.SalesforceUpsert",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFU.svg",
+    keywords = "i18n::SalesforceUpsertMeta.keyword",
     documentationUrl = "/pipeline/transforms/salesforceupsert.html")
 public class SalesforceUpsertMeta
     extends SalesforceTransformMeta<SalesforceUpsert, SalesforceUpsertData> {
-  private static Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceUpsertMeta.class; // For Translator
 
   /** UpsertField */
   private String UpsertField;
@@ -301,13 +302,13 @@ public class SalesforceUpsertMeta
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoInput"),
               transformMeta);
     }
@@ -317,13 +318,13 @@ public class SalesforceUpsertMeta
     if (getUpdateLookup().length == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.FieldsOk"),
               transformMeta);
     }

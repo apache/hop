@@ -57,15 +57,6 @@ public class WorkflowRunConfigurationSearchableAnalyser
         runConfig.getDescription(),
         component);
 
-    /* Analyze the variables
-    //
-    for ( VariableValueDescription configurationVariable : runConfig.getConfigurationVariables()) {
-      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable name", configurationVariable.getName() );
-      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable value", configurationVariable.getValue() );
-      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable description", configurationVariable.getDescription() );
-    }
-    */
-
     // Analyze the configuration plugin fields
     //
     matchObjectFields(

@@ -25,7 +25,6 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -49,7 +48,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.AddSequence",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/addsequence.html",
-    keywords = {"id", "unique"})
+    keywords = "i18n::AddSequenceMeta.keyword")
 public class AddSequenceMeta extends BaseTransformMeta
     implements ITransformMeta<AddSequence, AddSequenceData> {
 
@@ -67,9 +66,8 @@ public class AddSequenceMeta extends BaseTransformMeta
 
   @HopMetadataProperty(
       key = "connection",
-      storeWithName = true,
       injectionKeyDescription = "AddSequenceMeta.Injection.Connection")
-  private DatabaseMeta databaseMeta;
+  private String connection;
 
   @HopMetadataProperty(
       key = "schema",
@@ -106,14 +104,12 @@ public class AddSequenceMeta extends BaseTransformMeta
       injectionKeyDescription = "AddSequenceMeta.Injection.MaxValue")
   private String maxValue;
 
-  /** @return Returns the connection. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  public String getConnection() {
+    return connection;
   }
 
-  /** @param connection The connection to set. */
-  public void setDatabaseMeta(DatabaseMeta connection) {
-    this.databaseMeta = connection;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /** @return Returns the incrementBy. */
@@ -203,8 +199,7 @@ public class AddSequenceMeta extends BaseTransformMeta
 
   @Override
   public Object clone() {
-    Object retval = super.clone();
-    return retval;
+    return super.clone();
   }
 
   @Override
@@ -214,8 +209,6 @@ public class AddSequenceMeta extends BaseTransformMeta
     databaseUsed = false;
     schemaName = "";
     sequenceName = "SEQ_";
-    databaseMeta = null;
-
     counterUsed = true;
     counterName = null;
     startAt = "1";
@@ -230,10 +223,8 @@ public class AddSequenceMeta extends BaseTransformMeta
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
     IValueMeta v = new ValueMetaInteger(valueName);
-    // v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin(name);
     row.addValueMeta(v);
   }
@@ -250,9 +241,14 @@ public class AddSequenceMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    if (databaseUsed) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+    Database db = null;
+
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+
+      if (databaseUsed) {
+        db = new Database(loggingObject, variables, databaseMeta);
         db.connect();
         if (db.checkSequenceExists(
             variables.resolve(schemaName), variables.resolve(sequenceName))) {
@@ -271,18 +267,21 @@ public class AddSequenceMeta extends BaseTransformMeta
                       sequenceName),
                   transformMeta);
         }
-      } catch (HopException e) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title")
-                    + Const.CR
-                    + e.getMessage(),
-                transformMeta);
-      } finally {
+        remarks.add(cr);
+      }
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "AddSequenceMeta.CheckResult.UnableToConnectDB.Title")
+                  + Const.CR
+                  + e.getMessage(),
+              transformMeta);
+      remarks.add(cr);
+    } finally {
+      if (db != null) {
         db.disconnect();
       }
-      remarks.add(cr);
     }
 
     if (input.length > 0) {
@@ -309,14 +308,17 @@ public class AddSequenceMeta extends BaseTransformMeta
       TransformMeta transformMeta,
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
-    SqlStatement retval =
-        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
-
-    if (databaseUsed) {
-      // Otherwise, don't bother!
-      if (databaseMeta != null) {
-        Database db = new Database(loggingObject, variables, databaseMeta);
-        try {
+    Database db = null;
+    SqlStatement retval = null;
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      retval = new SqlStatement(transformMeta.getName(), databaseMeta, null);
+      // default: nothing to do!
+      if (databaseUsed) {
+        // Otherwise, don't bother!
+        if (databaseMeta != null) {
+          db = new Database(loggingObject, variables, databaseMeta);
           db.connect();
           if (!db.checkSequenceExists(schemaName, sequenceName)) {
             String crTable =
@@ -325,17 +327,21 @@ public class AddSequenceMeta extends BaseTransformMeta
           } else {
             retval.setSql(null); // Empty string means: nothing to do: set it to null...
           }
-        } catch (HopException e) {
+        } else {
           retval.setError(
-              BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
-                  + Const.CR
-                  + e.getMessage());
-        } finally {
-          db.disconnect();
+              BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"));
         }
-      } else {
+      }
+    } catch (HopException e) {
+      if (retval != null) {
         retval.setError(
-            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.NoConnectionDefined"));
+            BaseMessages.getString(PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB")
+                + Const.CR
+                + e.getMessage());
+      }
+    } finally {
+      if (db != null) {
+        db.disconnect();
       }
     }
 

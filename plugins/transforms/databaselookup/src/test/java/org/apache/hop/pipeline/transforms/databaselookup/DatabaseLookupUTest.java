@@ -57,7 +57,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-/** @author Andrey Khayrutdinov */
 public class DatabaseLookupUTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -125,7 +124,7 @@ public class DatabaseLookupUTest {
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     Lookup lookup = meta.getLookup();
 
-    //meta.setDatabaseMeta(dbMeta);
+    // meta.setDatabaseMeta(dbMeta);
     lookup.setSchemaName("VirtualSchema");
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", ID_FIELD));
@@ -231,7 +230,7 @@ public class DatabaseLookupUTest {
     meta.setConnection("connection1");
     Lookup lookup = meta.getLookup();
 
-    //meta.setDatabaseMeta(dbMeta);
+    // meta.setDatabaseMeta(dbMeta);
     lookup.setTableName("VirtualTable");
     lookup.getKeyFields().add(new KeyField("", "", "=", "ID1"));
     lookup.getKeyFields().add(new KeyField("", "", "IS NULL", "ID2"));
@@ -276,7 +275,7 @@ public class DatabaseLookupUTest {
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
 
     when(look.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
-            .thenReturn(dbMeta);
+        .thenReturn(dbMeta);
 
     look.init();
     assertTrue(data.allEquals);
@@ -389,7 +388,7 @@ public class DatabaseLookupUTest {
 
     DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, dbMeta);
     when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
-            .thenReturn(dbMeta);
+        .thenReturn(dbMeta);
 
     doNothing().when(transform).determineFieldsTypesQueryingDb();
     doReturn(null).when(transform).lookupValues(any(IRowMeta.class), any(Object[].class));

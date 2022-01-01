@@ -20,11 +20,7 @@ package org.apache.hop.www;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
 
-/**
- * A carte object entry in the pipeline or workflow maps
- *
- * @author matt
- */
+/** A carte object entry in the pipeline or workflow maps */
 @XmlRootElement
 public class HopServerObjectEntry
     implements Comparator<HopServerObjectEntry>, Comparable<HopServerObjectEntry> {

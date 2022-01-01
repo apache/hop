@@ -228,7 +228,6 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wUseLogAppendTime.setLayoutData(fdUseLogAppendTime);
     lastControl = wUseLogAppendTime;
 
-    // private Button wUseCreateTime;
     Label wlUseCreateTime = new Label(shell, SWT.RIGHT);
     wlUseCreateTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseCreateTime"));
     props.setLook(wlUseCreateTime);
@@ -282,7 +281,6 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wAllowCommitConsumed.setLayoutData(fdAllowCommitConsumed);
     lastControl = wlAllowCommitConsumed;
 
-    // private Button wAllowCommitConsumed;
     Label wlConfigOptions = new Label(shell, SWT.LEFT);
     wlConfigOptions.setText(BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions"));
     props.setLook(wlConfigOptions);
@@ -322,7 +320,6 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdConfigOptions.top = new FormAttachment(lastControl, margin);
     fdConfigOptions.bottom = new FormAttachment(wOk, -margin * 2);
     wConfigOptions.setLayoutData(fdConfigOptions);
-    lastControl = wConfigOptions;
 
     wUseProcessingTime.addListener(
         SWT.Selection,

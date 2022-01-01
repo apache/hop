@@ -55,7 +55,8 @@ import java.util.*;
 
 public class SplunkInputDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = SplunkInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      SplunkInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Text wTransformName;
 
@@ -153,14 +154,14 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     Control lastControl = wTransformName;
 
     wConnection =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SplunkConnection.class,
-                    wComposite,
-                    SWT.SINGLE | SWT.LEFT,
-                    "Splunk Connection",
-                    "Select, create or edit a Splunk Connection");
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SplunkConnection.class,
+            wComposite,
+            SWT.SINGLE | SWT.LEFT,
+            "Splunk Connection",
+            "Select, create or edit a Splunk Connection");
     props.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();
@@ -220,7 +221,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     fdbGetReturnFields.right = new FormAttachment(100, 0);
     fdbGetReturnFields.top = new FormAttachment(lastControl, margin);
     wbGetReturnFields.setLayoutData(fdbGetReturnFields);
-    wbGetReturnFields.addListener(SWT.Selection, (e) -> getReturnValues());
+    wbGetReturnFields.addListener(SWT.Selection, e -> getReturnValues());
     lastControl = wbGetReturnFields;
 
     wReturns =
@@ -240,7 +241,6 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     fdReturns.top = new FormAttachment(lastControl, margin);
     fdReturns.bottom = new FormAttachment(wOk, -2 * margin);
     wReturns.setLayoutData(fdReturns);
-    // lastControl = wReturns;
 
     wComposite.pack();
     Rectangle bounds = wComposite.getBounds();

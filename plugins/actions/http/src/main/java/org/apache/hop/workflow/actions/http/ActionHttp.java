@@ -52,6 +52,7 @@ import java.util.List;
     description = "i18n::ActionHTTP.Description",
     image = "HTTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionHttp.keyword",
     documentationUrl = "/workflow/actions/http.html")
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionHttp.class; // For Translator
@@ -315,7 +316,9 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
     // Get previous result rows...
     List<RowMetaAndData> resultRows;
-    String urlFieldnameToUse, uploadFieldnameToUse, destinationFieldnameToUse;
+    String urlFieldnameToUse;
+    String uploadFieldnameToUse;
+    String destinationFieldnameToUse;
 
     if (Utils.isEmpty(urlFieldname)) {
       urlFieldnameToUse = URL_FIELDNAME;

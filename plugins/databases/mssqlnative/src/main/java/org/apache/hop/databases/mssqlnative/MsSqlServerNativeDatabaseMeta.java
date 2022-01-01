@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Control;
 import java.util.ArrayList;
 import java.util.List;
 
-@DatabaseMetaPlugin(type = "MSSQLNATIVE", typeDescription = "MS SQL Server (Native)")
+@DatabaseMetaPlugin(type = "MSSQLNATIVE", typeDescription = "MS SQL Server (Native)", documentationUrl = "/database/databases/mssqlnative.html")
 @GuiPlugin(id = "GUI-MSSQLServerNativeDatabaseMeta")
 public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     implements IGuiPluginCompositeWidgetsListener {

@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#
 
 #
 # When stopping the running hop-server container with 'docker stop' it ended up with an timeout
@@ -45,3 +44,6 @@ trapper() {
 }
 
 trapper /opt/hop/load-and-execute.sh $@
+
+EXIT_CODE=`cat /tmp/exitcode.txt`
+exit ${EXIT_CODE}

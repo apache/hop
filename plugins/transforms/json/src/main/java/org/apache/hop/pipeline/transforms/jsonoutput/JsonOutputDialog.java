@@ -172,13 +172,13 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText(BaseMessages.getString(PKG, "JsonOutputDialog.GeneralTab.TabTitle"));
 
-    FormLayout GeneralLayout = new FormLayout();
-    GeneralLayout.marginWidth = 3;
-    GeneralLayout.marginHeight = 3;
+    FormLayout generalLayout = new FormLayout();
+    generalLayout.marginWidth = 3;
+    generalLayout.marginHeight = 3;
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wGeneralComp);
-    wGeneralComp.setLayout(GeneralLayout);
+    wGeneralComp.setLayout(generalLayout);
 
     // Operation
     Label wlOperation = new Label(wGeneralComp, SWT.RIGHT);
@@ -800,7 +800,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAppend.setSelection(input.isFileAppended());
 
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
-    wAddToResult.setSelection(input.AddToResult());
+    wAddToResult.setSelection(input.addToResult());
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
 
     if (isDebug()) {

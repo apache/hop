@@ -40,12 +40,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * MailConnection handles the process of connecting to, reading from POP3/IMAP.
- *
- * @author Samatar
- * @since 01-04-2009
- */
+/** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnection {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
@@ -56,7 +51,6 @@ public class MailConnection {
   private String username;
   private String password;
   private boolean usessl;
-  private boolean write;
   private boolean useproxy;
   private String proxyusername;
   /** Protocol used. Should be PROTOCOL_POP3 (0) for POP3 and PROTOCOL_IMAP (1) to IMAP */
@@ -311,7 +305,6 @@ public class MailConnection {
    */
   public void openFolder(String folderName, boolean defaultFolder, boolean write)
       throws HopException {
-    this.write = write;
     try {
       if (getFolder() != null) {
         // A folder is already opened
@@ -347,7 +340,7 @@ public class MailConnection {
               BaseMessages.getString(PKG, "ActionGetMailsFromPOP.InvalidFolder.Label"));
         }
       }
-      if (this.write) {
+      if (write) {
         if (log.isDebug()) {
           log.logDebug(
               BaseMessages.getString(
@@ -637,16 +630,6 @@ public class MailConnection {
     }
   }
 
-  /*
-   * public void retrieveUnreadMessages() throws Exception { if(this.protocol==PROTOCOL_POP3) throw new
-   * HopException("Cette fonction est uniquement accessible pour le protocol POP3!"); try { Message msgsAll[]; //
-   * search term? if(this.searchTerm!=null) { msgsAll = this.folder.search(this.searchTerm); }else { msgsAll =
-   * this.folder.getMessages(); } int unreadMsgs = this.folder.getUnreadMessageCount(); int msgCount = msgsAll.length;
-   *
-   * this.messages = this.folder.getMessages(msgCount - unreadMsgs + 1, msgCount); } catch (Exception e) {
-   * this.messages= null; } }
-   */
-
   /**
    * Disconnect from the server and close folder, connection.
    *
@@ -774,13 +757,13 @@ public class MailConnection {
 
       if (disposition.equalsIgnoreCase(Part.ATTACHMENT)
           || disposition.equalsIgnoreCase(Part.INLINE)) {
-        String MimeText = null;
+        String mimeText = null;
         try {
-          MimeText = MimeUtility.decodeText(part.getFileName());
+          mimeText = MimeUtility.decodeText(part.getFileName());
         } catch (Exception e) {
           // Ignore errors
         }
-        if (MimeText != null) {
+        if (mimeText != null) {
           String filename = MimeUtility.decodeText(part.getFileName());
           if (isWildcardMatch(filename, pattern)) {
             // Save file
@@ -808,12 +791,13 @@ public class MailConnection {
     if (fileName == null || folderName == null) {
       throw new IllegalArgumentException("Cannot have null arguments to findValidTarget");
     }
-    String fileNameRoot = FilenameUtils.getBaseName(fileName),
-        ext = "." + FilenameUtils.getExtension(fileName);
+    String fileNameRoot = FilenameUtils.getBaseName(fileName);
+    String ext = "." + FilenameUtils.getExtension(fileName);
     if ((ext.length() == 1)) { // only a "."
       ext = "";
     }
-    String rtn = "", base = FilenameUtils.concat(folderName, fileNameRoot);
+    String rtn = "";
+    String base = FilenameUtils.concat(folderName, fileNameRoot);
     int baseSz = base.length();
     StringBuilder build = new StringBuilder(baseSz).append(base);
     int i = -1;
@@ -1371,13 +1355,13 @@ public class MailConnection {
           if ((disposition != null)
               && (disposition.equalsIgnoreCase(Part.ATTACHMENT)
                   || disposition.equalsIgnoreCase(Part.INLINE))) {
-            String MimeText = null;
+            String mimeText = null;
             try {
-              MimeText = MimeUtility.decodeText(part.getFileName());
+              mimeText = MimeUtility.decodeText(part.getFileName());
             } catch (Exception e) {
               // Ignore errors
             }
-            if (MimeText != null) {
+            if (mimeText != null) {
               String filename = MimeUtility.decodeText(part.getFileName());
               if (isWildcardMatch(filename, pattern)) {
                 retval++;

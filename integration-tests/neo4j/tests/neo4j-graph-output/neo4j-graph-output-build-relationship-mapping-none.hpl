@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>neo4j-graph-output-build-relationship-mapping-none</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2019/08/06 16:10:49.753</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2019/08/06 16:10:49.753</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Do not create any relationships between nodes A and B.
+Only merge A and B nodes
+</note>
+      <xloc>112</xloc>
+      <yloc>160</yloc>
+      <width>396</width>
+      <heigth>75</heigth>
+      <fontname>Sans</fontname>
+      <fontsize>14</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>136</backgroundcolorred>
+      <backgroundcolorgreen>138</backgroundcolorgreen>
+      <backgroundcolorblue>133</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>sample-data</from>
+      <to>AB</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>AB</name>
+    <type>Neo4jGraphOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <batch_size>100</batch_size>
+    <connection>Test</connection>
+    <create_indexes>N</create_indexes>
+    <mappings>
+      <mapping>
+        <source_field>a</source_field>
+        <target_hint>None</target_hint>
+        <target_name>A</target_name>
+        <target_property>a</target_property>
+        <target_type>Node</target_type>
+      </mapping>
+      <mapping>
+        <source_field>b</source_field>
+        <target_hint>None</target_hint>
+        <target_name>B</target_name>
+        <target_property>b</target_property>
+        <target_type>Node</target_type>
+      </mapping>
+      <mapping>
+        <source_field>type</source_field>
+        <target_hint>None</target_hint>
+        <target_name>A - B : One</target_name>
+        <target_property>type</target_property>
+        <target_type>Relationship</target_type>
+      </mapping>
+      <mapping>
+        <source_field>type</source_field>
+        <target_hint>None</target_hint>
+        <target_name>A - B : Two</target_name>
+        <target_property>type</target_property>
+        <target_type>Relationship</target_type>
+      </mapping>
+      <mapping>
+        <source_field>type</source_field>
+        <target_hint>None</target_hint>
+        <target_name>A - B : Three</target_name>
+        <target_property>type</target_property>
+        <target_type>Relationship</target_type>
+      </mapping>
+    </mappings>
+    <model>AB</model>
+    <node_mappings>
+</node_mappings>
+    <out_of_order_allowed>Y</out_of_order_allowed>
+    <relationship_mappings>
+      <relationship_mapping>
+        <field_name/>
+        <field_value/>
+        <source_node>A</source_node>
+        <target_node>B</target_node>
+        <relationship_name/>
+        <relationship_mapping_type>no-relationship</relationship_mapping_type>
+      </relationship_mapping>
+    </relationship_mappings>
+    <return_graph_field/>
+    <returning_graph>N</returning_graph>
+    <validate_against_model>N</validate_against_model>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sample-data</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>a</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>b</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>type</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>a1</item>
+        <item>b1</item>
+        <item>one</item>
+      </line>
+      <line>
+        <item>a2</item>
+        <item>b2</item>
+        <item>two</item>
+      </line>
+      <line>
+        <item>a3</item>
+        <item>b3</item>
+        <item>three</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes>
+    <group>
+      <name>debug_plugin</name>
+      <attribute>
+        <key>AB : condition</key>
+        <value>PGNvbmRpdGlvbj4KIDxuZWdhdGVkPk48L25lZ2F0ZWQ+CiA8bGVmdHZhbHVlLz4KIDxmdW5jdGlvbj49PC9mdW5jdGlvbj4KIDxyaWdodHZhbHVlLz4KIDwvY29uZGl0aW9uPgo=</value>
+      </attribute>
+      <attribute>
+        <key>AB : log_level</key>
+        <value>Debug</value>
+      </attribute>
+      <attribute>
+        <key>AB : start_row</key>
+        <value>-1</value>
+      </attribute>
+      <attribute>
+        <key>AB : end_row</key>
+        <value>-1</value>
+      </attribute>
+    </group>
+  </attributes>
+</pipeline>

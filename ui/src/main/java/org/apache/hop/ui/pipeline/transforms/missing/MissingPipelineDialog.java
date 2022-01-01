@@ -50,7 +50,6 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
   private Shell shellParent;
   private List<Missing> missingPipeline;
   private int mode;
-  private PropsUi props;
   private String transformResult;
 
   public static final int MISSING_PIPELINE_TRANSFORMS = 1;
@@ -105,14 +104,13 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
               "MissingPipelineDialog.MissingPipelineTransformId",
               transformName + " - " + ((Missing) baseTransformMeta).getMissingPluginId());
     }
-    return message.toString();
+    return message;
   }
 
   @Override
   public String open() {
-    this.props = PropsUi.getInstance();
+    PropsUi props = PropsUi.getInstance();
     Display display = shellParent.getDisplay();
-    int margin = props.getMargin();
 
     shell = new Shell(shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
 

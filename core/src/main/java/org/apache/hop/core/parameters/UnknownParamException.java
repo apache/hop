@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.parameters;
 
-/**
- * This is an Apache Hop Exception for the named parameters.
- *
- * @author Sven Boden
- * @since 28Feb2009
- */
+/** This is an Apache Hop Exception for the named parameters. */
 public class UnknownParamException extends NamedParamsException {
   private static final long serialVersionUID = -4447368601975248474L;
 

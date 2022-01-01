@@ -34,8 +34,6 @@ import java.util.Date;
 /**
  * This is a result file: a file as a result of the execution of a action, a pipeline transform,
  * etc.
- *
- * @author matt
  */
 public class ResultFile implements Cloneable {
   private static final Class<?> PKG = Const.class; // For Translator

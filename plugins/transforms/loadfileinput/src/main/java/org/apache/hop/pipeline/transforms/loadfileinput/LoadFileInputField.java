@@ -25,12 +25,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
-/**
- * Describes a field
- *
- * @author Samatar
- * @since 20-06-2007
- */
+/** Describes a field */
 public class LoadFileInputField implements Cloneable {
   private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
 
@@ -286,24 +281,24 @@ public class LoadFileInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol(String group_symbol) {
-    this.groupSymbol = group_symbol;
+  public void setGroupSymbol(String groupSymbol) {
+    this.groupSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {
@@ -332,5 +327,7 @@ public class LoadFileInputField implements Cloneable {
     return enc;
   }
 
-  public void guess() {}
+  public void guess() {
+    // Do nothing
+  }
 }

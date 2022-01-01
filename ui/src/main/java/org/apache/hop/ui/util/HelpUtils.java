@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.util;
 
+import static org.apache.hop.core.Const.getDocUrl;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -31,8 +33,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-
-import static org.apache.hop.core.Const.getDocUrl;
 
 public class HelpUtils {
   private static final Class<?> PKG = HelpUtils.class; // For Translator
@@ -77,11 +77,13 @@ public class HelpUtils {
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       String msg = "";
-      // only supports Transform, Action and Metadata - extend if required.
+      // only supports Transform, Action, Database and Metadata - extend if required.
       if (plugin.getPluginType().equals(TransformPluginType.class)) {
         msg = BaseMessages.getString(PKG, "System.Help.Transform.IsNotAvailable", plugin.getName());
       } else if (plugin.getPluginType().equals(ActionPluginType.class)) {
         msg = BaseMessages.getString(PKG, "System.Help.Action.IsNotAvailable", plugin.getName());
+      } else if (plugin.getPluginType().equals(DatabasePluginType.class)) {
+        msg = BaseMessages.getString(PKG, "System.Help.Database.IsNotAvailable", plugin.getName());
       } else {
         msg = BaseMessages.getString(PKG, "System.Help.Metadata.IsNotAvailable", plugin.getName());
       }

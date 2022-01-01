@@ -396,8 +396,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     //
     setWidgetsContent();
 
-    //  shell.layout( true, true );
-
     busyChangingPluginType.set(false);
   }
 

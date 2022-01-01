@@ -53,9 +53,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>Whether the pipeline was stopped
  *   <li>Logging information (channel ID and text)
  *       <p>After execution of a workflow or pipeline, the Result can be evaluated.
- *
- * @author Matt
- * @since 05-11-2003
  */
 public class Result implements Cloneable {
 

@@ -20,27 +20,103 @@ under the License.
 
 == Building or customizing Hop Web
 
-Building and setting up your own Hop Web environment is straightforward.
+Hop Web is available as a Docker container image from Docker Hub. Check the xref:manual::hop-gui/hop-web.adoc[user manual for Hop Web] for more information.
+
+
+== Build Hop
+
+Hop currently doesn't offer any standalone Hop Web builds.
+
+Running your own Hop Web environment is straightforward but requires you to build Hop. Follow the xref:setup-dev-environment.adoc[development environment setup] guide to get the Hop source code and build Hop.
+
+== Tomcat Configuration
+
+=== Copy files
+
+We'll use Apache Tomcat in this example. If you use another application server, the process should be similar.
+
+Hop 1.x is built with Java 8, so you'll need to https://tomcat.apache.org/download-90.cgi[download the latest Tomcat 9].
 
 The steps to set up the default Docker image are included in a helper script `docker/create_hop_web_container.sh` in the Hop code base.
 This should get you started to make modifications or create your own version entirely.
 
+Copy or extract the following files from your Hop build, where `$CATALINA_HOME` is your Tomcat installation folder.
+
 [source,bash]
 ----
-#set working dir to current location
-cd "${0%/*}"
 
 #unzip files for docker image
-unzip ../assemblies/web/target/hop.war -d ../assemblies/web/target/webapp
-unzip ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblies/plugins/dist/target/
-
-#build docker image
-docker build ../ -f Dockerfile.web -t hop-web
-
-#cleanup
-rm -rf ../assemblies/web/target/webapp
-rm -rf ../assemblies/plugins/dist/target/plugins
+unzip assemblies/web/target/hop.war -d $CATALINA_HOME/webapp
+unzip assemblies/plugins/dist/target/hop-assemblies-*.zip -d $CATALINA_HOME/
 ----
+
+=== Modify startup script
+
+Configure Tomcat to run Hop by adding the information below to  `$CATALINA_HOME/bin/startup.sh`, anywhere before the last line (`exec "$PRGDIR"/"$EXECUTABLE" start "$@"`)
+
+[source,bash]
+----
+
+HOP_AES_ENCODER_KEY=
+# specify where Hop should store audit information
+HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/hop/audit"
+# specify where Hop should manage configuration metadata (e.g. projects and environments information).
+HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/hop/config"
+# specify the hop log level
+HOP_LOG_LEVEL="Basic"
+# any additional JRE settings you want to pass on
+#HOP_OPTIONS=
+# default Hop password encoder plugin
+HOP_PASSWORD_ENCODER_PLUGIN="Hop"
+# point Hop to the plugins folder
+HOP_PLUGIN_BASE_FOLDERS="plugins"
+# path to jdbc drivers
+HOP_SHARED_JDBC_FOLDER=
+# the theme to use (dark or light)
+HOP_WEB_THEME="light"
+
+# Set TOMCAT start variables
+export CATALINA_OPTS='${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" -DHOP_SHARED_JDBC_FOLDER="${HOP_SHARED_JDBC_FOLDER}" -DHOP_WEB_THEME="${HOP_WEB_THEME}"'
+
+----
+
+If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `${HOP_CONFIG_FOLDER}.
+
+On Linux or Mac, use the following sed command to fix this in one line:
+
+`sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' webapps/hop/config/hop-config.json`
+
+On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the one below:
+
+[source, json]
+----
+  "projectsConfig" : {
+    "enabled" : true,
+    "projectMandatory" : true,
+    "defaultProject" : "default",
+    "standardParentProject" : "default",
+    "projectConfigurations" : [ {
+      "projectName" : "default",
+      "projectHome" : "${HOP_CONFIG_FOLDER}/projects/default",
+      "configFilename" : "project-config.json"
+    }, {
+      "projectName" : "samples",
+      "projectHome" : "${HOP_CONFIG_FOLDER}/projects/samples",
+      "configFilename" : "project-config.json"
+    } ]
+  }
+
+----
+
+== Start Tomcat
+
+Run `bin/startup.sh` (Linux/Mac) or `bin/startup.bat` (Windows).
+
+Hop Web should only take a couple of seconds to start.
+
+Access through http://localhost:8080/hop/ui to test.
+
+image:hop-web.png[Hop Web, width="90%"]
 
 == Additional Guides
 

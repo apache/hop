@@ -55,7 +55,7 @@ public class Utils {
     // A distancesMatrix to keep track of distances between characters.
     // It explores all valid distances in the loop below
     //
-    int distancesMatrix[][] = new int[oneLength + 2][twoLength + 2];
+    int[][] distancesMatrix = new int[oneLength + 2][twoLength + 2];
 
     // Initialize the matrix
     // The maximum possible length is the sum of both String lengths

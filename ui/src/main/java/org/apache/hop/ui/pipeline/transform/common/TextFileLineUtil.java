@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,11 +62,11 @@ public class TextFileLineUtil {
             if (encodingType.isReturn(c) || encodingType.isLinefeed(c)) {
               c = reader.read(); // skip \n and \r
               if (!encodingType.isReturn(c) && !encodingType.isLinefeed(c)) {
-                // make sure its really a linefeed or cariage return
-                // raise an error this is not a DOS file
-                // so we have pulled a character from the next line
+                // Make sure it's really a linefeed or carriage return.
+                // Raise an error if this is not a DOS formatted file.
+                //
                 throw new HopFileException(
-                    BaseMessages.getString(PKG, "TextFileLineUtil.Log.SingleLineFound"));
+                        BaseMessages.getString(PKG, "TextFileLineUtil.Log.SingleLineFound"));
               }
               return line.toString();
             }
@@ -152,81 +152,81 @@ public class TextFileLineUtil {
       int length = line.length();
       boolean dencl = false;
 
-      int len_encl = (enclosure == null ? 0 : enclosure.length());
+      int lenEncl = (enclosure == null ? 0 : enclosure.length());
       int lenEsc = (escapeCharacter == null ? 0 : escapeCharacter.length());
 
       while (pos < length) {
         int from = pos;
         int next;
 
-        boolean encl_found;
-        boolean containsEscaped_enclosures = false;
+        boolean enclFound;
+        boolean containsEscapedEnclosures = false;
         boolean containsEscapedSeparators = false;
 
         // Is the field beginning with an enclosure?
         // "aa;aa";123;"aaa-aaa";000;...
-        if (len_encl > 0 && line.substring(from, from + len_encl).equalsIgnoreCase(enclosure)) {
+        if (lenEncl > 0 && line.substring(from, from + lenEncl).equalsIgnoreCase(enclosure)) {
           if (log.isRowLevel()) {
             log.logRowlevel(
                 BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
                 BaseMessages.getString(
                     PKG,
                     "TextFileLineUtil.Log.ConvertLineToRow",
-                    line.substring(from, from + len_encl)));
+                    line.substring(from, from + lenEncl)));
           }
-          encl_found = true;
-          int p = from + len_encl;
+          enclFound = true;
+          int p = from + lenEncl;
 
-          boolean is_enclosure =
-              len_encl > 0
-                  && p + len_encl < length
-                  && line.substring(p, p + len_encl).equalsIgnoreCase(enclosure);
+          boolean isEnclosure =
+              lenEncl > 0
+                  && p + lenEncl < length
+                  && line.substring(p, p + lenEncl).equalsIgnoreCase(enclosure);
           boolean isEscape =
               lenEsc > 0
                   && p + lenEsc < length
                   && line.substring(p, p + lenEsc).equalsIgnoreCase(escapeCharacter);
 
-          boolean enclosure_after = false;
+          boolean enclosureAfter = false;
 
           // Is it really an enclosure? See if it's not repeated twice or escaped!
-          if ((is_enclosure || isEscape) && p < length - 1) {
-            String strnext = line.substring(p + len_encl, p + 2 * len_encl);
+          if ((isEnclosure || isEscape) && p < length - 1) {
+            String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
             if (strnext.equalsIgnoreCase(enclosure)) {
               p++;
-              enclosure_after = true;
+              enclosureAfter = true;
               dencl = true;
 
               // Remember to replace them later on!
               if (isEscape) {
-                containsEscaped_enclosures = true;
+                containsEscapedEnclosures = true;
               }
             }
           }
 
           // Look for a closing enclosure!
-          while ((!is_enclosure || enclosure_after) && p < line.length()) {
+          while ((!isEnclosure || enclosureAfter) && p < line.length()) {
             p++;
-            enclosure_after = false;
-            is_enclosure =
-                len_encl > 0
-                    && p + len_encl < length
-                    && line.substring(p, p + len_encl).equals(enclosure);
+            enclosureAfter = false;
+            isEnclosure =
+                lenEncl > 0
+                    && p + lenEncl < length
+                    && line.substring(p, p + lenEncl).equals(enclosure);
             isEscape =
                 lenEsc > 0
                     && p + lenEsc < length
                     && line.substring(p, p + lenEsc).equals(escapeCharacter);
 
             // Is it really an enclosure? See if it's not repeated twice or escaped!
-            if ((is_enclosure || isEscape) && p < length - 1) {
-              String strnext = line.substring(p + len_encl, p + 2 * len_encl);
+            if ((isEnclosure || isEscape) && p < length - 1) {
+              String strnext = line.substring(p + lenEncl, p + 2 * lenEncl);
               if (strnext.equals(enclosure)) {
                 p++;
-                enclosure_after = true;
+                enclosureAfter = true;
                 dencl = true;
 
                 // Remember to replace them later on!
                 if (isEscape) {
-                  containsEscaped_enclosures = true; // remember
+                  containsEscapedEnclosures = true; // remember
                 }
               }
             }
@@ -235,7 +235,7 @@ public class TextFileLineUtil {
           if (p >= length) {
             next = p;
           } else {
-            next = p + len_encl;
+            next = p + lenEncl;
           }
 
           if (log.isRowLevel()) {
@@ -244,7 +244,7 @@ public class TextFileLineUtil {
                 BaseMessages.getString(PKG, "TextFileLineUtil.Log.EndOfEnclosure", "" + p));
           }
         } else {
-          encl_found = false;
+          enclFound = false;
           boolean found = false;
           int startpoint = from;
           do {
@@ -270,8 +270,8 @@ public class TextFileLineUtil {
           next = length;
         }
 
-        if (encl_found) {
-          pol = line.substring(from + len_encl, next - len_encl);
+        if (enclFound) {
+          pol = line.substring(from + lenEncl, next - lenEncl);
           if (log.isRowLevel()) {
             log.logRowlevel(
                 BaseMessages.getString(PKG, "TextFileLineUtil.Log.ConvertLineToRowTitle"),
@@ -297,7 +297,7 @@ public class TextFileLineUtil {
         }
 
         // replace the escaped enclosures with enclosures...
-        if (containsEscaped_enclosures) {
+        if (containsEscapedEnclosures) {
           String replace = escapeCharacter + enclosure;
           pol = Const.replace(pol, replace, enclosure);
         }

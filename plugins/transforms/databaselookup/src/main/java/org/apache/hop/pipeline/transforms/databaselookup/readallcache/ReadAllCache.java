@@ -33,8 +33,6 @@ import java.util.PriorityQueue;
  * org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookup DatabaseLookup} when "Load All
  * Data In ICache" checkbox is selected. Internally, it uses some optimizations to reduce memory
  * consumption.
- *
- * @author Andrey Khayrutdinov
  */
 public class ReadAllCache implements DatabaseLookupData.ICache {
 

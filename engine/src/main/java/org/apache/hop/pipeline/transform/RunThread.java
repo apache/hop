@@ -90,7 +90,6 @@ public class RunThread implements Runnable {
                   + parentLogChannelId);
         }
         HopLogStore.getAppender().getBuffer("2bcc6b3f-c660-4a8b-8b17-89e8cbd5b29b", false);
-        // baseTransform.logError(Const.getStackTracker(t));
       } catch (OutOfMemoryError e) {
         e.printStackTrace();
       } finally {

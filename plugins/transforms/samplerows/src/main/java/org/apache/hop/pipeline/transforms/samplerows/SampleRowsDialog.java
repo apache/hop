@@ -41,7 +41,6 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
   private LabelTextVar wLinesRange;
-  private FormData fdLinesRange, fdLineNumberField;
   private LabelTextVar wLineNumberField;
   private SampleRowsMeta input;
 
@@ -100,7 +99,7 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
             BaseMessages.getString(PKG, "SampleRowsDialog.LinesRange.Tooltip"));
     props.setLook(wLinesRange);
     wLinesRange.addModifyListener(lsMod);
-    fdLinesRange = new FormData();
+    FormData fdLinesRange = new FormData();
     fdLinesRange.left = new FormAttachment(0, -margin);
     fdLinesRange.top = new FormAttachment(wTransformName, 2 * margin);
     fdLinesRange.right = new FormAttachment(100, -margin);
@@ -115,7 +114,7 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
             BaseMessages.getString(PKG, "SampleRowsDialog.LineNumberField.Tooltip"));
     props.setLook(wLinesRange);
     wLineNumberField.addModifyListener(lsMod);
-    fdLineNumberField = new FormData();
+    FormData fdLineNumberField = new FormData();
     fdLineNumberField.left = new FormAttachment(0, -margin);
     fdLineNumberField.top = new FormAttachment(wLinesRange, 2 * margin);
     fdLineNumberField.right = new FormAttachment(100, -margin);

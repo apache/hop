@@ -26,12 +26,9 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
 /**
- * Contains DB2 specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
+ * Contains Intersystems Cache specific information through static final members
  */
-@DatabaseMetaPlugin(type = "CACHE", typeDescription = "Intersystems Cache")
+@DatabaseMetaPlugin(type = "CACHE", typeDescription = "Intersystems Cache", documentationUrl = "/database/databases/cache.html")
 @GuiPlugin(id = "GUI-CacheDatabaseMeta")
 public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

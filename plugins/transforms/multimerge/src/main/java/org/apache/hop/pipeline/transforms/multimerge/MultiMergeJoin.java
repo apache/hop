@@ -50,9 +50,6 @@ import java.util.PriorityQueue;
  * a) Containing matched records b) Unmatched records for each input port 5) Support incoming rows
  * to be sorted either on ascending or descending order. The currently implementation only supports
  * ascending
- *
- * @author Biswapesh
- * @since 24-nov-2006
  */
 public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData>
     implements ITransform<MultiMergeJoinMeta, MultiMergeJoinData> {
@@ -429,14 +426,6 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     if (rows != null) {
       // Compare the key types
       String[] keyFields = meta.getKeyFields();
-      /*
-       * int nrKeyFields = keyFields.length;
-       *
-       * for (int i=0;i<nrKeyFields;i++) { IValueMeta v1 = rows[0].searchValueMeta(keyFields[i]); if (v1 ==
-       * null) { return false; } for (int j = 1; j < rows.length; j++) { IValueMeta v2 =
-       * rows[j].searchValueMeta(keyFields[i]); if (v2 == null) { return false; } if ( v1.getType()!=v2.getType() ) {
-       * return false; } } }
-       */
       // check 1 : keys are configured for each stream
       if (rows.length != keyFields.length) {
         logError("keys are not configured for all the streams ");

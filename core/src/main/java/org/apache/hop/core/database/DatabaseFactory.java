@@ -26,7 +26,6 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
-/** @author matt */
 public class DatabaseFactory implements IDatabaseFactory {
 
   private static final Class<?> PKG = Database.class; // For Translator

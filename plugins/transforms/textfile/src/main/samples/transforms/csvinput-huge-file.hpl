@@ -41,13 +41,14 @@ limitations under the License.
     <notepad>
       <note>Reads a large csv file and output the results. 
 Check the 'running in parallel' option and increase 'number of copies' for the CSV Input transform.
-This sample uses a file that is generated in 'textfileoutput-huge-file.hpl'</note>
-      <xloc>96</xloc>
+
+First run 'textfileoutput-huge-file.hpl', the file needed for this example is generated there</note>
+      <xloc>80</xloc>
       <yloc>48</yloc>
-      <width>511</width>
-      <heigth>58</heigth>
+      <width>643</width>
+      <heigth>78</heigth>
       <fontname>Noto Sans</fontname>
-      <fontsize>10</fontsize>
+      <fontsize>14</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>
@@ -82,7 +83,7 @@ This sample uses a file that is generated in 'textfileoutput-huge-file.hpl'</not
     <attributes/>
     <GUI>
       <xloc>288</xloc>
-      <yloc>128</yloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform>
@@ -158,7 +159,7 @@ This sample uses a file that is generated in 'textfileoutput-huge-file.hpl'</not
     <attributes/>
     <GUI>
       <xloc>112</xloc>
-      <yloc>128</yloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

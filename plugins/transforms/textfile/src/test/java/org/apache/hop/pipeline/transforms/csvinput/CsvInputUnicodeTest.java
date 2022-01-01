@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Tests for unicode support in CsvInput transform
  *
- * @author Pavel Sakun
  * @see CsvInput
  */
 public class CsvInputUnicodeTest extends CsvInputUnitTestBase {

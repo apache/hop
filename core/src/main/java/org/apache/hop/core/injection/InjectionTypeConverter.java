@@ -23,8 +23,6 @@ import org.apache.hop.core.exception.HopValueException;
  * Base class converter for metadata injection.
  *
  * <p>Developer can extend it for own converter implementation.
- *
- * @author Alexander Buloichik
  */
 public class InjectionTypeConverter {
   public String string2string(String v) throws HopValueException {

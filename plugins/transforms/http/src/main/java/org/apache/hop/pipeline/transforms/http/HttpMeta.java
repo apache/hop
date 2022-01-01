@@ -48,7 +48,8 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.HTTP",
     description = "i18n::BaseTransform.TypeTooltipDesc.HTTP",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "/pipeline/transforms/getvariable.html")
+    keywords = "i18n::HttpMeta.keyword",
+    documentationUrl = "/pipeline/transforms/http.html")
 public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
   private static final Class<?> PKG = HttpMeta.class; // For Translator
 

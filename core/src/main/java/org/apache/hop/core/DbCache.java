@@ -31,9 +31,6 @@ import java.util.Hashtable;
 /**
  * This class caches database queries so that the same query doesn't get called twice. Queries are
  * often launched to the databases to get information on tables etc.
- *
- * @author Matt
- * @since 15-01-04
  */
 public class DbCache {
   private static DbCache dbCache;

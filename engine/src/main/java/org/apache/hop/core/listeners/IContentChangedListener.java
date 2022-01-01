@@ -17,11 +17,7 @@
 
 package org.apache.hop.core.listeners;
 
-/**
- * This listener will be called by the parent object when its content changes.
- *
- * @author matt
- */
+/** This listener will be called by the parent object when its content changes. */
 public interface IContentChangedListener {
 
   /**

@@ -26,17 +26,29 @@ This is the documentation of the official Apache Hop docker container published 
 https://hub.docker.com/r/apache/incubator-hop
 
 It's a **Hop Docker image** supporting both **short-lived** and **long-lived** setups.
+A short-lived setup executes a pipeline or workflow and stops right after.
+A long-lived setup starts a Hop server and waits for work.
+
+== Operating system
+
+The docker container runs a minimal Linux system called https://hub.docker.com/_/alpine[Alpine].
+OpenJDK version 8 is then used to execute Apache Hop.
+The Linux user used to execute in the container is `hop` and the group is `hop` as well.
 
 == Container Folder Structure
 
 |===
-|Directory | Description
+|Folder | Description
 
 |```/opt/hop```
-| location of the hop package
+| The installation location of the hop client package.
 
 |```/files```
-| here you should mount a directory that contains the **hop and project config** as well as the **workflows and pipelines**.
+| This volume has read-write permissions for Linux user `hop`.
+You can use it for example to mount a folder that contains the **hop and project config** as well as the **workflows and pipelines**.
+
+|```/home/hop```
+| The initial working directory location of the docker container.
 
 |===
 
@@ -44,105 +56,163 @@ It's a **Hop Docker image** supporting both **short-lived** and **long-lived** s
 
 You can provide values for the following environment variables:
 
-For **short-lived** containers (execute a workflow or pipeline):
+|===
+|Environment Variable|Default |Description
+
+|```HOP_LOG_LEVEL```
+|`Basic`
+| The log level.
+Use one of: `None`, `Error`, `Minimal`, `Basic`, `Detailed`, `Debug` or `Rowlevel`.
+
+|```HOP_LOG_PATH```
+|`/opt/hop/hop.err.log`
+| The file path to the Hop log file.
+
+|```HOP_PROJECT_NAME```
+|
+| Name of the Hop project to create in the container.
+You also need to specify the ```HOP_PROJECT_FOLDER``` variable.
+If you do not set this variable, no project or environment will be created.
+
+|```HOP_PROJECT_FOLDER```
+
+`HOP_PROJECT_DIRECTORY` (Deprecated)
+|
+| Path to the home of the Hop project.
+
+|```HOP_PROJECT_CONFIG_FILE_NAME```
+|`project-config.json`
+| Name of the project config file.
+
+|```HOP_ENVIRONMENT_NAME```
+|
+| The name of the Hop environment to create in the container.
+If you do not set this variable, no environment will be created.
+
+|```HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS```
+|
+| This is a comma separated list of paths to environment config files (including filename and file extension).
+
+|```HOP_OPTIONS```
+|`-XX:+AggressiveHeap`
+| Any JRE options you want to set.
+The `-XX:+AggressiveHeap` option tells the container to use all memory assigned to it.
+
+|```HOP_SHARED_JDBC_FOLDER```
+|
+| Path to a folder where your JDBC drivers are located.
+
+|```HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH```
+|
+| Optional path to a custom entrypoint extension script file.
+You can use this for example to fetch Hop project files from S3 or gitlab.
+
+|```HOP_SYSTEM_PROPERTIES```
+|
+| The system properties that should be set during execution.
+You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=yyy`
+
+|===
+
+Here are the variables for **short-lived** containers, to execute a workflow or pipeline:
 
 |===
 |Environment Variable | Required | Description
 
-|```HOP_LOG_LEVEL```
-| No
-| Specify the log level.Default: ```Basic```.Optional.
-
 |```HOP_FILE_PATH```
 | Yes
-| Path to hop workflow or pipeline
-
-|```HOP_LOG_PATH```
-| No
-| File path to hop log file
-
-|```HOP_CONFIG_DIRECTORY```
-| No
-| Path to the Hop config folder.DISABLED for now.
-
-|```HOP_PROJECT_NAME```
-| Yes
-| Name of the Hop project to use
-
-|```HOP_PROJECT_DIRECTORY```
-| Yes
-| Path to the home of the hop project.Should start with ```/files```.
-
-|```HOP_PROJECT_CONFIG_FILE_NAME```
-| No
-| Name of the project config file including file extension.Defaults to ```project-config.json```.
-
-|```HOP_ENVIRONMENT_NAME```
-| Yes
-| Name of the Hop run environment to use
-
-|```HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS```
-| Yes
-| comma separated list of paths to environment config files (including filename and file extension). paths should start with ```/files```.
+| The path to the Hop workflow or pipeline to execute.
+If you configured a project you can use a relative path to the project home folder.
 
 |```HOP_RUN_CONFIG```
 | Yes
-| Name of the Hop run configuration to use
+| The name of the Hop run configuration to use to execute your pipeline or workflow.
 
 |```HOP_RUN_PARAMETERS```
 | No
-| Parameters that should be passed on to the hop-run command.Specify as comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb```.Optional.
-
-|```HOP_OPTIONS```
-| No
-| Any JRE options you want to set
-
-|```HOP_SHARED_JDBC_DIRECTORY```
-| No
-| Path to the directory where the JDCB drivers are located
-
-|```HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH```
-| No
-| Path to custom entrypoint extension script file, e.g. to fetch Hop project files from S3 or gitlab.
+| Optionally, you can specify the parameters that should be passed to the pipeline or workflow you are executing.
+You can specify them as a comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb```.
 
 |===
 
-For **long-lived** containers (Hop Server):
+Below are the variables you can use for a **long-lived** container, running Hop Server:
 
 |===
-|Environment Variable | Description
+|Environment Variable |Default value| Description
 
 |```HOP_SERVER_HOSTNAME```
-| The Hostname the server will have.
-The Hop default is ```localhost```
+| `0.0.0.0` (listen to anything)
+| The IP address the server will listen to.
 
 |```HOP_SERVER_PORT```
-| The port for hop-server.
-Pick a value like ```8080``` or ```8181```
+| `8080`
+| The port the server will listen to.
 
 |```HOP_SERVER_USER```
-| Username for hop-server.
-The Hop default is ```cluster```
+|`cluster`
+| The username to log into the Hop server.
 
 |```HOP_SERVER_PASS```
-| Password for hop-server user.
-The Hop default is ```cluster```
+| `cluster`
+|The password to log into the Hop server
+
+|```HOP_SERVER_METADATA_FOLDER```
+|(optional)
+| You can point to a folder containing metadata JSON files which are then available to the server.
+
+|```HOP_SERVER_MAX_LOG_LINES```
+|`0` (keep all logging in memory)
+|The maximum number of log lines kept in memory by the server.
+
+|```HOP_SERVER_MAX_LOG_TIMEOUT```
+|`0` (never clean up log lines)
+|The time (in minutes) it takes for a log line to be cleaned up in memory.
+
+|```HOP_SERVER_MAX_OBJECT_TIMEOUT```
+|`1440` (a day)
+|The time (in minutes) it takes for a pipeline or workflow execution to be removed from the server status.
+
+|```HOP_SERVER_KEYSTORE```
+| (optional)
+|The path to the Java keystore file you want to use to run the Hop server with SSL enabled to support https.
+
+|```HOP_SERVER_KEYSTORE_PASSWORD```
+|(optional)
+|The password of the Java keystore file you want to use to run the Hop server with SSL enabled to support https
+
+|```HOP_SERVER_KEY_PASSWORD```
+|(optional)
+|The password of the key if you want to use to run the Hop server with SSL enabled.
+If both passwords are the same you can omit setting this variable.
 
 |===
+
+== Updating the Hop docker container image
+
+Make sure to get the latest updates for the Hop image by pulling them:
+
+[source,bash]
+----
+docker pull apache/incubator-hop:<tag>
+----
+
+If you do not specify a value for `:<tag>` the value `latest` will be taken.
+Latest will contain the last officially released version of Apache Hop.
+You can also specify `Development` as a tag.
+That image will contain the last built Development snapshot of Apache Hop. rxq7777
 
 == How to run the Container
 
 The most common use case will be that you run a **short-lived container** to just complete one Hop workflow or pipeline.
 
-Example for running a **workflow**:
+Below is an example of the commands to run a **workflow**:
 
 [source,bash]
 ----
-docker pull docker.io/apache/incubator-hop:<tag>
 docker run -it --rm \
   --env HOP_LOG_LEVEL=Basic \
   --env HOP_FILE_PATH='${PROJECT_HOME}/pipelines-and-workflows/main.hwf' \
-  --env HOP_PROJECT_DIRECTORY=/files/project \
+  --env HOP_PROJECT_FOLDER=/files/project \
   --env HOP_PROJECT_NAME=project-a \
   --env HOP_ENVIRONMENT_NAME=project-a-test \
   --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/files/config/project-a-test.json \
@@ -200,7 +270,7 @@ We also make it parameter-driven, so it any other team can use it.We create our 
 
 [source,dockerfile]
 ----
-FROM apache/incubator-hop:0.70-SNAPSHOT
+FROM apache/incubator-hop:1.1.0-SNAPSHOT
 ENV GIT_REPO_URI=https://...
 # example value: https://github.com/diethardsteiner/apache-hop-minimal-project.git
 ENV GIT_REPO_NAME=repo-name
@@ -213,7 +283,7 @@ COPY --chown=hop:hop ./resources/clone-git-repo.sh /home/hop/clone-git-repo.sh
 USER hop
 ----
 
-Note that apart from defining the new environment variables (that go in line with the parameters we defined in the ```clone-git-repo.sh``` earlier on ), we also ```COPY``` the ```clone-git-repo.sh``` file to user hop's home directory.
+Note that apart from defining the new environment variables (that go in line with the parameters we defined in the ```clone-git-repo.sh``` earlier on ), we also ```COPY``` the ```clone-git-repo.sh``` file to user hop's home folder.
 
 Next let's build a small script which builds our custom image and then tests it by spinning up a container and running a workflow:
 
@@ -239,7 +309,7 @@ PROJECT_DEPLOYMENT_DIR=/home/hop/apache-hop-minimal-project
 docker run -it --rm \
   --env HOP_LOG_LEVEL=Basic \
   --env HOP_FILE_PATH='${PROJECT_HOME}/main.hwf' \
-  --env HOP_PROJECT_DIRECTORY=${PROJECT_DEPLOYMENT_DIR} \
+  --env HOP_PROJECT_FOLDER=${PROJECT_DEPLOYMENT_DIR} \
   --env HOP_PROJECT_NAME=apache-hop-minimum-project \
   --env HOP_ENVIRONMENT_NAME=dev \
   --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=${PROJECT_DEPLOYMENT_DIR}/dev-config.json \

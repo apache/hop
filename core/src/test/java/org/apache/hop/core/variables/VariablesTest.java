@@ -39,7 +39,6 @@ import static org.mockito.Mockito.*;
 /**
  * Variables tests.
  *
- * @author Yury Bakhmutski
  * @see Variables
  */
 public class VariablesTest {

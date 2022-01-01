@@ -25,12 +25,7 @@ import org.eclipse.swt.events.SelectionListener;
 
 import java.util.function.Supplier;
 
-/**
- * Used to define the behaviour and the content of a Table column in a TableView object.
- *
- * @author Matt
- * @since 27-05-2003
- */
+/** Used to define the behaviour and the content of a Table column in a TableView object. */
 public class ColumnInfo {
   public static final int COLUMN_TYPE_NONE = 0;
   public static final int COLUMN_TYPE_TEXT = 1;

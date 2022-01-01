@@ -33,7 +33,7 @@ import org.apache.hop.neo4j.actions.index.ObjectType;
 import org.apache.hop.neo4j.actions.index.UpdateType;
 import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.arrows.ArrowsAppImporter;
-import org.apache.hop.neo4j.model.cw.CypherWorkbenchImporter;
+import org.apache.hop.neo4j.model.sw.SolutionsWorkbenchImporter;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -73,7 +73,7 @@ import java.util.*;
 
 public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       GraphModelEditor.class; // for i18n purposes, needed by Translator2!!
 
   private CTabFolder wTabs;
@@ -106,7 +106,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private GraphModel graphModel;
   private GraphNode activeNode;
   private GraphRelationship activeRelationship;
-  private Button wImportNode;
 
   private Point mouseDownPoint;
   private Canvas wCanvas;
@@ -252,8 +251,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     // Refresh the Properties
     //
     monitorNodeProperties = false;
-    // System.out.println( "Adding " + activeNode.getProperties().size() + " properties to the node
-    // view" );
     wNodeProperties.clearAll();
     for (int i = 0; i < activeNode.getProperties().size(); i++) {
       GraphProperty property = activeNode.getProperties().get(i);
@@ -289,8 +286,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     // Refresh the Properties
     //
     monitorRelProperties = false;
-    // System.out.println( "Adding " + activeRelationship.getProperties().size() + " properties to
-    // the relationship view" );
     wRelProperties.clearAll();
     for (int i = 0; i < activeRelationship.getProperties().size(); i++) {
       GraphProperty property = activeRelationship.getProperties().get(i);
@@ -407,7 +402,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdImportGraph.right = new FormAttachment(75, 0);
     fdImportGraph.top = new FormAttachment(lastControl, 50);
     wImportGraph.setLayoutData(fdImportGraph);
-    wImportGraph.addListener(SWT.Selection, (e) -> importGraphFromFile());
+    wImportGraph.addListener(SWT.Selection, e -> importGraphFromFile());
     lastControl = wImportGraph;
 
     Button wExportGraph = new Button(wModelComp, SWT.PUSH);
@@ -418,20 +413,21 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdExportGraph.right = new FormAttachment(75, 0);
     fdExportGraph.top = new FormAttachment(lastControl, margin);
     wExportGraph.setLayoutData(fdExportGraph);
-    wExportGraph.addListener(SWT.Selection, (e) -> exportGraphToFile());
+    wExportGraph.addListener(SWT.Selection, e -> exportGraphToFile());
     lastControl = wExportGraph;
 
-    Button wCypherWorkbenchImportGraph = new Button(wModelComp, SWT.PUSH);
-    wCypherWorkbenchImportGraph.setText(
-        BaseMessages.getString(PKG, "GraphModelDialog.ImportGraphCW.Button"));
-    props.setLook(wCypherWorkbenchImportGraph);
-    FormData fdCypherWorkbenchImportGraph = new FormData();
-    fdCypherWorkbenchImportGraph.left = new FormAttachment(middle, 0);
-    fdCypherWorkbenchImportGraph.right = new FormAttachment(75, 0);
-    fdCypherWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
-    wCypherWorkbenchImportGraph.setLayoutData(fdCypherWorkbenchImportGraph);
-    wCypherWorkbenchImportGraph.addListener(SWT.Selection, (e) -> importGraphFromCypherWorkbench());
-    lastControl = wCypherWorkbenchImportGraph;
+    Button wSolutionsWorkbenchImportGraph = new Button(wModelComp, SWT.PUSH);
+    wSolutionsWorkbenchImportGraph.setText(
+        BaseMessages.getString(PKG, "GraphModelDialog.ImportGraphSW.Button"));
+    props.setLook(wSolutionsWorkbenchImportGraph);
+    FormData fdSolutionsWorkbenchImportGraph = new FormData();
+    fdSolutionsWorkbenchImportGraph.left = new FormAttachment(middle, 0);
+    fdSolutionsWorkbenchImportGraph.right = new FormAttachment(75, 0);
+    fdSolutionsWorkbenchImportGraph.top = new FormAttachment(lastControl, 50);
+    wSolutionsWorkbenchImportGraph.setLayoutData(fdSolutionsWorkbenchImportGraph);
+    wSolutionsWorkbenchImportGraph.addListener(
+        SWT.Selection, e -> importGraphFromSolutionsWorkbench());
+    lastControl = wSolutionsWorkbenchImportGraph;
 
     Button wArrowsAppImportGraph = new Button(wModelComp, SWT.PUSH);
     wArrowsAppImportGraph.setText(
@@ -442,7 +438,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdArrowsAppImportGraph.right = new FormAttachment(75, 0);
     fdArrowsAppImportGraph.top = new FormAttachment(lastControl, margin);
     wArrowsAppImportGraph.setLayoutData(fdArrowsAppImportGraph);
-    wArrowsAppImportGraph.addListener(SWT.Selection, (e) -> importGraphFromArrowsApp());
+    wArrowsAppImportGraph.addListener(SWT.Selection, e -> importGraphFromArrowsApp());
     lastControl = wArrowsAppImportGraph;
 
     Button wCreateIndexAction = new Button(wModelComp, SWT.PUSH);
@@ -454,7 +450,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdCreateIndexAction.right = new FormAttachment(75, 0);
     fdCreateIndexAction.top = new FormAttachment(lastControl, 50);
     wCreateIndexAction.setLayoutData(fdCreateIndexAction);
-    wCreateIndexAction.addListener(SWT.Selection, (e) -> copyIndexActionToClipboard());
+    wCreateIndexAction.addListener(SWT.Selection, e -> copyIndexActionToClipboard());
 
     FormData fdModelComp = new FormData();
     fdModelComp.left = new FormAttachment(0, 0);
@@ -504,23 +500,23 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     //
     Button wNewNode = new Button(wNodesComp, SWT.PUSH);
     wNewNode.setText("New node");
-    wNewNode.addListener(SWT.Selection, (e) -> newNode());
+    wNewNode.addListener(SWT.Selection, e -> newNode());
 
     Button wDeleteNode = new Button(wNodesComp, SWT.PUSH);
     wDeleteNode.setText("Delete node");
-    wDeleteNode.addListener(SWT.Selection, (e) -> deleteNode());
+    wDeleteNode.addListener(SWT.Selection, e -> deleteNode());
 
     Button wCopyNode = new Button(wNodesComp, SWT.PUSH);
     wCopyNode.setText("Copy node");
-    wCopyNode.addListener(SWT.Selection, (e) -> copyNode());
+    wCopyNode.addListener(SWT.Selection, e -> copyNode());
 
-    wImportNode = new Button(wNodesComp, SWT.PUSH);
+    Button wImportNode = new Button(wNodesComp, SWT.PUSH);
     wImportNode.setText("Import properties");
-    wImportNode.addListener(SWT.Selection, (e) -> importNodeProperties());
+    wImportNode.addListener(SWT.Selection, e -> importNodeProperties());
 
     Button wNewRelationshipNode = new Button(wNodesComp, SWT.PUSH);
     wNewRelationshipNode.setText("New relationship");
-    wNewRelationshipNode.addListener(SWT.Selection, (e) -> newRelationshipFromNode());
+    wNewRelationshipNode.addListener(SWT.Selection, e -> newRelationshipFromNode());
 
     BaseTransformDialog.positionBottomButtons(
         wNodesComp,
@@ -755,8 +751,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     if (activeNode != null) {
       setChanged();
       if (monitorLabels) {
-        // System.out.println( "Labels changed! " + new Date().getTime() + " found " +
-        // wNodeLabels.nrNonEmpty() + " labels" );
 
         java.util.List<String> labels = new ArrayList<>();
         for (int i = 0; i < wNodeLabels.nrNonEmpty(); i++) {
@@ -770,12 +764,10 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             if (!labels.contains(text.getText())) {
               labels.add(text.getText());
             }
-            // System.out.println( "editor content : " + text.getText() );
           }
         }
 
         activeNode.setLabels(labels);
-        // System.out.println( "Set " + activeNode.getLabels().size() + " labels on active node" );
       }
     }
   }
@@ -786,8 +778,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     if (activeNode != null) {
       setChanged();
       if (monitorNodeProperties) {
-        // System.out.println( "Labels changed! " + new Date().getTime() + " found " +
-        // wNodeProperties.nrNonEmpty() + " properties" );
 
         java.util.List<GraphProperty> properties = new ArrayList<>();
         for (int i = 0; i < wNodeProperties.nrNonEmpty(); i++) {
@@ -812,8 +802,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         }
 
         activeNode.setProperties(properties);
-        // System.out.println( "Set " + activeNode.getProperties().size() + " properties on active
-        // node" );
       }
     }
   }
@@ -1218,8 +1206,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     if (activeRelationship != null) {
       setChanged();
       if (monitorRelProperties) {
-        // System.out.println( "Relationship properties changed! " + new Date().getTime() + " found
-        // " + wRelProperties.nrNonEmpty() + " properties" );
 
         java.util.List<GraphProperty> properties = new ArrayList<>();
         for (int i = 0; i < wRelProperties.nrNonEmpty(); i++) {
@@ -1245,8 +1231,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         }
 
         activeRelationship.setProperties(properties);
-        // System.out.println( "Set " + activeRelationship.getProperties().size() + " properties on
-        // active relationship" );
       }
     }
   }
@@ -1532,9 +1516,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       //
       scoring.vertexLength += calculateDistance(vFrom, vTo);
 
-      // score += 200 * Math.sqrt( ( vertexLength - optDistance ) * ( vertexLength - optDistance )
-      // );
-
       // Penalties for crossing vertices
       //
       for (GraphRelationship otherVertex : graphModel.getRelationships()) {
@@ -1685,33 +1666,27 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private void graphMouseUp(Event e) {
     mouseDownPoint.x = -1;
     mouseDownPoint.y = -1;
-    // System.out.println("Up: ("+e.x+", "+e.y+")");
   }
 
   private void graphMouseDown(Event e) {
     mouseDownPoint.x = e.x;
     mouseDownPoint.y = e.y;
-    // System.out.println("Down: ("+e.x+", "+e.y+")");
   }
 
   private void moveGraphObject(Event e) {
     if (mouseDownPoint.x > 0 && mouseDownPoint.y > 0) {
-      // System.out.println("Move: ("+e.x+", "+e.y+")");
       // Mouse drag
       //
       AreaOwner areaOwner = AreaOwner.findArea(areaOwners, mouseDownPoint.x, mouseDownPoint.y);
       if (areaOwner != null) {
         int offsetX = mouseDownPoint.x - areaOwner.getX();
         int offsetY = mouseDownPoint.y - areaOwner.getY();
-        // System.out.println("Offset: (+"+offsetX+", "+offsetY+")");
 
         switch (areaOwner.getAreaType()) {
           case NODE:
             GraphNode graphNode = (GraphNode) areaOwner.getSubject();
             GraphPresentation p = new GraphPresentation(e.x - offsetX, e.y - offsetY);
             graphNode.setPresentation(p);
-            // System.out.println("Node move: (+"+p.getX()+", "+p.getY()+")  -->
-            // "+graphNode.getName());
             mouseDownPoint.x = e.x;
             mouseDownPoint.y = e.y;
             wCanvas.redraw();
@@ -1910,13 +1885,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     }
   }
 
-  private void importGraphFromCypherWorkbench() {
+  private void importGraphFromSolutionsWorkbench() {
     try {
       EnterTextDialog dialog =
           new EnterTextDialog(
               getShell(),
-              "Cypher Workbench Export",
-              "Paste the cypher workbench model export (JSON) below",
+              "Solutions Workbench Export",
+              "Paste the Solutions Workbench model export (JSON) below",
               "{}",
               true);
       String jsonModelString = dialog.open();
@@ -1926,8 +1901,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
       // The graph model is loaded, replace the one in memory
       //
-      GraphModel importedModel = CypherWorkbenchImporter.importFromCwJson(jsonModelString);
-      graphModel = CypherWorkbenchImporter.changeNamesToLabels(importedModel);
+      GraphModel importedModel = SolutionsWorkbenchImporter.importFromCwJson(jsonModelString);
+      graphModel = SolutionsWorkbenchImporter.changeNamesToLabels(importedModel);
 
       // Refresh the dialog.
       //

@@ -24,9 +24,7 @@ import org.apache.hop.core.row.IRowMeta;
 import java.text.*;
 import java.util.*;
 
-/**
- * A collection of utilities to manipulate strings.
- */
+/** A collection of utilities to manipulate strings. */
 public class StringUtil {
   public static final String UNIX_OPEN = "${";
 

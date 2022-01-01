@@ -33,15 +33,18 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Use values from input streams to joins with values in a database.
- * Freehand SQL can be used to do this.
+ * Use values from input streams to joins with values in a database. Freehand SQL can be used to do
+ * this.
  */
 public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData>
     implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
+
+  private final ReentrantLock dbLock = new ReentrantLock();
 
   public DatabaseJoin(
       TransformMeta transformMeta,
@@ -53,7 +56,10 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private synchronized void lookupValues(IRowMeta rowMeta, Object[] rowData) throws HopException {
+  private void lookupValues(IRowMeta rowMeta, Object[] rowData) throws HopException {
+
+    dbLock.lock();
+
     if (first) {
       first = false;
 
@@ -78,20 +84,19 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
       data.keynrs = new int[meta.getParameters().size()];
 
-      
       for (int i = 0; i < data.keynrs.length; i++) {
         ParameterField field = meta.getParameters().get(i);
         data.keynrs[i] = rowMeta.indexOfValue(field.getName());
         if (data.keynrs[i] < 0) {
           throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
+              BaseMessages.getString(PKG, "DatabaseJoin.Exception.FieldNotFound", field.getName()));
         }
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
       }
     }
-
+    final ResultSet rs;
+    try {
     // Construct the parameters row...
     Object[] lookupRowData = new Object[data.lookupRowMeta.size()];
     for (int i = 0; i < data.keynrs.length; i++) {
@@ -99,7 +104,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     }
 
     // Set the values on the prepared statement (for faster exec.)
-    ResultSet rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
+    rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
 
     // Get a row from the database...
     //
@@ -149,6 +154,9 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     }
 
     data.db.closeQuery(rs);
+    } finally{
+      dbLock.unlock();
+    }
   }
 
   @Override
@@ -204,15 +212,21 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
    * disposed has already been called
    */
   @Override
-  public synchronized void stopRunning() throws HopException {
-    if (this.isStopped() || data.isDisposed()) {
+  public void stopRunning() throws HopException {
+    if ( this.isStopped() || data.isDisposed() ) {
       return;
     }
 
-    if (data.db != null && data.db.getConnection() != null && !data.isCanceled) {
-      data.db.cancelStatement(data.pstmt);
-      setStopped(true);
-      data.isCanceled = true;
+    dbLock.lock();
+
+    try {
+      if ( data.db != null && data.db.getConnection() != null && !data.isCanceled ) {
+        data.db.cancelStatement( data.pstmt );
+        setStopped( true );
+        data.isCanceled = true;
+      }
+    } finally {
+      dbLock.unlock();
     }
   }
 
@@ -220,14 +234,17 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   public boolean init() {
     if (super.init()) {
 
-      if ( Utils.isEmpty(meta.getConnection())) {
-        logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+      if (Utils.isEmpty(meta.getConnection())) {
+        logError(
+            BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-
+      dbLock.lock();
+      try {
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       if (databaseMeta == null) {
-        logError(BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+        logError(
+            BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
         return false;
       }
 
@@ -258,6 +275,9 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           data.db.disconnect();
         }
       }
+      } finally{
+        dbLock.unlock();
+      }
     }
 
     return false;
@@ -265,10 +285,16 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
   @Override
   public void dispose() {
+    dbLock.lock();
+
+    try {
     if (data.db != null) {
       data.db.disconnect();
     }
 
     super.dispose();
+    } finally{
+      dbLock.unlock();
+    }
   }
 }

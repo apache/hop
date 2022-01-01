@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.*;
 
 /** Dialog that allows you to edit the settings of a Neo4j connection */
 public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
-  private static Class<?> PKG = NeoConnectionEditor.class; // for Translator2
+  private static final Class<?> PKG = NeoConnectionEditor.class; // for Translator2
 
   // Connection properties
   //
@@ -478,35 +478,12 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
             getMetadata().getManualUrls().size(),
             e -> setChanged(),
             props);
-    wUrls.table.addListener(
-        SWT.Selection,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.MouseDown,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.MouseUp,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.FocusIn,
-        e -> {
-          enableFields();
-        });
-    wUrls.table.addListener(
-        SWT.FocusOut,
-        e -> {
-          enableFields();
-        });
-    wUrls.addModifyListener(
-        e -> {
-          enableFields();
-        });
+    wUrls.table.addListener(SWT.Selection, e -> enableFields());
+    wUrls.table.addListener(SWT.MouseDown, e -> enableFields());
+    wUrls.table.addListener(SWT.MouseUp, e -> enableFields());
+    wUrls.table.addListener(SWT.FocusIn, e -> enableFields());
+    wUrls.table.addListener(SWT.FocusOut, e -> enableFields());
+    wUrls.addModifyListener(e -> enableFields());
 
     FormData fdUrls = new FormData();
     fdUrls.top = new FormAttachment(0, 0);
@@ -523,7 +500,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     fdgUrls.top = new FormAttachment(lastControl, margin * 2);
     fdgUrls.bottom = new FormAttachment(100, -margin * 2);
     gUrls.setLayoutData(fdgUrls);
-    // lastControl = gUrls;
 
     setWidgetsContent();
 

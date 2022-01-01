@@ -53,8 +53,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * class to get access to common member variables and default method behavior. However, ActionBase
  * does not implement IAction (although it implements most of the same methods), so individual
  * action classes must implement IAction and specifically the <code>execute()</code> method.
- *
- * @author Matt Created on 18-jun-04
  */
 public abstract class ActionBase
     implements IAction,
