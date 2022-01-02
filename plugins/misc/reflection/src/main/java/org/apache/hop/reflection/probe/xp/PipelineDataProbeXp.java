@@ -236,10 +236,7 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
 
             // If the pipeline we're the transform is and we can safely stop streaming...
             //
-            pipeline.addExecutionFinishedListener(
-                (pe) -> {
-                  rowProducer.finished();
-                });
+            pipeline.addExecutionFinishedListener(pe -> rowProducer.finished());
 
           } catch (HopException e) {
             throw new HopTransformException(

@@ -33,22 +33,14 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transform.*;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @ExtensionPoint(
     id = "PipelineLoggingExtensionPoint",
@@ -121,7 +113,7 @@ public class PipelineLoggingExtensionPoint
           });
     } catch (Exception e) {
       // Let's not kill the pipeline just yet, just log the error
-      // otherwise: throw new HopException(...);
+      // otherwise: throw new HopException(...)
       //
       log.logError("Error logging to Neo4j:", e);
     }

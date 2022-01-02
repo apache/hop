@@ -24,8 +24,6 @@ import static org.junit.Assert.*;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.
- *
- * @author Matt Casters
  */
 public class HopTwoWayPasswordEncoderTest {
 
@@ -208,7 +206,7 @@ public class HopTwoWayPasswordEncoderTest {
     assertFalse(
         encodeWithDefaultSeed.equals(
             encodeWithNondefaultSeed)); // Make sure that if the seed changes, so does the the
-                                        // encoded value
+    // encoded value
     assertEquals(
         decodeWithDefaultSeed,
         decodeWithNondefaultSeed); // Make sure that the decode from either is correct.

@@ -19,7 +19,6 @@ package org.apache.hop.ui.hopgui.partition.processor;
 
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
-/** @author Evgeniy_Lyakhov@epam.com */
 public class MethodProcessorFactory {
 
   public static IMethodProcessor create(int methodType) {

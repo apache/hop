@@ -63,6 +63,7 @@ import java.util.*;
     description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+    keywords = "i18n::DimensionLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/dimensionlookup.html")
 @InjectionSupported(
     localizationPrefix = "DimensionLookup.Injection.",
@@ -212,9 +213,9 @@ public class DimensionLookupMeta extends BaseTransformMeta
   @Injection(name = "TECHNICAL_KEY_CREATION")
   private String techKeyCreation = null;
 
-  public static String CREATION_METHOD_AUTOINC = "autoinc";
-  public static String CREATION_METHOD_SEQUENCE = "sequence";
-  public static String CREATION_METHOD_TABLEMAX = "tablemax";
+  public static final String CREATION_METHOD_AUTOINC = "autoinc";
+  public static final String CREATION_METHOD_SEQUENCE = "sequence";
+  public static final String CREATION_METHOD_TABLEMAX = "tablemax";
 
   /** The size of the cache in ROWS : -1 means: not set, 0 means: cache all */
   @Injection(name = "CACHE_SIZE")
@@ -606,7 +607,8 @@ public class DimensionLookupMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {
-    int nrkeys, nrFields;
+    int nrkeys;
+    int nrFields;
 
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "DimensionLookupMeta.DefualtTableName");
@@ -824,7 +826,8 @@ public class DimensionLookupMeta extends BaseTransformMeta
     this.metadataProvider = metadataProvider;
     try {
       String upd;
-      int nrkeys, nrFields;
+      int nrkeys;
+      int nrFields;
       String commit;
       this.databases = databases;
       schemaName = XmlHandler.getTagValue(transformNode, "schema");
@@ -1247,7 +1250,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
             if (prev != null && prev.size() > 0) {
               // Start at the top, see if the key fields exist:
               first = true;
-              boolean warning_found = false;
+              boolean warningFound = false;
               for (i = 0; i < keyStream.length; i++) {
                 // Does the field exist in the input stream?
                 String strfield = keyStream[i];
@@ -1299,7 +1302,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
                                     PKG, "DimensionLookupMeta.CheckResult.KeyhasProblem3")
                                 + Const.CR;
                       }
-                      warning_found = true;
+                      warningFound = true;
                       errorMessage +=
                           "\t\t"
                               + strfield
@@ -1322,7 +1325,7 @@ public class DimensionLookupMeta extends BaseTransformMeta
               }
               if (errorFound) {
                 cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
-              } else if (warning_found) {
+              } else if (warningFound) {
                 cr = new CheckResult(ICheckResult.TYPE_RESULT_WARNING, errorMessage, transforminfo);
               } else {
                 cr =

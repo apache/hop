@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Check DB Connections workflow action verifies connectivity with one or several databases.
 
 = Check Db connections
 
 == Description
 
-This workflow action allows you to verify connectivity with one or several databases.
+The Check DB Connections workflow action verifies connectivity with one or several databases.
 
 == Options
 

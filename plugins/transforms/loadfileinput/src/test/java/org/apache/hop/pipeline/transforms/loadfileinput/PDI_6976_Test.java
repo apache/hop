@@ -37,7 +37,6 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for LoadFileInputMeta class
  *
- * @author Pavel Sakun
  * @see LoadFileInputMeta
  */
 public class PDI_6976_Test {

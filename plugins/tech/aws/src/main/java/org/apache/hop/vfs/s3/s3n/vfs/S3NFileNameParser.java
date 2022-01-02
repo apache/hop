@@ -25,12 +25,7 @@ import org.apache.commons.vfs2.provider.FileNameParser;
 import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
 
-/**
- * Custom parser for the s3 URL
- *
- * @author asimoes
- * @since 09-11-2017
- */
+/** Custom parser for the s3 URL */
 public class S3NFileNameParser extends AbstractFileNameParser {
   private static final S3NFileNameParser INSTANCE = new S3NFileNameParser();
 

@@ -40,7 +40,6 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -89,6 +88,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   protected Label wlRunConfiguration;
   protected ComboVar wRunConfiguration;
 
+  // Create parent folder
+  protected Button wCreateParentFolder;
+
   // the source transform
   //
   private CCombo wSourceTransform;
@@ -100,7 +102,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   // the target file
   //
   private TextVar wTargetFile;
-  private Button wbFilename; // Browse for optional target file
 
   // don't execute the transformation
   //
@@ -244,9 +245,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
           }
         });
 
-
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText(BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
+    wlRunConfiguration.setText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
@@ -450,7 +451,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdlTargetFile.top = new FormAttachment(wSourceFields, 10);
     wlTargetFile.setLayoutData(fdlTargetFile);
 
-    wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
+    // Browse for optional target file
+    Button wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbFilename.setToolTipText(
@@ -481,6 +483,24 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdTargetFile.top = new FormAttachment(wlTargetFile, margin);
     wTargetFile.setLayoutData(fdTargetFile);
 
+    wCreateParentFolder = new Button(wOptionsComp, SWT.CHECK);
+    wCreateParentFolder.setText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Label"));
+    wCreateParentFolder.setToolTipText(
+        BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Tooltip"));
+    props.setLook(wCreateParentFolder);
+    FormData fdCreateParentFolder = new FormData();
+    fdCreateParentFolder.left = new FormAttachment(0, 0);
+    fdCreateParentFolder.top = new FormAttachment(wTargetFile, margin);
+    wCreateParentFolder.setLayoutData(fdCreateParentFolder);
+    wCreateParentFolder.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            metaInjectMeta.setChanged();
+          }
+        });
+
     // the streaming source transform
     //
     Label wlStreamingSourceTransform = new Label(wOptionsComp, SWT.RIGHT);
@@ -489,7 +509,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wlStreamingSourceTransform);
     FormData fdlStreamingSourceTransform = new FormData();
     fdlStreamingSourceTransform.left = new FormAttachment(0, 0);
-    fdlStreamingSourceTransform.top = new FormAttachment(wTargetFile, 10);
+    fdlStreamingSourceTransform.top = new FormAttachment(wCreateParentFolder, 10);
     wlStreamingSourceTransform.setLayoutData(fdlStreamingSourceTransform);
 
     wStreamingSourceTransform = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -827,17 +847,16 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   public void getData() {
     wPath.setText(Const.NVL(metaInjectMeta.getFileName(), ""));
 
-
     try {
       List<String> runConfigurations =
-              metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
+          metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
 
       try {
         ExtensionPointHandler.callExtensionPoint(
-                HopGui.getInstance().getLog(),
-                variables,
-                HopExtensionPoint.HopGuiRunConfiguration.id,
-                new Object[] {runConfigurations, PipelineMeta.XML_TAG});
+            HopGui.getInstance().getLog(),
+            variables,
+            HopExtensionPoint.HopGuiRunConfiguration.id,
+            new Object[] {runConfigurations, PipelineMeta.XML_TAG});
       } catch (HopException e) {
         // Ignore errors
       }
@@ -868,6 +887,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
 
     wTargetFile.setText(Const.NVL(metaInjectMeta.getTargetFile(), ""));
+    wCreateParentFolder.setSelection(metaInjectMeta.isCreateParentFolder());
     wNoExecution.setSelection(!metaInjectMeta.isNoExecution());
 
     wStreamingSourceTransform.setText(
@@ -1070,6 +1090,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
 
     meta.setTargetFile(wTargetFile.getText());
+    meta.setCreateParentFolder(wCreateParentFolder.getSelection());
     meta.setNoExecution(!wNoExecution.getSelection());
 
     final TransformMeta streamSourceTransform =

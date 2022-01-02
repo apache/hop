@@ -43,7 +43,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-/** @author Tatsiana_Kasiankova */
 public class XmlInputStreamTest {
   private static final String INCORRECT_XML_DATA_VALUE_MESSAGE = "Incorrect xml data value - ";
   private static final String INCORRECT_XML_DATA_NAME_MESSAGE = "Incorrect xml data name - ";

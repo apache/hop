@@ -162,12 +162,8 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
   public boolean init() {
 
     if (super.init()) {
-
-      //      boolean remoteInput = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      //      if ( !remoteInput && ( previous == null || previous.size() <= 0 ) ) {
-      //        data.setProcessingMode( PROC_MODE.DISABLED );
-      //      }
+
       return true;
     }
     return false;

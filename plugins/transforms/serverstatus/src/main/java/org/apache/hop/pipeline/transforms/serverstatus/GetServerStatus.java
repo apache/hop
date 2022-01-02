@@ -73,8 +73,8 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
     String errorMessage;
     String statusDescription = null;
     Double serverLoad = null;
-    Long memoryFree = null;
-    Long memoryTotal = null;
+    Double memoryFree = null;
+    Double memoryTotal = null;
     Long cpuCores = null;
     Long cpuProcessTime = null;
     String osName = null;
@@ -92,8 +92,8 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
       HopServerStatus status = hopServer.getStatus(this);
       statusDescription = status.getStatusDescription();
       serverLoad = status.getLoadAvg();
-      memoryFree = Double.valueOf(status.getMemoryFree()).longValue();
-      memoryTotal = Double.valueOf(status.getMemoryTotal()).longValue();
+      memoryFree = status.getMemoryFree();
+      memoryTotal = status.getMemoryTotal();
       cpuCores = (long) status.getCpuCores();
       cpuProcessTime = status.getCpuProcessTime();
       osName = status.getOsName();

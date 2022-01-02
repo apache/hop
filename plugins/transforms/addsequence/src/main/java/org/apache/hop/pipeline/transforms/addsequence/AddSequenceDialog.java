@@ -180,7 +180,8 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
           }
         });
     // Connection line
-    wConnection = addConnectionLine(gDatabase, wUseDatabase, input.getDatabaseMeta(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(gDatabase, wUseDatabase, databaseMeta, lsMod);
     wConnection.addModifyListener(e -> activeSequence());
 
     // Schema line...
@@ -415,9 +416,11 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     }
 
     wUseDatabase.setSelection(input.isDatabaseUsed());
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+
+    if (!Utils.isEmpty(input.getConnection())) {
+      wConnection.setText(input.getConnection());
     }
+
     if (input.getSchemaName() != null) {
       wSchema.setText(input.getSchemaName());
     }
@@ -453,8 +456,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     input.setCounterUsed(wUseCounter.getSelection());
     input.setDatabaseUsed(wUseDatabase.getSelection());
 
-    String connection = wConnection.getText();
-    input.setDatabaseMeta(pipelineMeta.findDatabase(connection));
+    input.setConnection(wConnection.getText());
     input.setSchemaName(wSchema.getText());
     input.setSequenceName(wSeqname.getText());
     input.setValueName(wValuename.getText());
@@ -464,7 +466,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     input.setIncrementBy(wIncrBy.getText());
     input.setMaxValue(wMaxVal.getText());
 
-    if (input.isDatabaseUsed() && pipelineMeta.findDatabase(connection) == null) {
+    if (input.isDatabaseUsed() && pipelineMeta.findDatabase(wConnection.getText(), variables) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "AddSequenceDialog.NoValidConnectionError.DialogMessage"));
@@ -478,13 +480,13 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
   private void activeSequence() {
     boolean useDatabase = wUseDatabase.getSelection();
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     wbSequence.setEnabled(
         databaseMeta == null ? false : useDatabase && databaseMeta.supportsSequences());
   }
 
   private void getSequences() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -531,7 +533,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     if (wSchema.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {

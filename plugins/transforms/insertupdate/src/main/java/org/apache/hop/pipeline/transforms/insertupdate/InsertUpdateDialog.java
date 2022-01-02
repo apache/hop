@@ -254,7 +254,10 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
-    int nrKeyRows = (input.getInsertUpdateLookupField().getLookupKeys() != null ? input.getInsertUpdateLookupField().getLookupKeys().size() : 1);
+    int nrKeyRows =
+        (input.getInsertUpdateLookupField().getLookupKeys() != null
+            ? input.getInsertUpdateLookupField().getLookupKeys().size()
+            : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -338,10 +341,13 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     fdlReturn.top = new FormAttachment(wKey, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    int UpInsCols = 3;
-    int UpInsRows = (input.getInsertUpdateLookupField().getValueFields() != null ? input.getInsertUpdateLookupField().getValueFields().size() : 1);
+    int upInsCols = 3;
+    int upInsRows =
+        (input.getInsertUpdateLookupField().getValueFields() != null
+            ? input.getInsertUpdateLookupField().getValueFields().size()
+            : 1);
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "InsertUpdateDialog.ColumnInfo.TableField"),
@@ -366,7 +372,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -631,7 +637,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     if (input.getInsertUpdateLookupField().getLookupKeys() != null) {
       for (int i = 0; i < input.getInsertUpdateLookupField().getLookupKeys().size(); i++) {
         InsertUpdateKeyField keyField = input.getInsertUpdateLookupField().getLookupKeys().get(i);
-        
+
         TableItem item = wKey.table.getItem(i);
         if (keyField.getKeyLookup() != null) {
           item.setText(1, keyField.getKeyLookup());
@@ -659,7 +665,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
         if (valueField.getUpdateStream() != null) {
           item.setText(2, valueField.getUpdateStream());
         }
-          item.setText(3, valueField.isUpdate() ? "Y" : "N");
+        item.setText(3, valueField.isUpdate() ? "Y" : "N");
       }
     }
 
@@ -689,7 +695,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void getInfo(InsertUpdateMeta inf) {
-    // Table ktable = wKey.table;
     int nrkeys = wKey.nrNonEmpty();
     int nrFields = wReturn.nrNonEmpty();
 
@@ -705,14 +710,17 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
-      InsertUpdateKeyField keyField = new InsertUpdateKeyField(item.getText(3) // KeyStream
-              , item.getText(1) // KeyLookup
-              , item.getText(2) // KeyCondition
-              , item.getText(4)); // KeyStream2
+      InsertUpdateKeyField keyField =
+          new InsertUpdateKeyField(
+              item.getText(3) // KeyStream
+              ,
+              item.getText(1) // KeyLookup
+              ,
+              item.getText(2) // KeyCondition
+              ,
+              item.getText(4)); // KeyStream2
       inf.getInsertUpdateLookupField().getLookupKeys().add(keyField);
     }
-
-    // Table ftable = wReturn.table;
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "InsertUpdateDialog.Log.FoundFields", nrFields + ""));
@@ -721,9 +729,13 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     inf.getInsertUpdateLookupField().getValueFields().clear();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
-      InsertUpdateValue valueField = new InsertUpdateValue(item.getText(1) // UpdateLookup
-              , item.getText(2) // UpdateStream
-              , "Y".equals(item.getText(3))); // DoUpdate
+      InsertUpdateValue valueField =
+          new InsertUpdateValue(
+              item.getText(1) // UpdateLookup
+              ,
+              item.getText(2) // UpdateStream
+              ,
+              "Y".equals(item.getText(3))); // DoUpdate
 
       inf.getInsertUpdateLookupField().getValueFields().add(valueField);
     }
@@ -739,9 +751,9 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     Runnable fieldLoader =
         () -> {
           if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText(),
-                connectionName = wConnection.getText(),
-                schemaName = wSchema.getText();
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
 
             // clear
             for (ColumnInfo colInfo : tableFieldColumns) {
@@ -941,12 +953,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                      databaseMeta,
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);

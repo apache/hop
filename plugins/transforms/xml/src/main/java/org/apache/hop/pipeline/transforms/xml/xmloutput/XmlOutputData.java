@@ -25,10 +25,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.text.*;
 import java.util.zip.ZipOutputStream;
 
-/**
- * @author Matt
- * @since 22-jan-2005
- */
 public class XmlOutputData extends BaseTransformData implements ITransformData {
   public int splitnr;
 

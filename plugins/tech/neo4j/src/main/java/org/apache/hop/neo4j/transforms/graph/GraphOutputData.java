@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.transforms.graph;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphProperty;
+import org.apache.hop.neo4j.model.GraphRelationship;
 import org.apache.hop.neo4j.model.validation.ModelValidator;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.transforms.BaseNeoTransformData;
@@ -45,7 +46,6 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
   public long outputCount;
   public boolean hasInput;
   public GraphModel graphModel;
-  public int nodeCount;
   public Map<String, CypherParameters> cypherMap;
   public HashMap<String, Map<GraphProperty, Integer>> relationshipPropertyIndexMap;
   public boolean version4;
@@ -57,4 +57,17 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
 
   // A mapping between a cypher statements and it's unwind parameters map...
   public Map<String, List<Map<String, Object>>> unwindMapList;
+  public Map<String, Map<String, GraphRelationship>> fieldValueRelationshipMap;
+  public Map<String, Map<String, List<GraphRelationship>>> relationshipsCache;
+
+  public static class RelelationshipMappingIndexes {
+    public int fieldIndex;
+  }
+
+  public List<RelelationshipMappingIndexes> relMappingIndexes;
+
+  public List<Integer> nodeMappingIndexes;
+
+  // For a specific node name, map a field value to the specified node label
+  public Map<String, Map<String, String>> nodeValueLabelMap;
 }

@@ -82,7 +82,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       boolean allowingCommitOnConsumedOffset,
       String[] configOptionParameters,
       String[] configOptionValues,
-      String configOptionTypes[],
+      String[] configOptionTypes,
       String rowMetaJson,
       List<String> transformPluginClasses,
       List<String> xpPluginClasses) {

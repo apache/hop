@@ -28,10 +28,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class WorkflowExecutorData extends BaseTransformData implements ITransformData {
   public IWorkflowEngine<WorkflowMeta> executorWorkflow;
   public WorkflowMeta executorWorkflowMeta;

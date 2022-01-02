@@ -42,12 +42,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Set variables action settings.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This dialog allows you to edit the Set variables action settings. */
 public class ActionSetVariablesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSetVariables.class; // For Translator
 

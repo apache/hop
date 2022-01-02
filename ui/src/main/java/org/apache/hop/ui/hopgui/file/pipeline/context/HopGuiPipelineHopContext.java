@@ -17,10 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.context;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
-import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -28,7 +26,6 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 

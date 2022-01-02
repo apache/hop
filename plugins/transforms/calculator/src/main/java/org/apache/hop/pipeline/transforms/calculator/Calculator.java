@@ -37,12 +37,7 @@ import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.Calc
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Calculate new field values using pre-defined functions.
- *
- * @author Matt
- * @since 8-sep-2005
- */
+/** Calculate new field values using pre-defined functions. */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData>
     implements ITransform<CalculatorMeta, CalculatorData> {
 
@@ -221,9 +216,6 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData>
       CalculatorMetaFunction fn = meta.getFunctions().get(i);
       if (!Utils.isEmpty(fn.getFieldName())) {
         IValueMeta targetMeta = data.getCalcRowMeta().getValueMeta(index);
-
-        // Get the metadata & the data...
-        // IValueMeta metaTarget = data.calcRowMeta.getValueMeta(i);
 
         IValueMeta metaA = null;
         Object dataA = null;

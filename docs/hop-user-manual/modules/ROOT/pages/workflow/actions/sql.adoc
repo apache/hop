@@ -16,14 +16,18 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The SQL Script Executor action executes one or more SQL scripts from this action's configuration or from a file.
 
 = SQL Script Executor
 
 == Description
 
-The SQL Script Executor action can be used to execute an SQL script.
+The SQL Script Executor action executes one or more SQL scripts from this action's configuration or from a file.
+
 You can execute more than one SQL statement, as long as they are separated by semi-colons.
+
 The SQL workflow action is flexible; you can perform procedure calls, create and analyze tables, and more.
+
 Common uses associated with the SQL workflow action include truncating tables, drop index, partition loading, refreshing materialized views, disabling constraints, disabling statistics, and so on..
 
 == Options

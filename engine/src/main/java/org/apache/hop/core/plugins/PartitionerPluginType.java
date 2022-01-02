@@ -22,11 +22,7 @@ import org.apache.hop.pipeline.IPartitioner;
 
 import java.util.Map;
 
-/**
- * This is the partitioner plugin type.
- *
- * @author matt
- */
+/** This is the partitioner plugin type. */
 @PluginMainClassType(IPartitioner.class)
 @PluginAnnotationType(PartitionerPlugin.class)
 public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> {

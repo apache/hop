@@ -24,11 +24,7 @@ import org.mockito.Mockito;
 import javax.naming.ldap.InitialLdapContext;
 import java.util.Collection;
 
-/**
- * Mock LDAP connection protocol, for testing
- *
- * @author nhudak
- */
+/** Mock LDAP connection protocol, for testing */
 public class LdapMockProtocol extends LdapProtocol {
   public static InitialLdapContext mockContext;
 

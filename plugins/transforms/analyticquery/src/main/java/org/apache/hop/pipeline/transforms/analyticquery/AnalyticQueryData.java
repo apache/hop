@@ -23,10 +23,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/**
- * @author ngoodman
- * @since 27-jan-2009
- */
 public class AnalyticQueryData extends BaseTransformData implements ITransformData {
   // Grouped Field Indexes (faster than looking up by strings)
   public int[] groupnrs;

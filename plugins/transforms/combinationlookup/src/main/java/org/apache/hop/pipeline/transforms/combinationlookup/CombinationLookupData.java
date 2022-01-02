@@ -26,10 +26,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.sql.PreparedStatement;
 import java.util.Map;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class CombinationLookupData extends BaseTransformData implements ITransformData {
   public Database db;
   public int[] keynrs; // nrs in row of the keys

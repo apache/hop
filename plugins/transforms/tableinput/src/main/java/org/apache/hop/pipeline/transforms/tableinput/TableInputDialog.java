@@ -137,7 +137,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    // wHelp = createHelpButton(shell, transformMeta);
 
     setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
 
@@ -441,7 +440,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getSql() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(

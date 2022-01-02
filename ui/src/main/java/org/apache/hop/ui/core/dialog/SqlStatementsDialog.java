@@ -42,12 +42,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Dialog to display the results of an SQL generation operation.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to display the results of an SQL generation operation. */
 public class SqlStatementsDialog extends Dialog {
   private static final Class<?> PKG = SqlStatementsDialog.class; // For Translator
 

@@ -66,9 +66,6 @@ import java.util.*;
  * from a .hwf file or it is generated dynamically. The declared parameters of the workflow
  * definition are then queried using listParameters() and assigned values using calls to
  * setParameterValue(..). WorkflowMeta provides methods to load, save, verify, etc.
- *
- * @author Matt
- * @since 11-08-2003
  */
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
@@ -90,7 +87,8 @@ public class WorkflowMeta extends AbstractMeta
 
   protected String[] arguments;
 
-  protected boolean changedActions, changedHops;
+  protected boolean changedActions;
+  protected boolean changedHops;
 
   protected String startActionName;
 
@@ -139,11 +137,6 @@ public class WorkflowMeta extends AbstractMeta
 
   /** Adds the defaults. */
   public void addDefaults() {
-    /*
-     * addStart(); // Add starting point! addDummy(); // Add dummy! addOK(); // errors == 0 evaluation addError(); //
-     * errors != 0 evaluation
-     */
-
     clearChanged();
   }
 
@@ -488,7 +481,7 @@ public class WorkflowMeta extends AbstractMeta
       IVariables variables)
       throws HopXmlException {
     try {
-      // clear the workflows;
+      // clear the workflows
       clear();
 
       setFilename(filename);
@@ -603,7 +596,8 @@ public class WorkflowMeta extends AbstractMeta
    * @return the action copy
    */
   public ActionMeta getAction(int x, int y, int iconsize) {
-    int i, s;
+    int i;
+    int s;
     s = nrActions();
     for (i = s - 1; i >= 0; i--) {
       // Back to front because drawing goes from start to end
@@ -1070,7 +1064,7 @@ public class WorkflowMeta extends AbstractMeta
     int count = 0;
     int i;
     for (i = 0; i < nrActions(); i++) {
-      // Look at all the hops;
+      // Look at all the hops
 
       ActionMeta actionMeta = getAction(i);
       if (actionMeta.getName().equalsIgnoreCase(name)) {
@@ -1199,7 +1193,8 @@ public class WorkflowMeta extends AbstractMeta
    * @return the maximum
    */
   public Point getMaximum() {
-    int maxx = 0, maxy = 0;
+    int maxx = 0;
+    int maxy = 0;
     for (int i = 0; i < nrActions(); i++) {
       ActionMeta action = getAction(i);
       Point loc = action.getLocation();
@@ -1502,8 +1497,6 @@ public class WorkflowMeta extends AbstractMeta
                   this,
                   BaseMessages.getString(PKG, "WorkflowMeta.SearchMetadata.DatabaseServer")));
         }
-        // if ( includePasswords )
-        // {
         if (meta.getPassword() != null) {
           stringList.add(
               new StringSearchResult(
@@ -1511,7 +1504,6 @@ public class WorkflowMeta extends AbstractMeta
                   meta,
                   this,
                   BaseMessages.getString(PKG, "WorkflowMeta.SearchMetadata.DatabasePassword")));
-          // }
         }
       }
     }
@@ -1708,12 +1700,12 @@ public class WorkflowMeta extends AbstractMeta
    * own settings.
    *
    * @param remarks List of CheckResult remarks inserted into by each Action
-   * @param only_selected true if you only want to check the selected workflows
+   * @param onlySelected true if you only want to check the selected workflows
    * @param monitor Progress monitor (not presently in use)
    */
   public void checkActions(
       List<ICheckResult> remarks,
-      boolean only_selected,
+      boolean onlySelected,
       IProgressMonitor monitor,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
@@ -1723,10 +1715,10 @@ public class WorkflowMeta extends AbstractMeta
           BaseMessages.getString(PKG, "WorkflowMeta.Monitor.VerifyingThisActionTask.Title"),
           workflowActions.size() + 2);
     }
-    boolean stop_checking = false;
-    for (int i = 0; i < workflowActions.size() && !stop_checking; i++) {
+    boolean stopChecking = false;
+    for (int i = 0; i < workflowActions.size() && !stopChecking; i++) {
       ActionMeta copy = workflowActions.get(i); // get the action copy
-      if ((!only_selected) || (only_selected && copy.isSelected())) {
+      if ((!onlySelected) || (onlySelected && copy.isSelected())) {
         IAction action = copy.getAction();
         if (action != null) {
           if (monitor != null) {
@@ -1738,7 +1730,7 @@ public class WorkflowMeta extends AbstractMeta
           if (monitor != null) {
             monitor.worked(1); // progress bar...
             if (monitor.isCanceled()) {
-              stop_checking = true;
+              stopChecking = true;
             }
           }
         }

@@ -33,7 +33,7 @@ public class DatabaseImpactTest {
   private Class<?> PKG = Pipeline.class;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  
+
   @Test
   public void testGetRow() throws HopValueException {
     DatabaseImpact testObject =

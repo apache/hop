@@ -34,9 +34,6 @@ import java.util.List;
 /**
  * Takes care of displaying a dialog that will handle the wait while getting the SQL for a
  * pipeline...
- *
- * @author Matt
- * @since 15-mrt-2005
  */
 public class GetSqlProgressDialog {
   private static final Class<?> PKG = GetSqlProgressDialog.class; // For Translator
@@ -56,11 +53,6 @@ public class GetSqlProgressDialog {
   public List<SqlStatement> open() {
     IRunnableWithProgress op =
         monitor -> {
-          // This is running in a new process: copy some HopVariables info
-          // LocalVariables.getInstance().createHopVariables(Thread.currentThread(), parentThread,
-          // true);
-          // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
-
           try {
             stats = pipelineMeta.getSqlStatements(variables, new ProgressMonitorAdapter(monitor));
           } catch (HopException e) {

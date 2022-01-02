@@ -40,7 +40,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
-import org.apache.hop.ui.core.metadata.MetadataFileTypeHandler;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
@@ -661,7 +660,6 @@ public class MetadataPerspective implements IHopPerspective {
           if (!manager.getSerializer().exists(newName)) {
             metadata.setName(newName);
             manager.getSerializer().save(metadata);
-            // manager.editWithEditor(newName);
             break;
           } else {
             copyNr++;

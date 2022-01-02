@@ -55,74 +55,51 @@ import java.util.ArrayList;
 public class YamlInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = YamlInputMeta.class; // For Translator
 
-  private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wFileTab, wContentTab, wFieldsTab;
-  private Composite wFileComp, wContentComp, wFieldsComp;
-  private FormData fdFileComp, fdContentComp, fdFieldsComp;
-  private Label wlFilename, wlYamlIsAFile;
+  private Label wlFilename;
+  private Label wlYamlIsAFile;
   private Button wbbFilename; // Browse: add file or directory
   private Button wbdFilename; // Delete
   private Button wbeFilename; // Edit
   private Button wbaFilename; // Add or change
   private TextVar wFilename;
-  private FormData fdlFilename, fdbFilename, fdbdFilename, fdbeFilename, fdbaFilename, fdFilename;
 
   private Label wlFilenameList;
   private TableView wFilenameList;
-  private FormData fdlFilenameList, fdFilenameList;
 
   private Label wlFilemask;
   private TextVar wFilemask;
-  private FormData fdlFilemask, fdFilemask;
 
   private Button wbShowFiles;
-  private FormData fdbShowFiles;
 
-  private FormData fdlXMLField, fdlXMLStreamField, fdlXMLIsAFile;
-  private FormData fdXMLField, fdYAMLStreamField;
-  private FormData fdOutputField, fdYAMLIsAFile, fdAdditionalFields, fdAddFileResult, fdXmlConf;
-  private Label wlYamlField, wlXmlStreamField;
+  private Label wlYamlField;
   private CCombo wYAMLLField;
-  private Button wYAMLStreamField, wYAMLIsAFile;
+  private Button wYAMLStreamField;
+  private Button wYAMLIsAFile;
 
   private Label wlInclFilename;
-  private Button wInclFilename, wAddResult;
-  private FormData fdlInclFilename, fdInclFilename, fdAddResult, fdlAddResult;
+  private Button wInclFilename;
+  private Button wAddResult;
 
   private Label wlInclFilenameField;
   private TextVar wInclFilenameField;
-  private FormData fdlInclFilenameField, fdInclFilenameField;
-  private Label wlInclRownum, wlAddResult;
+  private Label wlAddResult;
   private Button wInclRownum;
-  private FormData fdlInclRownum, fdRownum;
 
   private Label wlInclRownumField;
   private TextVar wInclRownumField;
-  private FormData fdlInclRownumField, fdInclRownumField;
 
   private Label wlLimit;
   private Text wLimit;
-  private FormData fdlLimit, fdLimit;
 
   private TableView wFields;
-  private FormData fdFields;
-
-  private Group wOutputField;
-  private Group wAdditionalFields;
-  private Group wAddFileResult;
-  private Group wXmlConf;
 
   // ignore empty files flag
   private Label wlIgnoreEmptyFile;
   private Button wIgnoreEmptyFile;
-  private FormData fdlIgnoreEmptyFile, fdIgnoreEmptyFile;
 
   // do not fail if no files?
   private Label wlDoNotFailIfNoFile;
   private Button wDoNotFailIfNoFile;
-  private FormData fdlDoNotFailIfNoFile, fdDoNotFailIfNoFile;
 
   private YamlInputMeta input;
 
@@ -190,16 +167,16 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
-    wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
-    wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
     wFileTab.setText(BaseMessages.getString(PKG, "YamlInputDialog.File.Tab"));
 
-    wFileComp = new Composite(wTabFolder, SWT.NONE);
+    Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
@@ -211,7 +188,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // START OF Output Field GROUP //
     // ///////////////////////////////
 
-    wOutputField = new Group(wFileComp, SWT.SHADOW_NONE);
+    Group wOutputField = new Group(wFileComp, SWT.SHADOW_NONE);
     props.setLook(wOutputField);
     wOutputField.setText(BaseMessages.getString(PKG, "YamlInputDialog.wOutputField.Label"));
 
@@ -221,10 +198,10 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wOutputField.setLayout(outputfieldgroupLayout);
 
     // Is XML string defined in a Field
-    wlXmlStreamField = new Label(wOutputField, SWT.RIGHT);
+    Label wlXmlStreamField = new Label(wOutputField, SWT.RIGHT);
     wlXmlStreamField.setText(BaseMessages.getString(PKG, "YamlInputDialog.wlXmlStreamField.Label"));
     props.setLook(wlXmlStreamField);
-    fdlXMLStreamField = new FormData();
+    FormData fdlXMLStreamField = new FormData();
     fdlXMLStreamField.left = new FormAttachment(0, -margin);
     fdlXMLStreamField.top = new FormAttachment(0, margin);
     fdlXMLStreamField.right = new FormAttachment(middle, -2 * margin);
@@ -233,7 +210,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wYAMLStreamField);
     wYAMLStreamField.setToolTipText(
         BaseMessages.getString(PKG, "YamlInputDialog.wYAMLStreamField.Tooltip"));
-    fdYAMLStreamField = new FormData();
+    FormData fdYAMLStreamField = new FormData();
     fdYAMLStreamField.left = new FormAttachment(middle, -margin);
     fdYAMLStreamField.top = new FormAttachment(wlXmlStreamField, 0, SWT.CENTER);
     wYAMLStreamField.setLayoutData(fdYAMLStreamField);
@@ -251,7 +228,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlYamlIsAFile = new Label(wOutputField, SWT.RIGHT);
     wlYamlIsAFile.setText(BaseMessages.getString(PKG, "YamlInputDialog.XMLIsAFile.Label"));
     props.setLook(wlYamlIsAFile);
-    fdlXMLIsAFile = new FormData();
+    FormData fdlXMLIsAFile = new FormData();
     fdlXMLIsAFile.left = new FormAttachment(0, -margin);
     fdlXMLIsAFile.top = new FormAttachment(wYAMLStreamField, margin);
     fdlXMLIsAFile.right = new FormAttachment(middle, -2 * margin);
@@ -259,7 +236,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wYAMLIsAFile = new Button(wOutputField, SWT.CHECK);
     props.setLook(wYAMLIsAFile);
     wYAMLIsAFile.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.XMLIsAFile.Tooltip"));
-    fdYAMLIsAFile = new FormData();
+    FormData fdYAMLIsAFile = new FormData();
     fdYAMLIsAFile.left = new FormAttachment(middle, -margin);
     fdYAMLIsAFile.top = new FormAttachment(wlYamlIsAFile, 0, SWT.CENTER);
     wYAMLIsAFile.setLayoutData(fdYAMLIsAFile);
@@ -277,7 +254,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlYamlField = new Label(wOutputField, SWT.RIGHT);
     wlYamlField.setText(BaseMessages.getString(PKG, "YamlInputDialog.wlYamlField.Label"));
     props.setLook(wlYamlField);
-    fdlXMLField = new FormData();
+    FormData fdlXMLField = new FormData();
     fdlXMLField.left = new FormAttachment(0, -margin);
     fdlXMLField.top = new FormAttachment(wYAMLIsAFile, margin);
     fdlXMLField.right = new FormAttachment(middle, -2 * margin);
@@ -287,7 +264,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wYAMLLField.setEditable(true);
     props.setLook(wYAMLLField);
     wYAMLLField.addModifyListener(lsMod);
-    fdXMLField = new FormData();
+    FormData fdXMLField = new FormData();
     fdXMLField.left = new FormAttachment(middle, -margin);
     fdXMLField.top = new FormAttachment(wYAMLIsAFile, margin);
     fdXMLField.right = new FormAttachment(100, -margin);
@@ -307,7 +284,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
           }
         });
 
-    fdOutputField = new FormData();
+    FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment(0, margin);
     fdOutputField.top = new FormAttachment(wFilenameList, margin);
     fdOutputField.right = new FormAttachment(100, -margin);
@@ -321,7 +298,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.Filename.Label"));
     props.setLook(wlFilename);
-    fdlFilename = new FormData();
+    FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wOutputField, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
@@ -332,7 +309,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wbbFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameBrowse.Button"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
-    fdbFilename = new FormData();
+    FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wOutputField, margin);
     wbbFilename.setLayoutData(fdbFilename);
@@ -341,7 +318,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameAdd.Tooltip"));
-    fdbaFilename = new FormData();
+    FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbbFilename, -margin);
     fdbaFilename.top = new FormAttachment(wOutputField, margin);
     wbaFilename.setLayoutData(fdbaFilename);
@@ -349,7 +326,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
-    fdFilename = new FormData();
+    FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbaFilename, -margin);
     fdFilename.top = new FormAttachment(wOutputField, margin);
@@ -358,7 +335,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "YamlInputDialog.RegExp.Label"));
     props.setLook(wlFilemask);
-    fdlFilemask = new FormData();
+    FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
@@ -366,7 +343,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
-    fdFilemask = new FormData();
+    FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
     fdFilemask.right = new FormAttachment(100, 0);
@@ -376,7 +353,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameList.Label"));
     props.setLook(wlFilenameList);
-    fdlFilenameList = new FormData();
+    FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wFilemask, margin);
     fdlFilenameList.right = new FormAttachment(middle, -margin);
@@ -388,7 +365,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wbdFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameRemove.Button"));
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "YamlInputDialog.FilenameRemove.Tooltip"));
-    fdbdFilename = new FormData();
+    FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
     fdbdFilename.top = new FormAttachment(wFilemask, 40);
     wbdFilename.setLayoutData(fdbdFilename);
@@ -397,7 +374,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameEdit.Button"));
     wbeFilename.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.FilenameEdit.Tooltip"));
-    fdbeFilename = new FormData();
+    FormData fdbeFilename = new FormData();
     fdbeFilename.right = new FormAttachment(100, 0);
     fdbeFilename.left = new FormAttachment(wbdFilename, 0, SWT.LEFT);
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
@@ -406,7 +383,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "YamlInputDialog.ShowFiles.Button"));
-    fdbShowFiles = new FormData();
+    FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
     fdbShowFiles.bottom = new FormAttachment(100, 0);
     wbShowFiles.setLayoutData(fdbShowFiles);
@@ -449,14 +426,14 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
             lsMod,
             props);
     props.setLook(wFilenameList);
-    fdFilenameList = new FormData();
+    FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
     fdFilenameList.top = new FormAttachment(wFilemask, margin);
     fdFilenameList.bottom = new FormAttachment(wbShowFiles, -margin);
     wFilenameList.setLayoutData(fdFilenameList);
 
-    fdFileComp = new FormData();
+    FormData fdFileComp = new FormData();
     fdFileComp.left = new FormAttachment(0, 0);
     fdFileComp.top = new FormAttachment(0, 0);
     fdFileComp.right = new FormAttachment(100, 0);
@@ -473,14 +450,14 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // ////////////////////////
     // START OF CONTENT TAB///
     // /
-    wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
     wContentTab.setText(BaseMessages.getString(PKG, "YamlInputDialog.Content.Tab"));
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
     contentLayout.marginHeight = 3;
 
-    wContentComp = new Composite(wTabFolder, SWT.NONE);
+    Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
@@ -488,20 +465,20 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // START OF XmlConf Field GROUP //
     // ///////////////////////////////
 
-    wXmlConf = new Group(wContentComp, SWT.SHADOW_NONE);
+    Group wXmlConf = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wXmlConf);
     wXmlConf.setText(BaseMessages.getString(PKG, "YamlInputDialog.wXmlConf.Label"));
 
-    FormLayout XmlConfgroupLayout = new FormLayout();
-    XmlConfgroupLayout.marginWidth = 10;
-    XmlConfgroupLayout.marginHeight = 10;
-    wXmlConf.setLayout(XmlConfgroupLayout);
+    FormLayout xmlConfgroupLayout = new FormLayout();
+    xmlConfgroupLayout.marginWidth = 10;
+    xmlConfgroupLayout.marginHeight = 10;
+    wXmlConf.setLayout(xmlConfgroupLayout);
 
     // Ignore Empty File
     wlIgnoreEmptyFile = new Label(wXmlConf, SWT.RIGHT);
     wlIgnoreEmptyFile.setText(BaseMessages.getString(PKG, "YamlInputDialog.IgnoreEmptyFile.Label"));
     props.setLook(wlIgnoreEmptyFile);
-    fdlIgnoreEmptyFile = new FormData();
+    FormData fdlIgnoreEmptyFile = new FormData();
     fdlIgnoreEmptyFile.left = new FormAttachment(0, 0);
     fdlIgnoreEmptyFile.top = new FormAttachment(0, margin);
     fdlIgnoreEmptyFile.right = new FormAttachment(middle, -margin);
@@ -510,7 +487,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wIgnoreEmptyFile);
     wIgnoreEmptyFile.setToolTipText(
         BaseMessages.getString(PKG, "YamlInputDialog.IgnoreEmptyFile.Tooltip"));
-    fdIgnoreEmptyFile = new FormData();
+    FormData fdIgnoreEmptyFile = new FormData();
     fdIgnoreEmptyFile.left = new FormAttachment(middle, 0);
     fdIgnoreEmptyFile.top = new FormAttachment(wlIgnoreEmptyFile, 0, SWT.CENTER);
     wIgnoreEmptyFile.setLayoutData(fdIgnoreEmptyFile);
@@ -521,7 +498,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlDoNotFailIfNoFile.setText(
         BaseMessages.getString(PKG, "YamlInputDialog.doNotFailIfNoFile.Label"));
     props.setLook(wlDoNotFailIfNoFile);
-    fdlDoNotFailIfNoFile = new FormData();
+    FormData fdlDoNotFailIfNoFile = new FormData();
     fdlDoNotFailIfNoFile.left = new FormAttachment(0, 0);
     fdlDoNotFailIfNoFile.top = new FormAttachment(wIgnoreEmptyFile, margin);
     fdlDoNotFailIfNoFile.right = new FormAttachment(middle, -margin);
@@ -530,7 +507,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wDoNotFailIfNoFile);
     wDoNotFailIfNoFile.setToolTipText(
         BaseMessages.getString(PKG, "YamlInputDialog.doNotFailIfNoFile.Tooltip"));
-    fdDoNotFailIfNoFile = new FormData();
+    FormData fdDoNotFailIfNoFile = new FormData();
     fdDoNotFailIfNoFile.left = new FormAttachment(middle, 0);
     fdDoNotFailIfNoFile.top = new FormAttachment(wlDoNotFailIfNoFile, 0, SWT.CENTER);
     wDoNotFailIfNoFile.setLayoutData(fdDoNotFailIfNoFile);
@@ -539,7 +516,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlLimit = new Label(wXmlConf, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "YamlInputDialog.Limit.Label"));
     props.setLook(wlLimit);
-    fdlLimit = new FormData();
+    FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wDoNotFailIfNoFile, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
@@ -547,13 +524,13 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wLimit = new Text(wXmlConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
-    fdLimit = new FormData();
+    FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.top = new FormAttachment(wDoNotFailIfNoFile, margin);
     fdLimit.right = new FormAttachment(100, 0);
     wLimit.setLayoutData(fdLimit);
 
-    fdXmlConf = new FormData();
+    FormData fdXmlConf = new FormData();
     fdXmlConf.left = new FormAttachment(0, margin);
     fdXmlConf.top = new FormAttachment(0, margin);
     fdXmlConf.right = new FormAttachment(100, -margin);
@@ -567,20 +544,20 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // START OF Additional Fields GROUP //
     // ///////////////////////////////
 
-    wAdditionalFields = new Group(wContentComp, SWT.SHADOW_NONE);
+    Group wAdditionalFields = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wAdditionalFields);
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "YamlInputDialog.wAdditionalFields.Label"));
 
-    FormLayout AdditionalFieldsgroupLayout = new FormLayout();
-    AdditionalFieldsgroupLayout.marginWidth = 10;
-    AdditionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(AdditionalFieldsgroupLayout);
+    FormLayout additionalFieldsgroupLayout = new FormLayout();
+    additionalFieldsgroupLayout.marginWidth = 10;
+    additionalFieldsgroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
 
     wlInclFilename = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclFilename.Label"));
     props.setLook(wlInclFilename);
-    fdlInclFilename = new FormData();
+    FormData fdlInclFilename = new FormData();
     fdlInclFilename.left = new FormAttachment(0, 0);
     fdlInclFilename.top = new FormAttachment(wXmlConf, 4 * margin);
     fdlInclFilename.right = new FormAttachment(middle, -margin);
@@ -589,7 +566,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wInclFilename);
     wInclFilename.setToolTipText(
         BaseMessages.getString(PKG, "YamlInputDialog.InclFilename.Tooltip"));
-    fdInclFilename = new FormData();
+    FormData fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment(middle, 0);
     fdInclFilename.top = new FormAttachment(wlInclFilename, 0, SWT.CENTER);
     wInclFilename.setLayoutData(fdInclFilename);
@@ -599,7 +576,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlInclFilenameField.setText(
         BaseMessages.getString(PKG, "YamlInputDialog.InclFilenameField.Label"));
     props.setLook(wlInclFilenameField);
-    fdlInclFilenameField = new FormData();
+    FormData fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment(wInclFilename, margin);
     fdlInclFilenameField.top = new FormAttachment(wLimit, 4 * margin);
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
@@ -607,16 +584,16 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInclFilenameField);
     wInclFilenameField.addModifyListener(lsMod);
-    fdInclFilenameField = new FormData();
+    FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment(wlInclFilenameField, margin);
     fdInclFilenameField.top = new FormAttachment(wLimit, 4 * margin);
     fdInclFilenameField.right = new FormAttachment(100, 0);
     wInclFilenameField.setLayoutData(fdInclFilenameField);
 
-    wlInclRownum = new Label(wAdditionalFields, SWT.RIGHT);
+    Label wlInclRownum = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclRownum.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownum.Label"));
     props.setLook(wlInclRownum);
-    fdlInclRownum = new FormData();
+    FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment(0, 0);
     fdlInclRownum.top = new FormAttachment(wInclFilenameField, margin);
     fdlInclRownum.right = new FormAttachment(middle, -margin);
@@ -624,7 +601,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wInclRownum = new Button(wAdditionalFields, SWT.CHECK);
     props.setLook(wInclRownum);
     wInclRownum.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownum.Tooltip"));
-    fdRownum = new FormData();
+    FormData fdRownum = new FormData();
     fdRownum.left = new FormAttachment(middle, 0);
     fdRownum.top = new FormAttachment(wlInclRownum, 0, SWT.CENTER);
     wInclRownum.setLayoutData(fdRownum);
@@ -633,7 +610,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wlInclRownumField = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclRownumField.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownumField.Label"));
     props.setLook(wlInclRownumField);
-    fdlInclRownumField = new FormData();
+    FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment(wInclFilenameField, margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
@@ -641,13 +618,13 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
-    fdInclRownumField = new FormData();
+    FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
     fdInclRownumField.top = new FormAttachment(wInclFilenameField, margin);
     fdInclRownumField.right = new FormAttachment(100, 0);
     wInclRownumField.setLayoutData(fdInclRownumField);
 
-    fdAdditionalFields = new FormData();
+    FormData fdAdditionalFields = new FormData();
     fdAdditionalFields.left = new FormAttachment(0, margin);
     fdAdditionalFields.top = new FormAttachment(wXmlConf, margin);
     fdAdditionalFields.right = new FormAttachment(100, -margin);
@@ -661,19 +638,19 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // START OF AddFileResult GROUP //
     // ///////////////////////////////
 
-    wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
+    Group wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "YamlInputDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "YamlInputDialog.AddResult.Label"));
     props.setLook(wlAddResult);
-    fdlAddResult = new FormData();
+    FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wAdditionalFields, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
@@ -681,13 +658,13 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wAddResult = new Button(wAddFileResult, SWT.CHECK);
     props.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.AddResult.Tooltip"));
-    fdAddResult = new FormData();
+    FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
     fdAddResult.top = new FormAttachment(wlAddResult, 0, SWT.CENTER);
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener(new ComponentSelectionListener(input));
 
-    fdAddFileResult = new FormData();
+    FormData fdAddFileResult = new FormData();
     fdAddFileResult.left = new FormAttachment(0, margin);
     fdAddFileResult.top = new FormAttachment(wAdditionalFields, margin);
     fdAddFileResult.right = new FormAttachment(100, -margin);
@@ -697,7 +674,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     // / END OF AddFileResult GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdContentComp = new FormData();
+    FormData fdContentComp = new FormData();
     fdContentComp.left = new FormAttachment(0, 0);
     fdContentComp.top = new FormAttachment(0, 0);
     fdContentComp.right = new FormAttachment(100, 0);
@@ -713,14 +690,14 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
 
     // Fields tab...
     //
-    wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText(BaseMessages.getString(PKG, "YamlInputDialog.Fields.Tab"));
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = Const.FORM_MARGIN;
     fieldsLayout.marginHeight = Const.FORM_MARGIN;
 
-    wFieldsComp = new Composite(wTabFolder, SWT.NONE);
+    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
     props.setLook(wFieldsComp);
 
@@ -796,14 +773,14 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
             lsMod,
             props);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wGet, -margin);
     wFields.setLayoutData(fdFields);
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
     fdFieldsComp.top = new FormAttachment(0, 0);
     fdFieldsComp.right = new FormAttachment(100, 0);
@@ -813,7 +790,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);

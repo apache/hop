@@ -19,10 +19,12 @@ package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -34,6 +36,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -47,7 +50,6 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -56,21 +58,19 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class WorkflowExecutorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
-  private static int FIELD_DESCRIPTION = 1;
-  private static int FIELD_NAME = 2;
+  private static final int FIELD_DESCRIPTION = 1;
+  private static final int FIELD_NAME = 2;
 
   private WorkflowExecutorMeta workflowExecutorMeta;
 
-  private Label wlPath;
   private TextVar wPath;
-
-  private Button wbBrowse;
 
   protected Label wlRunConfiguration;
   protected ComboVar wRunConfiguration;
@@ -80,8 +80,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private WorkflowMeta executorWorkflowMeta = null;
 
   protected boolean jobModified;
-
-  private ModifyListener lsMod;
 
   private Button wInheritAll;
 
@@ -94,7 +92,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private Label wlGroupTime;
   private TextVar wGroupTime;
 
-  private Label wlExecutionResultTarget;
   private CCombo wExecutionResultTarget;
   private TableItem tiExecutionTimeField;
   private TableItem tiExecutionResultField;
@@ -113,23 +110,13 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private ColumnInfo[] parameterColumns;
 
-  private Label wlResultFilesTarget;
-
   private CCombo wResultFilesTarget;
-
-  private Label wlResultFileNameField;
 
   private TextVar wResultFileNameField;
 
-  private Label wlResultRowsTarget;
-
   private CCombo wResultRowsTarget;
 
-  private Label wlResultFields;
-
   private TableView wResultRowsFields;
-
-  private Button wGetParameters;
 
   private HopWorkflowFileType<WorkflowMeta> fileType =
       HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
@@ -148,13 +135,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     props.setLook(shell);
     setShellImage(shell, workflowExecutorMeta);
-
-    lsMod =
-        e -> {
-          workflowExecutorMeta.setChanged();
-          setFlags();
-        };
-    changed = workflowExecutorMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;
@@ -192,7 +172,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     props.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.right = new FormAttachment(wicon, -5);
     fdTransformName.left = new FormAttachment(0, 0);
@@ -206,7 +185,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    wlPath = new Label(shell, SWT.LEFT);
+    Label wlPath = new Label(shell, SWT.LEFT);
     props.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Workflow.Label"));
     FormData fdlJobformation = new FormData();
@@ -215,7 +194,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlJobformation.right = new FormAttachment(50, 0);
     wlPath.setLayoutData(fdlJobformation);
 
-    wbBrowse = new Button(shell, SWT.PUSH);
+    Button wbBrowse = new Button(shell, SWT.PUSH);
     props.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
@@ -226,14 +205,15 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPath);
-    FormData fdJobformation = new FormData();
-    fdJobformation.left = new FormAttachment(0, 0);
-    fdJobformation.top = new FormAttachment(wlPath, 5);
-    fdJobformation.right = new FormAttachment(wbBrowse, -props.getMargin());
-    wPath.setLayoutData(fdJobformation);
+    FormData fdPath = new FormData();
+    fdPath.left = new FormAttachment(0, 0);
+    fdPath.top = new FormAttachment(wlPath, 5);
+    fdPath.right = new FormAttachment(wbBrowse, -props.getMargin());
+    wPath.setLayoutData(fdPath);
 
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"));
+    wlRunConfiguration.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
@@ -502,7 +482,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // Add a button: get parameters
     //
-    wGetParameters = new Button(wParametersComposite, SWT.PUSH);
+    Button wGetParameters = new Button(wParametersComposite, SWT.PUSH);
     wGetParameters.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.GetParameters"));
     props.setLook(wGetParameters);
@@ -512,7 +492,20 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wGetParameters.setLayoutData(fdGetParameters);
     wGetParameters.setSelection(workflowExecutorMeta.getParameters().isInheritingAllVariables());
     wGetParameters.addListener(
-        SWT.Selection, e -> getParametersFromWorkflow(null)); // null : reload file
+        SWT.Selection, e -> getParametersFromWorkflow()); // null : reload file
+
+    // Add a button: map parameters
+    //
+    Button wMapParameters = new Button(wParametersComposite, SWT.PUSH);
+    wMapParameters.setText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.Parameters.MapParameters"));
+    props.setLook(wMapParameters);
+    FormData fdMapParameters = new FormData();
+    fdMapParameters.bottom = new FormAttachment(100, 0);
+    fdMapParameters.right = new FormAttachment(wGetParameters, -props.getMargin());
+    wMapParameters.setLayoutData(fdMapParameters);
+    wMapParameters.setSelection(workflowExecutorMeta.getParameters().isInheritingAllVariables());
+    wMapParameters.addListener(SWT.Selection, e -> mapFieldsToWorkflowParameters());
 
     // Now add a table view with the 3 columns to specify: variable name, input field & optional
     // static input
@@ -542,10 +535,10 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         new TableView(
             variables,
             wParametersComposite,
-            SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
+            SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             parameterColumns,
             parameters.getVariable().length,
-            lsMod,
+            null,
             props);
     props.setLook(wWorkflowExecutorParameters);
     FormData fdJobExecutors = new FormData();
@@ -587,24 +580,68 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wParametersTab.setControl(wParametersComposite);
   }
 
-  protected void getParametersFromWorkflow(WorkflowMeta inputWorkflowMeta) {
+  protected void getParametersFromWorkflow() {
     try {
-      // Load the workflow in executorWorkflowMeta
-      //
-      if (inputWorkflowMeta == null) {
-        loadWorkflow();
-        inputWorkflowMeta = executorWorkflowMeta;
-      }
-
-      String[] parameters = inputWorkflowMeta.listParameters();
-      for (int i = 0; i < parameters.length; i++) {
+      loadWorkflow();
+      String[] parameters = executorWorkflowMeta.listParameters();
+      for (String parameter : parameters) {
         TableItem item = new TableItem(wWorkflowExecutorParameters.table, SWT.NONE);
-        item.setText(1, Const.NVL(parameters[i], ""));
+        item.setText(1, Const.NVL(parameter, ""));
       }
       wWorkflowExecutorParameters.removeEmptyRows();
       wWorkflowExecutorParameters.setRowNums();
       wWorkflowExecutorParameters.optWidth(true);
 
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          e);
+    }
+  }
+
+  protected void mapFieldsToWorkflowParameters() {
+    try {
+      // The field names
+      //
+      IRowMeta inputFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+      String[] inputFieldNames = inputFields.getFieldNames();
+
+      loadWorkflow();
+      String[] parameters = executorWorkflowMeta.listParameters();
+
+      // Get the current mapping...
+      //
+      List<SourceToTargetMapping> mappings = new ArrayList<>();
+      for (TableItem item : wWorkflowExecutorParameters.getNonEmptyItems()) {
+        int sourceIndex = Const.indexOfString(item.getText(1), parameters);
+        int targetIndex = Const.indexOfString(item.getText(2), inputFieldNames);
+        if (sourceIndex >= 0 && targetIndex >= 0) {
+          SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
+          mappings.add(mapping);
+        }
+      }
+
+      // Now we can ask for the mapping...
+      //
+      EnterMappingDialog enterMappingDialog =
+          new EnterMappingDialog(shell, inputFieldNames, parameters, mappings);
+      mappings = enterMappingDialog.open();
+      if (mappings != null) {
+        wWorkflowExecutorParameters.removeAll();
+
+        for (SourceToTargetMapping mapping : mappings) {
+          TableItem item = new TableItem(wWorkflowExecutorParameters.table, SWT.NONE);
+          item.setText(1, Const.NVL(mapping.getTargetString(parameters), ""));
+          item.setText(2, Const.NVL(mapping.getSourceString(inputFieldNames), ""));
+          item.setText(3, "");
+        }
+
+        wWorkflowExecutorParameters.removeEmptyRows();
+        wWorkflowExecutorParameters.setRowNums();
+        wWorkflowExecutorParameters.optWidth(true);
+      }
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -640,12 +677,13 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wGroupSize = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupSize);
-    wGroupSize.addModifyListener(lsMod);
     FormData fdGroupSize = new FormData();
     fdGroupSize.width = 250;
     fdGroupSize.top = new FormAttachment(wlGroupSize, 5);
     fdGroupSize.left = new FormAttachment(0, 0);
     wGroupSize.setLayoutData(fdGroupSize);
+    // Enable/Disable fields base on the size of the group
+    wGroupSize.addListener(SWT.Modify, e -> setFlags());
 
     // Group field
     //
@@ -659,12 +697,13 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wGroupField = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupField);
-    wGroupField.addModifyListener(lsMod);
     FormData fdGroupField = new FormData();
     fdGroupField.width = 250;
     fdGroupField.top = new FormAttachment(wlGroupField, 5);
     fdGroupField.left = new FormAttachment(0, 0);
     wGroupField.setLayoutData(fdGroupField);
+    // Enable/Disable widgets when this field changes
+    wGroupField.addListener(SWT.Modify, e -> setFlags());
 
     // Group time
     //
@@ -678,7 +717,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wGroupTime = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupTime);
-    wGroupTime.addModifyListener(lsMod);
     FormData fdGroupTime = new FormData();
     fdGroupTime.width = 250;
     fdGroupTime.top = new FormAttachment(wlGroupTime, 5);
@@ -708,7 +746,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlExecutionResultTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlExecutionResultTarget);
     wlExecutionResultTarget.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResultTarget.Label"));
@@ -719,7 +757,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wExecutionResultTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wExecutionResultTarget);
-    wExecutionResultTarget.addModifyListener(lsMod);
     FormData fdExecutionResultTarget = new FormData();
     fdExecutionResultTarget.width = 250;
     fdExecutionResultTarget.top = new FormAttachment(wlExecutionResultTarget, 5);
@@ -750,7 +787,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
             executionResultColumns,
             14,
             true,
-            lsMod,
+            null,
             props,
             false);
     props.setLook(wExecutionResults);
@@ -854,7 +891,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultFilesTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFilesTarget);
     wlResultFilesTarget.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFilesTarget.Label"));
@@ -865,7 +902,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wResultFilesTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultFilesTarget);
-    wResultFilesTarget.addModifyListener(lsMod);
     FormData fdResultFilesTarget = new FormData();
     fdResultFilesTarget.width = 250;
     fdResultFilesTarget.top = new FormAttachment(wlResultFilesTarget, 5);
@@ -874,7 +910,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     // ResultFileNameField
     //
-    wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultFileNameField = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultFileNameField);
     wlResultFileNameField.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFileNameField.Label"));
@@ -886,7 +922,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wResultFileNameField =
         new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultFileNameField);
-    wResultFileNameField.addModifyListener(lsMod);
     FormData fdResultFileNameField = new FormData();
     fdResultFileNameField.width = 250;
     fdResultFileNameField.top = new FormAttachment(wlResultFileNameField, 5);
@@ -924,7 +959,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
-    wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
+    Label wlResultRowsTarget = new Label(wInputComposite, SWT.RIGHT);
     props.setLook(wlResultRowsTarget);
     wlResultRowsTarget.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultRowsTarget.Label"));
@@ -935,14 +970,13 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     wResultRowsTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultRowsTarget);
-    wResultRowsTarget.addModifyListener(lsMod);
     FormData fdResultRowsTarget = new FormData();
     fdResultRowsTarget.width = 250;
     fdResultRowsTarget.top = new FormAttachment(wlResultRowsTarget, 5);
     fdResultRowsTarget.left = new FormAttachment(0, 0); // To the right
     wResultRowsTarget.setLayoutData(fdResultRowsTarget);
 
-    wlResultFields = new Label(wInputComposite, SWT.NONE);
+    Label wlResultFields = new Label(wInputComposite, SWT.NONE);
     wlResultFields.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFields.Label"));
     props.setLook(wlResultFields);
@@ -985,7 +1019,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
             ciResultFields,
             nrRows,
             false,
-            lsMod,
+            null,
             props,
             false);
 
@@ -1014,7 +1048,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     // Enable/disable fields...
     //
     if (wlGroupSize == null
-        || wlGroupSize == null
         || wlGroupField == null
         || wGroupField == null
         || wlGroupTime == null
@@ -1023,8 +1056,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     }
     boolean enableSize = Const.toInt(variables.resolve(wGroupSize.getText()), -1) >= 0;
     boolean enableField = !Utils.isEmpty(wGroupField.getText());
-    // boolean enableTime = Const.toInt(variables.environmentSubstitute(wGroupTime.getText()),
-    // -1)>0;
 
     wlGroupSize.setEnabled(true);
     wGroupSize.setEnabled(true);

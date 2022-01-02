@@ -40,7 +40,6 @@ import java.util.Map;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-/** @author Tatsiana_Kasiankova */
 public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<MultiMergeJoinMeta> testMetaClass = MultiMergeJoinMeta.class;

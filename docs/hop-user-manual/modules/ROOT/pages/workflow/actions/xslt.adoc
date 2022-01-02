@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The XSL Transformation action transforms XML documents into other documents (XML or other format, such as HTML or plain text) using Extensible Stylesheet Language Transformations or XSLT.
 
 = XSL Transformation
 
 == Description
 
-The XSL Transformation action is designed to transform XML documents into other documents (XML or other format, such as HTML or plain text) using Extensible Stylesheet Language Transformations or link:http://en.wikipedia.org/wiki/XSLT[XSLT].
+The XSL Transformation action transforms XML documents into other documents (XML or other format, such as HTML or plain text) using Extensible Stylesheet Language Transformations or link:http://en.wikipedia.org/wiki/XSLT[XSLT].
 
 The original document is not changed; rather, a new document is created based on the content of the XML file.
 

@@ -32,12 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
-/**
- * Convert Values in a certain fields to other values
- *
- * @author Matt
- * @since 27-apr-2006
- */
+/** Convert Values in a certain fields to other values */
 public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
     implements ITransform<SetVariableMeta, SetVariableData> {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
@@ -167,12 +162,9 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
 
         break;
       case SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW:
-        // Comments by SB
-        // IVariables rootJob = null;
         parentWorkflow = pipeline.getParentWorkflow();
         while (parentWorkflow != null) {
           parentWorkflow.setVariable(varname, value);
-          // rootJob = parentWorkflow;
           parentWorkflow = parentWorkflow.getParentWorkflow();
         }
         break;

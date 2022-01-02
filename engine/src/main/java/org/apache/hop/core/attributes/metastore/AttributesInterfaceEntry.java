@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.IOException;
 
-/** @author nhudak */
 interface AttributesInterfaceEntry {
   @JsonIgnore
   String groupName();

@@ -30,12 +30,10 @@ import java.io.FileInputStream;
 import java.text.*;
 import java.util.*;
 
-/**
- * @author Samatar
- * @since 21-06-2007
- */
 public class GetXmlDataData extends BaseTransformData implements ITransformData {
-  public String thisline, nextline, lastline;
+  public String thisline;
+  public String nextline;
+  public String lastline;
   public Object[] previousRow;
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
@@ -52,11 +50,11 @@ public class GetXmlDataData extends BaseTransformData implements ITransformData 
   public String PathValue;
   public String
       prunePath; // identical to meta.getPrunePath() with some conditions set at init(), null when
-                 // no pruning
+  // no pruning
   public boolean stopPruning; // used for a trick to stop the reader in pruning mode
   public boolean
       errorInRowButContinue; // true when actual row has an error and error handling is active:
-                             // means
+  // means
   // continue (error handling in this transform should be redesigned)
   public String tokenStart;
   public String tokenEnd;

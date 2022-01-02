@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Telnet action tests a connection on a certain port over the Telnet protocol.
 
 = Telnet a host
 
 == Description
 
-The Telnet action can be used to test a connection over a certain port.
+The Telnet action tests a connection on a certain port over the https://en.wikipedia.org/wiki/Telnet[Telnet^] protocol.
 
 == Options
 

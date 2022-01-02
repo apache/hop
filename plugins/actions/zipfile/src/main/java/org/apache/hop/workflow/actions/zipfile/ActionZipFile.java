@@ -62,6 +62,7 @@ import java.util.zip.ZipOutputStream;
     description = "i18n::ActionZipFile.Description",
     image = "Zip.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionZipFile.keyword",
     documentationUrl = "/workflow/actions/zipfile.html")
 public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionZipFile.class; // For Translator
@@ -240,7 +241,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       String realSourceDirectoryOrFile,
       String realMovetodirectory,
       boolean createparentfolder) {
-    boolean Fileexists = false;
+    boolean fileexists = false;
     File tempFile = null;
     File fileZip;
     boolean resultat = false;
@@ -282,7 +283,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         localrealZipfilename = HopVfs.getFilename(fileObject);
         // Check if Zip File exists
         if (fileObject.exists()) {
-          Fileexists = true;
+          fileexists = true;
           if (log.isDebug()) {
             logDebug(
                 BaseMessages.getString(PKG, "ActionZipFile.Zip_FileExists1.Label")
@@ -296,10 +297,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         }
 
         // Let's start the process now
-        if (ifZipFileExists == 3 && Fileexists) {
+        if (ifZipFileExists == 3 && fileexists) {
           // the zip file exists and user want to Fail
           resultat = false;
-        } else if (ifZipFileExists == 2 && Fileexists) {
+        } else if (ifZipFileExists == 2 && fileexists) {
           // the zip file exists and user want to do nothing
           if (addFileToResult) {
             // Add file to result files name
@@ -373,7 +374,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                 BaseMessages.getString(
                     PKG, "ActionZipFile.Log.NoFilesInFolder", localSourceFilename));
           } else {
-            if (ifZipFileExists == 0 && Fileexists) {
+            if (ifZipFileExists == 0 && fileexists) {
               // the zip file exists and user want to create new one with unique name
               // Format Date
 
@@ -391,7 +392,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                         + localrealZipfilename
                         + BaseMessages.getString(PKG, "ActionZipFile.Zip_FileNameChange1.Label"));
               }
-            } else if (ifZipFileExists == 1 && Fileexists) {
+            } else if (ifZipFileExists == 1 && fileexists) {
               // the zip file exists and user want to append
               // get a temp file
               fileZip = getFile(localrealZipfilename);
@@ -820,11 +821,11 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     String realMovetodirectory = resolve(movetoDirectory);
 
     // Sanity check
-    boolean SanityControlOK = true;
+    boolean sanityControlOK = true;
 
     if (afterZip == 2) {
       if (Utils.isEmpty(realMovetodirectory)) {
-        SanityControlOK = false;
+        sanityControlOK = false;
         logError(
             BaseMessages.getString(
                 PKG, "ActionZipFile.AfterZip_No_DestinationFolder_Defined.Label"));
@@ -840,7 +841,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                         PKG, "ActionZipFile.Log.MoveToFolderExist", realMovetodirectory));
               }
             } else {
-              SanityControlOK = false;
+              sanityControlOK = false;
               logError(
                   BaseMessages.getString(
                       PKG, "ActionZipFile.Log.MoveToFolderNotFolder", realMovetodirectory));
@@ -859,14 +860,14 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                         PKG, "ActionZipFile.Log.MoveToFolderCreaterd", realMovetodirectory));
               }
             } else {
-              SanityControlOK = false;
+              sanityControlOK = false;
               logError(
                   BaseMessages.getString(
                       PKG, "ActionZipFile.Log.MoveToFolderNotNotExist", realMovetodirectory));
             }
           }
         } catch (Exception e) {
-          SanityControlOK = false;
+          sanityControlOK = false;
           logError(
               BaseMessages.getString(
                   PKG, "ActionZipFile.ErrorGettingMoveToFolder.Label", realMovetodirectory),
@@ -878,14 +879,14 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               moveToDirectory.close();
             } catch (Exception e) {
               logError("Error moving to directory", e);
-              SanityControlOK = false;
+              sanityControlOK = false;
             }
           }
         }
       }
     }
 
-    if (!SanityControlOK) {
+    if (!sanityControlOK) {
       return errorResult(result);
     }
 

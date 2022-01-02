@@ -39,12 +39,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This defines a PGP verify action.
- *
- * @author Samatar
- * @since 25-02-2011
- */
+/** This defines a PGP verify action. */
 public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPGPVerify.class; // For Translator
 
@@ -137,11 +132,11 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     props.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Settings.Group.Label"));
 
-    FormLayout SettingsgroupLayout = new FormLayout();
-    SettingsgroupLayout.marginWidth = 10;
-    SettingsgroupLayout.marginHeight = 10;
+    FormLayout settingsgroupLayout = new FormLayout();
+    settingsgroupLayout.marginWidth = 10;
+    settingsgroupLayout.marginHeight = 10;
 
-    wSettings.setLayout(SettingsgroupLayout);
+    wSettings.setLayout(settingsgroupLayout);
 
     // GPGLocation line
     Label wlGPGLocation = new Label(wSettings, SWT.RIGHT);

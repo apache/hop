@@ -23,11 +23,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This class represents the value meta plugin type.
- *
- * @author matt
- */
+/** This class represents the value meta plugin type. */
 @PluginMainClassType(ITwoWayPasswordEncoder.class)
 @PluginAnnotationType(TwoWayPasswordEncoderPlugin.class)
 public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswordEncoderPlugin> {

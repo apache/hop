@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Gupta SQLBase specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "SQLBASE", typeDescription = "Gupta SQL Base")
+@DatabaseMetaPlugin(type = "SQLBASE", typeDescription = "Gupta SQL Base", documentationUrl = "/database/databases/sqlbase.html")
 @GuiPlugin(id = "GUI-SQLBaseDatabaseMeta")
 public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

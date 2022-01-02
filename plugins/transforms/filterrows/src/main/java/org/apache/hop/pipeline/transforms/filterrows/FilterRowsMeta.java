@@ -57,16 +57,13 @@ import java.util.Optional;
     name = "i18n::BaseTransform.TypeLongDesc.FilterRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.FilterRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::FilterRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/filterrows.html")
 public class FilterRowsMeta extends BaseTransformMeta
     implements ITransformMeta<FilterRows, FilterRowsData> {
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
-  /**
-   * This is the main condition for the complete filter.
-   *
-   * @since version 2.1
-   */
+  /** This is the main condition for the complete filter. */
   private Condition condition;
 
   public FilterRowsMeta() {

@@ -34,10 +34,6 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.util.Date;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class ExcelInputData extends BaseTransformData implements ITransformData {
   /** The previous row in case we want to repeat values... */
   public Object[] previousRow;

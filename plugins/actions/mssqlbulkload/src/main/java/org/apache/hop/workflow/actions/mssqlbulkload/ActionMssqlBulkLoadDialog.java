@@ -52,12 +52,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Dialog class for the MSSqlBulkLoader.
- *
- * @author Samatar Hassan
- * @since Jan-2007
- */
+/** Dialog class for the MSSqlBulkLoader. */
 public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class; // For Translator
 
@@ -215,11 +210,11 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wConnectionGroup.setText(
         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.ConnectionGroup.Group.Label"));
 
-    FormLayout ConnectionGroupLayout = new FormLayout();
-    ConnectionGroupLayout.marginWidth = 10;
-    ConnectionGroupLayout.marginHeight = 10;
+    FormLayout connectionGroupLayout = new FormLayout();
+    connectionGroupLayout.marginWidth = 10;
+    connectionGroupLayout.marginHeight = 10;
 
-    wConnectionGroup.setLayout(ConnectionGroupLayout);
+    wConnectionGroup.setLayout(connectionGroupLayout);
 
     // Connection line
     wConnection = addConnectionLine(wConnectionGroup, wName, action.getDatabase(), lsMod);
@@ -324,10 +319,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wDataFileGroup.setText(
         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.DataFileGroup.Group.Label"));
 
-    FormLayout DataFileGroupLayout = new FormLayout();
-    DataFileGroupLayout.marginWidth = 10;
-    DataFileGroupLayout.marginHeight = 10;
-    wDataFileGroup.setLayout(DataFileGroupLayout);
+    FormLayout dataFileGroupLayout = new FormLayout();
+    dataFileGroupLayout.marginWidth = 10;
+    dataFileGroupLayout.marginHeight = 10;
+    wDataFileGroup.setLayout(dataFileGroupLayout);
 
     // Filename line
     // File
@@ -480,13 +475,13 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
     wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Tab.Advanced.Label"));
 
-    FormLayout AdvancedLayout = new FormLayout();
-    AdvancedLayout.marginWidth = 3;
-    AdvancedLayout.marginHeight = 3;
+    FormLayout advancedLayout = new FormLayout();
+    advancedLayout.marginWidth = 3;
+    advancedLayout.marginHeight = 3;
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wAdvancedComp);
-    wAdvancedComp.setLayout(AdvancedLayout);
+    wAdvancedComp.setLayout(advancedLayout);
 
     // CodePage
     // CodePage

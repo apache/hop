@@ -19,12 +19,7 @@ package org.apache.hop.pipeline.transforms.mailinput;
 
 import org.apache.hop.i18n.BaseMessages;
 
-/**
- * Describes an Mail input field
- *
- * @author Samatar Hassan
- * @since 24-03-2009
- */
+/** Describes an Mail input field */
 public class MailInputField implements Cloneable {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
 

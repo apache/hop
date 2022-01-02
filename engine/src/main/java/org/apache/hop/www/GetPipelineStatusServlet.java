@@ -155,7 +155,6 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           // of bytes to handle this one.
           String loggingString = HttpUtil.encodeBase64ZippedString(logText);
           pipelineStatus.setLoggingString(loggingString);
-          //        pipelineStatus.setLoggingUncompressedSize( logText.length() );
 
           // Also set the result object...
           //
@@ -509,11 +508,6 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.print(
               "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Canvas preview</div>");
           // Get the pipeline image
-          //
-          // out.print("<a href=\"" + convertContextPath(GetPipelineImageServlet.CONTEXT_PATH) +
-          // "?name=" +
-          // URLEncoder.encode(pipelineName, "UTF-8") + "&id="+id+"\">"
-          // + BaseMessages.getString(PKG, "PipelineStatusServlet.GetPipelineImage") + "</a>");
           Point max = pipeline.getPipelineMeta().getMaximum();
           max.x = (int) (max.x * GetPipelineImageServlet.ZOOM_FACTOR) + 100;
           max.y = (int) (max.y * GetPipelineImageServlet.ZOOM_FACTOR) + 50;

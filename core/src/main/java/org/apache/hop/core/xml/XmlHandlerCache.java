@@ -36,9 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * We can solve this by caching the position of index 18 and by starting back at that position.<br>
  * <br>
  * This class is a singleton to keep everyting 100% compatible with the rest of the codebase. <br>
- *
- * @author Matt
- * @since 22-Apr-2006
  */
 public class XmlHandlerCache {
 

@@ -52,13 +52,14 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.TokenReplacement",
     description = "i18n::BaseTransform.TypeTooltipDesc.TokenReplacement",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::TokenReplacementMeta.keyword",
     documentationUrl = "/pipeline/transforms/tokenreplacement.html")
 @InjectionSupported(
     localizationPrefix = "TokenReplacement.Injection.",
     groups = {"OUTPUT_FIELDS"})
 public class TokenReplacementMeta extends BaseTransformMeta
     implements ITransformMeta<TokenReplacement, TokenReplacementData> {
-  private static Class<?> PKG = TokenReplacementMeta.class; // For Translator
+  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   public static final String INPUT_TYPE = "input_type";
   public static final String INPUT_FIELD_NAME = "input_field_name";
@@ -723,22 +724,22 @@ public class TokenReplacementMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for (TokenReplacementField tokenReplacementField : tokenReplacementFields) {
         int idx = prev.indexOfValue(tokenReplacementField.getName());
         if (idx < 0) {
-          error_message += "\t\t" + tokenReplacementField.getName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + tokenReplacementField.getName() + Const.CR;
+          errorFound = true;
         }
       }
-      if (error_found) {
-        error_message =
+      if (errorFound) {
+        errorMessage =
             BaseMessages.getString(
-                PKG, "TokenReplacementMeta.CheckResult.FieldsNotFound", error_message);
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta);
+                PKG, "TokenReplacementMeta.CheckResult.FieldsNotFound", errorMessage);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =

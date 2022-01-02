@@ -39,12 +39,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Wait For File action settings.
- *
- * @author Sven Boden
- * @since 28-01-2007
- */
+/** This dialog allows you to edit the Wait For File action settings. */
 public class ActionWaitForFileDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWaitForFile.class; // For Translator
 

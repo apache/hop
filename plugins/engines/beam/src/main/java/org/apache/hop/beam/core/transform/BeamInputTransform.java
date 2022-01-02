@@ -76,8 +76,6 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
       //
       BeamHop.init(transformPluginClasses, xpPluginClasses);
 
-      // System.out.println("-------------- TextIO.Read from "+inputLocation+" (UNCOMPRESSED)");
-
       TextIO.Read ioRead =
           TextIO.read().from(inputLocation).withCompression(Compression.UNCOMPRESSED);
 

@@ -16,12 +16,13 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
-:description: Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration. Additionally, Hop Server can also be accessed directly through a number of REST services and in combination with the xref:metadata-types/web-service.adoc[Web Service] metadata type.
+:description: Hop Server is a lightweight server to run workflows and pipelines with remote run configuration as well as through a number of REST services.
 
 = Hop Server
 
-Hop Server is a lightweight server to run workflows and pipelines in the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote Native] run configuration.
-Additonally, Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] metadata type.
+Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configurations.
+
+Additionally, a Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] and xref:hop-server/async-web-service.adoc[Asynchronous Web Service] metadata types.
 
 == Starting and Stopping Hop Server
 
@@ -217,6 +218,79 @@ hop-server.sh -e graph-aws hop-server.xml
 In the sample above the environment contains configuration files with variables which are loaded.
 With the environment the server also knows the project home folder.
 The server configuration file is found in the home folder automatically with the implicit relative path.
+
+=== SSL configuration
+
+To protect traffic between a Hop Server and its clients (xref:hop-run/index.adoc[Hop Run], xref:hop-gui/index.adoc[Hop GUI], a browser, xref:hop-server/index.adoc#_query_a_server_from_the_command_line[Hop Server command line querying], ...) it's possible to use encrypt data using a secure socket layer (SSL) connection on top of the regular web traffic with a hyper treading transfer protocol (HTTP).
+The combination of both is called HTTPS.
+To run a Hop server using this `https://` protocol you can add an `sslConfig` section in the `hop-server-config/hop-server` path.
+
+The 3 main options are:
+
+* `keyStore` : the path to the java keystore file, created with `keytool`
+* `keyStorePassword` : the password to the keystore file
+* `keyPassword` : the key password.
+If this is the same as the keystore password you can omit this option.
+
+The HTTP protocol used is version 1.1 or `HTTP/1.1`.
+The type of keystore read is a Java Keystore or type: `JKS`.
+Let's take a look at how we can generate a sample keystore:
+
+[source,bash]
+----
+# Generate a new key
+#
+openssl genrsa -des3 -out hop.key
+
+# Make a new certificate
+#
+openssl req -new -x509 -key hop.key -out hop.crt
+
+# Create a PKCS12 keystore and import it into a JKS keystore
+# The resulting file is: keystore
+#
+keytool -keystore keystore -import -alias hop -file hop.crt -trustcacerts
+openssl req -new -key hop.key -out hop.csr
+openssl pkcs12 -inkey hop.key -in hop.crt -export -out hop.pkcs12
+keytool -importkeystore -srckeystore hop.pkcs12 -srcstoretype PKCS12 -destkeystore keystore
+----
+
+Here is an example of the information to include in your server XML:
+
+[source,xml]
+----
+<hop-server-config>
+<hop-server>
+...
+
+    <sslConfig>
+      <keyStore>/path/to/keystore</keyStore>
+      <keyStorePassword>password</keyStorePassword>
+      <keyPassword>keyPassword</keyPassword>
+    </sslConfig>
+
+    <!-- Add the following line to support querying over https -->
+    <sslMode>Y</sslMode>
+  </hop-server>
+  ...
+</hop-server-config>
+----
+
+=== Start Hop Server with docker
+
+It's often very convenient to run a Hop docker container since it has all the required software automatically delivered.
+For a complete description of the standard Hop docker container see the https://hop.apache.org/tech-manual/latest/docker-container.html[full reference] in the technical documentation.
+Here is an example of how you would start a "long-lived" docker container:
+
+[source,bash]
+----
+docker run \
+  -p 8080:8080 \
+  -e HOP_SERVER_PORT=8080 \
+  -e HOP_SERVER_USER=username \
+  -e HOP_SERVER_USER=password \
+  apache/incubator-hop
+----
 
 === Stopping Hop Server
 

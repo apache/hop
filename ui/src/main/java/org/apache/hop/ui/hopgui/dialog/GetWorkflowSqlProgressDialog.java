@@ -34,9 +34,6 @@ import java.util.List;
 /**
  * Takes care of displaying a dialog that will handle the wait while getting the SQL for a
  * workflow...
- *
- * @author Matt
- * @since 29-mrt-2006
  */
 public class GetWorkflowSqlProgressDialog {
   private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // For Translator
@@ -57,12 +54,6 @@ public class GetWorkflowSqlProgressDialog {
   public List<SqlStatement> open() {
     IRunnableWithProgress op =
         monitor -> {
-          // This is running in a new process: copy some HopVariables info
-          // LocalVariables.getInstance().createHopVariables(Thread.currentThread(),
-          // kettleVariables.getLocalThread(),
-          // true);
-          // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
-
           try {
             stats = workflowMeta.getSqlStatements(new ProgressMonitorAdapter(monitor), variables);
           } catch (HopException e) {
@@ -71,11 +62,7 @@ public class GetWorkflowSqlProgressDialog {
                 BaseMessages.getString(
                     PKG,
                     "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception",
-                    e.getMessage())); // Error
-            // generating
-            // SQL for
-            // workflow:
-            // \n{0}
+                    e.getMessage()));
           }
         };
 

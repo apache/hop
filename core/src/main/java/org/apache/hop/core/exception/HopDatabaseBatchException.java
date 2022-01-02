@@ -19,12 +19,7 @@ package org.apache.hop.core.exception;
 
 import java.util.List;
 
-/**
- * This exception is used by the Database class.
- *
- * @author Matt
- * @since 9-12-2004
- */
+/** This exception is used by the Database class. */
 public class HopDatabaseBatchException extends HopDatabaseException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C0EL;
 

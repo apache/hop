@@ -40,7 +40,6 @@ import java.util.List;
 
 public class HopGuiPipelineHopDelegate {
 
-  // TODO: move i18n package to HopGui
   private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGui hopGui;
@@ -135,7 +134,7 @@ public class HopGuiPipelineHopDelegate {
             BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesRowMixing.Message"),
             re);
       }
-      
+
       // Verify copy distribution only if the new hop are not for error handling
       if (!newHop.isErrorHop()) {
         verifyCopyDistribute(pipelineMeta, newHop.getFromTransform());

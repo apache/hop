@@ -1,0 +1,6 @@
+name,description,label,otherName,otherDescription
+Joe Biden,Mr. President,not_friend_of,Kamala Harris,Mrs. President
+Joe Biden,Mr. President,not_friend_of,Donald Trump,Orange Man Bad
+Donald Trump,Orange Man Bad,not_friend_of,Joe Biden,Mr. President
+Kamala Harris,Mrs. President,friend_of,Joe Biden,Mr. President
+John Doe,Uknown person,,,

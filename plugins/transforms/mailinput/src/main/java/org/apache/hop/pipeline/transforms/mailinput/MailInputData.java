@@ -25,10 +25,6 @@ import org.apache.hop.workflow.actions.getpop.MailConnection;
 import javax.mail.Message;
 import java.util.Iterator;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class MailInputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;
   public int totalpreviousfields;

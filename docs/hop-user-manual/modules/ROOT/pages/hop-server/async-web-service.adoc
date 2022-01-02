@@ -1,0 +1,101 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:page-pagination:
+
+= Asynchronous Web Service
+
+== Description
+
+This web service variant is used to execute long-running workflows.
+Instead of getting immediate results from a pipeline with a xref:hop-server/web-service.adoc[Web Service] call, the only thing that is given back after the call in the unique ID of the executing workflow.
+With that unique ID you can query the status of the workflow.
+You can specify additional variables to report back during the querying of the status of the asynchronously running workflow.
+Here is the lifecycle:
+
+=== Execute Workflow
+
+Executing an asynchronous web service is done by calling method `hop/asyncRun` with the main parameter being the name of the asynchronous web service. (`service=<name of metadata object>`) The response will be a JSON document which includes the ID of the workflow.
+Any other parameters will be considered to be variables or parameters of the workflow and are set in the underlying workflow.
+
+You can also POST content to the web service which can be set as a variable in the executing workflow.
+See the "Content variable" option below.
+In the following example we execute service `dataload` with parameter `MAX` set to 50M.
+The content of JSON file `document.json` is posted to the service.
+The result of the call is stored in file `async-run.json`:
+
+[source,bash]
+----
+curl -v \
+  --user cluster:cluster \
+  --request POST \
+  -o async-run.json \
+  -H "Content-Type: application/json" \
+  --data-binary '@document.json' \
+  'http://localhost:8282/hop/asyncRun/?service=dataload&MAX=50000000'
+----
+
+=== Query Status
+
+You can call method `hop/asyncStatus` with as arguments the service name and ID of the executing workflow: `hop/asyncStatus?service=<name>&id=<id>`.
+
+The variables that are specified in the web service will be included in the JSON output of the service.
+
+You can also include the execution status of one or more pipelines.
+You can mark a pipeline action using the action: `Enable Async Logging`.
+You'll be asked the name of the web service to report to.
+
+Using the output of the previous command you can execute the following command to query the status of the workflow from a command line:
+
+[source,bash]
+----
+ID=$(cat async-run.json | sed 's/^.*"id":"//g' | sed 's/"}$//g') && \
+curl --user cluster:cluster \
+     --request GET \
+     -o - \
+     'http://localhost:8282/hop/asyncStatus/?service=dataload&id='$ID
+----
+
+The ID of the executing asynchronous web service is the same as the ID of the executing workflow.
+This means you can query the workflow itself as well with the `hop/getWorkflowStatus` service.
+The output of that service can be given in HTML (default), XML (parameter `&xml=Y`) or JSON (parameter `&json=Y`).
+See also: xref:hop-server/rest-api.adoc#_getworkflowstatus[Get Workflow Status].
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+
+|Name
+|The name of the asynchronous web service.
+This is the name that is passed into the `asyncRun` webService URL.
+
+|Enabled
+|Enables or disabled this Asynchronous Web Service
+
+|Filename on the server
+|This is the filename on the server.
+Make sure that the workflow you want to execute is available on the server.
+
+|Status variables
+|List the variables that are being reported back when the asynchronous status service is queried
+
+|Content variable
+|The name of the variable which will contain the content body of the service call
+
+|===

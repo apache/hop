@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentMap;
  * <p>And on the other hand
  *
  * <p>The database connection The number of times it was opened
- *
- * @author Matt
  */
 public class DatabaseConnectionMap {
   private final ConcurrentMap<String, Database> map;

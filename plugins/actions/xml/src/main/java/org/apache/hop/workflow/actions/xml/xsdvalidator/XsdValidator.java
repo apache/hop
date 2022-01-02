@@ -58,6 +58,7 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
     description = "i18n::XSD_VALIDATOR.Description",
     image = "org/apache/hop/workflow/actions/xml/XSD.svg",
     categoryDescription = "i18n::XSD_VALIDATOR.Category",
+    keywords = "i18n::XsdValidator.keyword",
     documentationUrl = "/workflow/actions/xsdvalidator.html")
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = XsdValidator.class; // For Translator
@@ -151,14 +152,14 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
         if (xmlfile.exists() && xsdfile.exists()) {
 
-          SchemaFactory factorytXSDValidator_1 =
+          SchemaFactory factorytXSDValidator1 =
               SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
 
           // Get XSD File
-          File XSDFile = new File(HopVfs.getFilename(xsdfile));
-          Schema SchematXSD = factorytXSDValidator_1.newSchema(XSDFile);
+          File xsdFile = new File(HopVfs.getFilename(xsdfile));
+          Schema schematXSD = factorytXSDValidator1.newSchema(xsdFile);
 
-          Validator xsdValidator = SchematXSD.newValidator();
+          Validator xsdValidator = schematXSD.newValidator();
 
           // Prevent against XML Entity Expansion (XEE) attacks.
           // https://www.owasp.org/index.php/XML_Security_Cheat_Sheet#XML_Entity_Expansion
@@ -178,11 +179,11 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
           }
 
           // Get XML File
-          File xmlfiletXSDValidator_1 = new File(HopVfs.getFilename(xmlfile));
+          File xmlfiletXSDValidator1 = new File(HopVfs.getFilename(xmlfile));
 
-          Source sourcetXSDValidator_1 = new StreamSource(xmlfiletXSDValidator_1);
+          Source sourcetXSDValidator1 = new StreamSource(xmlfiletXSDValidator1);
 
-          xsdValidator.validate(sourcetXSDValidator_1);
+          xsdValidator.validate(sourcetXSDValidator1);
 
           // Everything is OK
           result.setResult(true);

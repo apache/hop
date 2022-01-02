@@ -991,7 +991,8 @@ public class ProjectsGuiPlugin {
               OutputStream outputStream = HopVfs.getOutputStream(zipFilename, false);
               ZipOutputStream zos = new ZipOutputStream(outputStream);
               FileObject projectDirectory = HopVfs.getFileObject(projectHome);
-              zipFile(projectDirectory, projectDirectory.getName().getURI(), zos);
+              String projectHomeFolder = HopVfs.getFileObject(projectHome).getParent().getName().getURI();
+              zipFile(projectDirectory, projectDirectory.getName().getURI(), zos, projectHomeFolder);
               zos.close();
               outputStream.close();
               monitor.done();
@@ -1021,27 +1022,27 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  public void zipFile(FileObject fileToZip, String filename, ZipOutputStream zipOutputStream)
+  public void zipFile(FileObject fileToZip, String filename, ZipOutputStream zipOutputStream, String projectHomeParent)
       throws IOException {
     if (fileToZip.isHidden()) {
       return;
     }
     if (fileToZip.isFolder()) {
       if (filename.endsWith("/")) {
-        zipOutputStream.putNextEntry(new ZipEntry(filename));
+        zipOutputStream.putNextEntry(new ZipEntry(filename.replaceAll(projectHomeParent, "")));
         zipOutputStream.closeEntry();
       } else {
-        zipOutputStream.putNextEntry(new ZipEntry(filename + "/"));
+        zipOutputStream.putNextEntry(new ZipEntry(filename.replaceAll(projectHomeParent, "") + "/"));
         zipOutputStream.closeEntry();
       }
       FileObject[] children = fileToZip.getChildren();
       for (FileObject childFile : children) {
-        zipFile(childFile, filename + "/" + childFile.getName().getBaseName(), zipOutputStream);
+        zipFile(childFile, filename + "/" + childFile.getName().getBaseName(), zipOutputStream, projectHomeParent);
       }
       return;
     }
     InputStream fis = HopVfs.getInputStream(fileToZip);
-    ZipEntry zipEntry = new ZipEntry(filename);
+    ZipEntry zipEntry = new ZipEntry(filename.replaceAll(projectHomeParent, ""));
     zipOutputStream.putNextEntry(zipEntry);
     byte[] bytes = new byte[1024];
     int length;

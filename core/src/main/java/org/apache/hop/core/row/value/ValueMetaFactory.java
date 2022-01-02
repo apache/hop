@@ -27,11 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * This class will hand out value meta objects from the plugin registry.
- *
- * @author matt
- */
+/** This class will hand out value meta objects from the plugin registry. */
 public class ValueMetaFactory {
 
   private ValueMetaFactory() {

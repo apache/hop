@@ -148,8 +148,18 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
+    SelectionListener lsSelection =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        };
+
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, dbm, lsMod);
+    wConnection.addSelectionListener(lsSelection);
 
     // Table line...
     Label wlSql = new Label(shell, SWT.LEFT);
@@ -312,7 +322,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     // Parameter fields...
     //
-    final int FieldsRows = input.getArguments().length;
+    final int FieldsRows = input.getArguments().size();
 
     colinf =
         new ColumnInfo[] {
@@ -526,6 +536,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
   }
 
   private void setExecutedEachInputRow() {
+
     wlFields.setEnabled(wEachRow.getSelection());
     wFields.setEnabled(wEachRow.getSelection());
     wlSetParams.setEnabled(wEachRow.getSelection());
@@ -533,8 +544,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     if (!wEachRow.getSelection()) {
       wSetParams.setSelection(wEachRow.getSelection());
     }
-    wlQuoteString.setEnabled(wEachRow.getSelection());
-    wQuoteString.setEnabled(wEachRow.getSelection());
+
     if (!wEachRow.getSelection()) {
       wQuoteString.setSelection(wEachRow.getSelection());
     }
@@ -578,8 +588,8 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     if (input.getSql() != null) {
       wSql.setText(input.getSql());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     wEachRow.setSelection(input.isExecutedEachInputRow());
     wSingleStatement.setSelection(input.isSingleStatement());
@@ -599,10 +609,11 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
       wReadField.setText(input.getReadField());
     }
 
-    for (int i = 0; i < input.getArguments().length; i++) {
+    for (int i = 0; i < input.getArguments().size(); i++) {
       TableItem item = wFields.table.getItem(i);
-      if (input.getArguments()[i] != null) {
-        item.setText(1, input.getArguments()[i]);
+      ExecSqlArgumentItem arg = input.getArguments().get(i);
+      if (arg != null) {
+        item.setText(1, arg.getName());
       }
     }
     wSetParams.setSelection(input.isParams());
@@ -640,10 +651,10 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     transformName = wTransformName.getText(); // return value
     // copy info to TextFileInputMeta class (input)
     input.setSql(wSql.getText());
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setConnection(wConnection.getText());
     input.setExecutedEachInputRow(wEachRow.getSelection());
     input.setSingleStatement(wSingleStatement.getSelection());
-    input.setVariableReplacementActive(wVariables.getSelection());
+    input.setReplaceVariables(wVariables.getSelection());
     input.setQuoteString(wQuoteString.getSelection());
     input.setParams(wSetParams.getSelection());
     input.setInsertField(wInsertField.getText());
@@ -652,17 +663,17 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     input.setReadField(wReadField.getText());
 
     int nrargs = wFields.nrNonEmpty();
-    input.allocate(nrargs);
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "ExecSqlDialog.Log.FoundArguments", +nrargs + ""));
     }
+
+    input.getArguments().clear();
     for (int i = 0; i < nrargs; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
-      input.getArguments()[i] = item.getText(1);
+      input.getArguments().add(new ExecSqlArgumentItem(item.getText(1)));
     }
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "ExecSqlDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "ExecSqlDialog.InvalidConnection.DialogTitle"));

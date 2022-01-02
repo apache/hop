@@ -13,11 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.model;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class GraphNode {
 
   @Override
   public String toString() {
-    return name == null ? super.toString() : name;
+    return "GraphNode{" + "name='" + name + '\'' + '}';
   }
 
   @Override
@@ -100,6 +101,32 @@ public class GraphNode {
       }
     }
     return null;
+  }
+
+  /**
+   * Validate the integrity of this node: make sure that there is a primary key property and that
+   * there is at least one label.
+   */
+  public void validateIntegrity() throws HopException {
+    if (StringUtils.isEmpty(name)) {
+      throw new HopException("A node in a graph model needs to have a name");
+    }
+    if (labels == null || labels.isEmpty()) {
+      throw new HopException("A graph node needs to have at least one label");
+    }
+    boolean hasPk = false;
+    for (GraphProperty property : properties) {
+      if (property.isPrimary()) {
+        hasPk = true;
+        break;
+      }
+    }
+    if (!hasPk) {
+      throw new HopException(
+          "Node '"
+              + name
+              + "' has no primary key field. This makes it impossible to update or create relationships with.");
+    }
   }
 
   /**

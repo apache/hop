@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/** @author Andrey Khayrutdinov */
 public class CalculatorDataTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

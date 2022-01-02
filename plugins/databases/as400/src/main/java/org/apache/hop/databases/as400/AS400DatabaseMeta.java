@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains AS/400 specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "AS/400", typeDescription = "AS/400")
+@DatabaseMetaPlugin(type = "AS/400", typeDescription = "AS/400", documentationUrl = "/database/databases/as400.html")
 @GuiPlugin(id = "GUI-AS400DatabaseMeta")
 public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

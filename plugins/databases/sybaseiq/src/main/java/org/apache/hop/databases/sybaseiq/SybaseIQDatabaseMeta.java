@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Sybase IQ specific information through static final members
- *
- * @author fumigateAnt, liuhuaiyong <liuhuaiyong@gmail.com>
- * @since 18-09-2007
  */
-@DatabaseMetaPlugin(type = "SYBASEIQ", typeDescription = "Sybase IQ")
+@DatabaseMetaPlugin(type = "SYBASEIQ", typeDescription = "Sybase IQ", documentationUrl = "/database/databases/sybaseiq.html")
 @GuiPlugin(id = "GUI-SybaseIQDatabaseMeta")
 public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

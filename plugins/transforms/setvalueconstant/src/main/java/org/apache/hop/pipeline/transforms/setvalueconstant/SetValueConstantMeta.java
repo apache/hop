@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SetValueConstant",
     description = "i18n::BaseTransform.TypeTooltipDesc.SetValueConstant",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::SetValueConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")
 public class SetValueConstantMeta extends BaseTransformMeta
     implements ITransformMeta<SetValueConstant, SetValueConstantData> {
@@ -162,7 +163,7 @@ public class SetValueConstantMeta extends BaseTransformMeta
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "SetValueConstantMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -184,7 +185,7 @@ public class SetValueConstantMeta extends BaseTransformMeta
             BaseMessages.getString(
                 PKG, "SetValueConstantMeta.CheckResult.FieldsFound", errorMessage);
 
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         if (Utils.isEmpty(fields)) {
@@ -196,7 +197,7 @@ public class SetValueConstantMeta extends BaseTransformMeta
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "SetValueConstantMeta.CheckResult.AllFieldsFound"),
                   transformMeta);
         }
@@ -208,14 +209,14 @@ public class SetValueConstantMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "SetValueConstantMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "SetValueConstantMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

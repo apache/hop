@@ -34,7 +34,6 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.reflection.pipeline.xp.PipelineStartLoggingXp;
 import org.apache.hop.reflection.workflow.meta.WorkflowLog;
 import org.apache.hop.reflection.workflow.transform.WorkflowLogging;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 

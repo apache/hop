@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Encrypt Files With PGP action can be used to encrypt and sign files.
 
 = Encrypt files with PGP
 
 == Description
 
-This workflow action can be used to encrypt and sign files.
+The Encrypt Files With PGP action can be used to encrypt and sign files.
 
 == Options
 

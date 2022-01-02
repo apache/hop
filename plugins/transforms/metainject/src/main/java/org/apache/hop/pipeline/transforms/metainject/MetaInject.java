@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.metainject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -38,19 +39,13 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Read a simple CSV file Just output Strings found in the file...
- *
- * @author Matt
- * @since 2007-07-05
- */
+/** Read a simple CSV file Just output Strings found in the file... */
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     implements ITransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class; // For Translator
@@ -269,10 +264,15 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
 
     OutputStream os = null;
     try {
+
+      if (meta.isCreateParentFolder()) {
+        createParentFolder(targetFilePath);
+      }
+
       os = HopVfs.getOutputStream(targetFilePath, false);
       os.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
       os.write(data.pipelineMeta.getXml(this).getBytes(Const.XML_ENCODING));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new HopException(
           "Unable to write target file (hpl after injection) to file '" + targetFilePath + "'", e);
     } finally {
@@ -281,6 +281,55 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
           os.close();
         } catch (Exception e) {
           throw new HopException(e);
+        }
+      }
+    }
+  }
+
+  private void createParentFolder(String filename) throws Exception {
+    // Check for parent folder
+    FileObject parentfolder = null;
+
+    try {
+      // Get parent folder
+      parentfolder = HopVfs.getFileObject(filename).getParent();
+
+      if (parentfolder.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "MetaInject.Log.ParentFolderExist", HopVfs.getFriendlyURI(parentfolder)));
+        }
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "MetaInject.Log.ParentFolderNotExist", HopVfs.getFriendlyURI(parentfolder)));
+        }
+        if (meta.isCreateParentFolder()) {
+          parentfolder.createFolder();
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG,
+                    "MetaInject.Log.ParentFolderCreated",
+                    HopVfs.getFriendlyURI(parentfolder)));
+          }
+        } else {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG,
+                  "MetaInject.Log.ParentFolderNotExistCreateIt",
+                  HopVfs.getFriendlyURI(parentfolder),
+                  HopVfs.getFriendlyURI(filename)));
+        }
+      }
+    } finally {
+      if (parentfolder != null) {
+        try {
+          parentfolder.close();
+        } catch (Exception ex) {
+          // Ignore
         }
       }
     }

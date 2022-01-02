@@ -37,12 +37,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-/**
- * Dialog to enter a text. (descriptions etc.)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to enter a text. (descriptions etc.) */
 public class ShowMessageDialog extends Dialog {
   private static final Class<?> PKG = ShowMessageDialog.class; // For Translator
 
@@ -55,7 +50,8 @@ public class ShowMessageDialog extends Dialog {
     buttonTextByFlagDefaults.put(SWT.NO, BaseMessages.getString(PKG, "System.Button.No"));
   }
 
-  private String title, message;
+  private String title;
+  private String message;
 
   private Shell shell;
   private PropsUi props;
@@ -75,8 +71,6 @@ public class ShowMessageDialog extends Dialog {
   private int timeOut;
 
   private List<Button> buttons;
-
-  private List<SelectionAdapter> adapters;
 
   private FormLayout formLayout;
   private FormData fdlDesc;
@@ -213,7 +207,7 @@ public class ShowMessageDialog extends Dialog {
     wlDesc.setLayoutData(fdlDesc);
 
     buttons = new ArrayList<>();
-    adapters = new ArrayList<>();
+    List<SelectionAdapter> adapters = new ArrayList<>();
 
     for (Map.Entry<Integer, String> entry : buttonTextByFlag.entrySet()) {
       Integer buttonFlag = entry.getKey();

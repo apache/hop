@@ -58,6 +58,7 @@ import java.util.List;
     description = "i18n::ActionFileCompare.Description",
     image = "FileCompare.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionFileCompare.keyword",
     documentationUrl = "/workflow/actions/filecompare.html")
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileCompare.class; // For Translator
@@ -142,7 +143,8 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
           new DataInputStream(
               new BufferedInputStream(HopVfs.getInputStream(HopVfs.getFilename(file2))));
 
-      char ch1, ch2;
+      char ch1;
+      char ch2;
       while (in1.available() != 0 && in2.available() != 0) {
         ch1 = (char) in1.readByte();
         ch2 = (char) in2.readByte();

@@ -30,12 +30,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * Displays an HTML page.
- *
- * @author Matt
- * @since 22-12-2005
- */
+/** Displays an HTML page. */
 public class ShowBrowserDialog extends Dialog {
   private static final Class<?> PKG = ShowBrowserDialog.class; // For Translator
 
@@ -47,16 +42,11 @@ public class ShowBrowserDialog extends Dialog {
   private Shell shell;
   private PropsUi props;
 
-  // private int prefWidth = -1;
-  // private int prefHeight = -1;
-
   public ShowBrowserDialog(Shell parent, String dialogTitle, String content) {
     super(parent, SWT.NONE);
     props = PropsUi.getInstance();
     this.dialogTitle = dialogTitle;
     this.content = content;
-    // prefWidth = -1;
-    // prefHeight = -1;
   }
 
   public void open() {

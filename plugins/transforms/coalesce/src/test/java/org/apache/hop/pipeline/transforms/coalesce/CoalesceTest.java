@@ -41,7 +41,7 @@ public class CoalesceTest {
     List<String> attributes = Arrays.asList("treatEmptyStringsAsNulls");
 
     LoadSaveTester<CoalesceMeta> loadSaveTester =
-            new LoadSaveTester<>(CoalesceMeta.class, attributes);
+        new LoadSaveTester<>(CoalesceMeta.class, attributes);
 
     loadSaveTester.testSerialization();
   }

@@ -35,7 +35,13 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Text;
 
 public class StyledTextComp extends Composite {
   private static final Class<?> PKG = StyledTextComp.class; // For Translator
@@ -127,7 +133,7 @@ public class StyledTextComp extends Composite {
   public void addListener(int eventType, Listener listener) {
     textWidget.addListener(eventType, listener);
   }
-  
+
   public void addModifyListener(ModifyListener lsMod) {
     textWidget.addModifyListener(lsMod);
   }
@@ -246,7 +252,21 @@ public class StyledTextComp extends Composite {
 
   /** @return The caret line number, starting from 1. */
   public int getLineNumber() {
-    return textWidget.getCaretLineNumber() + 1;
+    String text = textWidget.getText();
+    if (StringUtils.isEmpty(text)) {
+      return 1;
+    }
+
+    int rowNumber = 1;
+    int textPosition = textWidget.getCaretPosition();
+    while (textPosition > 0) {
+      if (text.charAt(textPosition - 1) == '\n') {
+        rowNumber++;
+      }
+      textPosition--;
+    }
+
+    return rowNumber;
   }
 
   /** @return The caret column number, starting from 1. */

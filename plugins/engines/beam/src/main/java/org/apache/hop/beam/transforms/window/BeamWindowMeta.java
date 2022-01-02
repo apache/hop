@@ -57,6 +57,7 @@ import java.util.Map;
     description = "Create a Beam Window",
     image = "beam-window.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    keywords = "i18n::BeamWindowMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamwindow.html")
 public class BeamWindowMeta extends BaseTransformMeta
     implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {

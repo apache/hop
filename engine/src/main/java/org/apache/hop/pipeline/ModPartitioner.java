@@ -101,10 +101,6 @@ public class ModPartitioner extends BasePartitioner {
         value = valueMeta.hashCode(valueData);
     }
 
-    /*
-     * value = rowMeta.getInteger(row, partitionColumnIndex);
-     */
-
     int targetLocation = (int) (Math.abs(value) % nrPartitions);
 
     return targetLocation;

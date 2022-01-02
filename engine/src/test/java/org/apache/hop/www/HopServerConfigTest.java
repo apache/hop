@@ -31,7 +31,6 @@ import java.util.Map.Entry;
 
 import static org.junit.Assert.*;
 
-/** @author Tatsiana_Kasiankova */
 public class HopServerConfigTest {
 
   public static final String XML_TAG_HOP_SERVER_CONFIG = "hop-server-config";

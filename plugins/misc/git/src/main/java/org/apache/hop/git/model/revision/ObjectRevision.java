@@ -19,11 +19,7 @@ package org.apache.hop.git.model.revision;
 
 import java.util.Date;
 
-/**
- * A revision is simply a name, a commit comment and a date
- *
- * @author matt
- */
+/** A revision is simply a name, a commit comment and a date */
 public interface ObjectRevision {
 
   /** @return The internal name or number of the revision */

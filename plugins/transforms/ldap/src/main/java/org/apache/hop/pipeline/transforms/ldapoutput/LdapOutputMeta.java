@@ -45,11 +45,11 @@ import java.util.List;
     description = "i18n::LdapOutput.Description",
     image = "ldapoutput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    keywords = {"ldap", "output"},
+    keywords = "i18n::LdapOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapoutput.html")
 public class LdapOutputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
-  private static Class<?> PKG = LdapOutputMeta.class; // For Translator
+  private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

@@ -83,7 +83,9 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
   private GetFilesRowsCountMeta input;
 
-  private Button wFileField, wAddResult, wSmartCount;
+  private Button wFileField;
+  private Button wAddResult;
+  private Button wSmartCount;
 
   private Label wlFilenameField;
   private CCombo wFilenameField;
@@ -172,10 +174,10 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     props.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.wOriginFiles.Label"));
 
-    FormLayout OriginFilesgroupLayout = new FormLayout();
-    OriginFilesgroupLayout.marginWidth = 10;
-    OriginFilesgroupLayout.marginHeight = 10;
-    wOriginFiles.setLayout(OriginFilesgroupLayout);
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOriginFiles.setLayout(originFilesgroupLayout);
 
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFiles, SWT.RIGHT);
@@ -666,10 +668,10 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wAddFileResult.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.AddResult.Label"));
@@ -835,11 +837,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
         });
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener(
-        e -> {
-          wFilename.setToolTipText(
-              ""); // StringUtil.environmentSubstitute( wFilename.getText() ) );
-        });
+    wFilename.addModifyListener(e -> wFilename.setToolTipText(""));
 
     // Listen to the Browse... button
     wbbFilename.addListener(

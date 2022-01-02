@@ -1,0 +1,187 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /workflow/actions/
+:language: en_US
+:imagesdir: ../assets/images/
+:description: The Hop Gui popup dialog is a contextual dialog that allows you to perform a lot of operations on metadata, workflows and pipelines.
+
+= Hop Gui Popup (Context) Dialog
+
+The Hop Gui popup dialog is a contextual dialog that allows you to perform a lot of operations on metadata, workflows and pipelines.
+
+The popup dialog was designed to enable fast development through search and single clicks.
+
+Hover over any of the available options in the popup dialog to see a description of that option. The example below shows the description for the `Copy as workflow action` option from the workflow popup.
+
+image:hop-gui/popup-description.png[Hop Gui Popup Dialog - Description, width="65%"]
+
+The search bar at the top of the dialog enables Hop developers to
+
+* search the available items in the dialog. The list of available items is updated as you type. Navigate to the item you need using the arrow keys and hit enter or single-click on an item to select an item or add an action or transform to your workflow or pipeline.
+* collapse or expand all categories
+* show categories: show the available items in a categorized list, or as one large list of items
+* fixed width: display all items in a fixed with, tabular layout
+
+image:hop-gui/popup-toolbar.png[Hop Gui Popup Dialog - Toolbar, width="65%"]
+
+image:hop-gui/popup-collapsed.png[Hop Gui Popup Dialog - Collapsed, width="65%"]
+
+image:hop-gui/popup-no-categories-no-fixed-width.png[Hop Gui Popup Dialog - No categories, No fixed width, width="65%"]
+
+== Creating Items
+
+When you create a new item, the dialog will show you a list of metadata items that can be created with a single click of a button.
+
+TIP: Create a new item either by clicking the image:icons/add.svg['plus' icon] in the upper left corner, through File -> New or by hitting `CTRL-N`
+
+* File
+** xref:pipeline/create-pipeline.adoc[Pipeline]
+** xref:workflow/create-workflow.adoc[Workflow]
+* Metadata
+** xref:metadata-types/beam-file-definition.adoc[Beam File Definition]
+** xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]
+** xref:metadata-types/data-set.adoc[Data Set]
+** xref:metadata-types/hop-server.adoc[Hop Server]
+** xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]
+** xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]
+** xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]
+** xref:metadata-types/partition-schema.adoc[Partition Schema]
+** xref:metadata-types/pipeline-log.adoc[Pipeline Log]
+** xref:metadata-types/pipeline-probe.adoc[Pipeline Probe]
+** xref:metadata-types/pipeline-run-config.adoc[Pipeline Run Configuration]
+** xref:metadata-types/pipeline-unit-test.adoc[Pipeline Unit Test]
+** xref:metadata-types/rdbms-connection.adoc[Relational Database Connection]
+** xref:metadata-types/splunk-connection.adoc[Splunk Connection]
+** xref:hop-server/web-service.adoc[Web Service]
+** xref:metadata-types/workflow-log.adoc[Workflow Log]
+** xref:metadata-types/workflow-run-config.adoc[Workflow Run Configuration]
+
+image:hop-gui/popup-create-item.png[Hop Gui Popup Dialog - Create Items, width="65%"]
+
+== Workflow Options
+
+The 'Basic' category contains a number of operations you can perform on the current workflow.
+
+* **edit workflow**: edit this workflow's properties: description, parameters etc.
+* **create a note**: add a note to this workflow
+* **paste from the clipboard**: paste actions, notes or an entire workflow from the clipboard
+* **copy as workflow action**: copy this workflow to the clipboard as a workflow action, so you can paste it in another workflow as a pre-configured xref:workflow/actions/workflow.adoc[workflow] action
+
+All other categories contain the actions you can add to your workflow.
+
+Check the xref:workflow/actions.adoc[full list] of actions for detailed information on the available action options.
+
+image:hop-gui/popup-workflow.png[Hop Gui Popup Dialog - Workflow Options, width="65%"]
+
+== Workflow Action Options
+
+When clicking on an action icon, the popup contains a number of actions to work with actions:
+
+* Basic
+** **Open: _Action Type_**: open the selected action type. This is available for workflow, pipeline actions etc.
+** **Copy Action to clipboard**: copy this action to the clipboard, so you can paste it in the current or another workflow.
+** **Edit the action**: edit the current action's properties
+** **Create hop**: this option closes the dialog and adds an open hop. Click on any other action icon in your workflow to create a hop to that action.
+** **Detach action**: remove all hops to and from this action. If this action connects 2 other actions through hops, a hop between these actions will be created.
+** **Edit action description**: opens the description dialog for this action
+** **Delete this action**: delete this action from the workflow. No new hops will be created if this action was connected to other actions.
+* Advanced
+** **Parallel execution**: enable or disable parallel execution for actions after the current action.
+* Logging
+** **Edit Custom Logging**: set a custom logging level for the current action
+** **Clear Custom Logging**: reset the logging level for this action back to `Basic`
+
+TIP: Two shortcuts to open the workflow or pipeline specified in an action are to hover over the icon and hit the `z` key, or `CTRL-SHIFT-click` on the action icon.
+
+TIP: Click on an action icon to open the popup dialog. Click on the action name to directly open the action's properties. This is a shortcut to clicking on the icon and selecting `Edit` from the popup dialog.
+
+image:hop-gui/popup-action.png[Hop Gui Popup Dialog - Workflow Action Options, width="65%"]
+
+== Pipeline Options
+
+The 'Basic' category contains a number of operations you can perform on the current pipeline.
+
+* **edit pipeline**: edit this pipeline's properties: description, parameters etc.
+* **create**: add a note to this pipeline
+* **paste from the clipboard**: paste transforms, notes or an entire pipeline from the clipboard
+* **copy as pipeline action**: copy this pipeline to the clipboard as a workflow action, so you can paste it in a workflow as a pre-configured xref:workflow/actions/pipeline.adoc[pipeline] action
+
+image:hop-gui/popup-pipeline.png[Hop Gui Popup Dialog - Pipeline Options, width="65%"]
+
+== Pipeline Transform Options
+
+When clicking on a transform icon, the popup contains a number of actions to work with transforms:
+
+* Basic
+** **Edit**: edit the current transform's properties
+** **Copy to clipboard**: copy this transform to the clipboard, so you can paste it in the current or another pipeline.
+** **Create hop**: this option closes the dialog and adds an open hop. Click on any other transform icon in your pipeline to create a hop to that transform.
+** **Detach transform**: remove all hops to and from this transform. If this transform connects 2 other transforms through hops, a hop between these transforms will be created.
+** **Show input fields**: show all the fields entering this transform
+** **Show output fields**: show all output fields resulting from this transform
+** **Edit description**: opens the description dialog for this transform
+** **Delete**: delete this transform from the pipeline. No new hops will be created if this transform was connected to other transforms.
+* Data Routing
+** **Specify copies**: set the number of transform copies to use during execution
+** **Copy/distribute rows**: make the transform copy/distribute rows during execution. The option is contextual: if the transform is copying rows, only the distribute option will be shown and vice versa.
+** **Set xref:pipeline/partitioning.adoc[partitioning]**: specify how rows of data need to be grouped in partitions allowing parallel execution where similar rows need to end up on the same transform copy.
+** **Error handling**: configure error handling for this transform (for supported transforms)
+** **Add web service**: use the output of this transform as a xref:hop-server/web-service.adoc[web service] with xref:hop-server/index.adoc[Hop Server].
+* Preview
+** **View output**: view output of this transform in a running or finished pipeline.
+** **Preview output**: execute the pipeline and see the output of this transform
+** **Debug output**: execute the pipeline and debug the output of this transform. Execution will pause when the debugging conditions are met.
+** **Sniff output**: take a look at 50 rows of output from the selected transform in a running pipeline
+** **Add data probe**: streams the output rows of this transform to a pipeline defined in a xref:metadata-types/pipeline-probe.adoc[pipeline probe].
+* Logging
+** **Edit Custom Logging**: set a custom logging level for the current transform
+** **Clear Custom Logging**: reset the logging level for this transform back to `Basic`
+* Unit Testing
+** **Unit testing**: create an empty xref:metadata-types/data-set.adoc[data set] with the output fields and layout for this transform
+** **Write rows to data set**: run the current pipeline and write the output of the current transform to a data set.
+
+image:hop-gui/popup-transform.png[Hop Gui Popup Dialog - Workflow Transform Options, width="65%"]
+
+TIP: The options shown for Unit Testing are just a subset of the available options. Check the xref:pipeline/pipeline-unit-testing.adoc[unit testing] docs for a detailed explanation of all the unit testing options.
+
+TIP: Click on a transform icon to open the popup dialog. Click on the transform name to directly open the transform properties. This is a shortcut to clicking on the icon and selecting `Edit` from the popup dialog.
+
+
+== Hop Options
+
+The Hop options, available from both the workflow and pipeline editors, offer a number of operations you can perform on one or more hops.
+
+For pipelines, the dialog offers the following options:
+
+* Basic
+** **disable/enable hop**: enable the current hop (if disabled) or disable the current hop (if enabled). This option will only show the applicable options (e.g. 'enable hop' won't be shown for active hops and vice versa)
+** **delete hop**: delete the current hop
+* Bulk
+** **Enable downstream hops**: enable the current hop, and all hops that follow later in the workflow (or pipeline).
+** **Disable downstream hops**: disable the current hop and all hops that follow later in the current workflow (or pipeline).
+
+image:hop-gui/popup-hop-pipeline.png[Hop Gui Popup Dialog - Pipeline Hop Options, width="65%"]
+
+When working in a workflow, the hops popup dialog has all the options as the pipeline hop dialog, with one additional category:
+
+* Routing
+** **Unconditional hop**: make the current hop unconditional (ignore the result of the previous action and follow this hop anyway)
+** **Success hop**: make the current hop a success hop (only follow if the result of the previous action is 'success')
+** **Failure hop**: make the current hop a failure hop (only follow if the result of the previous action is 'failure')
+
+image:hop-gui/popup-hop-workflow.png[Hop Gui Popup Dialog - Workflow Hop Options, width="65%"]

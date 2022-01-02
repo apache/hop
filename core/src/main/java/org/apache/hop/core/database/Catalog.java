@@ -19,9 +19,6 @@ package org.apache.hop.core.database;
 
 /**
  * Contains the information that's stored in a single catalog.
- *
- * @author Matt
- * @since 7-apr-2005
  */
 public class Catalog {
   private String catalogName;

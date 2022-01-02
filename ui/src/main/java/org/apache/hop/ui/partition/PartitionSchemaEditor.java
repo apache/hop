@@ -40,9 +40,7 @@ import java.util.List;
 /**
  * Dialog that allows you to edit the settings of the partition schema
  *
- * @author Matt
  * @see PartitionSchema
- * @since 17-11-2006
  */
 public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
   private static final Class<?> PKG = PartitionSchemaEditor.class; // For Translator

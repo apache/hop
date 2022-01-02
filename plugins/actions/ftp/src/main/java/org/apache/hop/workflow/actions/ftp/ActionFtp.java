@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionFTP.Description",
     image = "FTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
+    keywords = "i18n::ActionFtp.keyword",
     documentationUrl = "/workflow/actions/ftp.html")
 public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtp.class; // For Translator
@@ -396,8 +397,6 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
         }
         String originalLocation = ftpClient.printWorkingDirectory();
         try {
-          // does not work for folders
-          // folderExist=ftpClient.exists(realMoveToFolder);
           // try switching to the 'move to' folder.
           ftpClient.changeWorkingDirectory(realMoveToFolder);
           // Switch back to the previous location.

@@ -37,7 +37,6 @@ import org.eclipse.swt.SWT;
 import java.util.ArrayList;
 import java.util.List;
 
-/** @author matt */
 @ExtensionPoint(
     extensionPointId = "PipelineFinish",
     id = "ValidatePipelineUnitTestExtensionPoint",

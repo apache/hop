@@ -39,12 +39,7 @@ import java.io.*;
 import java.net.SocketTimeoutException;
 import java.util.*;
 
-/**
- * Groups data based on aggregation rules. (sum, count, ...)
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Groups data based on aggregation rules. (sum, count, ...) */
 public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
     implements ITransform<GroupByMeta, GroupByData> {
 
@@ -69,6 +64,14 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
     Object[] r = getRow(); // get row!
 
     if (first) {
+
+      // do we have any row at start processing?
+      if (!meta.isAlwaysGivingBackOneRow() && r == null) {
+        // seems that we don't
+        this.setOutputDone();
+        return false;
+      }
+
       String val = getVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "N");
       allNullsAreZero = ValueMetaBase.convertStringToBoolean(val);
       val = getVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
@@ -895,6 +898,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
 
   @Override
   public void dispose() {
+
     if (data.tempFile != null) {
       try {
         closeInput();

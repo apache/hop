@@ -52,8 +52,8 @@ import java.util.List;
     name = "i18n::DatabaseJoin.Name",
     description = "i18n::DatabaseJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "/pipeline/transforms/databasejoin.html",
-    keywords = "sql")
+    keywords = "i18n::DatabaseJoinMeta.keyword",
+    documentationUrl = "/pipeline/transforms/databasejoin.html")
 public class DatabaseJoinMeta extends BaseTransformMeta
     implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 
@@ -317,7 +317,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
           } else {
             errorMessage =
                 BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.InvalidDBQuery");
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
           }
 
@@ -524,8 +524,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       }
     } catch (HopException e) {
       throw new HopTransformException(
-              "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
-              e);
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 

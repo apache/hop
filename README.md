@@ -15,17 +15,17 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-# Apache Hop (incubating)
+# Apache Hop
 
 The Hop Orchestration Platform aims to facilitate all aspects of data and metadata orchestration.
 
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=apache_incubator-hop&metric=ncloc)](https://sonarcloud.io/dashboard?id=apache_incubator-hop)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=apache_hop&metric=ncloc)](https://sonarcloud.io/dashboard?id=apache_hop)
 [![Jenkins Status](https://ci-builds.apache.org/buildStatus/icon?job=Hop%2FHop%2Fmaster)](https://ci-builds.apache.org/buildStatus/icon?job=Hop%2FHop%2Fmaster)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/apache/incubator-hop/graphs/commit-activity)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/apache/hop/graphs/commit-activity)
 [![Twitter Follow](https://img.shields.io/twitter/follow/ApacheHop?style=social)](https://twitter.com/ApacheHop)
 [![Facebook](https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/projhop/)
 [![Youtube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/channel/UCGlcYslwe03Y2zbZ1W6DAGA)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/hop-project/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/apachehop/)
 
 ## Trying Apache Hop
 
@@ -60,18 +60,18 @@ Recommended:
 
 Clone Hop to a local repository:
 
-    $ git clone https://github.com/apache/incubator-hop.git
+    $ git clone https://github.com/apache/hop.git
 
 Change into the clone repository and build: \
 We provide two ways to build the code, if you have the correct Maven version installed you can use following commands:
 
-    $ cd incubator-hop 
+    $ cd hop 
     $ mvn clean install 
 
 We have also added mavenwrapper which simplifies build by using the correct Apache Maven version when it is not
 available on the system
 
-    $ cd incubator-hop
+    $ cd hop
     $ ./mvnw clean install
 
 ### From release archive
@@ -91,13 +91,13 @@ Unzip the archive
 Change into the clone repository and build: \
 We provide two ways to build the code, if you have the correct Maven version installed you can use following commands:
 
-    $ cd apache-hop-*-incubating
+    $ cd apache-hop-*
     $ mvn clean install
 
 We have also added mavenwrapper which simplifies build by using the correct Apache Maven version when it is not
 available on the system
 
-    $ cd apache-hop-*-incubating
+    $ cd apache-hop-*
     $ ./mvnw clean install
 
 ## Run Apache Hop

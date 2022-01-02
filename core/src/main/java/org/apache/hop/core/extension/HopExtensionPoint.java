@@ -71,6 +71,7 @@ public enum HopExtensionPoint {
   WorkflowPainterEnd("Draw workflow or plugin metadata at the end (on top of all the rest)"),
 
   WorkflowGraphMouseDown("A left or right button was clicked in a workflow"),
+  WorkflowGraphMouseUp("A mouse up event occurred on the workflow canvas"),
   WorkflowBeforeOpen("A workflow file is about to be opened"),
   WorkflowAfterOpen("A workflow file was opened"),
   WorkflowBeforeSave("A workflow file is about to be saved"),

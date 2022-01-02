@@ -54,6 +54,7 @@ import java.util.Map;
     name = "i18n::PropertyInput.Name",
     description = "i18n::PropertyInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::PropertyInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/propertyinput.html")
 public class PropertyInputMeta extends BaseTransformMeta
     implements ITransformMeta<PropertyInput, PropertyInputData> {
@@ -936,14 +937,14 @@ public class PropertyInputMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyInputMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "PropertyInputMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -954,14 +955,14 @@ public class PropertyInputMeta extends BaseTransformMeta
     if (fileInputList == null || fileInputList.getFiles().size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyInputMeta.CheckResult.NoFiles"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "PropertyInputMeta.CheckResult.FilesOk",

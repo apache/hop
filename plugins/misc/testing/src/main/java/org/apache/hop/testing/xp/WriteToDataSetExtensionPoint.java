@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** @author matt */
 @ExtensionPoint(
     id = "WriteToDataSetExtensionPoint",
     extensionPointId = "PipelineStartThreads",
@@ -142,10 +141,9 @@ public class WriteToDataSetExtensionPoint
     // At the end of the pipeline, write it...
     //
     pipeline.addExecutionFinishedListener(
-        engine -> {
-          // Write it
-          //
-          DataSetCsvUtil.writeDataSetData(pipeline, dataSet, setRowMeta, transformsForDbRows);
-        });
+        engine ->
+            // Write it
+            //
+            DataSetCsvUtil.writeDataSetData(pipeline, dataSet, setRowMeta, transformsForDbRows));
   }
 }

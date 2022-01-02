@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * This class takes care of polling the central log store for new log messages belonging to a
  * certain log channel ID (and children). The log lines will be written to a logging file.
- *
- * @author matt
  */
 public class LogChannelFileWriter {
   private String logChannelId;

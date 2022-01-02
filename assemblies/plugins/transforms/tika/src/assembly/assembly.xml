@@ -1,0 +1,127 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+  <id>hop-assemblies-plugins-transforms-tika</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <baseDirectory>transforms/tika</baseDirectory>
+  <files>
+    <file>
+      <source>${project.basedir}/src/main/resources/version.xml</source>
+      <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+      <outputDirectory>lib</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>org.apache.hop:hop-transform-tika:jar</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>com.adobe.xmp:xmpcore:jar</include>
+        <include>com.drewnoakes:metadata-extractor:jar</include>
+        <include>com.epam:parso:jar</include>
+        <include>com.github.jai-imageio:jai-imageio-core:jar</include>
+        <include>com.github.junrar:junrar:jar</include>
+        <include>com.github.virtuald:curvesapi:jar</include>
+        <include>com.googlecode.juniversalchardet:juniversalchardet:jar</include>
+        <include>com.googlecode.plist:dd-plist:jar</include>
+        <include>com.healthmarketscience.jackcess:jackcess-encrypt:jar</include>
+        <include>com.healthmarketscience.jackcess:jackcess:jar</include>
+        <include>com.pff:java-libpst:jar</include>
+        <include>com.rometools:rome:jar</include>
+        <include>com.rometools:rome-utils:jar</include>
+        <include>com.sun.activation:jakarta.activation:jar</include>
+        <include>com.sun.istack:istack-commons-runtime:jar</include>
+        <include>com.zaxxer:SparseBitSet:jar</include>
+        <include>de.l3s.boilerpipe:boilerpipe:jar</include>
+        <include>jakarta.xml.bind:jakarta.xml.bind-api:jar</include>
+        <include>org.apache.commons:commons-csv:jar</include>
+        <include>org.apache.commons:commons-exec:jar</include>
+        <include>org.apache.james:apache-mime4j-core:jar</include>
+        <include>org.apache.james:apache-mime4j-dom:jar</include>
+        <include>org.apache.pdfbox:fontbox:jar</include>
+        <include>org.apache.pdfbox:jbig2-imageio:jar</include>
+        <include>org.apache.pdfbox:jempbox:jar</include>
+        <include>org.apache.pdfbox:pdfbox-debugger:jar</include>
+        <include>org.apache.pdfbox:pdfbox:jar</include>
+        <include>org.apache.pdfbox:pdfbox-tools:jar</include>
+        <include>org.apache.poi:poi:jar</include>
+        <include>org.apache.poi:poi-ooxml:jar</include>
+        <include>org.apache.poi:poi-ooxml-schemas:jar</include>
+        <include>org.apache.poi:poi-scratchpad:jar</include>
+        <include>org.apache.tika:tika-core:jar</include>
+        <include>org.apache.tika:tika-parser-apple-module:jar</include>
+        <include>org.apache.tika:tika-parser-audiovideo-module:jar</include>
+        <include>org.apache.tika:tika-parser-cad-module:jar</include>
+        <include>org.apache.tika:tika-parser-code-module:jar</include>
+        <include>org.apache.tika:tika-parser-crypto-module:jar</include>
+        <include>org.apache.tika:tika-parser-digest-commons:jar</include>
+        <include>org.apache.tika:tika-parser-font-module:jar</include>
+        <include>org.apache.tika:tika-parser-html-commons:jar</include>
+        <include>org.apache.tika:tika-parser-html-module:jar</include>
+        <include>org.apache.tika:tika-parser-image-module:jar</include>
+        <include>org.apache.tika:tika-parser-mail-commons:jar</include>
+        <include>org.apache.tika:tika-parser-mail-module:jar</include>
+        <include>org.apache.tika:tika-parser-microsoft-module:jar</include>
+        <include>org.apache.tika:tika-parser-miscoffice-module:jar</include>
+        <include>org.apache.tika:tika-parser-news-module:jar</include>
+        <include>org.apache.tika:tika-parser-ocr-module:jar</include>
+        <include>org.apache.tika:tika-parser-pdf-module:jar</include>
+        <include>org.apache.tika:tika-parser-pkg-module:jar</include>
+        <include>org.apache.tika:tika-parser-text-module:jar</include>
+        <include>org.apache.tika:tika-parser-xml-module:jar</include>
+        <include>org.apache.tika:tika-parser-xmp-commons:jar</include>
+        <include>org.apache.tika:tika-parser-zip-commons:jar</include>
+        <include>org.apache.xmlbeans:xmlbeans:jar</include>
+        <include>org.bouncycastle:bcmail-jdk15on:jar</include>
+        <include>org.bouncycastle:bcpkix-jdk15on:jar</include>
+        <include>org.bouncycastle:bcprov-jdk15on:jar</include>
+        <include>org.bouncycastle:bcutil-jdk15on:jar</include>
+        <include>org.brotli:dec:jar</include>
+        <include>org.ccil.cowan.tagsoup:tagsoup:jar</include>
+        <include>org.codelibs:jhighlight:jar</include>
+        <include>org.gagravarr:vorbis-java-core:jar</include>
+        <include>org.gagravarr:vorbis-java-tika:jar</include>
+        <include>org.glassfish.jaxb:jaxb-runtime:jar</include>
+        <include>org.glassfish.jaxb:txw2:jar</include>
+        <include>org.jdom:jdom2:jar</include>
+        <include>org.ow2.asm:asm:jar</include>
+        <include>org.slf4j:jcl-over-slf4j:jar</include>
+        <include>org.tallison:jmatio:jar</include>
+        <include>org.tukaani:xz:jar</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+</assembly>

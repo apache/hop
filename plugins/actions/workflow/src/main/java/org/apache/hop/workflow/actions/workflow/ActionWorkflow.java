@@ -63,6 +63,7 @@ import java.util.*;
     name = "i18n::ActionWorkflow.Name",
     description = "i18n::ActionWorkflow.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    keywords = "i18n::ActionWorkflow.keyword",
     documentationUrl = "/workflow/actions/workflow.html")
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
@@ -77,8 +78,10 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   public String[] parameterValues;
 
   public boolean setLogfile;
-  public String logfile, logext;
-  public boolean addDate, addTime;
+  public String logfile;
+  public String logext;
+  public boolean addDate;
+  public boolean addTime;
   public LogLevel logFileLevel;
 
   public boolean parallel;

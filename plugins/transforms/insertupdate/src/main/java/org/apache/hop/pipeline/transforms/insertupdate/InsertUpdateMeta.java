@@ -23,7 +23,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -41,9 +40,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Transform(
@@ -52,6 +49,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.InsertUpdate",
     description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html")
 public class InsertUpdateMeta extends BaseTransformMeta
     implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
@@ -138,7 +136,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
     }
     return updateLookupFields;
   }
-
 
   @Override
   public List<String> getStreamFields() {

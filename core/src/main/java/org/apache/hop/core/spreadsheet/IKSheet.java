@@ -19,8 +19,6 @@ package org.apache.hop.core.spreadsheet;
 
 /**
  * The interface that is needed by ExcelInput to handle a single numeric data sheet in a workbook.
- *
- * @author matt
  */
 public interface IKSheet {
   /**

@@ -47,12 +47,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Dialog that allows you to edit a ActionMail object.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog that allows you to edit a ActionMail object. */
 public class ActionMailDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMail.class; // For Translator
 
@@ -86,7 +81,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private LabelTextVar wAuthPass;
 
-  private LabelTextVar wReply, wReplyName;
+  private LabelTextVar wReply;
+  private LabelTextVar wReplyName;
 
   private LabelTextVar wSubject;
 
@@ -110,7 +106,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private TextVar wComment;
 
-  private Button wOnlyComment, wUseHTML, wUsePriority;
+  private Button wOnlyComment;
+  private Button wUseHTML;
+  private Button wUsePriority;
 
   private Label wlEncoding;
   private CCombo wEncoding;
@@ -131,15 +129,22 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private ActionMail action;
 
-  private boolean backupDate, backupChanged;
+  private boolean backupDate;
+  private boolean backupChanged;
 
   private boolean gotEncodings = false;
 
   private LabelTextVar wReplyToAddress;
 
-  private Label wlImageFilename, wlContentID, wlFields;
-  private Button wbImageFilename, wbaImageFilename, wbdImageFilename, wbeImageFilename;
-  private TextVar wImageFilename, wContentID;
+  private Label wlImageFilename;
+  private Label wlContentID;
+  private Label wlFields;
+  private Button wbImageFilename;
+  private Button wbaImageFilename;
+  private Button wbdImageFilename;
+  private Button wbeImageFilename;
+  private TextVar wImageFilename;
+  private TextVar wContentID;
   private TableView wFields;
 
   public ActionMailDialog(
@@ -1033,7 +1038,6 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     FormData fdResultFilesGroup = new FormData();
     fdResultFilesGroup.left = new FormAttachment(0, margin);
     fdResultFilesGroup.top = new FormAttachment(0, margin);
-    // fdResultFilesGroup.bottom = new FormAttachment(100, -margin);
     fdResultFilesGroup.right = new FormAttachment(100, -margin);
     wResultFilesGroup.setLayoutData(fdResultFilesGroup);
 

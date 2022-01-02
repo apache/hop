@@ -510,7 +510,7 @@ public class DatabaseTest {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
 
-    db.checkTableExists(any(),any());
+    db.checkTableExists(any(), any());
     verify(db, times(1)).checkTableExists(any(), any());
   }
 

@@ -23,10 +23,6 @@ import org.apache.hop.i18n.BaseMessages;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class CreditCardVerifier {
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
@@ -90,23 +86,23 @@ public class CreditCardVerifier {
     return (id > -1 && id < NotValidCardNames.length ? NotValidCardNames[id] : null);
   }
 
-  public static ReturnIndicator CheckCC(String CardNumber) {
+  public static ReturnIndicator CheckCC(String cardNumber) {
     ReturnIndicator ri = new ReturnIndicator();
 
-    if (Utils.isEmpty(CardNumber)) {
+    if (Utils.isEmpty(cardNumber)) {
       ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.EmptyNumber");
       return ri;
     }
 
-    Matcher m = Pattern.compile("[^\\d\\s.-]").matcher(CardNumber);
+    Matcher m = Pattern.compile("[^\\d\\s.-]").matcher(cardNumber);
     if (m.find()) {
       ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.OnlyNumbers");
       return ri;
     }
 
-    int cardId = getCardID(CardNumber);
+    int cardId = getCardID(cardNumber);
     if (cardId > -1) {
-      if (luhnValidate(CardNumber)) {
+      if (luhnValidate(cardNumber)) {
         ri.CardValid = true;
         ri.CardType = getCardName(cardId);
       } else {
@@ -114,9 +110,7 @@ public class CreditCardVerifier {
         ri.UnValidMsg = getNotValidCardNames(cardId);
       }
     } else {
-      // try luhn
-      // ri.UnValidMsg="This card is unsupported!";
-      if (luhnValidate(CardNumber)) {
+      if (luhnValidate(cardNumber)) {
         ri.CardValid = true;
       } else {
         ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
@@ -162,7 +156,6 @@ public class CreditCardVerifier {
       }
       return ((checksum % 10) == 0);
     } catch (Exception e) {
-      // e.printStackTrace();
       return false;
     }
   }

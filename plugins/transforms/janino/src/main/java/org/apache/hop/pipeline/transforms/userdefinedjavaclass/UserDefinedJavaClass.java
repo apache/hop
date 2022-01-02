@@ -88,18 +88,6 @@ public class UserDefinedJavaClass
     super.addRowListener(rowListener);
   }
 
-  //  public void addTransformListener( TransformListener transformListener ) {
-  //    if ( child == null ) {
-  //      addTransformListenerImpl( transformListener );
-  //    } else {
-  //      child.addTransformListener( transformListener );
-  //    }
-  //  }
-
-  //  public void addTransformListenerImpl( TransformListener transformListener ) {
-  //    super.addTransformListener( transformListener );
-  //  }
-
   @Override
   public boolean checkFeedback(long lines) {
     if (child == null) {
@@ -207,14 +195,6 @@ public class UserDefinedJavaClass
   public IRowSet findOutputRowSetImpl(String from, int fromcopy, String to, int tocopy) {
     return super.findOutputRowSet(from, fromcopy, to, tocopy);
   }
-
-  //  public int getClusterSize() {
-  //    if ( child == null ) {
-  //      return getClusterSizeImpl();
-  //    } else {
-  //      return child.getClusterSize();
-  //    }
-  //  }
 
   public int getCopyImpl() {
     return super.getCopy();
@@ -476,30 +456,6 @@ public class UserDefinedJavaClass
     return super.getRowListeners();
   }
 
-  //  public long getRuntime() {
-  //    if ( child == null ) {
-  //      return getRuntimeImpl();
-  //    } else {
-  //      return child.getRuntime();
-  //    }
-  //  }
-
-  //  public int getServerNr() {
-  //    if ( child == null ) {
-  //      return getServerNrImpl();
-  //    } else {
-  //      return child.getServerNr();
-  //    }
-  //  }
-
-  //  public int getServerNrImpl() {
-  //    if ( child == null ) {
-  //      return getServerNrImpl();
-  //    } else {
-  //      return super.getServerNr();
-  //    }
-  //  }
-
   @Override
   public ComponentExecutionStatus getStatus() {
     if (child == null) {
@@ -699,6 +655,7 @@ public class UserDefinedJavaClass
     return super.incrementLinesWritten();
   }
 
+  @Override
   public boolean init() {
     if (meta.cookErrors.size() > 0) {
       return false;
@@ -796,18 +753,6 @@ public class UserDefinedJavaClass
   public boolean isStoppedImpl() {
     return super.isStopped();
   }
-
-  //  public boolean isUsingThreadPriorityManagment() {
-  //    if ( child == null ) {
-  //      return isUsingThreadPriorityManagmentImpl();
-  //    } else {
-  //      return child.isUsingThreadPriorityManagment();
-  //    }
-  //  }
-
-  //  public boolean isUsingThreadPriorityManagmentImpl() {
-  //    return super.isUsingThreadPriorityManagment();
-  //  }
 
   @Override
   public void logBasic(String s) {
@@ -938,30 +883,6 @@ public class UserDefinedJavaClass
   public void markStopImpl() {
     super.markStop();
   }
-
-  //  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
-  //    if ( child == null ) {
-  //      openRemoteInputTransformSocketsOnceImpl();
-  //    } else {
-  //      child.openRemoteInputTransformSocketsOnce();
-  //    }
-  //  }
-
-  //  public void openRemoteInputTransformSocketsOnceImpl() throws HopTransformException {
-  //    super.openRemoteInputTransformSocketsOnce();
-  //  }
-
-  //  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
-  //    if ( child == null ) {
-  //      openRemoteOutputTransformSocketsOnceImpl();
-  //    } else {
-  //      child.openRemoteOutputTransformSocketsOnce();
-  //    }
-  //  }
-
-  //  public void openRemoteOutputTransformSocketsOnceImpl() throws HopTransformException {
-  //    super.openRemoteOutputTransformSocketsOnce();
-  //  }
 
   @Override
   public boolean outputIsDone() {
@@ -1248,18 +1169,6 @@ public class UserDefinedJavaClass
     super.setOutputRowSets(outputRowSets);
   }
 
-  //  public void setTransformListeners( List<TransformListener> transformListeners ) {
-  //    if ( child == null ) {
-  //      setTransformListenersImpl( transformListeners );
-  //    } else {
-  //      child.setTransformListeners( transformListeners );
-  //    }
-  //  }
-
-  //  public void setTransformListenersImpl( List<TransformListener> transformListeners ) {
-  //    super.setTransformListeners( transformListeners );
-  //  }
-
   @Override
   public void setVariable(String variableName, String variableValue) {
     if (child == null) {
@@ -1300,6 +1209,7 @@ public class UserDefinedJavaClass
     super.stopRunning();
   }
 
+  @Override
   public String toString() {
     if (child == null) {
       return toStringImpl();

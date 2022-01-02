@@ -60,9 +60,6 @@ import java.util.List;
  * Database connection) - A Combo Variable selection (editable ComboBox, for example containing all
  * connection values in the MetaStore) - New and Edit buttons (The latter opens up a generic
  * Metadata editor)
- *
- * @author Matt
- * @since 2019-12-17
  */
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
@@ -129,7 +126,6 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       boolean negativeMargin) {
     super(parentComposite, SWT.NONE);
     this.variables = variables;
-    // this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
     this.props = PropsUi.getInstance();
@@ -177,8 +173,8 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
             getDisplay(),
             managedClass.getClassLoader(),
             metadata.image(),
-            ConstUi.SMALL_ICON_SIZE,
-            ConstUi.SMALL_ICON_SIZE);
+            (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()),
+            (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()));
 
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
@@ -253,7 +249,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     item.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           if (event.detail == SWT.ARROW) {
             Rectangle rect = item.getBounds();
             Point pt = new Point(rect.x, rect.y + rect.height);
@@ -269,9 +265,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     layout(true, true);
   }
 
-  protected void manageMetadata() {
-    // manager.openMetaStoreExplorer();
-  }
+  protected void manageMetadata() {}
 
   /**
    * We look at the managed class name, add Dialog to it and then simply us that class to edit the

@@ -26,9 +26,6 @@ import org.eclipse.swt.widgets.TreeItem;
 /**
  * This class is used to define a number of default values for various settings throughout Hop. It
  * also contains a number of static final methods to make your life easier.
- *
- * @author Matt
- * @since 07-05-2003
  */
 public class ConstUi {
   /** Default icon size */
@@ -212,12 +209,6 @@ public class ConstUi {
     if (oldMenu != null && oldMenu != menu) {
       oldMenu.setVisible(false);
     }
-
-    // XXX: Stubbing out this line prevents context dialogs from appearing twice
-    // on OS X. Tested on Windows to be sure there is no adverse effect.
-    // Unfortunately, I do *not* understand why this works. I ran it by
-    // mcasters and he didn't know for sure either.
-    // control.setMenu(menu);
     menu.setVisible(true);
   }
 }

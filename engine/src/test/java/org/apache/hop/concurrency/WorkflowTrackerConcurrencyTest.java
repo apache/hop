@@ -47,8 +47,6 @@ import static org.mockito.Mockito.when;
  * WorkflowTracker#findWorkflowTracker(ActionMeta)}, updaters add new children
  * <tt>updatersCycles</tt> times. The difference between two cases is the second has a small limit
  * of stored children, so the parent WorkflowTracker will be forced to remove some of its elements.
- *
- * @author Andrey Khayrutdinov
  */
 @RunWith(Parameterized.class)
 public class WorkflowTrackerConcurrencyTest {

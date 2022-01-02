@@ -118,14 +118,12 @@ public class StringSearcher {
         } catch (IllegalAccessException e) {
           // OK, it's private, let's see if we can go there later on using
           // getters and setters...
-          // fileName becomes: getFileName();
+          // fileName becomes: getFileName()
           // OK, how do we get the value now?
           try {
 
             Method method = findMethod(baseClass, field.getName());
             if (method != null) {
-              // String fullMethod =
-              // baseClass.getName()+"."+method.getName()+"()";
 
               Object string = method.invoke(object, (Object[]) null);
               if (string != null) {
@@ -223,7 +221,6 @@ public class StringSearcher {
   }
 
   private static Method findMethod(Class<? extends Object> baseClass, String name) {
-    // baseClass.getMethod(methodName[m], null);
     Method[] methods = baseClass.getDeclaredMethods();
     Method method = null;
 

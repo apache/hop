@@ -21,11 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/**
- * A timer where you can attach a timer to. Once the time is up, the listeners are fired off.
- *
- * @author matt
- */
+/** A timer where you can attach a timer to. Once the time is up, the listeners are fired off. */
 public class DelayTimer implements Runnable {
 
   private int delayInMiliseconds;

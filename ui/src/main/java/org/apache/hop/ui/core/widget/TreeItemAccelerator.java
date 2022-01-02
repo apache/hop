@@ -23,11 +23,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-/**
- * This class can be used to define accelerators (actions) to a tree item that just got created.
- *
- * @author Matt
- */
+/** This class can be used to define accelerators (actions) to a tree item that just got created. */
 public class TreeItemAccelerator {
   public static final void addDoubleClick(final TreeItem treeItem, final IDoubleClick doubleClick) {
     final String[] path1 = ConstUi.getTreeStrings(treeItem);

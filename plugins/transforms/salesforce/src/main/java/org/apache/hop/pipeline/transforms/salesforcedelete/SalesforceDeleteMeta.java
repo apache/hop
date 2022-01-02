@@ -43,13 +43,14 @@ import java.util.List;
     description = "i18n::SalesforceDelete.TypeTooltipDesc.SalesforceDelete",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     image = "SFD.svg",
+    keywords = "i18n::SalesforceDeleteMeta.keyword",
     documentationUrl = "/pipeline/transforms/salesforcedelete.html")
 public class SalesforceDeleteMeta
     extends SalesforceTransformMeta<SalesforceDelete, SalesforceDeleteData> {
-  private static Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceDeleteMeta.class; // For Translator
 
   /** Deletefield */
-  private String DeleteField;
+  private String deleteField;
 
   /** Batch size */
   private String batchSize;
@@ -70,14 +71,14 @@ public class SalesforceDeleteMeta
     this.rollbackAllChangesOnError = rollbackAllChangesOnError;
   }
 
-  /** @param DeleteField The DeleteField to set. */
-  public void setDeleteField(String DeleteField) {
-    this.DeleteField = DeleteField;
+  /** @param deleteField The DeleteField to set. */
+  public void setDeleteField(String deleteField) {
+    this.deleteField = deleteField;
   }
 
   /** @return Returns the DeleteField. */
   public String getDeleteField() {
-    return this.DeleteField;
+    return this.deleteField;
   }
 
   /** @param batchSize */
@@ -179,13 +180,13 @@ public class SalesforceDeleteMeta
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInput"),
               transformMeta);
     }

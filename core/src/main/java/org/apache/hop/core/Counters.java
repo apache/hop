@@ -21,12 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This class contains the counters for Hop, the pipelines, workflows, ...
- *
- * @author Matt
- * @since 17-apr-2005
- */
+/** This class contains the counters for Hop, the pipelines, workflows, ... */
 public class Counters {
   private static Counters counters = null;
   private Map<String, Counter> counterMap = null;

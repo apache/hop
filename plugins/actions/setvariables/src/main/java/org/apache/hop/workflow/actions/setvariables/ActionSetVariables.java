@@ -57,6 +57,7 @@ import java.util.Properties;
     description = "i18n::ActionSetVariables.Description",
     image = "SetVariables.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    keywords = "i18n::ActionSetVariables.keyword",
     documentationUrl = "/workflow/actions/setvariables.html")
 public class ActionSetVariables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSetVariables.class; // For Translator

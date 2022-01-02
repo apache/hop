@@ -22,7 +22,7 @@
   <parent>
     <artifactId>hop-assemblies-plugins</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <packaging>pom</packaging>
@@ -74,6 +74,8 @@
     <module>fileexists</module>
     <module>filelocked</module>
     <module>filemetadata</module>
+    <module>filesfromresult</module>
+    <module>filestoresult</module>
     <module>filterrows</module>
     <module>flattener</module>
     <module>fuzzymatch</module>
@@ -153,6 +155,7 @@
     <module>tableoutput</module>
     <module>terafast</module>
     <module>textfile</module>
+    <module>tika</module>
     <module>tokenreplacement</module>
     <module>uniquerows</module>
     <module>uniquerowsbyhashset</module>

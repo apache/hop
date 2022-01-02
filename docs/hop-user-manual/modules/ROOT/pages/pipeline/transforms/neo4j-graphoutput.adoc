@@ -24,13 +24,12 @@ under the License.
 
 The Graph Output transform lets you map input fields automatically to a graph model.
 
-The algorithm used to update your graph takes null values for fields mapped to primary properties of nodes into account. These will not merge on these nodes, nor will it create or update relationships to these nodes.
+The algorithm used to update your graph takes null values for fields mapped to primary properties of nodes into account.
+These will not merge on these nodes, nor will it create or update relationships to these nodes.
 
 == Limitations
 
 * Updates across unknown nodes `()--()` are not supported
-* Circular relationships to the same nodes: please create a new node with a different name and the same label to make this work.
-It allows you to uniquely map input fields to these node properties and get the correct results.
 
 == Modeling tips
 
@@ -62,5 +61,27 @@ Use the provided button to generate the "Neo4j Constraint" action.
 |Allow out of order updates?|If out of order updates are allowed, this transform generates unwind statements.
 Otherwise, standard batch updates are used.
 The updates are grouped per distinct generated cypher statement.
-|Mappings|Map fields in the pipeline to fields in the Neo4j graph
+
+|Field to property mappings tab
+|On this tab you can specify where you want the input fields to end up in the graph.
+Based on your selections for this mapping the appropriate Cypher Merge statements will be executed.
+You can map fields to node and relationship properties.
+For the very specific cases when you want to create relationships between 2 nodes with the same label (self relationships) you can specify to which node your mapping goes: the source or target node.
+
+|Field to relationship mappings tab
+|Sometimes you want to select a relationship in your graph model based on input data.
+Here are the 4 different types of relationship mappings you can apply to steer this behavior:
+
+* No mapping : the line is ignored
+* Do not update relationships between specified nodes: you can specify the source and target node labels between you don't want to update any relationships
+* Update specific relationship using field value: You can specify the field to look at and the value to consider for the relationship you want to select.
+* Update all relationships between the specified nodes (Default): all the relationships between the specified source and target node, as defined in the graph model are updated (merged and properties updated).
+
+|Node label mappings tab
+|In case you want to select specific labels from the ones specified in the graph model you can create mapping entries in this tab.
+Here are the node mapping types:
+
+* Select all defined labels (default): when updating nodes all the labels from the graph model are selected.
+* Use a field value to select a specific label: for the specified node we look at the input field you like and if it matches the value the label is selected.
+* Select the first label: for the specified node we only use the first label from the graph model.
 |===

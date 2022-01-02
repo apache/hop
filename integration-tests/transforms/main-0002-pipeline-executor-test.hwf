@@ -44,7 +44,6 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>165</xloc>
       <yloc>98</yloc>
       <attributes_hac/>
@@ -55,9 +54,8 @@ limitations under the License.
       <type>SUCCESS</type>
       <attributes/>
       <parallel>N</parallel>
-      <nr>0</nr>
-      <xloc>497</xloc>
-      <yloc>98</yloc>
+      <xloc>688</xloc>
+      <yloc>96</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -65,19 +63,17 @@ limitations under the License.
       <description/>
       <type>ABORT</type>
       <attributes/>
-      <message/>
       <parallel>N</parallel>
-      <nr>0</nr>
-      <xloc>325</xloc>
-      <yloc>216</yloc>
+      <xloc>432</xloc>
+      <yloc>304</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>0002-test-case.hpl</name>
+      <name>0002-pipeline-executor-test-case1.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0002-test-case.hpl</filename>
+      <filename>${PROJECT_HOME}/0002-pipeline-executor-test-case1.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -90,43 +86,94 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>325</xloc>
       <yloc>98</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0002-pipeline-executor-fromfield</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0002-pipeline-executor-fromfield.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>560</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Dummy</name>
+      <description/>
+      <type>DUMMY</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>432</xloc>
+      <yloc>208</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
       <from>START</from>
-      <to>0002-test-case.hpl</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
+      <to>0002-pipeline-executor-test-case1.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0002-test-case.hpl</from>
-      <to>Success</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
+      <from>0002-pipeline-executor-test-case1.hpl</from>
+      <to>0002-pipeline-executor-fromfield</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0002-test-case.hpl</from>
+      <from>0002-pipeline-executor-fromfield</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0002-pipeline-executor-test-case1.hpl</from>
+      <to>Dummy</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Dummy</from>
       <to>Abort workflow</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0002-pipeline-executor-fromfield</from>
+      <to>Dummy</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>

@@ -48,18 +48,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This defines a 'check files locked' action.
- *
- * @author Samatar Hassan
- * @since 06-05-2007
- */
+/** This defines a 'check files locked' action. */
 @Action(
     id = "CHECK_FILES_LOCKED",
     name = "i18n::ActionCheckFilesLocked.Name",
     description = "i18n::ActionCheckFilesLocked.Description",
     image = "CheckFilesLocked.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    keywords = "i18n::ActionCheckFilesLocked.keyword",
     documentationUrl = "/workflow/actions/checkfilelocked.html")
 public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator

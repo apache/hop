@@ -26,7 +26,7 @@ import java.util.Properties;
 public class OverlayProperties extends Properties implements IPropertyHandler {
 
   private static final long serialVersionUID = 1L;
-  private String name = null;
+  private final String name = null;
 
   public OverlayProperties(String file) throws IOException {
     load(file);

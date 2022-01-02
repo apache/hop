@@ -55,10 +55,6 @@ import java.util.List;
  * This dialog represents an explorer type of interface on a given database connection. It shows the
  * tables defined in the visible schemas or catalogs on that connection. The interface also allows
  * you to get all kinds of information on those tables.
- *
- * @author Matt
- * @since 18-05-2003
- *     <p>
  */
 @GuiPlugin
 public class DatabaseExplorerDialog extends Dialog {
@@ -112,7 +108,6 @@ public class DatabaseExplorerDialog extends Dialog {
   private Button bTruncate;
 
   private ToolBar toolBar;
-  private GuiToolbarWidgets toolBarWidgets;
 
   public DatabaseExplorerDialog(
       Shell parent,
@@ -199,7 +194,7 @@ public class DatabaseExplorerDialog extends Dialog {
     // Add a toolbar
     //
     toolBar = new ToolBar(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    toolBarWidgets = new GuiToolbarWidgets();
+    GuiToolbarWidgets toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     FormData layoutData = new FormData();
@@ -542,7 +537,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
       // The tables in general...
       TreeItem tiTab = null;
-      String tabnames[] = dmi.getTables();
+      String[] tabnames = dmi.getTables();
       if (tabnames != null) {
         tiTab = new TreeItem(tiTree, SWT.NONE);
         tiTab.setImage(GuiResource.getInstance().getImageFolder());
@@ -558,7 +553,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
       // The views...
       TreeItem tiView = null;
-      String views[] = dmi.getViews();
+      String[] views = dmi.getViews();
       if (views != null) {
         tiView = new TreeItem(tiTree, SWT.NONE);
         tiView.setImage(GuiResource.getInstance().getImageFolder());
@@ -619,7 +614,7 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   private String getSchemaTable() {
-    TreeItem ti[] = wTree.getSelection();
+    TreeItem[] ti = wTree.getSelection();
     if (ti.length == 1) {
       // Get the parent.
       TreeItem parent = ti[0].getParentItem();
@@ -668,10 +663,6 @@ public class DatabaseExplorerDialog extends Dialog {
               previewTable(table, true);
             }
           });
-      // MenuItem miEdit   = new MenuItem(mTree, SWT.PUSH); miEdit.setText("Open ["+table+"] for
-      // editing");
-      // miEdit.addSelectionListener( new SelectionAdapter() { public void
-      // widgetSelected(SelectionEvent e) { editTable(table); }});
       MenuItem miCount = new MenuItem(mTree, SWT.PUSH);
       miCount.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.ShowSize", table));
       miCount.addSelectionListener(
@@ -820,7 +811,7 @@ public class DatabaseExplorerDialog extends Dialog {
           databaseMetaList.add(databases.get(i));
         }
 
-        String connectionNames[] = new String[databaseMetaList.size()];
+        String[] connectionNames = new String[databaseMetaList.size()];
         for (int i = 0; i < connectionNames.length; i++) {
           connectionNames[i] = (databaseMetaList.get(i)).getName();
         }
@@ -882,7 +873,7 @@ public class DatabaseExplorerDialog extends Dialog {
       dispose();
       return;
     }
-    TreeItem ti[] = wTree.getSelection();
+    TreeItem[] ti = wTree.getSelection();
     if (ti.length == 1) {
       // Get the parent.
       String table = ti[0].getText();
@@ -894,7 +885,7 @@ public class DatabaseExplorerDialog extends Dialog {
           schemaName = null;
           tableName = table;
           if (dbMeta.getIDatabase().isMsSqlServerVariant()) {
-            String st[] = tableName.split("\\.", 2);
+            String[] st = tableName.split("\\.", 2);
             if (st.length > 1) { // we have a dot in there and need to separate
               schemaName = st[0];
               tableName = st[1];

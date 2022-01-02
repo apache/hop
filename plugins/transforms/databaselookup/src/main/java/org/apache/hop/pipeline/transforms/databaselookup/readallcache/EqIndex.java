@@ -22,7 +22,6 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.util.BitSet;
 
-/** @author Andrey Khayrutdinov */
 class EqIndex extends Index {
 
   static Index nonEqualityIndex(int column, IValueMeta valueMeta, int rowsAmount) {

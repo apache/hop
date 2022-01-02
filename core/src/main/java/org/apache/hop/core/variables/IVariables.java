@@ -22,11 +22,7 @@ import org.apache.hop.core.row.IRowMeta;
 
 import java.util.Map;
 
-/**
- * Interface to implement variable sensitive objects.
- *
- * @author Sven Boden
- */
+/** Interface to implement variable sensitive objects. */
 public interface IVariables {
   /**
    * Initializes this IVariables object by copying over the variables from the specified parent

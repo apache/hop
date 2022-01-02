@@ -36,10 +36,11 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "Neo4jSplitGraph",
-    name = "Neo4j Split Graph",
-    description = "Splits the nodes and relationships of a graph data type",
+    name = "i18n::SplitGraphMeta.name",
+    description = "i18n::SplitGraphMeta.description",
     image = "neo4j_split.svg",
-    categoryDescription = "Neo4j",
+    categoryDescription = "i18n::SplitGraphMeta.categoryDescription",
+    keywords = "i18n::SplitGraphMeta.keyword",
     documentationUrl = "/plugins/transforms/split-graph.html")
 public class SplitGraphMeta extends BaseTransformMeta
     implements ITransformMeta<SplitGraph, SplitGraphData> {

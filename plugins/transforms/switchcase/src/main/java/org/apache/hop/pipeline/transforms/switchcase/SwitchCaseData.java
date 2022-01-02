@@ -26,10 +26,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class SwitchCaseData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

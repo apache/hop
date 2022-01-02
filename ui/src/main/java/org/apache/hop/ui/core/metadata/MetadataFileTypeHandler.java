@@ -26,7 +26,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
-import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 
 import java.util.ArrayList;
@@ -162,6 +161,9 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
     //
     CTabItem tabItem = tabItemHandler.getTabItem();
     tabItem.dispose();
+
+    // Also remove it from the perspective
+    MetadataPerspective.getInstance().remove(tabItemHandler.getTypeHandler());
   }
 
   @Override

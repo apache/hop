@@ -36,11 +36,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Allows the user to edit the system settings of the hop.config file.
- *
- * @author Matt
- */
+/** Allows the user to edit the system settings of the hop.config file. */
 public class HopDescribedVariablesDialog extends Dialog {
   private static final Class<?> PKG = HopDescribedVariablesDialog.class; // For Translator
 
@@ -110,7 +106,7 @@ public class HopDescribedVariablesDialog extends Dialog {
     fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int FieldsRows = 0;
+    int fieldsRows = 0;
 
     ColumnInfo[] columns = {
       new ColumnInfo(
@@ -139,7 +135,7 @@ public class HopDescribedVariablesDialog extends Dialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             columns,
-            FieldsRows,
+            fieldsRows,
             null,
             props);
 

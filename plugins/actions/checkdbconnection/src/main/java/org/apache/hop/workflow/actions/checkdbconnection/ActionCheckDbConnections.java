@@ -41,18 +41,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This check db connections
- *
- * @author Samatar
- * @since 10-12-2007
- */
+/** This check db connections */
 @Action(
     id = "CHECK_DB_CONNECTIONS",
     name = "i18n::ActionCheckDbConnections.Name",
     description = "i18n::ActionCheckDbConnections.Description",
     image = "CheckDbConnection.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    keywords = "i18n::ActionCheckDbConnections.keyword",
     documentationUrl = "/workflow/actions/checkdbconnection.html")
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator

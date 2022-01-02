@@ -33,11 +33,8 @@ import java.util.Map;
 
 /**
  * Contains Generic Database Connection information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "GENERIC", typeDescription = "Generic database")
+@DatabaseMetaPlugin(type = "GENERIC", typeDescription = "Generic database", documentationUrl = "/database/databases.html")
 @GuiPlugin(description = "Generic database GUI Plugin")
 public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";

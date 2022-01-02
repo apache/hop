@@ -33,9 +33,6 @@ import java.util.Map;
 /**
  * This interface describes the methods that a database connection needs to have in order to
  * describe it properly.
- *
- * @author Matt
- * @since 11-mrt-2005
  */
 @HopMetadataObject(objectFactory = DatabaseMetaObjectFactory.class)
 public interface IDatabase extends Cloneable {

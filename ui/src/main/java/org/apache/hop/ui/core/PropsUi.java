@@ -43,17 +43,10 @@ import java.util.Map;
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
  * fonts, positions of windows, etc.
- *
- * @author Matt
- * @since 15-12-2003
  */
 public class PropsUi extends Props {
 
-  private static String OS = System.getProperty("os.name").toLowerCase();
-
-  private static final String NO = "N";
-
-  private static final String YES = "Y";
+  private static final String OS = System.getProperty("os.name").toLowerCase();
 
   private static double nativeZoomFactor;
 
@@ -113,17 +106,56 @@ public class PropsUi extends Props {
 
     populateContrastingColors();
 
-    if (!OsHelper.isWindows() & !EnvironmentUtils.getInstance().isWeb()) {
-      if (Display.isSystemDarkTheme()) {
-        setDarkMode(true);
-        setOSLookShown(true);
-      } else {
-        setDarkMode(false);
-        setOSLookShown(true);
+    if (OsHelper.isWindows()) {
+      // The user manually selected Dark Mode
+      // We'll try to change settings to make this possible.
+      //
+      if (isDarkMode()) {
+        display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", true);
+        display.setData(
+            "org.eclipse.swt.internal.win32.menuBarForegroundColor",
+            new Color(display, 0xD0, 0xD0, 0xD0));
+        display.setData(
+            "org.eclipse.swt.internal.win32.menuBarBackgroundColor",
+            new Color(display, 0x30, 0x30, 0x30));
+        display.setData(
+            "org.eclipse.swt.internal.win32.menuBarBorderColor",
+            new Color(display, 0x50, 0x50, 0x50));
+        display.setData("org.eclipse.swt.internal.win32.Canvas.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.List.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.Table.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.Text.use_WS_BORDER", true);
+        display.setData("org.eclipse.swt.internal.win32.Tree.use_WS_BORDER", true);
+        display.setData(
+            "org.eclipse.swt.internal.win32.Table.headerLineColor",
+            new Color(display, 0x50, 0x50, 0x50));
+        display.setData(
+            "org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
+            new Color(display, 0x80, 0x80, 0x80));
+        display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", true);
+        display.setData(
+            "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
+            new Color(display, 0xD0, 0xD0, 0xD0));
+        display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", true);
       }
     } else {
-      // TODO: temp fix for grids clean this up!
-      setOSLookShown(true);
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        if (Display.isSystemDarkTheme()) {
+          // Only set OS look shown once in case we switch to dark mode
+          // and vice versa.  We don't want to override user choices all the time.
+          // If we do it like before it becomes impossible to choose your own font and colors.
+          //
+          if (!isDarkMode()) {
+            setDarkMode(true);
+            setOSLookShown(true);
+          }
+        } else {
+          if (isDarkMode()) {
+            setDarkMode(false);
+            setOSLookShown(true);
+          }
+        }
+      }
     }
 
     if (display != null) {
@@ -137,12 +169,13 @@ public class PropsUi extends Props {
       setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle());
 
-      fontData = getDefaultFont();
+      fontData = getGraphFont();
+      int graphFontSize = (int) Math.round(fontData.getHeight() * getNativeZoomFactor());
       setProperty(STRING_FONT_GRAPH_NAME, fontData.getName());
-      setProperty(STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight());
+      setProperty(STRING_FONT_GRAPH_SIZE, "" + graphFontSize);
       setProperty(STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle());
 
-      fontData = getDefaultFont();
+      fontData = getNoteFont();
       setProperty(STRING_FONT_NOTE_NAME, fontData.getName());
       setProperty(STRING_FONT_NOTE_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_NOTE_STYLE, "" + fontData.getStyle());
@@ -174,7 +207,20 @@ public class PropsUi extends Props {
   public FontData getFixedFont() {
     FontData def = getDefaultFontData();
 
-    String name = getProperty(STRING_FONT_FIXED_NAME, Const.isWindows() ? "Consolas":"Monospaced");
+    String name = getProperty(STRING_FONT_FIXED_NAME);
+    if (StringUtils.isEmpty(name)) {
+      if (Const.isWindows()) {
+        name = "Consolas";
+      } else if (Const.isLinux()) {
+        name = "Monospace";
+      } else if (Const.isOSX()) {
+        name = "Monaco";
+      } else if (EnvironmentUtils.getInstance().isWeb()) {
+        name = "monospace";
+      } else {
+        name = java.awt.Font.MONOSPACED;
+      }
+    }
     int size = Const.toInt(getProperty(STRING_FONT_FIXED_SIZE), def.getHeight());
     int style = Const.toInt(getProperty(STRING_FONT_FIXED_STYLE), def.getStyle());
 
@@ -525,7 +571,7 @@ public class PropsUi extends Props {
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
         }
-        font = null; // GuiResource.getInstance().getFontDefault();
+        font = null;
         break;
       case WIDGET_STYLE_FIXED:
         if (!this.isOSLookShown()) {
@@ -537,7 +583,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TABLE:
         foreground = gui.getColorBackground();
         background = gui.getColorBackground();
-        font = null; // gui.getFontGrid();
+        font = null;
         break;
       case WIDGET_STYLE_NOTEPAD:
         foreground = gui.getColorBackground();
@@ -568,7 +614,7 @@ public class PropsUi extends Props {
         break;
       default:
         background = gui.getColorBackground();
-        font = null; // gui.getFontDefault();
+        font = null;
         break;
     }
 
@@ -772,6 +818,7 @@ public class PropsUi extends Props {
     contrastingColors = new HashMap<>();
     contrastingColors.put(toRGB("#000000"), toRGB("#ffffff"));
     contrastingColors.put(toRGB("#0e3a5a"), toRGB("#c8e7fa"));
+    contrastingColors.put(toRGB("#0f3b5a"), toRGB("#c7e6fa"));
 
     contrastingColors.put(toRGB("#f0f0f0"), toRGB("#0f0f0f"));
     contrastingColors.put(toRGB("#e1e1e1"), toRGB("#303030"));
@@ -819,7 +866,6 @@ public class PropsUi extends Props {
       if (contrastingRGB != null) {
         return contrastingRGB;
       }
-      // return new RGB(255-rgb.red, 255-rgb.green, 255-rgb.blue);
     }
     return rgb;
   }

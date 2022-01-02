@@ -170,9 +170,8 @@ public class MailConnectionTest {
   }
 
   private static void makeAFile(File aFile) throws IOException {
-    aFile
-        .createNewFile(); // makes sure the base file exists so that it will have to use new
-                          // algorithm
+    aFile.createNewFile(); // makes sure the base file exists so that it will have to use new
+    // algorithm
     aFile.deleteOnExit();
   }
 

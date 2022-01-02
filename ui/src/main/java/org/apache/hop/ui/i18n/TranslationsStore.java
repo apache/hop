@@ -25,8 +25,6 @@ import java.util.Map;
 /**
  * This class contains and handles all the translations for the keys specified in the Java source
  * code.
- *
- * @author matt
  */
 public class TranslationsStore {
 

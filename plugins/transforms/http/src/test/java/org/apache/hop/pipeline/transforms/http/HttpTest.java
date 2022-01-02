@@ -41,10 +41,6 @@ import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
-/**
- * @author Luis Martins
- * @since 14-Aug-2018
- */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(HttpClientManager.class)
 public class HttpTest {

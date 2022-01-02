@@ -1,0 +1,56 @@
+{
+  "base_filename": "golden-parquet-nulls.csv",
+  "name": "golden-parquet-nulls",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "str"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "num"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_format": "yyyy/MM/dd HH:mm:ss",
+      "field_name": "dat"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "bool"
+    },
+    {
+      "field_comment": "",
+      "field_length": 60,
+      "field_type": 6,
+      "field_precision": 30,
+      "field_format": " 000000000000000000000000000000.000000000000000000000000000000;-000000000000000000000000000000.000000000000000000000000000000",
+      "field_name": "big"
+    }
+  ],
+  "folder_name": ""
+}

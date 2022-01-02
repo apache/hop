@@ -275,8 +275,6 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     //
     setWidgetsContent();
 
-    // shell.layout( true, true );
-
     busyChangingPluginType.set(false);
   }
 

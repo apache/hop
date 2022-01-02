@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionUnZip.Description",
     image = "UnZip.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionUnZip.keyword",
     documentationUrl = "/workflow/actions/unzip.html")
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionUnZip.class; // For Translator
@@ -818,8 +819,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       // workflow for the same file. The problem is that after creating the file the
       // file object is not properly garbaged collected and thus the file cannot
       // be deleted anymore. This is a known problem in the JVM.
-
-      // System.gc();
 
       // Unzip done...
       if (afterunzip > 0) {

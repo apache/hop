@@ -27,12 +27,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
 /**
- * Contains Generic Database Connection information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
+ * Contains Apache Derby Database Connection information through static final members
  */
-@DatabaseMetaPlugin(type = "DERBY", typeDescription = "Apache Derby")
+@DatabaseMetaPlugin(type = "DERBY", typeDescription = "Apache Derby", documentationUrl = "/database/databases/derby.html")
 @GuiPlugin(id = "GUI-DerbyDatabaseMeta")
 public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

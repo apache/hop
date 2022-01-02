@@ -35,9 +35,6 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Takes care of displaying a dialog that will handle the wait while we're getting the number of
  * rows for a certain table in a database.
- *
- * @author Matt
- * @since 12-may-2005
  */
 public class GetTableSizeProgressDialog {
   private static final Class<?> PKG = GetTableSizeProgressDialog.class; // For Translator

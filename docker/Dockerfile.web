@@ -44,5 +44,9 @@ RUN rm -rf webapps/* \
 COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/plugins/dist/target/plugins "${CATALINA_HOME}"/plugins
 
+COPY ./docker/resources/run-web.sh /tmp/
+
 # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json
+
+CMD ["/bin/bash", "/tmp/run-web.sh"]

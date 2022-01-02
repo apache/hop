@@ -480,8 +480,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
 
         if (Utils.isEmpty(meta.getConnection()))
-          throw new HopException(
-                  BaseMessages.getString(PKG, "TableOutput.Init.ConnectionMissing"));
+          throw new HopException(BaseMessages.getString(PKG, "TableOutput.Init.ConnectionMissing"));
 
         data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
@@ -644,5 +643,4 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       }
     }
   }
-
 }

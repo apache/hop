@@ -29,11 +29,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Shows a pop-up message dialog after the sub- pipeline creation.
- *
- * @author Aliaksandr Kastenka
- */
+/** Shows a pop-up message dialog after the sub- pipeline creation. */
 public class NewSubPipelineDialog extends Dialog {
   private static final Class<?> PKG = NewSubPipelineDialog.class; // For Translator
 

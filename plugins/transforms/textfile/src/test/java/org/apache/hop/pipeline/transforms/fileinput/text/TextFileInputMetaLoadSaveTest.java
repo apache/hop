@@ -31,7 +31,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
-/** @author Andrey Khayrutdinov */
 public class TextFileInputMetaLoadSaveTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

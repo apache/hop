@@ -33,12 +33,7 @@ import java.security.MessageDigest;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
-/**
- * Caculate a checksum for each row.
- *
- * @author Samatar Hassan
- * @since 30-06-2008
- */
+/** Caculate a checksum for each row. */
 public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData>
     implements ITransform<CheckSumMeta, CheckSumData> {
 

@@ -18,13 +18,13 @@ under the License.
 :imagesdir: ../assets/images
 :page-pagination:
 :page-pagination-no-next:
-:description: Compatibility with Kettle/PDI was never a goal for Apache Hop (Incubating), but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop (Incubating) community provides a way to import Kettle/PDI code into Hop and convert the imported code the the Hop ways of working.
+:description: Compatibility with Kettle/PDI was never a goal for Apache Hop, but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop community provides a way to import Kettle/PDI code into Hop and convert the imported code the the Hop ways of working.
 
-= Import Kettle (PDI) Projects in Apache Hop (Incubating)
+= Import Kettle (PDI) Projects in Apache Hop
 
-As stated in the https://hop.apache.org/docs/qa/[Q&A], Apache Hop (Incubating) used Kettle (aka Pentaho Data Integration or PDI) as a starting point in late 2019. A lot has happened in the meantime on both Apache Hop (Incubating) and Pentaho Data Integration.
+As stated in the https://hop.apache.org/docs/qa/[Q&A], Apache Hop used Kettle (aka Pentaho Data Integration or PDI) as a starting point in late 2019. A lot has happened in the meantime on both Apache Hop and Pentaho Data Integration.
 
-Compatibility with Kettle/PDI was never a goal for Apache Hop (Incubating), but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop (Incubating) community provides a way to import Kettle/PDI code into Hop and convert the imported code the the Hop ways of working.
+Compatibility with Kettle/PDI was never a goal for Apache Hop, but since a lot of organizations have invested vast amounts of resources in Kettle/PDI project development, the Apache Hop community provides a way to import Kettle/PDI code into Hop and convert the imported code the Hop ways of working.
 
 == Imported Items
 

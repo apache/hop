@@ -33,15 +33,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import java.lang.reflect.Field;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith(PowerMockRunner.class)
 @PrepareForTest(ApacheHttpClient4.class)
 public class RestTest {
 
@@ -106,8 +106,8 @@ public class RestTest {
     doCallRealMethod().when(rest).callRest(any());
     doCallRealMethod().when(rest).searchForHeaders(any());
 
-    setInternalState(rest, "meta", meta);
-    setInternalState(rest, "data", data);
+    //setInternalState(rest, "meta", meta);
+    //setInternalState(rest, "data", data);
 
     Object[] output = rest.callRest(new Object[] {0});
 

@@ -35,10 +35,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.io.CharArrayWriter;
 import java.io.InputStream;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class SSHData extends BaseTransformData implements ITransformData {
   public int indexOfCommand;
   public Connection conn;

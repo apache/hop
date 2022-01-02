@@ -33,12 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.io.OutputStream;
 import java.util.Properties;
 
-/**
- * Output rows to Properties file and create a file.
- *
- * @author Samatar
- * @since 13-Apr-2008
- */
+/** Output rows to Properties file and create a file. */
 public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData>
     implements ITransform<PropertyOutputMeta, PropertyOutputData> {
 
@@ -282,7 +277,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
           data.file.close();
           data.file = null;
         } catch (Exception e) {
-            /* Ignore */
+          /* Ignore */
           logDetailed("Exception trying to close file [" + data.file.getName() + "]! :", e);
         }
       }

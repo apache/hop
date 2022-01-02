@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-rows-filters-disabled-hop.csv",
+  "name": "golden-rows-filters-disabled-hop",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "INTEGER"
+    }
+  ],
+  "folder_name": ""
+}

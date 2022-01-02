@@ -25,10 +25,6 @@ import java.io.DataOutputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class CubeOutputData extends BaseTransformData implements ITransformData {
   public OutputStream fos;
   public GZIPOutputStream zip;

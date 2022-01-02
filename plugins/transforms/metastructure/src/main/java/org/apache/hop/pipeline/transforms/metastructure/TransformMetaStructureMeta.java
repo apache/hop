@@ -42,12 +42,13 @@ import java.util.List;
     name = "i18n::TransformMetaStructure.Transform.Name",
     description = "i18n::TransformMetaStructure.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    keywords = "i18n::TransformMetaStructureMeta.keyword",
     documentationUrl = "/pipeline/transforms/metastructure.html",
     image = "MetaStructure.svg")
 public class TransformMetaStructureMeta extends BaseTransformMeta
     implements ITransformMeta<TransformMetaStructure, TransformMetaStructureData> {
 
-  private static Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
+  private static final Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includePositionField;

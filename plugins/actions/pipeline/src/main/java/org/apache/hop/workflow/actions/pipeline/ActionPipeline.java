@@ -66,6 +66,7 @@ import java.util.Map;
     name = "i18n::ActionPipeline.Name",
     description = "i18n::ActionPipeline.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    keywords = "i18n::ActionPipeline.keyword",
     documentationUrl = "/workflow/actions/pipeline.html")
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
@@ -94,8 +95,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   public boolean setAppendLogfile;
 
-  public String logfile, logext;
-  public boolean addDate, addTime;
+  public String logfile;
+  public String logext;
+  public boolean addDate;
+  public boolean addTime;
 
   public LogLevel logFileLevel;
 
@@ -673,7 +676,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     Result newResult = pipeline.getResult();
     result.clear(); // clear only the numbers, NOT the files or rows.
     result.add(newResult);
-    result.setRows(newResult.getRows());
+
+    if ( !Utils.isEmpty( newResult.getRows() )) {
+      result.setRows( newResult.getRows() );
+    }
   }
 
   public PipelineMeta getPipelineMeta(IHopMetadataProvider metadataProvider, IVariables variables)

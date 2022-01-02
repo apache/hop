@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains DB2 specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "DB2", typeDescription = "DB2")
+@DatabaseMetaPlugin(type = "DB2", typeDescription = "DB2", documentationUrl = "/database/databases/db2.html")
 @GuiPlugin(id = "GUI-DB2DatabaseMeta")
 public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

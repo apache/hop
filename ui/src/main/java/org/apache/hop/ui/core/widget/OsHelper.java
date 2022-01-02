@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// import org.eclipse.swt.internal.cocoa.NSWindow;
-
 public class OsHelper {
 
   public static final String WS_WIN32 = "win32";
@@ -127,19 +125,11 @@ public class OsHelper {
 
         switch (item.getID()) {
           case SWT.ID_ABOUT:
-            item.addListener(
-                SWT.Selection,
-                event -> {
-                  HopGui.getInstance().menuHelpAbout();
-                });
+            item.addListener(SWT.Selection, event -> HopGui.getInstance().menuHelpAbout());
 
             break;
           case SWT.ID_PREFERENCES:
-            item.addListener(
-                SWT.Selection,
-                event -> {
-                  HopGui.getInstance().menuToolsOptions();
-                });
+            item.addListener(SWT.Selection, event -> HopGui.getInstance().menuToolsOptions());
 
             break;
           default:

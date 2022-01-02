@@ -23,10 +23,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 18-July-2008
- */
 public class GetSubFoldersData extends BaseTransformData implements ITransformData {
 
   public Object[] previousRow;

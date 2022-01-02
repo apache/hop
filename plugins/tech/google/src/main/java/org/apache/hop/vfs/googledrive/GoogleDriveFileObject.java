@@ -220,11 +220,11 @@ public class GoogleDriveFileObject extends AbstractFileObject {
   /**
    * Creates an authorized Credential object.
    *
-   * @param HTTP_TRANSPORT The network HTTP Transport.
+   * @param httpTransport The network HTTP Transport.
    * @return An authorized Credential object.
    * @throws IOException If the credentials.json file cannot be found.
    */
-  private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
+  private static Credential getCredentials(final NetHttpTransport httpTransport)
       throws IOException {
     // Load client secrets.
     InputStream in = new FileInputStream(getCredentialsFile());
@@ -236,7 +236,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
 
     // Build flow and trigger user authorization request.
     GoogleAuthorizationCodeFlow flow =
-        new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+        new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
             .setDataStoreFactory(new FileDataStoreFactory(getTokensFolder()))
             .setAccessType("offline")
             .build();

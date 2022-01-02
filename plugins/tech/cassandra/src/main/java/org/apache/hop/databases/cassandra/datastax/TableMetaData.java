@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 public class TableMetaData implements ITableMetaData {
 
-  private DriverKeyspace keyspace;
   private TableMetadata meta;
 
   private String name;
@@ -48,8 +47,8 @@ public class TableMetaData implements ITableMetaData {
 
   @Override
   public void setKeyspace(Keyspace keyspace) {
-    this.keyspace = (DriverKeyspace) keyspace;
-    expandCollection = this.keyspace.getConnection().isExpandCollection();
+    DriverKeyspace keyspace1 = (DriverKeyspace) keyspace;
+    expandCollection = keyspace1.getConnection().isExpandCollection();
   }
 
   @Override

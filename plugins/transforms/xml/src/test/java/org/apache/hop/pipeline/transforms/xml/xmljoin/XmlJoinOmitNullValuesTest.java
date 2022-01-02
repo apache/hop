@@ -40,7 +40,6 @@ import static org.mockito.Mockito.*;
 /**
  * Test for XmlJoin transform
  *
- * @author Pavel Sakun
  * @see XmlJoin
  */
 @RunWith(MockitoJUnitRunner.class)

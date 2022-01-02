@@ -38,9 +38,11 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class SetValueFieldDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
@@ -124,7 +126,7 @@ public class SetValueFieldDialog extends BaseTransformDialog implements ITransfo
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 2;
-    final int FieldsRows = input.getFieldName().length;
+    final int FieldsRows = input.getFields().size();
 
     colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
@@ -211,16 +213,15 @@ public class SetValueFieldDialog extends BaseTransformDialog implements ITransfo
   public void getData() {
     wTransformName.setText(transformName);
 
-    for (int i = 0; i < input.getFieldName().length; i++) {
+    List<SetField> fields = input.getFields();
+    for (int i = 0; i < fields.size(); i++) {
+      SetField field = fields.get(i);
       TableItem item = wFields.table.getItem(i);
-      String name = input.getFieldName()[i];
-      String type = input.getReplaceByFieldValue()[i];
-
-      if (name != null) {
-        item.setText(1, name);
+      if (field.getFieldName() != null) {
+        item.setText(1, field.getFieldName());
       }
-      if (type != null) {
-        item.setText(2, type);
+      if (field.getReplaceByField() != null) {
+        item.setText(2, field.getReplaceByField());
       }
     }
 
@@ -245,14 +246,18 @@ public class SetValueFieldDialog extends BaseTransformDialog implements ITransfo
     transformName = wTransformName.getText(); // return value
 
     int count = wFields.nrNonEmpty();
-    input.allocate(count);
 
     // CHECKSTYLE:Indentation:OFF
+    List<SetField> fields = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = item.getText(1);
-      input.getReplaceByFieldValue()[i] = item.getText(2);
+      SetField field = new SetField();
+      field.setFieldName(item.getText(1));
+      field.setReplaceByField(item.getText(2));
+      fields.add(field);
     }
+    input.setFields(fields);
+    
     dispose();
   }
 

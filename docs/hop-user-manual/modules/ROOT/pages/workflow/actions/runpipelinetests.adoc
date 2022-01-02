@@ -16,13 +16,16 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Run Pipeline Tests action runs a series of pipeline unit tests.
 
 = Run Pipeline Tests
 
 == Description
 
-This action runs a series of pipeline unit tests.
+The Run Pipeline Tests action runs a series of pipeline unit tests.
+
 The action is successful if all tests run without error.
+
 Errors are logged.
 
 == Options

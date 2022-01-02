@@ -20,24 +20,14 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.IEngineMeta;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.IRedrawable;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.gui.*;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -45,13 +35,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.IHasLogChannel;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILogParentProvided;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -63,11 +47,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -87,13 +67,7 @@ import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContex
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowNoteContext;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowActionDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowGridDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowHopDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowRunDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelegate;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.*;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
@@ -101,12 +75,7 @@ import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.workflow.ActionResult;
-import org.apache.hop.workflow.IActionListener;
-import org.apache.hop.workflow.WorkflowExecutionConfiguration;
-import org.apache.hop.workflow.WorkflowHopMeta;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.WorkflowPainter;
+import org.apache.hop.workflow.*;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -116,49 +85,19 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackListener;
-import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.widgets.ToolTip;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-/**
- * Handles the display of Workflows in HopGui, in a graphical form.
- *
- * @author Matt Created on 17-may-2003
- */
+/** Handles the display of Workflows in HopGui, in a graphical form. */
 @GuiPlugin(description = "Workflow Graph tab")
 public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     implements IRedrawable,
@@ -257,7 +196,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected HopGui hopGui;
 
-  // public boolean shift, control;
   protected boolean splitHop;
 
   protected int lastButton;
@@ -308,8 +246,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private ActionMeta endHopAction;
   private ActionMeta noInputAction;
-  private Point[] previous_transform_locations;
-  private Point[] previous_note_locations;
+  private Point[] previousTransformLocations;
+  private Point[] previousNoteLocations;
   private ActionMeta currentAction;
   private boolean ignoreNextClick;
   private boolean doubleClick;
@@ -626,7 +564,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               // selected too late.
               // It is not captured here, but in the mouseMoveListener...
               //
-              previous_transform_locations = workflowMeta.getSelectedLocations();
+              previousTransformLocations = workflowMeta.getSelectedLocations();
 
               Point p = actionCopy.getLocation();
               iconOffset = new Point(real.x - p.x, real.y - p.y);
@@ -640,7 +578,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             selectedNote = ni;
             Point loc = ni.getLocation();
 
-            previous_note_locations = workflowMeta.getSelectedNoteLocations();
+            previousNoteLocations = workflowMeta.getSelectedNoteLocations();
 
             noteOffset = new Point(real.x - loc.x, real.y - loc.y);
 
@@ -733,6 +671,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point icon = new Point(real.x - iconOffset.x, real.y - iconOffset.y);
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
 
+    try {
+      HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, e, real, areaOwner);
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseUp.id, ext);
+      if (ext.isPreventingDefault()) {
+        redraw();
+        clearSettings();
+        return;
+      }
+    } catch (Exception ex) {
+      LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseUp extension point", ex);
+    }
+
     // Quick new hop option? (drag from one action to another)
     //
     if (areaOwner != null && areaOwner.getAreaType() != null) {
@@ -742,7 +693,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             currentAction = (ActionMeta) areaOwner.getOwner();
             hopCandidate = new WorkflowHopMeta(startHopAction, currentAction);
             addCandidateAsHop();
-            // startHopAction=null;
             redraw();
           }
           break;
@@ -805,25 +755,25 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             boolean also = false;
             if (selectedNotes != null
                 && selectedNotes.size() > 0
-                && previous_note_locations != null) {
+                && previousNoteLocations != null) {
               int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
 
               addUndoPosition(
                   selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
                   indexes,
-                  previous_note_locations,
+                  previousNoteLocations,
                   workflowMeta.getSelectedNoteLocations(),
                   also);
               also = selectedActions != null && selectedActions.size() > 0;
             }
             if (selectedActions != null
                 && selectedActions.size() > 0
-                && previous_transform_locations != null) {
+                && previousTransformLocations != null) {
               int[] indexes = workflowMeta.getActionIndexes(selectedActions);
               addUndoPosition(
                   selectedActions.toArray(new ActionMeta[selectedActions.size()]),
                   indexes,
-                  previous_transform_locations,
+                  previousTransformLocations,
                   workflowMeta.getSelectedLocations(),
                   also);
             }
@@ -863,7 +813,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               // Only split A-->--B by putting C in between IF...
               // C-->--A or B-->--C don't exists...
               // A ==> hi.getFromEntry()
-              // B ==> hi.getToEntry();
+              // B ==> hi.getToEntry()
               // C ==> selectedTransform
               //
               if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
@@ -947,24 +897,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               boolean also = false;
               if (selectedNotes != null
                   && selectedNotes.size() > 0
-                  && previous_note_locations != null) {
+                  && previousNoteLocations != null) {
                 int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
                 addUndoPosition(
                     selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
                     indexes,
-                    previous_note_locations,
+                    previousNoteLocations,
                     workflowMeta.getSelectedNoteLocations(),
                     also);
                 also = selectedActions != null && selectedActions.size() > 0;
               }
               if (selectedActions != null
                   && selectedActions.size() > 0
-                  && previous_transform_locations != null) {
+                  && previousTransformLocations != null) {
                 int[] indexes = workflowMeta.getActionIndexes(selectedActions);
                 addUndoPosition(
                     selectedActions.toArray(new ActionMeta[selectedActions.size()]),
                     indexes,
-                    previous_transform_locations,
+                    previousTransformLocations,
                     workflowMeta.getSelectedLocations(),
                     also);
               }
@@ -1161,14 +1111,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       selectedAction.setSelected(true);
       selectedActions = new ArrayList<>();
       selectedActions.add(selectedAction);
-      previous_transform_locations = new Point[] {selectedAction.getLocation()};
+      previousTransformLocations = new Point[] {selectedAction.getLocation()};
       redraw();
     } else if (selectedNote != null && !selectedNote.isSelected()) {
       workflowMeta.unselectAll();
       selectedNote.setSelected(true);
       selectedNotes = new ArrayList<>();
       selectedNotes.add(selectedNote);
-      previous_note_locations = new Point[] {selectedNote.getLocation()};
+      previousNoteLocations = new Point[] {selectedNote.getLocation()};
       redraw();
     } else if (selectionRegion != null && startHopAction == null) {
       // Did we select a region...?
@@ -1620,17 +1570,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     adjustScrolling();
-
-    /*// When zooming out we want to correct the scroll bars.
-    //
-    float factor = magnification / oldMagnification;
-    int newHThumb = Math.min((int) (horizontalScrollBar.getThumb() / factor), 100);
-    horizontalScrollBar.setThumb(newHThumb);
-    horizontalScrollBar.setSelection((int) (horizontalScrollBar.getSelection() * factor));
-    int newVThumb = Math.min((int) (verticalScrollBar.getThumb() / factor), 100);
-    verticalScrollBar.setThumb(newVThumb);
-    verticalScrollBar.setSelection((int) (verticalScrollBar.getSelection() * factor));*/
-
     redraw();
   }
 
@@ -2086,7 +2025,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int idx = workflowMeta.indexOfNote(getCurrentNote());
     if (idx >= 0) {
       workflowMeta.raiseNote(idx);
-      // spoon.addUndoRaise(workflowMeta, new NotePadMeta[] {getCurrentNote()}, new int[] {idx} );
     }
     redraw();
   }
@@ -2096,7 +2034,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int idx = workflowMeta.indexOfNote(getCurrentNote());
     if (idx >= 0) {
       workflowMeta.lowerNote(idx);
-      // spoon.addUndoLower(workflowMeta, new NotePadMeta[] {getCurrentNote()}, new int[] {idx} );
     }
     redraw();
   }
@@ -2852,7 +2789,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   protected void drawArrow(GC gc, int[] line) {
-    int mx, my;
+    int mx;
+    int my;
     int x1 = line[0] + offset.x;
     int y1 = line[1] + offset.y;
     int x2 = line[2] + offset.x;
@@ -2861,12 +2799,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int y3;
     int x4;
     int y4;
-    int a, b, dist;
+    int a;
+    int b;
+    int dist;
     double factor;
     double angle;
-
-    // gc.setLineWidth(1);
-    // WuLine(gc, black, x1, y1, x2, y2);
 
     gc.drawLine(x1, y1, x2, y2);
 
@@ -2896,9 +2833,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     y4 = (int) (my + Math.sin(angle + theta) * size);
 
     // draw arrowhead
-    // gc.drawLine(mx, my, x3, y3);
-    // gc.drawLine(mx, my, x4, y4);
-    // gc.drawLine( x3, y3, x4, y4 );
     Color fore = gc.getForeground();
     Color back = gc.getBackground();
     gc.setBackground(fore);
@@ -2907,7 +2841,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   protected boolean pointOnLine(int x, int y, int[] line) {
-    int dx, dy;
+    int dx;
+    int dy;
     int pm = HOP_SEL_MARGIN / 2;
     boolean retval = false;
 
@@ -2933,11 +2868,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return false;
     }
 
-    double angle_line = Math.atan2(y2 - y1, x2 - x1) + Math.PI;
-    double angle_point = Math.atan2(y - y1, x - x1) + Math.PI;
+    double angleLine = Math.atan2(y2 - y1, x2 - x1) + Math.PI;
+    double anglePoint = Math.atan2(y - y1, x - x1) + Math.PI;
 
     // Same angle, or close enough?
-    if (angle_point >= angle_line - 0.01 && angle_point <= angle_line + 0.01) {
+    if (anglePoint >= angleLine - 0.01 && anglePoint <= angleLine + 0.01) {
       return true;
     }
 
@@ -3091,6 +3026,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     lineWidth = hopGui.getProps().getLineWidth();
   }
 
+  @Override
   public String toString() {
     if (workflowMeta == null) {
       return HopGui.APP_NAME;
@@ -3463,18 +3399,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     toolItem.setToolTipText(BaseMessages.getString(PKG, "HopGui.Tooltip.HideExecutionResults"));
     toolItem.setImage(GuiResource.getInstance().getImageHideResults());
   }
-
-  /* TODO: re-introduce
-  public void getSql() {
-    hopGui.getSql();
-  }
-    */
-
-  /* TODO: re-introduce
-  public void exploreDatabase() {
-     hopGui.exploreDatabase();
-   }
-     */
 
   @Override
   public void close() {

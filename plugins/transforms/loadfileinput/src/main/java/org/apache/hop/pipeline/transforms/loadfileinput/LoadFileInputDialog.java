@@ -87,7 +87,8 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
   private Button wFilenameInField;
 
   private Label wlInclFilename;
-  private Button wInclFilename, wAddResult;
+  private Button wInclFilename;
+  private Button wAddResult;
 
   private Label wlInclFilenameField;
   private TextVar wInclFilenameField;
@@ -494,10 +495,10 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wFileConf);
     wFileConf.setText(BaseMessages.getString(PKG, "LoadFileInputDialog.FileConf.Label"));
 
-    FormLayout XmlConfgroupLayout = new FormLayout();
-    XmlConfgroupLayout.marginWidth = 10;
-    XmlConfgroupLayout.marginHeight = 10;
-    wFileConf.setLayout(XmlConfgroupLayout);
+    FormLayout xmlConfgroupLayout = new FormLayout();
+    xmlConfgroupLayout.marginWidth = 10;
+    xmlConfgroupLayout.marginHeight = 10;
+    wFileConf.setLayout(xmlConfgroupLayout);
 
     wlEncoding = new Label(wFileConf, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "LoadFileInputDialog.Encoding.Label"));
@@ -616,10 +617,10 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "LoadFileInputDialog.wAdditionalFields.Label"));
 
-    FormLayout AdditionalFieldsgroupLayout = new FormLayout();
-    AdditionalFieldsgroupLayout.marginWidth = 10;
-    AdditionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(AdditionalFieldsgroupLayout);
+    FormLayout additionalFieldsgroupLayout = new FormLayout();
+    additionalFieldsgroupLayout.marginWidth = 10;
+    additionalFieldsgroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
 
     wlInclFilename = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclFilename.setText(BaseMessages.getString(PKG, "LoadFileInputDialog.InclFilename.Label"));
@@ -709,10 +710,10 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "LoadFileInputDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "LoadFileInputDialog.AddResult.Label"));
@@ -1155,11 +1156,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
 
       if (!Utils.isEmpty(encoding)) {
         wEncoding.setText(encoding);
-      } /*
-         * else { // Now select the default! String defEncoding = Const.getEnvironmentVariable("file.encoding",
-         * "UTF-8"); int idx = Const.indexOfString(defEncoding, wEncoding.getItems() ); if (idx>=0) wEncoding.select(
-         * idx ); }
-         */
+      }
     }
   }
 

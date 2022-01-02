@@ -23,7 +23,6 @@ import java.util.BitSet;
 
 import static org.junit.Assert.*;
 
-/** @author Andrey Khayrutdinov */
 public class SearchingContextTest {
 
   @Test

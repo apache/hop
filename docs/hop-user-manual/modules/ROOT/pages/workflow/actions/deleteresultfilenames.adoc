@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Delete Filenames From Result action deletes all the filenames that are in the result files list of the last workflow action.
 
 = Delete filenames from result
 
 == Description
 
-Use this action to delete all the filenames that are in the result files list of the last workflow action.
+The Delete Filenames From Result action deletes all the filenames that are in the result files list of the last workflow action.
 
 == Options
 

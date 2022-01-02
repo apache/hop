@@ -25,7 +25,6 @@ import java.util.List;
 
 import static org.junit.Assert.fail;
 
-/** @author Andrey Khayrutdinov */
 @RunWith(Parameterized.class)
 public class EqIndexTest extends IndexTestBase<EqIndex> {
 

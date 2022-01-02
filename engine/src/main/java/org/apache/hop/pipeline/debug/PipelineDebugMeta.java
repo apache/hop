@@ -35,8 +35,6 @@ import java.util.Map;
  * For a certain pipeline, we want to be able to insert break-points into a pipeline. These
  * breakpoints can be applied to transforms. When a certain condition is met, the pipeline will be
  * paused and the caller will be informed of this fact through a listener system.
- *
- * @author Matt
  */
 public class PipelineDebugMeta {
 

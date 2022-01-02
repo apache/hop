@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Check Neo4j Connections action lines up a list of Neo4j connections that you want to check for availability.
 
 = Check Neo4j Connections
 
 == Description
 
-This action allows you to line up a list of Neo4j connections that you want to check for availability.
+The Check Neo4j Connections action lines up a list of Neo4j connections that you want to check for availability.
+
 A small static value will be retrieved from the server to see if it's properly up-and-running.
 
 == Configuration

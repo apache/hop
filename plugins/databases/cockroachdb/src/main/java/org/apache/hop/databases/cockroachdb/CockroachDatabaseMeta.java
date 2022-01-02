@@ -24,10 +24,7 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
 /**
  * Contains PostgreSQL specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "COCKROACHDB", typeDescription = "CockroachDB")
+@DatabaseMetaPlugin(type = "COCKROACHDB", typeDescription = "CockroachDB", documentationUrl = "/database/databases/postgresql.html")
 @GuiPlugin(id = "GUI-CockroachDatabaseMeta")
 public class CockroachDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {}

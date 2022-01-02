@@ -44,7 +44,7 @@ import java.util.List;
 
 public class RunPipelineTestsDialog extends ActionDialog implements IActionDialog {
 
-  private static Class<?> PKG = RunPipelineTestsDialog.class; // For Translator
+  private static final Class<?> PKG = RunPipelineTestsDialog.class; // For Translator
 
   private static final String COLON_SEPARATOR = " : ";
 
@@ -55,8 +55,6 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
   private Text wName;
 
   private TableView wTestNames;
-
-  private Button wOk, wGet, wCancel;
 
   public RunPipelineTestsDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -118,13 +116,13 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
 
     // Add buttons first, then the script field can use dynamic sizing
     //
-    wOk = new Button(shell, SWT.PUSH);
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
+    Button wGet = new Button(shell, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "RunTestsDialog.Button.GetTestNames"));
     wGet.addListener(SWT.Selection, e -> getTestNames());
-    wCancel = new Button(shell, SWT.PUSH);
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 

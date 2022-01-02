@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.engines.remote;
 import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
 public class PipelineRunConfigurationTypeMetadata implements ITypeMetadata {
   @Override

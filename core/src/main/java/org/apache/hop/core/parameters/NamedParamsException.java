@@ -19,12 +19,7 @@ package org.apache.hop.core.parameters;
 
 import org.apache.hop.core.exception.HopException;
 
-/**
- * This is an Apache Hop Exception for the named parameters.
- *
- * @author Sven Boden
- * @since 28Feb2009
- */
+/** This is an Apache Hop Exception for the named parameters. */
 public class NamedParamsException extends HopException {
   private static final long serialVersionUID = -6684406077955662033L;
 

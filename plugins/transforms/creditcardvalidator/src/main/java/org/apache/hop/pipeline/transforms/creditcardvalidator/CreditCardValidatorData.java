@@ -21,10 +21,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Samatar
- * @since 03-Juin-2008
- */
 public class CreditCardValidatorData extends BaseTransformData implements ITransformData {
   public int indexOfField;
   public String realResultFieldname;

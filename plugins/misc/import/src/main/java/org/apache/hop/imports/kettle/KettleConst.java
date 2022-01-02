@@ -163,7 +163,7 @@ public class KettleConst {
                 {"Internal.Job.Filename.Directory", "Internal.Workflow.Filename.Folder"},
                 // Injection key
                 {"HEAD_STEP", "HEAD_TRANSFORM"}, // append
-                {"TAIL_STEP", "TAIL_TRANSFORM"}, // append               
+                {"TAIL_STEP", "TAIL_TRANSFORM"}, // append
                 {"LEFT_STEP", "LEFT_TRANSFORM"}, // mergejoin
                 {"RIGHT_STEP", "RIGHT_TRANSFORM"}, // mergejoin
                 {"INPUT_STEPS", "INPUT_TRANSFORMS"}, // multimerge
@@ -173,13 +173,20 @@ public class KettleConst {
                 {"SEND_TRUE_STEP", "SEND_TRUE_TRANSFORM"}, // filterrows
                 {"SEND_FALSE_STEP", "SEND_FALSE_TRANSFORM"}, // filterrows
                 {"MAIN_STEP", "MAIN_TRANSFORM"}, // joinrows
-                {"SUB_STEP", "SUB_TRANSFORM"}, // kafka          
+                {"SUB_STEP", "SUB_TRANSFORM"}, // kafka
                 {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // jsonoutput & xmloutput
                 {"SOURCE_XML_STEP", "SOURCE_XML_TRANSFORM"}, // xmljoin
-                {"TARGET_XML_STEP", "TARGET_XML_TRANSFORM"}, // xmljoin   
-                {"OUTPUT_INCLUDE_STEPNR", "OUTPUT_INCLUDE_TRANSFORMNR"}, // webservice                               
-                {"SWITCH_CASE_TARGET.CASE_TARGET_STEP_NAME", "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME"},   // switchcase
-                {"DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"}   // switchcase                             
+                {"TARGET_XML_STEP", "TARGET_XML_TRANSFORM"}, // xmljoin
+                {
+                  "OUTPUT_INCLUDE_STEPNR", "OUTPUT_INCLUDE_TRANSFORMNR"
+                }, // webservice
+                {
+                  "SWITCH_CASE_TARGET.CASE_TARGET_STEP_NAME",
+                  "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME"
+                }, // switchcase
+                {
+                  "DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"
+                } // switchcase
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
