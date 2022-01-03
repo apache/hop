@@ -48,10 +48,11 @@ For example, you can run the parent pipeline on a timed schedule, or abort the s
 [width="90%",options="header"]
 |===
 |Option|Description
-|Transform name|the name for this transform
+|Transform name|The name for this transform
 |Kafka pipeline
-|Specify your pipeline to execute by entering its path or clicking Browse and selecting the path.
-Note that this pipeline must start with an Injector transform.
+|Specify the pipeline to execute by entering its path or clicking _Browse_ and selecting the path.
+
+*Note:* this pipeline *must* start with an Injector transform.
 |===
 
 === Setup
@@ -59,10 +60,10 @@ Note that this pipeline must start with an Injector transform.
 [width="90%",options="header"]
 |===
 |Option|Description
-|Bootstrap servers|comma separated list of bootstrap servers in a Kafka cluster
+|Bootstrap servers|Comma separated list of bootstrap servers in a Kafka cluster
 |Topics|Enter the name of each Kafka topic from which you want to consume streaming data (messages).
 |Consumer group|Enter the name of the group of which you want this consumer to be a member.
-Each Kafka Consumer transform will start a single thread for consuming.
+Each Kafka Consumer transform will start a single thread for consuming. If left empty, it will be defaulted to _Apache Hop_.
 
 When part of a consumer group, each consumer is assigned a subset of the partitions from topics it has subscribed to, which locks those partitions.
 Each instance of a Kafka Consumer transform will only run a single consumer thread.
@@ -106,11 +107,11 @@ Each record consists of a key, a value, and a timestamp.
 * **topic**: The category to which records are published.
 * **partition**: An ordered sequence of records that is continuously appended.
 You cannot have more consumers than the number of partitions.
-* **offset**: A sequential ID number assigned to each record.
+* **offset**: A sequential ID number assigned by Kafka to each record.
 It uniquely identifies each record within the partition.
 * **timestamp**: The time the message is received on the server.
 
-|Output name|The Output name can be mapped to subscriber and member requirements.
+|Output name|The _Output name_ can be mapped to subscriber and member requirements.
 |Type a|The Type field defines the data format for streaming the record.
 You must choose the same data type that produced the records.
 This field applies to the ‘key’ and ‘message’ input names.
@@ -147,3 +148,8 @@ The options that are included by default are:
 |ssl.truststore.location|
 |ssl.truststore.password|
 |===
+
+=== Error handling
+The Kafka consumer supports error handling but this is *limited to the case* of Batch Size equal to 1 (records from the Kafka queue are processed one by one). In this case, whenever a record coming from the Kafka queue generates an error in the called sub pipeline, that record will be sent along to the error path for further processing. The record that enter the error path is committed in Kafka and next records in the queue can be processed without any problem. Apart the errors fields inserted by error handling, the layout of the record flowing into the error path will be the layout specified in _Field_ tab.
+
+This feature is very useful in any case where we have a record in the Kafka queue that is stopping processing of further records (because it generates an error during processing) and we want to "remove it" from the queue so that we can process the remaining records in the queue. The failing record can be saved somewhere (for example saved to a file or to a DB table) for further investigation.
