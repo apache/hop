@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>HOP3540-kafka-consumer-read-record-error</name>
+    <name>HOP3504-kafka-consumer-read-record-error</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -87,7 +87,7 @@ limitations under the License.
     </partitioning>
     <topic>hop-test</topic>
     <consumerGroup/>
-    <pipelinePath>${PROJECT_HOME}/HOP3540-kafka-consumer-called-subpipeline-error.hpl</pipelinePath>
+    <pipelinePath>${PROJECT_HOME}/HOP3504-kafka-consumer-called-subpipeline-error.hpl</pipelinePath>
     <subTransform/>
     <batchSize>1</batchSize>
     <batchDuration>1000</batchDuration>

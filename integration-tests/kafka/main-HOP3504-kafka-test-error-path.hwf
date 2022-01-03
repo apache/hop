@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-HOP3540-kafka-test-error-path</name>
+  <name>main-HOP3504-kafka-test-error-path</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -115,11 +115,11 @@ ok;</script>
       <attributes_hac/>
     </action>
     <action>
-      <name>HOP3540-kafka-consumer-read-record-error.hpl</name>
+      <name>HOP3504-kafka-consumer-read-record-error.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/HOP3540-kafka-consumer-read-record-error.hpl</filename>
+      <filename>${PROJECT_HOME}/HOP3504-kafka-consumer-read-record-error.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -152,7 +152,7 @@ ok;</script>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>HOP3540-kafka-consumer-read-record-error.hpl</from>
+      <from>HOP3504-kafka-consumer-read-record-error.hpl</from>
       <to>Check log</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
@@ -160,7 +160,7 @@ ok;</script>
     </hop>
     <hop>
       <from>prepare-kafka-test-basic.hpl</from>
-      <to>HOP3540-kafka-consumer-read-record-error.hpl</to>
+      <to>HOP3504-kafka-consumer-read-record-error.hpl</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>Y</unconditional>
