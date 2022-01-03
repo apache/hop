@@ -759,8 +759,8 @@ public class PropertyInputMeta extends BaseTransformMeta
     rowNumberField = "";
     dynamicFilenameField = "";
 
-    int nrFiles = 0;
-    int nrFields = 0;
+    int nrFiles = 1;
+    int nrFields = 1;
 
     allocate(nrFiles, nrFields);
 
@@ -910,13 +910,9 @@ public class PropertyInputMeta extends BaseTransformMeta
   }
 
   public FileInputList getFiles(IVariables variables) {
-    String[] required = new String[fileName.length];
     boolean[] subdirs = new boolean[fileName.length]; // boolean arrays are defaulted to false.
-    for (int i = 0; i < required.length; i++) {
-      required[i] = "Y";
-    }
     return FileInputList.createFileList(
-        variables, fileName, fileMask, excludeFileMask, required, subdirs);
+        variables, fileName, fileMask, excludeFileMask, fileRequired, subdirs);
   }
 
   @Override
