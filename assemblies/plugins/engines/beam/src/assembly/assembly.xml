@@ -74,7 +74,6 @@
         <include>com.esotericsoftware.minlog:minlog</include>
         <include>com.fasterxml.jackson.core:jackson-annotations</include>
         <include>com.fasterxml.jackson.core:jackson-core</include>
-        <include>com.fasterxml.jackson.core:jackson-databind</include>
         <include>com.fasterxml.jackson.module:jackson-module-paranamer</include>
         <include>com.fasterxml.jackson.module:jackson-module-scala_2.11</include>
         <include>com.github.stephenc.findbugs:findbugs-annotations</include>
@@ -224,7 +223,7 @@
         <include>org.apache.beam:beam-runners-core-construction-java</include>
         <include>org.apache.beam:beam-runners-core-java</include>
         <include>org.apache.beam:beam-runners-direct-java</include>
-        <include>org.apache.beam:beam-runners-flink-1.11</include>
+        <include>org.apache.beam:beam-runners-flink-1.13</include>
         <include>org.apache.beam:beam-runners-google-cloud-dataflow-java</include>
         <include>org.apache.beam:beam-runners-java-fn-execution</include>
         <include>org.apache.beam:beam-runners-spark</include>
