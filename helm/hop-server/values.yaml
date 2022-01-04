@@ -22,7 +22,7 @@
 replicaCount: 1
 
 image:
-  name: docker.io/apache/incubator-hop
+  name: docker.io/apache/hop
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0-SNAPSHOT"

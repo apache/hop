@@ -85,9 +85,9 @@
 
 
     <scm>
-        <connection>scm:git:http://gitbox.apache.org/repos/asf/incubator-hop.git</connection>
-        <developerConnection>scm:git:http://gitbox.apache.org/repos/asf/incubator-hop.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=incubator-hop.git;a=summary</url>
+        <connection>scm:git:http://gitbox.apache.org/repos/asf/hop.git</connection>
+        <developerConnection>scm:git:http://gitbox.apache.org/repos/asf/hop.git</developerConnection>
+        <url>https://gitbox.apache.org/repos/asf?p=hop.git;a=summary</url>
         <tag>HEAD</tag>
     </scm>
 

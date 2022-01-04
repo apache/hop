@@ -134,7 +134,7 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/google-key.json
 
 == Security considerations
 
-To allow encrypted (TLS) network connections to, for example, Kafka and Neo4j Aura certain older security algorithms are https://github.com/apache/incubator-hop/blob/master/plugins/engines/beam/src/main/java/org/apache/hop/beam/engines/dataflow/DataFlowJvmStart.java[disabled on Dataflow].
+To allow encrypted (TLS) network connections to, for example, Kafka and Neo4j Aura certain older security algorithms are https://github.com/apache/hop/blob/master/plugins/engines/beam/src/main/java/org/apache/hop/beam/engines/dataflow/DataFlowJvmStart.java[disabled on Dataflow].
 This is done by setting security property `jdk.tls.disabledAlgorithms` to value: `Lv3, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL`.
 
 Please let us know if you have a need to make this configurable and we'll look for a way to not hardcode this.

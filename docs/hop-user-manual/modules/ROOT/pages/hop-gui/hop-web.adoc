@@ -25,13 +25,13 @@ Hop Gui was designed from the ground up to be web-ready. You'll barely notice an
 == Getting Hop Web
 
 Hop Web is included in the default Hop build.
-With each build, an update is pushed to https://hub.docker.com/r/apache/incubator-hop-web[Docker Hub].
+With each build, an update is pushed to https://hub.docker.com/r/apache/hop-web[Docker Hub].
 
 This continously updated docker image is by far the easiest way to try out Hop Web:
 
-Pull the latest build with: `docker pull apache/incubator-hop-web`.
+Pull the latest build with: `docker pull apache/hop-web`.
 
-Once the image has been pulled, start Hop Web with `docker run -p 8080:8080 apache/incubator-hop-web:latest`
+Once the image has been pulled, start Hop Web with `docker run -p 8080:8080 apache/hop-web:latest`
 
 The Hop Web container should only take a couple of seconds to start.
 Your container logs should output similar to the example below:

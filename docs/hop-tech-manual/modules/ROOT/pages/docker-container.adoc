@@ -23,7 +23,7 @@ under the License.
 
 This is the documentation of the official Apache Hop docker container published on:
 
-https://hub.docker.com/r/apache/incubator-hop
+https://hub.docker.com/r/apache/hop
 
 It's a **Hop Docker image** supporting both **short-lived** and **long-lived** setups.
 A short-lived setup executes a pipeline or workflow and stops right after.
@@ -193,7 +193,7 @@ Make sure to get the latest updates for the Hop image by pulling them:
 
 [source,bash]
 ----
-docker pull apache/incubator-hop:<tag>
+docker pull apache/hop:<tag>
 ----
 
 If you do not specify a value for `:<tag>` the value `latest` will be taken.
@@ -220,7 +220,7 @@ docker run -it --rm \
   --env HOP_RUN_PARAMETERS=PARAM_LOG_MESSAGE=Hello,PARAM_WAIT_FOR_X_MINUTES=1 \
   -v /path/to/local/dir:/files \
   --name my-simple-hop-container \
-  apache/incubator-hop:<tag>
+  apache/hop:<tag>
 ----
 
 If you need a **long-lived container**, this option is also available.
@@ -228,7 +228,7 @@ Run this command to start a Hop Server in a docker container:
 
 [source,bash]
 ----
-docker pull docker.io/apache/incubator-hop:<tag>
+docker pull docker.io/apache/hop:<tag>
 docker run -it --rm \
   --env HOP_SERVER_USER=admin \
   --env HOP_SERVER_PASS=admin \
@@ -236,7 +236,7 @@ docker run -it --rm \
   --env HOP_SERVER_HOSTNAME=localhost \
   -p 8181:8181 \
   --name my-hop-server-container \
- apache/incubator-hop:<tag>
+ apache/hop:<tag>
 ----
 
 Hop Server is designed to receive all variables and metadata from executing clients.
@@ -270,7 +270,7 @@ We also make it parameter-driven, so it any other team can use it.We create our 
 
 [source,dockerfile]
 ----
-FROM apache/incubator-hop:1.1.0-SNAPSHOT
+FROM apache/hop:1.1.0-SNAPSHOT
 ENV GIT_REPO_URI=https://...
 # example value: https://github.com/diethardsteiner/apache-hop-minimal-project.git
 ENV GIT_REPO_NAME=repo-name
