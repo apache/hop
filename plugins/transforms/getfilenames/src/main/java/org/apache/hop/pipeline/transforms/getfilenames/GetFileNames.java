@@ -269,7 +269,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
         // See if we need to add the row number to the row...
         if (meta.isIncludeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-          extraData[outputIndex++] = Long.valueOf(data.rownr);
+          extraData[outputIndex++] = Long.valueOf(data.rownr+1);
         }
 
         data.rownr++;
@@ -279,7 +279,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
         putRow(data.outputRowMeta, outputRow);
 
         if (meta.getRowLimit() > 0
-            && data.rownr >= meta.getRowLimit()) { // limit has been reached: stop now.
+            && data.rownr == meta.getRowLimit()) { // limit has been reached: stop now.
           setOutputDone();
           return false;
         }
@@ -366,7 +366,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
         return false;
       }
 
-      data.rownr = 1L;
+      data.rownr = 0;
       data.filenr = 0;
       data.totalpreviousfields = 0;
 

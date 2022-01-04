@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0038-getfilenames-regexp</name>
+    <name>0038-getfilenames-limit</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -83,7 +83,7 @@ limitations under the License.
         <value>
           <name>constant</name>
           <type>Integer</type>
-          <text>3</text>
+          <text>2</text>
           <length>-1</length>
           <precision>0</precision>
           <isnull>N</isnull>
@@ -145,9 +145,13 @@ limitations under the License.
     </partitioning>
     <isaddresult>N</isaddresult>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <exclude_wildcard_Field/>
+    <filename_Field/>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <wildcard_Field/>
     <filefield>N</filefield>
     <file>
+      <exclude_filemask/>
       <filemask>s.*.txt</filemask>
       <name>${PROJECT_HOME}/files</name>
       <file_required>N</file_required>
@@ -158,7 +162,8 @@ limitations under the License.
     </filter>
     <rownum>N</rownum>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
-    <limit>0</limit>
+    <limit>2</limit>
+    <rownum_field/>
     <attributes/>
     <GUI>
       <xloc>192</xloc>

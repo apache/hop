@@ -916,9 +916,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void activateFileField() {
-    if (wFileField.getSelection()) {
-      wLimit.setText("0");
-    }
+
     wlFilenameField.setEnabled(wFileField.getSelection());
     wFilenameField.setEnabled(wFileField.getSelection());
     wlWildcardField.setEnabled(wFileField.getSelection());
