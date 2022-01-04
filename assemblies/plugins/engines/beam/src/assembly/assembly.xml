@@ -188,8 +188,6 @@
         <include>io.grpc:grpc-protobuf-lite</include>
         <include>io.grpc:grpc-stub</include>
         <include>io.grpc:grpc-testing</include>
-
-
         <include>io.netty:netty</include>
         <include>io.netty:netty-buffer</include>
         <include>io.netty:netty-codec</include>
@@ -202,7 +200,6 @@
         <include>io.netty:netty-resolver</include>
         <include>io.netty:netty-tcnative-boringssl-static</include>
         <include>io.netty:netty-transport</include>
-
         <include>io.opencensus:opencensus-api</include>
         <include>io.opencensus:opencensus-contrib-grpc-metrics</include>
         <include>io.opencensus:opencensus-contrib-grpc-util</include>
@@ -265,6 +262,7 @@
         <include>org.apache.flink:flink-optimizer_2.11</include>
         <include>org.apache.flink:flink-queryable-state-client-java</include>
         <include>org.apache.flink:flink-runtime_2.11</include>
+        <include>org.apache.flink:flink-s3-fs-hadoop</include>
         <include>org.apache.flink:flink-shaded-asm-7</include>
         <include>org.apache.flink:flink-shaded-guava</include>
         <include>org.apache.flink:flink-shaded-jackson</include>
@@ -304,6 +302,7 @@
         <include>org.codehaus.jackson:jackson-mapper-asl</include>
         <include>org.codehaus.jackson:jackson-xc</include>
         <include>org.codehaus.mojo:animal-sniffer-annotations</include>
+        <include>org.codehaus.woodstox:woodstox-core-asl</include>
         <include>org.conscrypt:conscrypt-openjdk-uber</include>
         <include>org.fusesource.leveldbjni:leveldbjni-all</include>
         <include>org.glassfish.hk2.external:aopalliance-repackaged</include>
