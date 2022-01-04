@@ -26,7 +26,7 @@ We assume you're going to be using the IntelliJ IDEA integrated development envi
 
 == Fork Apache Hop!
 
-If you visit the https://github.com/apache/incubator-hop[Apache Hop code] on github you'll notice a Fork icon on the top right of the page:
+If you visit the https://github.com/apache/hop[Apache Hop code] on github you'll notice a Fork icon on the top right of the page:
 
 image::github-fork.png[width="25%"]
 
@@ -46,10 +46,10 @@ You can now run a command like this:
 
 [source]
 ----
-git clone git@github.com:YourAccount/incubator-hop.git
+git clone git@github.com:YourAccount/hop.git
 ----
 
-Once it's done you'll have a new ```incubator-hop``` folder containing the project.
+Once it's done you'll have a new ```hop``` folder containing the project.
 
 == Import the project
 
@@ -57,7 +57,7 @@ In IDEA you can use menu :
 
 File / New / *Project from existing sources...*
 
-This will ask you to navigate to our new ```incubator-hop``` folder.
+This will ask you to navigate to our new ```hop``` folder.
 
 Then you need to choose to import the project from external model "Maven":
 
@@ -179,7 +179,7 @@ If this is not the case, replace ```master``` with the branch you're interested 
 To update it you can add "upstream" to your local configuration:
 
 [source]
-git remote add upstream git@github.com:apache/incubator-hop.git
+git remote add upstream git@github.com:apache/hop.git
 
 Then you can fetch all the changes from "upstream":
 

@@ -16,7 +16,7 @@
 # under the License.
 
 site:
-  title: Apache Hop (Incubating)
+  title: Apache Hop
   url: https://hop.apache.org
   start_page: manual::index.adoc
   keys:

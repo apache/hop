@@ -35,7 +35,7 @@ Here are the attributes of the @HopMetadata annotation:
 
 The class with this annotation will be found either because it lives in the ```plugins/``` folder of Hop or if it's an internal class and is described in the file ```engine/src/main/resources/hop-metadata-plugins.xml```
 
-Example: https://github.com/apache/incubator-hop/blob/f8f2ad2d0bc0cfd143ae90cc32e73b6c9e1cda78/engine/src/main/java/org/apache/hop/partition/PartitionSchema.java#L47[PartitionSchema.java]
+Example: https://github.com/apache/hop/blob/f8f2ad2d0bc0cfd143ae90cc32e73b6c9e1cda78/engine/src/main/java/org/apache/hop/partition/PartitionSchema.java#L47[PartitionSchema.java]
 
 == Metadata Properties
 
@@ -65,7 +65,7 @@ Here are the supported data types:
 You also want to have a way to edit the metadata in the GUI.
 This can be done by extending the class `MetadataEditor<IHopMetadata>`.
 
-Example: https://github.com/apache/incubator-hop/blob/master/ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java[PartitionSchemaEditor.java]
+Example: https://github.com/apache/hop/blob/master/ui/src/main/java/org/apache/hop/ui/partition/PartitionSchemaEditor.java[PartitionSchemaEditor.java]
 
 The path to the Editor class will be found automatically by looking at the name of the metadata plugin class and then simply by appending Editor to it.
 If you prefer to keep metadata and GUI code separate the Hop GUI will also look in package `org.apache.hop.ui` instead of `org.apache.hop`

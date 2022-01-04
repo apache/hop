@@ -29,7 +29,7 @@ Checkout or update your svn repository pointing to the staging area
 [source,bash]
 ----
 # Checkout
-svn co https://dist.apache.org/repos/dist/dev/incubator/hop hop_release
+svn co https://dist.apache.org/repos/dist/dev/hop hop_release
 
 # Update
 svn update
@@ -39,7 +39,7 @@ Checkout the release area
 
 [source,bash]
 ----
-svn co https://dist.apache.org/repos/dist/release/incubator/hop/ hop_public_release
+svn co https://dist.apache.org/repos/dist/release/hop/ hop_public_release
 
 ----
 
@@ -49,7 +49,7 @@ Create a new folder in the hop_public_release location with the version number a
 ----
 cd hop_public_release
 svn mkdir X.XX
-cp ../hop_release/apache-hop-X.XX-incubating-rcX/* X.XX 
+cp ../hop_release/apache-hop-X.XX-rcX/* X.XX
 ----
 
 Remove the rc from the files and fix the link in the sha512 file
@@ -58,12 +58,12 @@ Remove the rc from the files and fix the link in the sha512 file
 ----
 
 #Rename Files
-mv apache-hop-X.XX-incubating-rcX.tar.gz apache-hop-X.XX-incubating.tar.gz
-mv apache-hop-X.XX-incubating-rcX.tar.gz.asc apache-hop-X.XX-incubating.tar.gz.asc
-mv apache-hop-X.XX-incubating-rcX.tar.gz.sha512 apache-hop-X.XX-incubating.tar.gz.sha512
+mv apache-hop-X.XX-rcX.tar.gz apache-hop-X.XX.tar.gz
+mv apache-hop-X.XX-rcX.tar.gz.asc apache-hop-X.XX.tar.gz.asc
+mv apache-hop-X.XX-rcX.tar.gz.sha512 apache-hop-X.XX.tar.gz.sha512
 
 #Remove rcx from sha512
-vi apache-hop-X.XX-incubating.tar.gz.sha512
+vi apache-hop-X.XX.tar.gz.sha512
 #Remove rcx and save
 ----
 
@@ -71,8 +71,8 @@ Test if both key and sha512 still work
 
 [source,bash]
 ----
-gpg --verify apache-hop-X.XX-incubating.tar.gz.asc
-sha512sum -c apache-hop-X.XX-incubating.tar.gz.sha512
+gpg --verify apache-hop-X.XX.tar.gz.asc
+sha512sum -c apache-hop-X.XX.tar.gz.sha512
 ----
 
 == Creating Dockerhub Artifacts
@@ -86,12 +86,12 @@ unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
 unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/
 
 # Create image (make sure to add correct version)
-docker build . -f docker/Dockerfile -t docker.io/apache/incubator-hop:X.XX -t docker.io/apache/incubator-hop:latest
+docker build . -f docker/Dockerfile -t docker.io/apache/hop:X.XX -t docker.io/apache/hop:latest
 
 # Push to dockerhub
-docker image push --all-tags docker.io/apache/incubator-hop
+docker image push --all-tags docker.io/apache/hop
 
 # Create and push Hop Web
-docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/incubator-hop-web:X.XX -t docker.io/apache/incubator-hop-web:latest --push
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/hop-web:X.XX -t docker.io/apache/hop-web:latest --push
 
 ----
