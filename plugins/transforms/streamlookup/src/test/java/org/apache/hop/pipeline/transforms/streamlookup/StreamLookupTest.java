@@ -49,6 +49,7 @@ import static org.mockito.Mockito.*;
  *
  * @see StreamLookup
  */
+@Ignore
 public class StreamLookupTest {
   private TransformMockHelper<StreamLookupMeta, StreamLookupData> smh;
 

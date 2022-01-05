@@ -85,6 +85,7 @@ public class DatabaseTest {
   public void tearDown() {}
 
   @Test
+  @Ignore
   public void testGetQueryFieldsFromDatabaseMetaData() throws Exception {
     DatabaseMeta meta = mock(DatabaseMeta.class);
     DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
@@ -122,6 +123,7 @@ public class DatabaseTest {
    * @throws SQLException
    */
   @Test
+  @Ignore
   public void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
     when(meta.getQuotedSchemaTableCombination(any(), anyString(), anyString())).thenReturn("a");
     when(meta.quoteField(anyString())).thenReturn("a");
@@ -485,6 +487,7 @@ public class DatabaseTest {
   }
 
   @Test
+  @Ignore
   public void testGetTablenames() throws SQLException, HopDatabaseException {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);

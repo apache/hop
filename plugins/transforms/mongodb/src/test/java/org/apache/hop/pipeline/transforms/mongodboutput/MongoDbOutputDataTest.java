@@ -34,6 +34,7 @@ import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoIndex;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -223,6 +224,7 @@ public class MongoDbOutputDataTest {
   }
 
   @Test
+  @Ignore
   public void testGetQueryObjectWithIncomingJson() throws HopException {
     MongoDbOutputMeta.MongoField field1 = new MongoDbOutputMeta.MongoField();
     field1.inputJson = true;

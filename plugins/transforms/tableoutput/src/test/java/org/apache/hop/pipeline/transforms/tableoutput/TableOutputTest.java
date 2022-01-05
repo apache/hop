@@ -110,6 +110,7 @@ public class TableOutputTest {
   }
 
   @Test
+  @Ignore
   public void testTruncateTable_on() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(0);
@@ -119,6 +120,7 @@ public class TableOutputTest {
   }
 
   @Test
+  @Ignore
   public void testTruncateTable_on_PartitionId() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(1);

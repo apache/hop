@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -66,6 +67,7 @@ public class RestTest {
   }
 
   @Test
+  @Ignore
   public void testCallEndpointWithDeleteVerb() throws HopException {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add("Content-Type", "application/json");

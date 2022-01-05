@@ -729,6 +729,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
+  @Ignore
   public void testConvertDataUsingConversionMetaData() throws HopValueException, ParseException {
     ValueMetaString base = new ValueMetaString();
     double DELTA = 1e-15;
@@ -899,6 +900,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
+  @Ignore
   public void testConvertNumberToString() throws HopValueException {
     String expectedStringRepresentation = "123.123";
     Number numberToTest = Double.valueOf("123.123");
