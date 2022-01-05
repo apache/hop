@@ -20,6 +20,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.value.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -35,6 +36,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 @RunWith(PowerMockRunner.class)
+@Ignore
 public class GenericDatabaseMetaTest {
   GenericDatabaseMeta nativeMeta;
 
