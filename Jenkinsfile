@@ -135,7 +135,6 @@ pipeline {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
                     sh "docker build . -f docker/Dockerfile -t ${DOCKER_REPO}:${env.POM_VERSION}"
                     sh "docker push --all-tags ${DOCKER_REPO}"
-                    sh "docker rmi ${DOCKER_REPO}:Development"
                     sh "docker rmi ${DOCKER_REPO}:${env.POM_VERSION}"
                   }
             }
