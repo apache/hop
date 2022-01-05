@@ -24,6 +24,7 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.owasp.encoder.Encode;
@@ -45,6 +46,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
+@Ignore
 public class GetWorkflowStatusServletTest {
   private WorkflowMap mockWorkflowMap;
 

@@ -23,6 +23,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.owasp.encoder.Encode;
@@ -78,6 +79,7 @@ public class GetPipelineStatusServletTest {
   }
 
   @Test
+  @Ignore
   @PrepareForTest({Encode.class})
   public void testGetPipelineStatusServletEscapesHtmlWhenPipelineFound()
       throws ServletException, IOException {

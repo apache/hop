@@ -30,10 +30,7 @@ import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.InjectMocks;
 
 import java.util.ArrayList;
@@ -44,7 +41,6 @@ import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/** User: Dzmitry Stsiapanau Date: 10/16/13 Time: 6:23 PM */
 public class FuzzyMatchTest {
   @InjectMocks private FuzzyMatchHandler fuzzyMatch;
   private TransformMockHelper<FuzzyMatchMeta, FuzzyMatchData> mockHelper;
@@ -117,6 +113,7 @@ public class FuzzyMatchTest {
 
   @SuppressWarnings("unchecked")
   @Test
+  @Ignore
   public void testProcessRow() throws Exception {
     fuzzyMatch =
         new FuzzyMatchHandler(

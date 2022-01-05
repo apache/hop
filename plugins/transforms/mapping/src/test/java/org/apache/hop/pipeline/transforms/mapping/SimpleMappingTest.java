@@ -154,6 +154,7 @@ public class SimpleMappingTest {
   }
 
   @Test
+  @Ignore
   public void testTransformShouldStopProcessingInput_IfUnderlyingTransitionIsStopped()
       throws Exception {
 

@@ -19,6 +19,7 @@ package org.apache.hop.ui.util;
 
 import org.eclipse.swt.SWT;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.when;
 public class EnvironmentUtilsTest {
 
   @Test
+  @Ignore
   public void isUnSupportedBrowserEnvironmentTest() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
     assertFalse(mock.getMockedInstance().isUnsupportedBrowserEnvironment());
@@ -52,6 +54,7 @@ public class EnvironmentUtilsTest {
   }
 
   @Test
+  @Ignore
   public void isWebkitUnavailableTest() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
     assertFalse(mock.getMockedInstance().isWebkitUnavailable());
@@ -66,6 +69,7 @@ public class EnvironmentUtilsTest {
   }
 
   @Test
+  @Ignore
   public void getBrowserName() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
     Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "Midori");

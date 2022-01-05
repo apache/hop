@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.*;
  * @see XmlJoin
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class XmlJoinOmitNullValuesTest {
   TransformMockHelper<XmlJoinMeta, XmlJoinData> tmh;
 
