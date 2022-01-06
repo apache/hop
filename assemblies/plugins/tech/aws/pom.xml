@@ -31,12 +31,12 @@
     <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Technology AWS</name>
-    <description></description>
+    <description/>
 
 
     <properties>
         <!-- Third-party dependencies -->
-        <guava.version>19.0</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <aws-java-sdk-s3.version>1.11.974</aws-java-sdk-s3.version>
         <aws-java-sdk-core.version>1.11.974</aws-java-sdk-core.version>
         <joda-time.version>2.10.10</joda-time.version>

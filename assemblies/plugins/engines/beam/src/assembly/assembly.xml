@@ -72,8 +72,6 @@
         <include>com.esotericsoftware:kryo-shaded</include>
         <include>com.esotericsoftware:minlog</include>
         <include>com.esotericsoftware.minlog:minlog</include>
-        <include>com.fasterxml.jackson.core:jackson-annotations</include>
-        <include>com.fasterxml.jackson.core:jackson-core</include>
         <include>com.fasterxml.jackson.module:jackson-module-paranamer</include>
         <include>com.fasterxml.jackson.module:jackson-module-scala_2.11</include>
         <include>com.github.stephenc.findbugs:findbugs-annotations</include>
@@ -132,6 +130,8 @@
         <include>com.google.flogger:flogger</include>
         <include>com.google.flogger:flogger-system-backend</include>
         <include>com.google.flogger:google-extensions</include>
+        <include>com.google.guava:guava</include>
+        <include>com.google.guava:failureaccess</include>
         <include>com.google.http-client:google-http-client</include>
         <include>com.google.http-client:google-http-client-apache-v2</include>
         <include>com.google.http-client:google-http-client-appengine</include>
@@ -155,7 +155,7 @@
         <include>com.squareup.okhttp:okhttp</include>
         <include>com.squareup.okio:okio</include>
         <include>com.thoughtworks.paranamer:paranamer</include>
-        <include>com.twitter:chill_2.11</include>
+        <include>com.twitter:chill_2.12</include>
         <include>com.twitter:chill-java</include>
         <include>com.typesafe.akka:akka-actor_2.11</include>
         <include>com.typesafe.akka:akka-protobuf_2.11</include>
@@ -226,7 +226,7 @@
         <include>org.apache.beam:beam-runners-flink-1.13</include>
         <include>org.apache.beam:beam-runners-google-cloud-dataflow-java</include>
         <include>org.apache.beam:beam-runners-java-fn-execution</include>
-        <include>org.apache.beam:beam-runners-spark</include>
+        <include>org.apache.beam:beam-runners-spark-3</include>
         <include>org.apache.beam:beam-sdks-java-core</include>
         <include>org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core</include>
         <include>org.apache.beam:beam-sdks-java-extensions-join-library</include>
@@ -261,7 +261,6 @@
         <include>org.apache.flink:flink-optimizer_2.11</include>
         <include>org.apache.flink:flink-queryable-state-client-java</include>
         <include>org.apache.flink:flink-runtime_2.11</include>
-        <include>org.apache.flink:flink-s3-fs-hadoop</include>
         <include>org.apache.flink:flink-shaded-asm-7</include>
         <include>org.apache.flink:flink-shaded-guava</include>
         <include>org.apache.flink:flink-shaded-jackson</include>
@@ -285,14 +284,15 @@
         <include>org.apache.htrace:htrace-core</include>
         <include>org.apache.ivy:ivy</include>
         <include>org.apache.kafka:kafka-clients</include>
-        <include>org.apache.spark:spark-core_2.11</include>
-        <include>org.apache.spark:spark-kvstore_2.11</include>
-        <include>org.apache.spark:spark-launcher_2.11</include>
-        <include>org.apache.spark:spark-network-common_2.11</include>
-        <include>org.apache.spark:spark-network-shuffle_2.11</include>
-        <include>org.apache.spark:spark-streaming_2.11</include>
-        <include>org.apache.spark:spark-tags_2.11</include>
-        <include>org.apache.spark:spark-unsafe_2.11</include>
+        <include>org.apache.logging.log4j:log4j-core</include>
+        <include>org.apache.spark:spark-core_2.12</include>
+        <include>org.apache.spark:spark-kvstore_2.12</include>
+        <include>org.apache.spark:spark-launcher_2.12</include>
+        <include>org.apache.spark:spark-network-common_2.12</include>
+        <include>org.apache.spark:spark-network-shuffle_2.12</include>
+        <include>org.apache.spark:spark-streaming_2.12</include>
+        <include>org.apache.spark:spark-tags_2.12</include>
+        <include>org.apache.spark:spark-unsafe_2.12</include>
         <include>org.apache.xbean:xbean-asm6-shaded</include>
         <include>org.apache.zookeeper:zookeeper</include>
         <include>org.clapper:grizzled-slf4j_2.11</include>

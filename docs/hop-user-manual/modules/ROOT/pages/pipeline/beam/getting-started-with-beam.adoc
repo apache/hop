@@ -16,7 +16,7 @@ under the License.
 ////
 [[GettingStartedWithBeam]]
 :imagesdir: ../assets/images
-:description: Apache Beam is an advanced unified programming model that allows you to implement batch and streaming data processing jobs that run on any execution engine. Popular execution engines are for example Apache Spark, Apache Flink and Google Cloud Platform Dataflow. Apache Hop has run configurations to execute pipelines on all three of these engines over Apache Beam.
+:description: Apache Beam is an advanced unified programming model that allows you to implement and run batch and streaming data processing jobs.
 
 :toc:
 
@@ -44,6 +44,23 @@ Here is the documentation for the relevant plugins:
 * xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]
 * xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Dataflow pipeline engine]
 * xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct pipeline engine]
+
+== What software versions are supported
+
+|===
+|Hop version |Beam version |Spark version |Flink version
+
+|1.0.0
+|2.32.0
+|2.4.8
+|1.11
+
+|1.1.0
+|2.35.0
+|3.1.2
+|1.13
+
+|===
 
 == How are my pipelines executed?
 

@@ -232,6 +232,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       options.setFilesToStage(Arrays.asList(resolve(fatJar)));
     }
 
+    options.setEnableSparkMetricSinks(isSparkEnableSparkMetricSinks());
+
     return options;
   }
 

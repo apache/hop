@@ -21,6 +21,8 @@ under the License.
 
 == Beam Flink
 
+This runner allows you to run Hop pipelines on https://flink.apache.org[Apache Flink] version 1.13.
+
 The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner.
 
 The Flink Runner and Flink are suitable for large scale, continuous jobs, and provide:
