@@ -22,7 +22,7 @@ under the License.
 
 == Beam Spark
 
-The Apache Spark Runner can be used to execute Beam pipelines using Apache Spark.
+The Apache Spark Runner can be used to execute Beam pipelines using Apache Spark version 3.1.
 
 The Spark Runner executes Beam pipelines on top of Apache Spark, providing:
 
@@ -148,3 +148,19 @@ In this case you can set system environment variable `SPARK_LOCAL_IP` to `127.0.
 ----
 export SPARK_LOCAL_IP="127.0.0.1"
 ----
+
+=== Log4j
+
+If you get an error about a missing log4j library please note that we don't ship this Spark dependency because of security concerns and because it is quite old (from 2012).
+
+Example error:
+
+`java.lang.ClassNotFoundException: org.apache.log4j.spi.Filter`
+
+When running on a Spark cluster, the library is included there.  When running embedded we advise you to add the https://repo1.maven.org/maven2/log4j/log4j/1.2.17/log4j-1.2.17.jar[library] manually in the `plugins/engines/beam/lib` folder.
+
+=== Scala
+
+If you get an error about a missing Scala library, you also need to include scala version 2.12 libraries.  You can copy these from a Spark installation `$\{SPARK_HOME\}/jars/scala-*-2.12.10.jar` into `plugins/engines/beam/lib`.
+
+Alternatively, you can use a Direct runner to test your Beam pipeline in embedded mode.
