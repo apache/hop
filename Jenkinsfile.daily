@@ -58,7 +58,7 @@ pipeline {
     stages {
         stage('Initialization') {
               steps {
-                  echo 'Building Branch: ' + env.BRANCH_NAME
+                  echo 'Building Branch: 2.0.0'
                   echo 'Using PATH = ' + env.PATH
                   echo 'Using Jenkins user = ' + jenkins_user
                   echo 'Using Jenkins userid = ' + jenkins_uid
@@ -74,7 +74,7 @@ pipeline {
          }
         stage('Checkout') {
             steps {
-                echo 'Checking out branch ' + env.BRANCH_NAME
+                echo 'Checking out branch 2.0.0'
                 checkout scm
             }
         }
@@ -91,7 +91,7 @@ pipeline {
             steps {
                 echo 'Checking Code Quality on SonarCloud'
                 withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
+                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_hop -Dsonar.branch.name=2.0.0 -Dsonar.login=${SONAR_TOKEN}'
                 }
             }
         }
