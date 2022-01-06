@@ -118,7 +118,13 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-shaded-guava</artifactId>
-            <version>30.1.1-jre-14.0</version>
+            <version>18.0-13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_2.11</artifactId>
+            <version>${flink-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- The Apache Beam dependencies -->

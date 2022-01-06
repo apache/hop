@@ -162,6 +162,11 @@
       <artifactId>guava</artifactId>
       <version>31.0.1-jre</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-shaded-guava</artifactId>
+      <version>18.0-13.0</version>
+    </dependency>
 
     <!-- The Apache Beam dependencies -->
 
@@ -270,6 +275,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-extensions-join-library</artifactId>

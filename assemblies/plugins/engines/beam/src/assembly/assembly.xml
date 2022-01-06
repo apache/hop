@@ -284,7 +284,6 @@
         <include>org.apache.htrace:htrace-core</include>
         <include>org.apache.ivy:ivy</include>
         <include>org.apache.kafka:kafka-clients</include>
-        <include>org.apache.logging.log4j:log4j-core</include>
         <include>org.apache.spark:spark-core_2.12</include>
         <include>org.apache.spark:spark-kvstore_2.12</include>
         <include>org.apache.spark:spark-launcher_2.12</include>
