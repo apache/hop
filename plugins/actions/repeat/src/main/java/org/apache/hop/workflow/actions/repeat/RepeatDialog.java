@@ -90,7 +90,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     this.action = (Repeat) action;
 
     if (this.action.getName() == null) {
-      this.action.setName("Repeat");
+      this.action.setName(BaseMessages.getString(PKG, "Repeat.Name"));
     }
   }
 
@@ -108,7 +108,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText("Repeat");
+    shell.setText(BaseMessages.getString(PKG, "Repeat.Name"));
 
     int middle = props.getMiddlePct();
     int margin = (int) (Const.MARGIN * props.getZoomFactor());
@@ -131,7 +131,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     Control lastControl = wName;
 
     Label wlFilename = new Label(shell, SWT.RIGHT);
-    wlFilename.setText("File to repeat (.hpl or .hwf) ");
+    wlFilename.setText(BaseMessages.getString(PKG, "Repeat.FileToRepeat.Label"));
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -163,7 +163,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastControl = wFilename;
 
     Label wlRunConfiguration = new Label(shell, SWT.RIGHT);
-    wlRunConfiguration.setText("Run configuration"); // TODO i18n
+    wlRunConfiguration.setText(BaseMessages.getString(PKG, "Repeat.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
@@ -181,7 +181,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastControl = wRunConfiguration;
 
     Label wlVariableName = new Label(shell, SWT.RIGHT);
-    wlVariableName.setText("Stop repeating when this variable is set");
+    wlVariableName.setText(BaseMessages.getString(PKG, "Repeat.StopRepeatingVar.Label"));
     props.setLook(wlVariableName);
     FormData fdlVariableName = new FormData();
     fdlVariableName.left = new FormAttachment(0, 0);
@@ -198,7 +198,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastControl = wVariableName;
 
     Label wlVariableValue = new Label(shell, SWT.RIGHT);
-    wlVariableValue.setText("Optional variable value ");
+    wlVariableValue.setText(BaseMessages.getString(PKG, "Repeat.OptionalVarValue.Label"));
     props.setLook(wlVariableValue);
     FormData fdlVariableValue = new FormData();
     fdlVariableValue.left = new FormAttachment(0, 0);
@@ -215,7 +215,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastControl = wVariableValue;
 
     Label wlDelay = new Label(shell, SWT.RIGHT);
-    wlDelay.setText("Delay in seconds ");
+    wlDelay.setText(BaseMessages.getString(PKG, "Repeat.Delay.Label"));
     props.setLook(wlDelay);
     FormData fdlDelay = new FormData();
     fdlDelay.left = new FormAttachment(0, 0);
@@ -232,7 +232,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastControl = wDelay;
 
     Label wlKeepValues = new Label(shell, SWT.RIGHT);
-    wlKeepValues.setText("Keep variable values after executions ");
+    wlKeepValues.setText(BaseMessages.getString(PKG, "Repeat.KeepVariableValues.Label"));
     props.setLook(wlKeepValues);
     FormData fdlKeepValues = new FormData();
     fdlKeepValues.left = new FormAttachment(0, 0);
@@ -250,7 +250,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Group wLogFileGroup = new Group(shell, SWT.SHADOW_NONE);
     props.setLook(wLogFileGroup);
-    wLogFileGroup.setText("Logging file");
+    wLogFileGroup.setText(BaseMessages.getString(PKG, "Repeat.LoggingFileGroup.Label"));
     FormLayout logFileGroupLayout = new FormLayout();
     logFileGroupLayout.marginLeft = Const.MARGIN;
     logFileGroupLayout.marginRight = Const.MARGIN;
@@ -259,7 +259,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wLogFileGroup.setLayout(logFileGroupLayout);
 
     Label wlLogFileEnabled = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileEnabled.setText("Log the execution to a file? ");
+    wlLogFileEnabled.setText(BaseMessages.getString(PKG, "Repeat.LogToFile.Label"));
     props.setLook(wlLogFileEnabled);
     FormData fdlLogFileEnabled = new FormData();
     fdlLogFileEnabled.left = new FormAttachment(0, 0);
@@ -277,7 +277,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     Control lastLogControl = wlLogFileEnabled;
 
     wlLogFileBase = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileBase.setText("The base log file name ");
+    wlLogFileBase.setText(BaseMessages.getString(PKG, "Repeat.BaseLogFilename.Label"));
     props.setLook(wlLogFileBase);
     FormData fdlLogFileBase = new FormData();
     fdlLogFileBase.left = new FormAttachment(0, 0);
@@ -294,7 +294,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wLogFileBase;
 
     wlLogFileExtension = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileExtension.setText("The log file extension ");
+    wlLogFileExtension.setText(BaseMessages.getString(PKG, "Repeat.LogFilenameExt.Label"));
     props.setLook(wlLogFileExtension);
     FormData fdlLogFileExtension = new FormData();
     fdlLogFileExtension.left = new FormAttachment(0, 0);
@@ -311,7 +311,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wLogFileExtension;
 
     wlLogFileDateAdded = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileDateAdded.setText("Add the date to the filename? ");
+    wlLogFileDateAdded.setText(BaseMessages.getString(PKG, "Repeat.AddDateToFilename.Label"));
     props.setLook(wlLogFileDateAdded);
     FormData fdlLogFileDateAdded = new FormData();
     fdlLogFileDateAdded.left = new FormAttachment(0, 0);
@@ -328,7 +328,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileDateAdded;
 
     wlLogFileTimeAdded = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileTimeAdded.setText("Add the time to the filename? ");
+    wlLogFileTimeAdded.setText(BaseMessages.getString(PKG, "Repeat.AddTimeToFilename.Label"));
     props.setLook(wlLogFileTimeAdded);
     FormData fdlLogFileTimeAdded = new FormData();
     fdlLogFileTimeAdded.left = new FormAttachment(0, 0);
@@ -345,7 +345,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileTimeAdded;
 
     wlLogFileRepetitionAdded = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileRepetitionAdded.setText("Add the repetition number to the filename? ");
+    wlLogFileRepetitionAdded.setText(BaseMessages.getString(PKG, "Repeat.AddReptNumToFilename.Label"));
     props.setLook(wlLogFileRepetitionAdded);
     FormData fdlLogFileRepetitionAdded = new FormData();
     fdlLogFileRepetitionAdded.left = new FormAttachment(0, 0);
@@ -379,7 +379,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileAppended;
 
     wlLogFileUpdateInterval = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileUpdateInterval.setText("The log file update interval in ms ");
+    wlLogFileUpdateInterval.setText(BaseMessages.getString(PKG, "Repeat.AppendToExistingFile.Label"));
     props.setLook(wlLogFileUpdateInterval);
     FormData fdlLogFileUpdateInterval = new FormData();
     fdlLogFileUpdateInterval.left = new FormAttachment(0, 0);
@@ -407,7 +407,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     // Parameters
     //
     Label wlParameters = new Label(shell, SWT.LEFT);
-    wlParameters.setText("Parameters/Variables to set: ");
+    wlParameters.setText(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Label"));
     props.setLook(wlParameters);
     FormData fdlParameters = new FormData();
     fdlParameters.left = new FormAttachment(0, 0);
@@ -437,8 +437,8 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     ColumnInfo[] columnInfos =
         new ColumnInfo[] {
-          new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo("Value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Name.Column.Header"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Value.Column.Header"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
         };
     columnInfos[1].setUsingVariables(true);
 
@@ -582,8 +582,8 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
   private void ok() {
     if (Utils.isEmpty(wName.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText("Warning");
-      mb.setMessage("The name of the action is missing!");
+      mb.setText(BaseMessages.getString(PKG, "Repeat.Dialog.ActionMissing.Header"));
+      mb.setMessage(BaseMessages.getString(PKG, "Repeat.Dialog.ActionMissing.Message"));
       mb.open();
       return;
     }
