@@ -136,18 +136,18 @@ then
   HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --system-properties=${HOP_SYSTEM_PROPERTIES}"
 fi
 
-# If a project name is defined we assume that we want to create it in the container
+# If a project folder is defined we assume that we want to create it in the container
 #
-if [ ! -z "${HOP_PROJECT_NAME}" ]
+if [ ! -z "${HOP_PROJECT_FOLDER}" ]
 then
   # We need the project folder to be set...
   #
-  if [ -z "${HOP_PROJECT_FOLDER}" ]
+  if [ -z "${HOP_PROJECT_NAME}" ]
   then
-    log "Error: please set variable HOP_PROJECT_FOLDER to create project ${HOP_PROJECT_NAME}"
+    log "Error: please set variable HOP_PROJECT_NAME to create a project"
     exitWithCode 9;
   else
-    log "The project folder is set to: ${HOP_PROJECT_FOLDER}"
+    log "The project folder for ${PROJECT_NAME} is set to: ${HOP_PROJECT_FOLDER}"
   fi
 
   # The project folder should exist
@@ -171,11 +171,18 @@ then
 
   HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --project=${HOP_PROJECT_NAME}"
 
-  # If we also have a the environment we want to create that as well...
+  # If we have environment files specified we want to create an environment as well:
   #
-  if [ ! -z "${HOP_ENVIRONMENT_NAME}" ]
+  if [ ! -z "${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}" ]
   then
-    log "Registering environment config with Hop"
+
+     if [ -z "${HOP_ENVIRONMENT_NAME}" ]
+      then
+        log "Error: please set variable HOP_ENVIRONMENT_NAME to create an environment"
+        exitWithCode 9;
+      else
+
+    log "Registering environment ${HOP_ENVIRONMENT_NAME} in the Hop configuration"
     log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
 
     ${DEPLOYMENT_PATH}/hop/hop-conf.sh \
