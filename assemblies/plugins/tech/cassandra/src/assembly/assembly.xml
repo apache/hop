@@ -78,7 +78,6 @@
                 <include>org.antlr:ST4:jar</include>
                 <include>org.apache.cassandra:cassandra-all:jar</include>
                 <include>org.apache.cassandra:cassandra-thrift:jar</include>
-                <include>org.apache.commons:commons-math3:jar</include>
                 <include>org.apache.thrift:libthrift:jar</include>
                 <include>org.caffinitas.ohc:ohc-core-j8:jar</include>
                 <include>org.caffinitas.ohc:ohc-core:jar</include>
