@@ -150,8 +150,26 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                               + database.getDatabaseMeta().getName(),
                           e);
                     } finally {
-                      // Close connection always!
-                      database.closeConnectionOnly();
+                      // Always close connection!
+                      try {
+                        database.closeConnectionOnly();
+                        pipeline
+                            .getLogChannel()
+                            .logDebug(
+                                "Database connection '"
+                                    + database.getDatabaseMeta().getName()
+                                    + "' closed successfully!");
+                      } catch (HopDatabaseException ignoredKde) {
+                        // The only exception thrown from closeConnectionOnly()
+                        // cannot do anything about this but log it
+                        pipeline
+                            .getLogChannel()
+                            .logError(
+                                "Error disconnecting from database - closeConnectionOnly failed:"
+                                    + Const.CR
+                                    + ignoredKde.getMessage());
+                        pipeline.getLogChannel().logError(Const.getStackTracker(ignoredKde));
+                      }
                     }
                   } else {
                     try {
@@ -168,8 +186,26 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                               + database.getDatabaseMeta().getName(),
                           e);
                     } finally {
-                      // Close connection always!
-                      database.closeConnectionOnly();
+                      // Always close connection!
+                      try {
+                        database.closeConnectionOnly();
+                        pipeline
+                            .getLogChannel()
+                            .logDebug(
+                                "Database connection '"
+                                    + database.getDatabaseMeta().getName()
+                                    + "' closed successfully!");
+                      } catch (HopDatabaseException ignoredKde) {
+                        // The only exception thrown from closeConnectionOnly()
+                        // cannot do anything about this but log it
+                        pipeline
+                            .getLogChannel()
+                            .logError(
+                                "Error disconnecting from database - closeConnectionOnly failed:"
+                                    + Const.CR
+                                    + ignoredKde.getMessage());
+                        pipeline.getLogChannel().logError(Const.getStackTracker(ignoredKde));
+                      }
                     }
                   }
                 }

@@ -135,8 +135,26 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                           e);
                   result.setNrErrors(result.getNrErrors() + 1);
                 } finally {
-                  // Close connection always!
-                  database.closeConnectionOnly();
+                  // Always close connection!
+                  try {
+                    database.closeConnectionOnly();
+                    workflow
+                        .getLogChannel()
+                        .logDebug(
+                            "Database connection '"
+                                + database.getDatabaseMeta().getName()
+                                + "' closed successfully!");
+                  } catch (HopDatabaseException ignoredKde) {
+                    // The only exception thrown from closeConnectionOnly()
+                    // cannot do anything about this but log it
+                    workflow
+                        .getLogChannel()
+                        .logError(
+                            "Error disconnecting from database - closeConnectionOnly failed:"
+                                + Const.CR
+                                + ignoredKde.getMessage());
+                    workflow.getLogChannel().logError(Const.getStackTracker(ignoredKde));
+                  }
                 }
               } else {
                 // Error? Rollback!
@@ -157,8 +175,26 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                           e);
                   result.setNrErrors(result.getNrErrors() + 1);
                 } finally {
-                  // Close connection always!
-                  database.closeConnectionOnly();
+                  // Always close connection!
+                  try {
+                    database.closeConnectionOnly();
+                    workflow
+                        .getLogChannel()
+                        .logDebug(
+                            "Database connection '"
+                                + database.getDatabaseMeta().getName()
+                                + "' closed successfully!");
+                  } catch (HopDatabaseException ignoredKde) {
+                    // The only exception thrown from closeConnectionOnly()
+                    // cannot do anything about this but log it
+                    workflow
+                        .getLogChannel()
+                        .logError(
+                            "Error disconnecting from database - closeConnectionOnly failed:"
+                                + Const.CR
+                                + ignoredKde.getMessage());
+                    workflow.getLogChannel().logError(Const.getStackTracker(ignoredKde));
+                  }
                 }
               }
             }
