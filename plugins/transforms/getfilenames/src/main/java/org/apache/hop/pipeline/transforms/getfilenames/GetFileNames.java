@@ -279,7 +279,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
         putRow(data.outputRowMeta, outputRow);
 
         if (meta.getRowLimit() > 0
-            && data.rownr == meta.getRowLimit()) { // limit has been reached: stop now.
+            && data.rownr >= meta.getRowLimit()) { // limit has been reached: stop now.
           setOutputDone();
           return false;
         }
