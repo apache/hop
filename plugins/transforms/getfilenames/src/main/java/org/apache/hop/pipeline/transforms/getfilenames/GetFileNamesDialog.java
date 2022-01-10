@@ -916,9 +916,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void activateFileField() {
-    if (wFileField.getSelection()) {
-      wLimit.setText("0");
-    }
+
     wlFilenameField.setEnabled(wFileField.getSelection());
     wFilenameField.setEnabled(wFileField.getSelection());
     wlWildcardField.setEnabled(wFileField.getSelection());
@@ -972,14 +970,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
       for (int i = 0; i < meta.getFilesList().size(); i++) {
         FileItem fi = meta.getFilesList().get(i);
-        if (!Utils.isEmpty(fi.getFileName())) {
-          wFilenameList.setText(fi.getFileName(), 1, i);
-          if (!Utils.isEmpty(fi.getFileMask())) wFilenameList.setText(fi.getFileMask(), 2, i);
-          if (!Utils.isEmpty(fi.getExcludeFileMask()))
-            wFilenameList.setText(fi.getExcludeFileMask(), 3, i);
-          wFilenameList.setText(fi.getFileRequired(), 4, i);
-          wFilenameList.setText(fi.getIncludeSubFolders(), 5, i);
-        }
+        wFilenameList.add(fi.getFileName(), fi.getFileMask(), fi.getExcludeFileMask(), fi.getFileRequired(), fi.getIncludeSubFolders());
       }
     }
 
