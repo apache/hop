@@ -401,7 +401,8 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     getInfo(input, false);
 
-    if (input.getConnection() == null) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.SelectValidConnection"));
       mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
