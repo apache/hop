@@ -134,6 +134,9 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                               + database.getDatabaseMeta().getName(),
                           e);
                   result.setNrErrors(result.getNrErrors() + 1);
+                } finally {
+                  // Close connection always!
+                  database.closeConnectionOnly();
                 }
               } else {
                 // Error? Rollback!
@@ -153,6 +156,9 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                               + database.getDatabaseMeta().getName(),
                           e);
                   result.setNrErrors(result.getNrErrors() + 1);
+                } finally {
+                  // Close connection always!
+                  database.closeConnectionOnly();
                 }
               }
             }

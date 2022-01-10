@@ -149,6 +149,9 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                           "Error committing database connection "
                               + database.getDatabaseMeta().getName(),
                           e);
+                    } finally {
+                      // Close connection always!
+                      database.closeConnectionOnly();
                     }
                   } else {
                     try {
@@ -164,6 +167,9 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                           "Error rolling back database connection "
                               + database.getDatabaseMeta().getName(),
                           e);
+                    } finally {
+                      // Close connection always!
+                      database.closeConnectionOnly();
                     }
                   }
                 }
