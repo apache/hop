@@ -16,7 +16,7 @@ under the License.
 ////
 [[BeamDataFlowPipelineEngine]]
 :imagesdir: ../assets/images
-:description: Apache Hop supports running pipelines on Google Cloud Dataflow over Apache Beam. Google Cloud Dataflow is a fully managed service for executing Apache Beam pipelines within the Google Cloud Platform ecosystem. As a managed Google Cloud service, it provisions worker nodes and out of the box optimization.
+:description: Apache Hop supports running pipelines on GCP Dataflow over Apache Beam. GCP Dataflow is a fully managed service for executing Beam pipelines.
 
 = Apache Beam Google DataFlow Pipeline Engine
 
@@ -52,8 +52,14 @@ You may need to enable additional APIs (such as BigQuery, Cloud Pub/Sub, or Clou
 [width="90%",options="header",cols="1, 3"]
 |===
 |Option|Description
-|Project ID|    The project ID for your Google Cloud Project.
+
+|Project ID
+|The project ID for your Google Cloud Project.
 This is required if you want to run your pipeline using the Dataflow managed service.
+
+|Service Account
+|With this option you can run the pipeline dataflow job with a specific service account, instead of the default GCE robot.  The default is to leave this blank.
+
 |Application name|The name of the Dataflow job being executed as it appears in Dataflow's jobs list and job details.
 Also used when updating an existing pipeline.
 |Staging location|Cloud Storage path for staging local files.

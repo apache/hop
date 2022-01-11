@@ -35,6 +35,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @GuiPlugin
 public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfiguration
@@ -47,6 +48,15 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       label = "Project ID")
   @HopMetadataProperty
   private String gcpProjectId;
+
+  @GuiWidgetElement(
+      order = "20005-dataflow-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "Run the job as a specific service account, instead of the default GCE robot",
+      label = "Service account")
+  @HopMetadataProperty
+  private String gcpServiceAccount;
 
   @GuiWidgetElement(
       order = "20010-dataflow-options",
@@ -175,6 +185,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   public BeamDataFlowPipelineRunConfiguration(BeamDataFlowPipelineRunConfiguration config) {
     super(config);
     this.gcpProjectId = config.gcpProjectId;
+    this.gcpServiceAccount = config.gcpServiceAccount;
     this.gcpAppName = config.gcpAppName;
     this.gcpStagingLocation = config.gcpStagingLocation;
     this.gcpInitialNumberOfWorkers = config.gcpInitialNumberOfWorkers;
@@ -207,12 +218,18 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     options.setProject(resolve(getGcpProjectId()));
     options.setAppName(resolve(getGcpAppName()));
     options.setStagingLocation(resolve(getGcpStagingLocation()));
+
+    if (StringUtils.isNotEmpty(getGcpServiceAccount())) {
+      options.setServiceAccount(resolve(getGcpServiceAccount()));
+    }
+
     if (StringUtils.isNotEmpty(getGcpInitialNumberOfWorkers())) {
       int numWorkers = Const.toInt(resolve(getGcpInitialNumberOfWorkers()), -1);
       if (numWorkers >= 0) {
         options.setNumWorkers(numWorkers);
       }
     }
+
     if (StringUtils.isNotEmpty(getGcpMaximumNumberOfWorkers())) {
       int numWorkers = Const.toInt(resolve(getGcpMaximumNumberOfWorkers()), -1);
       if (numWorkers >= 0) {
@@ -268,7 +285,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     options.setUsePublicIps(isGcpUsingPublicIps());
 
     if (StringUtils.isNotEmpty(getFatJar())) {
-      options.setFilesToStage(Arrays.asList(resolve(fatJar)));
+      options.setFilesToStage(Collections.singletonList(resolve(fatJar)));
     }
 
     return options;
@@ -291,6 +308,22 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   /** @param gcpProjectId The gcpProjectId to set */
   public void setGcpProjectId(String gcpProjectId) {
     this.gcpProjectId = gcpProjectId;
+  }
+
+
+  /**
+   * Gets the GCP service account
+   * @return value of gcpServiceAccount
+   */
+  public String getGcpServiceAccount() {
+    return gcpServiceAccount;
+  }
+
+  /**
+   * @param gcpServiceAccount The GCP service account to set
+   */
+  public void setGcpServiceAccount(String gcpServiceAccount) {
+    this.gcpServiceAccount = gcpServiceAccount;
   }
 
   /**
