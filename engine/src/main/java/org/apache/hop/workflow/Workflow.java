@@ -386,7 +386,15 @@ public abstract class Workflow extends Variables
         //
 
         boolean isFirst = true;
-        Result inputRes = new Result();
+
+        // Use a result obj coming from input otherwise init an empty Result object
+        Result inputRes = null;
+        if (result != null) {
+          inputRes = result;
+        } else {
+          inputRes = new Result();
+        }
+
         // Perhaps there is already a list of input rows available?
         if (getSourceRows() != null) {
           inputRes.setRows(getSourceRows());
