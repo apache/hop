@@ -50,8 +50,8 @@ import java.util.*;
 
 @Action(
     id = "Repeat",
-    name = "i18n::Repeat.name",
-    description = "i18n::Repeat.description",
+    name = "i18n::Repeat.Name",
+    description = "i18n::Repeat.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     keywords = "i18n::Repeat.keywords",
     image = "repeat.svg",

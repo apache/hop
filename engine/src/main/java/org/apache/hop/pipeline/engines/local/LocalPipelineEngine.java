@@ -135,35 +135,56 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                 for (Database database : databases) {
                   // All fine?  Commit!
                   //
-                  if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
-                    try {
-                      database.commit(true);
-                      pipeline
-                          .getLogChannel()
-                          .logBasic(
-                              "All transactions of database connection '"
-                                  + database.getDatabaseMeta().getName()
-                                  + "' were committed at the end of the pipeline!");
-                    } catch (HopDatabaseException e) {
-                      throw new HopException(
-                          "Error committing database connection "
-                              + database.getDatabaseMeta().getName(),
-                          e);
+                  try {
+                    if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
+                      try {
+                        database.commit(true);
+                        pipeline
+                            .getLogChannel()
+                            .logBasic(
+                                "All transactions of database connection '"
+                                    + database.getDatabaseMeta().getName()
+                                    + "' were committed at the end of the pipeline!");
+                      } catch (HopDatabaseException e) {
+                        throw new HopException(
+                            "Error committing database connection "
+                                + database.getDatabaseMeta().getName(),
+                            e);
+                      }
+                    } else {
+                      try {
+                        database.rollback(true);
+                        pipeline
+                            .getLogChannel()
+                            .logBasic(
+                                "All transactions of database connection '"
+                                    + database.getDatabaseMeta().getName()
+                                    + "' were rolled back at the end of the pipeline!");
+                      } catch (HopDatabaseException e) {
+                        throw new HopException(
+                            "Error rolling back database connection "
+                                + database.getDatabaseMeta().getName(),
+                            e);
+                      }
                     }
-                  } else {
+                  } finally {
+                    // Always close connection!
                     try {
-                      database.rollback(true);
+                      database.closeConnectionOnly();
                       pipeline
                           .getLogChannel()
-                          .logBasic(
-                              "All transactions of database connection '"
+                          .logDebug(
+                              "Database connection '"
                                   + database.getDatabaseMeta().getName()
-                                  + "' were rolled back at the end of the pipeline!");
-                    } catch (HopDatabaseException e) {
-                      throw new HopException(
-                          "Error rolling back database connection "
-                              + database.getDatabaseMeta().getName(),
-                          e);
+                                  + "' closed successfully!");
+                    } catch (HopDatabaseException hde) {
+                      pipeline
+                          .getLogChannel()
+                          .logError(
+                              "Error disconnecting from database - closeConnectionOnly failed:"
+                                  + Const.CR
+                                  + hde.getMessage());
+                      pipeline.getLogChannel().logError(Const.getStackTracker(hde));
                     }
                   }
                 }

@@ -28,7 +28,7 @@ services:
       - hop_server
 
   hop_server:
-    image: apache/incubator-hop:Development
+    image: apache/hop:Development
     hostname: hop-server
     ports:
       - "8181"

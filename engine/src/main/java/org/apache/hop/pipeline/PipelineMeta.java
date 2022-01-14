@@ -1207,6 +1207,12 @@ public class PipelineMeta extends AbstractMeta
       //
       row = getPrevTransformFields(variables, transformMeta);
 
+      // Check if row object is null that means the transform could be an input transform. In this case, get fields
+      // out from transform itself
+      if (row.isEmpty()) {
+        row = getThisTransformFields(variables, transformMeta, targetTransform, row, monitor);
+      }
+
       // Add to this the error fields...
       TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();
       row.addRowMeta(transformErrorMeta.getErrorRowMeta(variables));

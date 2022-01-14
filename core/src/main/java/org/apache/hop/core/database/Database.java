@@ -512,13 +512,12 @@ public class Database implements IVariables, ILoggingObject {
       try {
         closeConnectionOnly();
       } catch (
-          HopDatabaseException ignoredKde) { // The only exception thrown from closeConnectionOnly()
-        // cannot do anything about this but log it
+          HopDatabaseException hde) {
         log.logError(
             "Error disconnecting from database - closeConnectionOnly failed:"
                 + Const.CR
-                + ignoredKde.getMessage());
-        log.logError(Const.getStackTracker(ignoredKde));
+                + hde.getMessage());
+        log.logError(Const.getStackTracker(hde));
       }
     }
   }

@@ -32,14 +32,14 @@ ENV HOP_LOG_PATH=$DEPLOYMENT_PATH/hop.err.log
 # path to jdbc drivers
 ENV HOP_SHARED_JDBC_FOLDER=
 # name of the Hop project to use
-ENV HOP_PROJECT_NAME=
+ENV HOP_PROJECT_NAME=project1
 # path to the home of the Hop project..
 ENV HOP_PROJECT_DIRECTORY=
 ENV HOP_PROJECT_FOLDER=
 # name of the project config file including file extension
 ENV HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
 # environment to use with hop run
-ENV HOP_ENVIRONMENT_NAME=
+ENV HOP_ENVIRONMENT_NAME=environment1
 # comma separated list of paths to environment config files (including filename and file extension).
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
 # hop run configuration to use

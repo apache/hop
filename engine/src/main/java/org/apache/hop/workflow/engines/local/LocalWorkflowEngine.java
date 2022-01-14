@@ -117,42 +117,63 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
             for (Database database : databases) {
               // All fine?  Commit!
               //
-              if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
-                try {
-                  database.commit(true);
-                  workflow
-                      .getLogChannel()
-                      .logBasic(
-                          "All transactions of database connection '"
-                              + database.getDatabaseMeta().getName()
-                              + "' were committed at the end of the workflow!");
-                } catch (HopDatabaseException e) {
-                  workflow
-                      .getLogChannel()
-                      .logError(
-                          "Error committing database connection "
-                              + database.getDatabaseMeta().getName(),
-                          e);
-                  result.setNrErrors(result.getNrErrors() + 1);
+              try {
+                if (result.getResult() && !result.isStopped() && result.getNrErrors() == 0) {
+                  try {
+                    database.commit(true);
+                    workflow
+                        .getLogChannel()
+                        .logBasic(
+                            "All transactions of database connection '"
+                                + database.getDatabaseMeta().getName()
+                                + "' were committed at the end of the workflow!");
+                  } catch (HopDatabaseException e) {
+                    workflow
+                        .getLogChannel()
+                        .logError(
+                            "Error committing database connection "
+                                + database.getDatabaseMeta().getName(),
+                            e);
+                    result.setNrErrors(result.getNrErrors() + 1);
+                  }
+                } else {
+                  // Error? Rollback!
+                  try {
+                    database.rollback(true);
+                    workflow
+                        .getLogChannel()
+                        .logBasic(
+                            "All transactions of database connection '"
+                                + database.getDatabaseMeta().getName()
+                                + "' were rolled back at the end of the workflow!");
+                  } catch (HopDatabaseException e) {
+                    workflow
+                        .getLogChannel()
+                        .logError(
+                            "Error rolling back database connection "
+                                + database.getDatabaseMeta().getName(),
+                            e);
+                    result.setNrErrors(result.getNrErrors() + 1);
+                  }
                 }
-              } else {
-                // Error? Rollback!
+              } finally {
+                // Always close connection!
                 try {
-                  database.rollback(true);
+                  database.closeConnectionOnly();
                   workflow
                       .getLogChannel()
-                      .logBasic(
-                          "All transactions of database connection '"
+                      .logDebug(
+                          "Database connection '"
                               + database.getDatabaseMeta().getName()
-                              + "' were rolled back at the end of the workflow!");
-                } catch (HopDatabaseException e) {
-                  workflow
+                              + "' closed successfully!");
+                } catch (HopDatabaseException hde) {
+                   workflow
                       .getLogChannel()
                       .logError(
-                          "Error rolling back database connection "
-                              + database.getDatabaseMeta().getName(),
-                          e);
-                  result.setNrErrors(result.getNrErrors() + 1);
+                          "Error disconnecting from database - closeConnectionOnly failed:"
+                              + Const.CR
+                              + hde.getMessage());
+                  workflow.getLogChannel().logError(Const.getStackTracker(hde));
                 }
               }
             }

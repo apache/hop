@@ -30,20 +30,33 @@ import java.util.List;
 
 public class SingleThreadedPipelineExecutor {
 
-  private final List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
+  private List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
   private Pipeline pipeline;
   private boolean[] done;
   private int nrDone;
+  private int exceptionsRaisedCounter;
+  private boolean handleExceptionsExternally;
+  private TransformMetaDataCombi inProcessCombi;
   private List<List<IStream>> transformInfoStreams;
   private List<List<IRowSet>> transformInfoRowSets;
   private ILogChannel log;
   private Class<?> PKG = SingleThreadedPipelineExecutor.class;
 
-  public SingleThreadedPipelineExecutor(final Pipeline pipeline) {
-    this.pipeline = pipeline;
-    this.log = pipeline.getLogChannel();
+  public SingleThreadedPipelineExecutor(Pipeline pipeline) {
+    initializeObject(pipeline, false);
+  }
 
+  public SingleThreadedPipelineExecutor(Pipeline pipeline, boolean handleExceptionsExternally) {
+    initializeObject(pipeline, handleExceptionsExternally);
+  }
+
+  public void initializeObject(final Pipeline pipeline, boolean handleExceptionsExternally ) {
+
+    this.pipeline = pipeline;
+    this.handleExceptionsExternally = handleExceptionsExternally;
+    this.log = pipeline.getLogChannel();
     transforms = pipeline.getTransforms();
+
 
     sortTransforms();
 
@@ -54,12 +67,12 @@ public class SingleThreadedPipelineExecutor {
     transformInfoRowSets = new ArrayList<>();
     for (TransformMetaDataCombi combi : transforms) {
       List<IStream> infoStreams =
-          combi.transformMeta.getTransform().getTransformIOMeta().getInfoStreams();
+              combi.transformMeta.getTransform().getTransformIOMeta().getInfoStreams();
       transformInfoStreams.add(infoStreams);
       List<IRowSet> infoRowSets = new ArrayList<>();
       for (IStream infoStream : infoStreams) {
         IRowSet infoRowSet =
-            pipeline.findRowSet(infoStream.getTransformName(), 0, combi.transformName, 0);
+                pipeline.findRowSet(infoStream.getTransformName(), 0, combi.transformName, 0);
         if (infoRowSet != null) {
           infoRowSets.add(infoRowSet);
         }
@@ -285,83 +298,95 @@ public class SingleThreadedPipelineExecutor {
    */
   public boolean oneIteration() throws HopException {
 
-    for (int s = 0; s < transforms.size() && !pipeline.isStopped(); s++) {
-      if (!done[s]) {
+    this.exceptionsRaisedCounter = 0;
 
-        TransformMetaDataCombi combi = transforms.get(s);
+    try {
+      for (int s = 0; s < transforms.size() && !pipeline.isStopped(); s++) {
+        if (!done[s]) {
 
-        // If this transform is waiting for data (text, db, and so on), we simply read all the data
-        // This means that it is impractical to use this pipeline type to load large files.
-        //
-        boolean transformDone = false;
-        // For every input row we call the processRow() method of the transform.
-        //
-        List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
+          TransformMetaDataCombi combi = transforms.get(s);
+          this.inProcessCombi = combi;
 
-        // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform and so
-        // on.
-        //
-        for (IRowSet rowSet : infoRowSets) {
-          boolean once = true;
-          while (once || (rowSet.size() > 0 && !transformDone)) {
-            once = false;
-            transformDone = !combi.transform.processRow();
-            if (combi.transform.getErrors() > 0) {
-              return false;
-            }
-          }
-        }
-
-        // Do normal processing of input rows...
-        //
-        List<IRowSet> rowSets = combi.transform.getInputRowSets();
-
-        // If there are no input row sets, we read all rows until finish.
-        // This applies to transforms like "Table Input", "Text File Input" and so on.
-        // If they do have an input row set, to get filenames or other parameters,
-        // we need to handle this in the batchComplete() methods.
-        //
-        if (rowSets.size() == 0) {
-          while (!transformDone && !pipeline.isStopped()) {
-            transformDone = !combi.transform.processRow();
-            if (combi.transform.getErrors() > 0) {
-              return false;
-            }
-          }
-        } else {
-          // Since we can't be sure that the transform actually reads from the row sets where we
-          // measure rows,
-          // we simply count the total nr of rows on input. The transforms will find the rows in
-          // either row set.
+          // If this transform is waiting for data (text, db, and so on), we simply read all the
+          // data
+          // This means that it is impractical to use this pipeline type to load large files.
           //
-          int nrRows = 0;
-          for (IRowSet rowSet : rowSets) {
-            nrRows += rowSet.size();
-          }
-
-          // Now do the number of processRows() calls.
+          boolean transformDone = false;
+          // For every input row we call the processRow() method of the transform.
           //
-          for (int i = 0; i < nrRows; i++) {
-            transformDone = !combi.transform.processRow();
-            if (combi.transform.getErrors() > 0) {
-              return false;
+          List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
+
+          // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform and
+          // so
+          // on.
+          //
+          for (IRowSet rowSet : infoRowSets) {
+            boolean once = true;
+            while (once || (rowSet.size() > 0 && !transformDone)) {
+              once = false;
+              transformDone = !combi.transform.processRow();
+              if (combi.transform.getErrors() > 0) {
+                return false;
+              }
             }
           }
+
+          // Do normal processing of input rows...
+          //
+          List<IRowSet> rowSets = combi.transform.getInputRowSets();
+
+          // If there are no input row sets, we read all rows until finish.
+          // This applies to transforms like "Table Input", "Text File Input" and so on.
+          // If they do have an input row set, to get filenames or other parameters,
+          // we need to handle this in the batchComplete() methods.
+          //
+          if (rowSets.size() == 0) {
+            while (!transformDone && !pipeline.isStopped()) {
+              transformDone = !combi.transform.processRow();
+              if (combi.transform.getErrors() > 0) {
+                return false;
+              }
+            }
+          } else {
+            // Since we can't be sure that the transform actually reads from the row sets where we
+            // measure rows,
+            // we simply count the total nr of rows on input. The transforms will find the rows in
+            // either row set.
+            //
+            int nrRows = 0;
+            for (IRowSet rowSet : rowSets) {
+              nrRows += rowSet.size();
+            }
+
+            // Now do the number of processRows() calls.
+            //
+            for (int i = 0; i < nrRows; i++) {
+              transformDone = !combi.transform.processRow();
+              if (combi.transform.getErrors() > 0) {
+                return false;
+              }
+            }
+          }
+
+          // Signal the transform that a batch of rows has passed for this iteration (sort rows and
+          // all)
+          //
+          combi.transform.batchComplete();
+
+          if (transformDone) {
+            nrDone++;
+          }
+
+          done[s] = transformDone;
         }
-
-        // Signal the transform that a batch of rows has passed for this iteration (sort rows and
-        // all)
-        //
-        combi.transform.batchComplete();
-
-        if (transformDone) {
-          nrDone++;
-        }
-
-        done[s] = transformDone;
       }
+    } catch (Exception e) {
+      if (handleExceptionsExternally) {
+        log.logDebug("An exception was raised during a transform's execution: " + inProcessCombi.transformName);
+        this.exceptionsRaisedCounter += 1;
+      } else
+        throw new HopException();
     }
-
     return nrDone < transforms.size() && !pipeline.isStopped();
   }
 
@@ -422,7 +447,7 @@ public class SingleThreadedPipelineExecutor {
   }
 
   public long getErrors() {
-    return pipeline.getErrors();
+    return pipeline.getErrors() + this.exceptionsRaisedCounter;
   }
 
   public Result getResult() {

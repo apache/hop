@@ -69,7 +69,7 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText("End Repeat");
+    shell.setText(BaseMessages.getString(PKG, "EndRepeat.Name"));
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -122,8 +122,8 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
   public void ok() {
     if (Utils.isEmpty(wName.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText("Warning");
-      mb.setMessage("The name of the workflow entry is missing!");
+      mb.setText(BaseMessages.getString("EndRepeat.Dialog.ActionMissing.Header"));
+      mb.setMessage(BaseMessages.getString("EndRepeat.Dialog.ActionMissing.Message"));
       mb.open();
       return;
     }

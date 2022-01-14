@@ -287,12 +287,13 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
   @Override
   public PipelineOptions getPipelineOptions() throws HopException {
+    try {
     FlinkPipelineOptions options = PipelineOptionsFactory.as(FlinkPipelineOptions.class);
 
     // Address of the Flink Master where the Pipeline should be executed. Can either be of the form
     // \"host:port\" or one of the special values [local], [collection] or [auto].")
     if (StringUtils.isNotEmpty(getFlinkMaster())) {
-      options.setFlinkMaster(resolve(options.getFlinkMaster()));
+      options.setFlinkMaster(resolve(getFlinkMaster()));
     }
 
     // The degree of parallelism to be used when distributing operations onto workers. If the
@@ -318,9 +319,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       String modeString = resolve(getFlinkCheckpointingMode());
       try {
         CheckpointingMode mode = CheckpointingMode.valueOf(modeString);
-        if (mode != null) {
-          options.setCheckpointingMode(modeString);
-        }
+        options.setCheckpointingMode(modeString);
       } catch (Exception e) {
         throw new HopException("Unable to parse flink check pointing mode '" + modeString + "'", e);
       }
@@ -458,6 +457,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     }
 
     return options;
+    } catch(Throwable e) {
+      throw new HopException("Error building Flink pipeline options", e);
+    }
   }
 
   @Override

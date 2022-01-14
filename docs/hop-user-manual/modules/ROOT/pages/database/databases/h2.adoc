@@ -25,7 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 1.4.200
+|Version Included | 2.0.206
 |Hop Dependencies | None
 |Documentation | https://jdbc.postgresql.org/documentation/head/index.html[Documentation Link]
 |JDBC Url | jdbc:h2:[file:][<path>]<databaseName>
