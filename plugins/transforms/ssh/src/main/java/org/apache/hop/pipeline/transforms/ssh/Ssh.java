@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.ssh;
 
 import com.trilead.ssh2.Session;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -31,13 +30,13 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Write commands to SSH * */
-public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
-  private static final Class<?> PKG = SSHMeta.class; // For Translator
+public class Ssh extends BaseTransform<SshMeta, SshData> implements ITransform<SshMeta, SshData> {
+  private static final Class<?> PKG = SshMeta.class; // For Translator
 
-  public SSH(
+  public Ssh(
       TransformMeta transformMeta,
-      SSHMeta meta,
-      SSHData data,
+      SshMeta meta,
+      SshData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
@@ -48,7 +47,7 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
   public boolean processRow() throws HopException {
 
     Object[] row;
-    if (meta.isDynamicCommand()) {
+    if (meta.isDynamicCommandField()) {
       row = getRow();
       if (row == null) {
         setOutputDone();
@@ -62,17 +61,17 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
         data.nrOutputFields = data.outputRowMeta.size();
 
         // Check if commands field is provided
-        if (meta.isDynamicCommand()) {
-          if (Utils.isEmpty(meta.getcommandfieldname())) {
+        if (meta.isDynamicCommandField()) {
+          if (Utils.isEmpty(meta.getCommandFieldName())) {
             throw new HopException(BaseMessages.getString(PKG, "SSH.Error.CommandFieldMissing"));
           }
           // cache the position of the source filename field
-          data.indexOfCommand = data.outputRowMeta.indexOfValue(meta.getcommandfieldname());
+          data.indexOfCommand = data.outputRowMeta.indexOfValue(meta.getCommandFieldName());
           if (data.indexOfCommand < 0) {
             // The field is unreachable !
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "SSH.Exception.CouldnotFindField", meta.getcommandfieldname()));
+                    PKG, "SSH.Exception.CouldNotFindField", meta.getCommandFieldName()));
           }
         }
       }
@@ -110,7 +109,7 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
 
     Session session = null;
     try {
-      if (meta.isDynamicCommand()) {
+      if (meta.isDynamicCommandField()) {
         // get commands
         data.commands = data.outputRowMeta.getString(row, data.indexOfCommand);
         if (Utils.isEmpty(data.commands)) {
@@ -136,7 +135,7 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
         logDebug(
             BaseMessages.getString(
                 PKG,
-                "SSH.Log.CommandRunnedCommand",
+                    "SSH.Log.ExecutedSshCommand",
                 data.commands,
                 sessionresult.getStdOut(),
                 sessionresult.getStdErr()));
@@ -198,25 +197,14 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
   public boolean init() {
 
     if (super.init()) {
-      String servername = resolve(meta.getServerName());
-      int nrPort = Const.toInt(resolve(meta.getPort()), 22);
-      String username = resolve(meta.getuserName());
-      String password = Utils.resolvePassword(variables, meta.getpassword());
-      String keyFilename = resolve(meta.getKeyFileName());
-      String passphrase = resolve(meta.getPassphrase());
-      int timeOut = Const.toInt(resolve(meta.getTimeOut()), 0);
-      String proxyhost = resolve(meta.getProxyHost());
-      int proxyport = Const.toInt(resolve(meta.getProxyPort()), 0);
-      String proxyusername = resolve(meta.getProxyUsername());
-      String proxypassword = resolve(meta.getProxyPassword());
 
       // Check target server
-      if (Utils.isEmpty(servername)) {
+      if (Utils.isEmpty(meta.getServerName())) {
         logError(BaseMessages.getString(PKG, "SSH.MissingServerName"));
       }
 
       // Check if username field is provided
-      if (Utils.isEmpty(meta.getuserName())) {
+      if (Utils.isEmpty(meta.getUserName())) {
         logError(BaseMessages.getString(PKG, "SSH.Error.UserNamedMissing"));
         return false;
       }
@@ -231,21 +219,7 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
 
       try {
         // Open connection
-        data.conn =
-            SSHData.OpenConnection(
-                servername,
-                nrPort,
-                username,
-                password,
-                meta.isusePrivateKey(),
-                keyFilename,
-                passphrase,
-                timeOut,
-                this,
-                proxyhost,
-                proxyport,
-                proxyusername,
-                proxypassword);
+        data.conn = SshData.openConnection(this, meta);
 
         if (log.isDebug()) {
           logDebug(BaseMessages.getString(PKG, "SSH.Log.ConnectionOpened"));
