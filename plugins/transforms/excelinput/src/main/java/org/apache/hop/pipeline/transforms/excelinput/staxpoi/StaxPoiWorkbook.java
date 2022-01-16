@@ -89,6 +89,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
     XMLStreamReader workbookReader = null;
     try {
       reader = new XSSFReader(pkg);
+      reader.setUseReadOnlySharedStringsTable(true);
       sheetNameIDMap = new LinkedHashMap<>();
       workbookData = reader.getWorkbookData();
       XMLInputFactory factory = StaxUtil.safeXMLInputFactory();
