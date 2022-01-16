@@ -76,7 +76,7 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.apache.poi:poi-ooxml-schemas:jar</include>
+                <include>org.apache.poi:poi-ooxml-lite:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

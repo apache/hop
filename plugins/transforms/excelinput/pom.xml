@@ -35,9 +35,9 @@
 
     <properties>
         <odfdom-java.version>0.8.7</odfdom-java.version>
-        <poi.version>3.17</poi.version>
+        <poi.version>5.2.0</poi.version>
         <xerces.version>2.12.0</xerces.version>
-        <xmlbeans.version>3.1.0</xmlbeans.version>
+        <xmlbeans.version>5.0.3</xmlbeans.version>
     </properties>
 
     <dependencies>
@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-schemas</artifactId>
+            <artifactId>poi-ooxml-lite</artifactId>
             <version>${poi.version}</version>
             <exclusions>
                 <exclusion>

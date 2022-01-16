@@ -38,7 +38,7 @@
         <guava.version>31.0.1-jre</guava.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <mockito-all.version>1.9.5</mockito-all.version>
-        <poi.version>3.17</poi.version>
+        <poi.version>5.2.0</poi.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
         <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
         <json-smart.version>2.2</json-smart.version>

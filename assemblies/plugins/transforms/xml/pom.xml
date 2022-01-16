@@ -37,7 +37,7 @@
     <description></description>
 
     <properties>
-        <poi.version>3.17</poi.version>
+        <poi.version>5.2.0</poi.version>
         <saxon.version>8.7</saxon.version>
         <jaxen.version>1.1.6</jaxen.version>
     </properties>
