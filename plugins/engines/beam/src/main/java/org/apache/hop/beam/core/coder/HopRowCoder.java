@@ -112,6 +112,12 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           out.writeLong(lng);
         }
         break;
+      case IValueMeta.TYPE_TIMESTAMP:
+        {
+          out.writeLong(((Timestamp) object).getTime());
+          out.writeInt(((Timestamp) object).getNanos());
+        }
+        break;
       case IValueMeta.TYPE_DATE:
         {
           Long lng = ((Date) object).getTime();
@@ -159,6 +165,13 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           return lng;
         }
 
+      case IValueMeta.TYPE_TIMESTAMP:
+        {
+          Timestamp timestamp = new Timestamp(in.readLong());
+          timestamp.setNanos(in.readInt());
+          return timestamp;
+        }
+
       case IValueMeta.TYPE_DATE:
         {
           Long lng = in.readLong();
@@ -194,11 +207,11 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     if (object instanceof Long) {
       return IValueMeta.TYPE_INTEGER;
     }
-    if (object instanceof Date) {
-      return IValueMeta.TYPE_DATE;
-    }
     if (object instanceof Timestamp) {
       return IValueMeta.TYPE_TIMESTAMP;
+    }
+    if (object instanceof Date) {
+      return IValueMeta.TYPE_DATE;
     }
     if (object instanceof Boolean) {
       return IValueMeta.TYPE_BOOLEAN;
