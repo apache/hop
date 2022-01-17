@@ -24,6 +24,7 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -142,6 +143,21 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           out.writeUTF(bd.toString());
         }
         break;
+      case IValueMeta.TYPE_BINARY:
+        {
+          byte[] bytes = (byte[]) object;
+          out.write(bytes.length);
+          out.write(bytes);
+        }
+        break;
+      case IValueMeta.TYPE_INET:
+        {
+          InetAddress inetAddress = (InetAddress) object;
+          write(out, IValueMeta.TYPE_STRING, inetAddress.getHostName());
+          out.writeInt(inetAddress.getAddress().length == 4 ? 1 : 2);
+          out.write(inetAddress.getAddress());
+        }
+        break;
       default:
         throw new IOException(
             "Data type not supported yet: " + objectType + " - " + object.toString());
@@ -195,6 +211,21 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           String bd = in.readUTF();
           return new BigDecimal(bd);
         }
+
+      case IValueMeta.TYPE_BINARY:
+      {
+        byte[] bytes = new byte[in.readInt()];
+        in.read(bytes);
+        return bytes;
+      }
+
+      case IValueMeta.TYPE_INET:
+      {
+        String hostname = (String) read(in, IValueMeta.TYPE_STRING);
+        byte[] addr = new byte[in.readInt() == 1 ? 4 : 16];
+        in.read(addr);
+        return InetAddress.getByAddress(hostname, addr);
+      }
       default:
         throw new IOException("Data type not supported yet: " + objectType);
     }
@@ -221,6 +252,12 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     }
     if (object instanceof BigDecimal) {
       return IValueMeta.TYPE_BIGNUMBER;
+    }
+    if (object instanceof byte[]) {
+      return IValueMeta.TYPE_BINARY;
+    }
+    if (object instanceof InetAddress) {
+      return IValueMeta.TYPE_INET;
     }
     throw new CoderException(
         "Data type for object class " + object.getClass().getName() + " isn't supported yet");
