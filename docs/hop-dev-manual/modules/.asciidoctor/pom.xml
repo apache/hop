@@ -24,13 +24,13 @@
     <parent>
         <artifactId>hop-dev-manual</artifactId>
         <groupId>org.hop.doc</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <groupId>org.hop.doc</groupId>
     <artifactId>hop-dev-manual-asciidoctor</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <name>Hop Development Manual</name>
     <description></description>
