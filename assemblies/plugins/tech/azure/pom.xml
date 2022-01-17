@@ -25,11 +25,11 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-tech</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Technology Azure</name>
     <description></description>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-plugins-tech-azure</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Azure VFS -->
