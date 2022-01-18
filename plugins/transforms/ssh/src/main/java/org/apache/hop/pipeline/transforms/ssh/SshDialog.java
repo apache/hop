@@ -48,14 +48,14 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SSHMeta.class; // For Translator
+public class SshDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final Class<?> PKG = SshMeta.class; // For Translator
 
   private Label wlCommandField;
   private CCombo wCommandField;
 
   private LabelTextVar wTimeOut;
-  private final SSHMeta input;
+  private final SshMeta input;
 
   private Button wDynamicCommand;
 
@@ -89,10 +89,10 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
 
   private boolean gotPreviousFields = false;
 
-  public SSHDialog(
+  public SshDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (SSHMeta) in;
+    input = (SshMeta) in;
   }
 
   @Override
@@ -417,6 +417,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdTest.top = new FormAttachment(wProxyPassword, 2 * margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
+    wTest.addListener(SWT.Selection, e -> test());
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment(0, margin);
@@ -618,10 +619,6 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Add listeners
-
-    wTest.addListener(SWT.Selection, e -> test());
-
     wTabFolder.setSelection(0);
     getData();
     activateKey();
@@ -635,12 +632,12 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wDynamicCommand.setSelection(input.isDynamicCommand());
+    wDynamicCommand.setSelection(input.isDynamicCommandField());
     if (input.getCommand() != null) {
       wCommand.setText(input.getCommand());
     }
-    if (input.getcommandfieldname() != null) {
-      wCommandField.setText(input.getcommandfieldname());
+    if (input.getCommandFieldName() != null) {
+      wCommandField.setText(input.getCommandFieldName());
     }
     if (input.getServerName() != null) {
       wServerName.setText(input.getServerName());
@@ -648,18 +645,18 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     if (input.getPort() != null) {
       wPort.setText(input.getPort());
     }
-    if (input.getuserName() != null) {
-      wUserName.setText(input.getuserName());
+    if (input.getUserName() != null) {
+      wUserName.setText(input.getUserName());
     }
-    if (input.getpassword() != null) {
-      wPassword.setText(input.getpassword());
+    if (input.getPassword() != null) {
+      wPassword.setText(input.getPassword());
     }
-    wUseKey.setSelection(input.isusePrivateKey());
+    wUseKey.setSelection(input.isUsePrivateKey());
     if (input.getKeyFileName() != null) {
       wPrivateKey.setText(input.getKeyFileName());
     }
-    if (input.getPassphrase() != null) {
-      wPassphrase.setText(input.getPassphrase());
+    if (input.getPassPhrase() != null) {
+      wPassphrase.setText(input.getPassPhrase());
     }
     if (input.getStdOutFieldName() != null) {
       wResultOutFieldName.setText(input.getStdOutFieldName());
@@ -691,20 +688,18 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     dispose();
   }
 
-  private void getInfo(SSHMeta in) throws HopException {
-    transformName = wTransformName.getText(); // return value
-
-    in.setDynamicCommand(wDynamicCommand.getSelection());
+  private void getInfo(SshMeta in) {
+    in.setDynamicCommandField(wDynamicCommand.getSelection());
     in.setCommand(wCommand.getText());
-    in.setcommandfieldname(wCommandField.getText());
+    in.setCommandFieldName(wCommandField.getText());
     in.setServerName(wServerName.getText());
     in.setPort(wPort.getText());
-    in.setuserName(wUserName.getText());
-    in.setpassword(wPassword.getText());
-    in.usePrivateKey(wUseKey.getSelection());
+    in.setUserName(wUserName.getText());
+    in.setPassword(wPassword.getText());
+    in.setUsePrivateKey(wUseKey.getSelection());
     in.setKeyFileName(wPrivateKey.getText());
-    in.setPassphrase(wPassphrase.getText());
-    in.setstdOutFieldName(wResultOutFieldName.getText());
+    in.setPassPhrase(wPassphrase.getText());
+    in.setStdOutFieldName(wResultOutFieldName.getText());
     in.setStdErrFieldName(wResultErrFieldName.getText());
     in.setTimeOut(wTimeOut.getText());
     in.setProxyHost(wProxyHost.getText());
@@ -718,11 +713,9 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
       return;
     }
 
-    try {
-      getInfo(input);
-    } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "Error while previewing data", e);
-    }
+    // This is the return value of the open() method
+    transformName = wTransformName.getText();
+    getInfo(input);
 
     dispose();
   }
@@ -765,65 +758,40 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   }
 
   private void test() {
-    boolean testOK = false;
+    Exception exception = null;
     String errMsg = null;
-    String servername = variables.resolve(wServerName.getText());
-    int nrPort = Const.toInt(variables.resolve(wPort.getText()), 22);
-    String username = variables.resolve(wUserName.getText());
-    String password = Utils.resolvePassword(variables, wPassword.getText());
-    String keyFilename = variables.resolve(wPrivateKey.getText());
-    String passphrase = variables.resolve(wPassphrase.getText());
-    int timeOut = Const.toInt(variables.resolve(wTimeOut.getText()), 0);
-    String proxyhost = variables.resolve(wProxyHost.getText());
-    int proxyport = Const.toInt(variables.resolve(wProxyPort.getText()), 0);
-    String proxyusername = variables.resolve(wProxyUsername.getText());
-    String proxypassword = Utils.resolvePassword(variables, wProxyPassword.getText());
+    Connection connection = null;
 
-    Connection conn = null;
+    SshMeta meta = new SshMeta();
+    getInfo(meta);
+
     try {
-      conn =
-          SSHData.OpenConnection(
-              servername,
-              nrPort,
-              username,
-              password,
-              wUseKey.getSelection(),
-              keyFilename,
-              passphrase,
-              timeOut,
-              variables,
-              proxyhost,
-              proxyport,
-              proxyusername,
-              proxypassword);
-      testOK = true;
-
+      connection = SshData.openConnection(variables, meta);
     } catch (Exception e) {
+      exception = e;
       errMsg = e.getMessage();
     } finally {
-      if (conn != null) {
+      if (connection != null) {
         try {
-          conn.close();
+          connection.close();
         } catch (Exception e) {
           /* Ignore */
         }
       }
     }
-    if (testOK) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "SSHDialog.Connected.OK", servername, username) + Const.CR);
-      mb.setText(BaseMessages.getString(PKG, "SSHDialog.Connected.Title.Ok"));
-      mb.open();
+    if (exception==null) {
+      MessageBox messageBox;
+      messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      messageBox.setMessage(
+          BaseMessages.getString(PKG, "SSHDialog.Connected.OK", meta.getServerName(), meta.getUserName()) + Const.CR);
+      messageBox.setText(BaseMessages.getString(PKG, "SSHDialog.Connected.Title.Ok"));
+      messageBox.open();
     } else {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "SSHDialog.Connected.NOK.ConnectionBad", servername, username)
+      new ErrorDialog(shell, "Error",
+          BaseMessages.getString(PKG, "SSHDialog.Connected.NOK.ConnectionBad", meta.getServerName(), meta.getUserName())
               + Const.CR
               + errMsg
-              + Const.CR);
-      mb.setText(BaseMessages.getString(PKG, "SSHDialog.Connected.Title.Bad"));
-      mb.open();
+              + Const.CR, exception);
     }
   }
 
@@ -832,61 +800,57 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
    * a dummy and previews it.
    */
   private void preview() {
-    try {
-      // Create the Access input transform
-      SSHMeta oneMeta = new SSHMeta();
-      getInfo(oneMeta);
+    // Create the Access input transform
+    SshMeta oneMeta = new SshMeta();
+    getInfo(oneMeta);
 
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
-      EnterNumberDialog numberDialog =
-          new EnterNumberDialog(
+    PipelineMeta previewMeta =
+        PipelinePreviewFactory.generatePreviewPipeline(
+            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+    EnterNumberDialog numberDialog =
+        new EnterNumberDialog(
+            shell,
+            1,
+            BaseMessages.getString(PKG, "SSHDialog.NumberRows.DialogTitle"),
+            BaseMessages.getString(PKG, "SSHDialog.NumberRows.DialogMessage"));
+
+    int previewSize = numberDialog.open();
+    if (previewSize > 0) {
+      PipelinePreviewProgressDialog progressDialog =
+          new PipelinePreviewProgressDialog(
               shell,
-              1,
-              BaseMessages.getString(PKG, "SSHDialog.NumberRows.DialogTitle"),
-              BaseMessages.getString(PKG, "SSHDialog.NumberRows.DialogMessage"));
+              variables,
+              previewMeta,
+              new String[] {wTransformName.getText()},
+              new int[] {previewSize});
+      progressDialog.open();
 
-      int previewSize = numberDialog.open();
-      if (previewSize > 0) {
-        PipelinePreviewProgressDialog progressDialog =
-            new PipelinePreviewProgressDialog(
+      if (!progressDialog.isCancelled()) {
+        Pipeline pipeline = progressDialog.getPipeline();
+        String loggingText = progressDialog.getLoggingText();
+
+        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
+          EnterTextDialog etd =
+              new EnterTextDialog(
+                  shell,
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                  loggingText,
+                  true);
+          etd.setReadOnly();
+          etd.open();
+        }
+        PreviewRowsDialog prd =
+            new PreviewRowsDialog(
                 shell,
                 variables,
-                previewMeta,
-                new String[] {wTransformName.getText()},
-                new int[] {previewSize});
-        progressDialog.open();
-
-        if (!progressDialog.isCancelled()) {
-          Pipeline pipeline = progressDialog.getPipeline();
-          String loggingText = progressDialog.getLoggingText();
-
-          if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-            EnterTextDialog etd =
-                new EnterTextDialog(
-                    shell,
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                    loggingText,
-                    true);
-            etd.setReadOnly();
-            etd.open();
-          }
-          PreviewRowsDialog prd =
-              new PreviewRowsDialog(
-                  shell,
-                  variables,
-                  SWT.NONE,
-                  wTransformName.getText(),
-                  progressDialog.getPreviewRowsMeta(wTransformName.getText()),
-                  progressDialog.getPreviewRows(wTransformName.getText()),
-                  loggingText);
-          prd.open();
-        }
+                SWT.NONE,
+                wTransformName.getText(),
+                progressDialog.getPreviewRowsMeta(wTransformName.getText()),
+                progressDialog.getPreviewRows(wTransformName.getText()),
+                loggingText);
+        prd.open();
       }
-    } catch (HopException e) {
-      new ErrorDialog(shell, "Error", "Error while previewing data", e);
     }
   }
 }

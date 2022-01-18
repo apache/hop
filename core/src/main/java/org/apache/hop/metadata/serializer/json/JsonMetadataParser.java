@@ -68,9 +68,20 @@ public class JsonMetadataParser<T extends IHopMetadata> {
           key = field.getName();
         }
         keyFieldMap.put(key, field);
+
+        // We need to go over the boolean fields and consider the defaultBoolean flag.
+        // If we don't do this we'll always get the value specified in the constructor.
+        //
+        Class<?> fieldType = field.getType();
+        if (Boolean.class.equals(fieldType) || boolean.class.equals(fieldType)) {
+          ReflectionUtil.setFieldValue(
+              object, field.getName(), fieldType, metadataProperty.defaultBoolean());
+        }
       }
     }
 
+    // Load all the properties found in the JSON...
+    //
     try {
       while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
         String key = jsonParser.getCurrentName();
