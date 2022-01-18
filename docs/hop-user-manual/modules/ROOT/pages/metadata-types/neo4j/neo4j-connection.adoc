@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /metadata-types/neo4j/
 :language: en_US
+:toc:
 
 = Neo4j Connection
 
@@ -24,15 +25,17 @@ under the License.
 Connections can be created and edited using the logo (click on it to edit), and the drop down menu (arrow down) which you can find on the right of every connection line on the various Neo4j dialogs.
 
 They can also be managed with the metadata perspective in the Hop GUI.
-Finally, please note that Neo4j Connections are serialized as JSON in the Hop metadata folder under
+
+Neo4j Connections are serialized as JSON in the Hop metadata folder under
 
 `metadata/neo4j-connection/`
 
-== The dialog
+== The user interface
 
-**DON'T PANIC**: most of the options in the interface you don't need (...and most likely will never will need).
+In most cases the Neo4j https://neo4j.com/docs/java-manual/current/get-started/[driver] can figure out the protocol and security options automatically allowing you to focus on the most elementary options: server, port, username and password.
+As per usual we recommend that you never hardcode any settings but use environment variables which you can define in an environment configuration file.  This way the same Neo4j connection can be used in multiple environments without the need to change pipelines or workflows.
 
-== The Options
+== The Basic options
 
 |===
 |Option |Description
@@ -40,19 +43,35 @@ Finally, please note that Neo4j Connections are serialized as JSON in the Hop me
 |Connection name
 |The name of a connection uniquely identifying it
 
+|Automatic?
+|If you enable this option you ask the driver to automatically determine protocol options like encryption and routing.
+
 |Server or IP Address
 |The IP address or hostname used to reach the Neo4j server.
 If you have more than one server address to specify, use a comma separated list of hosts.
 
-|Database Name (4.0)
+|Database Name
 |The database to use (defaults to neo4j).
-A feature available on plugins version 5.0 or higher against Neo4j server 4.0 or higher.
+A feature available in Neo4j server 4.0 or higher.
+
+|Database port
+|The Neo4j database port to connect to.  If you leave this blank it uses the default port number: 7687.
+
+|Username
+|the Neo4j database user to log in with
+
+|Password
+|the password to use
+
+|===
+
+== The Protocol options
+
+|===
+|Option |Description
 
 |Version 4 database?
 |Enable this option to help us generate the most optimized Cypher for you.
-
-|Bolt port
-|the Neo4j Bolt protocol port, default is 7687
 
 |Browser port
 |information only.
@@ -64,12 +83,6 @@ The port on which the Neo4j browser runs
 |Routing policy
 |The bolt+routing policy to use
 
-|Username
-|the Neo4j database user to log in with
-
-|Password
-|the password to use
-
 |Use encryption?
 |Unless you generated and configured the correct SSL keys, disable this.
 Make sure to check our v4 upgrade notes
@@ -78,10 +91,13 @@ Make sure to check our v4 upgrade notes
 
 == Aura
 
-To connect to an Aura version 4 database we would set the following options:
+To connect to an Aura version 4 database you can use the following options:
 
 |===
 |Option |Value
+
+|Automatic?
+|Disabled
 
 |Server or IP address
 |the provided ....neo4j.io hostname
@@ -108,7 +124,7 @@ To connect to an Aura version 4 database we would set the following options:
 |the provided password
 |===
 
-== The advanced options
+== The Advanced options
 
 === Connection Liveliness Check Timeout (ms)
 
