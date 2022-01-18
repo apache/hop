@@ -175,7 +175,7 @@
         <!-- spring-security version -->
         <spring-security.version>4.1.5.RELEASE</spring-security.version>
 
-        <xercesImpl.version>2.12.0</xercesImpl.version>
+        <xercesImpl.version>2.12.1</xercesImpl.version>
         <xml-apis.version>1.4.01</xml-apis.version>
 
         <!-- jdk version -->

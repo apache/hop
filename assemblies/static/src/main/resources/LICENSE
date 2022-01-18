@@ -1948,7 +1948,7 @@ This product bundles woodstox-core-asl 4.4.1, which is available under a
 This product bundles wsdl4j 1.6.2, which is available under a
 "COMMON PUBLIC 1.0" license. For details, see licenses/LICENSE-CPL10.
 
-This product bundles xercesImpl 2.12.0, which is available under a
+This product bundles xercesImpl 2.12.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles xml-apis 1.4.01, which is available under a
