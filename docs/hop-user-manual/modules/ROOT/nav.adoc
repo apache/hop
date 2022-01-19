@@ -424,3 +424,5 @@ under the License.
 * xref:best-practices/index.adoc[Best Practices]
 * xref:protips/index.adoc[Pro Tips]
 * xref:hop-usps.adoc[Unique Selling Propositions]
+* xref:how-to-guides/index.adoc[How-to guides]
+** xref:how-to-guides/apache-hop-web-services-docker.adoc[Hop web services in Docker]
