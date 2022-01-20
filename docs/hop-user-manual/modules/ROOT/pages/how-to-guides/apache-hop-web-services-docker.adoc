@@ -161,7 +161,7 @@ The WebService **countTeams** from this tutorial expects the parameter PARAM_PRO
 
 The call is made as follows:
 
-*http://localhost:8182/hop/webService/?service=countTeams&amp;PARAM_PROJECT_ID=63*
+`+http://localhost:8182/hop/webService/?service=countTeams&PARAM_PROJECT_ID=63`
 
 image:how-to-guides/web-services-in-docker/result.png[Hop web services in Docker - result, width="80%"]
 
