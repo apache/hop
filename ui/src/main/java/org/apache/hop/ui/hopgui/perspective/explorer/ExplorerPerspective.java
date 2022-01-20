@@ -23,6 +23,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -599,13 +600,11 @@ public class ExplorerPerspective implements IHopPerspective {
     }
   }
 
-  public void addFile(ExplorerFile explorerFile, IExplorerFileTypeHandler renderer) {
+  public void addFile(ExplorerFile explorerFile) {
 
     if (files.contains(explorerFile)) {
       return;
     }
-
-    PropsUi props = PropsUi.getInstance();
 
     // Create tab item
     //
@@ -635,6 +634,7 @@ public class ExplorerPerspective implements IHopPerspective {
           }
         });
 
+    PropsUi props = PropsUi.getInstance();
     // Create composite for editor and buttons
     //
     Composite composite = new Composite(tabFolder, SWT.NONE);
@@ -644,6 +644,7 @@ public class ExplorerPerspective implements IHopPerspective {
     composite.setLayout(layoutComposite);
     props.setLook(composite);
 
+    IExplorerFileTypeHandler renderer = explorerFile.getFileTypeHandler();
     // This is usually done by the file type
     //
     renderer.renderFile(composite);
@@ -668,6 +669,7 @@ public class ExplorerPerspective implements IHopPerspective {
     tabItem.setData(explorerFile);
 
     files.add(explorerFile);
+    hopGui.fileRefreshDelegate.register(explorerFile.getFilename(),renderer);
 
     // Activate perspective
     //
@@ -682,6 +684,10 @@ public class ExplorerPerspective implements IHopPerspective {
     selectInTree(explorerFile.getFilename());
 
     updateGui();
+  }
+
+  public void refreshFileContent(){
+    tabFolder.getChildren();
   }
 
   private void selectInTree(String filename) {
@@ -782,6 +788,14 @@ public class ExplorerPerspective implements IHopPerspective {
     if (file.getFileTypeHandler().isCloseable()) {
       files.remove(file);
       tabItem.dispose();
+
+      //
+      //Remove the file in refreshDelegate
+      try {
+        hopGui.fileRefreshDelegate.remove(HopVfs.getFileObject(file.getFileTypeHandler().getFilename()).getPublicURIString());
+      } catch (HopFileException e) {
+        hopGui.getLog().logError("Error getting VFS fileObject", e);
+      }
 
       // Refresh tree to remove bold
       //

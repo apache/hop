@@ -424,7 +424,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
 
     String filename = variables.resolve(wFilename.getText());
     try {
-      PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, true, variables);
+      PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
 
       EnterSelectionDialog selectTransformDialog =
           new EnterSelectionDialog(

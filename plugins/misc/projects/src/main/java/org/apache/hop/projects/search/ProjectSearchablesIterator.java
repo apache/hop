@@ -77,7 +77,7 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
         String pipelineFilePath = pipelineFile.getName().getURI();
         try {
           PipelineMeta pipelineMeta =
-              new PipelineMeta(pipelineFilePath, metadataProvider, true, variables);
+              new PipelineMeta(pipelineFilePath, metadataProvider, variables);
           searchables.add(new HopGuiPipelineSearchable("Project pipeline file", pipelineMeta));
         } catch (Exception e) {
           // There was an error loading the XML file...

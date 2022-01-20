@@ -24,6 +24,7 @@ import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
@@ -3247,8 +3248,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       workflowMeta.setFilename(filename);
       save();
+      hopGui.fileRefreshDelegate.register(fileObject.getPublicURIString(),this);
     } catch (Exception e) {
-      new HopException("Error validating file existence for '" + filename + "'", e);
+      throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
   }
 
@@ -3967,5 +3969,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   public Thread getWorkflowThread() {
     return workflowThread;
+  }
+
+  @Override
+  public void reload() {
+    try {
+      workflowMeta.loadXml(hopGui.getVariables(), getFilename(), hopGui.getMetadataProvider());
+    } catch (HopXmlException e) {
+      LogChannel.GENERAL.logError("Error reloading workflow xml file", e);
+    }
+    redraw();
+    updateGui();
   }
 }

@@ -43,7 +43,7 @@ public class UnitTestUtil {
     //
     String filename = test.calculateCompletePipelineFilename(variables);
     if (StringUtils.isNotEmpty(filename)) {
-      unitTestPipelineMeta = new PipelineMeta(filename, metadataProvider, true, variables);
+      unitTestPipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
     }
     if (unitTestPipelineMeta == null) {
       throw new HopException(

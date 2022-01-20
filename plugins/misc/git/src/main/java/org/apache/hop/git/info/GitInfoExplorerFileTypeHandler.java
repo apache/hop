@@ -344,9 +344,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       xmlStreamNew = git.open(filename, commitIdNew);
 
       PipelineMeta pipelineMetaOld =
-          new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), true, hopGui.getVariables());
+          new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
       PipelineMeta pipelineMetaNew =
-          new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), true, hopGui.getVariables());
+          new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       pipelineMetaOld = HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true);
       pipelineMetaOld = HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true);

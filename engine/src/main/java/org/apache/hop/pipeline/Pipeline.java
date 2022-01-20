@@ -441,7 +441,7 @@ public abstract class Pipeline
     this.metadataProvider = metadataProvider;
 
     try {
-      pipelineMeta = new PipelineMeta(filename, metadataProvider, false, this);
+      pipelineMeta = new PipelineMeta(filename, metadataProvider, this);
 
       this.log = new LogChannel(pipelineMeta);
 

@@ -24,9 +24,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.*;
@@ -3742,8 +3740,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       pipelineMeta.setFilename(filename);
       save();
+      hopGui.fileRefreshDelegate.register(fileObject.getPublicURIString(),this);
     } catch (Exception e) {
-      new HopException("Error validating file existence for '" + filename + "'", e);
+      throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
   }
 
@@ -5271,5 +5270,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /** @param outputRowsMap The outputRowsMap to set */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
+  }
+
+  @Override
+  public void reload(){
+    try {
+      pipelineMeta.loadXml(getFilename(),hopGui.getMetadataProvider(), hopGui.getVariables());
+    } catch (HopXmlException | HopMissingPluginsException e) {
+      LogChannel.GENERAL.logError("Error reloading pipeline xml file", e);
+    }
+    redraw();
+    updateGui();
   }
 }
