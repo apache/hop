@@ -155,7 +155,8 @@ docker run -it --rm \
 If the container has been started successfully, the web server GUI can be opened via http://<IP_HOST>:<PORT_HOST>/hop/status/ which gives an overview of the pipelines and workflows called up after logging in (using the administrator IDs passed).
 
 To call a web service with the name <NameofService>, the following request is necessary:
-http://<IP_HOST>:<PORT_HOST>/hop/webService?service=<NameofService>&amp;Param1=Value&amp;Param2=Value2....
+
+`+http://<IP_HOST>:<PORT_HOST>/hop/webService?service=<NameofService>&Param1=Value&Param2=Value2....`
 
 The WebService **countTeams** from this tutorial expects the parameter PARAM_PROJECT_ID.
 
