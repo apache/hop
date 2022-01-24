@@ -18,6 +18,6 @@
 name: manual
 title: User manual
 version: latest
-display_version: 1.1.0 (pre-release)
+display_version: 1.2.0 (pre-release)
 nav:
   - modules/ROOT/nav.adoc

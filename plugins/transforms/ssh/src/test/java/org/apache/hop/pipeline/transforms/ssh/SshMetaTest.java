@@ -39,7 +39,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class SSHMetaTest {
+public class SshMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -52,32 +52,33 @@ public class SSHMetaTest {
   }
 
   @Test
-  public void testEncryptedPasswords() throws HopXmlException {
+  public void testEncryptedPasswords() throws HopException {
     String plaintextPassword = "MyEncryptedPassword";
     String plaintextPassphrase = "MyEncryptedPassPhrase";
     String plaintextProxyPassword = "MyEncryptedProxyPassword";
 
-    SSHMeta sshMeta = new SSHMeta();
-    sshMeta.setpassword(plaintextPassword);
-    sshMeta.setPassphrase(plaintextPassphrase);
+    SshMeta sshMeta = new SshMeta();
+    sshMeta.setPassword(plaintextPassword);
+    sshMeta.setPassPhrase(plaintextPassphrase);
     sshMeta.setProxyPassword(plaintextProxyPassword);
 
     StringBuilder xmlString = new StringBuilder(50);
     xmlString.append(XmlHandler.getXmlHeader()).append(Const.CR);
     xmlString.append(XmlHandler.openTag("transform")).append(Const.CR);
+
     xmlString.append(sshMeta.getXml());
     xmlString.append(XmlHandler.closeTag("transform")).append(Const.CR);
-    Node sshXMLNode = XmlHandler.loadXmlString(xmlString.toString(), "transform");
+    Node sshXmlNode = XmlHandler.loadXmlString(xmlString.toString(), "transform");
 
     assertEquals(
         Encr.encryptPasswordIfNotUsingVariables(plaintextPassword),
-        XmlHandler.getTagValue(sshXMLNode, "password"));
+        XmlHandler.getTagValue(sshXmlNode, "password"));
     assertEquals(
         Encr.encryptPasswordIfNotUsingVariables(plaintextPassphrase),
-        XmlHandler.getTagValue(sshXMLNode, "passPhrase"));
+        XmlHandler.getTagValue(sshXmlNode, "passPhrase"));
     assertEquals(
         Encr.encryptPasswordIfNotUsingVariables(plaintextProxyPassword),
-        XmlHandler.getTagValue(sshXMLNode, "proxyPassword"));
+        XmlHandler.getTagValue(sshXmlNode, "proxyPassword"));
   }
 
   @Test
@@ -86,9 +87,9 @@ public class SSHMetaTest {
         Arrays.<String>asList(
             "dynamicCommandField",
             "command",
-            "commandfieldname",
+            "commandFieldName",
             "port",
-            "servername",
+            "serverName",
             "userName",
             "password",
             "usePrivateKey",
@@ -103,44 +104,9 @@ public class SSHMetaTest {
             "proxyPassword");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("dynamicCommandField", "isDynamicCommand");
-    getterMap.put("command", "getCommand");
-    getterMap.put("commandfieldname", "getcommandfieldname");
-    getterMap.put("port", "getPort");
-    getterMap.put("servername", "getServerName");
-    getterMap.put("userName", "getuserName");
-    getterMap.put("password", "getpassword");
-    getterMap.put("usePrivateKey", "isusePrivateKey");
-    getterMap.put("keyFileName", "getKeyFileName");
-    getterMap.put("passPhrase", "getPassphrase");
-    getterMap.put("stdOutFieldName", "getStdOutFieldName");
-    getterMap.put("stdErrFieldName", "getStdErrFieldName");
-    getterMap.put("timeOut", "getTimeOut");
-    getterMap.put("proxyHost", "getProxyHost");
-    getterMap.put("proxyPort", "getProxyPort");
-    getterMap.put("proxyUsername", "getProxyUsername");
-    getterMap.put("proxyPassword", "getProxyPassword");
-
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("dynamicCommandField", "setDynamicCommand");
-    setterMap.put("command", "setCommand");
-    setterMap.put("commandfieldname", "setcommandfieldname");
-    setterMap.put("port", "setPort");
-    setterMap.put("servername", "setServerName");
-    setterMap.put("userName", "setuserName");
-    setterMap.put("password", "setpassword");
-    setterMap.put("usePrivateKey", "usePrivateKey");
-    setterMap.put("keyFileName", "setKeyFileName");
-    setterMap.put("passPhrase", "setPassphrase");
-    setterMap.put("stdOutFieldName", "setstdOutFieldName");
-    setterMap.put("stdErrFieldName", "setStdErrFieldName");
-    setterMap.put("timeOut", "setTimeOut");
-    setterMap.put("proxyHost", "setProxyHost");
-    setterMap.put("proxyPort", "setProxyPort");
-    setterMap.put("proxyUsername", "setProxyUsername");
-    setterMap.put("proxyPassword", "setProxyPassword");
 
-    LoadSaveTester tester = new LoadSaveTester(SSHMeta.class, commonFields, getterMap, setterMap);
+    LoadSaveTester tester = new LoadSaveTester(SshMeta.class, commonFields, getterMap, setterMap);
 
     tester.testSerialization();
   }
