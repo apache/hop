@@ -209,9 +209,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   }
 
   private void executePipeline(List<String> incomingFieldValues) throws HopException {
+
     PipelineExecutorData pipelineExecutorData = getData();
     // If we got 0 rows on input we don't really want to execute the pipeline
-    if (pipelineExecutorData.groupBuffer.isEmpty()) {
+    if (pipelineExecutorData.groupBuffer == null || pipelineExecutorData.groupBuffer.isEmpty()) {
       return;
     }
     pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
