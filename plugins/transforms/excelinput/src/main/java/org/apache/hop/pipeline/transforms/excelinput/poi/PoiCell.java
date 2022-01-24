@@ -37,7 +37,7 @@ public class PoiCell implements IKCell {
   @Override
   public KCellType getType() {
 
-    switch (cell.getCellTypeEnum()) {
+    switch (cell.getCellType()) {
       case BOOLEAN:
         return KCellType.BOOLEAN;
 
@@ -55,7 +55,7 @@ public class PoiCell implements IKCell {
         return KCellType.EMPTY;
 
       case FORMULA:
-        switch (cell.getCachedFormulaResultTypeEnum()) {
+        switch (cell.getCachedFormulaResultType()) {
           case BLANK:
           case ERROR:
             return KCellType.EMPTY;

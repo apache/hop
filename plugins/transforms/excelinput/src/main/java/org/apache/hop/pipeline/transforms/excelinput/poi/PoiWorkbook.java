@@ -25,7 +25,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -44,7 +43,6 @@ public class PoiWorkbook implements IKWorkbook {
   // we need direct access to streams
   private InputStream internalIS;
   private POIFSFileSystem poifs;
-  private OPCPackage opcpkg;
 
   public PoiWorkbook(String filename, String encoding) throws HopException {
     this.filename = filename;
@@ -62,12 +60,7 @@ public class PoiWorkbook implements IKWorkbook {
           poifs = new POIFSFileSystem(excelFile);
           workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(poifs);
         } catch (Exception ofe) {
-          try {
-            opcpkg = OPCPackage.open(excelFile);
-            workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(opcpkg);
-          } catch (Exception ex) {
-            workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile);
-          }
+          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile);
         }
       } else {
         internalIS = HopVfs.getInputStream(filename);
@@ -96,10 +89,6 @@ public class PoiWorkbook implements IKWorkbook {
       }
       if (poifs != null) {
         poifs.close();
-      }
-      if (opcpkg != null) {
-        // We should not save change in xls because it is input transform.
-        opcpkg.revert();
       }
     } catch (IOException ex) {
       log.logError("Could not close workbook", ex);

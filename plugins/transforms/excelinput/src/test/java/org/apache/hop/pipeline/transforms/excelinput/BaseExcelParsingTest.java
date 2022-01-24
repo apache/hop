@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 
@@ -37,6 +38,14 @@ public class BaseExcelParsingTest
 
     data = new ExcelInputData();
     data.outputRowMeta = new RowMeta();
+  }
+
+  @After
+  public void after() {
+    if (transform != null) {
+      transform.dispose();
+      transform = null;
+    }
   }
 
   /** Initialize for processing specified file. */
