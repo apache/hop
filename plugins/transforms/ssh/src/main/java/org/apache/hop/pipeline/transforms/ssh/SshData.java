@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.CharArrayWriter;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class SshData extends BaseTransformData implements ITransformData {
   public int indexOfCommand;
@@ -94,7 +95,7 @@ public class SshData extends BaseTransformData implements ITransformData {
         CharArrayWriter charArrayWriter = new CharArrayWriter((int) keyFileContent.getSize());
 
         try (InputStream in = keyFileContent.getInputStream()) {
-          IOUtils.copy(in, charArrayWriter, "UTF-8");
+          IOUtils.copy(in, charArrayWriter, StandardCharsets.UTF_8);
         }
 
         content = charArrayWriter.toCharArray();

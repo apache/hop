@@ -32,7 +32,7 @@ import java.util.Date;
 public class HopRowCoder extends AtomicCoder<HopRow> {
 
   @Override
-  public void encode(HopRow value, OutputStream outStream) throws CoderException, IOException {
+  public void encode(HopRow value, OutputStream outStream) throws IOException {
 
     Object[] row = value.getRow();
     ObjectOutputStream out = new ObjectOutputStream(outStream);
@@ -69,7 +69,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   }
 
   @Override
-  public HopRow decode(InputStream inStream) throws CoderException, IOException {
+  public HopRow decode(InputStream inStream) throws IOException {
 
     ObjectInputStream in = new ObjectInputStream(inStream);
 
@@ -93,7 +93,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   }
 
   @Override
-  public void verifyDeterministic() throws NonDeterministicException {
+  public void verifyDeterministic() {
     // Sure
   }
 
@@ -121,7 +121,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
         break;
       case IValueMeta.TYPE_DATE:
         {
-          Long lng = ((Date) object).getTime();
+          long lng = ((Date) object).getTime();
           out.writeLong(lng);
         }
         break;
@@ -171,14 +171,12 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           int length = in.readInt();
           byte[] data = new byte[length];
           in.readFully(data);
-          String string = new String(data, StandardCharsets.UTF_8);
-          return string;
+          return new String(data, StandardCharsets.UTF_8);
         }
 
       case IValueMeta.TYPE_INTEGER:
         {
-          Long lng = in.readLong();
-          return lng;
+          return in.readLong();
         }
 
       case IValueMeta.TYPE_TIMESTAMP:
@@ -190,40 +188,33 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
 
       case IValueMeta.TYPE_DATE:
         {
-          Long lng = in.readLong();
-          return new Date(lng);
+          return new Date(in.readLong());
         }
 
       case IValueMeta.TYPE_BOOLEAN:
         {
-          boolean b = in.readBoolean();
-          return b;
+          return in.readBoolean();
         }
 
       case IValueMeta.TYPE_NUMBER:
         {
-          Double dbl = in.readDouble();
-          return dbl;
+          return in.readDouble();
         }
 
       case IValueMeta.TYPE_BIGNUMBER:
         {
-          String bd = in.readUTF();
-          return new BigDecimal(bd);
+          return new BigDecimal(in.readUTF());
         }
 
       case IValueMeta.TYPE_BINARY:
       {
-        byte[] bytes = new byte[in.readInt()];
-        in.read(bytes);
-        return bytes;
+        return new byte[in.readInt()];
       }
 
       case IValueMeta.TYPE_INET:
       {
         String hostname = (String) read(in, IValueMeta.TYPE_STRING);
         byte[] addr = new byte[in.readInt() == 1 ? 4 : 16];
-        in.read(addr);
         return InetAddress.getByAddress(hostname, addr);
       }
       default:
