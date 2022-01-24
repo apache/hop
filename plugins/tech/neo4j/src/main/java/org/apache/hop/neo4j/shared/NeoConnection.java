@@ -25,7 +25,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
