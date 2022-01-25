@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transform.errorhandling;
+package org.apache.hop.pipeline.transform.stream;
 
 import org.apache.hop.pipeline.transform.TransformMeta;
 
