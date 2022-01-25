@@ -30,3 +30,6 @@ under the License.
 |Documentation | https://docs.oracle.com/cd/E11882_01/java.112/e16548/toc.htm[Documentation Link]
 |JDBC Url | jdbc:oracle:thin:@hostname:port Number:databaseName
 |===
+
+TIP: Starting with Oracle Database 11g Release 1 (11.1), data type "Date" will be mapped to "Timestamp" by default. 
+Set JDBC property oracle.jdbc.mapDateToTimestamp=false to avoid data type "Date" being converted to data type "Timestamp".
