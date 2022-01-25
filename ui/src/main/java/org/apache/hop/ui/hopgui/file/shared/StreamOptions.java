@@ -18,7 +18,7 @@
 package org.apache.hop.ui.hopgui.file.shared;
 
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.List;
 
