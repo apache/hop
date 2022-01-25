@@ -30,3 +30,27 @@ under the License.
 |Documentation | https://docs.oracle.com/cd/E11882_01/java.112/e16548/toc.htm[Documentation Link]
 |JDBC Url | jdbc:oracle:thin:@hostname:port Number:databaseName
 |===
+
+= Configuration of the Connection to Oracle
+
+[width="90%",cols="2*",options="General"]
+|===
+| General | Info
+|Connection Type | Type of connection to make in the case of oracle select oracle 
+|Username | The user with which we access the DB
+|Password | The password of the user we use
+|Server host name | We add the IP or the address that we want to connect
+|Port number | The connection port to our oracle base by default is 1521
+|Database name | The name of our DB
+|===
+
+[width="90%",cols="2*",options="Advanced"]
+|===
+| Advanced | Info
+|Supports the Boolean data type | Check the option if you need it
+|Supports the Timestamp data | Check the option so that it recognizes the oracle date type reading
+|Quote all identifiers in database | Check the option if you need it
+|Force all identifiers to lower case | Check the option if you need it
+|Force all identifiers to upper case | Check the option if you need it
+|Preserver case of reserved words | Mark the default option
+|===
