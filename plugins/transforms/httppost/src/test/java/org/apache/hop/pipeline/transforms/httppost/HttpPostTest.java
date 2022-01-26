@@ -20,16 +20,14 @@ package org.apache.hop.pipeline.transforms.httppost;
 import org.apache.hop.core.exception.HopException;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 
-@Ignore
 public class HttpPostTest {
 
   @Test
@@ -37,7 +35,7 @@ public class HttpPostTest {
     HttpPost http = mock(HttpPost.class);
     doCallRealMethod()
         .when(http)
-        .getRequestBodyParamsAsStr(any(NameValuePair[].class), anyString());
+        .getRequestBodyParamsAsStr(any(NameValuePair[].class), nullable(String.class));
 
     NameValuePair[] pairs =
         new NameValuePair[] {

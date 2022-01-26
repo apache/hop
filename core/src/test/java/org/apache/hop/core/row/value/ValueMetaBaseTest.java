@@ -52,8 +52,8 @@ import java.util.Date;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 public class ValueMetaBaseTest {
@@ -729,7 +729,6 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  @Ignore
   public void testConvertDataUsingConversionMetaData() throws HopValueException, ParseException {
     ValueMetaString base = new ValueMetaString();
     double DELTA = 1e-15;
@@ -900,7 +899,6 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  @Ignore
   public void testConvertNumberToString() throws HopValueException {
     String expectedStringRepresentation = "123.123";
     Number numberToTest = Double.valueOf("123.123");

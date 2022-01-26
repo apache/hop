@@ -18,7 +18,6 @@
 package org.apache.hop.core.attributes;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -31,8 +30,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 
 @PrepareForTest(AttributesUtil.class)
 @RunWith(PowerMockRunner.class)
@@ -106,11 +104,10 @@ public class AttributesUtilTest {
   }
 
   @Test
-  @Ignore
   public void testGetAttributesXml_DefaultTag_NullParameter() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class))).thenCallRealMethod();
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class), anyString()))
+    PowerMockito.when(AttributesUtil.getAttributesXml(nullable(Map.class))).thenCallRealMethod();
+    PowerMockito.when(AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
         .thenCallRealMethod();
 
     String attributesXml = AttributesUtil.getAttributesXml(null);
@@ -122,10 +119,9 @@ public class AttributesUtilTest {
   }
 
   @Test
-  @Ignore
   public void testGetAttributesXml_CustomTag_NullParameter() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class), anyString()))
+    PowerMockito.when(AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
         .thenCallRealMethod();
 
     String attributesXml = AttributesUtil.getAttributesXml(null, CUSTOM_TAG);
