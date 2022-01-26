@@ -42,7 +42,6 @@
         <guava.version>31.0.1-jre</guava.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <mockito-all.version>1.9.5</mockito-all.version>
-        <poi.version>5.2.0</poi.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
         <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
         <json-smart.version>2.2</json-smart.version>
@@ -73,11 +72,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jackson-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
