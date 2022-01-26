@@ -34,12 +34,9 @@ import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -51,7 +48,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
 public class PipelineMetaTest {
@@ -95,7 +92,6 @@ public class PipelineMetaTest {
   }
 
   @Test
-  @Ignore
   public void getThisTransformFieldsPassesCloneRowMeta() throws Exception {
     final String overriddenValue = "overridden";
 
@@ -114,12 +110,12 @@ public class PipelineMetaTest {
                 })
         .when(smi)
         .getFields(
-            any(IRowMeta.class),
-            anyString(),
-            any(IRowMeta[].class),
+            nullable(IRowMeta.class),
+            nullable(String.class),
+            nullable(IRowMeta[].class),
             eq(nextTransform),
-            any(IVariables.class),
-            any(IHopMetadataProvider.class));
+            nullable(IVariables.class),
+            nullable(IHopMetadataProvider.class));
 
     TransformMeta thisTransform = mockTransformMeta("thisTransform");
     when(thisTransform.getTransform()).thenReturn(smi);

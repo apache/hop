@@ -47,9 +47,10 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -101,7 +102,7 @@ public class HopServerTest {
     hopServer = spy(new HopServer());
     variables = new Variables();
     doReturn(httpClient).when(hopServer).getHttpClient();
-    doReturn("response_body").when(hopServer).getResponseBodyAsString(any(InputStream.class));
+    doReturn("response_body").when(hopServer).getResponseBodyAsString(nullable(InputStream.class));
   }
 
   private HttpResponse mockResponse(int statusCode, String entityText) throws IOException {
@@ -133,7 +134,6 @@ public class HopServerTest {
   }
 
   @Test(expected = HopException.class)
-  @Ignore
   public void testSendXml() throws Exception {
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
@@ -148,7 +148,6 @@ public class HopServerTest {
   }
 
   @Test(expected = HopException.class)
-  @Ignore
   public void testSendExport() throws Exception {
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
@@ -167,7 +166,6 @@ public class HopServerTest {
   }
 
   @Test
-  @Ignore
   public void testSendExportOk() throws Exception {
     hopServer.setUsername("uname");
     hopServer.setPassword("passw");

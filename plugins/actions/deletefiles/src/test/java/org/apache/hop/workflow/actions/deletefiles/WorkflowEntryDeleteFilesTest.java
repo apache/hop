@@ -20,20 +20,22 @@ package org.apache.hop.workflow.actions.deletefiles;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class WorkflowEntryDeleteFilesTest {
@@ -42,11 +44,17 @@ public class WorkflowEntryDeleteFilesTest {
 
   private ActionDeleteFiles action;
 
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+    HopLogStore.init();
+  }
+
   @Before
   public void setUp() throws Exception {
     action = new ActionDeleteFiles();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = mock(Workflow.class);
     doReturn(false).when(parentWorkflow).isStopped();
+    doReturn(LogLevel.BASIC).when(parentWorkflow).getLogLevel();
 
     action.setParentWorkflow(parentWorkflow);
     WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
@@ -66,7 +74,6 @@ public class WorkflowEntryDeleteFilesTest {
   }
 
   @Test
-  @Ignore
   public void filesWithPath_AreProcessed_ArgsOfCurrentJob() throws Exception {
     String[] args = new String[] {PATH_TO_FILE};
     action.setArguments(args);
@@ -74,7 +81,8 @@ public class WorkflowEntryDeleteFilesTest {
     action.setArgFromPrevious(false);
 
     action.execute(new Result(), 0);
-    verify(action, times(args.length)).processFile(anyString(), anyString(), any(Workflow.class));
+    verify(action, times(args.length))
+        .processFile(nullable(String.class), nullable(String.class), any(Workflow.class));
   }
 
   @Test
@@ -94,7 +102,6 @@ public class WorkflowEntryDeleteFilesTest {
   }
 
   @Test
-  @Ignore
   public void filesPath_AreProcessed_ArgsOfPreviousMeta() throws Exception {
     action.setArgFromPrevious(true);
 
@@ -106,11 +113,10 @@ public class WorkflowEntryDeleteFilesTest {
 
     action.execute(prevMetaResult, 0);
     verify(action, times(metaAndDataList.size()))
-        .processFile(anyString(), anyString(), any(Workflow.class));
+        .processFile(anyString(), nullable(String.class), any(Workflow.class));
   }
 
   @Test
-  @Ignore
   public void filesPathVariables_AreProcessed_OnlyIfValueIsNotBlank() throws Exception {
     final String pathToFileBlankValue = "pathToFileBlankValue";
     final String pathToFileValidValue = "pathToFileValidValue";
@@ -125,7 +131,7 @@ public class WorkflowEntryDeleteFilesTest {
 
     action.execute(new Result(), 0);
 
-    verify(action).processFile(eq(PATH_TO_FILE), anyString(), any(Workflow.class));
+    verify(action).processFile(eq(PATH_TO_FILE), nullable(String.class), any(Workflow.class));
   }
 
   @Test

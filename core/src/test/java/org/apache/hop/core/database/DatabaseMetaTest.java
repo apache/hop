@@ -41,8 +41,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class DatabaseMetaTest {
@@ -168,7 +168,6 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  @Ignore
   public void testModifyingName() throws Exception {
     DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
     NoneDatabaseMeta odbm = new NoneDatabaseMeta();
@@ -186,15 +185,13 @@ public class DatabaseMetaTest {
     doCallRealMethod().when(databaseMeta2).setIDatabase(any(IDatabase.class));
     doCallRealMethod().when(databaseMeta2).setName(anyString());
     doCallRealMethod().when(databaseMeta2).getName();
-    doCallRealMethod()
-        .when(databaseMeta2)
-        .verifyAndModifyDatabaseName(any(ArrayList.class), anyString());
+    doCallRealMethod().when(databaseMeta2).verifyAndModifyDatabaseName(any(ArrayList.class), any());
     databaseMeta2.setIDatabase(odbm2);
     databaseMeta2.setName("test");
 
     databaseMeta2.verifyAndModifyDatabaseName(list, null);
 
-    assertTrue(!databaseMeta.getName().equals(databaseMeta2.getName()));
+    assertNotEquals(databaseMeta.getName(), databaseMeta2.getName());
   }
 
   @Test

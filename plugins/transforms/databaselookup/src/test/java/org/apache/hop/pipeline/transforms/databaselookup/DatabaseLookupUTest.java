@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.*;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.sql.Connection;
@@ -53,11 +53,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class DatabaseLookupUTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -104,12 +104,12 @@ public class DatabaseLookupUTest {
 
     Mockito.doReturn(rowSet)
         .when(mockHelper.pipeline)
-        .findRowSet(anyString(), anyInt(), anyString(), anyInt());
+        .findRowSet(nullable(String.class), anyInt(), nullable(String.class), anyInt());
 
     when(mockHelper.pipeline.findRowSet(anyString(), anyInt(), anyString(), anyInt()))
         .thenReturn(rowSet);
 
-    when(mockHelper.pipelineMeta.findNextTransforms(Matchers.any(TransformMeta.class)))
+    when(mockHelper.pipelineMeta.findNextTransforms(ArgumentMatchers.any(TransformMeta.class)))
         .thenReturn(Collections.singletonList(mock(TransformMeta.class)));
     when(mockHelper.pipelineMeta.findPreviousTransforms(any(TransformMeta.class), anyBoolean()))
         .thenReturn(Collections.singletonList(mock(TransformMeta.class)));
@@ -170,13 +170,13 @@ public class DatabaseLookupUTest {
     when(ps.executeQuery()).thenReturn(rs);
 
     Connection connection = mock(Connection.class);
-    when(connection.prepareStatement(anyString())).thenReturn(ps);
+    when(connection.prepareStatement(nullable(String.class))).thenReturn(ps);
 
     Database db = new Database(mock(ILoggingObject.class), variables, meta);
     db.setConnection(connection);
 
     db = spy(db);
-    doNothing().when(db).normalConnect(anyString());
+    doNothing().when(db).normalConnect(nullable(String.class));
 
     IValueMeta binary = new ValueMetaString(BINARY_FIELD);
     binary.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
@@ -187,8 +187,10 @@ public class DatabaseLookupUTest {
     metaByQuerying.addValueMeta(binary);
     metaByQuerying.addValueMeta(id);
 
-    doReturn(metaByQuerying).when(db).getTableFields(anyString());
-    doReturn(metaByQuerying).when(db).getTableFieldsMeta(anyString(), anyString());
+    doReturn(metaByQuerying).when(db).getTableFields(nullable(String.class));
+    doReturn(metaByQuerying)
+        .when(db)
+        .getTableFieldsMeta(nullable(String.class), nullable(String.class));
 
     return db;
   }
@@ -264,18 +266,18 @@ public class DatabaseLookupUTest {
             })
         .when(meta)
         .getFields(
-            any(IRowMeta.class),
-            anyString(),
-            any(IRowMeta[].class),
-            any(TransformMeta.class),
-            any(IVariables.class),
-            any(IHopMetadataProvider.class));
+            nullable(IRowMeta.class),
+            nullable(String.class),
+            nullable(IRowMeta[].class),
+            nullable(TransformMeta.class),
+            nullable(IVariables.class),
+            nullable(IHopMetadataProvider.class));
 
     DatabaseLookup look =
         new MockDatabaseLookup(
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
 
-    when(look.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+    when(look.getPipelineMeta().findDatabase(nullable(String.class), nullable(IVariables.class)))
         .thenReturn(dbMeta);
 
     look.init();
