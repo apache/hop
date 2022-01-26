@@ -24,13 +24,12 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TransformWithMappingMetaTest {
 
   @Mock PipelineMeta pipelineMeta;
@@ -46,8 +45,6 @@ public class TransformWithMappingMetaTest {
   }
 
   @Test
-  @Ignore
-  @PrepareForTest(TransformWithMappingMeta.class)
   public void activateParamsTest() throws Exception {
     String childParam = "childParam";
     String childValue = "childValue";
@@ -81,8 +78,6 @@ public class TransformWithMappingMetaTest {
   }
 
   @Test
-  @Ignore
-  @PrepareForTest(TransformWithMappingMeta.class)
   public void activateParamsWithTruePassParametersFlagTest() throws Exception {
     String childParam = "childParam";
     String childValue = "childValue";
@@ -124,7 +119,6 @@ public class TransformWithMappingMetaTest {
   }
 
   @Test
-  @PrepareForTest(TransformWithMappingMeta.class)
   public void replaceVariablesWithWorkflowInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
@@ -152,7 +146,6 @@ public class TransformWithMappingMetaTest {
   }
 
   @Test
-  @PrepareForTest(TransformWithMappingMeta.class)
   public void replaceVariablesWithPipelineInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
