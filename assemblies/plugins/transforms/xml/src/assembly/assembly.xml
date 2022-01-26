@@ -50,13 +50,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.apache.poi:poi:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
                 <include>net.sf.saxon:saxon-dom:jar</include>
             </includes>
         </dependencySet>

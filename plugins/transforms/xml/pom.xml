@@ -34,18 +34,11 @@
     <name>Hop Plugins Transforms XML</name>
 
     <properties>
-        <poi.version>5.2.0</poi.version>
         <saxon.version>8.7</saxon.version>
         <jaxen.version>1.1.6</jaxen.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon-dom</artifactId>
