@@ -43,6 +43,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon-dom</artifactId>
             <version>${saxon.version}</version>
