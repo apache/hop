@@ -46,7 +46,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -62,13 +62,13 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
@@ -904,17 +904,17 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   }
 
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 
   @Override
-  public boolean supportsBatchUpdates() {
+  public boolean isSupportsBatchUpdates() {
     return false;
   }
 
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 }

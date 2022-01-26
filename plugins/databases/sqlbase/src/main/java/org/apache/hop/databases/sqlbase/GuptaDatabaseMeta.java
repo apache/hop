@@ -46,7 +46,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -72,13 +72,13 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports catalogs */
   @Override
-  public boolean supportsCatalogs() {
+  public boolean isSupportsCatalogs() {
     return false;
   }
 
@@ -86,7 +86,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return true if the database supports timestamp to date conversion. Gupta doesn't support this!
    */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 
@@ -208,7 +208,7 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     False if the query needs to be executed first.
    */
   @Override
-  public boolean supportsPreparedStatementMetadataRetrieval() {
+  public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return false;
   }
 }

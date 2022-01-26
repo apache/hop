@@ -47,9 +47,9 @@ public class DerbyDatabaseMetaTest {
     assertEquals("jdbc:derby:FOO", nativeMeta.getURL("", "", "FOO"));
 
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertEquals(1527, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsGetBlob());
+    assertFalse(nativeMeta.isSupportsGetBlob());
     assertEquals(
         "http://db.apache.org/derby/papers/DerbyClientSpec.html",
         nativeMeta.getExtraOptionsHelpText());

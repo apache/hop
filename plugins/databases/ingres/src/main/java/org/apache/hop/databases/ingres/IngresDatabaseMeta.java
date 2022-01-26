@@ -61,13 +61,13 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
@@ -214,7 +214,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 }

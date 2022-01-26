@@ -66,7 +66,7 @@ public class SybaseIQDatabaseMetaTest {
         "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
         nativeMeta.getSqlInsertAutoIncUnknownDimensionRow("FOO", "FOOKEY", "FOOVERSION"));
     assertEquals("SELECT * FROM FOO WHERE 1=2", nativeMeta.getSqlQueryFields("FOO"));
-    assertFalse(nativeMeta.supportsPreparedStatementMetadataRetrieval());
+    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
   }
 
   @Test

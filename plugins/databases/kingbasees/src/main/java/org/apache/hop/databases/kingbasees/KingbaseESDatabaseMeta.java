@@ -78,24 +78,24 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
   /** Kingbase only support the data type: serial, it is not a real autoInc */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -226,7 +226,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         retval += "TIMESTAMP";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
@@ -976,7 +976,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    *     this!
    */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 }

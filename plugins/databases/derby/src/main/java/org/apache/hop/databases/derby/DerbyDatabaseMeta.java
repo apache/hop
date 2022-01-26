@@ -40,7 +40,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 0;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -81,7 +81,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
@@ -229,7 +229,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 

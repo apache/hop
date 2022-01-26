@@ -49,23 +49,23 @@ public class DB2SequenceAndReleaseSavePointTest {
   @Test
   public void testSavepointSuport() {
     if (savepointSupport) {
-      assertTrue(db.releaseSavepoint());
+      assertTrue(db.isReleaseSavepoint());
     } else {
-      assertFalse(db.releaseSavepoint());
+      assertFalse(db.isReleaseSavepoint());
     }
   }
 
   public static void assertSupports(IDatabase db, boolean expected) {
     String dbType = db.getClass().getSimpleName();
     if (expected) {
-      assertTrue(dbType, db.supportsSequences());
+      assertTrue(dbType, db.isSupportsSequences());
       assertFalse(dbType + ": List of Sequences", Utils.isEmpty(db.getSqlListOfSequences()));
       assertFalse(dbType + ": Sequence Exists", Utils.isEmpty(db.getSqlSequenceExists("testSeq")));
       assertFalse(
           dbType + ": Current Value", Utils.isEmpty(db.getSqlCurrentSequenceValue("testSeq")));
       assertFalse(dbType + ": Next Value", Utils.isEmpty(db.getSqlNextSequenceValue("testSeq")));
     } else {
-      assertFalse(db.getClass().getSimpleName(), db.supportsSequences());
+      assertFalse(db.getClass().getSimpleName(), db.isSupportsSequences());
       assertTrue(dbType + ": List of Sequences", Utils.isEmpty(db.getSqlListOfSequences()));
       assertTrue(dbType + ": Sequence Exists", Utils.isEmpty(db.getSqlSequenceExists("testSeq")));
       assertTrue(

@@ -237,7 +237,7 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   }
 
   private String ddlForBooleanValue() {
-    if (supportsBooleanDataType()) {
+    if (isSupportsBooleanDataType()) {
       return "BOOLEAN";
     } else {
       return "CHAR(1)";
@@ -307,7 +307,7 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -330,44 +330,44 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   /** @return true if the database supports transactions. */
   @Override
-  public boolean supportsTransactions() {
+  public boolean isSupportsTransactions() {
     return false;
   }
 
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false; // The 3.6.9 driver _does_ support conversion, but errors when value is null.
   }
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports views */
   @Override
-  public boolean supportsViews() {
+  public boolean isSupportsViews() {
     return true;
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
   @Override
-  public boolean supportsBooleanDataType() {
+  public boolean isSupportsBooleanDataType() {
     return true;
   }
 
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
 
@@ -479,7 +479,7 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   }
 
   @Override
-  public boolean releaseSavepoint() {
+  public boolean isReleaseSavepoint() {
     return false;
   }
 

@@ -32,6 +32,6 @@ public class GreeplumDatabaseMetaTest extends PostgreSqlDatabaseMetaTest {
     String[] meta2Reserved = meta2.getReservedWords();
     assertTrue((meta1Reserved.length + 1) == (meta2Reserved.length)); // adds ERRORS
     assertEquals("ERRORS", meta2Reserved[meta2Reserved.length - 1]);
-    assertFalse(meta2.supportsErrorHandlingOnBatchUpdates());
+    assertFalse(meta2.IsSupportsErrorHandlingOnBatchUpdates());
   }
 }

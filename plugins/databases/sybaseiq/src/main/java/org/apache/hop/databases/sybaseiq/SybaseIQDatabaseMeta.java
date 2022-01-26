@@ -47,7 +47,7 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -129,7 +129,7 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
         retval += "DATETIME NULL";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
@@ -224,7 +224,7 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
    *     False if the query needs to be executed first.
    */
   @Override
-  public boolean supportsPreparedStatementMetadataRetrieval() {
+  public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return false;
   }
 }

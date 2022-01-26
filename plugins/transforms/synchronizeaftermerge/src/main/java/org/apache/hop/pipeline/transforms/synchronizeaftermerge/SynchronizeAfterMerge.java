@@ -937,7 +937,7 @@ public class SynchronizeAfterMerge
             getTransformMeta().isDoingErrorHandling()
                 && meta.getDatabaseMeta().supportsErrorHandlingOnBatchUpdates();
 
-        data.supportsSavepoints = meta.getDatabaseMeta().getIDatabase().useSafePoints();
+        data.supportsSavepoints = meta.getDatabaseMeta().getIDatabase().isUseSafePoints();
 
         if (data.batchMode && data.specialErrorHandling) {
           data.batchMode = false;

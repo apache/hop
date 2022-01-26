@@ -36,10 +36,10 @@ public class DB2DatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(50000, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsSetCharacterStream());
+    assertFalse(nativeMeta.isSupportsSetCharacterStream());
     assertEquals("com.ibm.db2.jcc.DB2Driver", nativeMeta.getDriverClass());
     assertEquals("jdbc:db2://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
-    assertTrue(nativeMeta.supportsSchemas());
+    assertTrue(nativeMeta.isSupportsSchemas());
     assertArrayEquals(
         new String[] {
           // http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/admin/r0001095.htm
@@ -502,14 +502,14 @@ public class DB2DatabaseMetaTest {
         nativeMeta.getReservedWords());
 
     assertEquals(32672, nativeMeta.getMaxVARCHARLength());
-    assertTrue(nativeMeta.supportsBatchUpdates());
-    assertFalse(nativeMeta.supportsGetBlob());
-    assertTrue(nativeMeta.supportsSequences());
+    assertTrue(nativeMeta.isSupportsBatchUpdates());
+    assertFalse(nativeMeta.isSupportsGetBlob());
+    assertTrue(nativeMeta.isSupportsSequences());
     assertEquals(":", nativeMeta.getExtraOptionIndicator());
-    assertFalse(nativeMeta.supportsSequenceNoMaxValueOption());
-    assertTrue(nativeMeta.requiresCastToVariousForIsNull());
+    assertFalse(nativeMeta.isSupportsSequenceNoMaxValueOption());
+    assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
     assertTrue(nativeMeta.isDisplaySizeTwiceThePrecision());
-    assertFalse(nativeMeta.supportsNewLinesInSql());
+    assertFalse(nativeMeta.isSupportsNewLinesInSql());
   }
 
   @Test

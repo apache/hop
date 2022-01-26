@@ -44,11 +44,11 @@ public class PostgreSqlDatabaseMetaTest {
     assertEquals("jdbc:postgresql://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
 
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertTrue(nativeMeta.supportsSequences());
-    assertTrue(nativeMeta.supportsSequenceNoMaxValueOption());
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertTrue(nativeMeta.isSupportsSequenceNoMaxValueOption());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(" limit 5", nativeMeta.getLimitClause(5));
     assertArrayEquals(
         new String[] {
@@ -689,10 +689,10 @@ public class PostgreSqlDatabaseMetaTest {
     assertEquals(
         "http://jdbc.postgresql.org/documentation/83/connect.html#connection-parameters",
         nativeMeta.getExtraOptionsHelpText());
-    assertFalse(nativeMeta.supportsErrorHandlingOnBatchUpdates());
-    assertTrue(nativeMeta.requiresCastToVariousForIsNull());
-    assertFalse(nativeMeta.supportsGetBlob());
-    assertTrue(nativeMeta.useSafePoints());
+    assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
+    assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
+    assertFalse(nativeMeta.isSupportsGetBlob());
+    assertTrue(nativeMeta.isUseSafePoints());
   }
 
   @Test

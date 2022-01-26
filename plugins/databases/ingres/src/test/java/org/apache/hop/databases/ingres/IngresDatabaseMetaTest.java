@@ -39,7 +39,7 @@ public class IngresDatabaseMetaTest {
     assertEquals(
         -1, nativeMeta.getDefaultDatabasePort()); // pretty sure this is a bug - should be 21064 (
     // http://community.actian.com/wiki/Ingres_TCP_Ports )
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("com.ingres.jdbc.IngresDriver", nativeMeta.getDriverClass());
@@ -47,9 +47,9 @@ public class IngresDatabaseMetaTest {
     assertEquals("jdbc:ingres://FOO:II7/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
 
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertFalse(nativeMeta.supportsGetBlob());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertFalse(nativeMeta.isSupportsGetBlob());
   }
 
   @Test

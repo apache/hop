@@ -44,7 +44,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     // Exasol does support the identity column type, but does not support returning generated
     // keys on the jdbc driver
     return false;
@@ -98,13 +98,13 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * connection time...
    */
   @Override
-  public boolean supportsOptionsInURL() {
+  public boolean isSupportsOptionsInURL() {
     return true;
   }
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return false;
   }
 
@@ -119,7 +119,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
@@ -706,7 +706,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists(
+  public boolean hasIndex(
       Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException {
 
@@ -716,7 +716,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean requiresCreateTablePrimaryKeyAppend() {
+  public boolean isRequiresCreateTablePrimaryKeyAppend() {
     return false;
   }
 
@@ -727,7 +727,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     False if the query needs to be executed first.
    */
   @Override
-  public boolean supportsPreparedStatementMetadataRetrieval() {
+  public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return false;
   }
 
@@ -752,12 +752,12 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** Returns a false as Exasol does not allow for the releasing of savepoints. */
   @Override
-  public boolean releaseSavepoint() {
+  public boolean isReleaseSavepoint() {
     return false;
   }
 
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return false;
   }
 
