@@ -79,7 +79,7 @@
         <include>org.apache.pdfbox:pdfbox-tools:jar</include>
         <include>org.apache.poi:poi:jar</include>
         <include>org.apache.poi:poi-ooxml:jar</include>
-        <include>org.apache.poi:poi-ooxml-lite:jar</include>
+        <include>org.apache.poi:poi-ooxml-schemas:jar</include>
         <include>org.apache.poi:poi-scratchpad:jar</include>
         <include>org.apache.tika:tika-core:jar</include>
         <include>org.apache.tika:tika-parser-apple-module:jar</include>
