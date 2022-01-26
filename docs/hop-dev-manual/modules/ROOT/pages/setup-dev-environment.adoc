@@ -142,7 +142,7 @@ After a successful build, the Hop UI can be started.
 
 On Windows, run `hop-gui.bat`, on Mac and Linux, run `hop-gui.sh`
 
-== Debugging
+== Debugging on linux
 
 To debug the Hop GUI or a long running pipeline or workflow you can change the launch scripts and uncomment the line with the 5005 port in it:
 
@@ -153,7 +153,13 @@ To debug the Hop GUI or a long running pipeline or workflow you can change the l
 HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 ----
 
-In IntelliJ you can now start a remote debugging session using the menu:
+== Debugging on Windows
+
+To debug the Hop GUI you should run `hop-gui.bat DEBUG` passing DEBUG as parameter
+
+== Attach debug process on IntelliJ
+
+On IntelliJ you can now start a remote debugging session using the menu:
 
 **Run -- Attach to process...
 **
