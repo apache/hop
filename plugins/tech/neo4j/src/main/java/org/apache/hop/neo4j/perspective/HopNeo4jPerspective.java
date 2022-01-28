@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.perspective;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopConfigException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.logging.ILogChannel;
@@ -901,7 +902,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     }
   }
 
-  private void openItem(NeoConnection connection, String id, String name, String type) {
+  private void openItem(NeoConnection connection, String id, String name, String type) throws HopConfigException {
 
     try (Driver driver = connection.getDriver(hopGui.getLog(), hopGui.getVariables())) {
       try (Session session =

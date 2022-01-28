@@ -93,10 +93,10 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     if (!Utils.isEmpty(rcode)) {
       switch (padType) {
         case StringOperationsMeta.PADDING_LEFT:
-          rcode = Const.Lpad(rcode, padChar, padLen);
+          rcode = Const.lpad(rcode, padChar, padLen);
           break;
         case StringOperationsMeta.PADDING_RIGHT:
-          rcode = Const.Rpad(rcode, padChar, padLen);
+          rcode = Const.rpad(rcode, padChar, padLen);
           break;
         default:
           break;
