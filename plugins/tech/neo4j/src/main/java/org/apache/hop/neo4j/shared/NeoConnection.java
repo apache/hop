@@ -20,9 +20,11 @@ package org.apache.hop.neo4j.shared;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopConfigException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -35,6 +37,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -183,10 +186,10 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
   /**
    * Test this connection to Neo4j
    *
-   * @throws Exception In case anything goes wrong
+   * @throws HopException In case anything goes wrong
    * @param variables
    */
-  public void test(IVariables variables) throws Exception {
+  public void test(IVariables variables) throws HopException {
 
     try (Driver driver = getDriver(LogChannel.GENERAL, variables)) {
       SessionConfig.Builder builder = SessionConfig.builder();
@@ -202,7 +205,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
         int zero = value.asInt();
         assert (zero == 0);
       } catch (Exception e) {
-        throw new Exception("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
+        throw new HopException("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
       }
     }
   }
@@ -223,9 +226,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       List<String> serverStrings = new ArrayList<>();
       String serversString = variables.resolve(server);
       if (isUsingRouting(variables)) {
-        for (String serverString : serversString.split(",")) {
-          serverStrings.add(serverString);
-        }
+        Collections.addAll(serverStrings, serversString.split(","));
       } else {
         serverStrings.add(serversString);
       }
@@ -313,7 +314,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     if (!Utils.isEmpty(usingEncryptionVariable)) {
       String value = variables.resolve(usingEncryptionVariable);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return false;
@@ -323,23 +324,13 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     if (!Utils.isEmpty(trustAllCertificatesVariable)) {
       String value = variables.resolve(trustAllCertificatesVariable);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return false;
   }
 
-  public boolean version4VariableSet(IVariables variables) {
-    if (!Utils.isEmpty(version4Variable)) {
-      String value = variables.resolve(version4Variable);
-      if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
-      }
-    }
-    return false;
-  }
-
-  public Driver getDriver(ILogChannel log, IVariables variables) {
+  public Driver getDriver(ILogChannel log, IVariables variables) throws HopConfigException {
 
     try {
       List<URI> uris = getURIs(variables);
@@ -414,7 +405,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
             uris.get(0), AuthTokens.basic(realUsername, realPassword), config);
       }
     } catch (URISyntaxException e) {
-      throw new RuntimeException(
+      throw new HopConfigException(
           "URI syntax problem, check your settings, hostnames especially.  For routing use comma separated server values.",
           e);
     }
@@ -424,7 +415,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     if (!Utils.isEmpty(routingVariable)) {
       String value = variables.resolve(routingVariable);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return routing;
@@ -442,7 +433,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       return isAutomatic();
     } else {
       String automaticString = variables.resolve(automaticVariable);
-      Boolean auto = ValueMetaString.convertStringToBoolean(automaticString);
+      Boolean auto = ValueMetaBase.convertStringToBoolean(automaticString);
       return auto != null && auto;
     }
   }

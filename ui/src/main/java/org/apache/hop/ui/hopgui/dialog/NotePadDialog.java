@@ -199,7 +199,7 @@ public class NotePadDialog extends Dialog {
     fdlFontName.right = new FormAttachment(middle, -margin);
     wlFontName.setLayoutData(fdlFontName);
     wFontName = new CCombo(wNoteFontComp, SWT.BORDER | SWT.READ_ONLY);
-    wFontName.setItems(Const.GetAvailableFontNames());
+    wFontName.setItems(Const.getAvailableFontNames());
     props.setLook(wFontName);
     FormData fdFontName = new FormData();
     fdFontName.left = new FormAttachment(middle, 0);

@@ -2665,7 +2665,7 @@ public class ConstTest {
 
   @Test
   public void testGetAvailableFontNames() {
-    assertTrue(Const.GetAvailableFontNames().length > 0);
+    assertTrue(Const.getAvailableFontNames().length > 0);
   }
 
   @Test
@@ -2693,33 +2693,33 @@ public class ConstTest {
   @Test
   public void testLpad() {
     final String s = "pad me";
-    assertEquals(s, Const.Lpad(s, "-", 0));
-    assertEquals(s, Const.Lpad(s, "-", 3));
-    assertEquals("--" + s, Const.Lpad(s, "-", 8));
+    assertEquals(s, Const.lpad(s, "-", 0));
+    assertEquals(s, Const.lpad(s, "-", 3));
+    assertEquals("--" + s, Const.lpad(s, "-", 8));
     // add in some edge cases
-    assertEquals(s, Const.Lpad(s, null, 15)); // No NPE
-    assertEquals(s, Const.Lpad(s, "", 15));
-    assertEquals(s, Const.Lpad(s, "*", 5));
-    assertEquals(null, Const.Lpad(null, "*", 15));
-    assertEquals("****Test", Const.Lpad("Test", "**********", 8));
-    assertEquals("*Test", Const.Lpad("Test", "**", 5));
-    assertEquals("****", Const.Lpad("", "*", 4));
+    assertEquals(s, Const.lpad(s, null, 15)); // No NPE
+    assertEquals(s, Const.lpad(s, "", 15));
+    assertEquals(s, Const.lpad(s, "*", 5));
+    assertEquals(null, Const.lpad(null, "*", 15));
+    assertEquals("****Test", Const.lpad("Test", "**********", 8));
+    assertEquals("*Test", Const.lpad("Test", "**", 5));
+    assertEquals("****", Const.lpad("", "*", 4));
   }
 
   @Test
   public void testRpad() {
     final String s = "pad me";
-    assertEquals(s, Const.Rpad(s, "-", 0));
-    assertEquals(s, Const.Rpad(s, "-", 3));
-    assertEquals(s + "--", Const.Rpad(s, "-", 8));
+    assertEquals(s, Const.rpad(s, "-", 0));
+    assertEquals(s, Const.rpad(s, "-", 3));
+    assertEquals(s + "--", Const.rpad(s, "-", 8));
     // add in some edge cases
-    assertEquals(s, Const.Rpad(s, null, 15)); // No NPE
-    assertEquals(s, Const.Rpad(s, "", 15));
-    assertEquals(s, Const.Rpad(s, "*", 5));
-    assertEquals(null, Const.Rpad(null, "*", 15));
-    assertEquals("Test****", Const.Rpad("Test", "**********", 8));
-    assertEquals("Test*", Const.Rpad("Test", "**", 5));
-    assertEquals("****", Const.Rpad("", "*", 4));
+    assertEquals(s, Const.rpad(s, null, 15)); // No NPE
+    assertEquals(s, Const.rpad(s, "", 15));
+    assertEquals(s, Const.rpad(s, "*", 5));
+    assertEquals(null, Const.rpad(null, "*", 15));
+    assertEquals("Test****", Const.rpad("Test", "**********", 8));
+    assertEquals("Test*", Const.rpad("Test", "**", 5));
+    assertEquals("****", Const.rpad("", "*", 4));
   }
 
   @Test
