@@ -899,7 +899,6 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  @Ignore
   public void testGetIntegerWithoutConversionMask() throws HopValueException, ParseException {
     String value = "100.56";
     IValueMeta stringValueMeta = new ValueMetaString("test");
@@ -910,7 +909,6 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  @Ignore
   public void testGetNumberWithoutConversionMask() throws HopValueException, ParseException {
     String value = "100.56";
     IValueMeta stringValueMeta = new ValueMetaString("test");
@@ -921,7 +919,6 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  @Ignore
   public void testGetBigNumberWithoutConversionMask() throws HopValueException, ParseException {
     String value = "100.5";
     IValueMeta stringValueMeta = new ValueMetaString("test");

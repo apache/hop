@@ -36,7 +36,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.AdditionalMatchers.aryEq;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
@@ -85,7 +85,6 @@ public class DatabaseTest {
   public void tearDown() {}
 
   @Test
-  @Ignore
   public void testGetQueryFieldsFromDatabaseMetaData() throws Exception {
     DatabaseMeta meta = mock(DatabaseMeta.class);
     DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
@@ -95,7 +94,12 @@ public class DatabaseTest {
     String columnType = "Integer";
     int columnSize = 15;
 
-    when(dbMetaData.getColumns(anyString(), anyString(), anyString(), anyString())).thenReturn(rs);
+    when(dbMetaData.getColumns(
+            nullable(String.class),
+            nullable(String.class),
+            nullable(String.class),
+            nullable(String.class)))
+        .thenReturn(rs);
     when(rs.next()).thenReturn(true).thenReturn(false);
     when(rs.getString("COLUMN_NAME")).thenReturn(columnName);
     when(rs.getString("SOURCE_DATA_TYPE")).thenReturn(columnType);
@@ -123,17 +127,18 @@ public class DatabaseTest {
    * @throws SQLException
    */
   @Test
-  @Ignore
   public void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
-    when(meta.getQuotedSchemaTableCombination(any(), anyString(), anyString())).thenReturn("a");
-    when(meta.quoteField(anyString())).thenReturn("a");
+    when(meta.getQuotedSchemaTableCombination(
+            nullable(IVariables.class), nullable(String.class), nullable(String.class)))
+        .thenReturn("a");
+    when(meta.quoteField(any())).thenReturn("a");
     when(ps.executeQuery()).thenReturn(rs);
     when(rs.getMetaData()).thenReturn(rsMetaData);
     when(rsMetaData.getColumnCount()).thenReturn(0);
     when(ps.getMetaData()).thenReturn(rsMetaData);
     Database db = new Database(log, variables, meta);
     Connection conn = mock(Connection.class);
-    when(conn.prepareStatement(anyString())).thenReturn(ps);
+    when(conn.prepareStatement(any())).thenReturn(ps);
 
     db.setConnection(conn);
     String[] name = new String[] {"a"};
@@ -487,11 +492,12 @@ public class DatabaseTest {
   }
 
   @Test
-  @Ignore
   public void testGetTablenames() throws SQLException, HopDatabaseException {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
-    when(dbMetaDataMock.getTables(any(), anyString(), anyString(), any())).thenReturn(rs);
+    when(dbMetaDataMock.getTables(
+            nullable(String.class), nullable(String.class), nullable(String.class), any()))
+        .thenReturn(rs);
     Database db = new Database(log, variables, dbMetaMock);
     db.setConnection(mockConnection(dbMetaDataMock));
 
