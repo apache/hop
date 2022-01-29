@@ -126,9 +126,14 @@ final class DynamicWaitTimes {
       streamList.remove(index);
       statusList.remove(index);
       index--;
-      if (!streamList.isEmpty() && activeIfNeed()) {
+      if (!streamList.isEmpty()) {
+        if (index == -1){
+          index = 0;
+        }
         // reactive all stream
-        statusList.forEach(SingleStreamStatus::reset);
+        if (activeIfNeed()) {
+          statusList.forEach(SingleStreamStatus::reset);
+        }
       }
     }
 
