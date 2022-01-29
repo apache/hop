@@ -1415,7 +1415,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_100PCT,
-      toolTip = "HopGuiWorkflowGraph.GuiAction.Zoom100.Tooltip",
+      toolTip = "i18n::HopGuiWorkflowGraph.GuiAction.Zoom100.Tooltip",
       type = GuiToolbarElementType.BUTTON,
       image = "ui/images/zoom-100.svg")
   public void zoom100Percent() {
