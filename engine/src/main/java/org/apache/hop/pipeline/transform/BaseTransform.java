@@ -1623,6 +1623,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
                 if (inputRowSets.isEmpty()) {
                   return null; // We're completely done.
                 }
+                if (currentInputRowSetNr > 0) {
+                  currentInputRowSetNr--;
+                }
               } finally {
                 inputRowSetsLock.readLock().lock(); // downgrade to read lock
                 inputRowSetsLock.writeLock().unlock();
@@ -1929,6 +1932,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
           return null;
         } finally {
+          if (currentInputRowSetNr > 0){
+            currentInputRowSetNr--;
+          }
           inputRowSetsLock.writeLock().unlock();
         }
       }
