@@ -1584,15 +1584,18 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // rowset, then switch to another etc.
       // We can use timeouts to switch from one to another...
       //
+      DynamicWaitTimes.SingleStreamStatus waitingTime = DynamicWaitTimes.build(inputRowSets);
       while (row == null && !isStopped()) {
         // Get a row from the input in row set ...
         // Timeout immediately if nothing is there to read.
         // We will then switch to the next row set to read from...
         //
-        row = inputRowSet.getRowWait(1, TimeUnit.MILLISECONDS);
+        row = inputRowSet.getRowWait(waitingTime.get(), TimeUnit.MILLISECONDS);
+        boolean timeout = false;
         if (row != null) {
           incrementLinesRead();
           blockPointer++;
+          waitingTime.reset();
         } else {
           // Try once more...
           // If row is still empty and the row set is done, we remove the row
@@ -1616,6 +1619,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
               inputRowSetsLock.writeLock().lock();
               try {
                 inputRowSets.remove(inputRowSet);
+                waitingTime.remove(inputRowSet);
                 if (inputRowSets.isEmpty()) {
                   return null; // We're completely done.
                 }
@@ -1626,9 +1630,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
             } else {
               incrementLinesRead();
             }
+          } else {
+            timeout = true;
           }
           nextInputStream();
           inputRowSet = currentInputStream();
+          // only change delay time when input stream don't switch.
+          // else switch active stream and reset min delay time
+          waitingTime.adjust(timeout, inputRowSet);
         }
       }
 
