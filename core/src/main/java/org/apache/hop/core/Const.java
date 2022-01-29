@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.text.StrBuilder;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -1235,7 +1236,7 @@ public class Const {
     // If the field already contains quotes, we don't touch it anymore, just
     // return the same string...
     // also return it if no spaces are found
-    if (string.indexOf(quote) >= 0 || (string.indexOf(' ') < 0 && string.indexOf('=') < 0)) {
+    if (string.contains(quote) || (string.indexOf(' ') < 0 && string.indexOf('=') < 0)) {
       return string;
     } else {
       return quote + string + quote;
@@ -1401,7 +1402,7 @@ public class Const {
     String os = getSystemOs();
     String s = "";
     @SuppressWarnings("unused")
-    Boolean errorOccured = false;
+    boolean errorOccured = false;
     if (os.equalsIgnoreCase("Windows NT")
         || os.equalsIgnoreCase("Windows 2000")
         || os.equalsIgnoreCase("Windows XP")
@@ -1417,7 +1418,7 @@ public class Const {
 
         while (!procDone(p)) {
           while ((s = stdInput.readLine()) != null) {
-            if (s.indexOf("MAC") >= 0) {
+            if (s.contains("MAC")) {
               int idx = s.indexOf('=');
               mac = s.substring(idx + 2);
             }
@@ -1474,7 +1475,7 @@ public class Const {
 
         while (!procDone(p)) {
           while ((s = stdInput.readLine()) != null) {
-            if (s.indexOf("MAC") >= 0) {
+            if (s.contains("MAC")) {
               int idx = s.indexOf("0x");
               mac = s.substring(idx + 2);
             }
@@ -2061,7 +2062,7 @@ public class Const {
     }
 
     // Return list as array
-    return splitList.toArray(new String[splitList.size()]);
+    return splitList != null ? splitList.toArray(new String[splitList.size()]) : new String[0];
   }
 
   private static String removeEnclosure(String stringToSplit, String enclosure) {
@@ -2091,9 +2092,7 @@ public class Const {
       return new String[] {};
     }
     HashSet<String> set = new HashSet<>();
-    for (String string : strings) {
-      set.add(string);
-    }
+    Collections.addAll(set, strings);
     List<String> list = new ArrayList<>(set);
     Collections.sort(list);
     return list.toArray(new String[0]);
@@ -2254,9 +2253,7 @@ public class Const {
     String[] nums = Const.getNumberFormats();
     int totsize = dats.length + nums.length;
     String[] formats = new String[totsize];
-    for (int x = 0; x < dats.length; x++) {
-      formats[x] = dats[x];
-    }
+    System.arraycopy(dats, 0, formats, 0, dats.length);
     for (int x = 0; x < nums.length; x++) {
       formats[dats.length + x] = nums[x];
     }
@@ -2548,7 +2545,7 @@ public class Const {
    * @param dateFormat the time format
    * @return date = input + time
    */
-  public static Date addTimeToDate(Date input, String time, String dateFormat) throws Exception {
+  public static Date addTimeToDate(Date input, String time, String dateFormat) throws HopException {
     if (Utils.isEmpty(time)) {
       return input;
     }
@@ -2561,7 +2558,7 @@ public class Const {
   }
 
   // Decodes a time value in specified date format and returns it as milliseconds since midnight.
-  public static int decodeTime(String s, String dateFormat) throws Exception {
+  public static int decodeTime(String s, String dateFormat) throws HopException {
     SimpleDateFormat f = new SimpleDateFormat(dateFormat);
     TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     f.setTimeZone(utcTimeZone);
@@ -2569,7 +2566,7 @@ public class Const {
     ParsePosition p = new ParsePosition(0);
     Date d = f.parse(s, p);
     if (d == null) {
-      throw new Exception("Invalid time value " + dateFormat + ": \"" + s + "\".");
+      throw new HopException("Invalid time value " + dateFormat + ": \"" + s + "\".");
     }
     return (int) d.getTime();
   }
@@ -2597,7 +2594,7 @@ public class Const {
     return counter;
   }
 
-  public static String[] GetAvailableFontNames() {
+  public static String[] getAvailableFontNames() {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     Font[] fonts = ge.getAllFonts();
     String[] fontName = new String[fonts.length];
@@ -2669,7 +2666,7 @@ public class Const {
    *     enter an infinite loop. 3- For a null pad, it would throw an NPE 4- For a null valueToPad,
    *     it would throw an NPE
    */
-  public static String Lpad(String valueToPad, String filler, int size) {
+  public static String lpad(String valueToPad, String filler, int size) {
     if ((size == 0) || (valueToPad == null) || (filler == null)) {
       return valueToPad;
     }
@@ -2709,7 +2706,7 @@ public class Const {
    *     zero characters ("") the former method would enter an infinite loop. 3- For a null pad, it
    *     would throw an NPE 4- For a null valueToPad, it would throw an NPE
    */
-  public static String Rpad(String valueToPad, String filler, int size) {
+  public static String rpad(String valueToPad, String filler, int size) {
     if ((size == 0) || (valueToPad == null) || (filler == null)) {
       return valueToPad;
     }
