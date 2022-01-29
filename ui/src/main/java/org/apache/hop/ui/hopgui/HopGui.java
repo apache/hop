@@ -31,11 +31,13 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.plugins.Plugin;
@@ -437,6 +439,15 @@ public class HopGui
         if (image != null) {
           item.setImage(image);
         }
+        
+        // See if there's a shortcut for the perspective, add it to tooltip...      
+        KeyboardShortcut shortcut =
+            GuiRegistry.getInstance()
+                .findKeyboardShortcut(
+                    perspectiveClass.getName(), "activate", Const.isOSX());
+        if (shortcut != null) {
+          item.setToolTipText(item.getToolTipText()+" ("+shortcut.toString()+')');
+        }
 
         if (first) {
           first = false;
@@ -447,7 +458,7 @@ public class HopGui
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
   }
-
+  
   private static Display setupDisplay() {
     // Bootstrap Hop
     //

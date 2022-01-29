@@ -20,13 +20,13 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Image;
@@ -167,6 +167,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
                 toolbarItem.getListenerMethod());
         item.addListener(SWT.Selection, listener);
         toolItemMap.put(toolbarItem.getId(), item);
+        setToolItemKeyboardShortcut(item, toolbarItem);
         break;
 
       case COMBO:
@@ -218,6 +219,22 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     }
   }
 
+/**
+ * See if there's a shortcut worth mentioning and add it to tooltip...
+ * 
+ * @param toolItem
+ * @param guiToolbarItem
+ */
+  private void setToolItemKeyboardShortcut(ToolItem toolItem, GuiToolbarItem guiToolbarItem) {    
+    KeyboardShortcut shortcut =
+        GuiRegistry.getInstance()
+            .findKeyboardShortcut(
+                guiToolbarItem.getListenerClass(), guiToolbarItem.getListenerMethod(), Const.isOSX());
+    if (shortcut != null) {
+      toolItem.setToolTipText(toolItem.getToolTipText()+" ("+shortcut.toString()+')');
+    }
+  }
+  
   private void setImages(
       ToolItem item, ClassLoader classLoader, String location, String disabledLocation) {
     GuiResource gr = GuiResource.getInstance();
