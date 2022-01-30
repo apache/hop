@@ -28,22 +28,19 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ValueMetaFactory.class})
-@Ignore
 public class MemoryGroupByMetaGetFieldsTest {
 
   private MemoryGroupByMeta memoryGroupByMeta;
@@ -121,7 +118,7 @@ public class MemoryGroupByMetaGetFieldsTest {
 
     verify(rowMeta, times(1)).clear();
     verify(rowMeta, times(1)).addRowMeta(any());
-    assertEquals(null, rowMeta.searchValueMeta("minDate").getConversionMask());
+    assertNull(rowMeta.searchValueMeta("minDate").getConversionMask());
   }
 
   @Test

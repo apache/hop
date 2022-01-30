@@ -41,7 +41,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ValueMetaFactory.class})
-@Ignore
 public class MemoryGroupByAggregationNullsTest {
 
   static TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData> mockHelper;
