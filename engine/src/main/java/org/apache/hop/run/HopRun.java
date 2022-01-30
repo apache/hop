@@ -27,6 +27,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
@@ -709,6 +710,10 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Picks up the system settings in the variables
       //
       hopRun.buildVariableSpace();
+
+      // Initialize the logging backend
+      //
+      HopLogStore.init();
 
       // Set up the metadata to use
       //
