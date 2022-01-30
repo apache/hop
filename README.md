@@ -76,7 +76,7 @@ available on the system
 
 ### From release archive
 
-You can download a source release [here](https://downloads.apache.org/incubator/hop/)
+You can download a source release [here](https://downloads.apache.org/hop/)
 
 Required:
 
