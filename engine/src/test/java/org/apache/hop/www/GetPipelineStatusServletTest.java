@@ -23,7 +23,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.owasp.encoder.Encode;
@@ -38,9 +37,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import static junit.framework.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
@@ -74,12 +73,11 @@ public class GetPipelineStatusServletTest {
     getPipelineStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic(Encode.class);
+    PowerMockito.verifyStatic(Encode.class, atLeastOnce());
     Encode.forHtml(anyString());
   }
 
   @Test
-  @Ignore
   @PrepareForTest({Encode.class})
   public void testGetPipelineStatusServletEscapesHtmlWhenPipelineFound()
       throws ServletException, IOException {
@@ -106,7 +104,7 @@ public class GetPipelineStatusServletTest {
     assertFalse(
         ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("TITLE", out.toString())));
 
-    PowerMockito.verifyStatic(Encode.class);
+    PowerMockito.verifyStatic(Encode.class, atLeastOnce());
     Encode.forHtml(anyString());
   }
 }
