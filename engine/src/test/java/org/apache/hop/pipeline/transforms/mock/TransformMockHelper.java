@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.mock;
 
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.logging.*;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -35,7 +36,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITransformData> {
@@ -79,6 +81,10 @@ public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITran
     when(rowSet.getRowWait(anyLong(), any(TimeUnit.class))).thenAnswer(answer);
     when(rowSet.getRow()).thenAnswer(answer);
     when(rowSet.isDone()).thenAnswer((Answer<Boolean>) invocation -> index.get() >= rows.size());
+
+    IRowMeta rowMeta = mock(IRowMeta.class);
+    when((rowMeta.clone())).thenReturn(mock((IRowMeta.class)));
+    when(rowSet.getRowMeta()).thenReturn(rowMeta);
     return rowSet;
   }
 
@@ -124,6 +130,6 @@ public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITran
                   return false;
                 })
         .when(log)
-        .println((ILogMessage) anyObject(), (LogLevel) anyObject());
+        .println(any(), any(LogLevel.class));
   }
 }
